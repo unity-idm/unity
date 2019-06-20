@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -45,9 +45,10 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
@@ -58,6 +59,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	
 	private UnityMessageSource msg;
+	private URIAccessService uriService;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
 	private final String configKey;
@@ -75,11 +77,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private ExpectedIdentity expectedIdentity;
 
-	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
+	public OAuth2RetrievalUI(UnityMessageSource msg, URIAccessService fileStorageService, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
 			String idpKey, String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
+		this.uriService = fileStorageService;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
@@ -115,18 +118,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
-		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
-				msg.getLocale());
-		Resource logo;
-		try
-		{
-			logo = logoUrl == null ? Images.empty.getResource() : ImageUtils.getLogoResource(logoUrl);
-		} catch (MalformedURLException e)
-		{
-			log.warn("Can't load logo from " + logoUrl, e);
-			logo = null;
-		}
-		
+		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
+
+		Resource logo = logoURI == null ? Images.empty.getResource()
+				: ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
+
 		String signInLabel;
 		if (context == Context.LOGIN)
 			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
@@ -161,19 +157,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
-		String url = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
-				msg.getLocale());
-		if (url == null)
-			return null;
-
-		try
-		{
-			return ImageUtils.getLogoResource(url);
-		} catch (MalformedURLException e)
-		{
-			log.error("Invalid logo URL " + url, e);
-			return null;
-		}
+		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
+		return ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
 	}
 
 	@Override
@@ -219,16 +204,28 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg.getMessage("error"), 
-					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
+			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg, 
+					msg.getMessage("OAuth2Retrieval.breakLoginInProgressConfirm"), 
+					() -> {
+						breakLogin();
+						startFreshLogin(session);	
+					});
+			confirmKillingPreviousAuthn.setSizeEm(35, 20);
+			confirmKillingPreviousAuthn.setHTMLContent(true);
+			confirmKillingPreviousAuthn.show();
 			return;
 		}
-		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
+		startFreshLogin(session);
+	}
+
+	private void startFreshLogin(WrappedSession session)
+	{
 		try
 		{
-			context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity));
+			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity));
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);

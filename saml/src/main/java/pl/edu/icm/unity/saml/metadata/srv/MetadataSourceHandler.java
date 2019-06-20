@@ -115,7 +115,7 @@ class MetadataSourceHandler
 	{
 		scheduleWithFixedDelay = executorsService.getService().scheduleWithFixedDelay(
 				this::refresh, 
-				0, rerunInterval, TimeUnit.MILLISECONDS);
+				refreshInterval, rerunInterval, TimeUnit.MILLISECONDS);
 	}
 	
 	

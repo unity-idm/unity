@@ -4,12 +4,16 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -27,13 +31,15 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
  */
 public class RegistrationFormFillDialog extends AbstractDialog
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormFillDialog.class);
 	private RegistrationRequestEditor editor;
+	private URIAccessService uriAccessService;
 	private Callback callback;
 	private boolean onFinalScreen;
 	private IdPLoginController idpLoginController;
 	private boolean withSimplifiedFinalization;
 	
-	public RegistrationFormFillDialog(UnityMessageSource msg, String caption, 
+	public RegistrationFormFillDialog(UnityMessageSource msg, URIAccessService uriAccessService, String caption, 
 			RegistrationRequestEditor editor, Callback callback, IdPLoginController idpLoginController,
 			boolean withSimplifiedFinalization)
 	{
@@ -43,6 +49,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		this.callback = callback;
 		this.idpLoginController = idpLoginController;
 		this.withSimplifiedFinalization = withSimplifiedFinalization;
+		this.uriAccessService = uriAccessService;
 		setSizeMode(SizeMode.LARGE);
 	}
 
@@ -67,6 +74,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 	
 	private void gotoFinalScreen(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Registration is finalized, status: {}", config);
 		cancel.setVisible(false);
 		onFinalScreen = true;
 		VerticalLayout wrapper = new VerticalLayout();
@@ -77,7 +85,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		setContent(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController));
+			url -> redirect(url, idpLoginController), uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

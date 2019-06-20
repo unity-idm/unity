@@ -20,7 +20,7 @@ public class NavigationInfo
 {
 	public static enum Type
 	{
-		View, ViewGroup, ParameterizedView, DefaultView
+		View, ViewGroup, ParameterizedView, DefaultView, ParameterizedViewWithSubviews
 	};
 
 	public final String id;

@@ -44,7 +44,7 @@ class ShowLocalCredentialView extends CustomComponent implements UnityView
 	private String credentialName;
 
 	@Autowired
-	public ShowLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	ShowLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -60,7 +60,7 @@ class ShowLocalCredentialView extends CustomComponent implements UnityView
 			viewer = getViewer(credentialName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(LocalCredentialsView.VIEW_NAME);
 			return;
 		}

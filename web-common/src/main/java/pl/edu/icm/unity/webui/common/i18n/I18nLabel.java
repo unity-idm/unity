@@ -37,7 +37,7 @@ public class I18nLabel extends CustomField<I18nString>
 
 	private UnityMessageSource msg;
 	
-	private HtmlConfigurableLabel defaultTf;
+	private HPairLayout defaultTf;
 	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
 	private I18nString value;
@@ -71,11 +71,17 @@ public class I18nLabel extends CustomField<I18nString>
 				if (image != null)
 					pair.addImage(image);
 				main.addComponent(pair);
-				
 				if (defaultLocale.equals(localeKey))
-					defaultTf = tf;
-				else
+				{
+					defaultTf = pair;
+					
+				}
+				else {
+					
 					translationTFs.put(localeKey, pair);
+					
+				}
+					
 			});
 		this.main = main;
 	}
@@ -97,12 +103,17 @@ public class I18nLabel extends CustomField<I18nString>
 		
 		value.getMap().forEach((locale, message) -> 
 		{
+			if (message == null || message.isEmpty())
+			{
+				return;
+			}
+		
 			if (message.length() > MAX_LINE)
 				main.setSpacing(true);
 			
 			if (locale.equals(msg.getDefaultLocaleCode()))
 			{
-				defaultTf.setValue(changeNewLines(message));
+				defaultTf.setLabelValue(changeNewLines(message));
 				defaultTf.setVisible(true);
 			} else
 			{
@@ -115,9 +126,9 @@ public class I18nLabel extends CustomField<I18nString>
 			}
 		});
 		
-		if (!defaultTf.isVisible() && value.getDefaultValue() != null)
+		if (!defaultTf.isVisible() && value.getDefaultValue() != null )
 		{
-			defaultTf.setValue(changeNewLines(value.getDefaultValue()));
+			defaultTf.setLabelValue(changeNewLines(value.getDefaultValue()));
 			defaultTf.setVisible(true);
 		}
 	}

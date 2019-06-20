@@ -175,6 +175,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String ENABLE_LOW_LEVEL_EVENTS = "enableLowLevelEvents";
 	
+	public static final String RESTRICT_FILE_SYSTEM_ACCESS = "restrictFileSystemAccess";
+	public static final String FILE_SIZE_LIMIT = "fileSizeLimit";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 	
@@ -191,10 +194,15 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "7");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
+		defaults.put(RESTRICT_FILE_SYSTEM_ACCESS, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If true then files from disk can be served only if are physically located in webContents"));	
+		defaults.put(FILE_SIZE_LIMIT, new PropertyMD("2000000").setPositive().setCategory(mainCat).
+				setDescription("Max file size in bytes which can be saved by file storage service in the database"));		
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
 				setDescription("List of enabled locales. " +
 				"Each entry must have a language code as 'en' or 'pl' first, " +
-				"and then, after a space an optional, short name which will be presented in the UI. By default the 'en' locale is installed."));
+				"and then, after a space an optional, short name which will be presented in the UI. "
+				+ "By default the 'en' locale is installed."));
 		defaults.put(DEFAULT_LOCALE, new PropertyMD("en").setCategory(mainCat).
 				setDescription("The default locale to be used. Must be one of the enabled locales."));
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
@@ -214,7 +222,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("If set to true then all configuration settings related to loading of "
 						+ "database contents (endpoints, authenticators, credentials, ...) "
 						+ "are ignored. This is useful in the case of redundant Unity instance,"
-						+ " which should use the database contents configured at the master serevr."));
+						+ " which should use the database contents configured at the master server."));
 		defaults.put(RELOAD_MSG_TEMPLATES, new PropertyMD("false").setCategory(mainCat).
 				setDescription("If set to true then message templates will be reloaded at startup "
 						+ "from files on disk. Otherwise only the new templates are "
@@ -492,6 +500,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
 		SUPPORTED_LOCALES.put("nb", new Locale("nb"));
+		SUPPORTED_LOCALES.put("fr", new Locale("fr"));
 	}
 
 	private UnityHttpServerConfiguration jp;
@@ -622,6 +631,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public UnityPKIConfiguration getPKIConfiguration()
 	{
 		return pkiConf;
+	}
+	
+	public int getFileSizeLimit()
+	{
+		return getIntValue(UnityServerConfiguration.FILE_SIZE_LIMIT);
 	}
 	
 	public List<String> getEndpointAuth(String endpointKey)

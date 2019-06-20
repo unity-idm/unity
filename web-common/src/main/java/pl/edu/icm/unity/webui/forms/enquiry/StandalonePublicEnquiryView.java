@@ -29,6 +29,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -58,9 +59,9 @@ import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
 /**
- * Provides public enquiry view. Used in enqury invations flow
+ * Provides public enquiry view. Used for enquiry invitation flow.
+ * 
  * @author P.Piernik
- *
  */
 @PrototypeComponent
 public class StandalonePublicEnquiryView extends CustomComponent implements StandalonePublicView
@@ -68,6 +69,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 	
 	private UnityMessageSource msg;
+	private URIAccessService uriAccessService;
 	
 	private VerticalLayout main;
 	private String registrationCode;
@@ -81,11 +83,12 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg)
+			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, URIAccessService uriAccessService)
 	{
 		this.editorController = editorController;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.msg = msg;
+		this.uriAccessService = uriAccessService;
 	}
 
 	@Override
@@ -129,6 +132,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			invitation = (EnquiryInvitationParam) getInvitationByCode(registrationCode);
 		} catch (RegCodeException e)
 		{
+			log.error("Can not get invitation", e);
 			handleError(e, e.cause);
 			return;
 		}
@@ -143,36 +147,11 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		} catch (Exception e)
 		{
-			log.error("Can not get enquiry editor", e);
+			log.error("Can not setup enquiry editor", e);
 			handleError(e, ErrorCause.MISCONFIGURED);
 			return;
 		}
 	
-		if (!editor.isUserInteractionRequired())
-		{
-			//auto submit, we have only hidden values
-			if (editor.hasHiddenValues() && !editor.hasReadOnlyValues())
-			{
-				
-					WorkflowFinalizationConfiguration config = submit(form, editor);
-					gotoFinalStep(config);
-					return;
-				
-			}
-			
-			//empty form, not applicable
-			if (!editor.hasHiddenValues() && !editor.hasReadOnlyValues())
-			{
-				
-				WorkflowFinalizationConfiguration config = editorController
-						.getFinalizationHandler(form)
-						.getFinalRegistrationConfigurationNonSubmit(false, null,
-								TriggeringState.NOT_APPLICABLE_ENQUIRY);
-				gotoFinalStep(config);
-				
-			}		
-		}
-		//user interaction or invitation read only values
 		showEditorContent(editor);
 	}
 
@@ -351,20 +330,16 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
-		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setSpacing(false);
-		wrapper.setMargin(false);
-		wrapper.setSizeFull();
-		setSizeFull();
+		log.debug("Enquiry is finalized, status: {}", config);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect, uriAccessService);
+		Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 		setCompositionRoot(wrapper);
-
-		Component finalScreen = new WorkflowCompletedComponent(config, this::redirect);
-		wrapper.addComponent(finalScreen);
-		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
+		setSizeFull();
 	}
 
 	private void redirect(String redirectUrl)
 	{
+		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
 		Page.getCurrent().open(redirectUrl, null);
 	}
 	

@@ -53,9 +53,10 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UnityServerConfiguration.P+HttpServerProperties.DEFAULT_PREFIX;
 
-	public static final String HTTPS_PORT = "port";
-	public static final String HTTPS_HOST = "host";
+	public static final String HTTP_PORT = "port";
+	public static final String HTTP_HOST = "host";
 	public static final String ADVERTISED_HOST = "advertisedHost";
+	public static final String DISABLE_TLS = "disableTLS";
 	
 	public static final String ENABLE_DOS_FILTER = "enableDoSFilter";
 	public static final String DOS_FILTER_PFX = "dosFilter.";
@@ -89,6 +90,9 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	public static final String CORS_EXPOSED_HEADERS = "exposedHeaders";
 	public static final String CORS_PREFLIGHT_MAX_AGE = "preflightMaxAge";
 	public static final String CORS_CHAIN_PREFLIGHT = "chainPreflight";
+	public static final String PROXY_COUNT = "proxyCount";
+	public static final String ALLOWED_IMMEDIATE_CLIENTS = "allowedClientIPs.";
+	public static final String ALLOW_NOT_PROXIED_TRAFFIC = "allowNotProxiedTraffic";
 
 	private static final String SO_LINGER_TIME = "soLingerTime";
 	private static final String HIGH_LOAD_CONNECTIONS = "highLoadConnections";
@@ -102,12 +106,13 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	static
 	{
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
-		DocumentationCategory corsCat = new DocumentationCategory("CORS settings", "8");
+		DocumentationCategory corsCat = new DocumentationCategory("CORS settings", "7");
+		DocumentationCategory proxyCat = new DocumentationCategory("Proxy settings", "8");
 		DocumentationCategory advancedCat = new DocumentationCategory("Advanced settings", "9");
-		defaults.put(HTTPS_HOST, new PropertyMD("localhost").setCategory(mainCat).
-				setDescription("The hostname or IP address for HTTPS connections. Use 0.0.0.0 to listen on all interfaces."));
-		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(0, 65535).setCategory(mainCat).
-				setDescription("The HTTPS port to be used. If zero (0) is set then a random free port is used."));
+		defaults.put(HTTP_HOST, new PropertyMD("localhost").setCategory(mainCat).
+				setDescription("The hostname or IP address for HTTP connections. Use 0.0.0.0 to listen on all interfaces."));
+		defaults.put(HTTP_PORT, new PropertyMD("2443").setBounds(0, 65535).setCategory(mainCat).
+				setDescription("The HTTP port to be used. If zero (0) is set then a random free port is used."));
 		defaults.put(ADVERTISED_HOST, new PropertyMD().setCategory(mainCat).
 				setDescription("The hostname or IP address (optionally with port), which is advertised externally whenever " +
 					"the server has to provide its address. By default it is set to the listen address, " + 
@@ -115,7 +120,29 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 					"also should be set whenever the server is listening on "
 					+ "a private interface accessible via DNAT or similar solutions. Examples:"
 					+ " +login.example.com+ or +login.example.com:8443+ "));		
-
+		defaults.put(DISABLE_TLS, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If set to true then server will listen on plain, insecure socket. "
+						+ "Useful when Unity is hidden behind a proxy server, "
+						+ "which provides TLS on its own. "
+						+ "Note: it is still mandatory for web browser clients to access Unity over HTTPS "
+						+ "as otherwise Unity cookies won't be accepted by the browser. "
+						+ "Therefore Unity's advertised address is always be HTTPS."));
+		
+		defaults.put(PROXY_COUNT, new PropertyMD("0").setMin(0).setMax(32).setCategory(proxyCat).
+				setDescription("If set to 0 then it is assumed then this server is not behind a proxy. "
+						+ "Otherwise the number should specify the number of (local, trusted) proxies "
+						+ "that are protecting the server from the actual clients. "
+						+ "In effect the assumed client IP will be taken from the X-Forwarded-For "
+						+ "header, stripping the trailing ones from intermediary proxies. "
+						+ "Not that only proxy servers setting X-Forwarded-For are supported."));
+		defaults.put(ALLOWED_IMMEDIATE_CLIENTS, new PropertyMD().setList(false).setCategory(proxyCat).
+				setDescription("If not empty then contains a list of IPv4 or IPv6 addresses,"
+						+ "that are allowed as immediate clients. In practice it is useful"
+						+ " when Unity is deployed behind a proxy server: "
+						+ "then proxy IP(s) should be entered as the only allowed IP to harden installation security. "
+						+ "Note: CIDR notation can be used to denote networks, e.g. 10.10.0.0/16."));
+		defaults.put(ALLOW_NOT_PROXIED_TRAFFIC, new PropertyMD("true").setCategory(proxyCat).
+				setDescription("If false then only requests with X-Forwarded-For header will be accepted."));
 		
 		
 		defaults.put(ENABLE_DOS_FILTER, new PropertyMD("false").setCategory(advancedCat).
@@ -209,10 +236,11 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	{
 		super(PREFIX, source, defaults, log);
 		String advertisedHost = getValue(ADVERTISED_HOST);
-		if ("0.0.0.0".equals(getValue(HTTPS_HOST)) && advertisedHost == null)
+		if ("0.0.0.0".equals(getValue(HTTP_HOST)) && advertisedHost == null)
 			throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
 					" must be set when the listen address is 0.0.0.0 (all interfaces).");
-		if (advertisedHost != null) {
+		if (advertisedHost != null) 
+		{
 			if (advertisedHost.contains("://"))
 				throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
 						" must contain hostname and optionally the port, "

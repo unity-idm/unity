@@ -61,7 +61,7 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 
 		this.components = new ArrayList<>();
 		main = new VerticalLayout();
-		main.setMargin(false);
+		main.setMargin(true);
 		main.setSpacing(false);
 		main.setId("ListOfElements");
 		setCompositionRoot(main);
@@ -80,7 +80,15 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 		components.remove(entry);
 		main.removeComponent(entry);
 	}
-
+	
+	public void replaceEntry(T old, T updated)
+	{
+		Entry oldEntry = getElement(old);
+		Entry newEntry = new Entry(updated);
+		components.set(components.indexOf(oldEntry), newEntry);
+		main.replaceComponent(oldEntry, newEntry);	
+	}
+	
 	public void removeEntry(T element)
 	{
 		Entry entry = getElement(element);

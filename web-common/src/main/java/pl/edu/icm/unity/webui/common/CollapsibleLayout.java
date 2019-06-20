@@ -32,20 +32,12 @@ public class CollapsibleLayout extends CustomComponent
 		bar.setMargin(false);
 		bar.setSpacing(true);
 		bar.setWidth(100, Unit.PERCENTAGE);
+		bar.addLayoutClickListener(e -> changeMode());
 		
 		modeButton = new Button();
-		modeButton.addStyleName(Styles.vButtonBorderless.toString());
 		modeButton.addStyleName(Styles.vButtonLink.toString());
-		
-		modeButton.addClickListener(e -> {
-			if (contentWrapper.isVisible())
-			{
-				collapse();
-			}else
-			{
-				expand();
-			}
-		});
+		modeButton.addStyleName(Styles.showHideButton.toString());
+		modeButton.addClickListener(e -> changeMode());
 	
 		Label captionLabel = new Label(caption);
 		
@@ -75,15 +67,26 @@ public class CollapsibleLayout extends CustomComponent
 		setCompositionRoot(main);	
 	}
 	
+	private void changeMode()
+	{
+		if (contentWrapper.isVisible())
+		{
+			collapse();
+		}else
+		{
+			expand();
+		}
+	}
+	
 	public void collapse()
 	{
 		contentWrapper.setVisible(false);
-		modeButton.setIcon(Images.upArrow.getResource());
+		modeButton.setIcon(Images.caret_right.getResource());
 	}
 	
 	public void expand()
 	{
 		contentWrapper.setVisible(true);
-		modeButton.setIcon(Images.downArrow.getResource());
+		modeButton.setIcon(Images.caret_down.getResource());
 	}
 }

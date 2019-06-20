@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
@@ -53,6 +52,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	protected TextField name;
 	protected TextArea description;
+	private HorizontalLayout rulesHeader;
 	protected VerticalLayout rulesLayout;
 	protected List<RuleComponent> rules;
 	private Button addRule;
@@ -65,7 +65,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type, 
-			ActionParameterComponentProvider actionComponentProvider) throws EngineException
+			ActionParameterComponentProvider actionComponentProvider)
 	{
 		super();
 		this.msg = msg;
@@ -80,6 +80,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	{
 		binder.setBean(toEdit);
 		name.setReadOnly(true);
+		rules.clear();
 		for (TranslationRule trule : toEdit.getRules())
 		{
 			addRuleComponent(trule);
@@ -126,8 +127,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description"));
 
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setMargin(false);
+		rulesHeader = new HorizontalLayout();
+		rulesHeader.setMargin(false);
 		addRule = new Button();
 		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
 		addRule.setIcon(Images.add.getResource());
@@ -161,14 +162,14 @@ public class TranslationProfileEditor extends VerticalLayout
 		});
 
 		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules"));
-		hl.addComponents(t, addRule, testProfileButton);
+		rulesHeader.addComponents(t, addRule, testProfileButton);
 
 		FormLayout main = new CompactFormLayout();
 		main.addComponents(name, description);
 		main.setSizeFull();
 
 		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.addComponents(main, hl, rulesLayout);
+		wrapper.addComponents(main, rulesHeader, rulesLayout);
 			
 		binder = new Binder<>(TranslationProfile.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
@@ -293,6 +294,18 @@ public class TranslationProfileEditor extends VerticalLayout
 	public boolean isReadOnlyMode()
 	{
 		return readOnlyMode;
+	}
+	
+	public void rulesOnlyMode()
+	{
+		removeAllComponents();
+		addComponent(rulesHeader);
+		addComponent(rulesLayout);
+	}
+	
+	public void focusFirst()
+	{
+		addRule.focus();
 	}
 	
 	private final class CallbackImplementation implements Callback

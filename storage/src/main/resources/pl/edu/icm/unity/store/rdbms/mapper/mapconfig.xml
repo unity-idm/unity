@@ -16,6 +16,7 @@
 		<typeAlias alias="TokenB" type="pl.edu.icm.unity.store.impl.tokens.TokenBean" />
 		<typeAlias alias="GenericObjectB" type="pl.edu.icm.unity.store.impl.objstore.GenericObjectBean" />
 		<typeAlias alias="EventB" type="pl.edu.icm.unity.store.impl.events.EventBean" />
+		<typeAlias alias="FileB" type="pl.edu.icm.unity.store.impl.files.FileBean" />
 		<typeAlias alias="AuditEventB" type="pl.edu.icm.unity.store.impl.audit.AuditEventBean" />
 		<typeAlias alias="AuditEntityB" type="pl.edu.icm.unity.store.impl.audit.AuditEntityBean" />
 	</typeAliases>
@@ -60,6 +61,7 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Generic.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Tokens.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Events.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Files.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AuditEvent.xml" />
 	</mappers>
 </configuration>

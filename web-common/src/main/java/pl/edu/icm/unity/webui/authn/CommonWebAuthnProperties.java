@@ -12,6 +12,7 @@ public final class CommonWebAuthnProperties
 {
 	public static final String REGISTRATION_FORM = "registrationFormForUnknown";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String EMBEDDED_TRANSLATION_PROFILE = "embeddedTranslationProfile";
 	public static final String ENABLE_ASSOCIATION = "enableAccountAssociation";
 	public static final String DEF_ENABLE_ASSOCIATION = "defaultEnableAccountAssociation";
 }

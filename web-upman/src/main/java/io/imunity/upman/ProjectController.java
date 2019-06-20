@@ -17,12 +17,13 @@ import com.vaadin.server.Resource;
 
 import io.imunity.upman.common.ServerFaultException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -38,12 +39,14 @@ public class ProjectController
 
 	private UnityMessageSource msg;
 	private DelegatedGroupManagement delGroupMan;
+	private URIAccessService uriAccessService;
 
 	@Autowired
-	public ProjectController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan)
+	public ProjectController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
+		this.uriAccessService = uriAccessService;
 	}
 
 	Map<String, String> getProjectForUser(long entityId) throws ControllerException
@@ -79,12 +82,6 @@ public class ProjectController
 			return logo;
 		}
 		GroupDelegationConfiguration config = group.delegationConfiguration;
-		String logoUrl = config.logoUrl;
-		if (logoUrl != null && !logoUrl.isEmpty())
-		{
-			return ImageUtils.getConfiguredImageResource(logoUrl);
-		}
-
-		return logo;
+		return ImageUtils.getConfiguredImageResourceFromUriSave(config.logoUrl, uriAccessService);
 	}
 }

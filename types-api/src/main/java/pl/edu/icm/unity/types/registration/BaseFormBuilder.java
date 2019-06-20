@@ -27,6 +27,11 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	{
 		return instance;
 	}
+	
+	public String getName()
+	{
+		return instance.getName();
+	}
 
 	@SuppressWarnings("unchecked")
 	public T withByInvitationOnly(boolean aValue)

@@ -43,7 +43,7 @@ class NewCertificateView extends CustomComponent implements UnityView
 	private UnityServerConfiguration config;
 
 	@Autowired
-	public NewCertificateView(UnityMessageSource msg, CertificatesController controller,
+	NewCertificateView(UnityMessageSource msg, CertificatesController controller,
 			UnityServerConfiguration config)
 	{
 		this.msg = msg;
@@ -63,7 +63,7 @@ class NewCertificateView extends CustomComponent implements UnityView
 			controller.addCertificate(editor.getCertificate());
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

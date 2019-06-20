@@ -35,7 +35,8 @@ public class FacebookProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + SCOPES, "email public_profile");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/FB-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:facebook");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:facebook");
 		return properties;
 	}
 

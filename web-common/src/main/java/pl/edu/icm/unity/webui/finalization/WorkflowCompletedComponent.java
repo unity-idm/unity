@@ -12,14 +12,16 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 
@@ -29,10 +31,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
  */
 public class WorkflowCompletedComponent extends CustomComponent
 {
-	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector)
+	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector,
+			URIAccessService uriAccessService)
 	{
-		Resource logoResource = Strings.isEmpty(config.logoURL) ? 
-				null : ImageUtils.getConfiguredImageResource(config.logoURL);
+		Resource logoResource = ImageUtils.getConfiguredImageResourceFromUri(config.logoURL, uriAccessService);
 		createUI(config, logoResource, redirector);
 	}
 	
@@ -82,5 +84,16 @@ public class WorkflowCompletedComponent extends CustomComponent
 		}
 		
 		setCompositionRoot(main);
+	}
+	
+	public Component getWrappedForFullSizeComponent()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(false);
+		wrapper.setMargin(false);
+		wrapper.setSizeFull();
+		wrapper.addComponent(this);
+		wrapper.setComponentAlignment(this, Alignment.MIDDLE_CENTER);
+		return wrapper;
 	}
 }

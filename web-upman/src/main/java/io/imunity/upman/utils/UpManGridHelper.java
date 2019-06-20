@@ -11,22 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import io.imunity.upman.common.FilterableEntry;
-import io.imunity.upman.common.UpManGrid;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
@@ -51,7 +45,7 @@ public class UpManGridHelper
 			menu.addStyleName(SidebarStyles.sidebar.toString());
 			return menu;
 
-		}).setCaption(caption).setWidth(80).setResizable(false);
+		}).setCaption(caption).setWidth(80).setResizable(false).setSortable(false);
 	}
 
 	public static <T> Column<T, String> createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider,
@@ -80,24 +74,6 @@ public class UpManGridHelper
 		return grid.addColumn(r -> {
 			return (groups.apply(r) != null) ? String.join(", ", groups.apply(r)) : "";
 		}).setCaption(caption).setExpandRatio(3);
-	}
-
-	public static TextField generateSearchField(UpManGrid<? extends FilterableEntry> grid, UnityMessageSource msg)
-	{
-		TextField searchText = new TextField();
-		searchText.addStyleName(Styles.vSmall.toString());
-		searchText.setWidth(10, Unit.EM);
-		searchText.setPlaceholder(msg.getMessage("UpManGrid.search"));
-		searchText.addValueChangeListener(event -> {
-			String searched = event.getValue();
-			grid.clearFilters();
-			if (event.getValue() == null || event.getValue().isEmpty())
-			{
-				return;
-			}
-			grid.addFilter(e -> e.anyFieldContains(searched, msg));
-		});
-		return searchText;
 	}
 
 	public static <T> Column<T, String> createEmailColumn(Grid<T> grid,

@@ -43,8 +43,11 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
-import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
+import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
@@ -201,7 +204,7 @@ public class LdapClient
 
 		bindAsSystem(connection, configuration);
 		int timeLimit = configuration.getSearchTimeLimit();
-		int sizeLimit = configuration.getAttributesLimit();
+		int sizeLimit = configuration.getResultEntriesLimit();
 		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
 		SearchResult result = performSearch(connection, searchForUser, username, 
 				timeLimit, sizeLimit, derefPolicy);
@@ -231,22 +234,22 @@ public class LdapClient
 			throws KeyManagementException, NoSuchAlgorithmException, LDAPException
 	{
 		LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
-		connectionOptions.setConnectTimeoutMillis(configuration.getSocketConnectTimeout());
+		connectionOptions.setConnectTimeoutMillis(configuration.getSocketTimeout());
 		connectionOptions.setFollowReferrals(configuration.isFollowReferral());
-		connectionOptions.setReferralHopLimit(configuration.getReferralHopCount());
+		connectionOptions.setReferralHopLimit(configuration.getFollowReferrals());
 		connectionOptions.setResponseTimeoutMillis(configuration.getSocketReadTimeout());
 		
 		FailoverServerSet failoverSet;
 		if (configuration.getConnectionMode() == ConnectionMode.SSL)
 		{
-			X509CertChainValidator validator = configuration.getTlsValidator();
+			X509CertChainValidator validator = configuration.getConnectionValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
 					"TLS", "LDAP client", legacyLog);
-			failoverSet = new FailoverServerSet(configuration.getServers(), 
+			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
 		} else
 		{
-			failoverSet = new FailoverServerSet(configuration.getServers(), 
+			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 				configuration.getPorts(), connectionOptions);
 		}
 		
@@ -255,7 +258,7 @@ public class LdapClient
 		log.debug("Established connection to LDAP server");
 		if (configuration.getConnectionMode() == ConnectionMode.startTLS)
 		{
-			X509CertChainValidator validator = configuration.getTlsValidator();
+			X509CertChainValidator validator = configuration.getConnectionValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
 					"TLSv1.2", "LDAP client", legacyLog);
 			ExtendedResult extendedResult = connection.processExtendedOperation(
@@ -313,13 +316,13 @@ public class LdapClient
 	private SearchResultEntry findBaseEntry(LdapClientConfiguration configuration, String dn,
 			LDAPConnection connection) throws LdapAuthenticationException, LDAPException
 	{
-		String[] queriedAttributes = configuration.getQueriedAttributes();
+		String[] queriedAttributes = configuration.getRetrievalLdapAttributes().stream().toArray(String[]::new);
 		SearchScope searchScope = configuration.getSearchScope();
 		
 		int timeLimit = configuration.getSearchTimeLimit();
-		int sizeLimit = configuration.getAttributesLimit();
+		int sizeLimit = configuration.getResultEntriesLimit();
 		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
-		Filter validUsersFilter = configuration.getValidUsersFilter();
+		Filter validUsersFilter = configuration.getParsedValidUserFilter();
 		
 		ReadOnlySearchRequest searchRequest = new SearchRequest(dn, searchScope, derefPolicy, 
 				sizeLimit, timeLimit, false, validUsersFilter, queriedAttributes);
@@ -372,7 +375,7 @@ public class LdapClient
 		attributes.add("objectClass");
 
 		String searchFilter = groupHelper.buildGroupFilter(userEntry, gss, 
-				configuration.isSearchGroupsInLdap());
+				configuration.isDelegateGroupFiltering());
 
 		for (GroupSpecification gs: gss)
 		{
@@ -400,7 +403,7 @@ public class LdapClient
 		
 		ReadOnlySearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, 
 					configuration.getDereferencePolicy(), 
-					configuration.getAttributesLimit(), configuration.getSearchTimeLimit(), 
+					configuration.getResultEntriesLimit(), configuration.getSearchTimeLimit(), 
 					false, filter, attributes.toArray(new String[attributes.size()]));
 		SearchResult result = connection.search(searchRequest);
 		
@@ -424,10 +427,10 @@ public class LdapClient
 			String user, RemotelyAuthenticatedInput principalData) throws LDAPException
 	{
 		int timeLimit = configuration.getSearchTimeLimit();
-		int sizeLimit = configuration.getAttributesLimit();
+		int sizeLimit = configuration.getResultEntriesLimit();
 		DereferencePolicy derefPolicy = configuration.getDereferencePolicy();
 
-		List<SearchSpecification> searchSpecs = configuration.getExtraSearches();
+		List<SearchSpecification> searchSpecs = configuration.getSearchSpecifications();
 		for (SearchSpecification searchSpec: searchSpecs)
 		{
 			SearchResult result = performSearch(connection, searchSpec, user, 
@@ -439,7 +442,7 @@ public class LdapClient
 	private SearchResult performSearch(LDAPConnection connection, SearchSpecification searchSpec,
 			String username, int timeLimit, int sizeLimit, DereferencePolicy derefPolicy) throws LDAPException
 	{
-		String[] queriedAttributes = searchSpec.getAttributes();
+		String[] queriedAttributes = searchSpec.getSplitedAttributes();
 		Filter validUsersFilter = searchSpec.getFilter(username);
 		String base = searchSpec.getBaseDN(username);
 		SearchScope scope = searchSpec.getScope().getInternalScope();

@@ -72,6 +72,11 @@
 		font-weight: bold;
 	}
 	
+	.u-sectionTitle {
+		font-weight: 400;
+		font-size: 20px;
+	}
+	
 	.u-immutableAttribute {
 		color: gray;
 	}
@@ -159,7 +164,8 @@
 		height: 0px;
 		border-top: 1px solid;
 		color: #d4d4d4;
-		margin: 8px 0px;
+		margin: 7px 0px;
+		padding: 0px 0px 1px 0px;
 	}
 
 	.u-selectedButton {
@@ -432,6 +438,10 @@
 	.u-flag-bg-nb {
 		@include flag-bg-template($flagImageNo);
 	}
+	
+	.u-flag-bg-fr {
+		@include flag-bg-template($flagImageFr);
+	}
 
 	.v-menubar .v-menubar-submenu-indicator + .v-menubar-menuitem-caption::after {
 		margin: 0 -3px 0 -3px;
@@ -502,6 +512,14 @@
 		width: 0px; 
  	}
 
+    .v-caption-u-smallIconLabel .v-icon {
+	    max-height: 25px;
+	}
+
+    .v-slot-u-smallIconLabel {
+	    max-height: 25px;
+    }
+    
 	.u-largeIcon .v-icon {
 		font-size : 24px;
 	}
@@ -570,7 +588,7 @@
 		text-align: center;
 	}
 
-	.u-authnGrid td > img {
+	.u-authnGrid td .v-image {
 		max-height: $v-unit-size - round($v-unit-size/18);
 		max-width: 90%;
 	}
@@ -638,6 +656,10 @@
 		height: $v-unit-size - 6;
 	}
 	
+	.u-chip .v-button:hover{
+		background-color: #E0E0E0;
+	}
+	
 	.u-chipsCombo {
 		margin-top: 3px;
 	}
@@ -658,5 +680,176 @@
 		word-wrap: break-word; /* IE  */
 		white-space: pre-wrap;
 	}
+		
+	.u-gridWithAction .v-grid-spacer-deco {
+		width :0px;
+	}
+	
+	.u-gridWithAction .v-grid-header-deco {
+		border : none;
+		background: $content-bg-color;
+		background-color : $content-bg-color;
+	}
+	
+	.u-gridWithAction .v-grid-footer-deco {
+		border: none;
+		background: $content-bg-color;
+		background-color: $content-bg-color;
+	}
+		
+	.u-gridWithAction .v-grid-spacer.stripe > td {
+ 	    background-color: transparent;
+ 	    border : none;
+	}
+	
+	.u-gridWithAction .v-grid-scroller-vertical {
+ 	    background: $content-bg-color;
+ 	    border : none;
+	}
+	
+	.u-gridWithAction .v-grid-scroller-horizontal {
+ 	    background: $content-bg-color;
+ 	    border : none;
+	}
+	
+	.u-gridWithAction .v-grid-horizontal-scrollbar-deco{
+		    background: $content-bg-color;
+		 	border : none;
+	 }
+	
+	.u-gridWithAction .v-grid-scroller {
+ 	  		border : none;
+ 	  		background: $content-bg-color;
+	}
+	
+	.u-gridWithAction .v-grid-spacer > td {
+ 	    background-color: transparent;
+ 	    border : none;
+	}
 
+	.u-gridWithAction .v-grid-cell {
+		padding: 0px 0px 0px 2px;	
+		border-top: 0.5px solid #d4d4d4;
+		border-bottom: none;
+		border-right : none;
+		border-left: none;
+	}
+			
+	.u-gridWithAction .v-grid-cell.frozen {
+		box-shadow: none;	
+	}
+	
+	.u-gridWithAction .v-grid-header th {
+		background: $content-bg-color;;
+		background-color : $content-bg-color;;
+		font-weight : bold;
+		border-top : none;
+		border-right : none;
+		border-left: none;
+		border-bottom: 1px solid #d4d4d4;
+	}
+	
+	.u-gridWithActionMulti .v-grid-header th:first-child {
+		padding-left: 6px ;
+	}
+	
+	.u-gridWithActionMulti .v-grid-row > td:first-child{	  
+	    padding-left: 6px ;
+	}
+	
+ 	.u-gridWithActionMulti .v-grid-header th:nth-child(2) {
+		padding: 0px 0px 0px 0px;
+	}
+	
+	.u-gridWithActionMulti .v-grid-row > td:nth-child(2) {
+		padding: 0px 0px 0px 0px;
+	}
+	
+	.u-gridWithAction .v-grid-tablewrapper {
+    	border: none;
+	}
+
+	.u-gridWithAction .v-grid-row > td {
+		border-left: none;
+		/*background-color: transparent;*/
+		border-right: none;
+	}
+	
+	.u-gridWithAction .v-grid-row > td .v-button-small {
+		margin: 0px;	
+		width: 30px
+	}	
+	
+	.u-gridWithAction .v-grid-row > td .v-button-small:focus {
+		border : none;	
+	}	
+	
+	.u-gridWithAction .v-grid-row > td .v-horizontallayout {
+		margin-right: 0px;
+		overflow: hidden;	
+	}
+			
+	.u-gridWithAction .v-grid-cell-focused:before {
+		display: none !important;
+	}
+	
+	.u-gridWithAction .v-grid-cell div.component-wrap {
+		width: auto; 
+	}
+	
+	.v-grid-u-gridWithAction {
+		background: transparent;
+		background-color: transparent;
+	}
+	
+	.u-gridWithAction .v-grid-row .v-grid-cell:last-of-type div.component-wrap {
+		width: 100%;
+	}
+	
+	.u-gridWithAction .v-grid-row .v-grid-cell div.component-wrap {
+		width: auto;
+	}
+	
+	.u-gridWithAction .v-grid-sidebar.v-contextmenu {
+    	background-color: $content-bg-color; 
+    	background-image: none;
+    	border: none;
+	}
+		 
+	.u-wordWrap {
+		word-wrap : break-word !important;
+		white-space : normal !important;	
+	}
+	
+	.u-showHideButton {
+		color: $font-color-dark !important;
+		border: none !important;
+		cursor: default !important;
+	}	
+	
+	.u-showHideButton:hover {
+		background-color: transparent !important;
+		background: none !important;
+	}	
+	
+	.u-showHideButton:active:not(.v-disabled) {
+		opacity: 1;		
+	}
+	
+	.u-imagePreview {
+		max-height : 15em;
+		max-width : 15em;
+	}
+	
+	.u-fixedWidthCaptions .v-formlayout-captioncell .v-caption {
+		width: 21em;
+	}
+	
+	.u-clearTextField{
+		margin-top: 3px;
+		margin-left: -1.5em;
+		background : $content-bg-color !important;
+	}
+	
 }
+

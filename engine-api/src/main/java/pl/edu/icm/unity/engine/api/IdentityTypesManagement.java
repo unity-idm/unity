@@ -22,6 +22,12 @@ public interface IdentityTypesManagement
 	public Collection<IdentityType> getIdentityTypes() throws EngineException;
 	
 	/**
+	 * @return identity type with given name
+	 * @throws EngineException
+	 */
+	public IdentityType getIdentityType(String name) throws EngineException;
+	
+	/**
 	 * Allows to update mutable part of identity type, as extracted fields or description.
 	 * @param toUpdate
 	 * @throws EngineException

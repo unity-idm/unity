@@ -39,9 +39,9 @@ public class IdentifierIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "Opaque identifier";
+		return "IdentifierIdentity.description";
 	}
 
 	/**

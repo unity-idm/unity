@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.vaadin.server.VaadinService;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
@@ -21,6 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -150,7 +150,7 @@ class AutoLoginAfterSignUpProcessor
 	private void logged(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, LoginSession ls,
 			RemotelyAuthenticatedContext remoteContext)
 	{
-		String clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
+		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		try
 		{
 			standardAuthnProcessor.logged(authenticatedEntity, ls, realm, clientIp, false, 

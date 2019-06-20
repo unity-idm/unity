@@ -13,19 +13,21 @@ import org.apache.log4j.Logger;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
 /**
  * JWT endpoint's configuration.
  * @author K. Benedyczak
  */
-public class JWTAuthenticationProperties extends PropertiesHelper
+public class JWTAuthenticationProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, JWTAuthenticationProperties.class);
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.jwtauthn.";
+	
+	public static final int DEFAULT_TOKEN_TTL = 3600;
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -35,7 +37,7 @@ public class JWTAuthenticationProperties extends PropertiesHelper
 	
 	static
 	{
-		META.put(TOKEN_TTL, new PropertyMD("3600").setPositive().setDescription(
+		META.put(TOKEN_TTL, new PropertyMD(String.valueOf(DEFAULT_TOKEN_TTL)).setPositive().setDescription(
 				"Token validity time in seconds. Relevant only for token generation"));
 		META.put(SIGNING_CREDENTIAL, new PropertyMD().setMandatory().setDescription("Name of the "
 				+ "PKI credential that will be used to sign or verify tokens. "

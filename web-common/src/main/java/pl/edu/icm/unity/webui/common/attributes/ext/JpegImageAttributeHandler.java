@@ -99,22 +99,47 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	{
 		BufferedImage value = syntax.convertFromString(valueRaw);
 		if (value == null)
-			return  getErrorImage();
-		
+			return getErrorImage();
+
 		int width = value.getWidth();
 		int height = value.getHeight();
-		Resource resValue = getValueAsImage(value, syntax, width,
-				height);
+		Resource resValue = getValueAsImage(value, syntax,
+				context.isScaleImage() ? context.getImageScaleWidth()  : width,
+				context.isScaleImage() ? context.getImageScaleHeight()  : height);
 		if (resValue != null)
 		{
 			Image image = new Image();
-
 			image.setSource(resValue);
+			
+			if (context.isCustomWidth() && !context.isScaleImage())
+			{
+
+				if (context.getCustomWidth() > 0)
+				{
+					image.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				} else
+				{
+					image.setWidthUndefined();
+				}
+			}
+			if (context.isCustomHeight() && !context.isScaleImage())
+			{
+				if (context.getCustomHeight() > 0)
+				{
+					image.setHeight(context.getCustomHeight(), context.getCustomHeightUnit());
+				}
+
+				else
+				{
+					image.setHeightUndefined();
+				}
+			}
+
 			return image;
 		} else
 		{
-			return  getErrorImage();
-		}	
+			return getErrorImage();
+		}
 	}
 	
 	private Label getErrorImage()

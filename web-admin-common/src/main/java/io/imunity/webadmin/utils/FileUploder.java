@@ -146,7 +146,7 @@ public class FileUploder extends AbstractUploadReceiver
 		File ret  = File.createTempFile("temp","", workspace);
 		ret.deleteOnExit();
 		if (ret.exists())
-			ret.delete();
+			ret.delete();	
 		return ret;
 	}
 	

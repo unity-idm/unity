@@ -33,7 +33,7 @@ public class MobileNumberUtils
 			return "Value length (" + value.length();
 		if (!mobileNumberPattern.matcher(value).matches())
 			return "Value must match the " +
-					"regualr expression: " + mobileNumberPattern.toString();
+					"regular expression: " + mobileNumberPattern.toString();
 			
 		return null;
 	}

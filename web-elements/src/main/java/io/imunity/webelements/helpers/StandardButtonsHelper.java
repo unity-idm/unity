@@ -25,13 +25,19 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class StandardButtonsHelper
 {
-	public static Button buildActionButton(String caption, Images icon, ClickListener clickListener)
+	public static Button buildButton(String caption, Images icon, ClickListener clickListener)
 	{
 		Button button = new Button();
 		button.setIcon(icon.getResource());
 		button.setCaption(caption);
-		button.addStyleName("u-button-action");
 		button.addClickListener(clickListener);
+		return button;
+	}
+
+	public static Button buildActionButton(String caption, Images icon, ClickListener clickListener)
+	{
+		Button button = buildButton(caption, icon, clickListener);
+		button.addStyleName("u-button-action");
 		return button;
 	}
 
@@ -61,20 +67,28 @@ public class StandardButtonsHelper
 		return layout;
 	}
 
+	public static HorizontalLayout buildConfirmButtonsBar(UnityMessageSource msg, String confirm, Runnable onConfirm,
+			Runnable onCancel)
+	{
+		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+				buildCancelButton(msg.getMessage("cancel"), onCancel),
+				buildConfirmButton(confirm, onConfirm));
+	}
+	
 	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
-				buildConfirmButton(msg.getMessage("add"), onConfirm),
-				buildCancelButton(msg.getMessage("cancel"), onCancel));
+				buildCancelButton(msg.getMessage("cancel"), onCancel),
+				buildConfirmButton(msg.getMessage("create"), onConfirm));
 	}
 
 	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
-				buildConfirmButton(msg.getMessage("update"), onConfirm),
-				buildCancelButton(msg.getMessage("cancel"), onCancel));
+				buildCancelButton(msg.getMessage("cancel"), onCancel),
+				buildConfirmButton(msg.getMessage("update"), onConfirm));
 	}
 
 	public static HorizontalLayout buildShowButtonsBar(UnityMessageSource msg, Runnable onCancel)
@@ -88,9 +102,8 @@ public class StandardButtonsHelper
 	{
 		if (cancelCaption != null)
 		{
-			return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
-					buildConfirmButton(confirmCaption, onConfirm),
-					buildCancelButton(cancelCaption, onCancel));
+			return buildButtonsBar(Alignment.MIDDLE_LEFT, true, buildCancelButton(cancelCaption, onCancel),
+					buildConfirmButton(confirmCaption, onConfirm));
 		} else
 		{
 			return buildButtonsBar(Alignment.MIDDLE_LEFT, true,

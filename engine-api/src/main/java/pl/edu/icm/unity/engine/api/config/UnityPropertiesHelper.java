@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.config;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import org.apache.log4j.Logger;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 
 /**
@@ -184,5 +187,18 @@ public class UnityPropertiesHelper extends PropertiesHelper
 				ret.addValue(locale.getKey(), v);
 		}
 		return ret;
+	}
+	
+	public String getAsString()
+	{
+		StringWriter writer = new StringWriter();
+		try
+		{
+			properties.store(writer, "");
+		} catch (IOException e)
+		{
+			throw new InternalException("Can not save properties to string");
+		}
+		return writer.getBuffer().toString();
 	}
 }

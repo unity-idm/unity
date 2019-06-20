@@ -23,14 +23,21 @@ import com.vaadin.ui.VerticalLayout;
 public class ComponentWithToolbar extends CustomComponent
 {
 	private Toolbar<?> toolbar;
+	private AbstractOrderedLayout layout;
 	
 	public ComponentWithToolbar(Component main, Toolbar<?> toolbar)
 	{
+		this(main, toolbar, Alignment.TOP_RIGHT);
+	}
+	
+	public ComponentWithToolbar(Component main, Toolbar<?> toolbar, Alignment toolbarAligment)
+	{
 		this.toolbar = toolbar;
 		Orientation orientation = toolbar.getOrientation();
-		AbstractOrderedLayout layout = orientation == Orientation.HORIZONTAL ? 
+		layout = orientation == Orientation.HORIZONTAL ? 
 				new VerticalLayout() : new HorizontalLayout();
 		layout.setMargin(false);
+		layout.setStyleName(Styles.toolbar.toString());
 		if (orientation == Orientation.HORIZONTAL)
 		{
 			layout.addComponent(toolbar);
@@ -42,8 +49,7 @@ public class ComponentWithToolbar extends CustomComponent
 		}
 		layout.setSizeFull();
 		layout.setExpandRatio(main, 1.0f);
-		layout.setComponentAlignment(toolbar, Alignment.TOP_RIGHT);
-		main.setSizeFull();
+		layout.setComponentAlignment(toolbar, toolbarAligment);
 		
 		setSizeUndefined();
 		setCompositionRoot(layout);
@@ -52,5 +58,10 @@ public class ComponentWithToolbar extends CustomComponent
 	public void setToolbarVisible(boolean visible)
 	{
 		toolbar.setVisible(visible);
-	}	
+	}
+	
+	public void setSpacing (boolean spacing)
+	{
+		layout.setSpacing(spacing);
+	}
 }

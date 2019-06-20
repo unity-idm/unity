@@ -22,8 +22,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class InvocationContext implements Serializable
 {
-	private static final long serialVersionUID = 1L;
-
 	private static ThreadLocal<InvocationContext> threadLocal = new ThreadLocal<>();
 
 	private LoginSession loginSession;

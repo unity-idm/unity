@@ -19,18 +19,20 @@ import com.vaadin.ui.Grid;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
+import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
 /**
  * Base for UpMan grids
  * 
  * @author P.Piernik
  */
-public abstract class UpManGrid<T> extends Grid<T>
+public abstract class UpManGrid<T> extends Grid<T> implements FilterableGrid<T>
 {
 	protected final UnityMessageSource msg;
 	private List<T> entries;
 	private ListDataProvider<T> dataProvider;
 	private Function<T, String> idProvider;
+	private Collection<SerializablePredicate<T>> filters;
 	
 	public UpManGrid(UnityMessageSource msg, Function<T, String> idProvider)
 	{
@@ -38,6 +40,7 @@ public abstract class UpManGrid<T> extends Grid<T>
 		this.idProvider = idProvider;
 		entries = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(entries);
+		filters = new ArrayList<>();
 		setDataProvider(dataProvider);
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
@@ -70,13 +73,30 @@ public abstract class UpManGrid<T> extends Grid<T>
 		return entries;
 	}
 	
+	@Override
 	public void addFilter(SerializablePredicate<T> filter)
 	{
-		dataProvider.addFilter(filter);
+		if (!filters.contains(filter))
+			filters.add(filter);
+		updateFilters();
 	}
-
+	@Override
+	public void removeFilter(SerializablePredicate<T> filter)
+	{
+		if (filters.contains(filter))
+			filters.remove(filter);
+		updateFilters();
+	}
+	@Override
 	public void clearFilters()
 	{
 		dataProvider.clearFilters();
+	}
+	
+	private void updateFilters()
+	{
+		dataProvider.clearFilters();
+		for (SerializablePredicate<T> p : filters)
+			dataProvider.addFilter(p);
 	}
 }

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -26,18 +24,34 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.attribute.AttributeChangedEvent;
+import io.imunity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import io.imunity.webadmin.credentialRequirements.CredentialRequirementChangedEvent;
 import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
+import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webadmin.identities.AddAttributeColumnDialog;
+import io.imunity.webadmin.identities.AddFilterDialog;
+import io.imunity.webadmin.identities.AddToGroupHandler;
+import io.imunity.webadmin.identities.ChangeCredentialRequirementHandler;
+import io.imunity.webadmin.identities.ChangeEntityStateHandler;
+import io.imunity.webadmin.identities.DeleteEntityHandler;
+import io.imunity.webadmin.identities.DeleteIdentityHandler;
+import io.imunity.webadmin.identities.EntityAttributeClassHandler;
+import io.imunity.webadmin.identities.EntityCreationHandler;
+import io.imunity.webadmin.identities.EntityDetailsHandler;
+import io.imunity.webadmin.identities.EntityFilter;
+import io.imunity.webadmin.identities.EntityMergeHandler;
+import io.imunity.webadmin.identities.IdentityConfirmHandler;
+import io.imunity.webadmin.identities.IdentityConfirmationResendHandler;
+import io.imunity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
+import io.imunity.webadmin.identities.IdentityEntry;
+import io.imunity.webadmin.identities.RemoveAttributeColumnDialog;
+import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
-import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
-import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
-import pl.edu.icm.unity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -332,15 +346,6 @@ public class IdentitiesComponent extends SafePanel
 		}, AttributeChangedEvent.class);
 		
 		setGroup(null);
-	}
-
-	
-	static String getConfirmTextForIdentitiesNodes(UnityMessageSource msg, Set<IdentityEntry> selection)
-	{
-		Collection<String> ids = new ArrayList<>();
-		for (IdentityEntry o: selection)
-			ids.add(o.getSourceIdentity().toString());		
-		return MessageUtils.createConfirmFromStrings(msg, ids);
 	}
 	
 	private void addFilterInfo(EntityFilter filter, String description)

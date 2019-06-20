@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
@@ -62,10 +63,10 @@ import pl.edu.icm.unity.webui.authn.column.FirstFactorAuthNPanel;
 import pl.edu.icm.unity.webui.authn.column.SearchComponent;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -110,13 +111,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, 
+			GroupsManagement groupsMan, URIAccessService uriAccessService,
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
-			SignUpAuthNController signUpAuthNController) throws AuthenticationException
+			SignUpAuthNController signUpAuthNController)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
+				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, uriAccessService);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation2;
@@ -124,19 +125,22 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.authnSupport = authnSupport;
 	}
 	
-	public void showFirstStage(Runnable onLocalSignupHandler)
+	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
 	{
 		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;
 		this.stage = Stage.FIRST;
+		if (form.isLocalSignupEnabled()) //when we have only remote signup enabled, validation must be defered to 2nd stage
+			validateMandatoryRemoteInput(); 
 		initUI();
 	}
 	
-	public void showSecondStage(boolean withCredentials)
+	public void showSecondStage(boolean withCredentials) throws AuthenticationException
 	{
 		this.effectiveLayout = withCredentials ? form.getEffectiveSecondaryFormLayout(msg) 
 				: form.getEffectiveSecondaryFormLayoutWithoutCredentials(msg);
 		this.stage = Stage.SECOND;
+		validateMandatoryRemoteInput();
 		initUI();
 	}
 	
@@ -176,7 +180,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 */
 	public boolean isSubmissionPossible()
 	{
-		return (stage == Stage.FIRST && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
+		return (stage == Stage.FIRST && form.isLocalSignupEnabled() && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
 				|| stage == Stage.SECOND;
 	}
 
@@ -233,14 +237,14 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		main.setWidth(100, Unit.PERCENTAGE);
 		setCompositionRoot(main);
 		
-		String logoURL = form.getLayoutSettings().getLogoURL();
-		if (logoURL != null && !logoURL.isEmpty())
+		String logoUri = form.getLayoutSettings().getLogoURL();
+		Resource logoRes = ImageUtils.getConfiguredImageResourceFromUriSave(logoUri, uriAccessService);
+		if (logoRes != null)
 		{
-			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
-			Image image = new Image(null, logoResource);
+			Image image = new Image(null, logoRes);
 			image.addStyleName("u-signup-logo");
 			main.addComponent(image);
-			main.setComponentAlignment(image, Alignment.TOP_CENTER);
+			main.setComponentAlignment(image, Alignment.TOP_CENTER);	
 		}
 		
 		I18nString title = stage == Stage.FIRST ? form.getDisplayedName() : form.getTitle2ndStage();

@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -77,6 +78,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
 	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -85,7 +87,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			IdPLoginController idpLoginController,
 			RequestEditorCreator editorCreator,
 			AuthenticationProcessor authnProcessor,
-			AutoLoginAfterSignUpProcessor autoLogin)
+			AutoLoginAfterSignUpProcessor autoLogin, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
@@ -94,6 +96,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.editorCreator = editorCreator;
 		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
 		this.autoLoginProcessor = autoLogin;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -271,6 +274,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 
 	private void handleError(Exception e, ErrorCause cause)
 	{
+		log.warn("Registration error", e);
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
 				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
 		gotoFinalStep(finalScreenConfig);
@@ -360,6 +364,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 
 	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Registration is finalized, status: {}", config);
 		if (completedRegistrationHandler != null)
 			completedRegistrationHandler.run();
 		if (config.autoRedirect)
@@ -378,7 +383,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		setCompositionRoot(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController));
+			url -> redirect(url, idpLoginController), uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
@@ -473,12 +478,14 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onUnknownUser(AuthenticationResult result)
 		{
+			log.debug("External authentication resulted in unknown user, proceeding to 2nd stage");
 			switchTo2ndStagePostAuthn(result);
 		}
 
 		@Override
 		public void onUserExists(AuthenticationResult result)
 		{
+			log.debug("External authentication resulted in existing user, aborting registration");
 			enableSharedComponentsAndHideAuthnProgress();
 			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
@@ -488,6 +495,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onAuthnError(AuthenticationException e, String authenticatorError)
 		{
+			log.debug("External authentication failed, aborting: {}, {}", e.toString(), authenticatorError);
 			enableSharedComponentsAndHideAuthnProgress();
 			String genericError = msg.getMessage(e.getMessage());
 			String errorToShow = authenticatorError == null ? genericError : authenticatorError;
@@ -497,12 +505,14 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onAuthnCancelled()
 		{
+			log.debug("External authentication cancelled, performing reset");
 			enableSharedComponentsAndHideAuthnProgress();
 		}
 
 		@Override
 		public void onAuthnStarted(boolean showProgress)
 		{
+			log.debug("External authentication started");
 			enableSharedWidgets(false);
 			header.setAuthNProgressVisibility(showProgress);
 		}

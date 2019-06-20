@@ -49,7 +49,7 @@ class EditLocalCredentialView extends CustomComponent implements UnityView
 	private EventsBus bus;
 
 	@Autowired
-	public EditLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	EditLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -67,7 +67,7 @@ class EditLocalCredentialView extends CustomComponent implements UnityView
 			editor = getEditor(credentialName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(LocalCredentialsView.VIEW_NAME);
 			return;
 		}
@@ -105,7 +105,7 @@ class EditLocalCredentialView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

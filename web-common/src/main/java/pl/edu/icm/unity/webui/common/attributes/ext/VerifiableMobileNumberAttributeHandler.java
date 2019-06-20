@@ -29,7 +29,6 @@ import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -332,10 +331,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		Component component = new ReadOnlyField(getValueAsString(value));
-		if (context.isCustomWidth())
-			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
-		return component;
+		return AttributeHandlerHelper.getRepresentation(getValueAsString(value), context);
 	}
 
 	@org.springframework.stereotype.Component

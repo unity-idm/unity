@@ -151,6 +151,13 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		return acDB.getAllAsMap();
 	}
+	
+	@Override
+	public AttributesClass getAttributeClass(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return acDB.get(name);
+	}
 
 	@Override
 	public void setEntityAttributeClasses(EntityParam entity, String group, Collection<String> classes)

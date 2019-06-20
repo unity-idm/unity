@@ -7,6 +7,9 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+
+import io.imunity.webadmin.reg.invitations.InvitationEditor;
+
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

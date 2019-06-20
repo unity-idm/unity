@@ -63,7 +63,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
-import pl.edu.icm.unity.webui.forms.enquiry.SingleStickyEnquiryUpdater;
+import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
@@ -186,8 +186,8 @@ public class UserAccountComponent extends VerticalLayout
 			VerticalLayout main = new VerticalLayout();
 			main.setSpacing(false);
 			main.setMargin(false);
-			SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController,
-					enquiries, true);
+			StickyEnquiryUpdatableComponent updater = new StickyEnquiryUpdatableComponent(msg, enquiryResController,
+					enquiries);
 			if (updater.isFormsAreApplicable())
 			{
 				main.addComponent(updater);

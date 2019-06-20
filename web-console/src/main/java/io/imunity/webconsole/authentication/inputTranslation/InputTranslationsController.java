@@ -43,7 +43,7 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  *
  */
 @Component
-class InputTranslationsController
+public class InputTranslationsController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InputTranslationsController.class);
 	
@@ -55,7 +55,7 @@ class InputTranslationsController
 	private ActionParameterComponentProvider actionComponentFactory;
 
 	@Autowired
-	InputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
+	public InputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			InputTranslationActionsRegistry inputActionsRegistry,
 			ActionParameterComponentProvider actionComponentFactory,
 			EndpointController endpointController)
@@ -79,8 +79,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getEditorError"),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.getEditorError"), e);
 		}
 	}
 	
@@ -92,13 +91,12 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.initActionFactoryError"),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.initActionFactoryError"), e);
 		}
 		
 	}
 
-	List<TranslationProfile> getProfiles() throws ControllerException
+	public List<TranslationProfile> getProfiles() throws ControllerException
 	{
 		try
 		{
@@ -106,8 +104,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getAllError"),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.getAllError"), e);
 		}
 	}
 
@@ -119,8 +116,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getError", name),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.getError", name), e);
 		}
 	}
 
@@ -133,11 +129,11 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.removeError",
-					profile.getName()), e.getMessage(), e);
+					profile.getName()), e);
 		}
 	}
 
-	void addProfile(TranslationProfile profile) throws ControllerException
+	public void addProfile(TranslationProfile profile) throws ControllerException
 	{
 		try
 		{
@@ -145,11 +141,11 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.addError",
-					profile.getName()), e.getMessage(), e);
+					profile.getName()), e);
 		}
 	}
 
-	void updateProfile(TranslationProfile updated) throws ControllerException
+	public void updateProfile(TranslationProfile updated) throws ControllerException
 	{
 		try
 		{
@@ -157,7 +153,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.updateError",
-					updated.getName()), e.getMessage(), e);
+					updated.getName()), e);
 		}
 	}
 
@@ -225,7 +221,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.exportError",
-					profile.getName()), e.getMessage(), e);
+					profile.getName()), e);
 		}
 
 		downloader.setFileDownloadResource(resource);

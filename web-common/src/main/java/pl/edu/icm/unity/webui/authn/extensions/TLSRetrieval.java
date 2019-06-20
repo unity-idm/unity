@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webui.authn.extensions;
 
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +13,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -29,7 +27,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -40,7 +37,6 @@ import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -57,10 +53,10 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	public static final String NAME = "web-certificate";
 	public static final String DESC = "WebTLSRetrievalFactory.desc";
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TLSRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
-	private String logoURL;
+	private String registrationFormForUnknown;
+	private boolean enableAssociation;
 	private String configuration;
 	
 	@Autowired
@@ -84,13 +80,14 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(configuration));
-			SMSRetrievalProperties config = new SMSRetrievalProperties(properties);
-			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
+			TLSRetrievalProperties config = new TLSRetrievalProperties(properties);
+			name = config.getLocalizedString(msg, TLSRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebTLSRetrieval.title", msg);
-			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
-			if (logoURL != null && !logoURL.isEmpty())
-				ImageUtils.getLogoResource(logoURL);
+			registrationFormForUnknown = config.getValue(
+					TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN);
+			enableAssociation = config.getBooleanValue(TLSRetrievalProperties.ENABLE_ASSOCIATION);
+			
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -120,11 +117,15 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	} 
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
-	{
+	{	
 		private Component component = new TLSAuthnComponent();
 		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
+		public TLSRetrievalUI()
+		{
+		}
+
 		@Override
 		public Component getComponent()
 		{
@@ -144,7 +145,12 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (clientCert == null)
 				return new AuthenticationResult(Status.notApplicable, null);
 
-			return credentialExchange.checkCertificate(clientCert, sandboxCallback);
+			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert,
+					sandboxCallback);
+			if (registrationFormForUnknown != null)
+				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+			authenticationResult.setEnableAssociation(enableAssociation);
+			return authenticationResult;
 		}
 
 		@Override
@@ -156,22 +162,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		@Override
 		public Resource getImage()
 		{
-			if (logoURL == null)
-				return null;
-			if ("".equals(logoURL))
-				return Images.certificate.getResource();
-			else
-			{
-				try
-				{
-					return ImageUtils.getLogoResource(logoURL);
-				} catch (MalformedURLException e)
-				{
-					log.error("Can't load logo", e);
-					return null;
-				}
-			}
-
+			return Images.certificate.getResource();
 		}
 
 		private class TLSAuthnComponent extends VerticalLayout
@@ -259,7 +250,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		@Autowired
 		public Factory(ObjectFactory<TLSRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, CertificateExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, CertificateExchange.ID);
 		}
 	}
 }

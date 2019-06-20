@@ -160,9 +160,13 @@ public class ASConsentDeciderServlet extends HttpServlet
 				oauthCtx.getClientUsername());
 	}
 	
+	/**
+	 * According to native OAuth profile, public clients needs to have consent shown regardless of 
+	 * user's saved "trust" for the client. Still we honor admin setting disabling consent globally. 
+	 */
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
-		if (preferences.isDoNotAsk() && oauthCtx.getClientType() != ClientType.PUBLIC)
+		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
 			return false;
 		
 		return !oauthCtx.getConfig().isSkipConsent();

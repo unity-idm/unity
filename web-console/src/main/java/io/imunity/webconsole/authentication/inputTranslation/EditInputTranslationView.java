@@ -5,9 +5,7 @@
 
 package io.imunity.webconsole.authentication.inputTranslation;
 
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
@@ -15,13 +13,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
-import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
-import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -38,7 +32,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class EditInputTranslationView extends CustomComponent implements UnityView
+class EditInputTranslationView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "EditInputTranslation";
 
@@ -47,7 +41,8 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 	private TranslationProfileEditor editor;
 	private String profileName;
 
-	public EditInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
+	@Autowired
+	EditInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -64,7 +59,7 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 			editor = getEditor(profileName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
 			return;
 		}
@@ -107,7 +102,7 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 
@@ -146,18 +141,18 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 		return profileName;
 	}
 
-	@Component
-	public static class EditInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
-	{
-
-		@Autowired
-		public EditInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
-				ObjectFactory<EditInputTranslationView> factory)
-		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.build());
-
-		}
-	}
+//	@Component
+//	public static class EditInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+//	{
+//
+//		@Autowired
+//		public EditInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
+//				ObjectFactory<EditInputTranslationView> factory)
+//		{
+//			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
+//					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+//					.build());
+//
+//		}
+//	}
 }

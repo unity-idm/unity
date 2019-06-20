@@ -5,22 +5,16 @@
 
 package io.imunity.webconsole.authentication.inputTranslation;
 
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
-import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
-import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -44,7 +38,8 @@ class NewInputTranslationView extends CustomComponent implements UnityView
 	private InputTranslationsController controller;
 	private TranslationProfileEditor editor;
 
-	public NewInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
+	@Autowired
+	NewInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -71,7 +66,7 @@ class NewInputTranslationView extends CustomComponent implements UnityView
 			editor = getEditor(toClone);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
 			return;
 		}
@@ -103,7 +98,7 @@ class NewInputTranslationView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 
@@ -131,17 +126,17 @@ class NewInputTranslationView extends CustomComponent implements UnityView
 		return editor;
 	}
 
-	@Component
-	public static class NewInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
-	{
-
-		@Autowired
-		public NewInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
-				ObjectFactory<NewInputTranslationView> factory)
-		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
-
-		}
-	}
+//	@Component
+//	public static class NewInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+//	{
+//
+//		@Autowired
+//		public NewInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
+//				ObjectFactory<NewInputTranslationView> factory)
+//		{
+//			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
+//					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+//
+//		}
+//	}
 }

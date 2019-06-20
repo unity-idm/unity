@@ -115,7 +115,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 				.get(WebConsoleErrorView.VIEW_NAME).objectFactory
 				.getObject());
 		navigator.addProvider(new WebConsoleAppContextViewProvider(navigationMan, sandboxRouter));
-		BreadCrumbs breadCrumbs = new BreadCrumbs(navigationMan);
+		WebConsoleBreadCrumbs breadCrumbs = new WebConsoleBreadCrumbs(navigationMan);
 		navigator.addViewChangeListener(breadCrumbs);
 		
 		webConsoleLayout =  new SidebarLayout(navigationMan, naviContent, breadCrumbs);

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.attributetype;
 
 import com.vaadin.ui.Component;
 
+import io.imunity.webadmin.attributetype.AttributeTypeEditor;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.basic.AttributeType;

@@ -30,7 +30,8 @@ public enum SidebarStyles
 	breadcrumbs("u-breadcrumbs"),
 	indentSmall("u-indentSmall"),
 	viewHeader("u-viewHeader"),
-	buttonAction("u-button-action");
+	buttonAction("u-button-action"),
+	fixedWidthCaptions("u-fixedWidthCaptions");
 	
 	private String value;
 

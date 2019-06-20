@@ -7,11 +7,11 @@ package pl.edu.icm.unity.types;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.context.NoSuchMessageException;
 
 import pl.edu.icm.unity.MessageSource;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -163,7 +163,25 @@ public class I18nString
 		result = prime * result + ((values == null) ? 0 : values.hashCode());
 		return result;
 	}
-
+	
+	public void toProperties(Properties properties, String prefix, MessageSource msg)
+	{
+		if (!values.isEmpty())
+		{
+			for (Map.Entry<String, String> entry : values.entrySet())
+			{
+				properties.put(prefix + "." + entry.getKey(), entry.getValue());
+			}
+		}
+		if (defaultValue != null)
+		{
+			properties.put(prefix, defaultValue);
+		}else
+		{
+			properties.put(prefix, "");
+		}
+		
+	}
 	@Override
 	public boolean equals(Object obj)
 	{

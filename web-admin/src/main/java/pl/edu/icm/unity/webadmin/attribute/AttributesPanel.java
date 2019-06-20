@@ -27,6 +27,9 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.attribute.AttributeChangedEvent;
+import io.imunity.webadmin.attribute.AttributeEditDialog;
+import io.imunity.webadmin.attribute.AttributeEditor;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

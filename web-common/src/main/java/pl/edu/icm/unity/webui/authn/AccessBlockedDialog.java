@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
@@ -16,6 +15,7 @@ import com.vaadin.ui.Window;
 
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -65,7 +65,7 @@ public class AccessBlockedDialog extends Window
 		info.addStyleName(Styles.textLarge.toString());
 		info.addStyleName(Styles.bold.toString());
 		ProgressBar progress = new ProgressBar(0);
-		String ip = VaadinService.getCurrentRequest().getRemoteAddr();		
+		String ip = HTTPRequestContext.getCurrent().getClientIP();		
 		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 		progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", initial));

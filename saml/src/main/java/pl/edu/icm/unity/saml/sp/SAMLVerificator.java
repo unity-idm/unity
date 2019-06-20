@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -56,6 +57,7 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -85,7 +87,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
 	private RemoteMetadataService metadataService;
-
+	private URIAccessService uriAccessService;
+	
 	private UnityMessageSource msg;
 
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
@@ -98,7 +101,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement, 
-			NetworkServer jettyServer)
+			NetworkServer jettyServer, URIAccessService uriAccessService)
 	{
 		super(NAME, DESC, SAMLExchange.ID, processor);
 		this.metadataService = metadataService;
@@ -108,6 +111,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		this.replayAttackChecker = replayAttackChecker;
 		this.sloManager = sloManager;
 		this.sloReplyInstaller = sloReplyInstaller;
+		this.uriAccessService = uriAccessService;
 
 		URL baseAddress = jettyServer.getAdvertisedAddress();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
@@ -162,7 +166,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		{
 			LocalSPMetadataManager manager = new LocalSPMetadataManager(executorsService, 
 					responseConsumerAddress, 
-					sloManager, sloReplyInstaller, metadataServlet);
+					sloManager, sloReplyInstaller, metadataServlet, uriAccessService);
 			manager.updateConfiguration(samlProperties);
 			localMetadataManagers.put(instanceName, manager);
 		} else
@@ -285,8 +289,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			SAMLSPProperties config = context.getContextConfig();
 			String idpKey = context.getContextIdpKey();
 		
-			return getResult(input, config.getValue(idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE), 
-					state);
+			TranslationProfile profile = getTranslationProfile(
+					config, idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+			
+			
+			return getResult(input, profile, state);
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);

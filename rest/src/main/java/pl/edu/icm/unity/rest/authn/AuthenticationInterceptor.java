@@ -12,14 +12,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -35,6 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -85,7 +82,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			throw new Fault(new Exception("Too many invalid authentication attempts, try again later"));
 		}
 		
-		Map<String, AuthenticationResult> authnCache = new HashMap<String, AuthenticationResult>();
+		Map<String, AuthenticationResult> authnCache = new HashMap<>();
 		X509Certificate[] clientCert = TLSRetrieval.getTLSCertificates();
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
@@ -223,9 +220,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	
 	private String getClientIP()
 	{
-		Message message = PhaseInterceptorChain.getCurrentMessage();
-		HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
-		return request.getRemoteAddr();
+		return HTTPRequestContext.getCurrent().getClientIP();
 	}
 	
 	private static class EntityWithAuthenticators

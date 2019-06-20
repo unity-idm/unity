@@ -6,12 +6,16 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import java.util.Optional;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Base class that is nearly mandatory for all remote verificators. The remote verificator should extend it 
@@ -36,7 +40,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		super(name, description, exchangeId);
 		this.processor = processor;
 	}
-
+	
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
 	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedContext)}.
@@ -47,7 +51,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @return
 	 * @throws EngineException 
 	 */
-	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile,
+	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile,
 			RemoteAuthnState state) throws AuthenticationException
 	{
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
@@ -58,6 +62,8 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		finishAuthnResponseProcessing(state, result.getRemoteAuthnContext());
 		return result;
 	}
+	
+	
 	
 	/**
 	 * Should be called at the beginning of authN response verification
@@ -106,6 +112,22 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			stateCasted.sandboxCallback.sandboxedAuthenticationDone(
 					new RemoteSandboxAuthnContext(error, recorder.getCapturedLogs().toString(), 
 							stateCasted.remoteInput));
+		}
+	}
+	
+	public static TranslationProfile getTranslationProfile(UnityPropertiesHelper props, String globalProfileNameKey,
+			String embeddedProfileKey) throws ConfigurationException
+	{
+		if (props.isSet(embeddedProfileKey))
+		{
+			return TranslationProfileGenerator.getProfileFromString(props.getValue(embeddedProfileKey));
+		} else if (props.getValue(globalProfileNameKey) != null)
+		{
+			return TranslationProfileGenerator
+					.generateIncludeInputProfile(props.getValue(globalProfileNameKey));
+		} else
+		{
+			throw new ConfigurationException("Translation profile is not set");
 		}
 	}
 

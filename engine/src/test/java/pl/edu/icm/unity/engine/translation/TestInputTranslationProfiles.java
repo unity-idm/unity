@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
@@ -596,7 +597,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		RemotelyAuthenticatedContext processed  = tx.runInTransactionRetThrowing(() -> {
-			return remoteProcessor.processRemoteInput(input, "p1", false, Optional.empty());
+			return remoteProcessor.processRemoteInput(input,TranslationProfileGenerator.generateIncludeInputProfile("", "p1"), false, Optional.empty());
 		});
 		
 		assertNotNull(processed.getLocalMappedPrincipal());

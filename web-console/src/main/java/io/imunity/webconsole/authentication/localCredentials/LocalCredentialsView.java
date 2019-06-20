@@ -35,10 +35,8 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -56,7 +54,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 
 	private LocalCredentialsController controller;
 	private UnityMessageSource msg;
-	private ListOfElementsWithActions<CredentialDefinition> credList;
+	private GridWithActionColumn<CredentialDefinition> credList;
 	private EventsBus bus;
 
 	@Autowired
@@ -75,20 +73,20 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
 						e -> NavigationHelper.goToView(NewLocalCredentialView.VIEW_NAME)));
 
-		credList = new ListOfElementsWithActions<>(
-				Arrays.asList(new Column<>(msg.getMessage("LocalCredentialsView.nameCaption"),
-						p -> StandardButtonsHelper.buildLinkButton(p.getName(),
-								e -> gotoEdit(p)),
-						2)),
-				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
+		credList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		credList.addComponentColumn(c -> StandardButtonsHelper.buildLinkButton(c.getName(), e -> {
+			if (!c.isReadOnly())
+				gotoEdit(c);
+			else
+				gotoShowDetails(c);
+		}), msg.getMessage("LocalCredentialsView.nameCaption"), 10).setSortable(true)
+				.setComparator((c1, c2) -> {
+					return c1.getName().compareTo(c2.getName());
+				}).setId("name");
+		;
 
-		credList.setAddSeparatorLine(true);
-
-		for (CredentialDefinition cred : getCredentials())
-		{
-			credList.addEntry(cred);
-		}
-
+		credList.setItems(getCredentials());
+		credList.sort("name");
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
 		main.addComponent(credList);
@@ -105,7 +103,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 			return controller.getCredentials();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -114,12 +112,14 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	{
 		SingleActionHandler<CredentialDefinition> show = SingleActionHandler
 				.builder4ShowDetails(msg, CredentialDefinition.class)
-				.withHandler(r -> gotoShowDetails(r.iterator().next())).build();
+				.withHandler(r -> gotoShowDetails(r.iterator().next()))
+				.withDisabledPredicate(r -> !r.isReadOnly()).hideIfInactive()
+				.build();
 
 		SingleActionHandler<CredentialDefinition> edit = SingleActionHandler
 				.builder4Edit(msg, CredentialDefinition.class)
 				.withHandler(r -> gotoEdit(r.iterator().next()))
-				.withDisabledPredicate(r -> r.isReadOnly()).build();
+				.withDisabledPredicate(r -> r.isReadOnly()).hideIfInactive().build();
 
 		SingleActionHandler<CredentialDefinition> remove = SingleActionHandler
 				.builder4Delete(msg, CredentialDefinition.class)
@@ -141,10 +141,10 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 		try
 		{
 			controller.removeCredential(cred, bus);
-			credList.removeEntry(cred);
+			credList.removeElement(cred);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 
@@ -185,8 +185,8 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))
-					.withPosition(1).build());
-
+					.withIcon(Images.lock.getResource())
+					.withPosition(20).build());
 		}
 	}
 }

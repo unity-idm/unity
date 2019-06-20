@@ -54,8 +54,7 @@ public class AuthenticationFlowsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationFlowsController.getAuthenticatorsError"),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationFlowsController.getAuthenticatorsError"), e);
 		}
 	}
 
@@ -68,8 +67,7 @@ public class AuthenticationFlowsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationFlowsController.addError", flow.getName()),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationFlowsController.addError", flow.getName()), e);
 		}
 	}
 
@@ -82,8 +80,7 @@ public class AuthenticationFlowsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationFlowsController.updateError", flow.getName()),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationFlowsController.updateError", flow.getName()), e);
 		}
 	}
 
@@ -96,8 +93,7 @@ public class AuthenticationFlowsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationFlowsController.removeError", flow.getName()),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationFlowsController.removeError", flow.getName()), e);
 		}
 	}
 
@@ -111,8 +107,7 @@ public class AuthenticationFlowsController
 			flows = flowMan.getAuthenticationFlows();
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("AuthenticationFlowsController.getAllError"),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("AuthenticationFlowsController.getAllError"), e);
 		}
 		List<ResolvedEndpoint> endpoints = endpointController.getEndpoints();
 
@@ -136,8 +131,7 @@ public class AuthenticationFlowsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationFlowsController.getError", flowName),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationFlowsController.getError", flowName), e);
 		}
 	}
 

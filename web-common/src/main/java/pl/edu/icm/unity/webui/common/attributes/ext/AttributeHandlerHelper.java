@@ -22,19 +22,55 @@ public class AttributeHandlerHelper
 {
 	public static Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		Component component;
-		int lines = getLineBreaks(value);
-		if (lines > 1)
-			component = new ReadOnlyArea(value, lines);
-		else
-			component = new ReadOnlyField(value);
-		
-		if (context.isCustomWidth())
-			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		String nvalue;
 
+		if (context.getMaxTextSize() != null && value.length() > context.getMaxTextSize())
+		{
+			nvalue = value.substring(0, context.getMaxTextSize()) + " ...";
+		} else
+		{
+			nvalue = value;
+		}
+		Component component;
+		if (!context.isShowAsLabel())
+		{
+			int lines = getLineBreaks(nvalue);
+			if (lines > 1)
+				component = new ReadOnlyArea(nvalue, lines);
+			else
+				component = new ReadOnlyField(nvalue);
+
+			if (context.isCustomWidth())
+			{
+
+				if (context.getCustomWidth() > 0)
+				{
+					component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				} else
+				{
+					component.setWidthUndefined();
+				}
+			}
+			if (context.isCustomHeight())
+			{
+				if (context.getCustomHeight() > 0)
+				{
+					component.setHeight(context.getCustomHeight(), context.getCustomHeightUnit());
+				}
+
+				else
+				{
+					component.setHeightUndefined();
+				}
+			}
+
+		} else
+		{
+			component = new Label(nvalue);
+		}
 		return component;
 	}
-	
+
 	private static int getLineBreaks(String string)
 	{
 		String lineSeparator = System.getProperty("line.separator");

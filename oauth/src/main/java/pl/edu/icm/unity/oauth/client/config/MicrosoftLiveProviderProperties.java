@@ -32,7 +32,8 @@ public class MicrosoftLiveProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://apis.live.net/v5.0/me");
 		setIfUnset(properties, prefix + SCOPES, "wl.basic wl.birthday wl.emails wl.phone_numbers wl.postal_addresses wl.work_profile");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/ms-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:microsoftLive");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:microsoftLive");
 		return properties;
 	}
 

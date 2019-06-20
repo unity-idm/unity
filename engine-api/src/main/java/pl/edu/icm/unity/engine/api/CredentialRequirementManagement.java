@@ -54,4 +54,10 @@ public interface CredentialRequirementManagement
 	 * @throws EngineException
 	 */
 	Collection<CredentialRequirements> getCredentialRequirements() throws EngineException;
+	
+	/**
+	 * @return existing credential requirement
+	 * @throws EngineException
+	 */
+	CredentialRequirements getCredentialRequirements(String name) throws EngineException;
 }

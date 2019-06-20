@@ -8,8 +8,8 @@ package io.imunity.webconsole.settings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -33,7 +33,7 @@ public class SettingsNavigationInfoProvider extends WebConsoleNavigationInfoProv
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.settings"))
-				.withIcon(Images.settings.getResource()).withPosition(5).build());
+				.withIcon(Images.cogs.getResource()).withPosition(80).build());
 
 	}
 

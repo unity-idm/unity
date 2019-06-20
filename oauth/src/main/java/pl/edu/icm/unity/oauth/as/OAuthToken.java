@@ -37,18 +37,17 @@ public class OAuthToken
 	private String responseType;
 	private String audience;
 	private String issuerUri;
-	
-	private String codeChallenge;
-	private String codeChallengeMethod;
 	private ClientType clientType;
+	private PKCSInfo pkcsInfo;
+
 	
 	public OAuthToken()
 	{
+		pkcsInfo = new PKCSInfo();
 	}
 	
 	/**
 	 * copy constructor
-	 * @param source
 	 */
 	public OAuthToken(OAuthToken source)
 	{
@@ -69,8 +68,7 @@ public class OAuthToken
 		setRequestedScope(source.getRequestedScope());
 		setAudience(source.getAudience());
 		setIssuerUri(source.getIssuerUri());
-		setCodeChallenge(source.getCodeChallenge());
-		setCodeChallengeMethod(source.getCodeChallengeMethod());
+		pkcsInfo = new PKCSInfo(source.pkcsInfo);
 		setClientType(source.getClientType());
 	}
 	
@@ -281,27 +279,7 @@ public class OAuthToken
 	{
 		this.issuerUri = issuerUri;
 	}
-
-	public String getCodeChallenge()
-	{
-		return codeChallenge;
-	}
-
-	public void setCodeChallenge(String codeChallenge)
-	{
-		this.codeChallenge = codeChallenge;
-	}
-
-	public String getCodeChallengeMethod()
-	{
-		return codeChallengeMethod;
-	}
-
-	public void setCodeChallengeMethod(String codeChallengeMethod)
-	{
-		this.codeChallengeMethod = codeChallengeMethod;
-	}
-
+	
 	public ClientType getClientType()
 	{
 		return clientType == null ? ClientType.CONFIDENTIAL : clientType;
@@ -310,5 +288,48 @@ public class OAuthToken
 	public void setClientType(ClientType clientType)
 	{
 		this.clientType = clientType;
+	}
+	
+	public PKCSInfo getPkcsInfo()
+	{
+		return pkcsInfo;
+	}
+
+	public void setPkcsInfo(PKCSInfo pkcsInfo)
+	{
+		this.pkcsInfo = pkcsInfo;
+	}
+
+
+	public static class PKCSInfo
+	{
+		private String codeChallenge;
+		private String codeChallengeMethod;
+		
+		PKCSInfo(PKCSInfo source)
+		{
+			this.codeChallenge = source.codeChallenge;
+			this.codeChallengeMethod = source.codeChallengeMethod;
+		}
+		
+		PKCSInfo()
+		{
+		}
+		
+		public PKCSInfo(String codeChallenge, String codeChallengeMethod)
+		{
+			this.codeChallenge = codeChallenge;
+			this.codeChallengeMethod = codeChallengeMethod;
+		}
+
+		public String getCodeChallenge()
+		{
+			return codeChallenge;
+		}
+
+		public String getCodeChallengeMethod()
+		{
+			return codeChallengeMethod;
+		}
 	}
 }

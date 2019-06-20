@@ -77,9 +77,10 @@ public class PKIView extends CustomComponent implements UnityView
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withIcon(Images.file_zip.getResource())
+					.withIcon(Images.diploma.getResource())
 					.withShortCaption(msg.getMessage("WebConsoleMenu.settings.pki"))
 					.withCaption(msg.getMessage("WebConsoleMenu.settings.publicKeyInfrastructure"))
+					.withPosition(20)
 					.build());
 		}
 	}

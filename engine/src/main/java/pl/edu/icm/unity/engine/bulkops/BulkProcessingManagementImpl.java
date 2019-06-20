@@ -110,4 +110,13 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement, B
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return db.getAll();
 	}
+	
+	@Transactional
+	@Override
+	public ScheduledProcessingRule getScheduledRule(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		return db.get(id);
+	}
+
 }

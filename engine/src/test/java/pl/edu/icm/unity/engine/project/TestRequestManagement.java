@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
-import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestType;
+import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import com.vaadin.ui.Component;
 
+import io.imunity.webadmin.bulk.RuleEditor;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.AbstractDialog;

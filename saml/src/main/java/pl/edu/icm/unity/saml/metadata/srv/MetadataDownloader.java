@@ -5,22 +5,24 @@
 package pl.edu.icm.unity.saml.metadata.srv;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
+import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
@@ -34,16 +36,14 @@ public class MetadataDownloader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetadataDownloader.class);
 	private static final String CACHE_DIR = "downloadedMetadata";
+	private final URIAccessService uriAccessService;
+	private final FileStorageService fileStorageService;
 
-	private final String workspaceDirectory;
-	private final NetworkClient client;
-
-	public MetadataDownloader(String workspaceDirectory, NetworkClient client)
+	public MetadataDownloader(URIAccessService uriAccessService, FileStorageService fileStorageService)
 	{
-		this.workspaceDirectory = workspaceDirectory;
-		this.client = client;
+		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
-
 	
 	/**
 	 * If url is local file, then return metadata read from it,
@@ -57,17 +57,17 @@ public class MetadataDownloader
 	 * @throws XmlException
 	 * @throws InterruptedException 
 	 */
-	EntitiesDescriptorDocument getFresh(String url, String customTruststore)
+	EntitiesDescriptorDocument getFresh(String rawUri, String customTruststore)
 			throws EngineException, IOException, XmlException, InterruptedException
 	{
-		if (url.startsWith("file:"))
+		URI uri = URIHelper.parseURI(rawUri);
+		
+		if (!URIHelper.isWebReady(uri))
 		{
-			URL localUrl = new URL(url);
-			return EntitiesDescriptorDocument.Factory.parse(localUrl.openStream());
+			return EntitiesDescriptorDocument.Factory.parse(new ByteArrayInputStream(uriAccessService.readURI(uri).getContents()));
 		} else
 		{
-			File downloaded = download(url, customTruststore);
-			return loadFile(downloaded);
+			return loadFile(download(uri, customTruststore));
 		}
 	}
 
@@ -77,17 +77,24 @@ public class MetadataDownloader
 	 * @throws XmlException 
 	 * @throws InterruptedException 
 	 */
-	Optional<EntitiesDescriptorDocument> getCached(String url) throws XmlException, IOException, InterruptedException
+	Optional<EntitiesDescriptorDocument> getCached(String uri)
+			throws XmlException, IOException, InterruptedException
 	{
-		File cached = getLocalFile(url, "");
-		if (!cached.exists())
+		FileData data;
+		try
+		{
+			data = fileStorageService.readFileFromWorkspace(getFileName(uri));
+		} catch (Exception e)
+		{
 			return Optional.empty();
-		return Optional.of(loadFile(cached));
+		}
+		log.debug("Get metadata file for "+ uri + " from cache");
+		return Optional.of(loadFile(new ByteArrayInputStream(data.getContents())));
 	}
 	
-	private EntitiesDescriptorDocument loadFile(File file) throws XmlException, IOException, InterruptedException
+	private EntitiesDescriptorDocument loadFile(InputStream file) throws XmlException, IOException, InterruptedException
 	{
-		InputStream is = new BufferedInputStream(new FileInputStream(file));
+		InputStream is = new BufferedInputStream(file);
 		String metadata = IOUtils.toString(is, Charset.defaultCharset());
 		log.trace("Read metadata:\n{}", metadata);
 		EntitiesDescriptorDocument doc = EntitiesDescriptorDocument.Factory.parse(metadata);
@@ -95,30 +102,16 @@ public class MetadataDownloader
 		return doc;
 	}
 	
-	private File download(String url, String customTruststore) throws IOException, EngineException
+	private InputStream download(URI uri, String customTruststore) throws IOException, EngineException
 	{
-		File cachedFile = getLocalFile(url, "");
-		File cachedFilePart = getLocalFile(url, "_part");
-		if (cachedFilePart.exists())
-			cachedFilePart.delete();
-
-		log.debug("Downloading metadata from " + url + " to " + cachedFilePart.toString());
-		InputStream is = client.download(url, customTruststore);
-		FileOutputStream cacheFos = new FileOutputStream(cachedFilePart);
-		IOUtils.copy(is, cacheFos);
-		cacheFos.close();
-		cachedFile.delete();
-		FileUtils.moveFile(cachedFilePart, cachedFile);
-		log.info("Downloaded metadata from " + url + " and stored in "
-				+ cachedFile.toString());
-		return cachedFile;
+		FileData data = uriAccessService.readURI(uri, customTruststore);
+		FileData savedFile = fileStorageService.storeFileInWorkspace(data.getContents(), getFileName(uri.toString()));
+		log.info("Downloaded metadata from " + uri.toString() + " and stored in " + savedFile.getName());
+		return new ByteArrayInputStream(savedFile.getContents());
 	}
-	
-	private File getLocalFile(String uri, String suffix)
+		
+	public static String getFileName(String uri)
 	{
-		File dir = new File(workspaceDirectory, CACHE_DIR);
-		if (!dir.exists())
-			dir.mkdirs();
-		return new File(dir, DigestUtils.md5Hex(uri) + suffix);
+		return Paths.get(CACHE_DIR, DigestUtils.md5Hex(uri)).toString();
 	}
 }

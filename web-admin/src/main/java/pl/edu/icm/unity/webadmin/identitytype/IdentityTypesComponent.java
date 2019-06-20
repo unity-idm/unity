@@ -16,6 +16,8 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.identitytype.IdentityTypeEditor;
+import io.imunity.webadmin.identitytype.IdentityTypesUpdatedEvent;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;

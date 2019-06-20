@@ -45,13 +45,43 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		if (value == null)
 			return ImageValueEditor.getErrorImage();
 
+		if (context.isScaleImage())
+		{
+			
+			value.scaleDown(context.getImageScaleWidth(), context.getImageScaleHeight());
+		}
+
 		Resource resValue = new SimpleImageSource(value.getImage(), value.getType()).getResource();
 
 		if (resValue != null)
 		{
 			Image image = new Image();
-
 			image.setSource(resValue);
+	
+			if (context.isCustomWidth() && !context.isScaleImage())
+			{
+
+				if (context.getCustomWidth() > 0)
+				{
+					image.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				} else
+				{
+					image.setWidthUndefined();
+				}
+			}
+			if (context.isCustomHeight() && !context.isScaleImage())
+			{
+				if (context.getCustomHeight() > 0)
+				{
+					image.setHeight(context.getCustomHeight(), context.getCustomHeightUnit());
+				}
+
+				else
+				{
+					image.setHeightUndefined();
+				}
+			}
+
 			return image;
 		} else
 		{

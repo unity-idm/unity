@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -32,12 +33,13 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
@@ -58,31 +60,34 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
  * Implementation of {@link ProjectInvitationsManagement}
  * 
  * @author P.Piernik
- *
  */
-
 @Component
 @Primary
 public class ProjectInvitationsManagementImpl implements ProjectInvitationsManagement
 {
-	private ProjectAuthorizationManager authz;
-	private InvitationManagement invitationMan;
-	private GroupsManagement groupMan;
-	private SharedEndpointManagement sharedEndpointMan;
-	private RegistrationsManagement registrationMan;
-	private EnquiryManagement enquiryMan;
-	private BulkGroupQueryService bulkService;
-	private ProjectAttributeHelper attrHelper;
+	private final ProjectAuthorizationManager authz;
+	private final InvitationManagement invitationMan;
+	private final GroupsManagement groupMan;
+	private final SharedEndpointManagement sharedEndpointMan;
+	private final RegistrationsManagement registrationMan;
+	private final EnquiryManagement enquiryMan;
+	private final BulkGroupQueryService bulkService;
+	private final ProjectAttributeHelper attrHelper;
+	private final EntityManagement entityMan;
 
 	public ProjectInvitationsManagementImpl(@Qualifier("insecure") InvitationManagement invitationMan,
 			@Qualifier("insecure") GroupsManagement groupMan,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
-			@Qualifier("insecure") BulkGroupQueryService bulkService, ProjectAttributeHelper attrHelper,
-			SharedEndpointManagement sharedEndpointMan, ProjectAuthorizationManager authz)
+			@Qualifier("insecure") BulkGroupQueryService bulkService,
+			@Qualifier("insecure") EntityManagement entityMan,
+			ProjectAttributeHelper attrHelper,
+			SharedEndpointManagement sharedEndpointMan, 
+			ProjectAuthorizationManager authz)
 	{
 		this.invitationMan = invitationMan;
 		this.groupMan = groupMan;
+		this.entityMan = entityMan;
 		this.sharedEndpointMan = sharedEndpointMan;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
@@ -103,6 +108,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			code = invitationMan.addInvitation(getRegistrationInvitation(param));
 		} else
 		{
+			assertNotMemberAlready(entity, param.project);
 			code = invitationMan.addInvitation(getEnquiryInvitation(param, entity));
 		}
 
@@ -110,6 +116,13 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		return code;
 	}
 
+	private void assertNotMemberAlready(long entityId, String projectGroup) throws EngineException
+	{
+		Map<String, GroupMembership> groups = entityMan.getGroups(new EntityParam(entityId));
+		if (groups.containsKey(projectGroup))
+			throw new AlreadyMemberException();
+	}
+	
 	private Long getEntityByContactAddress(String contactAddress) throws EngineException
 	{
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
@@ -337,29 +350,5 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		}
 
 		return orgInvitationWithCode;
-	}
-
-	public static class NotProjectInvitation extends InternalException
-	{
-		public NotProjectInvitation(String projectPath, String code)
-		{
-			super("Invitation with code " + code + " is not related with project group " + projectPath);
-		}
-	}
-
-	public static class IllegalInvitationException extends InternalException
-	{
-		public IllegalInvitationException(String code)
-		{
-			super("Invitation with code " + code + " does not exists");
-		}
-	}
-	
-	public static class ProjectMisconfiguredException extends InternalException
-	{
-		public ProjectMisconfiguredException(String projectPath)
-		{
-			super("Misconfigured project group " + projectPath);
-		}
 	}
 }

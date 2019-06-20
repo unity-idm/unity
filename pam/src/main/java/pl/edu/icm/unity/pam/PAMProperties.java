@@ -10,13 +10,15 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
-public class PAMProperties extends PropertiesHelper
+public class PAMProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, PAMProperties.class);
 	
@@ -27,22 +29,31 @@ public class PAMProperties extends PropertiesHelper
 	public static final Map<String, PropertyMD> META=new HashMap<>();
 	
 	public static final String PAM_FACILITY = "facility";
-	public static final String TRANSLATION_PROFILE = "translationProfile";
 	
 	static 
 	{
 		META.put(PAM_FACILITY, new PropertyMD("unity").setDescription(
 				"Name of PAM facility that should be used to authenticate users. "
 				+ "Typically this is a filename in the pam.d directory."));
-		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setDescription("Name of a translation" +
+		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
-
+		META.put(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setHidden().setDescription("Translation" +
+				" profile as json string, which will be used to map remotely obtained attributes and identity" +
+				" to the local counterparts. The profile should at least map the remote identity."));
 	}
 	
 	public PAMProperties(Properties properties)
 	{
 		super(PREFIX, properties, META, log);
+		
+		if (!isSet(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE)
+				&& !isSet(CommonWebAuthnProperties.TRANSLATION_PROFILE))
+		{
+			throw new ConfigurationException(getKeyDescription(CommonWebAuthnProperties.TRANSLATION_PROFILE)
+					+ " is mandatory");
+
+		}
 	}
 	
 	public Properties getProperties()

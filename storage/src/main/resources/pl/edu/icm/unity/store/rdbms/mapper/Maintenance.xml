@@ -39,6 +39,9 @@
 		DROP TABLE IF EXISTS EVENTS_QUEUE;
 	</update>
 	<update id="cleardb-11">
+		DROP TABLE IF EXISTS FILES;
+	</update>
+	<update id="cleardb-12">
 		DROP TABLE IF EXISTS AUDIT_ENTITIES;
 		DROP TABLE IF EXISTS AUDIT_EVENTS;
 		DROP TABLE IF EXISTS AUDIT_TAGS;
@@ -84,6 +87,9 @@
 		DELETE FROM EVENTS_QUEUE;
 	</delete>
 	<delete id="deletedb-10">
+		DELETE FROM FILES;
+	</delete>
+	<delete id="deletedb-11">
 		DELETE FROM AUDIT_ENTITIES;
 		DELETE FROM AUDIT_EVENTS;
 		DELETE FROM AUDIT_TAGS;

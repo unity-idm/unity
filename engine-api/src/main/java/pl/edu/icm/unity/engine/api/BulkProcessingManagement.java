@@ -36,4 +36,6 @@ public interface BulkProcessingManagement
 	void updateScheduledRule(ScheduledProcessingRule rule) throws EngineException;
 	
 	List<ScheduledProcessingRule> getScheduledRules() throws EngineException;
+	
+	ScheduledProcessingRule getScheduledRule(String id) throws EngineException;
 }

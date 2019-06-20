@@ -66,10 +66,10 @@ public class RemoteMetaManager
 
 	public synchronized IdPVisalSettings getVisualSettings(String configKey, Locale locale)
 	{
-		String logoUrl = virtualConfiguration.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, locale);
+		String logoURI = virtualConfiguration.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, locale);
 		String name = ((SAMLSPProperties)virtualConfiguration).getLocalizedName(configKey, locale);
 		List<String> tags = virtualConfiguration.getListOfValues(configKey + SAMLSPProperties.IDP_NAME + ".");
-		return new IdPVisalSettings(logoUrl, tags, name);
+		return new IdPVisalSettings(logoURI, tags, name);
 	}
 	
 	public synchronized void setBaseConfiguration(SamlProperties configuration)

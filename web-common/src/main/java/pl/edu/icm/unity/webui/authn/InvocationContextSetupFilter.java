@@ -49,9 +49,6 @@ public class InvocationContextSetupFilter implements Filter
 	private List<AuthenticationFlow> authenticationFlows;
 	
 	/**
-	 * 
-	 * @param config
-	 * @param realm
 	 * @param baseAddress public address of the server with scheme and port, with empty path.
 	 */
 	public InvocationContextSetupFilter(UnityServerConfiguration config, 
@@ -124,7 +121,6 @@ public class InvocationContextSetupFilter implements Filter
 	/**
 	 * Sets locale in invocation context. If there is cookie with selected and still supported
 	 * locale then it is used. Otherwise a default locale is set.
-	 * @param request
 	 */
 	private void setLocale(HttpServletRequest request, InvocationContext context)
 	{

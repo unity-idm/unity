@@ -46,9 +46,9 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "Targeted persistent id";
+		return "TargetedPersistentIdentity.description";
 	}
 
 	/**

@@ -51,12 +51,44 @@ public class NotificationPopup
 	
 	public static void showError(ControllerException exception)
 	{
-		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.Error)
+		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.ERROR)
 		{
 			showError(exception.getCaption(), exception.getDetails());
 		}else
 		{
 			showNotice(exception.getCaption(), exception.getDetails());
+		}
+	}
+	
+	public static void showError(UnityMessageSource msg, ControllerException exception)
+	{
+		String description = exception.getCause() != null ? getHumanMessage(exception.getCause()) : "";
+
+		if (exception.getDetails() != null && !exception.getDetails().isEmpty())
+		{
+
+			description = description != null && !description.trim().isEmpty()
+					? exception.getDetails() + ", " + description
+					: exception.getDetails();
+		}
+
+		if (description.trim().isEmpty())
+		{
+			description = msg.getMessage("Generic.formErrorHint");
+		}
+
+		if (log.isDebugEnabled())
+		{
+			log.debug("Error popup showed an error to the user: " + exception.getCaption());
+			log.debug("What's more there was an exception attached which caused an error:", exception);
+		}
+
+		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.ERROR)
+		{
+			showError(exception.getCaption(), description);
+		} else
+		{
+			showNotice(exception.getCaption(), description);
 		}
 	}
 

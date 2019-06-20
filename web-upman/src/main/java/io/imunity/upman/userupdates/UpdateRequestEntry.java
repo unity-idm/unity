@@ -11,12 +11,12 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import io.imunity.upman.common.FilterableEntry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
-import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestType;
+import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
+import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 /***
  * Data object behind a row in {@link UpdateRequestsGrid}. Stores request

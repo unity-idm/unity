@@ -12,6 +12,7 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.AbstractField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -31,7 +32,7 @@ class MVELExpressionEditor
 		this.field = field;
 		this.msg = msg;
 		field.setCaption(caption);
-		field.setDescription(description);
+		field.setDescription(description, ContentMode.HTML);
 	}
 
 	void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)

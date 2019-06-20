@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.attributeclass;
 
 import com.vaadin.ui.Component;
 
+import io.imunity.webadmin.attributeclass.AttributesClassEditor;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.AbstractDialog;

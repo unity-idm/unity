@@ -22,6 +22,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.bulk.RuleEditorImpl;
+import io.imunity.webadmin.bulk.ScheduledRuleParamEditorImpl;
 import io.imunity.webadmin.tprofile.ActionEditor;
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;

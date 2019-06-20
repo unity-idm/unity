@@ -47,7 +47,7 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 	private EventsBus bus;
 
 	@Autowired
-	public NewLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	NewLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -61,8 +61,8 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg,
-				() -> onConfirm(), () -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> onConfirm(),
+				() -> onCancel()));
 		setCompositionRoot(main);
 	}
 
@@ -85,7 +85,7 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

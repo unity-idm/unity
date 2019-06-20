@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.composite.password;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -80,8 +79,6 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 	private CompositePasswordProperties compositePasswordProperties;
 	private NotificationProducer notificationProducer;
 	
-	
-
 	@Autowired
 	public CompositePasswordVerificator(
 			pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator.Factory passwordVerificator,
@@ -133,24 +130,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 		localVerificator.setCredentialName(credential);
 		return localVerificator;
 	}
-
-	private CredentialVerificator getRemoteVerificator(CredentialVerificator verificator,
-			File config)
-	{
-		try
-		{
-			String rConfiguration = config == null ? null
-					: FileUtils.readFileToString(config,
-							StandardCharsets.UTF_8);
-			verificator.setSerializedConfiguration(rConfiguration);
-			return verificator;
-		} catch (IOException e)
-		{
-			throw new InternalException(
-					"Invalid configuration of the composite-password verificator(?)", e);
-		}
-	}
-
+	
 	@Override
 	public void setSerializedConfiguration(String config)
 	{
@@ -190,13 +170,44 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 
 			} else
 			{
-				File configFile = compositePasswordProperties.getFileValue(
-						verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG,
-						false);
-				remoteVerificators.add(getRemoteVerificator(verificator, configFile));
+				verificator.setSerializedConfiguration(getRemoteAuthenticatorConfig(verificatorKey));
+				remoteVerificators.add(verificator);
 			}
 		}
 
+	}
+	
+	private String getRemoteAuthenticatorConfig(String verificatorKey)
+	{
+
+		if (!compositePasswordProperties
+				.isSet(verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG_EMBEDDED)
+				&& !compositePasswordProperties
+						.isSet(verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG))
+		{
+			throw new InternalException(
+					"Misconfigured composite-password verificator, remote verificator has no defined configuration");
+		}
+
+		if (!compositePasswordProperties.isSet(verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG))
+		{
+			return compositePasswordProperties.getValue(
+					verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG_EMBEDDED);
+		} else
+		{
+			try
+			{
+				return FileUtils.readFileToString(compositePasswordProperties.getFileValue(
+						verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG, false),
+						StandardCharsets.UTF_8);
+
+			} catch (IOException e)
+			{
+				throw new InternalException(
+						"Misconfigured composite-password verificator composite-password, remote verificator config file is not available",
+						e);
+			}
+		}
 	}
 
 	@Override

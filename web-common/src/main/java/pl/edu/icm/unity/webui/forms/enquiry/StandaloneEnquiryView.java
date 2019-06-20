@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -16,6 +18,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -29,18 +33,22 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedWithLogoutComponent;
  */
 class StandaloneEnquiryView extends CustomComponent implements View
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneEnquiryView.class);
 	protected EnquiryResponseEditor editor;
 	private Callback callback;
 	protected UnityMessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
+	protected URIAccessService uriAccessService;
+	
 	protected VerticalLayout main;
 	
-	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor,
+	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, URIAccessService uriAccessService,
 			UnityMessageSource msg,	Callback callback)
 	{
 		this.editor = editor;
 		this.authnProcessor = authnProcessor;
 		this.msg = msg;
+		this.uriAccessService = uriAccessService;
 		this.callback = callback;
 		main = new VerticalLayout();
 		main.setSpacing(true);
@@ -134,6 +142,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Enquiry is finalized, status: {}", config);
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
@@ -142,13 +151,14 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		setCompositionRoot(wrapper);
 
 		Component finalScreen = new WorkflowCompletedWithLogoutComponent(config, this::redirect, 
-				msg.getMessage("MainHeader.logout"), authnProcessor::logout);
+				msg.getMessage("MainHeader.logout"), authnProcessor::logout, uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
 	
 	private void redirect(String redirectUrl)
 	{
+		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
 		Page.getCurrent().open(redirectUrl, null);
 	}
 	

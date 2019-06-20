@@ -40,8 +40,7 @@ public class CertificatesController
 			return pkiMan.getPersistedCertificates();
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("CertificatesController.getAllError"),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("CertificatesController.getAllError"), e);
 		}
 	}
 	
@@ -53,8 +52,7 @@ public class CertificatesController
 			return pkiMan.getCertificate(name);
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("CertificatesController.getError", name),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("CertificatesController.getError", name), e);
 		}
 	}
 
@@ -66,8 +64,7 @@ public class CertificatesController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("CertificatesController.addError", certificate.name),
-					e.getMessage(), e);
+					msg.getMessage("CertificatesController.addError", certificate.name), e);
 		}
 	}
 
@@ -79,8 +76,7 @@ public class CertificatesController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("CertificatesController.updateError", certificate.name),
-					e.getMessage(), e);
+					msg.getMessage("CertificatesController.updateError", certificate.name), e);
 		}
 	}
 
@@ -92,8 +88,7 @@ public class CertificatesController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("CertificatesController.removeError", certificate.name),
-					e.getMessage(), e);
+					msg.getMessage("CertificatesController.removeError", certificate.name), e);
 		}
 	}
 }

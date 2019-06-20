@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -45,7 +46,8 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			UnicoreIdpConsentDeciderServlet.Factory dispatcherServletFactory,
 			UnityMessageSource msg,
 			AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService)
+			RemoteMetadataService metadataService,
+			URIAccessService uriAccessService)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, 
 				server, applicationContext, freemarkerHandler, 
@@ -55,7 +57,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 				logoutProcessorFactory, 
 				sloReplyInstaller, msg,
 				aTypeSupport,
-				metadataService);
+				metadataService, uriAccessService);
 	}
 
 	@Override

@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.webui.authn.extensions;
 
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +54,6 @@ import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialResetController;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -77,7 +75,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	
 	private UnityMessageSource msg;
 	private I18nString name;
-	private String logoURL;
 	private CredentialEditorRegistry credEditorReg;
 	private String configuration;
 	
@@ -104,12 +101,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			Properties properties = new Properties();
 			properties.load(new StringReader(configuration));
 			SMSRetrievalProperties config = new SMSRetrievalProperties(properties);
-			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
+			name = config.getLocalizedString(msg, SMSRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebSMSRetrieval.title", msg);
-			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
-			if (logoURL != null && !logoURL.isEmpty())
-				ImageUtils.getLogoResource(logoURL);
+	
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -481,21 +476,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		@Override
 		public Resource getImage()
 		{
-			if (logoURL == null)
-				return null;
-			if ("".equals(logoURL))
-				return Images.mobile_sms.getResource();
-			else
-			{
-				try
-				{
-					return ImageUtils.getLogoResource(logoURL);
-				} catch (MalformedURLException e)
-				{
-					log.error("Can't load logo", e);
-					return null;
-				}
-			}
+			return Images.mobile_sms.getResource();
 		}
 
 		@Override
@@ -557,7 +538,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		@Autowired
 		public Factory(ObjectFactory<SMSRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, SMSExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, SMSExchange.ID);
 		}
 	}
 }

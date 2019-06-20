@@ -19,6 +19,7 @@ import com.vaadin.server.VaadinRequest;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -46,9 +47,10 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
-	public AccountAssociationSandboxUI(UnityMessageSource msg, 
+	public AccountAssociationSandboxUI(UnityMessageSource msg, URIAccessService uriAccessService,
 			LocaleChoiceComponent localeChoice,
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
@@ -60,6 +62,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 		this.authnProcessor = authnProcessor;
 		this.execService = execService;
 		this.idsMan = idsMan;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -78,6 +81,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 		String title = msg.getMessage("SandboxUI.authenticateToAssociateAccounts");
 		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg, 
+				uriAccessService,
 				config, 
 				endpointDescription, 
 				cancelHandler, 

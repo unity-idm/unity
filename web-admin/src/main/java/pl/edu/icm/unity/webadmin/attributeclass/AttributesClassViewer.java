@@ -9,6 +9,7 @@ import java.util.Map;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
+import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;

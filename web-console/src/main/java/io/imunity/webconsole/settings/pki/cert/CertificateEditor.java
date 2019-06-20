@@ -103,6 +103,7 @@ class CertificateEditor extends CustomComponent
 		certDetails = new FormLayout();
 		CollapsibleLayout detailsLayout = new CollapsibleLayout(
 				msg.getMessage("CertificateEditor.certficateDetails"), certDetails);
+		detailsLayout.expand();
 		main.addComponent(detailsLayout);
 
 		setCompositionRoot(main);

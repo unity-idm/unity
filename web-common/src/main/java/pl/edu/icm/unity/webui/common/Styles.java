@@ -40,6 +40,7 @@ public enum Styles
 	textXLarge("u-textXLarge"),
 	textEndpointName("u-textEndpointHeading"),
 	toolbarButton("u-toolbarButton"),
+	toolbar("u-toolbar"),
 	verticalBar("u-verticalBar"),
 	horizontalBar("u-horizontalBar"),
 	header("u-header"),
@@ -69,6 +70,7 @@ public enum Styles
 	hamburgerMenu("u-hamburgerMenu"),
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
 	uDenseTreeGrid("u-denseTreeGrid"),
+	smallIconLabel("u-smallIconLabel"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
 	signInButton("u-signInButton"),
@@ -79,6 +81,10 @@ public enum Styles
 	redProgressBar("u-redProgressBar"),
 	RegistrationLink("registrationLink"),
 	indentComboBox("u-indentComboBox"),
+	wordWrap("u-wordWrap"),
+	sectionTitle("u-sectionTitle"),
+	showHideButton("u-showHideButton"),
+	imagePreview("u-imagePreview"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -97,7 +103,8 @@ public enum Styles
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
 	vDropLayout("drop-layout"),	
-	vGroupBrowser("v-tree8");
+	vGroupBrowser("v-tree8"),
+	vPanelBorderless(ValoTheme.PANEL_BORDERLESS);
 	
 	
 	/**
@@ -123,6 +130,7 @@ public enum Styles
 		switch (localeCode)
 		{
 		case "en":
+		case "fr":
 		case "pl":
 		case "de":
 		case "nb":

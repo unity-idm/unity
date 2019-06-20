@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -40,6 +41,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 	private SandboxAuthnRouter sandboxRouter;
 
 	public SandboxAuthenticationScreen(UnityMessageSource msg, 
+			URIAccessService uriAccessService,
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			CancelHandler cancelHandler,
@@ -51,7 +53,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			String title,
 			SandboxAuthnRouter sandboxRouter)
 	{
-		super(msg, prepareConfiguration(config.getProperties(), title), 
+		super(msg, uriAccessService, prepareConfiguration(config.getProperties(), title), 
 				endpointDescription, 
 				() -> false,
 				new NoOpCredentialRestLauncher(),

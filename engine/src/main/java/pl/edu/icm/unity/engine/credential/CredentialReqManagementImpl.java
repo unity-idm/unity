@@ -123,4 +123,11 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 		if (cred.isReadOnly())
 			throw new IllegalArgumentException("Cannot create read only credential requirement through this API");
 	}
+
+
+	@Override
+	public CredentialRequirements getCredentialRequirements(String name) throws EngineException
+	{
+		return credReqRepository.get(name);
+	}
 }

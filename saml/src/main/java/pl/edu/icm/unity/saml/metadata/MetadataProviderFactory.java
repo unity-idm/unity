@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.saml.metadata;
 
-import java.io.File;
-import java.io.IOException;
-
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -28,13 +27,14 @@ public class MetadataProviderFactory
 	 * @param endpoints
 	 * @return metadata of an IDP
 	 */
-	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, 
+	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, URIAccessService uriAccessService, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
 			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
 	{
-		MetadataProvider metaProvider;
-		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
-		if (metadataFile == null)
+		MetadataProvider metaProvider;		
+		String uri = samlProperties.getValue(SamlProperties.METADATA_SOURCE);
+		
+		if (uri == null)
 		{
 			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, 
 					attributeQueryEndpoints, sloEndpoints);
@@ -42,13 +42,14 @@ public class MetadataProviderFactory
 		{
 			try
 			{
-				metaProvider = new FileMetadataProvider(executorsService, metadataFile);
-			} catch (IOException e)
+				metaProvider = new URIMetadataProvider(executorsService, uriAccessService, uri);
+			} catch (EngineException e)
 			{
 				throw new ConfigurationException("Can't initialize metadata provider, " +
 						"problem loading metadata", e);
 			}
 		}
+		
 		return addSigner(metaProvider, samlProperties, samlProperties.getSamlIssuerCredential());
 	}
 	
@@ -58,13 +59,13 @@ public class MetadataProviderFactory
 	 * @param endpoints
 	 * @return metadata of a SP
 	 */
-	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, 
+	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, URIAccessService uriAccessService,
 			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints, 
 			EndpointType[] sloEndpoints)
 	{
 		MetadataProvider metaProvider;
-		File metadataFile = samlProperties.getFileValue(SamlProperties.METADATA_SOURCE, false);
-		if (metadataFile == null)
+		String uri = samlProperties.getValue(SamlProperties.METADATA_SOURCE);
+		if (uri == null)
 		{
 			metaProvider = new SPMetadataGenerator(samlProperties, assertionConsumerEndpoints,
 					sloEndpoints);
@@ -72,8 +73,8 @@ public class MetadataProviderFactory
 		{
 			try
 			{
-				metaProvider = new FileMetadataProvider(executorsService, metadataFile);
-			} catch (IOException e)
+				metaProvider = new URIMetadataProvider(executorsService, uriAccessService, uri);
+			} catch (EngineException e)
 			{
 				throw new ConfigurationException("Can't initialize metadata provider, " +
 						"problem loading metadata", e);
