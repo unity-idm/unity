@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextField;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
@@ -448,7 +448,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		FormLayoutWithFixedCaptionWidth advancedAttrSearchLayout = new FormLayoutWithFixedCaptionWidth();
 		advancedAttrSearchLayout.setMargin(false);
 
-		ChipsWithTextField retrievalLdapAttr = new ChipsWithTextField();
+		ChipsWithTextfield retrievalLdapAttr = new ChipsWithTextfield(msg);
 		retrievalLdapAttr.setCaption(msg.getMessage("LdapAuthenticatorEditor.retrievalLdapAttributes"));
 		advancedAttrSearchLayout.addComponent(retrievalLdapAttr);
 		configBinder.forField(retrievalLdapAttr).bind("retrievalLdapAttributes");

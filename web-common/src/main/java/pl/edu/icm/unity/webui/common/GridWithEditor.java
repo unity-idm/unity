@@ -54,6 +54,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		}).build();
 
 		grid = new GridWithActionColumn<>(msg, Arrays.asList(remove));
+		grid.setMinHeightByRow(3);
 		grid.getEditor().addSaveListener(e -> {
 			fireChange();
 			resetNewElement();

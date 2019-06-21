@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication.setup;
+package io.imunity.webconsole.authentication.facilities;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @PrototypeComponent
-public class AuthenticationSetupView extends CustomComponent implements UnityView
+public class AuthenticationFacilitiesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "AuthenticationSetup";
 
@@ -43,7 +43,7 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 	private AuthenticatorsController authnMan;
 
 	@Autowired
-	AuthenticationSetupView(UnityMessageSource msg, AuthenticationFlowsController flowsMan,
+	AuthenticationFacilitiesView(UnityMessageSource msg, AuthenticationFlowsController flowsMan,
 			AuthenticatorsController authnMan)
 	{
 		this.msg = msg;
@@ -67,7 +67,7 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.authentication.setup");
+		return msg.getMessage("WebConsoleMenu.authentication.facilities");
 	}
 
 	@Override
@@ -77,18 +77,18 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 	}
 
 	@Component
-	public static class AuthenticationSetupNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class AuthenticationFacilitiesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public AuthenticationSetupNavigationInfoProvider(UnityMessageSource msg,
+		public AuthenticationFacilitiesNavigationInfoProvider(UnityMessageSource msg,
 				AuthenticationNavigationInfoProvider parent,
-				ObjectFactory<AuthenticationSetupView> factory)
+				ObjectFactory<AuthenticationFacilitiesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.authentication.setup"))
-					.withIcon(Images.exit.getResource())
+					.withCaption(msg.getMessage("WebConsoleMenu.authentication.facilities"))
+					.withIcon(Images.sign_in.getResource())
 					.withPosition(10).build());
 
 		}

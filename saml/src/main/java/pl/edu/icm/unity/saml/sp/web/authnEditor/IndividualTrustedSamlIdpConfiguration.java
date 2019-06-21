@@ -68,7 +68,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		setName(name);
 		String prefix = SAMLSPProperties.IDP_PREFIX + name + ".";
 		setId(source.getValue(prefix + SAMLSPProperties.IDP_ID));
-		setDisplayedName(source.getLocalizedString(msg, prefix + SAMLSPProperties.IDP_NAME));
+		setDisplayedName(source.getLocalizedStringWithoutFallbackToDefault(msg, prefix + SAMLSPProperties.IDP_NAME));
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{

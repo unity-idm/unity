@@ -104,6 +104,7 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		if (initial != null)
 		{
 			binder.setBean(initial);
+			binder.validate();
 		} else
 		{
 			MobileNumberConfirmationConfiguration init = new MobileNumberConfirmationConfiguration();

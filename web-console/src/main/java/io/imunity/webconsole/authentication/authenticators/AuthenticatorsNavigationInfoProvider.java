@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.setup.AuthenticationSetupView.AuthenticationSetupNavigationInfoProvider;
+import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView.AuthenticationFacilitiesNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -27,7 +27,7 @@ class AuthenticatorsNavigationInfoProvider extends WebConsoleNavigationInfoProvi
 
 	@Autowired
 	AuthenticatorsNavigationInfoProvider(UnityMessageSource msg,
-			AuthenticationSetupNavigationInfoProvider parent)
+			AuthenticationFacilitiesNavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())

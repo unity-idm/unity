@@ -166,7 +166,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		externalTemplateInfo = new Label(msg.getMessage("MessageTemplatesEditor.externalTemplateInfo"));
 		externalTemplateInfo.setWidth(100, Unit.PERCENTAGE);
 		externalTemplateInfo.setVisible(false);
-		customVariablesPicker = new ChipsWithTextfield();
+		customVariablesPicker = new ChipsWithTextfield(msg);
 		customVariablesPicker.setCaption(msg.getMessage("MessageTemplatesEditor.customVariables"));
 		customVariablesPicker.setValidator(msg, str -> str.matches("[a-zA-Z0-9_\\-\\.]*"),
 				msg.getMessage("MessageTemplatesEditor.customVariableIllegalCharsError"));

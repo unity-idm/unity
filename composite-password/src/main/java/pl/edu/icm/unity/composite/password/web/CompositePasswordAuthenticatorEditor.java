@@ -279,7 +279,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			}
 
 			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-			setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+			setRetrievalName(passwordRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 					PasswordRetrievalProperties.NAME));
 		}
 

@@ -176,11 +176,13 @@ public class I18nString
 		if (defaultValue != null)
 		{
 			properties.put(prefix, defaultValue);
-		}else
+		} else
 		{
-			properties.put(prefix, "");
+			properties.put(prefix,
+					values.get(msg.getDefaultLocaleCode()) != null
+							? values.get(msg.getDefaultLocaleCode())
+							: " ");
 		}
-		
 	}
 	@Override
 	public boolean equals(Object obj)

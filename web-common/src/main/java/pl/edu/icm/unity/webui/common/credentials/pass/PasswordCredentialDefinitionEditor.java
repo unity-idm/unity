@@ -276,7 +276,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			super(msg, msg.getMessage("PasswordDefinitionEditor.testMe"), 
 					msg.getMessage("close"));
 			this.config = config;
-			setSize(35, 40);
+			setSizeEm(40, 30);
 		}
 
 		@Override

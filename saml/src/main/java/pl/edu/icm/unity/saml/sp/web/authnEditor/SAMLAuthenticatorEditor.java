@@ -170,7 +170,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind("credential");
 		header.addComponent(credential);
 
-		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText();
+		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText(msg);
 		acceptedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
 				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		acceptedNameFormats.setCaption(msg.getMessage("SAMLAuthenticatorEditor.acceptedNameFormats"));
@@ -187,7 +187,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		configBinder.forField(defSignRequest).bind("defSignRequest");
 		header.addComponent(defSignRequest);
 
-		ChipsWithFreeText defaultRequestedNameFormat = new ChipsWithFreeText();
+		ChipsWithFreeText defaultRequestedNameFormat = new ChipsWithFreeText(msg);
 		defaultRequestedNameFormat.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
 				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		defaultRequestedNameFormat

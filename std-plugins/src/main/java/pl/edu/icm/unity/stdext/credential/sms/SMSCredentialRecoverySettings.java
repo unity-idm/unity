@@ -78,7 +78,7 @@ public class SMSCredentialRecoverySettings
 		this.emailSecurityCodeMsgTemplate = emailSecurityCodeMsgTemplate;
 	}
 
-	public boolean isCapchaRequired()
+	public boolean isCapchaRequire()
 	{
 		return capchaRequire;
 	}

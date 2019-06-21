@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.common.credentials.sms;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
@@ -17,6 +19,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredentialRecoverySettings;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Part of UI responsible for lost phone recovery settings
@@ -33,6 +36,8 @@ public class SMSCredentialRecoverySettingsEditor
 	private CompatibleTemplatesComboBox emailCodeMessageTemplate;
 	private IntStepper codeLength;
 	private CheckBox capcha;
+	
+	private Binder<SMSCredentialRecoverySettings> binder;
 	
 	public SMSCredentialRecoverySettingsEditor(UnityMessageSource msg,
 			MessageTemplateManagement msgTplMan)
@@ -78,28 +83,38 @@ public class SMSCredentialRecoverySettingsEditor
 
 	private void setValue(SMSCredentialRecoverySettings initial)
 	{
-		enable.setValue(initial.isEnabled());
-		emailCodeMessageTemplate.setValue(initial.getEmailSecurityCodeMsgTemplate());
-		codeLength.setValue(initial.getCodeLength());
-		capcha.setValue(initial.isCapchaRequired());
+		binder.setBean(initial);
 		setEnabled(initial.isEnabled());
 	}
 
 	private void initUI()
 	{
+		binder = new Binder<>(SMSCredentialRecoverySettings.class);
+		
 		enable = new CheckBox(msg.getMessage("SMSCredentialRecoverSettings.enable"));
 		enable.addValueChangeListener(event -> setEnabled(enable.getValue()));
+		binder.forField(enable).bind("enabled");
+		
 		emailCodeMessageTemplate = new CompatibleTemplatesComboBox(
 				EmailPasswordResetTemplateDef.NAME, msgTplMan);
 		emailCodeMessageTemplate.setCaption(msg
 				.getMessage("SMSCredentialRecoverSettings.emailMessageTemplate"));
 		emailCodeMessageTemplate.setEmptySelectionAllowed(false);
+		binder.forField(emailCodeMessageTemplate).asRequired(
+				(v, c) -> ((v == null || v.isEmpty()) && (enable.getValue()))
+				? ValidationResult.error(msg.getMessage("fieldRequired"))
+				: ValidationResult.ok())
+		.bind("emailSecurityCodeMsgTemplate");
+		
 		codeLength = new IntStepper(
 				msg.getMessage("SMSCredentialRecoverSettings.codeLength"));
 		codeLength.setMinValue(1);
 		codeLength.setMaxValue(50);
 		codeLength.setWidth(3, Unit.EM);
+		binder.forField(codeLength).bind("codeLength");
+		
 		capcha = new CheckBox(msg.getMessage("SMSCredentialRecoverSettings.capcha"));
+		binder.forField(capcha).bind("capchaRequire");
 	}
 
 	private void setEnabled(Boolean value)
@@ -109,15 +124,13 @@ public class SMSCredentialRecoverySettingsEditor
 		capcha.setEnabled(value);
 	}
 
-	public SMSCredentialRecoverySettings getValue()
+	public SMSCredentialRecoverySettings getValue() throws FormValidationException
 	{
-		SMSCredentialRecoverySettings ret = new SMSCredentialRecoverySettings();
-		ret.setEnabled(enable.getValue());
-		if (emailCodeMessageTemplate.getValue() != null)
-			ret.setEmailSecurityCodeMsgTemplate(
-					emailCodeMessageTemplate.getValue().toString());
-		ret.setCapchaRequire(capcha.getValue());
-		ret.setCodeLength(codeLength.getValue());
-		return ret;
+		if (binder.validate().hasErrors())
+		{
+			throw new FormValidationException("");
+		}
+
+		return binder.getBean();
 	}
 }

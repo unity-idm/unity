@@ -77,7 +77,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	{
 		setId(id);
 		setType(source.getValue(CustomProviderProperties.PROVIDER_TYPE));
-		setName(source.getLocalizedString(msg, CustomProviderProperties.PROVIDER_NAME));
+		setName(source.getLocalizedStringWithoutFallbackToDefault(msg, CustomProviderProperties.PROVIDER_NAME));
 		setAuthenticationEndpoint(source.getValue(CustomProviderProperties.PROVIDER_LOCATION));
 		setAccessTokenEndpoint(source.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT));
 		setProfileEndpoint(source.getValue(CustomProviderProperties.PROFILE_ENDPOINT));

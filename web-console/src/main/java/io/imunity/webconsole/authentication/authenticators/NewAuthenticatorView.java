@@ -14,7 +14,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.ViewWithSubViewBase;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.setup.AuthenticationSetupView;
+import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -92,13 +92,13 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 			return;
 		}
 
-		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFacilitiesView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFacilitiesView.VIEW_NAME);
 
 	}
 

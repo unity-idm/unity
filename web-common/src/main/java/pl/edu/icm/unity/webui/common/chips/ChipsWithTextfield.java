@@ -36,12 +36,12 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 	private VerticalLayout main;
 	private SingleStringFieldBinder binder;
 	
-	public ChipsWithTextfield()
+	public ChipsWithTextfield(UnityMessageSource msg)
 	{
-		this(true);
+		this(msg, true);
 	}
 	
-	public ChipsWithTextfield(boolean multiSelectable)
+	public ChipsWithTextfield(UnityMessageSource msg, boolean multiSelectable)
 	{
 		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
 		chipsRow = new ChipsRow<>();
@@ -58,7 +58,8 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 				onSelectionChange();
 			}
 		});
-				
+		textInput.setDescription(msg.getMessage("addWithEnter"));
+		
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
@@ -91,11 +92,13 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 	public void setItems(List<String> items)
 	{
 		chipsRow.removeAll();
-		if (items.size() > maxSelection)
-			throw new IllegalArgumentException(
-					"Can not select more elements in size bound chips, max is " + maxSelection);
 		if (items != null)
 		{
+			if (items.size() > maxSelection)
+				throw new IllegalArgumentException(
+						"Can not select more elements in size bound chips, max is "
+								+ maxSelection);
+
 			items.forEach(this::selectItem);
 		}
 		updateTextInputVisibility();
