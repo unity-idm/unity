@@ -84,6 +84,7 @@ public class SMSCredentialRecoverySettingsEditor
 	private void setValue(SMSCredentialRecoverySettings initial)
 	{
 		binder.setBean(initial);
+		binder.validate();
 		setEnabled(initial.isEnabled());
 	}
 
