@@ -16,7 +16,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.setup.AuthenticationSetupView;
+import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
@@ -63,7 +63,7 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationFacilitiesView.VIEW_NAME);
 			return;
 		}
 		
@@ -74,7 +74,7 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationFacilitiesView.VIEW_NAME);
 			return;
 		}
 
@@ -106,13 +106,13 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 			return;
 		}
 
-		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFacilitiesView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFacilitiesView.VIEW_NAME);
 
 	}
 

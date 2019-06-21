@@ -163,7 +163,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 			}
 
 			SMSRetrievalProperties smsRetrievalProperties = new SMSRetrievalProperties(raw);
-			setRetrievalName(smsRetrievalProperties.getLocalizedString(msg, SMSRetrievalProperties.NAME));
+			setRetrievalName(smsRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg, SMSRetrievalProperties.NAME));
 		}
 	}
 }

@@ -46,6 +46,8 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private List<SingleActionHandler<T>> actionHandlers;
 	private List<SingleActionHandler<T>> hamburgerActionHandlers;
 	private boolean heightByRows;
+	private int minHeightByRow = 2;
+	
 
 	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers)
 	{
@@ -157,7 +159,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	{
 		if (heightByRows)
 		{
-			setHeightByRows(contents.size() > 2 ? contents.size() : 2);
+			setHeightByRows(contents.size() > minHeightByRow ? contents.size() : minHeightByRow);
 		}
 	}
 
@@ -309,18 +311,6 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 
 		return actions;
 	}
-
-//	@Override
-//	public void addFilter(SerializablePredicate<T> filter)
-//	{
-//		dataProvider.addFilter(filter);
-//	}
-//
-//	@Override
-//	public void clearFilters()
-//	{
-//		dataProvider.clearFilters();
-//	}
 	
 	@Override
 	public void addFilter(SerializablePredicate<T> filter)
@@ -347,6 +337,11 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		dataProvider.clearFilters();
 		for (SerializablePredicate<T> p : filters)
 			dataProvider.addFilter(p);
+	}
+	
+	public void setMinHeightByRow(int minRow)
+	{
+		this.minHeightByRow = minRow;
 	}
 
 }

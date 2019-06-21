@@ -225,7 +225,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			}
 
 			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-			setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+			setRetrievalName(passwordRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 					PasswordRetrievalProperties.NAME));
 			setAccountAssociation(passwordRetrievalProperties
 					.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION));

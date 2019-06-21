@@ -1,118 +1,195 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-
 package pl.edu.icm.unity.webui.common.chips;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
-import com.vaadin.ui.Button;
+import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
 
 /**
- * In a top row displays a {@link ChipsRow}. Under it a textfield with add
- * button is displayed. Entry entered in textfield is added to chips.
- * 
- * @author P.Piernik
- *
+ * In a top row displays a {@link ChipsRow}. Under it a {@link TextField} is displayed. Any text entered in textfield 
+ * is added to chips. 
+ * @author K. Benedyczak
  */
-public class ChipsWithTextField extends CustomField<List<String>>
+public class ChipsWithTextfield extends CustomField<List<String>>
 {
 	private ChipsRow<String> chipsRow;
+	private TextField textInput;
+	private boolean readOnly;
+	private int maxSelection = 0;
 	private VerticalLayout main;
-	private TextField textField;
-
-	@Override
-	public List<String> getValue()
+	private SingleStringFieldBinder binder;
+	
+	public ChipsWithTextfield(UnityMessageSource msg)
 	{
-
-		return chipsRow.getChipsData();
-
+		this(msg, true);
 	}
-
-	public ChipsWithTextField()
+	
+	public ChipsWithTextfield(UnityMessageSource msg, boolean multiSelectable)
 	{
+		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
 		chipsRow = new ChipsRow<>();
-		chipsRow.addChipRemovalListener(e -> fireEvent(
-				new ValueChangeEvent<List<String>>(this, chipsRow.getChipsData(), true)));
+		chipsRow.addChipRemovalListener(e -> fireEvent(new ValueChangeEvent<List<String>>(this, getItems(), true)));
 		chipsRow.addChipRemovalListener(this::onChipRemoval);
 		chipsRow.setVisible(false);
 
-		textField = new TextField();
-		textField.addShortcutListener(new ShortcutListener("", ShortcutAction.KeyCode.ENTER, null)
+		textInput = new TextField();
+		textInput.addShortcutListener(new ShortcutListener("Default key", KeyCode.ENTER, null)
 		{
 			@Override
 			public void handleAction(Object sender, Object target)
 			{
-				addValue();
+				onSelectionChange();
 			}
 		});
+		textInput.setDescription(msg.getMessage("addWithEnter"));
 		
-		Button add = new Button();
-		add.setIcon(Images.add.getResource());
-		add.setStyleName(Styles.vButtonSmall.toString());
-		add.addClickListener(e -> addValue());
-		add.setVisible(false);
-		
-		textField.addValueChangeListener(e -> {add.setVisible(e.getValue() != null && !e.getValue().isEmpty());});
-			
-		HorizontalLayout wrapper = new HorizontalLayout();
-		wrapper.setMargin(false);
-		wrapper.setSpacing(false);
-		wrapper.addComponents(textField, add);
-
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
-		main.addComponents(chipsRow, wrapper);
+		main.addComponents(chipsRow, textInput);		
 	}
-
+	
 	@Override
 	protected Component initContent()
 	{
 		return main;
 	}
-
-	private void addValue()
-	{
-		String value = textField.getValue();
-		if (value != null && !value.isEmpty())
-		{
-			chipsRow.addChip(new Chip<String>(value, value));
-		}
-		
-		textField.setValue("");
-		chipsRow.setVisible(true);
-		fireEvent(new ValueChangeEvent<List<String>>(this, chipsRow.getChipsData(), true));
 	
-	}
-
-	private void onChipRemoval(ClickEvent event)
+	public void addChipRemovalListener(ClickListener listner)
 	{
-		chipsRow.setVisible(!chipsRow.getChipsData().isEmpty());
+		chipsRow.addChipRemovalListener(listner);
 	}
 
-	@Override
-	protected void doSetValue(List<String> items)
+	public void setValidator(UnityMessageSource msg, SerializablePredicate<String> validityPredicate, String message)
+	{
+		binder = new SingleStringFieldBinder(msg);
+		binder.forField(textInput).withValidator(validityPredicate, message).bind("value");
+	}
+
+	public void setMultiSelectable(boolean multiSelectable)
+	{
+		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
+		updateTextInputVisibility();
+	}
+	
+	public void setItems(List<String> items)
 	{
 		chipsRow.removeAll();
 		if (items != null)
 		{
-			items.forEach(s -> chipsRow.addChip(new Chip<String>(s, s)));
-		}
+			if (items.size() > maxSelection)
+				throw new IllegalArgumentException(
+						"Can not select more elements in size bound chips, max is "
+								+ maxSelection);
 
+			items.forEach(this::selectItem);
+		}
+		updateTextInputVisibility();
 		chipsRow.setVisible(!(items == null || items.isEmpty()));
 	}
+	
+	@Override
+	public void setReadOnly(boolean readOnly)
+	{
+		this.readOnly = readOnly;
+		textInput.setVisible(!readOnly);
+		chipsRow.setReadOnly(readOnly);
+	}
+	
+	public List<String> getItems()
+	{
+		return chipsRow.getChipsData();
+	}
+	
+	private void onSelectionChange()
+	{
+		textInput.setComponentError(null);
+		String value = textInput.getValue();
+		if (value.isEmpty() || (binder != null && !binder.isValid()))
+			return;
+		textInput.setValue("");
+		selectItem(value);
+		updateTextInputVisibility();
+	}
 
+	protected void selectItem(String selected)
+	{
+		chipsRow.addChip(new Chip<>(selected, selected));
+		chipsRow.setVisible(true);
+		updateTextInputVisibility();
+	}
+
+	protected void sortItems(List<String> items)
+	{
+		Collections.sort(items, this::compareItems);
+	}
+	
+	private int compareItems(String a, String b)
+	{
+		return a.compareTo(b);
+	}
+	
+	protected List<String> checkAvailableItems(Set<String> allItems, Set<String> selected)
+	{
+		return allItems.stream()
+				.filter(i -> !selected.contains(i))
+				.collect(Collectors.toList());
+	}
+		
+	private void onChipRemoval(ClickEvent event)
+	{
+		chipsRow.setVisible(!chipsRow.getChipsData().isEmpty());
+		updateTextInputVisibility();
+	}
+	
+	private void updateTextInputVisibility()
+	{
+		if (readOnly)
+			textInput.setVisible(false);
+		else if (maxSelection > 0)
+			textInput.setVisible(getItems().size() < maxSelection);
+	}
+	
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		super.setWidth(width, unit);
+		if (textInput != null)
+			textInput.setWidth(width, unit);
+	}
+	
+	public void setMaxSelection(int maxSelection)
+	{
+		this.maxSelection = maxSelection;
+		updateTextInputVisibility();
+	}
+
+	@Override
+	public List<String> getValue()
+	{
+		return getItems();
+	}
+
+	@Override
+	protected void doSetValue(List<String> value)
+	{
+		setItems(value);
+	}
 }

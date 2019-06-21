@@ -165,6 +165,10 @@ public class UnityPropertiesHelper extends PropertiesHelper
 		return getLocalizedString(this, msg, baseKey);
 	}
 	
+	public I18nString getLocalizedStringWithoutFallbackToDefault(MessageSource msg, String baseKey)
+	{
+		return getLocalizedStringWithoutFallbackToDefault(this, msg, baseKey);
+	}
 
 	/**
 	 * @param msg
@@ -187,6 +191,52 @@ public class UnityPropertiesHelper extends PropertiesHelper
 				ret.addValue(locale.getKey(), v);
 		}
 		return ret;
+	}
+	
+	static I18nString getLocalizedStringWithoutFallbackToDefault(UnityPropertiesHelper helper, MessageSource msg,
+			String baseKey)
+	{
+		I18nString ret = new I18nString();
+		Map<String, Locale> supportedLocales = msg.getSupportedLocales();
+		String defaultVal = helper.getValue(baseKey);
+		if (defaultVal != null)
+			ret.setDefaultValue(defaultVal);
+		for (Map.Entry<String, Locale> locale : supportedLocales.entrySet())
+		{
+			String v = helper.getLocalizedValueWithOutFallbackToDefault(baseKey, locale.getValue());
+			if (v != null)
+				ret.addValue(locale.getKey(), v);
+		}
+		
+		if (ret.getValueRaw(msg.getDefaultLocaleCode()) == null && defaultVal != null)
+		{
+			ret.addValue(msg.getDefaultLocaleCode(), defaultVal);
+		}
+			
+		return ret;
+	}
+	
+	public String getLocalizedValueWithOutFallbackToDefault(String key, Locale locale)
+	{
+		boolean hasCountry = !locale.getCountry().equals("");
+		boolean hasLang = !locale.getLanguage().equals("");
+		String keyPfx = key + ".";
+
+		if (hasCountry && hasLang)
+		{
+			String fullLocale = locale.getLanguage() + "_" + locale.getCountry();
+			if (isSet(keyPfx + fullLocale))
+				return getValue(keyPfx + fullLocale);
+		}
+
+		if (hasLang)
+		{
+			String fullLocale = locale.getLanguage();
+			if (isSet(keyPfx + fullLocale))
+				return getValue(keyPfx + fullLocale);
+		}
+
+		return null;
 	}
 	
 	public String getAsString()

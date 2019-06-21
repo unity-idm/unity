@@ -173,7 +173,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			}
 
 			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-			setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+			setRetrievalName(passwordRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 					PasswordRetrievalProperties.NAME));
 		}
 

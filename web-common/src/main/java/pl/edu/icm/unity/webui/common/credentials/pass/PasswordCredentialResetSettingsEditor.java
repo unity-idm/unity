@@ -117,6 +117,17 @@ public class PasswordCredentialResetSettingsEditor
 		
 		binder = new Binder<>(PasswordCredentialResetSettings.class);
 
+		confirmationMode = new ComboBox<>(msg.getMessage("PasswordCredentialResetSettings.confirmationMode"));
+		confirmationMode.setItems(ConfirmationMode.values());
+		confirmationMode.addSelectionListener(e->{	
+			emailCodeMessageTemplate.setEnabled(getEmailMessageTemplateState());
+			mobileCodeMessageTemplate.setEnabled(getMobileMessageTemplateState());
+		});
+		
+		confirmationMode.setItemCaptionGenerator(i -> msg.getMessage("PasswordCredentialResetSettings.confirmationMode" + i.toString()));
+		confirmationMode.setEmptySelectionAllowed(false);
+		binder.forField(confirmationMode).bind("confirmationMode");	
+		
 		enable = new CheckBox(msg.getMessage("PasswordCredentialResetSettings.enable"));
 		enable.addValueChangeListener(event -> setEnabled(enable.getValue()));
 		binder.forField(enable).bind("enabled");
@@ -126,17 +137,7 @@ public class PasswordCredentialResetSettingsEditor
 		codeLength.setMaxValue(10);
 		codeLength.setWidth(3, Unit.EM);		
 		binder.forField(codeLength).bind("codeLength");
-	
-		confirmationMode = new ComboBox<>(msg.getMessage("PasswordCredentialResetSettings.confirmationMode"));
-		confirmationMode.setItems(ConfirmationMode.values());
-		confirmationMode.addSelectionListener(e->{	
-			emailCodeMessageTemplate.setEnabled(getEmailMessageTemplateState());
-			mobileCodeMessageTemplate.setEnabled(getMobileMessageTemplateState());
-		});
-		confirmationMode.setItemCaptionGenerator(i -> msg.getMessage("PasswordCredentialResetSettings.confirmationMode" + i.toString()));
-		confirmationMode.setEmptySelectionAllowed(false);
-		binder.forField(confirmationMode).bind("confirmationMode");	
-			
+				
 		requireQuestionConfirmation = new CheckBox(
 				msg.getMessage("PasswordCredentialResetSettings.requireQuestionConfirmation"));
 		
@@ -146,10 +147,12 @@ public class PasswordCredentialResetSettingsEditor
 		binder.forField(emailCodeMessageTemplate).asRequired((v, c) -> ((v == null || v.isEmpty()) && getEmailMessageTemplateState())
 				? ValidationResult.error(msg.getMessage("fieldRequired"))
 				: ValidationResult.ok()).bind("emailSecurityCodeMsgTemplate");
+		emailCodeMessageTemplate.setEnabled(false);
 		
 		mobileCodeMessageTemplate = new CompatibleTemplatesComboBox(MobilePasswordResetTemplateDef.NAME, msgTplMan);
 		mobileCodeMessageTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.mobileMessageTemplate"));
 		mobileCodeMessageTemplate.setEmptySelectionAllowed(false);
+		mobileCodeMessageTemplate.setEnabled(false);
 		binder.forField(mobileCodeMessageTemplate).asRequired((v, c) -> ((v == null || v.isEmpty()) && getMobileMessageTemplateState())
 						? ValidationResult.error(msg.getMessage("fieldRequired"))
 						: ValidationResult.ok()).bind("mobileSecurityCodeMsgTemplate");
@@ -220,8 +223,8 @@ public class PasswordCredentialResetSettingsEditor
 		codeLength.setEnabled(how);
 		confirmationMode.setEnabled(how);
 		requireQuestionConfirmation.setEnabled(how);
-		emailCodeMessageTemplate.setEnabled(how);
-		mobileCodeMessageTemplate.setEnabled(how);
+		emailCodeMessageTemplate.setEnabled(how && getEmailMessageTemplateState());
+		mobileCodeMessageTemplate.setEnabled(how && getMobileMessageTemplateState());
 		
 		if (how)
 		{
@@ -240,8 +243,8 @@ public class PasswordCredentialResetSettingsEditor
 	{
 		for (String question: initial.getQuestions())
 			questions.addEntry(question);
-		setEnabled(initial.isEnabled());
 		binder.setBean(initial);
+		setEnabled(initial.isEnabled());
 		binder.validate();
 	}
 	

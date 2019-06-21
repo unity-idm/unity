@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+
 /**
  * {@link ChipsWithDropdown} text version. Allow also for free-text input.
  * 
@@ -17,13 +19,14 @@ import java.util.Set;
  */
 public class ChipsWithFreeText extends ChipsWithDropdown<String>
 {
-	public ChipsWithFreeText()
+	public ChipsWithFreeText(UnityMessageSource msg)
 	{
 		super();
 		combo.setNewItemProvider(s -> {
 			combo.setSelectedItem(s);
 			return Optional.of(s);
 		});
+		combo.setDescription(msg.getMessage("addWithEnter"));
 	}
 	
 	@Override

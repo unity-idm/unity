@@ -52,7 +52,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
@@ -189,7 +189,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
 
-		ChipsWithFreeText requestedScopes = new ChipsWithFreeText();
+		ChipsWithTextfield requestedScopes = new ChipsWithTextfield(msg);
 		requestedScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		requestedScopes.setCaption(msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
 		header.addComponent(requestedScopes);
@@ -267,6 +267,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		ComboBox<ClientAuthnMode> clientAuthenticationModeForProfile = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
 		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
+		clientAuthenticationModeForProfile.setEmptySelectionAllowed(false);
 		configBinder.forField(clientAuthenticationModeForProfile).bind("clientAuthenticationModeForProfile");
 		advanced.addComponent(clientAuthenticationModeForProfile);
 

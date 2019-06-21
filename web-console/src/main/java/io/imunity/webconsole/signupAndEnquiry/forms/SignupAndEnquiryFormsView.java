@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.setup;
+package io.imunity.webconsole.signupAndEnquiry.forms;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @PrototypeComponent
-public class SignupAndEnquirySetupView extends CustomComponent implements UnityView
+public class SignupAndEnquiryFormsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "SignupAndEnquirySetup";
 
@@ -47,7 +47,7 @@ public class SignupAndEnquirySetupView extends CustomComponent implements UnityV
 	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
 
 	@Autowired
-	SignupAndEnquirySetupView(UnityMessageSource msg, RegistrationFormsController regController,
+	SignupAndEnquiryFormsView(UnityMessageSource msg, RegistrationFormsController regController,
 			EnquiryFormsController enqController,
 			AdminRegistrationFormLauncher adminRegistrationFormLauncher,
 			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
@@ -76,7 +76,7 @@ public class SignupAndEnquirySetupView extends CustomComponent implements UnityV
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.signupAndEnquiry.setup");
+		return msg.getMessage("WebConsoleMenu.signupAndEnquiry.forms");
 	}
 
 	@Override
@@ -86,17 +86,17 @@ public class SignupAndEnquirySetupView extends CustomComponent implements UnityV
 	}
 
 	@Component
-	public static class SignupAndEnquirySetupNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class SignupAndEnquiryFormsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public SignupAndEnquirySetupNavigationInfoProvider(UnityMessageSource msg,
+		public SignupAndEnquiryFormsNavigationInfoProvider(UnityMessageSource msg,
 				SignupAndEnquiryNavigationInfoProvider parent,
-				ObjectFactory<SignupAndEnquirySetupView> factory)
+				ObjectFactory<SignupAndEnquiryFormsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.setup"))
+					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.forms"))
 					.withIcon(Images.form.getResource())
 					.withPosition(10).build());
 

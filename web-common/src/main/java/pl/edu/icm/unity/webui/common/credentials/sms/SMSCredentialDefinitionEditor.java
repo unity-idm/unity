@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.vaadin.data.Binder;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -46,7 +47,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 	private CompatibleTemplatesComboBox msgTemplate;
 	private SMSCredentialRecoverySettingsEditor recoverySettings;
 	private MobileNumberConfirmationConfigurationEditor confirmationConfigEditor;
-	
+	private Binder<SMSCredential> binder;
 	
 	public SMSCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
 	{
@@ -56,7 +57,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 
 	@Override
 	public Component getViewer(String credentialDefinitionConfiguration)
-	{
+	{	
 		SMSCredential helper = new SMSCredential();
 		helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 		
@@ -105,52 +106,54 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 			
 		form.setMargin(true);	
 		return form;
-
 	}
 
 	@Override
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
+		binder = new Binder<>(SMSCredential.class);
 		
 		msgTemplate = new CompatibleTemplatesComboBox(SMSAuthnTemplateDef.NAME, msgTplMan);
 		msgTemplate.setCaption(msg.getMessage(
 				"SMSCredentialDefinitionEditor.msgTemplate"));
 		msgTemplate.setEmptySelectionAllowed(false);
-		msgTemplate.setDefaultValue();
+		binder.forField(msgTemplate).asRequired().bind("messageTemplate");
 		
 		codeLength = new IntStepper(
 				msg.getMessage("SMSCredentialDefinitionEditor.codeLength"));
 		codeLength.setMinValue(1);
 		codeLength.setMaxValue(50);
 		codeLength.setWidth(3, Unit.EM);
+		binder.forField(codeLength).asRequired().bind("codeLength");
 		
 		validityTime = new IntStepper(msg.getMessage("SMSCredentialDefinitionEditor.validityTime"));
 		validityTime.setMinValue(1);
 		validityTime.setMaxValue(525600);
 		validityTime.setWidth(4, Unit.EM);
+		binder.forField(validityTime).asRequired().bind("validityTime");
 		
 		authSMSLimit = new IntStepper(msg.getMessage("SMSCredentialDefinitionEditor.smsLimit"));
 		authSMSLimit.setMinValue(1);
 		authSMSLimit.setMaxValue(10000);
 		authSMSLimit.setWidth(4, Unit.EM);
-				
+		binder.forField(authSMSLimit).asRequired().bind("authnSMSLimit");		
+		
 		FormLayout form = new CompactFormLayout(msgTemplate, codeLength, validityTime, authSMSLimit, HtmlTag.br());
 		form.setSpacing(true);
 		form.setMargin(true);
 
 		SMSCredential helper = new SMSCredential();
+		
 		if (credentialDefinitionConfiguration != null)
-			helper.setSerializedConfiguration(
+		{	helper.setSerializedConfiguration(
 					JsonUtil.parse(credentialDefinitionConfiguration));
-
-		codeLength.setValue(helper.getCodeLength());
-		validityTime.setValue(helper.getValidityTime());
-		authSMSLimit.setValue(helper.getAuthnSMSLimit());
-		if (helper.getMessageTemplate() != null)
-		{	
-			msgTemplate.setValue(helper.getMessageTemplate());
+			binder.setBean(helper);
+			binder.validate();
+		}else
+		{
+			binder.setBean(helper);
 		}
-					
+	
 		recoverySettings = new SMSCredentialRecoverySettingsEditor(msg, msgTplMan,
 				helper.getRecoverySettings());
 		recoverySettings.addEditorToLayout(form);
@@ -174,21 +177,17 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 	@Override
 	public String getCredentialDefinition() throws IllegalCredentialException
 	{
-		SMSCredential helper = new SMSCredential();
-		helper.setCodeLength(codeLength.getValue());
-		helper.setValidityTime(validityTime.getValue());
-		helper.setRecoverySettings(recoverySettings.getValue());
-		helper.setMessageTemplate(msgTemplate.getValue());
-		helper.setAuthnSMSLimit(authSMSLimit.getValue());
-		MobileNumberConfirmationConfiguration config;
+		if (binder.validate().hasErrors())
+			throw new IllegalCredentialException("", new FormValidationException());	
+		SMSCredential helper = binder.getBean();
 		try
 		{
-			config = confirmationConfigEditor.getCurrentValue();
+			helper.setRecoverySettings(recoverySettings.getValue());
+			helper.setMobileNumberConfirmationConfiguration(confirmationConfigEditor.getCurrentValue());
 		} catch (FormValidationException e)
 		{
 			throw new IllegalCredentialException("", e);
 		}
-		helper.setMobileNumberConfirmationConfiguration(config);
 		return JsonUtil.serialize(helper.getSerializedConfiguration());
 	}
 }

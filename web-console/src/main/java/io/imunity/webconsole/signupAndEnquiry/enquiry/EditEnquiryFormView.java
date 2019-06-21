@@ -15,8 +15,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.setup.SignupAndEnquirySetupView;
-import io.imunity.webconsole.signupAndEnquiry.setup.SignupAndEnquirySetupView.SignupAndEnquirySetupNavigationInfoProvider;
+import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView;
+import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.SignupAndEnquiryFormsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
@@ -64,7 +64,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
+			NavigationHelper.goToView(SignupAndEnquiryFormsView.VIEW_NAME);
 			return;
 		}
 
@@ -74,7 +74,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
+			NavigationHelper.goToView(SignupAndEnquiryFormsView.VIEW_NAME);
 			return;
 		}
 
@@ -110,13 +110,13 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 			return;
 		}
 
-		NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
+		NavigationHelper.goToView(SignupAndEnquiryFormsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
+		NavigationHelper.goToView(SignupAndEnquiryFormsView.VIEW_NAME);
 
 	}
 
@@ -137,7 +137,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditEnquiryFormNavigationInfoProvider(SignupAndEnquirySetupNavigationInfoProvider parent,
+		public EditEnquiryFormNavigationInfoProvider(SignupAndEnquiryFormsNavigationInfoProvider parent,
 				ObjectFactory<EditEnquiryFormView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)

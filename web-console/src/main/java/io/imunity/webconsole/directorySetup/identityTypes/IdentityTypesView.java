@@ -80,15 +80,16 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 		identityTypesGrid.addCheckboxColumn(i -> i.type.isSelfModificable(),
 				msg.getMessage("IdentityTypesView.modifiableByUserCaption"), 10);
 		identityTypesGrid.setSizeFull();
+		
 		identityTypesGrid.setItems(getIdentityTypes());
 		identityTypesGrid.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(identityTypesGrid);
-		main.setWidth(100, Unit.PERCENTAGE);
+		main.setSizeFull();
 		main.setMargin(false);
-
 		setCompositionRoot(main);
+		setSizeFull();
 	}
 
 	private FormLayout getDetailsComponent(IdentityTypeEntry i)

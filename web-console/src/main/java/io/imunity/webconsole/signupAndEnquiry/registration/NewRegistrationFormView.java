@@ -15,8 +15,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.setup.SignupAndEnquirySetupView;
-import io.imunity.webconsole.signupAndEnquiry.setup.SignupAndEnquirySetupView.SignupAndEnquirySetupNavigationInfoProvider;
+import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView;
+import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.SignupAndEnquiryFormsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
@@ -107,13 +107,13 @@ class NewRegistrationFormView extends CustomComponent implements UnityView
 			return;
 		}
 
-		NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
+		NavigationHelper.goToView(SignupAndEnquiryFormsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
+		NavigationHelper.goToView(SignupAndEnquiryFormsView.VIEW_NAME);
 
 	}
 
@@ -134,7 +134,7 @@ class NewRegistrationFormView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewRegistrationFormNavigationInfoProvider(SignupAndEnquirySetupNavigationInfoProvider parent,
+		public NewRegistrationFormNavigationInfoProvider(SignupAndEnquiryFormsNavigationInfoProvider parent,
 				ObjectFactory<NewRegistrationFormView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)

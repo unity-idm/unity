@@ -164,7 +164,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 			}
 
 			TLSRetrievalProperties certRetrievalProperties = new TLSRetrievalProperties(raw);
-			setRetrievalName(certRetrievalProperties.getLocalizedString(msg, TLSRetrievalProperties.NAME));
+			setRetrievalName(certRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg, TLSRetrievalProperties.NAME));
 		}
 	}
 }

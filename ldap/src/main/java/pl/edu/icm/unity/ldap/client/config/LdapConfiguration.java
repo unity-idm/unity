@@ -278,7 +278,7 @@ public class LdapConfiguration
 	private void fromPasswordRetrievalProperties(Properties raw, UnityMessageSource msg)
 	{
 		PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-		setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+		setRetrievalName(passwordRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				PasswordRetrievalProperties.NAME));
 		setAccountAssociation(passwordRetrievalProperties
 				.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION));
@@ -290,7 +290,7 @@ public class LdapConfiguration
 	private void fromTLSRetrievalProperties(Properties raw, UnityMessageSource msg)
 	{
 		TLSRetrievalProperties tlsRetrievalProperties = new TLSRetrievalProperties(raw);
-		setRetrievalName(tlsRetrievalProperties.getLocalizedString(msg,
+		setRetrievalName(tlsRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				TLSRetrievalProperties.NAME));
 		setAccountAssociation(tlsRetrievalProperties
 				.getBooleanValue(TLSRetrievalProperties.ENABLE_ASSOCIATION));

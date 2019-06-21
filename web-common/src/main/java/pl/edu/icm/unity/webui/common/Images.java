@@ -29,6 +29,7 @@ public enum Images
 	handshake	(VaadinIcons.HANDSHAKE),
 	usertoken	(VaadinIcons.TAGS),
 	exit		(VaadinIcons.SIGN_OUT),
+	sign_in		(VaadinIcons.SIGN_IN),
 	toAdmin		(VaadinIcons.TOOLS),
 	toProfile	(VaadinIcons.USER),
 	support		(VaadinIcons.LIFEBUOY),

@@ -60,7 +60,7 @@ public class SMSCredentialResetController
 		CredentialResetStateVariable.reset();
 		this.settings = new SMSCredentialRecoverySettings(JsonUtil.parse(backend.getSettings()));
 		mainWrapper = new CredentialResetScreen();
-		mainWrapper.setContents(new SMSResetStep1Captcha(credResetUIConfig, settings.isCapchaRequired(),
+		mainWrapper.setContents(new SMSResetStep1Captcha(credResetUIConfig, settings.isCapchaRequire(),
 				this::onUsernameCollected));
 		return mainWrapper;
 	}

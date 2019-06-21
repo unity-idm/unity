@@ -83,7 +83,6 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 				.setSortable(true).setComparator((a1, a2) -> {
 					return a1.getName().compareTo(a2.getName());
 				}).setId("name");
-		;
 		attributeClassGrid.addSortableColumn(a -> String.join(", ", a.getAllowed()),
 				msg.getMessage("AttributeClassesView.allowedCaption"), 10);
 		attributeClassGrid.addSortableColumn(a -> String.join(", ", a.getMandatory()),
@@ -99,7 +98,6 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 		main.addComponent(attributeClassGrid);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
-
 		setCompositionRoot(main);
 	}
 

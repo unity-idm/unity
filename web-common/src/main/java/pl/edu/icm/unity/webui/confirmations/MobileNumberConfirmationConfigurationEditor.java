@@ -94,16 +94,15 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 						1, 60 * 24 * 365))
 				.bind("validityTime");
 
-		binder.forField(codeLength).asRequired(msg.getMessage("fieldRequired"))
-		.withValidator(new IntegerRangeValidator(msg
-				.getMessage("outOfBoundsNumber", 1, 50),
-				1, 50))
-		.bind("codeLength");
+		binder.forField(codeLength).asRequired(msg.getMessage("fieldRequired")).withValidator(
+				new IntegerRangeValidator(msg.getMessage("outOfBoundsNumber", 1, 50), 1, 50))
+				.bind("codeLength");
 		
 		
 		if (initial != null)
 		{
 			binder.setBean(initial);
+			binder.validate();
 		} else
 		{
 			MobileNumberConfirmationConfiguration init = new MobileNumberConfirmationConfiguration();
