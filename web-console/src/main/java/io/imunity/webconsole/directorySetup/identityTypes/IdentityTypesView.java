@@ -85,10 +85,11 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 		identityTypesGrid.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
-		main.setSizeFull();
 		main.addComponent(identityTypesGrid);
+		main.setSizeFull();
 		main.setMargin(false);
 		setCompositionRoot(main);
+		setSizeFull();
 	}
 
 	private FormLayout getDetailsComponent(IdentityTypeEntry i)
