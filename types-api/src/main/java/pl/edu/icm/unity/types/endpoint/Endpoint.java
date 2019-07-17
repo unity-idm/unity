@@ -92,7 +92,7 @@ public class Endpoint implements NamedObject
 		root.put("contextAddress", contextAddress);
 		root.set("configuration", configuration.toJson());
 		root.put("revision", revision);
-		root.put("state", state.toString());
+		root.put("status", state.toString());
 		return root;
 	}
 
@@ -104,8 +104,10 @@ public class Endpoint implements NamedObject
 		configuration = new EndpointConfiguration((ObjectNode) root.get("configuration"));
 		if (root.has("revision"))
 			revision = root.get("revision").asLong();
-		if (root.has("state"))
-			state = EndpointState.valueOf(root.get("state").asText());
+		if (root.has("status"))
+		{
+			state = EndpointState.valueOf(root.get("status").asText());
+		}
 	}
 
 	@Override
