@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
@@ -85,7 +86,7 @@ public class LayoutColumn extends CustomComponent
 		headerBar.setComponentAlignment(captionL, Alignment.MIDDLE_CENTER);
 		
 		HorizontalLayout removeWrapper = new HorizontalLayout();
-		removeWrapper.setMargin(false);
+		removeWrapper.setMargin(new MarginInfo(false, true));
 		removeButton = new Button();
 		removeButton.setDescription(msg.getMessage("LayoutColumn.removeColumn"));
 		removeButton.addStyleName(Styles.vButtonLink.toString());
