@@ -26,7 +26,6 @@ public class SearchSpecification
 	public SearchSpecification(String filter, String baseDN, String attributes, 
 			SearchScope scope) throws LDAPException
 	{
-		super();
 		createFilter(filter, "test");
 		this.filter = filter;
 		this.baseDN = baseDN;

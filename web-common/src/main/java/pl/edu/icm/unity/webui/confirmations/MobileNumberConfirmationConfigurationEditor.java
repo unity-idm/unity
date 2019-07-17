@@ -72,7 +72,6 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		msgTemplate.setEmptySelectionAllowed(false);
 		msgTemplate.setDefaultValue();
 
-		
 		validityTime = new IntStepper(msg.getMessage(msgPrefix + "validityTime"));
 		validityTime.setMinValue(1);
 		validityTime.setMaxValue(60 * 24 * 365);

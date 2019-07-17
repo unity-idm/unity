@@ -647,7 +647,7 @@ public class EngineInitialization extends LifecycleBase
 
 		try
 		{
-			List<ResolvedEndpoint> endpoints = endpointManager.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointManager.getDeployedEndpoints();
 			log.info("Initialized the following endpoints:");
 			for (ResolvedEndpoint endpoint : endpoints)
 			{
@@ -668,7 +668,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Loading all configured endpoints");
 
-		List<ResolvedEndpoint> existing = endpointManager.getEndpoints();
+		List<ResolvedEndpoint> existing = endpointManager.getDeployedEndpoints();
 
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey : endpointsList)

@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.reg.forms;
+package pl.edu.icm.unity.webui.authn.remote;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -25,16 +25,16 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<AuthenticationOptionKey>
+public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<AuthenticationOptionKey>
 {
-	public RemoteAuthnProvidersSelection(AuthenticatorSupportService authenticatorSupport, String caption,
+	public RemoteAuthnProvidersMultiSelection(AuthenticatorSupportService authenticatorSupport, String caption,
 			String description) throws EngineException
 	{
 		this(caption, description);
 		init(authenticatorSupport);
 	}
 	
-	public RemoteAuthnProvidersSelection (String caption, String description) throws EngineException
+	public RemoteAuthnProvidersMultiSelection (String caption, String description) throws EngineException
 	{
 		super(AuthenticationOptionKey::toGlobalKey, true);
 		setCaption(caption);

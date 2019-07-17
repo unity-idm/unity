@@ -199,8 +199,8 @@ public class UnityPropertiesHelper extends PropertiesHelper
 		I18nString ret = new I18nString();
 		Map<String, Locale> supportedLocales = msg.getSupportedLocales();
 		String defaultVal = helper.getValue(baseKey);
-		if (defaultVal != null)
-			ret.setDefaultValue(defaultVal);
+//		if (defaultVal != null)
+//			ret.setDefaultValue(defaultVal);
 		for (Map.Entry<String, Locale> locale : supportedLocales.entrySet())
 		{
 			String v = helper.getLocalizedValueWithOutFallbackToDefault(baseKey, locale.getValue());
@@ -208,11 +208,12 @@ public class UnityPropertiesHelper extends PropertiesHelper
 				ret.addValue(locale.getKey(), v);
 		}
 		
-		if (ret.getValueRaw(msg.getDefaultLocaleCode()) == null && defaultVal != null)
+		if ((ret.getValueRaw(msg.getDefaultLocaleCode()) == null
+				|| ret.getValueRaw(msg.getDefaultLocaleCode()).isEmpty()) && defaultVal != null)
 		{
 			ret.addValue(msg.getDefaultLocaleCode(), defaultVal);
 		}
-			
+	
 		return ret;
 	}
 	

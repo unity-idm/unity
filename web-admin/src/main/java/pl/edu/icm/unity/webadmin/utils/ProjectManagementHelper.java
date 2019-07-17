@@ -122,11 +122,11 @@ public class ProjectManagementHelper
 		return networkServer.getAdvertisedAddress() + endpoint.getEndpoint().getContextAddress();
 	}
 
-	private Set<ResolvedEndpoint> getAllProjectManEndpoints()
+	public Set<ResolvedEndpoint> getAllProjectManEndpoints()
 	{
 		try
 		{
-			return endpointMan.getEndpoints().stream().filter(
+			return endpointMan.getDeployedEndpoints().stream().filter(
 					e -> e.getType().getName().equals(ProjectManagementConstants.ENDPOINT_NAME))
 					.collect(Collectors.toSet());
 		} catch (EngineException e)

@@ -511,9 +511,12 @@
 	}
 	
     .drop-layout .v-horizontallayout-drag-center {
- 		background-color: #197de1;}
-	
-
+ 		background-color: #197de1;
+ 	}
+ 	
+ 	.drop-on {
+ 		background-color: #bddbf8;
+ 	}
 
  	.v-assistive-device-only-label label {
 		font-size:0;
@@ -528,14 +531,15 @@
 	    max-height: 25px;
     }
     
+    .u-mediumIcon .v-icon {
+		font-size : 18px;
+	}
 	.u-largeIcon .v-icon {
 		font-size : 24px;
 	}
-	
 	.u-veryLargeIcon .v-icon {
 		font-size : 34px;
 	}
-
 	.u-signInButton {
 		width: 100%;
 	}
@@ -853,11 +857,45 @@
 		width: 21em;
 	}
 	
-	.u-clearTextField{
-		margin-top: 3px;
-		margin-left: -1.5em;
-		background : $content-bg-color !important;
+	.u-marginLeftMinus7{
+		margin-left: -7em;
 	}
 	
+	.u-marginLeftPlus7{
+		margin-left: 7em;
+	}
+	
+	.u-border {
+		border: 1px solid #d4d4d4;
+	}
+	
+	.u-columnHeader {
+		border-bottom: 1px solid #d4d4d4;
+		background-color: #E0E0E0;
+	}
+	
+	.u-minWidth25 {
+		min-width : 25em;
+	}
+	
+	.u-minWidth50 {
+		min-width : 50em;
+	}
+	
+	.u-minWidth75 {
+		min-width : 75em;
+	}
+	
+	.u-minWidth100 {
+		min-width : 100em;
+	}
+	
+	.u-maxWidth25{
+		max-width : 25em;
+	}
+	
+	.u-maxWidth3{
+		max-width : 3em;
+	}
 }
 

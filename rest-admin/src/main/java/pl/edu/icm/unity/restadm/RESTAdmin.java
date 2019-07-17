@@ -663,7 +663,7 @@ public class RESTAdmin
 	@GET
 	public String getEndpoints() throws EngineException, JsonProcessingException
 	{
-		List<ResolvedEndpoint> endpoints = endpointManagement.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointManagement.getDeployedEndpoints();
 		return mapper.writeValueAsString(endpoints);
 	}
 	

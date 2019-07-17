@@ -6,8 +6,7 @@
 
 package io.imunity.webconsole;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -31,8 +30,10 @@ public class WebConsoleEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "WebConsoleUI";
 	public static final String SERVLET_PATH = "/console";
+	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
+			"Web administrative console user interface\"", VaadinAuthentication.NAME,
+			Collections.singletonMap(SERVLET_PATH, "Web console endpoint"));
 
-	private EndpointTypeDescription description;
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
 	private UnityMessageSource msg;
@@ -44,17 +45,12 @@ public class WebConsoleEndpointFactory implements EndpointFactory
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
-		
-		Map<String,String> paths=new HashMap<>();
-		paths.put(SERVLET_PATH,"Web console endpoint");
-		description = new EndpointTypeDescription(NAME, 
-				"Web administrative console user interface", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
-		return description;
+		return TYPE;
 	}
 
 	@Override

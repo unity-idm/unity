@@ -27,4 +27,6 @@ public interface AuthenticatorSupportService
 	 * updated too.
 	 */
 	void refreshAuthenticatorsOfCredential(String credential) throws EngineException;
+
+	List<AuthenticatorInstance> getLocalAuthenticators(String bindingId) throws EngineException;
 }

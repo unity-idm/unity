@@ -161,7 +161,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 					OAUTH_ENDP_CFG, REALM_NAME);
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
 					config);
-			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 			assertThat(endpoints.size(), is(1));
 
 			httpServer.start();

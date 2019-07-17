@@ -39,7 +39,7 @@ public class EndpointController
 		List<ResolvedEndpoint> endpoints;
 		try
 		{
-			endpoints = endpointMan.getEndpoints();
+			endpoints = endpointMan.getDeployedEndpoints();
 		} catch (EngineException e)
 		{
 			throw new ControllerException(

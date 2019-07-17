@@ -28,6 +28,7 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 
 
 /**
@@ -83,6 +84,9 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
 			for (Endpoint endpointInDB: endpointsInDBMap)
 			{
+				if (endpointInDB.getState().equals(EndpointState.UNDEPLOYED))
+					continue;
+				
 				EndpointInstance instance = loader.createEndpointInstance(endpointInDB);
 				String name = instance.getEndpointDescription().getName();
 				endpointsInDb.add(name);
@@ -107,7 +111,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			}
 			setLastUpdate(roundedUpdateTime);
 
-			undeployRemoved(endpointsInDb, deployedEndpoints);
+			undeployInactive(endpointsInDb, deployedEndpoints);
 		});
 	}
 	
@@ -183,7 +187,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	}
 
 
-	private void undeployRemoved(Set<String> endpointsInDb, Collection<EndpointInstance> deployedEndpoints) 
+	private void undeployInactive(Set<String> endpointsInDb, Collection<EndpointInstance> deployedEndpoints) 
 			throws EngineException
 	{
 		for (EndpointInstance endpoint: deployedEndpoints)
@@ -191,7 +195,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			String name = endpoint.getEndpointDescription().getName();
 			if (!endpointsInDb.contains(name))
 			{
-				log.info("Undeploying a removed endpoint: " + name);
+				log.info("Undeploying endpoint: " + name);
 				endpointMan.undeploy(name);
 			}
 		}

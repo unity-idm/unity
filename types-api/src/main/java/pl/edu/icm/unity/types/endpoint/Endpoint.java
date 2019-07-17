@@ -17,20 +17,31 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public class Endpoint implements NamedObject
 {
+	public static enum EndpointState { DEPLOYED, UNDEPLOYED};
+
 	private String name; 
 	private String typeId; 
 	private String contextAddress;
 	private EndpointConfiguration configuration;
 	private long revision;
+	private EndpointState state = EndpointState.DEPLOYED;
 
+	
 	public Endpoint(String name, String typeId, String contextAddress,
 			EndpointConfiguration configuration, long revision)
+	{
+		this(name, typeId, contextAddress, configuration, revision, EndpointState.DEPLOYED);
+	}
+	
+	public Endpoint(String name, String typeId, String contextAddress,
+			EndpointConfiguration configuration, long revision, EndpointState state)
 	{
 		this.name = name;
 		this.typeId = typeId;
 		this.contextAddress = contextAddress;
 		this.configuration = configuration;
 		this.revision = revision;
+		this.state = state;
 	}
 
 	@JsonCreator
@@ -60,6 +71,10 @@ public class Endpoint implements NamedObject
 	{
 		return revision;
 	}
+	public EndpointState getState()
+	{
+		return state;
+	}
 
 	@Override
 	public String toString()
@@ -77,6 +92,7 @@ public class Endpoint implements NamedObject
 		root.put("contextAddress", contextAddress);
 		root.set("configuration", configuration.toJson());
 		root.put("revision", revision);
+		root.put("state", state.toString());
 		return root;
 	}
 
@@ -88,6 +104,8 @@ public class Endpoint implements NamedObject
 		configuration = new EndpointConfiguration((ObjectNode) root.get("configuration"));
 		if (root.has("revision"))
 			revision = root.get("revision").asLong();
+		if (root.has("state"))
+			state = EndpointState.valueOf(root.get("state").asText());
 	}
 
 	@Override
@@ -101,6 +119,7 @@ public class Endpoint implements NamedObject
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (int) (revision ^ (revision >>> 32));
 		result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
 		return result;
 	}
 
@@ -133,6 +152,8 @@ public class Endpoint implements NamedObject
 		} else if (!name.equals(other.name))
 			return false;
 		if (revision != other.revision)
+			return false;
+		if (state != other.state)
 			return false;
 		if (typeId == null)
 		{

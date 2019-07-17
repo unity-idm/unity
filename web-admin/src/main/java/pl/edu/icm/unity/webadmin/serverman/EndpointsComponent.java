@@ -132,7 +132,7 @@ public class EndpointsComponent extends VerticalLayout
 		List<ResolvedEndpoint> endpoints = null;
 		try
 		{
-			endpoints = endpointMan.getEndpoints();
+			endpoints = endpointMan.getDeployedEndpoints();
 		} catch (EngineException e)
 		{
 			setError(msg.getMessage("Endpoints.cannotLoadList"), e);

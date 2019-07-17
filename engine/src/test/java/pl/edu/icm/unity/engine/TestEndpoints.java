@@ -67,7 +67,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		
 		assertThat(endpoints.size(), is(1));
 		assertThat(endpoints.get(0).getEndpoint().getConfiguration(), is(cfg));
@@ -88,7 +88,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				new I18nString("endpoint1I"), "ada", new ArrayList<>(), "", REALM_NAME);
 		endpointMan.updateEndpoint("endpoint1", cfg2);
 
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.size(), is(1));
 		assertThat(endpoints.get(0).getEndpoint().getConfiguration(), is(cfg2));
 		assertThat(endpoints.get(0).getRealm().getName(), is(REALM_NAME));
@@ -106,7 +106,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		endpointMan.undeploy("endpoint1");
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		
 		assertThat(endpoints.isEmpty(), is(true));
 	}
@@ -128,7 +128,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			assertThat(e.getMessage(), containsString("exists"));
 		}
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.size(), is(1));
 	}
 
@@ -147,7 +147,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			assertThat(e.getMessage(), containsString("configuration"));
 		}
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.isEmpty(), is(true));
 	}
 	
@@ -182,7 +182,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			assertThat(e.getMessage(), containsString("path"));
 		}
 
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.isEmpty(), is(true));
 	}
 	
@@ -196,7 +196,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointConfiguration cfg3 = new EndpointConfiguration(new I18nString("endpoint2"), 
 				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint2", "/foo2", cfg3);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(2, endpoints.size());
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
 				new EndpointConfiguration(new I18nString("endp1"), 
@@ -208,12 +208,12 @@ public class TestEndpoints extends DBIntegrationTestBase
 		internalEndpointMan.undeploy(endpoints.get(0).getEndpoint().getName());
 		internalEndpointMan.undeploy(endpoints.get(1).getEndpoint().getName());
 
-		endpoints = endpointMan.getEndpoints();
+		endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(0, endpoints.size());
 		
 		internalEndpointMan.loadPersistedEndpoints();
 		
-		endpoints = endpointMan.getEndpoints();
+		endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(2, endpoints.size());
 		ResolvedEndpoint re1 = endpoints.stream().filter(
 				re -> re.getEndpoint().getConfiguration().getDescription().
@@ -231,7 +231,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		//finally test if removal from DB works
 		internalEndpointMan.removeAllPersistedEndpoints();
 		internalEndpointMan.loadPersistedEndpoints();
-		endpoints = endpointMan.getEndpoints();
+		endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(0, endpoints.size());
 	}
 	

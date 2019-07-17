@@ -99,7 +99,7 @@ public class TestECP extends AbstractTestIdpBase
 					"desc",	Lists.newArrayList(), ECP_ENDP_CFG, REALM_NAME);
 		
 		endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(2, endpoints.size());
 		log.info("Deployed endpoints: {}", endpoints);
 		
@@ -196,7 +196,7 @@ public class TestECP extends AbstractTestIdpBase
 		
 		httpPost.setEntity(new StringEntity(envDoc2.xmlText(), ContentType.APPLICATION_XML));
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		log.info("Deployed endpoints: {}", endpoints);
 		
 		HttpResponse response = httpclient.execute(targetHost, httpPost, context);

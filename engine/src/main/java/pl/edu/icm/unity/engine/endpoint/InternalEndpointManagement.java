@@ -19,6 +19,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 
 /**
  * Implementation of the internal endpoint management. 
@@ -54,12 +55,15 @@ public class InternalEndpointManagement
 		List<Endpoint> fromDb = endpointDB.getAll();
 		for (Endpoint endpoint: fromDb)
 		{
+			if (endpoint.getState().equals(EndpointState.UNDEPLOYED))
+				continue;
+			
 			EndpointInstance instance = loader.createEndpointInstance(endpoint);
 			deploy(instance);
 			log.debug(" - " + endpoint.getName() + ": " + endpoint.getTypeId() + 
 					" " + endpoint.getConfiguration().getDescription());
 		}
-	}
+	}	
 
 	@Transactional
 	public synchronized void removeAllPersistedEndpoints() throws EngineException

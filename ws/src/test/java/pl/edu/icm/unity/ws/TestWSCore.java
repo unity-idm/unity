@@ -333,7 +333,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
 				"desc", Lists.newArrayList(authnFlow), "", realm.getName());
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(1, endpoints.size());
 
 		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint2"),
