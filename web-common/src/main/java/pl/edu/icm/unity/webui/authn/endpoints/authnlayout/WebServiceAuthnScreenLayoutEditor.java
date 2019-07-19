@@ -88,9 +88,11 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomComponent
 	
 		Panel panel = new Panel();
 		panel.setStyleName(Styles.vPanelBorderless.toString());
+			
 		main = new VerticalLayout();
 		main.setMargin(false);
-
+		main.setWidth(100, Unit.PERCENTAGE);
+		
 		main.addComponent(new Label(msg.getMessage("WebServiceAuthnScreenLayoutEditor.dragElement")));
 		main.addComponent(getPallete());
 		main.addComponent(HtmlTag.horizontalLine());
@@ -121,9 +123,9 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomComponent
 
 		main.addComponent(separatorsLayout);
 		main.addComponent(columnsLayout);
-
-
 		panel.setContent(main);
+		panel.setWidth(100, Unit.PERCENTAGE);;
+		
 		setCompositionRoot(panel);
 	}
 
@@ -227,7 +229,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomComponent
 
 		addColumnButton.setVisible(columns.size() < 4);
 		
-		columnsLayout.setStyleName("u-minWidth" + columns.size() * 25);
+		main.setStyleName("u-minWidth" + columns.size() * 25);
 
 	}
 

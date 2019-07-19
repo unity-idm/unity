@@ -96,8 +96,8 @@ public class AuthnLayoutPropertiesHelper
 			lcolumn.setColumnTitle(ptitle);
 		}
 
-		int pwidth = properties.getIntValue(prefix + VaadinEndpointProperties.AUTHN_COLUMN_WIDTH);
-		lcolumn.setColumnWidth(pwidth);
+		Double pwidth = properties.getDoubleValue(prefix + VaadinEndpointProperties.AUTHN_COLUMN_WIDTH);
+		lcolumn.setColumnWidth(pwidth.intValue());
 
 		lcolumn.setElements(getColumnElements(prefix, properties, msg, removeElementListener, dragStart,
 				dragStop, authenticatorSupportService, authnOptionSupplier));
