@@ -11,6 +11,11 @@ import java.net.URL;
 
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 public class EndpointPathValidator
 {
 	public static void validateEndpointPath(String contextPath) throws WrongArgumentException
