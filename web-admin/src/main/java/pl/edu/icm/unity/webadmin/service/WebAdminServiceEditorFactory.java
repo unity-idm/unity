@@ -21,8 +21,8 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEndpointEditorFactory;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditorFactory;
 
 /**
  * 
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.authn.endpoints.ServiceEndpointEditorFactory;
  *
  */
 @Component
-public class WebAdminServiceEditorFactory implements ServiceEndpointEditorFactory
+public class WebAdminServiceEditorFactory implements ServiceEditorFactory
 {
 	private UnityMessageSource msg;
 	private RealmsManagement realmsMan;

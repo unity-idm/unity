@@ -21,9 +21,9 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEndpointEditorFactoriesRegistry;
+import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.authn.services.ServiceEndpointEditorFactoriesRegistry;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

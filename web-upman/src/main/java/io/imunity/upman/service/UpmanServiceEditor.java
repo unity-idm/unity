@@ -3,11 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.service;
+package io.imunity.upman.service;
 
 import java.util.List;
 
-import io.imunity.webconsole.WebConsoleEndpointFactory;
+import io.imunity.upman.UpManEndpointFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  * @author P.Piernik
  *
  */
-public class ConsoleServiceEditor implements ServiceEditor
+public class UpmanServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
 	private List<String> allRealms;
@@ -39,7 +39,7 @@ public class ConsoleServiceEditor implements ServiceEditor
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
 
-	public ConsoleServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
+	public UpmanServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> registrationForms,
@@ -60,7 +60,7 @@ public class ConsoleServiceEditor implements ServiceEditor
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 		editor = new WebServiceEditor(msg, uriAccessService, fileStorageService, serverConfig,
-				WebConsoleEndpointFactory.TYPE, endpoint, allRealms, flows, authenticators,
+				UpManEndpointFactory.TYPE, endpoint, allRealms, flows, authenticators,
 				registrationForms, authenticatorSupportService);
 
 		return editor;

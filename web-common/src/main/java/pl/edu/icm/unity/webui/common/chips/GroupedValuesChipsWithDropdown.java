@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 
+ * Same as {@link ChipsWithDropdown} but elements in dropdown can be grouped. 
  * @author P.Piernik
  *
  */

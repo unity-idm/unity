@@ -16,12 +16,12 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditorComponent;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEndpointEditorFactoriesRegistry;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceTypeInfoHelper;
+import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.authn.services.ServiceEndpointEditorFactoriesRegistry;
+import pl.edu.icm.unity.webui.authn.services.ServiceTypeInfoHelper;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;

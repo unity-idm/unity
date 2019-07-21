@@ -138,8 +138,10 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	protected void doSetValue(LocalOrRemoteResource value)
 	{
 		this.value = value;
+		
 		if (value == null)
 		{
+			remoteUrl.clear();
 			setPreview();
 			return;
 		}

@@ -33,8 +33,8 @@ import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.endpoints.WebServiceEditor;
+import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.authn.services.WebServiceEditor;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -174,18 +174,10 @@ class HomeServiceEditorComponent extends WebServiceEditor
 		upmanService.setCaption(msg.getMessage("HomeServiceEditorComponent.upmanService"));
 		upmanService.setItems(upManServices);
 		upmanService.setEmptySelectionAllowed(false);
-		binder.forField(upmanService).asRequired((v, c) -> {
-			if (enableUpMan.getValue() && (v == null))
-				return ValidationResult.error(msg.getMessage("fieldRequired"));
-			return ValidationResult.ok();
-		}).bind("upManService");
+		binder.forField(upmanService).bind("upManService");
 		main.addComponent(upmanService);
 
 		enableUpMan.addValueChangeListener(e -> {
-			if (!e.getValue())
-			{
-				upmanService.setComponentError(null);
-			}
 			upmanService.setEnabled(e.getValue());
 		});
 

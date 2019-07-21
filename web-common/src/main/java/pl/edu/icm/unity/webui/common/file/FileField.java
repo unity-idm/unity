@@ -9,6 +9,7 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
@@ -25,6 +26,7 @@ public class FileField extends FileFieldBase
 	private SimpleFileDownloader downloader;
 	private Button downloadButton;
 	private String fileName;
+	private Button clear;
 	
 	public FileField(UnityMessageSource msg, String mimeType, String previewFileName, int maxFileSize)
 	{
@@ -37,6 +39,14 @@ public class FileField extends FileFieldBase
 		downloadButton.setIcon(Images.download.getResource());
 		downloadButton.addClickListener(e -> downloader.download());
 		downloadButton.setVisible(false);
+		clear = new Button();
+		clear.setCaption(msg.getMessage("FileField.clear"));
+		clear.addClickListener(e -> {
+
+			doSetValue(null);
+			fireEvent(new ValueChangeEvent<LocalOrRemoteResource>(FileField.this, getValue(), true));
+		});
+		clear.setVisible(false);
 		
 		tab.addSelectedTabChangeListener(e -> {
 			if (tab.getSelectedTab().equals(remoteTab.getComponent()))
@@ -51,7 +61,12 @@ public class FileField extends FileFieldBase
 			}
 		});
 	
-		main.addComponent(downloadButton);	
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.setMargin(false);
+		wrapper.addComponent(downloadButton);
+		wrapper.addComponent(clear);
+		
+		main.addComponent(wrapper);	
 	}
 	
 	@Override
@@ -59,6 +74,7 @@ public class FileField extends FileFieldBase
 	{
 		super.setEnabled(enabled);
 		downloadButton.setEnabled(enabled);
+		clear.setEnabled(enabled);
 	}
 	
 	@Override
@@ -66,12 +82,14 @@ public class FileField extends FileFieldBase
 	{
 		LocalOrRemoteResource value = getValue();
 		downloadButton.setVisible(false);
+		clear.setVisible(false);
 		downloader.setFileDownloadResource(null);
 	
 		if (value != null && value.getLocal() != null)
 		{
 			downloader.setFileDownloadResource(new StreamResource(new FileStreamResource(value.getLocal()), fileName));
 			downloadButton.setVisible(true);
+			clear.setVisible(true);
 		} 
 	}	
 }

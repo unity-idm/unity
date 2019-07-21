@@ -22,14 +22,13 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditorComponent.ServiceEditorTab;
+import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * View for add new service
  * 
  * @author P.Piernik
  *
@@ -79,7 +78,7 @@ class NewServiceView extends CustomComponent implements UnityView
 			service = editor.getService();
 		} catch (FormValidationException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("NewAuthenticatorView.invalidConfiguration"),
+			NotificationPopup.showError(msg, msg.getMessage("NewServiceView.invalidConfiguration"),
 					e);
 			return;
 		}

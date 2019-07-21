@@ -31,6 +31,12 @@ public class ImageUtils
 
 	public static LocalOrRemoteResource getImageFromUriSave(String logoUri, URIAccessService uriService)
 	{
+		if (logoUri == null || logoUri.isEmpty())
+		{
+			return null;
+		}
+		
+		
 		try
 		{
 			URI uri = URIHelper.parseURI(logoUri);

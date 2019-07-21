@@ -15,9 +15,9 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.endpoints.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
+import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**

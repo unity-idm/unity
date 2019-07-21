@@ -6,8 +6,7 @@
 
 package io.imunity.upman;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,8 +31,10 @@ public class UpManEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = ProjectManagementConstants.ENDPOINT_NAME;
 	public static final String SERVLET_PATH = "/upman";
-
-	private EndpointTypeDescription description;
+	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
+			"Web group management user interface", VaadinAuthentication.NAME,
+			Collections.singletonMap(SERVLET_PATH, "Group management endpoint"));
+	
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
 	private UnityMessageSource msg;
@@ -45,17 +46,12 @@ public class UpManEndpointFactory implements EndpointFactory
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
-		
-		Map<String,String> paths = new HashMap<>();
-		paths.put(SERVLET_PATH, "Group management endpoint");
-		description = new EndpointTypeDescription(NAME, 
-				"Web group management user interface", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
-		return description;
+		return TYPE;
 	}
 
 	@Override
