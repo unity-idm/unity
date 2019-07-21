@@ -36,7 +36,7 @@ public class SearchSpecification
 	public SearchSpecification()
 	{
 		//for binder
-		this.scope = SearchScope.base;
+		this.scope = SearchScope.sub;
 	}
 	
 	public Filter getFilter(String username) throws LDAPException

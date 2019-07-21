@@ -112,11 +112,11 @@ public class AttributesGrid extends CustomComponent
 			{
 				return msg.getMessage("Attribute.fromStatement");
 			}
-		}, msg.getMessage("AttributesGrid.sourceCaption"), 5).setResizable(true);
+		}, msg.getMessage("AttributesGrid.sourceCaption"), 5).setResizable(true).setHidable(true);
 
 		attributesGrid.setStyleGenerator(a -> {
 			StringBuilder style = new StringBuilder();
-			if (checkAttributeImmutable(a))
+			if (checkAttributeImmutable(a) || !a.isDirect())
 				style.append(" " + Styles.immutableAttribute.toString());
 			if (acHelper.isMandatory(a.getName()))
 				style.append(" " + Styles.bold.toString());

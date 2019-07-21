@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.ldap.client.web;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -161,7 +162,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		});
 
 		bindAsCombo = new ComboBox<>(msg.getMessage("LdapAuthenticatorEditor.bindAs"));
-		bindAsCombo.setItems(BindAs.values());
+		bindAsCombo.setItems(Arrays.asList(BindAs.system, BindAs.user));
 		bindAsCombo.setEmptySelectionAllowed(false);
 		configBinder.forField(bindAsCombo).bind("bindAs");
 		header.addComponent(bindAsCombo);
@@ -253,6 +254,9 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		userDNResolvingLayout.addComponent(userDNResolvingMode);
 
 		TextField userDNtemplate = new TextField(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate"));
+		userDNtemplate.setPlaceholder("uid={USERNAME},dc=myorg,dc=global");
+		userDNtemplate.setDescription(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc"));
+		
 		userDNtemplate.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(userDNtemplate).withValidator((v, c) -> {
 
@@ -329,17 +333,24 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		serverConnectionLayout.setMargin(false);
 
 		GridWithEditor<ServerSpecification> serverConfig = new GridWithEditor<>(msg, ServerSpecification.class);
-		serverConfig.setCaption(msg.getMessage("LdapAuthenticatorEditor.servers"));
 		serverConnectionLayout.addComponent(serverConfig);
 		serverConfig.addTextColumn(s -> s.getServer(), (t, v) -> t.setServer(v),
 				msg.getMessage("LdapAuthenticatorEditor.server"), 40, true);
 
 		serverConfig.addIntColumn(s -> s.getPort(), (t, v) -> t.setPort(v),
 				msg.getMessage("LdapAuthenticatorEditor.port"), 10,
-				Optional.of(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, 65535)));
+				Optional.of(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, 65535)));
 
 		serverConfig.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		configBinder.forField(serverConfig).bind("servers");
+		configBinder.forField(serverConfig).withValidator((v, c) -> {
+			if (v == null || v.isEmpty())
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			} else
+			{
+				return ValidationResult.ok();
+			}
+		}).bind("servers");
 
 		ComboBox<ConnectionMode> connectionMode = new ComboBox<>(
 				msg.getMessage("LdapAuthenticatorEditor.connectionMode"));
@@ -371,14 +382,18 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		CheckBox trustAllCerts = new CheckBox(msg.getMessage("LdapAuthenticatorEditor.trustAllCerts"));
 		configBinder.forField(trustAllCerts).bind("trustAllCerts");
-		serverConnectionLayout.addComponent(trustAllCerts);
-
+		serverConnectionLayout.addComponent(trustAllCerts);		
+		
 		ComboBox<String> clientTrustStore = new ComboBox<>(
 				msg.getMessage("LdapAuthenticatorEditor.clientTrustStore"));
 		clientTrustStore.setItems(validators);
 		configBinder.forField(clientTrustStore).bind("clientTrustStore");
 		serverConnectionLayout.addComponent(clientTrustStore);
 
+		trustAllCerts.addValueChangeListener(e -> {
+			clientTrustStore.setEnabled(!e.getValue());
+		});		
+		
 		TextField resultEntriesLimit = new TextField(
 				msg.getMessage("LdapAuthenticatorEditor.resultEntriesLimit"));
 		configBinder.forField(resultEntriesLimit).asRequired(msg.getMessage("notAPositiveNumber"))
@@ -423,13 +438,13 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		groupRetSettingsLayout.addComponent(groupConfig);
 		groupConfig.addTextColumn(s -> s.getMatchByMemberAttribute(), (t, v) -> t.setMatchByMemberAttribute(v),
 				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.matchByMemberAttribute"), 20,
-				true);
+				false);
 
 		groupConfig.addTextColumn(s -> s.getMemberAttribute(), (t, v) -> t.setMemberAttribute(v),
 				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.memberAttribute"), 20, true);
 
 		groupConfig.addTextColumn(s -> s.getGroupNameAttribute(), (t, v) -> t.setGroupNameAttribute(v),
-				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.nameAttribute"), 20, true);
+				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.nameAttribute"), 20, false);
 
 		groupConfig.addTextColumn(s -> s.getObjectClass(), (t, v) -> t.setObjectClass(v),
 				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.objectClass"), 20, true);
@@ -449,7 +464,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		advancedAttrSearchLayout.setMargin(false);
 
 		ChipsWithTextfield retrievalLdapAttr = new ChipsWithTextfield(msg);
-		retrievalLdapAttr.setCaption(msg.getMessage("LdapAuthenticatorEditor.retrievalLdapAttributes"));
+		retrievalLdapAttr.setCaption(msg.getMessage("LdapAuthenticatorEditor.retrievedAttributes"));
 		advancedAttrSearchLayout.addComponent(retrievalLdapAttr);
 		configBinder.forField(retrievalLdapAttr).bind("retrievalLdapAttributes");
 

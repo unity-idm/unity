@@ -139,7 +139,6 @@ class AttributesController
 		try
 		{
 			attrMan.setAttributeSuppressingConfirmation(owner, attribute);
-
 			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
 		} catch (Exception e)
 		{

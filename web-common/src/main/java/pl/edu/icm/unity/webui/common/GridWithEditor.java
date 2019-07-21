@@ -233,6 +233,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
 		HorizontalLayout buttonBar = new HorizontalLayout();
 		buttonBar.setWidth(100, Unit.PERCENTAGE);
 		buttonBar.setMargin(false);

@@ -69,7 +69,7 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 		mainL.setSizeFull();
 
 		CompositeSplitPanel rightPanel = new CompositeSplitPanel(true, false, identitiesPanel,
-				attributesPanel, 60);
+				attributesPanel, 50);
 		CompositeSplitPanel leftPanel = new CompositeSplitPanel(true, false, groupBrowserPanel, groupDetailsPanel, 50);
 
 		CompositeSplitPanel main = new CompositeSplitPanel(false, false, leftPanel, rightPanel, 30);

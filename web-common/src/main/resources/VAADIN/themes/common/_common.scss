@@ -22,7 +22,7 @@
 	
 	.v-button-link:after {
 		content: none;
-	}
+	}gri
 
 	.v-label-light {
     	font-size: small;
@@ -763,10 +763,12 @@
 	
 	.u-gridWithActionMulti .v-grid-header th:first-child {
 		padding-left: 6px ;
+		transform: none !important;
 	}
 	
 	.u-gridWithActionMulti .v-grid-row > td:first-child{	  
 	    padding-left: 6px ;
+	    transform: none !important;
 	}
 	
  	.u-gridWithActionMulti .v-grid-header th:nth-child(2) {

@@ -18,7 +18,7 @@ public class ServerSpecification
 
 	public ServerSpecification()
 	{
-		this("", 0);
+		this("", 389);
 	}
 
 	public ServerSpecification(String server, int port)

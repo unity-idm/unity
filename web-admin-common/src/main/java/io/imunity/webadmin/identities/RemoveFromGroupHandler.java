@@ -48,6 +48,7 @@ public class RemoveFromGroupHandler
 				.withIcon(Images.removeFromGroup.getResource())
 				.withHandler(selection -> showRemoveFromGroupDialog(selection,
 						groupSupplier, refresher))
+				.withDisabledPredicate(r -> groupSupplier.get().equals("/"))
 				.multiTarget()
 				.build();
 	}
