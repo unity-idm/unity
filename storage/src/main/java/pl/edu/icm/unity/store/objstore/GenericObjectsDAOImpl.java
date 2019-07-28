@@ -8,6 +8,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,10 +18,12 @@ import java.util.Set;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.types.UpdateFlag;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -167,7 +170,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	}
 	
 	@Override
-	public void updateByName(String current, T newValue)
+	public void updateByNameControlled(String current, T newValue, EnumSet<UpdateFlag> flags)
 	{
 		StorageLimits.checkNameLimit(newValue.getName());
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(current, type);
@@ -175,7 +178,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 			throw new IllegalArgumentException("There is no [" + current + "] " + objectName);
 		T updated = handler.fromBlob(raw);
 
-		firePreUpdate(raw.getId(), current, newValue, updated);
+		firePreUpdate(raw.getId(), current, newValue, updated, flags);
 		
 		GenericObjectBean blob = handler.toBlob(newValue);
 		blob.setLastUpdate(new Date());
@@ -270,9 +273,12 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 			handler.preRemoveCheck(modifiedId, modifiedName);
 	}
 
-	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal)
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal,
+			EnumSet<UpdateFlag> updateFlags)
 	{
+		PlannedUpdateEvent<T> updateEvent = new PlannedUpdateEvent<>(modifiedId, modifiedName, newVal, 
+				oldVal, updateFlags);
 		for (ReferenceUpdateHandler<T> handler: updateHandlers)
-			handler.preUpdateCheck(modifiedId, modifiedName, newVal);
+			handler.preUpdateCheck(updateEvent);
 	}
 }

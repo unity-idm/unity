@@ -528,6 +528,21 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		assertThat(authenticatorUpdated.getRevision(), is(authenticatorInitial.getRevision()+1));
 	}
 
+	@Test
+	public void increaseOfCredentialStrengthUsedInPendingRegistrationRequestIsBlocked() throws Exception
+	{
+		//TODO
+		addDefaultCredentialDef();
+		
+		
+	}
+
+	@Test
+	public void shouldAllowToChangeResetSettingsOfCredentialUsedInPendingRegistrationRequest()
+	{
+		//TODO
+	}
+
 	
 	private void createPassCredentialAndCR(String credential, PasswordCredential passConfig) throws Exception
 	{

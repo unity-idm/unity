@@ -68,20 +68,21 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 	{
 		StorageLimits.checkNameLimit(obj.getName());
 		GroupsMapper mapper = SQLTransactionTL.getSql().getMapper(GroupsMapper.class);
-		GroupBean old = mapper.getByKey(key);
-		if (old == null)
+		GroupBean oldBean = mapper.getByKey(key);
+		if (oldBean == null)
 			throw new IllegalArgumentException(elementName + " with key [" + key + 
 					"] does not exist");
-		if (!old.getName().equals(obj.getName()))
+		if (!oldBean.getName().equals(obj.getName()))
 		{
-			if (old.getName().equals("/"))
+			if (oldBean.getName().equals("/"))
 				throw new IllegalArgumentException("It is not allowed to rename the root group");
-			if (!old.getParent().equals(obj.getParentPath()))
+			if (!oldBean.getParent().equals(obj.getParentPath()))
 				throw new IllegalArgumentException("It is not allowed to change group path, "
-						+ "only rename is possible for " + old.getName() + 
+						+ "only rename is possible for " + oldBean.getName() + 
 						" (trying to rename to " + obj.getName() + ")");
-			updateChilderenPaths(old.getName(), obj.getName(), mapper);
+			updateChilderenPaths(oldBean.getName(), obj.getName(), mapper);
 		}
+		Group old = jsonSerializer.fromDB(oldBean);
 		preUpdateCheck(old, obj);
 		firePreUpdate(key, obj.getName(), obj, old);
 		GroupBean toUpdate = jsonSerializer.toDB(obj);

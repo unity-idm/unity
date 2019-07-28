@@ -17,6 +17,7 @@ import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.PredicateBuilder;
 
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
@@ -73,13 +74,13 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 		genericDelete(pBuilder);
 	}
 	
-	private void cascadeAttributeTypeUpdate(long modifiedId, String modifiedName, AttributeType newValue)
+	private void cascadeAttributeTypeUpdate(PlannedUpdateEvent<AttributeType> update)
 	{
-		String newName = newValue.getName();
-		if (newName.equals(modifiedName))
+		String newName = update.newValue.getName();
+		if (newName.equals(update.modifiedName))
 			return;
 
-		PredicateBuilder pBuilder = getAttributePredicate(modifiedName, null, null);
+		PredicateBuilder pBuilder = getAttributePredicate(update.modifiedName, null, null);
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();
 		Set<Long> keys = hMap.keySet(pBuilder);
 		for (Long key: keys)
@@ -93,13 +94,13 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 		}
 	}
 
-	private void cascadeGroupUpdate(long modifiedId, String modifiedName, Group newValue)
+	private void cascadeGroupUpdate(PlannedUpdateEvent<Group> update)
 	{
-		String newName = newValue.getName();
-		if (newName.equals(modifiedName))
+		String newName = update.newValue.getName();
+		if (newName.equals(update.modifiedName))
 			return;
 
-		PredicateBuilder pBuilder = getAttributePredicate(null, null, modifiedName);
+		PredicateBuilder pBuilder = getAttributePredicate(null, null, update.modifiedName);
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();
 		Set<Long> keys = hMap.keySet(pBuilder);
 		for (Long key: keys)

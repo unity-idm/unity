@@ -53,7 +53,8 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 			throw new IllegalArgumentException(elementName + " [" + a.getAttribute().getName() + 
 					"] does not exist");
 		AttributeBean oldSingle = old.get(0);
-		preUpdateCheck(oldSingle, a);
+		StoredAttribute oldParsed = jsonSerializer.fromDB(oldSingle);
+		preUpdateCheck(oldParsed, a);
 		toUpdate.setId(oldSingle.getId());
 		mapper.updateByKey(toUpdate);		
 	}

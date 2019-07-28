@@ -101,4 +101,10 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 		return VerificatorType.Local;
 	}
 
+	@Override
+	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
+	{
+		return false;
+	}
+
 }

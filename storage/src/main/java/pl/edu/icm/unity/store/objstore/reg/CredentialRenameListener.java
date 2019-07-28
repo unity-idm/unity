@@ -22,18 +22,17 @@ public class CredentialRenameListener<T extends BaseForm > implements ReferenceU
 	}
 
 	@Override
-	public void preUpdateCheck(long modifiedId, String modifiedName,
-			CredentialDefinition newValue)
+	public void preUpdateCheck(PlannedUpdateEvent<CredentialDefinition> update)
 	{
-		if (modifiedName.equals(newValue.getName()))
+		if (update.modifiedName.equals(update.newValue.getName()))
 			return;
 		List<T> forms = dao.getAll();
 		for (T form: forms)
 		{
 			for (CredentialRegistrationParam crParam: form.getCredentialParams())
-				if (modifiedName.equals(crParam.getCredentialName()))
+				if (update.modifiedName.equals(crParam.getCredentialName()))
 				{
-					crParam.setCredentialName(newValue.getName());
+					crParam.setCredentialName(update.newValue.getName());
 					dao.update(form);
 				}
 		}

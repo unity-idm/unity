@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.credential;
 import static pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider.CREDENTIAL_PREFIX;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.types.UpdateFlag;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -144,11 +146,21 @@ public class CredentialManagementImpl implements CredentialManagement
 			updateCredentialAfterDefinitionChange(entityWithCred.getKey(), entityWithCred.getValue(), 
 					helper, desiredAuthnState);
 		
-		credentialDB.update(updated);
+		EnumSet<UpdateFlag> flags = getUpdateFlags(updated);
+		credentialDB.updateControlled(updated, flags);
 		
 		authenticatorsService.refreshAuthenticatorsOfCredential(updated.getName());
 	}
 
+	private EnumSet<UpdateFlag> getUpdateFlags(CredentialDefinition updated)
+	{
+		CredentialDefinition existingConfig = credentialDB.get(updated.getName());
+		CredentialHolder existingHolder = new CredentialHolder(existingConfig, localCredReg);
+		boolean outdatesCredentials = existingHolder.getHandler().isCredentialDefinitionChagneOutdatingCredentials(
+				updated.getConfiguration());
+		return outdatesCredentials ? EnumSet.noneOf(UpdateFlag.class) 
+				: EnumSet.of(UpdateFlag.DOESNT_MAKE_INSTANCES_INVALID);
+	}
 
 	private void updateCredentialAfterDefinitionChange(Long entityId, String credential, CredentialHolder helper, 
 			LocalCredentialState desiredCredState)

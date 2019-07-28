@@ -246,6 +246,13 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		return credentialHelper.isCredentialSet(entity, credentialName);
 	}
 	
+
+	@Override
+	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
+	{
+		return false;
+	}
+	
 	@Component
 	public static class Factory extends AbstractLocalCredentialVerificatorFactory
 	{

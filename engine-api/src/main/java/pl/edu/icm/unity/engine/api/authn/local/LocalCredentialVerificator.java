@@ -40,8 +40,6 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * Sets credential definition name for this verificator. This is only required 
 	 * to perform resolving of the client's identity, to get a proper credential. It is irrelevant 
 	 * for credential's storage.
-	 * 
-	 * @param credential
 	 */
 	void setCredentialName(String credential);
 	
@@ -64,7 +62,6 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	/**
 	 * @param currentCredential current credential as recorded in database
 	 * @return the current state of the credential, wrt the configuration of the verificator
-	 * @throws InternalException 
 	 */
 	CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException;
 
@@ -90,10 +87,12 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	
 	/**
 	 * Check if credential is set 
-	 * @param entity
-	 * @param credentialId
-	 * @return
-	 * @throws EngineException 
 	 */
 	boolean isCredentialSet(EntityParam entity) throws EngineException;
+	
+	/**
+	 * Should check if change of credential definition (config) from the currently set to the given as argument
+	 * may render credential instances invalid or not.  
+	 */
+	boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition);
 }

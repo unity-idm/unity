@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
@@ -37,12 +38,12 @@ public class AuthenticatorConfigurationDBImpl extends GenericObjectsDAOImpl<Auth
 		credentialDB.addUpdateHandler(this::credentialUpdateChangesOurTS);
 	}
 	
-	private void credentialUpdateChangesOurTS(long modifiedId, String modifiedName, CredentialDefinition newValue)
+	private void credentialUpdateChangesOurTS(PlannedUpdateEvent<CredentialDefinition> update)
 	{
 		List<AuthenticatorConfiguration> auths = getAll();
 		for (AuthenticatorConfiguration authenticator: auths)
 		{
-			if (modifiedName.equals(authenticator.getLocalCredentialName()))
+			if (update.modifiedName.equals(authenticator.getLocalCredentialName()))
 				updateTS(authenticator.getName());
 		}
 	}
