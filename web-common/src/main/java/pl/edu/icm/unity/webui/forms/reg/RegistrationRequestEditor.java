@@ -130,7 +130,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;
 		this.stage = Stage.FIRST;
-		if (form.isLocalSignupEnabled()) //when we have only remote signup enabled, validation must be defered to 2nd stage
+		if (form.isLocalSignupEnabled()) //when we have only remote signup enabled, validation must be deferred to 2nd stage
 			validateMandatoryRemoteInput(); 
 		initUI();
 	}

@@ -406,7 +406,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		this.byInvitationOnly = byInvitationOnly;
 	}
 
-	public boolean isLocalSignupEnabled()
+	public boolean hasAnyLocalCredential()
 	{
 		return !credentialParams.isEmpty();
 	}
