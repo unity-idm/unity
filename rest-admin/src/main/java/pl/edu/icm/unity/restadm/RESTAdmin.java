@@ -73,7 +73,6 @@ import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -96,9 +95,9 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
@@ -623,10 +622,10 @@ public class RESTAdmin
 			@QueryParam("identityType") String identityType, 
 			@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
-		String effectiveType = identityType == null ? EmailIdentity.ID : identityType; 
 		log.debug("Triggering UserNotification \'{}\' for identity {} type {}", 
-				templateId,  identityValue,  effectiveType);
-		Entity entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(effectiveType, identityValue)));
+				templateId,  identityValue,  identityType);
+		EntityParam entityParam = getEP(identityValue, identityType);
+		Entity entity = identitiesMan.getEntity(entityParam);
 		
 		Map<String, String> customTemplateParams = Maps.newHashMap();
 		uriInfo.getQueryParameters().forEach((key, value) -> 
