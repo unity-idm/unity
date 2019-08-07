@@ -83,6 +83,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		setStyleName("u-gridWithAction");
 		refreshHeight();
 		filters = new ArrayList<>();
+		addColumnVisibilityChangeListener(event -> refreshActionColumn());
 	}
 
 	public void setMultiSelect(boolean multi)

@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.Reader;
 
 import groovy.lang.Binding;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 
 /**
@@ -42,7 +42,7 @@ public class ScrpitTestApplication
 			System.exit(3);
 			return;
 		}
-		Event event = new Event(EventCategory.TEST); 
+		PersistableEvent event = new PersistableEvent(EventCategory.TEST);
 		Binding binding = MockGroovyBindingProvider.getBinding(event);
 		System.out.println("Executing " + path + " script in sandbox environment.");
 		GroovyRunner.run("sandbox-test", path, scriptReader, binding);

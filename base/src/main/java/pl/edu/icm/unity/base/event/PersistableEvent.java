@@ -11,41 +11,41 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.AbstractEvent;
+import pl.edu.icm.unity.types.Event;
 
 /**
  * Describes execution of operation with its context. Suitable for auditing, 
  * time measurement, logging or sending notifications. 
  * @author K. Benedyczak
  */
-public class Event extends AbstractEvent
+public class PersistableEvent implements Event
 {
 	private String trigger;
 	private Long invokerEntity;
 	private Date timestamp;
 	private String contents;
 
-	public Event(Enum<?> trigger, String contents)
+	public PersistableEvent(Enum<?> trigger, String contents)
 	{
 		this(trigger.toString(), -1l, new Date(), contents);
 	}
 	
-	public Event(Enum<?> trigger)
+	public PersistableEvent(Enum<?> trigger)
 	{
 		this(trigger.toString());
 	}
 
-	public Event(String trigger)
+	public PersistableEvent(String trigger)
 	{
 		this(trigger, -1l, new Date(), null);
 	}
 	
-	public Event(String trigger, Long invokerEntity, Date timestamp)
+	public PersistableEvent(String trigger, Long invokerEntity, Date timestamp)
 	{
 		this(trigger, invokerEntity, timestamp, null);
 	}
 
-	public Event(String trigger, Long invokerEntity, Date timestamp, String contents)
+	public PersistableEvent(String trigger, Long invokerEntity, Date timestamp, String contents)
 	{
 		this.trigger = trigger;
 		this.invokerEntity = invokerEntity;
@@ -54,7 +54,7 @@ public class Event extends AbstractEvent
 	}
 
 	@JsonCreator
-	public Event(ObjectNode json)
+	public PersistableEvent(ObjectNode json)
 	{
 		fromJson(json);
 	}
@@ -148,7 +148,7 @@ public class Event extends AbstractEvent
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Event other = (Event) obj;
+		PersistableEvent other = (PersistableEvent) obj;
 		if (trigger == null)
 		{
 			if (other.trigger != null)

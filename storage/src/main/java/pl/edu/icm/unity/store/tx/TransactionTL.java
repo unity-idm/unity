@@ -16,9 +16,22 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
  */
 public class TransactionTL
 {
+	/**
+	 * Manually commit current transaction.
+	 */
 	public static void manualCommit()
 	{
 		get().getCurrent().manualCommit();
+	}
+
+	/**
+	 * Adds actions that should be executed after successful commit.
+	 * @param action
+	 * 		Action to be executed.
+	 */
+	static void addPostCommitAction(Runnable action)
+	{
+		get().getCurrent().addPostCommitAction(action);
 	}
 
 	private static TransactionsState<? extends TransactionState> get()

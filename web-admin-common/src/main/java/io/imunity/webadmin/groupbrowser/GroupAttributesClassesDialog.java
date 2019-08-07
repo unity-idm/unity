@@ -91,7 +91,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 		{
 			Group group = groupsMan.getContents(groupPath, GroupContents.METADATA).getGroup();
 			group.setAttributesClasses(selected);
-			groupsMan.updateGroup(groupPath, group);
+			groupsMan.updateGroup(groupPath, group, "set attribute classes", "");
 			callback.onUpdate(group);
 			close();
 		} catch (EngineException e)

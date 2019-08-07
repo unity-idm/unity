@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.types.basic.audit;
 
-public enum EventAction
+public enum AuditEventType
 {
-	ADD,
-	UPDATE,
-	REMOVE;
+	ENTITY,
+	IDENTITY,
+	GROUP,
+	SESSION,
+	CREDENTIALS;
 }

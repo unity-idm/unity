@@ -23,6 +23,9 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
+import pl.edu.icm.unity.engine.audit.AuditManager;
+import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -48,6 +51,8 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
@@ -71,8 +76,7 @@ public class AttributesHelper
 	private AttributeStatementProcessor statementsHelper;
 	private AttributeTypeHelper atHelper;
 	private GroupDAO groupDAO;
-	
-	
+	private AuditManager auditManager;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -81,7 +85,7 @@ public class AttributesHelper
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
-			GroupDAO groupDAO)
+			GroupDAO groupDAO, AuditManager auditManager)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
@@ -95,6 +99,7 @@ public class AttributesHelper
 		this.atHelper = atHelper;
 		this.acUtil = acUtil;
 		this.groupDAO = groupDAO;
+		this.auditManager = auditManager;
 	}
 
 	/**
@@ -521,11 +526,30 @@ public class AttributesHelper
 		List<AttributeExt> existing = attributeDAO.getEntityAttributes(entityId, toCreate.getName(), 
 				toCreate.getGroupPath());
 		if (existing.isEmpty())
+		{
 			attributeDAO.create(sAttr);
-		else
+			if (toCreate.getName().startsWith(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX))
+			{
+				auditManager.log(AuditEventTrigger.builder()
+						.type(AuditEventType.CREDENTIALS)
+						.action(AuditEventAction.ADD)
+						.name(toCreate.getName())
+						.subject(entityId)
+						.tags("Authn"));
+			}
+		} else
 		{
 			sAttr.getAttribute().setCreationTs(existing.get(0).getCreationTs());
 			attributeDAO.updateAttribute(sAttr);
+			if (toCreate.getName().startsWith(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX))
+			{
+				auditManager.log(AuditEventTrigger.builder()
+						.type(AuditEventType.CREDENTIALS)
+						.action(AuditEventAction.UPDATE)
+						.name(toCreate.getName())
+						.subject(entityId)
+						.tags("Authn"));
+			}
 		}
 	}
 	

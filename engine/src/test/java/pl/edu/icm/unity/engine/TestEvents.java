@@ -8,13 +8,13 @@ package pl.edu.icm.unity.engine;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
-import pl.edu.icm.unity.types.AbstractEvent;
+import pl.edu.icm.unity.types.Event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -130,20 +130,20 @@ public class TestEvents extends DBIntegrationTestBase
 		}
 
 		@Override
-		public boolean isWanted(AbstractEvent abstractEvent)
+		public boolean isWanted(Event abstractEvent)
 		{
-			if (!(abstractEvent instanceof Event))
+			if (!(abstractEvent instanceof PersistableEvent))
 				return false;
-			Event event = (Event)abstractEvent;
+			PersistableEvent event = (PersistableEvent)abstractEvent;
 			InvocationEventContents parsed = new InvocationEventContents();
 			parsed.fromJson(event.getContents());
 			return parsed.getInterfaceName().equals(IdentityTypesManagement.class.getSimpleName());
 		}
 
 		@Override
-		public boolean handleEvent(AbstractEvent abstractEvent)
+		public boolean handleEvent(Event abstractEvent)
 		{
-			Event event = (Event)abstractEvent;
+			PersistableEvent event = (PersistableEvent)abstractEvent;
 			invocationTries++;
 			InvocationEventContents parsed = new InvocationEventContents();
 			parsed.fromJson(event.getContents());
@@ -165,7 +165,7 @@ public class TestEvents extends DBIntegrationTestBase
 		}
 
 		@Override
-		public boolean isAsync(AbstractEvent event)
+		public boolean isAsync(Event event)
 		{
 			return false;
 		}

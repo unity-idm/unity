@@ -20,4 +20,10 @@ public class TxManagerImpl implements TxManager
 	{
 		TransactionTL.manualCommit();
 	}
+
+	@Override
+	public void addPostCommitAction(Runnable action)
+	{
+		TransactionTL.addPostCommitAction(action);
+	}
 }

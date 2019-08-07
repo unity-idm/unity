@@ -756,7 +756,26 @@
 		border-left: none;
 		border-bottom: 1px solid #d4d4d4;
 	}
-	
+
+	.u-AuditEventsGridTitle {
+		font-weight: bold;
+		margin-bottom: 10px;
+	}
+
+	.u-auditEvents-filterLayout {
+		padding-right: 100px;
+		padding-bottom: 10px;
+		font-weight: bold;
+	}
+
+	.u-auditEvents-filterLayout .v-caption {
+		font-weight: bold;
+	}
+
+	.u-auditEvents-filterLayout {
+		font-weight: bold;
+	}
+
 	.u-gridWithActionMulti .v-grid-header th:first-child {
 		padding-left: 6px ;
 	}

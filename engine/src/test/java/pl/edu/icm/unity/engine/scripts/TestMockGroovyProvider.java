@@ -21,7 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 import groovy.lang.Binding;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 
@@ -36,7 +36,7 @@ public class TestMockGroovyProvider
 	@Test
 	public void mockAndProdBindingsShouldBeTheSame()
 	{
-		Event event = new Event(EventCategory.POST_INIT.name(), -1l, new Date(), ""); 
+		PersistableEvent event = new PersistableEvent(EventCategory.POST_INIT.name(), -1l, new Date(), "");
 		Binding mockBinding = MockGroovyBindingProvider.getBinding(event);
 		Binding binding = groovyExecutor.getBinding(event);
 		Map variables = binding.getVariables();

@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.event.EventExecution;
 import pl.edu.icm.unity.store.api.EventDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
@@ -32,14 +32,14 @@ public class EventTest extends AbstractBasicDAOTest<EventExecution>
 	@Override
 	protected EventExecution getObject(String id)
 	{
-		Event event = new Event("category", 123l, new Date(1000), "contents");
+		PersistableEvent event = new PersistableEvent("category", 123l, new Date(1000), "contents");
 		return new EventExecution(event, new Date(2000), "listenerId", 0);
 	}
 
 	@Override
 	protected EventExecution mutateObject(EventExecution src)
 	{
-		Event event = new Event("category2", 1234l, new Date(3000), "contents2");
+		PersistableEvent event = new PersistableEvent("category2", 1234l, new Date(3000), "contents2");
 		EventExecution ret = new EventExecution(event, new Date(4000), "listenerId2", 1);
 		ret.setId(src.getId());
 		return ret;

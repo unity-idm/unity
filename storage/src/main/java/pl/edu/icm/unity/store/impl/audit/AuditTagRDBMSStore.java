@@ -57,11 +57,4 @@ class AuditTagRDBMSStore
 		mapper.createTags(missing);
 		knownTags.addAll(missing);
 	}
-
-	void updateTags(long eventId, Set<String> tagList)
-	{
-		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		mapper.deleteTags(eventId);
-		insertAuditTags(eventId, tagList);
-	}
 }

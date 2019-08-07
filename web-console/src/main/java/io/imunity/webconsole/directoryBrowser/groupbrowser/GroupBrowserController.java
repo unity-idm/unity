@@ -187,7 +187,7 @@ class GroupBrowserController
 	{
 		try
 		{
-			groupsMan.updateGroup(path, group);
+			groupsMan.updateGroup(path, group, "manual update", "");
 		} catch (Exception e)
 		{
 			throw new ControllerException(

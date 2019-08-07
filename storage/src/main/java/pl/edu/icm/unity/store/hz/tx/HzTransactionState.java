@@ -17,6 +17,7 @@ public class HzTransactionState implements TransactionState
 {
 	private TransactionContext context;
 	private List<RDBMSMutationEvent> rdbmsQueue = new ArrayList<>();
+	private List<Runnable> actions = new ArrayList<>();
 	private Runnable transactionCommiter;
 	private Runnable resetHandler;
 	
@@ -54,10 +55,17 @@ public class HzTransactionState implements TransactionState
 	public void manualCommit()
 	{
 		transactionCommiter.run();
+		runPostCommitActions();
 	}
 	
 	public void resetTransaction()
 	{
 		resetHandler.run();
+	}
+
+	@Override
+	public List<Runnable> getPostCommitActions()
+	{
+		return actions;
 	}
 }

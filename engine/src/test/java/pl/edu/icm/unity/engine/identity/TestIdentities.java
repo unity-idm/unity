@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +64,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.EventAction;
-import pl.edu.icm.unity.types.basic.audit.EventType;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class TestIdentities extends DBIntegrationTestBase
@@ -888,34 +887,88 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(1, contents.getMembers().size());
 
 		// Verify AuditEvents
-		// Wait for all AusitEvent logs
-		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == 6));
+		// Wait for all AuditEvent logs
 		List<AuditEvent> allEvents = auditManager.getAllEvents();
-		// 3 ENTITY logs expected
+		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == 19));
+
+		// 4 ENTITY logs expected
 		assertEquals(1, allEvents.stream()
-				.filter(log -> log.getType() == EventType.ENTITY && log.getAction() == EventAction.ADD
+				.filter(log -> log.getType() == AuditEventType.ENTITY && log.getAction() == AuditEventAction.ADD
+						&& log.getSubject().getEntityId().equals(1L))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.ENTITY && log.getAction() == AuditEventAction.ADD
 						&& log.getSubject().getEntityId().equals(id.getEntityId()))
 				.count());
 		assertEquals(1, allEvents.stream()
-				.filter(log -> log.getType() == EventType.ENTITY && log.getAction() == EventAction.UPDATE
+				.filter(log -> log.getType() == AuditEventType.ENTITY && log.getAction() == AuditEventAction.UPDATE
 						&& log.getSubject().getEntityId().equals(id.getEntityId()) && log.getDetails().toString().equals("{\"state\":\"disabled\"}"))
 				.count());
 		assertEquals(1, allEvents.stream()
-				.filter(log -> log.getType() == EventType.ENTITY && log.getAction() == EventAction.REMOVE
+				.filter(log -> log.getType() == AuditEventType.ENTITY && log.getAction() == AuditEventAction.REMOVE
 						&& log.getSubject().getEntityId().equals(id.getEntityId()))
 				.count());
-		// 3 IDENTITY logs
+
+		// 4 IDENTITY logs expected
 		assertEquals(1, allEvents.stream()
-				.filter(log -> log.getType() == EventType.IDENTITY && log.getAction() == EventAction.ADD
+				.filter(log -> log.getType() == AuditEventType.IDENTITY && log.getAction() == AuditEventAction.ADD
+						&& log.getName().equals("userName:admin"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.IDENTITY && log.getAction() == AuditEventAction.ADD
 						&& log.getName().equals("x500Name:cn=golbi"))
 				.count());
 		assertEquals(1, allEvents.stream()
-				.filter(log -> log.getType() == EventType.IDENTITY && log.getAction() == EventAction.ADD
+				.filter(log -> log.getType() == AuditEventType.IDENTITY && log.getAction() == AuditEventAction.ADD
 						&& log.getName().equals("x500Name:cn=golbi2"))
 				.count());
 		assertEquals(1, allEvents.stream()
-				.filter(log -> log.getType() == EventType.IDENTITY && log.getAction() == EventAction.REMOVE
+				.filter(log -> log.getType() == AuditEventType.IDENTITY && log.getAction() == AuditEventAction.REMOVE
 						&& log.getName().equals("x500Name:cn=golbi"))
+				.count());
+
+		// 3 GROUP logs expected
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.ADD
+						&& log.getName().equals("/test"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.ADD
+						&& log.getName().equals("/test2"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.ADD
+						&& log.getName().equals("/test2/test"))
+				.count());
+
+		// 8 GROUP members logs expected
+		assertEquals(2, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/") && log.getTags().contains("Members") && log.getDetails().toString().equals("{\"action\":\"add\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/test") && log.getTags().contains("Members") && log.getDetails().toString().equals("{\"action\":\"add\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/test") && log.getTags().contains("Members") && log.getDetails().toString().equals("{\"action\":\"remove\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/test2") && log.getTags().contains("Members") && log.getDetails().toString().equals("{\"action\":\"add\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/test2") && log.getTags().contains("Members") && log.getDetails().toString().equals("{\"action\":\"remove\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/test2/test") && log.getTags().contains("Members") && log.getDetails().toString().equals("{\"action\":\"add\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == AuditEventType.GROUP && log.getAction() == AuditEventAction.UPDATE
+						&& log.getName().equals("/test2/test") && log.getTags().contains("Members") && log.getDetails().toString().startsWith("{\"action\":\"remove\"}"))
 				.count());
 	}
 	

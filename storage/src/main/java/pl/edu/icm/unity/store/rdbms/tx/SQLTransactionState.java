@@ -8,9 +8,13 @@ import org.apache.ibatis.session.SqlSession;
 
 import pl.edu.icm.unity.store.tx.TransactionState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SQLTransactionState implements TransactionState
 {
 	private SqlSession sql;
+	private List<Runnable> actions = new ArrayList<>();
 	
 	public SQLTransactionState(SqlSession sql)
 	{
@@ -26,5 +30,12 @@ public class SQLTransactionState implements TransactionState
 	public void manualCommit()
 	{
 		sql.commit();
+		runPostCommitActions();
+	}
+
+	@Override
+	public List<Runnable> getPostCommitActions()
+	{
+		return actions;
 	}
 }

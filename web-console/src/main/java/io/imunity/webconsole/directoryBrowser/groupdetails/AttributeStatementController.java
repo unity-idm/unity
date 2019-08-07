@@ -5,6 +5,7 @@
 
 package io.imunity.webconsole.directoryBrowser.groupdetails;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ class AttributeStatementController
 		updated.setAttributeStatements(attributeStatements);
 		try
 		{
-			groupsMan.updateGroup(updated.toString(), updated);
+			groupsMan.updateGroup(updated.toString(), updated, "set group statement",  Arrays.asList(attributeStatements).toString());
 			bus.fireEvent(new GroupChangedEvent(group.toString()));
 		} catch (Exception e)
 		{

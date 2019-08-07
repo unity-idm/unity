@@ -6,6 +6,8 @@ package pl.edu.icm.unity.store.api;
 
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,4 +20,6 @@ public interface AuditEventDAO extends BasicCRUDDAO<AuditEvent>
 	String NAME = "Audit event";
 
 	Set<String> getAllTags();
+
+	List<AuditEvent> getLogs(final Date from, final Date until);
 }

@@ -12,9 +12,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.EventAction;
-import pl.edu.icm.unity.types.basic.audit.EventType;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +30,9 @@ public class AuditManagerTest extends DBIntegrationTestBase
 
 	@Autowired
 	private AuditManager auditManager;
+
+	@Autowired
+	private TransactionalRunner tx;
 
 	@Before
 	public void setup()
@@ -45,20 +49,20 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		long initialLogSize = auditManager.getAllEvents().size();
 
 		// when
-		auditManager.fireEvent(EventType.ENTITY,
-				EventAction.UPDATE,
-				Long.toString(1L),
-				1L,
-				null,
-				"Users");
+		tx.runInTransaction(() -> auditManager.log(AuditEventTrigger.builder()
+			.type(AuditEventType.ENTITY)
+			.action(AuditEventAction.UPDATE)
+			.name("")
+			.subject(1L)
+			.tags("Users")));
 
 		//than
 		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == initialLogSize + 1));
 
 		List<AuditEvent> allEvents = auditManager.getAllEvents();
 		AuditEvent lastEvent = allEvents.get(allEvents.size() - 1);
-		assertEquals(EventType.ENTITY, lastEvent.getType());
-		assertEquals(EventAction.UPDATE, lastEvent.getAction());
+		assertEquals(AuditEventType.ENTITY, lastEvent.getType());
+		assertEquals(AuditEventAction.UPDATE, lastEvent.getAction());
 		assertEquals(1, (long) lastEvent.getInitiator().getEntityId());
 		assertEquals(1, (long) lastEvent.getSubject().getEntityId());
 		assertEquals(1, lastEvent.getTags().size());

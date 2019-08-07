@@ -196,7 +196,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		Group group = getGroupInternal(path);
 		group.setDisplayedName(newName);
-		groupMan.updateGroup(path, group);
+		groupMan.updateGroup(path, group, "set displayed name", newName.getValue(msg));
 	}
 
 	@Override
@@ -207,7 +207,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		GroupContents groupContent = groupMan.getContents(path, GroupContents.METADATA | GroupContents.GROUPS);
 		Group group = groupContent.getGroup();
 		group.setPublic(isPublic);
-		groupMan.updateGroup(path, group);
+		groupMan.updateGroup(path, group, "set access mode", isPublic ? "public" : "private");
 	}
 
 	@Override

@@ -102,6 +102,7 @@ public class SQLTransactionEngine implements TransactionEngine
 				log.trace("Commiting transaction for " + pjp.toShortString());
 			
 			ti.getSql().commit();
+			ti.runPostCommitActions();
 		}
 	}
 

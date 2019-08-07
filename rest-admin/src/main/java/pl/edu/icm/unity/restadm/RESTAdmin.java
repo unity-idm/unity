@@ -4,35 +4,6 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,11 +12,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import net.minidev.json.JSONArray;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -62,7 +34,7 @@ import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
-import pl.edu.icm.unity.engine.api.event.EventPublisher;
+import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
@@ -96,10 +68,35 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * RESTful API implementation.
@@ -127,7 +124,7 @@ public class RESTAdmin
 	private EntityCredentialManagement entityCredMan;
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
-	private EventPublisher eventPublisher;
+	private EventPublisherWithAuthz eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
 	private Token2JsonFormatter jsonFormatter;
 	private UserNotificationTriggerer userNotificationTriggerer;
@@ -144,7 +141,7 @@ public class RESTAdmin
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
 			InvitationManagement invitationMan,
-			EventPublisher eventPublisher,
+			EventPublisherWithAuthz eventPublisher,
 			SecuredTokensManagement securedTokenMan,
 			Token2JsonFormatter jsonFormatter,
 			UserNotificationTriggerer userNotificationTriggerer,
@@ -512,7 +509,7 @@ public class RESTAdmin
 		
 		Group contents = groupsMan.getContents(group, GroupContents.METADATA).getGroup();
 		contents.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
-		groupsMan.updateGroup(group, contents);
+		groupsMan.updateGroup(group, contents, "set group statement", statements.toString());
 	}
 
 	
@@ -882,7 +879,7 @@ public class RESTAdmin
 	public void triggerEvent(@PathParam("eventName") String eventName, String eventBody) 
 			throws EngineException, IOException
 	{
-		Event event = new Event(eventName, -1l, new Date(), eventBody);
+		PersistableEvent event = new PersistableEvent(eventName, -1l, new Date(), eventBody);
 		eventPublisher.fireEventWithAuthz(event);
 	}	
 	

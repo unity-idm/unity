@@ -38,10 +38,10 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 	
 	public ChipsWithTextfield(UnityMessageSource msg)
 	{
-		this(msg, true);
+		this(msg, true, true);
 	}
-	
-	public ChipsWithTextfield(UnityMessageSource msg, boolean multiSelectable)
+
+	public ChipsWithTextfield(UnityMessageSource msg, boolean multiSelectable, boolean chipsOnTop)
 	{
 		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
 		chipsRow = new ChipsRow<>();
@@ -63,7 +63,13 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
-		main.addComponents(chipsRow, textInput);		
+		if (chipsOnTop)
+		{
+			main.addComponents(chipsRow, textInput);
+		} else
+		{
+			main.addComponents(textInput, chipsRow);
+		}
 	}
 	
 	@Override
@@ -127,6 +133,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		textInput.setValue("");
 		selectItem(value);
 		updateTextInputVisibility();
+		fireEvent(new ValueChangeEvent<List<String>>(this, getItems(), true));
 	}
 
 	protected void selectItem(String selected)

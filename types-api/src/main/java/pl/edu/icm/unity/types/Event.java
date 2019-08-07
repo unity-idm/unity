@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.types;
 
 /**
- * Base class for EventProcessor execution abstraction.
+ * Marker interface for EventProcessor execution abstraction.
  *
  * @author R. Ledzinski
  */
-public abstract class AbstractEvent
+public interface Event
 {
 
 }

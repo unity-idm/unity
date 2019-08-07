@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.types.basic.audit;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
-import pl.edu.icm.unity.Constants;
 
 import java.util.Objects;
 
@@ -17,19 +17,18 @@ import java.util.Objects;
  */
 public class AuditEntity
 {
-	private Long entityId;
-	private String name;
-	private String email;
+	final private Long entityId;
+	final private String name;
+	final private String email;
 
-	public AuditEntity(@NonNull final Long entityId, @NonNull final String name, @NonNull final String email)
+	@JsonCreator
+	public AuditEntity(@JsonProperty("entityId") @NonNull final Long entityId,
+					   @JsonProperty("name") final String name,
+					   @JsonProperty("email") final String email)
 	{
 		this.entityId = entityId;
 		this.name = name;
 		this.email = email;
-	}
-
-	private AuditEntity()
-	{
 	}
 
 	public Long getEntityId()
@@ -48,14 +47,14 @@ public class AuditEntity
 	}
 
 	@Override
-	public boolean equals(final Object o)
+	public boolean equals(Object o)
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		final AuditEntity that = (AuditEntity) o;
+		AuditEntity that = (AuditEntity) o;
 		return entityId.equals(that.entityId) &&
-				name.equals(that.name) &&
-				email.equals(that.email);
+				Objects.equals(name, that.name) &&
+				Objects.equals(email, that.email);
 	}
 
 	@Override

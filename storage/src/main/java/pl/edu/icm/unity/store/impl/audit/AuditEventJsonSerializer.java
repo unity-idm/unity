@@ -10,8 +10,8 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.EventAction;
-import pl.edu.icm.unity.types.basic.audit.EventType;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import static java.util.Objects.isNull;
 
@@ -22,13 +22,17 @@ import static java.util.Objects.isNull;
 @Component
 public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEvent, AuditEventBean>
 {
-	@Autowired
 	private AuditEntityRDBMSStore auditEntityDAO;
+
+	@Autowired
+	public AuditEventJsonSerializer(final AuditEntityRDBMSStore auditEntityDAO) {
+		this.auditEntityDAO = auditEntityDAO;
+	}
 
 	@Override
 	public AuditEventBean toDB(AuditEvent object)
 	{
-		AuditEventBean bean = new AuditEventBean(
+		return new AuditEventBean(
 				object.getName(),
 				JsonUtil.serialize2Bytes(object.getDetails()),
 				object.getType().toString(),
@@ -36,7 +40,6 @@ public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEven
 				auditEntityDAO.findOrCreateEntity(object.getSubject()),
 				auditEntityDAO.findOrCreateEntity(object.getInitiator()),
 				object.getAction().toString());
-		return bean;
 	}
 
 	@Override
@@ -44,9 +47,9 @@ public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEven
 	{
 		return AuditEvent.builder()
 				.name(bean.getName())
-				.type(EventType.valueOf(bean.getType()))
+				.type(AuditEventType.valueOf(bean.getType()))
 				.timestamp(bean.getTimestamp())
-				.action(EventAction.valueOf(bean.getAction()))
+				.action(AuditEventAction.valueOf(bean.getAction()))
 				.details(JsonUtil.parse(bean.getContents()))
 				.subject(isNull(bean.getSubjectId()) ? null : new AuditEntity(bean.getSubjectEntityId(), bean.getSubjectName(), bean.getSubjectEmail()))
 				.initiator(isNull(bean.getInitiatorId()) ? null : new AuditEntity(bean.getInitiatorEntityId(), bean.getInitiatorName(), bean.getInitiatorEmail()))

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.withSettings;
 import org.apache.logging.log4j.Logger;
 
 import groovy.lang.Binding;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -50,7 +50,7 @@ public class MockGroovyBindingProvider
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MockGroovyBindingProvider.class);
 	
-	public static Binding getBinding(Event event)
+	public static Binding getBinding(PersistableEvent event)
 	{
 		UnityMessageSource unityMessageSource = mock(UnityMessageSource.class, 
 				withSettings().verboseLogging());

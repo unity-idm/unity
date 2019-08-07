@@ -201,6 +201,7 @@ public class HzTransactionEngine implements TransactionEngine
 				
 				enqueueRDBMSBatch();
 				ti.getHzContext().commitTransaction();
+				ti.runPostCommitActions();
 			} else
 			{
 				log.trace("Rolling back transaction for {} as there is no "

@@ -21,13 +21,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
-import pl.edu.icm.unity.engine.scripts.MainGroovyExecutor;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
@@ -55,7 +54,7 @@ public class ContentGroovyExecutorTest
 		
 		// when
 		groovyExecutor.run(conf, 
-				new Event(EventCategory.POST_INIT.toString(), -1l, new Date()));
+				new PersistableEvent(EventCategory.POST_INIT.toString(), -1l, new Date()));
 		
 		// then
 		Collection<CredentialDefinition> creds = credMan.getCredentialDefinitions();

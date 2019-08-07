@@ -11,15 +11,15 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.AbstractEvent;
+import pl.edu.icm.unity.types.Event;
 
 /**
- * Listens to all platform {@link Event}s and triggers scripts configured for the event (if any).
+ * Listens to all platform {@link PersistableEvent}s and triggers scripts configured for the event (if any).
  *
  * @author K. Benedyczak
  * @author Roman Krysinski (roman@unity-idm.eu)
@@ -50,18 +50,18 @@ public class ScriptTriggeringEventListener implements EventListener
 	}
 
 	@Override
-	public boolean isWanted(AbstractEvent event)
+	public boolean isWanted(Event event)
 	{
-		return (event instanceof Event); //optimization - we anyway need to do another map get.
+		return (event instanceof PersistableEvent); //optimization - we anyway need to do another map get.
 	}
 
 	@Override
-	public boolean handleEvent(AbstractEvent abstractEvent)
+	public boolean handleEvent(Event abstractEvent)
 	{
-		if (!(abstractEvent instanceof Event)) {
+		if (!(abstractEvent instanceof PersistableEvent)) {
 			throw new IllegalArgumentException("Has to be Event instance. Verify isWanted() implementation.");
 		}
-		Event event = (Event)abstractEvent;
+		PersistableEvent event = (PersistableEvent)abstractEvent;
 		List<ScriptConfiguration> list = scriptsByEvent.get(event.getTrigger());
 		if (list == null)
 			return true;
@@ -70,7 +70,7 @@ public class ScriptTriggeringEventListener implements EventListener
 	}
 
 	@Override
-	public boolean isAsync(AbstractEvent event)
+	public boolean isAsync(Event event)
 	{
 		return false;
 	}
@@ -87,7 +87,7 @@ public class ScriptTriggeringEventListener implements EventListener
 		return 0;
 	}
 	
-	private void run(List<ScriptConfiguration> list, Event event)
+	private void run(List<ScriptConfiguration> list, PersistableEvent event)
 	{
 		list.forEach(script ->
 		{

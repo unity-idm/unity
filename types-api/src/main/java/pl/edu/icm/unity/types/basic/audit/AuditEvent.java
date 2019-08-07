@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.types.basic.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import pl.edu.icm.unity.types.AbstractEvent;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -24,11 +23,11 @@ public class AuditEvent
 	// TODO - overall list for Audit feature
 	// - add DB indexes - need more details about UI abilities
 	private String name;
-	private EventType type;
+	private AuditEventType type;
 	private Date timestamp;
 	private AuditEntity subject;
 	private AuditEntity initiator;
-	private EventAction action;
+	private AuditEventAction action;
 	private JsonNode details;
 	private Set<String> tags;
 
@@ -42,7 +41,7 @@ public class AuditEvent
 		return name;
 	}
 
-	public EventType getType()
+	public AuditEventType getType()
 	{
 		return type;
 	}
@@ -62,7 +61,7 @@ public class AuditEvent
 		return initiator;
 	}
 
-	public EventAction getAction()
+	public AuditEventAction getAction()
 	{
 		return action;
 	}
@@ -129,7 +128,7 @@ public class AuditEvent
 			return this;
 		}
 
-		public AuditEventBuilder type(final EventType type)
+		public AuditEventBuilder type(final AuditEventType type)
 		{
 			auditEvent.type = type;
 			return this;
@@ -153,7 +152,7 @@ public class AuditEvent
 			return this;
 		}
 
-		public AuditEventBuilder action(final EventAction action)
+		public AuditEventBuilder action(final AuditEventAction action)
 		{
 			auditEvent.action = action;
 			return this;

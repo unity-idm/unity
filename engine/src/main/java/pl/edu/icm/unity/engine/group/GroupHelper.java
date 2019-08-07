@@ -4,21 +4,16 @@
  */
 package pl.edu.icm.unity.engine.group;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
+import pl.edu.icm.unity.engine.audit.AuditManager;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -35,6 +30,16 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Shared group-related utility methods
@@ -51,11 +56,13 @@ public class GroupHelper
 	private AttributesHelper attributesHelper;
 	private GroupDAO groupDAO;
 	private AttributeDAO dbAttributes;
+	private AuditManager auditManager;
 	
 	@Autowired
 	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper,
-			GroupDAO groupDAO, AttributeDAO dbAttributes)
+			GroupDAO groupDAO, AttributeDAO dbAttributes,
+			AuditManager auditManager)
 	{
 		this.membershipDAO = membershipDAO;
 		this.entityResolver = entityResolver;
@@ -63,6 +70,7 @@ public class GroupHelper
 		this.attributesHelper = attributesHelper;
 		this.groupDAO = groupDAO;
 		this.dbAttributes = dbAttributes;
+		this.auditManager = auditManager;
 	}
 
 	/**
@@ -93,6 +101,13 @@ public class GroupHelper
 
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);
+		auditManager.log(AuditEventTrigger.builder()
+				.type(AuditEventType.GROUP)
+				.action(AuditEventAction.UPDATE)
+				.subject(entityId)
+				.name(group.getName())
+				.details(ImmutableMap.of("action", "add"))
+				.tags("Members", "Groups"));
 		log.debug("Added entity " + entityId + " to group " + group.toString());
 	}
 	
@@ -180,6 +195,13 @@ public class GroupHelper
 				if (Group.isChildOrSame(group, groupToRemove))
 				{
 					membershipDAO.deleteByKey(entityId, group);
+					auditManager.log(AuditEventTrigger.builder()
+							.type(AuditEventType.GROUP)
+							.action(AuditEventAction.UPDATE)
+							.name(group)
+							.subject(entityId)
+							.details(ImmutableMap.of("action", "remove"))
+							.tags("Members", "Groups"));
 					dbAttributes.deleteAttributesInGroup(entityId, group);
 					log.debug("Removed entity " + entityId + " from group " + group);
 				}

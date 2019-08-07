@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.event.EventExecution;
 import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
@@ -37,7 +37,7 @@ public class EventExecutionJsonSerializer implements RDBMSObjectSerializer<Event
 	@Override
 	public EventExecution fromDB(EventBean bean)
 	{
-		Event deserialized = new Event(JsonUtil.parse(bean.getContents()));
+		PersistableEvent deserialized = new PersistableEvent(JsonUtil.parse(bean.getContents()));
 		EventExecution ret = new EventExecution(deserialized, bean.getNextProcessing(), 
 				bean.getListenerId(), bean.getFailures());
 		ret.setId(bean.getId());

@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
@@ -69,7 +69,7 @@ public class ContentInitializersExecutorTest
 		ScriptTriggeringEventListener eventListener = new ScriptTriggeringEventListener(
 				config, groovyMock);
 		
-		Event event = new Event(EventCategory.PRE_INIT);
+		PersistableEvent event = new PersistableEvent(EventCategory.PRE_INIT);
 		eventListener.handleEvent(event);
 		
 		verify(groovyMock).run(configs.get(0), event);
@@ -81,7 +81,7 @@ public class ContentInitializersExecutorTest
 		ScriptTriggeringEventListener eventListener = new ScriptTriggeringEventListener(
 				config, groovyMock);
 		
-		eventListener.handleEvent(new Event(EventCategory.POST_INIT));
+		eventListener.handleEvent(new PersistableEvent(EventCategory.POST_INIT));
 		
 		verify(groovyMock, never()).run(any(), any());
 	}

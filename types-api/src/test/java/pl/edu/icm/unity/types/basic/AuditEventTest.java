@@ -6,8 +6,8 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent.AuditEventBuilder;
-import pl.edu.icm.unity.types.basic.audit.EventAction;
-import pl.edu.icm.unity.types.basic.audit.EventType;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import java.util.Collections;
 import java.util.Date;
@@ -45,7 +45,7 @@ public class AuditEventTest
 		eventBuilder.details(null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		Assertions.assertThat(ex).isNull();
@@ -59,7 +59,7 @@ public class AuditEventTest
 		eventBuilder.tags(Collections.emptySet());
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		Assertions.assertThat(ex).isNull();
@@ -73,7 +73,7 @@ public class AuditEventTest
 		eventBuilder.name(null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		assertThat(ex, instanceOf(NullPointerException.class));
@@ -88,7 +88,7 @@ public class AuditEventTest
 		eventBuilder.type(null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		assertThat(ex, instanceOf(NullPointerException.class));
@@ -103,7 +103,7 @@ public class AuditEventTest
 		eventBuilder.timestamp(null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		assertThat(ex, instanceOf(NullPointerException.class));
@@ -119,7 +119,7 @@ public class AuditEventTest
 		eventBuilder.initiator(null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		assertThat(ex, instanceOf(NullPointerException.class));
@@ -134,7 +134,7 @@ public class AuditEventTest
 		eventBuilder.action(null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		assertThat(ex, instanceOf(NullPointerException.class));
@@ -149,7 +149,7 @@ public class AuditEventTest
 		eventBuilder.tags((Set<String>) null);
 
 		// when
-		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
 		assertThat(ex, instanceOf(NullPointerException.class));
@@ -165,12 +165,12 @@ public class AuditEventTest
 	{
 		return AuditEvent.builder()
 				.name("Name")
-				.type(EventType.IDENTITY)
+				.type(AuditEventType.IDENTITY)
 				.timestamp(new Date())
-				.action(EventAction.ADD)
+				.action(AuditEventAction.ADD)
 				.details(JsonUtil.parse("{}"))
-				.initiator(new AuditEntity(0l, "Initiator name", "initiator@example.com"))
-				.subject(new AuditEntity(1l, "Subject name", "subject@example.com"))
+				.initiator(new AuditEntity(0L, "Initiator name", "initiator@example.com"))
+				.subject(new AuditEntity(1L, "Subject name", "subject@example.com"))
 				.tags("TAG1", "TAG2");
 	}
 }

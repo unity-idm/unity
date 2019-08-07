@@ -11,8 +11,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.CachingDAO;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,19 +29,25 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventRDBMSStore.class);
 	public static final String BEAN = DAO_ID + "rdbms";
 
-	@Autowired
 	private AuditTagRDBMSStore tagDAO;
 
 	@Autowired
-	public AuditEventRDBMSStore(AuditEventJsonSerializer jsonSerializer)
+	public AuditEventRDBMSStore(final AuditEventJsonSerializer jsonSerializer, AuditTagRDBMSStore tagDAO)
 	{
 		super(AuditEventMapper.class, jsonSerializer, NAME);
+		this.tagDAO = tagDAO;
 	}
 
 	@Override
-	public long create(AuditEvent obj)
+	public List<AuditEvent> getLogs(final Date from, final Date until)
 	{
-		log.debug("New AuditEvent: {}", obj);
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		return convertList(mapper.getForPeriod(from, until));
+	}
+
+	@Override
+	public long create(final AuditEvent obj)
+	{
 		long id = super.create(obj);
 		if (obj.getTags() != null && obj.getTags().size() > 0) {
 			tagDAO.insertAuditTags(id, obj.getTags());
@@ -49,11 +58,7 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 
 	@Override
 	public void updateByKey(final long key, final AuditEvent obj) {
-		super.updateByKey(key, obj);
-
-		if (obj.getTags() != null && obj.getTags().size() > 0) {
-			tagDAO.updateTags(key, obj.getTags());
-		}
+		throw new UnsupportedOperationException("Update operation is not supported for AuditEvents.");
 	}
 
 	@Override

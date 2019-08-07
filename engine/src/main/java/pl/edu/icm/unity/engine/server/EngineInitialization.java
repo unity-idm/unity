@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -359,7 +359,7 @@ public class EngineInitialization extends LifecycleBase
 
 		runInitializers();
 
-		eventsProcessor.fireEvent(new Event(EventCategory.PRE_INIT, isColdStart.toString()));
+		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.PRE_INIT, isColdStart.toString()));
 
 		initializeTranslationProfiles();
 		checkSystemTranslationProfiles();
@@ -371,7 +371,7 @@ public class EngineInitialization extends LifecycleBase
 		initializeRealms();
 		initializeEndpoints();
 
-		eventsProcessor.fireEvent(new Event(EventCategory.POST_INIT, isColdStart.toString()));
+		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.POST_INIT, isColdStart.toString()));
 	}
 
 	private boolean determineIfColdStart()
@@ -551,7 +551,7 @@ public class EngineInitialization extends LifecycleBase
 			GroupContents root = groupManagement.getContents("/", GroupContents.METADATA);
 			log.info("Removing ACs: " + root.getGroup().getAttributesClasses());
 			root.getGroup().setAttributesClasses(new HashSet<>());
-			groupManagement.updateGroup("/", root.getGroup());
+			groupManagement.updateGroup("/", root.getGroup(), "reset root group attributes", "");
 			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
 		}
 	}

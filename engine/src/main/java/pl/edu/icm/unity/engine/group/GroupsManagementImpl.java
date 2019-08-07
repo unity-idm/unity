@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,9 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
+import pl.edu.icm.unity.engine.audit.AuditManager;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -47,6 +51,10 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+
+import static java.util.Objects.nonNull;
 
 
 /**
@@ -73,6 +81,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private TransactionalRunner tx;
 	private AttributeClassUtil acUtil;
 	private UnityMessageSource msg;
+	private AuditManager auditManager;
 
 	
 	@Autowired
@@ -81,7 +90,8 @@ public class GroupsManagementImpl implements GroupsManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeClassDB acDB,
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
-			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg)
+			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg,
+			AuditManager auditManager)
 	{
 		this.dbGroups = dbGroups;
 		this.membershipDAO = membershipDAO;
@@ -96,6 +106,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.acUtil = acUtil;
 		this.tx = tx;
 		this.msg = msg;
+		this.auditManager = auditManager;
 	}
 
 	@Override
@@ -114,6 +125,11 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		
 		dbGroups.create(toAdd);
+		auditManager.log(AuditEventTrigger.builder()
+				.type(AuditEventType.GROUP)
+				.action(AuditEventAction.ADD)
+				.name(toAdd.getName())
+				.tags("Groups"));
 	}
 
 	@Override
@@ -126,6 +142,11 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (!recursive && !getSubGroups(path).isEmpty())
 			throw new IllegalGroupValueException("The group contains subgroups");
 		dbGroups.delete(path);
+		auditManager.log(AuditEventTrigger.builder()
+				.type(AuditEventType.GROUP)
+				.action(AuditEventAction.REMOVE)
+				.name(path)
+				.tags("Groups"));
 	}
 
 	@Override
@@ -182,6 +203,13 @@ public class GroupsManagementImpl implements GroupsManagement
 			if (Group.isChildOrSame(group, path))
 			{
 				membershipDAO.deleteByKey(entityId, group);
+				auditManager.log(AuditEventTrigger.builder()
+						.type(AuditEventType.GROUP)
+						.action(AuditEventAction.UPDATE)
+						.name(group)
+						.subject(entityId)
+						.details(ImmutableMap.of("action", "remove"))
+						.tags("Members", "Groups"));
 				dbAttributes.deleteAttributesInGroup(entityId, group);
 			}
 		}
@@ -269,10 +297,17 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		return ret;
 	}
-	
+
 	@Override
 	@Transactional
 	public void updateGroup(String path, Group group) throws EngineException
+	{
+		updateGroup(path, group, null, null);
+	}
+	
+	@Override
+	@Transactional
+	public void updateGroup(String path, Group group, String changedProperty, String newValue) throws EngineException
 	{
 		authz.checkAuthorization(path, AuthzCapability.groupModify);
 		if (!path.equals(group.toString()))
@@ -305,6 +340,15 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		
 		dbGroups.updateByName(path, group);
+		AuditEventTriggerBuilder auditEvent = AuditEventTrigger.builder()
+				.type(AuditEventType.GROUP)
+				.action(AuditEventAction.UPDATE)
+				.name(group.getName())
+				.tags("Groups");
+		if (nonNull(changedProperty) && nonNull(newValue)) {
+			auditEvent.details(ImmutableMap.of("action", changedProperty, "value", newValue));
+		}
+		auditManager.log(auditEvent);
 	}
 	
 	

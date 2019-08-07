@@ -375,7 +375,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	{
 		try
 		{
-			groupsMan.updateGroup(path, group);
+			groupsMan.updateGroup(path, group, "manual update", "");
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg,

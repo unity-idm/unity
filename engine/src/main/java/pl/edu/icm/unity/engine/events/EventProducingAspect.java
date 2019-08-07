@@ -17,7 +17,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -87,7 +87,7 @@ public class EventProducingAspect
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Long invoker = ae == null ? null : ae.getEntityId();
 		MethodSignature signature = (MethodSignature) jp.getSignature();
-		Event event = new Event(CATEGORY_INVOCATION + "." + signature.getMethod().getName(), 
+		PersistableEvent event = new PersistableEvent(CATEGORY_INVOCATION + "." + signature.getMethod().getName(),
 				invoker, new Date());
 		event.setContents(getMethodDescription(signature.getMethod(), null, 
 				signature.getDeclaringType().getSimpleName(), jp.getArgs()));
@@ -101,7 +101,7 @@ public class EventProducingAspect
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		Long invoker = ae == null ? null : ae.getEntityId();
 		MethodSignature signature = (MethodSignature) jp.getSignature();
-		Event event = new Event(CATEGORY_INVOCATION + "." + signature.getMethod().getName(), 
+		PersistableEvent event = new PersistableEvent(CATEGORY_INVOCATION + "." + signature.getMethod().getName(),
 				invoker, new Date());
 		event.setContents(getMethodDescription(signature.getMethod(), e.toString(), 
 				signature.getDeclaringType().getSimpleName(), jp.getArgs()));

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
-import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -141,7 +141,7 @@ public class MainGroovyExecutor
 	@Autowired
 	private ApplicationContext applCtx;
 	
-	public void run(ScriptConfiguration conf, Event event)
+	public void run(ScriptConfiguration conf, PersistableEvent event)
 	{
 		if (conf == null || conf.getType() != ScriptType.groovy)
 			throw new IllegalArgumentException(
@@ -178,7 +178,7 @@ public class MainGroovyExecutor
 		}
 	}
 
-	Binding getBinding(Event event)
+	Binding getBinding(PersistableEvent event)
 	{
 		Binding binding = new Binding();
 		binding.setVariable("event", event.getTrigger());

@@ -117,5 +117,15 @@ public interface GroupsManagement
 	 * @throws EngineException
 	 */
 	void updateGroup(String path, Group group) throws EngineException;
+
+	/**
+	 * Updates the group and pass information: changed property and new value.
+	 * @param path
+	 * @param group new group's metadata
+	 * @param changedProperty description of change
+	 * @param newValue value that was set
+	 * @throws EngineException
+	 */
+	void updateGroup(String path, Group group, String changedProperty, String newValue) throws EngineException;
 }
 

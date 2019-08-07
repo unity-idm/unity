@@ -32,13 +32,6 @@
 			VALUES (#{id}, #{timestamp}, #{type}, #{subjectId}, #{initiatorId}, #{action}, #{contents})
 	</insert>
 
-	<update id="updateByKey" parameterType="EventB">
-		UPDATE AUDIT_EVENTS SET NAME = #{name}, TIMESTAMP = #{timestamp}, TYPE = #{type},
-			SUBJECT_ID = #{subjectId}, INITIATOR_ID = #{initiatorId},
-			ACTION = #{action}, CONTENTS = #{contents}
-		WHERE ID = #{id}
-	</update>
-
 	<sql id="getWithJoin">
 		SELECT E.ID, E.NAME, E.TIMESTAMP, E.TYPE, E.ACTION, E.CONTENTS,
        		S.ID AS SUBJECT_ID, S.ENTITY_ID AS SUBJECT_ENTITY_ID, S.NAME AS SUBJECT_NAME, S.EMAIL AS SUBJECT_EMAIL,
@@ -53,6 +46,20 @@
 
 	<select id="getAll" resultMap="auditEventResult">
 		<include refid="getWithJoin"/>
+		ORDER BY E.TIMESTAMP
+	</select>
+
+	<select id="getForPeriod" resultMap="auditEventResult">
+		<include refid="getWithJoin"/>
+		<if test="from != null and until != null">
+		WHERE E.TIMESTAMP &gt;= #{from} AND E.TIMESTAMP &lt;= #{until}
+		</if>
+		<if test="from != null and until == null">
+		WHERE E.TIMESTAMP &gt;= #{from}
+		</if>
+		<if test="from == null and until != null">
+		WHERE E.TIMESTAMP &lt;= #{until}
+		</if>
 		ORDER BY E.TIMESTAMP
 	</select>
 
@@ -71,7 +78,14 @@
 
 	<!-- custom -->
 	<select id="getAuditEntityId" parameterType="AuditEntityB" resultType="long">
-		SELECT ID FROM AUDIT_ENTITIES WHERE ENTITY_ID=#{entityId} and NAME=#{name} and EMAIL=#{email}
+		SELECT ID FROM AUDIT_ENTITIES WHERE
+				ENTITY_ID=#{entityId}
+			and
+				<if test="name != null"> NAME=#{name} </if>
+				<if test="name == null"> NAME is null </if>
+			and
+				<if test="email != null"> EMAIL=#{email} </if>
+				<if test="email == null"> EMAIL is null </if>
 	</select>
 
 	<insert id="createAuditEntity" parameterType="AuditEntityB" useGeneratedKeys="true" keyProperty="id">
@@ -82,6 +96,7 @@
 	<select id="getAllTags" resultType="string">
 		SELECT TAG FROM AUDIT_TAGS;
 	</select>
+
 	<insert id="createTags">
 		<foreach collection="tagList" item="item" index="index" separator=";">
 			INSERT INTO AUDIT_TAGS
@@ -90,6 +105,7 @@
 						AND NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{item})
 		</foreach>
 	</insert>
+
 	<insert id="insertAuditTags">
 	INSERT INTO AUDIT_EVENTS_TAGS SELECT #{eventId},ID FROM AUDIT_TAGS WHERE TAG IN (
 	<foreach collection="tagList" item="item" index="index" separator=",">
@@ -97,8 +113,4 @@
 	</foreach>
 	)
 	</insert>
-
-	<delete id="deleteTags">
-		DELETE FROM AUDIT_EVENTS_TAGS WHERE EVENT_ID=#{eventId};
-	</delete>
 </mapper>

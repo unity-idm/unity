@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.engine.api.event;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.types.AbstractEvent;
+import pl.edu.icm.unity.types.Event;
 
 /**
  * Allows for sending platform events. 
@@ -15,12 +15,8 @@ import pl.edu.icm.unity.types.AbstractEvent;
 public interface EventPublisher
 {
 	/**
-	 * Invokes the event as {@link #fireEvent(AbstractEvent)}, however the caller is authorized
-	 * with the highest privilege level.
+	 * Publish the event for further processing.
 	 * @param event
-	 * @throws AuthorizationException 
 	 */
-	void fireEventWithAuthz(AbstractEvent event) throws AuthorizationException;
-
-	void fireEvent(AbstractEvent event);
+	void fireEvent(Event event);
 }

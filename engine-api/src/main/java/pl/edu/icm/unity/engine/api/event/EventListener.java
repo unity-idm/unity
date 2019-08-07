@@ -4,11 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api.event;
 
-import pl.edu.icm.unity.base.event.Event;
-import pl.edu.icm.unity.types.AbstractEvent;
+import pl.edu.icm.unity.types.Event;
 
 /**
- * Event listeners are {@link Event} consumers. E.g. a listener can send email with notification or 
+ * Event listeners are {@link Event} consumers. E.g. a listener can send email with notification or
  * dump the event to an auditing database.
  * @author K. Benedyczak
  */
@@ -30,7 +29,7 @@ public interface EventListener
 	 * @param event
 	 * @return true if the event should be handled by this listener
 	 */
-	boolean isWanted(AbstractEvent event);
+	boolean isWanted(Event event);
 
 	/**
 	 * This method should return whether async processing is allowed. Otherwise processing is
@@ -39,7 +38,7 @@ public interface EventListener
 	 * @param event
 	 * @return true if the event should be handled in async mode.
 	 */
-	boolean isAsync(AbstractEvent event);
+	boolean isAsync(Event event);
 	
 	/**
 	 * Called only on events of a proper category, for which isWanted returned true. 
@@ -47,7 +46,7 @@ public interface EventListener
 	 * @return true if the event was processed successfully. Returning false is relevant only 
 	 * for the heavy-weight listeners.
 	 */
-	boolean handleEvent(AbstractEvent event);
+	boolean handleEvent(Event event);
 	
 	/**
 	 * @return system unique and constant ID of the listener instance. It is suggested to form it 

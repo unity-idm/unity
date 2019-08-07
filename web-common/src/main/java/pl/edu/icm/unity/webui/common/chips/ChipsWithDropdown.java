@@ -39,6 +39,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	private boolean readOnly;
 	private int maxSelection = 0;
 	private VerticalLayout main;
+	private final boolean chipsOnTop;
 	
 	public ChipsWithDropdown()
 	{
@@ -47,10 +48,15 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	
 	public ChipsWithDropdown(Function<T, String> comboRenderer, boolean multiSelectable)
 	{
-		this(comboRenderer, comboRenderer, multiSelectable);
+		this(comboRenderer, comboRenderer, multiSelectable, true);
 	}
-	
+
 	public ChipsWithDropdown(Function<T, String> comboRenderer, Function<T, String> chipRenderer, boolean multiSelectable)
+	{
+		this(comboRenderer, chipRenderer, multiSelectable, true);
+	}
+
+	public ChipsWithDropdown(Function<T, String> comboRenderer, Function<T, String> chipRenderer, boolean multiSelectable, boolean chipsOnTop)
 	{
 		this.comboRenderer = comboRenderer;
 		this.chipRenderer = chipRenderer;
@@ -68,7 +74,14 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
-		main.addComponents(chipsRow, combo);		
+		this.chipsOnTop = chipsOnTop;
+		if (chipsOnTop)
+		{
+			main.addComponents(chipsRow, combo);
+		} else
+		{
+			main.addComponents(combo, chipsRow);
+		}
 	}
 	
 	@Override
@@ -174,10 +187,16 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		sortItems(available);
 		
 		combo.setItems(available);
-		if (selected.isEmpty())
-			combo.removeStyleName("u-chipsCombo");
-		else
-			combo.addStyleName("u-chipsCombo");
+		if (chipsOnTop)
+		{
+			if (selected.isEmpty())
+			{
+				combo.removeStyleName("u-chipsCombo");
+			} else
+			{
+				combo.addStyleName("u-chipsCombo");
+			}
+		}
 		updateComboVisibility(selected, available);
 	}
 	

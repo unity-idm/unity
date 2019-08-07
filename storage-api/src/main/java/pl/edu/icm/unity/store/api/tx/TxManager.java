@@ -14,4 +14,9 @@ public interface TxManager
 	 * Performs manual commit. Useful in code which is running in a transaction with auto commit turned off.
 	 */
 	void commit();
+
+	/**
+	 * Add special actions to be executed after transaction is successfully committed.
+	 */
+	void addPostCommitAction(Runnable action);
 }

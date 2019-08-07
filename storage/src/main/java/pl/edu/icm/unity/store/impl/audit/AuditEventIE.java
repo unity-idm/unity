@@ -31,7 +31,7 @@ class AuditEventIE extends AbstractIEBase<AuditEvent>
 	@Autowired
 	public AuditEventIE(AuditEventDAO dao)
 	{
-		super(7, "auditEvents");
+		super(8, "auditEvents");
 		this.dao = dao;
 	}
 

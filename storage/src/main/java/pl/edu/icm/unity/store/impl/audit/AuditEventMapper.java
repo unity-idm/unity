@@ -7,6 +7,8 @@ package pl.edu.icm.unity.store.impl.audit;
 import org.apache.ibatis.annotations.Param;
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 
@@ -23,5 +25,6 @@ public interface AuditEventMapper extends BasicCRUDMapper<AuditEventBean>
 	void createTags(@Param("tagList") Set<String> tagList);
 
 	void insertAuditTags(@Param("eventId") long eventId, @Param("tagList") Set<String> tags);
-	void deleteTags(long eventId);
+
+	List<AuditEventBean> getForPeriod(@Param("from") Date from, @Param("until") Date until);
 }

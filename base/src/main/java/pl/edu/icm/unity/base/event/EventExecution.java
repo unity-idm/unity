@@ -7,7 +7,7 @@ package pl.edu.icm.unity.base.event;
 import java.util.Date;
 
 /**
- * {@link Event} with information required for its execution using a fixed listener.
+ * {@link PersistableEvent} with information required for its execution using a fixed listener.
  * @author K. Benedyczak
  */
 public class EventExecution
@@ -16,13 +16,13 @@ public class EventExecution
 	private Date nextProcessing; 
 	private String listenerId;
 	private int failures;
-	private Event event;
+	private PersistableEvent event;
 
 	protected EventExecution()
 	{
 	}
 
-	public EventExecution(Event event, Date nextProcessing, String listenerId, int failures)
+	public EventExecution(PersistableEvent event, Date nextProcessing, String listenerId, int failures)
 	{
 		this.nextProcessing = nextProcessing;
 		this.listenerId = listenerId;
@@ -30,11 +30,11 @@ public class EventExecution
 		this.failures = failures;
 	}
 
-	public Event getEvent()
+	public PersistableEvent getEvent()
 	{
 		return event;
 	}
-	public void setEvent(Event event)
+	public void setEvent(PersistableEvent event)
 	{
 		this.event = event;
 	}

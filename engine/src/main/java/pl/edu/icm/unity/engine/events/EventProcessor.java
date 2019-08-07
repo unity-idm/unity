@@ -7,20 +7,23 @@ package pl.edu.icm.unity.engine.events;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.event.EventExecution;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.store.api.EventDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.AbstractEvent;
+import pl.edu.icm.unity.types.Event;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -42,15 +45,12 @@ public class EventProcessor implements EventPublisher
 	private ScheduledExecutorService executorService;
 	private EventDAO dbEvents;
 	private EventsProcessingThread asyncProcessor;
-	private InternalAuthorizationManager authz;
 	private TransactionalRunner tx;
 	
 	@Autowired
 	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents,
-			InternalAuthorizationManager authz,
 			TransactionalRunner tx)
 	{
-		this.authz = authz;
 		executorService = executorsService.getService();
 		this.dbEvents = dbEvents;
 		this.tx = tx;
@@ -59,7 +59,7 @@ public class EventProcessor implements EventPublisher
 	}
 
 	@Override
-	public void fireEvent(AbstractEvent event)
+	public void fireEvent(Event event)
 	{
 		List<EventListener> interestedListeners = getInterestedListeners(event);
 		if (interestedListeners == null)
@@ -70,23 +70,16 @@ public class EventProcessor implements EventPublisher
 		for (EventListener listener: interestedListeners)
 		{
 			Callable<Void> task = listener.isLightweight() ? 
-					new LightweightListenerInvoker(listener, event) :
-					new HeavyweightListenerInvoker(listener, event);
+					new VolatileListenerInvoker(listener, event) :
+					new ReliableListenerInvoker(listener, event);
 			if (listener.isAsync(event))
 				executorService.submit(task);
 			else
 				executeNow(listener, event, task);
 		}
 	}
-
-	@Override
-	public void fireEventWithAuthz(AbstractEvent event) throws AuthorizationException
-	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		fireEvent(event);
-	}
 	
-	private void executeNow(EventListener listener, AbstractEvent event, Callable<Void> task)
+	private void executeNow(EventListener listener, Event event, Callable<Void> task)
 	{
 		log.trace("Handling event in sync mode {}", event);
 		try
@@ -143,7 +136,7 @@ public class EventProcessor implements EventPublisher
 		}
 	}
 	
-	private List<EventListener> getInterestedListeners(AbstractEvent event)
+	private List<EventListener> getInterestedListeners(Event event)
 	{
 		List<EventListener> interestedListeners;
 		lock.readLock().lock();
@@ -163,15 +156,15 @@ public class EventProcessor implements EventPublisher
 	}
 	
 	/**
-	 * Invokes the lightweight listener
+	 * Invokes the volatile listener
 	 * @author K. Benedyczak
 	 */
-	private static class LightweightListenerInvoker implements Callable<Void>
+	private static class VolatileListenerInvoker implements Callable<Void>
 	{
 		private EventListener listener;
-		private AbstractEvent event;
+		private Event event;
 
-		LightweightListenerInvoker(EventListener listener, AbstractEvent event)
+		VolatileListenerInvoker(EventListener listener, Event event)
 		{
 			this.listener = listener;
 			this.event = event;
@@ -183,11 +176,11 @@ public class EventProcessor implements EventPublisher
 			try
 			{
 				if (!listener.handleEvent(event))
-					log.warn("Ligthweight event listener " + listener.getId() + 
+					log.warn("Volatile event listener " + listener.getId() +
 						" failed when processing an event " + event);
 			} catch (Exception t)
 			{
-				log.warn("Ligthweight event listener " + listener.getId() + 
+				log.warn("Volatile event listener " + listener.getId() +
 						" crashed when processing an event " + event, t);
 			}
 			return null;
@@ -195,25 +188,24 @@ public class EventProcessor implements EventPublisher
 	}
 
 	/**
-	 * Only adds the heavyweight listener's event to the DB queue.
+	 * Only adds the reliable listener's event to the DB queue.
 	 * @author K. Benedyczak
 	 */
-	private class HeavyweightListenerInvoker implements Callable<Void>
+	private class ReliableListenerInvoker implements Callable<Void>
 	{
-		private Event event;
+		private PersistableEvent event;
 		private String listenerId;
 
-		HeavyweightListenerInvoker(EventListener listener, AbstractEvent abstactEvent)
+		ReliableListenerInvoker(EventListener listener, Event event)
 		{
-			if (!(abstactEvent instanceof Event)) {
-				throw new IllegalArgumentException("Event has to be Event instance to be handled by HeavyweightListenerInvoker");
+			if (!(event instanceof PersistableEvent)) {
+				throw new IllegalArgumentException("Event has to be PersistableEvent instance to be handled by ReliableListenerInvoker. Check Listener isWanted() implementation.");
 			}
-			this.event = (Event)abstactEvent;
+			this.event = (PersistableEvent)event;
 			listenerId = listener.getId();
 		}
 
 		@Override
-
 		public Void call() throws Exception
 		{
 			EventExecution newEvent = new EventExecution(event, new Date(0), listenerId, 0);
