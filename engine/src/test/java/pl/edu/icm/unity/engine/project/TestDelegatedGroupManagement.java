@@ -217,7 +217,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		dGroupMan.setGroupDisplayedName("/project", "/project/subgroup", newName);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
-		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture());
+		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture(), eq("set displayed name"), eq("demoName"));
 		assertThat(argument.getValue().getDisplayedName(), is(newName));
 	}
 
@@ -234,7 +234,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		dGroupMan.setGroupAccessMode("/project", "/project/subgroup", true);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
-		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture());
+		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture(), eq("set access mode"), eq("public"));
 		assertThat(argument.getValue().isPublic(), is(true));
 	}
 

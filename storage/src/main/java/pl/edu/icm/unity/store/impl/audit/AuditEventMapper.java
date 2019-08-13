@@ -26,5 +26,5 @@ public interface AuditEventMapper extends BasicCRUDMapper<AuditEventBean>
 
 	void insertAuditTags(@Param("eventId") long eventId, @Param("tagList") Set<String> tags);
 
-	List<AuditEventBean> getForPeriod(@Param("from") Date from, @Param("until") Date until);
+	List<AuditEventBean> getForPeriod(@Param("from") Date from, @Param("until") Date until, @Param("limit") int limit);
 }

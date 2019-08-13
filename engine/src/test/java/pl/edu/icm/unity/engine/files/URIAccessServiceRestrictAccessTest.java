@@ -5,22 +5,12 @@
 
 package pl.edu.icm.unity.engine.files;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessException;
@@ -28,6 +18,16 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.test.utils.ExceptionsUtils;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * 
@@ -87,7 +87,7 @@ public class URIAccessServiceRestrictAccessTest
 			}
 		}
 
-		Throwable exception = catchThrowable(() -> uriService.readURI(URIHelper.parseURI(toTest.toString()), null));
+		Throwable exception = catchThrowable(() -> uriService.readURI(URIHelper.parseURI(URLEncoder.encode(toTest.toString(), "UTF-8")), null));
 		Assertions.assertThat(exception).isNull();
 	}
 }

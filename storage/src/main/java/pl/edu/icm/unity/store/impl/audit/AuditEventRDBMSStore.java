@@ -26,6 +26,7 @@ import java.util.Set;
 public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEventBean>
 					implements AuditEventDAO, CachingDAO
 {
+	private static final int LIMIT_MULTIPLIER = 2;
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventRDBMSStore.class);
 	public static final String BEAN = DAO_ID + "rdbms";
 
@@ -39,10 +40,19 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	}
 
 	@Override
-	public List<AuditEvent> getLogs(final Date from, final Date until)
+	public List<AuditEvent> getLogs(final Date from, final Date until, int limit)
 	{
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		return convertList(mapper.getForPeriod(from, until));
+		// SQL returns duplicated AuditEvents, if there are multiple TAGS related to the event.
+		// The assumption is that, there will be no more than 2 tags in average.
+		List<AuditEvent> list = convertList(mapper.getForPeriod(from, until, limit * LIMIT_MULTIPLIER));
+		if (list.size() > limit)
+		{
+			return list.subList(0, limit);
+		} else
+		{
+			return list;
+		}
 	}
 
 	@Override

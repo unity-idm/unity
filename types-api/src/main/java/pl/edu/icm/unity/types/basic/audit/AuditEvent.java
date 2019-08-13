@@ -20,8 +20,6 @@ import static java.util.Objects.requireNonNull;
  */
 public class AuditEvent
 {
-	// TODO - overall list for Audit feature
-	// - add DB indexes - need more details about UI abilities
 	private String name;
 	private AuditEventType type;
 	private Date timestamp;

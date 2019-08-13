@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine.api;
 
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +29,11 @@ public interface AuditEventManagement
 	 * 		From date or from the earliest timestamp (if null)
 	 * @param until
 	 * 		Until date or till the latest timestamp (if null)
+	 * @param limit
+	 * 		Maximum number of returned records
 	 * @return AuditEvent list sorted by timestamp.
 	 */
-	List<AuditEvent> getAuditEvents(final Date from, final Date until);
+	List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit);
 
 	/**
 	 * List of tags.

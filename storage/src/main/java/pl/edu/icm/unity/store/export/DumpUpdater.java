@@ -18,6 +18,7 @@ import pl.edu.icm.unity.store.migration.from2_5.JsonDumpUpdateFromV4;
 import pl.edu.icm.unity.store.migration.from2_6.JsonDumpUpdateFromV5;
 import pl.edu.icm.unity.store.migration.from2_7.JsonDumpUpdateFromV6;
 import pl.edu.icm.unity.store.migration.from2_8.JsonDumpUpdateFromV7;
+import pl.edu.icm.unity.store.migration.from2_9.JsonDumpUpdateFromV8;
 
 /**
  * Updates a JSON dump before it is actually imported.
@@ -49,6 +50,9 @@ public class DumpUpdater
 	
 	@Autowired
 	private JsonDumpUpdateFromV7 updateFrom2_8_x;
+
+	@Autowired
+	private JsonDumpUpdateFromV8 updateFrom2_9_x;
 	
 	public InputStream update(InputStream is, DumpHeader header) throws IOException
 	{
@@ -81,6 +85,9 @@ public class DumpUpdater
 		
 		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_9_0.getJsonDumpVersion())
 			is = performUpdate(is, updateFrom2_8_x, DumpSchemaVersion.V_SINCE_2_9_0);
+
+		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_10_0.getJsonDumpVersion())
+			is = performUpdate(is, updateFrom2_9_x, DumpSchemaVersion.V_SINCE_2_10_0);
 		
 		return is;
 	}

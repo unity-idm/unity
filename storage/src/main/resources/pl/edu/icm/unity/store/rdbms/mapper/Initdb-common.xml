@@ -141,6 +141,9 @@ CREATE TABLE AUDIT_EVENTS (
  		FOREIGN KEY (INITIATOR_ID) REFERENCES AUDIT_ENTITIES(ID) ON DELETE CASCADE,
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.contentsColumnBlob"/>
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+
+CREATE INDEX AUDIT_EVENTS_TIMESTAMP_IDX ON AUDIT_EVENTS(TIMESTAMP);
+
 CREATE TABLE AUDIT_TAGS (
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
 		TAG VARCHAR(200) NOT NULL,

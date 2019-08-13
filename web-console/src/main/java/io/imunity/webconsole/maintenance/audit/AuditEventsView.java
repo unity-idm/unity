@@ -10,6 +10,7 @@ import com.vaadin.data.provider.Query;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -49,6 +51,7 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +75,9 @@ import static java.util.Objects.nonNull;
 @PrototypeComponent
 class AuditEventsView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "AuditEvents";
+	public final static String VIEW_NAME = "AuditEvents";
+	private final static int DEFAULT_LIMIT = 10000;
+	private final static String DATETIME_FORMAT_SHORT_PATTERN = "yyyy-MM-dd HH:mm";
 
 	private final UnityMessageSource msg;
 	private final AuditEventManagement eventManagement;
@@ -84,6 +89,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	private final ChipsWithDropdown<String> typeFilter = new ChipsWithDropdown<>(Objects::toString, Objects::toString, true, false);
 	private final ChipsWithDropdown<String> actionFilter = new ChipsWithDropdown<>(Objects::toString, Objects::toString, true, false);
 	private final ChipsWithDropdown<String> tagsFilter = new ChipsWithDropdown<>(Objects::toString, Objects::toString, true, false);
+	private final ComboBox<Integer> limitFilter = new ComboBox<>();
 	private final ChipsWithTextfield searchFilter;
 	private final DateTimeField fromFilter;
 	private final DateTimeField untilFilter;
@@ -161,7 +167,11 @@ class AuditEventsView extends CustomComponent implements UnityView
 		filterLayout.addStyleName("u-auditEvents-filterLayout");
 		filterLayout.setWidth("100%");
 
+		LocalDateTime initialDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(30);
+		fromFilter.setValue(initialDate);
+		fromFilter.setDateFormat(DATETIME_FORMAT_SHORT_PATTERN);
 		fromFilter.setWidth("100%");
+		untilFilter.setDateFormat(DATETIME_FORMAT_SHORT_PATTERN);
 		untilFilter.setWidth("100%");
 
 		typeFilter.setItems(Arrays.stream(AuditEventType.values()).map(AuditEventType::toString).collect(Collectors.toList()));
@@ -182,9 +192,16 @@ class AuditEventsView extends CustomComponent implements UnityView
 		tagsFilter.setWidth("100%");
 		tagsFilter.setCaption(msg.getMessage("AuditEventsView.tags"));
 
-		filterLayout.addComponents(fromFilter, untilFilter, typeFilter, actionFilter, tagsFilter, searchFilter);
+		limitFilter.setEmptySelectionAllowed(false);
+		limitFilter.setItems(100, 1000, 10000);
+		limitFilter.setValue(DEFAULT_LIMIT);
+		limitFilter.setWidth("100%");
+		limitFilter.setCaption(msg.getMessage("AuditEventsView.limit"));
+
+		filterLayout.addComponents(limitFilter, fromFilter, untilFilter, typeFilter, actionFilter, tagsFilter, searchFilter);
 
 		auditEventsGrid.addFilter(this::filterData);
+		limitFilter.addValueChangeListener(this::refreshDataSet);
 		fromFilter.addValueChangeListener(this::refreshDataSet);
 		untilFilter.addValueChangeListener(this::refreshDataSet);
 		typeFilter.addValueChangeListener(this::refreshGrid);
@@ -243,7 +260,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 			if (nonNull(untilFilter.getValue())) {
 				until = Date.from(untilFilter.getValue().atZone(ZoneId.systemDefault()).toInstant());
 			}
-			return eventManagement.getAuditEvents(from, until).stream().map(ae -> new AuditEventEntry(msg, ae))
+			return eventManagement.getAuditEvents(from, until, limitFilter.getValue()).stream().map(ae -> new AuditEventEntry(msg, ae))
 					.collect(Collectors.toList());
 		} catch (Exception e)
 		{

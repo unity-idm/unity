@@ -296,6 +296,87 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 		});
 	}
 
+	@Test
+	public void shouldGetEventsForDefinedPeriodAndLimit()
+	{
+		// given
+		AuditEntity subject = new AuditEntity(101L, null, null);
+		Date now = new Date(System.currentTimeMillis() + 1000);
+		Date nowPlus1 = new Date(now.getTime() + (3600 * 1000));
+		Date nowPlus2 = new Date(now.getTime() + (2 * 3600 * 1000));
+		Date nowPlus3 = new Date(now.getTime() + (3 * 3600 * 1000));
+
+		AuditEvent event1 = AuditEvent.builder()
+				.name("name1")
+				.type(AuditEventType.IDENTITY)
+				.timestamp(now)
+				.action(AuditEventAction.ADD)
+				.initiator(new AuditEntity(100L, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(subject)
+				.tags("TAG1")
+				.build();
+		AuditEvent event2 = AuditEvent.builder()
+				.name("name2")
+				.type(AuditEventType.IDENTITY)
+				.timestamp(nowPlus1)
+				.action(AuditEventAction.UPDATE)
+				.initiator(new AuditEntity(100L, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(subject)
+				.tags("TAG1")
+				.build();
+		AuditEvent event3 = AuditEvent.builder()
+				.name("name3")
+				.type(AuditEventType.GROUP)
+				.timestamp(nowPlus2)
+				.action(AuditEventAction.ADD)
+				.initiator(new AuditEntity(100L, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(subject)
+				.tags("TAG1")
+				.build();
+		AuditEvent event4 = AuditEvent.builder()
+				.name("name4")
+				.type(AuditEventType.GROUP)
+				.timestamp(nowPlus3)
+				.action(AuditEventAction.ADD)
+				.initiator(new AuditEntity(100L, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(subject)
+				.tags("TAG1")
+				.build();
+
+		tx.runInTransaction(() -> {
+			// when
+			dao.create(event1);
+			dao.create(event2);
+			dao.create(event3);
+			dao.create(event4);
+
+			TransactionTL.manualCommit();
+
+			// than
+			assertEquals(4, dao.getAll().size());
+			assertEquals(4, dao.getLogs(null, null, 10).size());
+			assertEquals(4, dao.getLogs(now, null, 10).size());
+			assertEquals(4, dao.getLogs(now, nowPlus3, 10).size());
+			List<AuditEvent> logs = dao.getLogs(nowPlus1, nowPlus2, 10);
+			assertEquals(2, logs.size());
+			assertEquals("name2", logs.get(0).getName());
+			assertEquals("name3", logs.get(1).getName());
+			assertEquals(4, dao.getLogs(null, nowPlus3, 10).size());
+			logs = dao.getLogs(null, nowPlus1, 10);
+			assertEquals(2, logs.size());
+			assertEquals("name1", logs.get(0).getName());
+			assertEquals("name2", logs.get(1).getName());
+			logs = dao.getLogs(null, null, 2);
+			assertEquals(2, logs.size());
+			assertEquals("name1", logs.get(0).getName());
+			assertEquals("name2", logs.get(1).getName());
+		});
+	}
+
 	@Override
 	public void shouldReturnUpdatedByKey()
 	{

@@ -11,8 +11,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
@@ -25,8 +25,6 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
 import java.util.List;
-
-import static java.lang.String.join;
 
 /**
  * Listens to AuditEvents and stores them in database.
@@ -48,7 +46,8 @@ public class AuditEventListener implements EventListener
 
 	@Autowired
 	public AuditEventListener(final AttributeDAO attributeDAO, final EmailFacility emailFacility,
-							  final AttributeSupport attributeSupport, final AuditEventDAO dao, final TransactionalRunner tx)
+							  final AttributeSupport attributeSupport, final AuditEventDAO dao,
+							  final TransactionalRunner tx)
 	{
 		this.attributeDAO = attributeDAO;
 		this.emailFacility = emailFacility;
@@ -88,6 +87,8 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean isAsync(Event event)
 	{
+		// NOTE: Changing to synchronous processing requires changes in AuditManager.
+		// It need to fire events directly instead of using tx.addPostCommitAction().
 		return true;
 	}
 
@@ -142,9 +143,12 @@ public class AuditEventListener implements EventListener
 			} catch (IllegalIdentityValueException e)
 			{
 				log.debug("No email address for entityId={}", entityId);
-			} catch (EngineException e)
+			} catch (UnknownIdentityException e)
 			{
-				log.error("Error getting email for entityId={}", entityId);
+				log.debug("entityId={} was already removed from system", entityId);
+			} catch (Exception e)
+			{
+				log.error("Error getting email for entityId=" + entityId + ", exception:", e);
 			}
 
 			List<StoredAttribute> attrs = attributeDAO.getAttributes(entityNameAttribute, entityId, null);

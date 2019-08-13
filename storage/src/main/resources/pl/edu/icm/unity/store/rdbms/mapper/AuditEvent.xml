@@ -61,6 +61,7 @@
 		WHERE E.TIMESTAMP &lt;= #{until}
 		</if>
 		ORDER BY E.TIMESTAMP
+		LIMIT #{limit}
 	</select>
 
 	<select id="getByKey" parameterType="long" resultMap="auditEventResult">

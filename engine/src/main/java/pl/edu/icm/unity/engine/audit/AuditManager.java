@@ -57,7 +57,8 @@ public class AuditManager implements AuditEventManagement
 			log.debug("Missing data in InvocationContext - using System initiator");
 			triggerBuilder.initiator(SYSTEM_ENTITY);
 		}
-		txMan.addPostCommitAction(()->eventProcessor.fireEvent(triggerBuilder.build()));
+
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
 	}
 
 	@Override
@@ -67,9 +68,9 @@ public class AuditManager implements AuditEventManagement
 	}
 
 	@Override
-	public List<AuditEvent> getAuditEvents(final Date from, final Date until)
+	public List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit)
 	{
-		return tx.runInTransactionRet(() -> dao.getLogs(from, until));
+		return tx.runInTransactionRet(() -> dao.getLogs(from, until, limit));
 	}
 
 	@Override
