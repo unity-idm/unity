@@ -25,7 +25,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -45,6 +44,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 

@@ -118,6 +118,7 @@ public enum Images
 	envelope	(VaadinIcons.ENVELOPE),
 	records	        (VaadinIcons.RECORDS),
 	bullet	        (VaadinIcons.CIRCLE),
+	bullets	        (VaadinIcons.BULLETS),
 	file_add	(VaadinIcons.FILE_ADD),
 	picture		(VaadinIcons.PICTURE),
 	caret_right	(VaadinIcons.CARET_RIGHT),

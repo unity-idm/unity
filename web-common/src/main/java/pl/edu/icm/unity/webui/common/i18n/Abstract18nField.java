@@ -129,7 +129,6 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	@Override
 	public void setComponentError(ErrorMessage componentError)
 	{
-		//super.setComponentError(componentError);
 		defaultTf.setComponentError(componentError);
 		for (T tf : translationTFs.values())
 		{

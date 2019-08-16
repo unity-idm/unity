@@ -19,7 +19,6 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView;
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

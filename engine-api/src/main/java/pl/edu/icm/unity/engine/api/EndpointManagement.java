@@ -65,7 +65,7 @@ public interface EndpointManagement
 	
 	/**
 	 * Removes endpoint with given name
-	 * @param id
+	 * @param id mandatory id of removed endpoint
 	 * @throws EngineException
 	 */
 	void removeEndpoint(String id) throws EngineException;

@@ -26,105 +26,136 @@ import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.authn.services.tabs.AuthenticationTab;
+import pl.edu.icm.unity.webui.authn.services.tabs.GeneralTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 
 /**
+ * JWT service service editor component
  * 
  * @author P.Piernik
  *
  */
 public class JWTServiceEditorComponent extends ServiceEditorBase
 {
-	private Binder<JWTConfiguration> binder;
+	private Binder<JWTConfiguration> jwtBinder;
 	private Set<String> credentials;
+	private Binder<DefaultServiceDefinition> serviceBinder;
 
-	public JWTServiceEditorComponent(UnityMessageSource msg, ServiceDefinition toEdit, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			Set<String> credentials)
+	public JWTServiceEditorComponent(UnityMessageSource msg, DefaultServiceDefinition toEdit,
+			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+			List<AuthenticatorInfo> authenticators, Set<String> credentials, List<String> usedPaths)
 	{
-		super(msg, JWTManagementEndpoint.TYPE, toEdit, allRealms, flows, authenticators);
+		super(msg);
+		boolean editMode = toEdit != null;
 		this.credentials = credentials;
 
+		jwtBinder = new Binder<>(JWTConfiguration.class);
+		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
+
+		registerTab(new JWTGeneralTab(msg, serviceBinder, JWTManagementEndpoint.TYPE, usedPaths, editMode));
+		registerTab(new AuthenticationTab(msg, flows, authenticators, allRealms,
+				JWTManagementEndpoint.TYPE.getSupportedBinding(), serviceBinder));
+		serviceBinder.setBean(
+				editMode ? toEdit : new DefaultServiceDefinition(JWTManagementEndpoint.TYPE.getName()));
+
 		JWTConfiguration config = new JWTConfiguration();
-		if (toEdit != null && toEdit.getConfiguration() != null)
+		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg);
 		}
-		binder = new Binder<>(JWTConfiguration.class);
-		addToGeneralTab(buildCorsTab());
-		addToGeneralTab(buildJWTtab());
-		binder.setBean(config);
+
+		jwtBinder.setBean(config);
 
 	}
 
-	private Component buildCorsTab()
+	public ServiceDefinition getServiceDefiniton() throws FormValidationException
 	{
-
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
-		allowedCORSheaders.setCaption(msg.getMessage("JWTServiceEditorComponent.allowedCORSheaders"));
-		binder.forField(allowedCORSheaders).bind("allowedCORSheaders");
-		main.addComponent(allowedCORSheaders);
-
-		ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
-		allowedCORSorigins.setCaption(msg.getMessage("JWTServiceEditorComponent.allowedCORSorigins"));
-		main.addComponent(allowedCORSorigins);
-		binder.forField(allowedCORSorigins).bind("allowedCORSorigins");
-
-		CollapsibleLayout corsSection = new CollapsibleLayout(msg.getMessage("JWTServiceEditorComponent.cors"),
-				main);
-		return corsSection;
-	}
-
-	private Component buildJWTtab()
-	{
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ComboBox<String> credential = new ComboBox<>();
-		credential.setId("cre");
-		credential.setCaption(msg.getMessage("JWTServiceEditorComponent.signingCredential"));
-		credential.setEmptySelectionAllowed(false);
-		credential.setItems(credentials);
-		binder.forField(credential).asRequired(msg.getMessage("fieldRequired")).bind("credential");
-		main.addComponent(credential);
-
-		TextField ttl = new TextField();
-		ttl.setCaption(msg.getMessage("JWTServiceEditorComponent.tokenTTL"));
-		binder.forField(ttl).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
-				.bind("ttl");
-		main.addComponent(ttl);
-
-		CollapsibleLayout jwtSection = new CollapsibleLayout(msg.getMessage("JWTServiceEditorComponent.jwt"),
-				main);
-		jwtSection.expand();
-		return jwtSection;
-	}
-
-	@Override
-	protected String getConfiguration(String serviceName) throws FormValidationException
-	{
-		validateConfiguration();
-		return binder.getBean().toProperties();
-
-	}
-
-	@Override
-	protected void validateConfiguration() throws FormValidationException
-	{
-		if (binder.validate().hasErrors())
+		boolean hasErrors = serviceBinder.validate().hasErrors();
+		hasErrors |= jwtBinder.validate().hasErrors();
+		if (hasErrors)
 		{
+			setErrorInTabs();
 			throw new FormValidationException();
 		}
+
+		DefaultServiceDefinition service = serviceBinder.getBean();
+		service.setConfiguration(jwtBinder.getBean().toProperties());
+		return service;
+	}
+
+	public class JWTGeneralTab extends GeneralTab
+	{
+		public JWTGeneralTab(UnityMessageSource msg, Binder<DefaultServiceDefinition> serviceBinder,
+				EndpointTypeDescription type, List<String> usedPaths, boolean editMode)
+		{
+			super(msg, serviceBinder, type, usedPaths, editMode);
+			initUI();
+		}
+
+		private void initUI()
+		{
+			mainLayout.addComponent(buildCorsSection());
+			mainLayout.addComponent(buildJWTSection());
+		}
+
+		private Component buildCorsSection()
+		{
+
+			FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
+			main.setMargin(false);
+
+			ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
+			allowedCORSheaders.setCaption(msg.getMessage("JWTServiceEditorComponent.allowedCORSheaders"));
+			jwtBinder.forField(allowedCORSheaders).bind("allowedCORSheaders");
+			main.addComponent(allowedCORSheaders);
+
+			ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
+			allowedCORSorigins.setCaption(msg.getMessage("JWTServiceEditorComponent.allowedCORSorigins"));
+			main.addComponent(allowedCORSorigins);
+			jwtBinder.forField(allowedCORSorigins).bind("allowedCORSorigins");
+
+			CollapsibleLayout corsSection = new CollapsibleLayout(
+					msg.getMessage("JWTServiceEditorComponent.cors"), main);
+			return corsSection;
+		}
+
+		private Component buildJWTSection()
+		{
+			FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
+			main.setMargin(false);
+
+			ComboBox<String> credential = new ComboBox<>();
+			credential.setId("cre");
+			credential.setCaption(msg.getMessage("JWTServiceEditorComponent.signingCredential"));
+			credential.setEmptySelectionAllowed(false);
+			credential.setItems(credentials);
+			jwtBinder.forField(credential).asRequired(msg.getMessage("fieldRequired")).bind("credential");
+			main.addComponent(credential);
+
+			TextField ttl = new TextField();
+			ttl.setCaption(msg.getMessage("JWTServiceEditorComponent.tokenTTL"));
+			jwtBinder.forField(ttl).asRequired(msg.getMessage("fieldRequired"))
+					.withConverter(new StringToIntegerConverter(
+							msg.getMessage("notAPositiveNumber")))
+					.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"),
+							0, null))
+					.bind("ttl");
+			main.addComponent(ttl);
+
+			CollapsibleLayout jwtSection = new CollapsibleLayout(
+					msg.getMessage("JWTServiceEditorComponent.jwt"), main);
+			jwtSection.expand();
+			return jwtSection;
+		}
+
 	}
 
 	public class JWTConfiguration

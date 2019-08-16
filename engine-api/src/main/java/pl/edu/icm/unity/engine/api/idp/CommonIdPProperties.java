@@ -30,6 +30,7 @@ public class CommonIdPProperties
 {
 	public static final String SKIP_CONSENT = "skipConsent";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String EMBEDDED_TRANSLATION_PROFILE = "embeddedTranslationProfile";
 	public static final String SKIP_USERIMPORT = "skipUserImport";
 	public static final String USERIMPORT_PFX = "userImport.";
 	public static final String USERIMPORT_IMPORTER = "importer";
@@ -64,7 +65,8 @@ public class CommonIdPProperties
 				? new PropertyMD(defaultProfile)
 						.setDescription(defaultProfileMessage)
 				: new PropertyMD().setDescription(defaultProfileMessage));
-
+		defaults.put(EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setHidden().
+				setDescription(defaultProfileMessage));
 		defaults.put(ASSUME_FORCE, new PropertyMD("true").setDeprecated().
 				setDescription("Ignored since 2.5.0, please remove the option from configuration"));
 

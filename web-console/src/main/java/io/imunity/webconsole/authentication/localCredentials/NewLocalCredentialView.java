@@ -17,7 +17,6 @@ import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.localCredentials.LocalCredentialsView.LocalCredentialsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

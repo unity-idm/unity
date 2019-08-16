@@ -10,12 +10,15 @@ import java.util.List;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
+ * 
+ * Rest admin service editor
  * 
  * @author P.Piernik
  *
@@ -27,26 +30,30 @@ public class RestAdminServiceEditor implements ServiceEditor
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
 	private RestAdminServiceEditorComponent editor;
+	private List<String> usedPaths;
 
 	public RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators)
+			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
+			List<String> usedPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
+		this.usedPaths = usedPaths;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new RestAdminServiceEditorComponent(msg, endpoint, allRealms, flows, authenticators);
+		editor = new RestAdminServiceEditorComponent(msg, (DefaultServiceDefinition) endpoint, allRealms, flows,
+				authenticators, usedPaths);
 		return editor;
 	}
 
 	@Override
 	public ServiceDefinition getEndpointDefiniton() throws FormValidationException
 	{
-		return editor.getServicetDefiniton();
+		return editor.getServiceDefiniton();
 	}
 }

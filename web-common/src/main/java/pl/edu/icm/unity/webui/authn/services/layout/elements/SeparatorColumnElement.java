@@ -31,11 +31,12 @@ public class SeparatorColumnElement extends ColumnElementBase implements ColumnE
 	private Binder<I18nStringBindingValue> binder;
 
 	public SeparatorColumnElement(UnityMessageSource msg, Consumer<ColumnElement> removeElementListener,
-			Runnable dragStart, Runnable dragStop)
+			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.separator"), Images.text, dragStart,
 				dragStop, removeElementListener);
 		addContent(getContent());
+		addValueChangeListener(valueChangeListener);
 	}
 
 	@Override
@@ -81,5 +82,13 @@ public class SeparatorColumnElement extends ColumnElementBase implements ColumnE
 		}
 
 	}
+	
+	@Override
+	public void addValueChangeListener(Runnable valueChange)
+	{
+		valueField.addValueChangeListener(e -> valueChange.run());
+		
+	}
+
 
 }

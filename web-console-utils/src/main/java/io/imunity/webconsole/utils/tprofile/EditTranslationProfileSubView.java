@@ -14,7 +14,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
@@ -22,6 +21,7 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
 /**
@@ -33,7 +33,6 @@ public class EditTranslationProfileSubView extends CustomComponent implements Un
 {
 	private UnityMessageSource msg;
 	private TranslationProfileEditor editor;
-
 	private Consumer<TranslationProfile> onConfirm;
 	private Runnable onCancel;
 

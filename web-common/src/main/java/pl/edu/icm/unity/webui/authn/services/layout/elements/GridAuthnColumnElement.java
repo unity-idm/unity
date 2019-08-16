@@ -49,7 +49,7 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 
 	public GridAuthnColumnElement(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnElement> removeElementListener,
-			Runnable dragStart, Runnable dragStop)
+			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.gridAuthn"), Images.grid_v, dragStart, dragStop,
@@ -58,6 +58,7 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 		this.authnOptionSupplier = authnOptionSupplier;
 
 		addContent(getContent());
+		addValueChangeListener(valueChangeListener);
 	}
 
 	private Component getContent()
@@ -166,6 +167,13 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 		return new GridAuthnColumnState(String.join(" ",
 				value.getValue().stream().map(i -> i.toGlobalKey()).collect(Collectors.toList())),
 				value.getRows());
+	}
+	
+	@Override
+	public void addValueChangeListener(Runnable valueChange)
+	{
+		valueComboField.addValueChangeListener(e -> valueChange.run());
+		
 	}
 
 	public static class GridStateBindingValue

@@ -21,7 +21,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.file.ImageField;
@@ -114,7 +114,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		TextField name = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.name"));
 		name.focus();
 		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(new NoSpaceValidator()).withValidator((s, c) -> {
+				.withValidator(new NoSpaceValidator(msg)).withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{
 						return ValidationResult.error(msg.getMessage(

@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+
+package pl.edu.icm.unity.webui.authn.services;
+
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
+public interface ServiceController extends ServiceControllerBaseInt
+{
+	
+}

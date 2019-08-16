@@ -28,7 +28,7 @@ public class PalleteButton extends Button implements PalleteElement
 
 		DragSourceExtension<Button> dragSource = new DragSourceExtension<>(this);
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);
-		dragSource.setDragData(layoutElementSupplier.get());
+		dragSource.setDragData(layoutElementSupplier);
 		setStyleName("u-inactiveButton");
 		
 		dragSource.addDragStartListener(e -> dragStart.run());

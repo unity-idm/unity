@@ -26,7 +26,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -50,6 +49,7 @@ import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.file.FileField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;

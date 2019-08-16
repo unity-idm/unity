@@ -17,76 +17,108 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
+import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.authn.services.tabs.AuthenticationTab;
+import pl.edu.icm.unity.webui.authn.services.tabs.GeneralTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 
 /**
+ * Rest admin service editor component
  * 
  * @author P.Piernik
  *
  */
 public class RestAdminServiceEditorComponent extends ServiceEditorBase
 {
-	private Binder<RestAdminConfiguration> binder;
+	private Binder<RestAdminConfiguration> restBinder;
+	private Binder<DefaultServiceDefinition> serviceBinder;
 
-	public RestAdminServiceEditorComponent(UnityMessageSource msg, ServiceDefinition toEdit, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators)
+	public RestAdminServiceEditorComponent(UnityMessageSource msg, DefaultServiceDefinition toEdit,
+			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+			List<AuthenticatorInfo> authenticators, List<String> usedPaths)
 	{
-		super(msg, RESTAdminEndpoint.TYPE, toEdit, allRealms, flows, authenticators);
+		super(msg);
+		boolean editMode = toEdit != null;
+
+		restBinder = new Binder<>(RestAdminConfiguration.class);
+		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
+
+		registerTab(new RestAdminGeneralTab(msg, serviceBinder, RESTAdminEndpoint.TYPE, usedPaths, editMode));
+		registerTab(new AuthenticationTab(msg, flows, authenticators, allRealms,
+				JWTManagementEndpoint.TYPE.getSupportedBinding(), serviceBinder));
+		serviceBinder.setBean(
+				editMode ? toEdit : new DefaultServiceDefinition(RESTAdminEndpoint.TYPE.getName()));
 
 		RestAdminConfiguration config = new RestAdminConfiguration();
-		if (toEdit != null && toEdit.getConfiguration() != null)
+		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg);
 		}
-		binder = new Binder<>(RestAdminConfiguration.class);
-		addToGeneralTab(buildCorsSection());
-		binder.setBean(config);
+
+		restBinder.setBean(config);
 
 	}
 
-	private Component buildCorsSection()
+	public ServiceDefinition getServiceDefiniton() throws FormValidationException
 	{
-
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
-		allowedCORSheaders.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
-		binder.forField(allowedCORSheaders).bind("allowedCORSheaders");
-		main.addComponent(allowedCORSheaders);
-
-		ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
-		allowedCORSorigins.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
-		main.addComponent(allowedCORSorigins);
-		binder.forField(allowedCORSorigins).bind("allowedCORSorigins");
-
-		CollapsibleLayout corsSection = new CollapsibleLayout(
-				msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
-		return corsSection;
-	}
-
-	@Override
-	protected String getConfiguration(String serviceName) throws FormValidationException
-	{
-		validateConfiguration();
-		return binder.getBean().toProperties();
-
-	}
-
-	@Override
-	protected void validateConfiguration() throws FormValidationException
-	{
-		if (binder.validate().hasErrors())
+		boolean hasErrors = serviceBinder.validate().hasErrors();
+		hasErrors |= restBinder.validate().hasErrors();
+		if (hasErrors)
 		{
+			setErrorInTabs();
 			throw new FormValidationException();
+		}
+
+		DefaultServiceDefinition service = serviceBinder.getBean();
+		service.setConfiguration(restBinder.getBean().toProperties());
+		return service;
+	}
+
+	public class RestAdminGeneralTab extends GeneralTab
+	{
+		public RestAdminGeneralTab(UnityMessageSource msg, Binder<DefaultServiceDefinition> serviceBinder,
+				EndpointTypeDescription type, List<String> usedPaths, boolean editMode)
+		{
+			super(msg, serviceBinder, type, usedPaths, editMode);
+			initUI();
+		}
+
+		private void initUI()
+		{
+			mainLayout.addComponent(buildCorsSection());
+		}
+
+		private Component buildCorsSection()
+		{
+
+			FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
+			main.setMargin(false);
+
+			ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
+			allowedCORSheaders.setCaption(
+					msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
+			restBinder.forField(allowedCORSheaders).bind("allowedCORSheaders");
+			main.addComponent(allowedCORSheaders);
+
+			ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
+			allowedCORSorigins.setCaption(
+					msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
+			main.addComponent(allowedCORSorigins);
+			restBinder.forField(allowedCORSorigins).bind("allowedCORSorigins");
+
+			CollapsibleLayout corsSection = new CollapsibleLayout(
+					msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
+			return corsSection;
 		}
 	}
 

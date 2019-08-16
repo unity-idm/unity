@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.net.MalformedURLException;
@@ -12,6 +11,7 @@ import java.net.URL;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 /**
+ * Helper for validation endpoint path
  * 
  * @author P.Piernik
  *

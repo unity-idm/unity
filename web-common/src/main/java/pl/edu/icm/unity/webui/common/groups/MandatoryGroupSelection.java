@@ -16,12 +16,14 @@ import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameComparator;
 
 /**
- * Allows to select a single group out of multiple, with assumption that a choice is mandatory.
- * In this case a simple dropdown is used instead of chips component.
+ * Allows to select a single group out of multiple, with assumption that a
+ * choice is mandatory. In this case a simple dropdown is used instead of chips
+ * component.
  * 
  * @author K. Benedyczak
  */
@@ -29,6 +31,7 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 {
 	private UnityMessageSource msg;
 	private List<Group> items;
+	private String groupChangeConfirmationQuestion;
 	
 	public MandatoryGroupSelection(UnityMessageSource msg)
 	{
@@ -38,7 +41,7 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		setRequiredIndicatorVisible(true);
 		setStyleName(Styles.indentComboBox.toString());
 		addValueChangeListener(e -> {
-			if (e.getValue().indent)
+			if (e.getValue() != null && e.getValue().indent)
 				setValue(new GroupWithIndentIndicator(e.getValue().group, false));
 		});
 		items = new ArrayList<>();
@@ -62,17 +65,28 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		}
 		return realSelected.stream().map(group -> group.toString()).collect(Collectors.toList());
 	}
-	
+
 	public String getSelectedGroup()
 	{
 		return this.getValue() == null ? null : this.getValue().group.toString();
 	}
-	
+
+	public void refreshCaptions()
+	{
+		GroupWithIndentIndicator selected = getSelectedItem().orElse(null);
+		if (selected != null)
+		{
+			setSelectedItem(new GroupWithIndentIndicator(new Group("/"), false));
+			setSelectedItem(selected);
+		}
+	}
+
 	@Override
 	public void setSelectedItems(List<Group> items)
 	{
 		if (items.size() > 1)
-			throw new IllegalArgumentException("Can not select more then one element in single-selectable group selection");
+			throw new IllegalArgumentException(
+					"Can not select more then one element in single-selectable group selection");
 		if (items.isEmpty())
 			throw new IllegalArgumentException("Can not remove mandatory group selection");
 		Group group = items.get(0);
@@ -101,12 +115,46 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 	public void setMultiSelectable(boolean multiSelect)
 	{
 		if (multiSelect)
-			throw new IllegalStateException("Can not change single selected mandatory component to multiselect component.");
+			throw new IllegalStateException(
+					"Can not change single selected mandatory component to multiselect component.");
 	}
-	
+
 	@Override
 	public Set<String> getItems()
 	{
 		return items.stream().map(g -> g.toString()).collect(Collectors.toSet());
 	}
+
+//	@Override
+//	public void setSelectedItem(GroupWithIndentIndicator item)
+//	{
+//		Group realGroup = items.stream().filter(i -> i.toString().equals(item.group.toString())).findFirst()
+//				.orElse(null);
+//		if (realGroup != null)
+//		{
+//			super.setSelectedItem(new GroupWithIndentIndicator(realGroup, false));
+//		} else
+//		{
+//
+//			super.setSelectedItem(item);
+//		}
+//	}
+//	
+	@Override
+	protected void setSelectedItem(GroupWithIndentIndicator value, boolean userOriginated)
+	{
+		
+		if (userOriginated && groupChangeConfirmationQuestion != null)
+		{
+			new ConfirmDialog(msg, groupChangeConfirmationQuestion, () -> super.setSelectedItem(value, userOriginated)).show();
+		}else
+		{
+			super.setSelectedItem(value, userOriginated);
+		}
+	}
+	
+	public void setGroupChangeConfirmationQuestion(String groupChangeConfirmationQuestion)
+	{
+		this.groupChangeConfirmationQuestion = groupChangeConfirmationQuestion;
+	}	
 }

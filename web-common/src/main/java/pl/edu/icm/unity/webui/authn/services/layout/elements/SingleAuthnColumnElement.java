@@ -41,15 +41,15 @@ public class SingleAuthnColumnElement extends ColumnElementBase implements Colum
 
 	public SingleAuthnColumnElement(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnElement> removeElementListener,
-			Runnable dragStart, Runnable dragStop)
+			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 
-		super(msg, msg.getMessage("AuthnColumnLayoutElement.singleAuthn"), Images.sign_in,
-				dragStart, dragStop, removeElementListener);
+		super(msg, msg.getMessage("AuthnColumnLayoutElement.singleAuthn"), Images.sign_in, dragStart, dragStop,
+				removeElementListener);
 		this.authenticatorSupport = authenticatorSupport;
 		this.authnOptionSupplier = authnOptionSupplier;
-
 		addContent(getContent());
+		addValueChangeListener(valueChangeListener);
 	}
 
 	private Component getContent()
@@ -79,7 +79,8 @@ public class SingleAuthnColumnElement extends ColumnElementBase implements Colum
 		List<AuthenticationOptionKey> items = new ArrayList<>();
 		try
 		{
-			items.addAll(AuthnColumnElementHelper.getAvailableAuthnOptions(authenticatorSupport, authnOptionSupplier.get(), false));
+			items.addAll(AuthnColumnElementHelper.getAvailableAuthnOptions(authenticatorSupport,
+					authnOptionSupplier.get(), false));
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("SingleAuthnColumnElement.cannotGetItems"), e);
@@ -128,7 +129,21 @@ public class SingleAuthnColumnElement extends ColumnElementBase implements Colum
 	@Override
 	public String getValue()
 	{
-		return valueComboField.getValue().toGlobalKey();
+		if (valueComboField.getValue() != null)
+		{
+			return valueComboField.getValue().toGlobalKey();
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	@Override
+	public void addValueChangeListener(Runnable valueChange)
+	{
+		valueComboField.addValueChangeListener(e -> valueChange.run());
+
 	}
 
 	public static class AuthnOptionKeyBindingValue

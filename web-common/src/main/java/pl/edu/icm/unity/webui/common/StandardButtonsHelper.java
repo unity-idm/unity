@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.helpers;
+package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
@@ -14,8 +14,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Helper for creating standard actions buttons
@@ -78,7 +76,13 @@ public class StandardButtonsHelper
 	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
-		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+		return buildConfirmNewButtonsBar(msg, onConfirm, onCancel, Alignment.MIDDLE_LEFT);
+	}
+	
+	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+			Runnable onCancel, Alignment alligment)
+	{
+		return buildButtonsBar(alligment, true,
 				buildCancelButton(msg.getMessage("cancel"), onCancel),
 				buildConfirmButton(msg.getMessage("create"), onConfirm));
 	}
@@ -86,7 +90,13 @@ public class StandardButtonsHelper
 	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
-		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+		return buildConfirmEditButtonsBar(msg, onConfirm, onCancel, Alignment.MIDDLE_LEFT);
+	}
+	
+	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+			Runnable onCancel, Alignment alligment)
+	{
+		return buildButtonsBar(alligment, true,
 				buildCancelButton(msg.getMessage("cancel"), onCancel),
 				buildConfirmButton(msg.getMessage("update"), onConfirm));
 	}

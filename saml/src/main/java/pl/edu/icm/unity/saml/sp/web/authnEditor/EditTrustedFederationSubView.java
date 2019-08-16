@@ -22,13 +22,13 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
@@ -101,7 +101,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		header.setMargin(true);
 
 		TextField name = new TextField(msg.getMessage("EditTrustedFederationSubView.name"));
-		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).withValidator(new NoSpaceValidator())
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).withValidator(new NoSpaceValidator(msg))
 				.withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{

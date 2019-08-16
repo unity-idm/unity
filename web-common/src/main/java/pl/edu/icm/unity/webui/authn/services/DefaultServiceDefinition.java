@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webui.authn.services;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
@@ -15,24 +16,25 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
  * @author P.Piernik
  *
  */
-public class ServiceDefinition
+public class DefaultServiceDefinition implements ServiceDefinition
 {
 	private String typeId;
 	private String name;
 	private String address;
-
 	private I18nString displayedName;
 	private String description;
 	private List<String> authenticationOptions;
 	private String configuration;
 	private String realm;
+	private EndpointState state;
+	private String binding;
 
-	public ServiceDefinition()
+	public DefaultServiceDefinition()
 	{
 		
 	}
 	
-	public ServiceDefinition(ResolvedEndpoint base)
+	public DefaultServiceDefinition(ResolvedEndpoint base)
 	{
 		setTypeId(base.getType().getName());
 		setConfiguration(base.getEndpoint().getConfiguration().getConfiguration());
@@ -42,14 +44,17 @@ public class ServiceDefinition
 		setRealm(base.getRealm().getName());
 		setAuthenticationOptions(base.getEndpoint().getConfiguration().getAuthenticationOptions());
 		setName(base.getName());
+		setState(base.getEndpoint().getState());
+		setBinding(base.getType().getSupportedBinding());
+		
 	}
 
-	public ServiceDefinition(String type)
+	public DefaultServiceDefinition(String type)
 	{
 		typeId = type;
 	}
 
-	public String getTypeId()
+	public String getType()
 	{
 		return typeId;
 	}
@@ -91,7 +96,7 @@ public class ServiceDefinition
 
 	public String getDescription()
 	{
-		return description;
+		return description == null ? "" : description;
 	}
 
 	public void setDescription(String description)
@@ -128,5 +133,28 @@ public class ServiceDefinition
 	{
 		this.realm = realm;
 	}
+
+	@Override
+	public EndpointState getState()
+	{
+		return state;
+	}
+
+	@Override
+	public String getBinding()
+	{
+		return binding;
+	}
+	
+	public void setState(EndpointState state)
+	{
+		this.state = state;
+	}
+
+	public void setBinding(String binding)
+	{
+		this.binding = binding;
+	}
+
 
 }

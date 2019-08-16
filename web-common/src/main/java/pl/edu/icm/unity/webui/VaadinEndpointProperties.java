@@ -79,7 +79,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	
 	public static final String CRED_RESET_COMPACT = "compactCredentialReset";
 	
-
+	public static final String DEFAULT_AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT_CONTENT = "_LAST_USED _SEPARATOR _EXPAND";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
@@ -129,7 +129,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 						+ "If set to true only the previously used authentication option "
 						+ "will be shown to the user (it will be still possible to reveal other ones by clicking special button)."
 						+ " If set to false then this feature is turned off and users always see all available options."));
-		META.put(AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT, new PropertyMD("_LAST_USED _SEPARATOR _EXPAND").
+		META.put(AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT, new PropertyMD(DEFAULT_AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT_CONTENT).
 				setDescription("Advanced setting, typically should not be changed. Same syntax as column's contents. "
 						+ "Defines layout which is used when a single last used authN is presented "
 						+ "(i.e. relevant only when " + AUTHN_SHOW_LAST_OPTION_ONLY + " is enabled). "

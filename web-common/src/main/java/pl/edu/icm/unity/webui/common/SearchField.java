@@ -55,4 +55,9 @@ public class SearchField extends CustomComponent
 	{
 		searchText.addValueChangeListener(listener);
 	}
+	
+	public void clear()
+	{
+		searchText.setValue("");
+	}
 }

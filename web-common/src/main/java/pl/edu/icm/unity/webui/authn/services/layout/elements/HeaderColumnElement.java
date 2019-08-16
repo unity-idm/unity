@@ -31,11 +31,12 @@ public class HeaderColumnElement extends ColumnElementBase implements ColumnElem
 	private Binder<I18nStringBindingValue> binder;
 
 	public HeaderColumnElement(UnityMessageSource msg, Consumer<ColumnElement> removeElementListener,
-			Runnable dragStart, Runnable dragStop)
+			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.header"), Images.header, dragStart,
 				dragStop, removeElementListener);
 		addContent(getContent());
+		addValueChangeListener(valueChangeListener);
 	}
 
 	@Override
@@ -79,6 +80,12 @@ public class HeaderColumnElement extends ColumnElementBase implements ColumnElem
 		{
 			throw new FormValidationException();
 		}
+	}
+
+	@Override
+	public void addValueChangeListener(Runnable valueChange)
+	{
+		valueField.addValueChangeListener(e -> valueChange.run());	
 	}
 
 }

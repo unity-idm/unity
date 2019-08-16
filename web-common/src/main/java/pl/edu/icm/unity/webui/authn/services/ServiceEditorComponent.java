@@ -15,6 +15,6 @@ import com.vaadin.ui.Component;
  */
 public interface ServiceEditorComponent extends Component
 {
-	public enum ServiceEditorTab { GENERAL, AUTHENTICATION}
+	public enum ServiceEditorTab { GENERAL, AUTHENTICATION, CLIENTS, USERS}
 	void setActiveTab(ServiceEditorTab tab);
 }

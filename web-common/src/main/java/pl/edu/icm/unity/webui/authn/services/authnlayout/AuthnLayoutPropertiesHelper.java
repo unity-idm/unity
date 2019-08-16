@@ -35,15 +35,16 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Maps {@link ColumnElement} to properties and revert
+ * 
  * @author P.Piernik
  *
  */
 public class AuthnLayoutPropertiesHelper
 {
-
-	public static AuthenticationLayoutContent loadFromProperties(VaadinEndpointProperties properties, UnityMessageSource msg,
-			Consumer<AuthnLayoutColumn> removeListener, Consumer<ColumnElement> removeElementListener,
-			Runnable dragStart, Runnable dragStop, AuthenticatorSupportService authenticatorSupportService,
+	public static AuthenticationLayoutContent loadFromProperties(VaadinEndpointProperties properties,
+			UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
+			Consumer<ColumnElement> removeElementListener, Runnable dragStart, Runnable dragStop,
+			Runnable valueChange, AuthenticatorSupportService authenticatorSupportService,
 			Supplier<List<String>> authnOptionSupplier)
 	{
 		List<AuthnLayoutColumn> columns = new ArrayList<>();
@@ -57,8 +58,8 @@ public class AuthnLayoutPropertiesHelper
 			String columnKey = columnKeys.next();
 
 			AuthnLayoutColumn lcolumn = getColumn(columnKey, properties, msg, removeListener,
-					removeElementListener, dragStart, dragStop, authenticatorSupportService,
-					authnOptionSupplier);
+					removeElementListener, dragStart, dragStop, valueChange,
+					authenticatorSupportService, authnOptionSupplier);
 			columns.add(lcolumn);
 
 			if (columnKeys.hasNext())
@@ -71,11 +72,16 @@ public class AuthnLayoutPropertiesHelper
 				{
 					sepField.setValue(sepVal);
 				}
-
+				sepField.addValueChangeListener(e -> valueChange.run());
 				separators.add(sepField);
 			}
 		}
 
+		if (columns.isEmpty())
+		{
+			columns.add(new AuthnLayoutColumn(msg, removeListener, removeElementListener, valueChange));
+		}
+				
 		return new AuthenticationLayoutContent(columns, separators);
 
 	}
@@ -83,11 +89,10 @@ public class AuthnLayoutPropertiesHelper
 	private static AuthnLayoutColumn getColumn(String prefix, VaadinEndpointProperties properties,
 			UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
 			Consumer<ColumnElement> removeElementListener, Runnable dragStart, Runnable dragStop,
-			AuthenticatorSupportService authenticatorSupportService,
+			Runnable valueChange, AuthenticatorSupportService authenticatorSupportService,
 			Supplier<List<String>> authnOptionSupplier)
 	{
-		AuthnLayoutColumn lcolumn = new AuthnLayoutColumn(msg, removeListener, removeElementListener, dragStart,
-				dragStop);
+		AuthnLayoutColumn lcolumn = new AuthnLayoutColumn(msg, removeListener, removeElementListener, valueChange);
 
 		I18nString ptitle = properties.getLocalizedStringWithoutFallbackToDefault(msg,
 				prefix + VaadinEndpointProperties.AUTHN_COLUMN_TITLE);
@@ -100,14 +105,15 @@ public class AuthnLayoutPropertiesHelper
 		lcolumn.setColumnWidth(pwidth.intValue());
 
 		lcolumn.setElements(getColumnElements(prefix, properties, msg, removeElementListener, dragStart,
-				dragStop, authenticatorSupportService, authnOptionSupplier));
+				dragStop, valueChange, authenticatorSupportService, authnOptionSupplier));
 
 		return lcolumn;
 	}
 
 	private static List<ColumnElement> getColumnElements(String prefix, VaadinEndpointProperties properties,
 			UnityMessageSource msg, Consumer<ColumnElement> removeElementListener, Runnable dragStart,
-			Runnable dragStop, AuthenticatorSupportService authenticatorSupportService,
+			Runnable dragStop, Runnable valueChange,
+			AuthenticatorSupportService authenticatorSupportService,
 			Supplier<List<String>> authnOptionSupplier)
 	{
 		List<ColumnElement> elements = new ArrayList<>();
@@ -122,14 +128,14 @@ public class AuthnLayoutPropertiesHelper
 			if (specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR))
 			{
 				SeparatorColumnElement el = new SeparatorColumnElement(msg, removeElementListener,
-						dragStart, dragStop);
+						valueChange, dragStart, dragStop);
 				el.setValue(getOptionsSeparator(specEntry, properties, msg));
 				elements.add(el);
 
 			} else if (specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_HEADER))
 			{
-				HeaderColumnElement el = new HeaderColumnElement(msg, removeElementListener, dragStart,
-						dragStop);
+				HeaderColumnElement el = new HeaderColumnElement(msg, removeElementListener,
+						valueChange, dragStart, dragStop);
 				el.setValue(getOptionHeader(specEntry, properties, msg));
 				elements.add(el);
 
@@ -154,7 +160,8 @@ public class AuthnLayoutPropertiesHelper
 			} else if (specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_GRID))
 			{
 				GridAuthnColumnElement el = new GridAuthnColumnElement(msg, authenticatorSupportService,
-						authnOptionSupplier, removeElementListener, dragStart, dragStop);
+						authnOptionSupplier, removeElementListener, valueChange, dragStart,
+						dragStop);
 				el.setValue(getGrid(specEntry, properties));
 				elements.add(el);
 
@@ -162,7 +169,7 @@ public class AuthnLayoutPropertiesHelper
 			{
 				SingleAuthnColumnElement el = new SingleAuthnColumnElement(msg,
 						authenticatorSupportService, authnOptionSupplier, removeElementListener,
-						dragStart, dragStop);
+						valueChange, dragStart, dragStop);
 				el.setValue(specEntry);
 				elements.add(el);
 			}
@@ -172,8 +179,8 @@ public class AuthnLayoutPropertiesHelper
 	}
 
 	public static List<ColumnElement> getReturingUserColumnElements(VaadinEndpointProperties properties,
-			UnityMessageSource msg, Consumer<ColumnElement> removeElementListener, Runnable dragStart,
-			Runnable dragStop)
+			UnityMessageSource msg, Consumer<ColumnElement> removeElementListener,
+			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 		List<ColumnElement> elements = new ArrayList<>();
 		String content = properties.getValue(VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT);
@@ -189,7 +196,7 @@ public class AuthnLayoutPropertiesHelper
 			if (specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR))
 			{
 				SeparatorColumnElement el = new SeparatorColumnElement(msg, removeElementListener,
-						dragStart, dragStop);
+						valueChangeListener, dragStart, dragStop);
 				el.setValue(getOptionsSeparator(specEntry, properties, msg));
 				elements.add(el);
 
@@ -225,7 +232,6 @@ public class AuthnLayoutPropertiesHelper
 			UnityMessageSource msg)
 	{
 		String key = specEntry.substring(AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR.length());
-
 		I18nString message = key.isEmpty() ? new I18nString()
 				: resolveSeparatorMessage(key.substring(1), properties, msg);
 		return message;
@@ -383,19 +389,6 @@ public class AuthnLayoutPropertiesHelper
 		}
 
 		return key;
-	}
-
-	public static class AuthenticationLayoutContent
-	{
-		public final List<AuthnLayoutColumn> columns;
-		public final List<I18nTextField> separators;
-
-		AuthenticationLayoutContent(List<AuthnLayoutColumn> columns, List<I18nTextField> separators)
-		{
-			this.columns = columns;
-			this.separators = separators;
-		}
-
 	}
 
 }

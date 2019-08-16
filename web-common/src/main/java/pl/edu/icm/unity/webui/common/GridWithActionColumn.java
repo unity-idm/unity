@@ -47,6 +47,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private List<SingleActionHandler<T>> hamburgerActionHandlers;
 	private boolean heightByRows;
 	private int minHeightByRow = 2;
+	private boolean hideActionColumn = false;
 	
 
 	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers)
@@ -263,13 +264,16 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		if (actionColumn != null)
 		{
 			removeColumn(actionColumn);
+			actionColumn = null;
 		}
-
-		actionColumn = addComponentColumn(t -> getButtonComponent(new HashSet<>(Arrays.asList(t))))
-				.setCaption(msg.getMessage("actions")).setMinimumWidth(80);
-		actionColumn.setResizable(false);
-		actionColumn.setExpandRatio(0);
-		actionColumn.setSortable(false);
+		if (!hideActionColumn)
+		{
+			actionColumn = addComponentColumn(t -> getButtonComponent(new HashSet<>(Arrays.asList(t))))
+					.setCaption(msg.getMessage("actions")).setMinimumWidth(80);
+			actionColumn.setResizable(false);
+			actionColumn.setExpandRatio(0);
+			actionColumn.setSortable(false);
+		}
 
 	}
 
@@ -330,6 +334,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public void clearFilters()
 	{
 		dataProvider.clearFilters();
+		filters.clear();
 	}
 	
 	private void updateFilters()
@@ -342,6 +347,12 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public void setMinHeightByRow(int minRow)
 	{
 		this.minHeightByRow = minRow;
+	}
+	
+	public void  setActionColumnHidden(boolean hidden)
+	{
+		hideActionColumn = hidden;
+		refreshActionColumn();
 	}
 
 }

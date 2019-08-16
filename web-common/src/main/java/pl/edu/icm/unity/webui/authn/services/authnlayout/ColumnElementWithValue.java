@@ -19,5 +19,6 @@ public interface ColumnElementWithValue<T> extends ColumnElement
 	void refresh();
 	void validate() throws FormValidationException;
 	void setValue(T state);
+	void addValueChangeListener(Runnable valueChange);
 	T getValue();
 }

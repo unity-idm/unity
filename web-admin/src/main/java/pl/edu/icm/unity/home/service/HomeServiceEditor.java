@@ -15,12 +15,14 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
+ * Home service editor
  * 
  * @author P.Piernik
  *
@@ -42,13 +44,15 @@ public class HomeServiceEditor implements ServiceEditor
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
-	
+	private List<String> usedPaths;
+
 	public HomeServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, String extraTab, List<String> allAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
-			List<String> registrationForms, AuthenticatorSupportService authenticatorSupportService)
+			List<String> registrationForms, List<String> usedPaths,
+			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -64,20 +68,22 @@ public class HomeServiceEditor implements ServiceEditor
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
+		this.usedPaths = usedPaths;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 		editor = new HomeServiceEditorComponent(msg, uriAccessService, fileStorageService, serverConfig,
-				endpoint, allRealms, flows, authenticators, extraTab, allAttributes, allGroups,
-				upManServices, enquiryForms, registrationForms, authenticatorSupportService);
+				(DefaultServiceDefinition) endpoint, allRealms, flows, authenticators, extraTab,
+				allAttributes, allGroups, upManServices, enquiryForms, registrationForms, usedPaths,
+				authenticatorSupportService);
 		return editor;
 	}
 
 	@Override
 	public ServiceDefinition getEndpointDefiniton() throws FormValidationException
 	{
-		return editor.getServicetDefiniton();
+		return editor.getServiceDefiniton();
 	}
 }

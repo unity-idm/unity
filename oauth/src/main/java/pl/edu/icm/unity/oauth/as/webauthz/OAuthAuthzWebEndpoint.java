@@ -7,8 +7,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -187,20 +185,14 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		@Autowired
 		private ObjectFactory<OAuthAuthzWebEndpoint> factory;
 		
-		private EndpointTypeDescription description = initDescription();
-		
-		private static EndpointTypeDescription initDescription()
-		{
-			Map<String, String> paths = new HashMap<>();
-			paths.put(OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
-			return new EndpointTypeDescription(NAME, 
-					"OAuth 2 Server - Authorization Grant endpoint", VaadinAuthentication.NAME, paths);
-		}
+		public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
+				"OAuth 2 Server - Authorization Grant endpoint", VaadinAuthentication.NAME,
+				Collections.singletonMap(OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint"));
 		
 		@Override
 		public EndpointTypeDescription getDescription()
 		{
-			return description;
+			return TYPE;
 		}
 
 		@Override

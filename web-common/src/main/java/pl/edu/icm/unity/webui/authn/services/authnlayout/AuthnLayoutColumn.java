@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.vaadin.risto.stepper.IntStepper;
 
@@ -48,15 +49,17 @@ public class AuthnLayoutColumn extends CustomComponent
 	private Button removeButton;
 	private IntStepper columnWidthField;
 	private I18nTextField columnTitleField;
+	private Runnable valueChange;
 
 	public AuthnLayoutColumn(UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
-			Consumer<ColumnElement> removeElementListener, Runnable dragStart, Runnable dragStop)
+			Consumer<ColumnElement> removeElementListener, Runnable valueChange)
 	{
 		this.msg = msg;
 		this.elements = new ArrayList<>();
 		this.dropElements = new ArrayList<>();
 		this.removeElementListener = removeElementListener;
 		this.removeColumnListener = removeListener;
+		this.valueChange = valueChange;
 		initUI();
 	}
 
@@ -100,6 +103,7 @@ public class AuthnLayoutColumn extends CustomComponent
 		main.addComponent(headerBar);
 
 		columnTitleField = new I18nTextField(msg);
+		columnTitleField.addValueChangeListener(e -> valueChange.run());
 		columnTitleField.setCaption(msg.getMessage("LayoutColumn.title"));
 		columnTitleField.setWidth(100, Unit.PERCENTAGE);
 		columnTitleField.setWidth(17, Unit.EM);
@@ -110,6 +114,7 @@ public class AuthnLayoutColumn extends CustomComponent
 		columnWidthField.setStyleName("u-maxWidth3");
 		columnWidthField.setValue(15);
 		columnWidthField.setMinValue(1);
+		columnWidthField.addValueChangeListener(e -> valueChange.run());
 
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.setMargin(true);
@@ -199,7 +204,7 @@ public class AuthnLayoutColumn extends CustomComponent
 		this.columnTitleField.setValue(columnTitle);
 	}
 
-	protected void refreshElements()
+	public void refreshElements()
 	{
 		elementsLayout.removeAllComponents();
 		Component drop = getDropElement(0);
@@ -241,8 +246,8 @@ public class AuthnLayoutColumn extends CustomComponent
 				if (dragSource.get() instanceof PalleteElement)
 				{
 					event.getDragData().ifPresent(data -> {
-						ColumnElement sup = (ColumnElement) data;
-						elements.add(pos, sup);
+						Supplier<?> sup =  (Supplier<?>) data;
+						elements.add(pos, (ColumnElement) sup.get());
 						refreshElements();
 
 					});
