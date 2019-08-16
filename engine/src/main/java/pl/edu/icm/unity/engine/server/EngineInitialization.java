@@ -700,6 +700,9 @@ public class EngineInitialization extends LifecycleBase
 			log.info(" - " + name + ": " + type + " " + description);
 			EndpointConfiguration endpointConfiguration = new EndpointConfiguration(displayedName,
 					description, endpointAuthn, jsonConfiguration, realmName);
+			endpointConfiguration.setTag(config.getValue(
+					endpointKey + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
+			
 			endpointManager.deploy(type, name, address, endpointConfiguration);
 		}
 	}

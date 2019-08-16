@@ -223,7 +223,6 @@ public class EndpointManagementImpl implements EndpointManagement
 						existing.getConfiguration(),
 						existing.getRevision() + 1, EndpointState.UNDEPLOYED);
 				endpointDB.update(updatedEndpoint);
-				//endpointDB.delete(id);
 			} catch (Exception e)
 			{
 				throw new EngineException("Unable to undeploy an endpoint: " + e.getMessage(), e);
