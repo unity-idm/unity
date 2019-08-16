@@ -73,7 +73,10 @@ public class EndpointConfiguration
 		root.put("description", description);
 		root.put("configuration", configuration);
 		root.put("realm", realm);
-		root.put("tag", tag);
+		if (tag != null)
+		{
+			root.put("tag", tag);
+		}
 		ArrayNode aopts = root.withArray("authenticationOptions");
 		for (String aod : authenticationOptions)
 			aopts.add(aod);
