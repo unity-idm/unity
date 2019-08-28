@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.webui.authn.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.authn.services.ServiceController;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
@@ -27,7 +28,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  *
  */
 @Component
-class JWTServiceController extends DefaultServicesControllerBase
+class JWTServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;

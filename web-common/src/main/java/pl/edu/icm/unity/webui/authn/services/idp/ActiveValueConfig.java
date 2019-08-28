@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.service;
+package pl.edu.icm.unity.webui.authn.services.idp;
 
 import java.util.List;
 

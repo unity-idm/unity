@@ -53,13 +53,13 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
  * OAuth service editor general tab
+ * 
  * @author P.Piernik
  *
  */
 class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 {
 	private UnityMessageSource msg;
-
 	private Binder<DefaultServiceDefinition> oauthWebAuthzBinder;
 	private Binder<DefaultServiceDefinition> oauthTokenBinder;
 	private Binder<OAuthServiceConfiguration> configBinder;
@@ -116,73 +116,6 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		setCompositionRoot(main);
 	}
 
-	private CollapsibleLayout buildScopesSection()
-	{
-		FormLayoutWithFixedCaptionWidth scopesLayout = new FormLayoutWithFixedCaptionWidth();
-		scopesLayout.setMargin(false);
-
-		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),
-				s -> s != null && s.getName() != null
-						&& s.getName().equals(OIDCScopeValue.OPENID.toString()));
-		scopesGrid.addTextColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
-		scopesGrid.addTextColumn(s -> s.getDescription(),
-				msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
-		scopesGrid.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",
-				msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 10);
-		scopesGrid.setMinHeightByRow(7);
-		configBinder.forField(scopesGrid).bind("scopes");
-		scopesLayout.addComponent(scopesGrid);
-
-		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.scopes"), scopesLayout);
-	}
-
-	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScope>
-	{
-		private Binder<OAuthScope> binder;
-
-		public ScopeEditor(UnityMessageSource msg, List<String> attrTypes)
-		{
-			binder = new Binder<>(OAuthScope.class);
-			TextField name = new TextField();
-			name.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
-			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg)).bind("name");
-
-			TextField desc = new TextField();
-			desc.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
-			binder.forField(desc).bind("description");
-
-			ChipsWithFreeText attributes = new ChipsWithFreeText(msg);
-			attributes.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
-			attributes.setItems(attrTypes);
-			binder.forField(attributes).bind("attributes");
-			FormLayout main = new FormLayout();
-			main.setMargin(false);
-			main.addComponent(name);
-			main.addComponent(desc);
-			main.addComponent(attributes);
-			setCompositionRoot(main);
-			setSizeFull();
-		}
-
-		@Override
-		public OAuthScope getValue() throws FormValidationException
-		{
-			if (binder.validate().hasErrors())
-			{
-				throw new FormValidationException();
-			}
-
-			return binder.getBean();
-		}
-
-		@Override
-		public void setValue(OAuthScope value)
-		{
-
-			binder.setBean(value);
-		}
-	}
-
 	private CollapsibleLayout buildAdvancedSection()
 	{
 		FormLayoutWithFixedCaptionWidth advancedLayout = new FormLayoutWithFixedCaptionWidth();
@@ -207,7 +140,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		main.addComponent(mainGeneralLayout);
 
 		HorizontalLayout infoLayout = new HorizontalLayout();
-		infoLayout.setMargin(true);
+		infoLayout.setMargin(new MarginInfo(false, true, false, true));
 		infoLayout.setStyleName("u-marginLeftMinus20");
 		infoLayout.addStyleName("u-border");
 		VerticalLayout wrapper = new VerticalLayout();
@@ -412,6 +345,26 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return main;
 	}
 
+	private CollapsibleLayout buildScopesSection()
+	{
+		FormLayoutWithFixedCaptionWidth scopesLayout = new FormLayoutWithFixedCaptionWidth();
+		scopesLayout.setMargin(false);
+
+		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),
+				s -> s != null && s.getName() != null
+						&& s.getName().equals(OIDCScopeValue.OPENID.toString()));
+		scopesGrid.addTextColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
+		scopesGrid.addTextColumn(s -> s.getDescription(),
+				msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
+		scopesGrid.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",
+				msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 10);
+		scopesGrid.setMinHeightByRow(7);
+		configBinder.forField(scopesGrid).bind("scopes");
+		scopesLayout.addComponent(scopesGrid);
+
+		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.scopes"), scopesLayout);
+	}
+
 	private void refreshOpenIDControls()
 	{
 		OAuthServiceConfiguration config = configBinder.getBean();
@@ -455,6 +408,53 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	public CustomComponent getComponent()
 	{
 		return this;
+	}
+
+	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScope>
+	{
+		private Binder<OAuthScope> binder;
+
+		public ScopeEditor(UnityMessageSource msg, List<String> attrTypes)
+		{
+			binder = new Binder<>(OAuthScope.class);
+			TextField name = new TextField();
+			name.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
+			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg)).bind("name");
+
+			TextField desc = new TextField();
+			desc.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
+			binder.forField(desc).bind("description");
+
+			ChipsWithFreeText attributes = new ChipsWithFreeText(msg);
+			attributes.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
+			attributes.setItems(attrTypes);
+			binder.forField(attributes).bind("attributes");
+			FormLayout main = new FormLayout();
+			main.setMargin(false);
+			main.addComponent(name);
+			main.addComponent(desc);
+			main.addComponent(attributes);
+			setCompositionRoot(main);
+			setSizeFull();
+		}
+
+		@Override
+		public OAuthScope getValue() throws FormValidationException
+		{
+			if (binder.validate().hasErrors())
+			{
+				throw new FormValidationException();
+			}
+
+			return binder.getBean();
+		}
+
+		@Override
+		public void setValue(OAuthScope value)
+		{
+
+			binder.setBean(value);
+		}
 	}
 
 }

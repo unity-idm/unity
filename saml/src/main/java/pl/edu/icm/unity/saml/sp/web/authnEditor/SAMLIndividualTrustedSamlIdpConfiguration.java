@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.common.file.ImageUtils;
  * @author P.Piernik
  *
  */
-public class IndividualTrustedSamlIdpConfiguration
+public class SAMLIndividualTrustedSamlIdpConfiguration
 {
 	private String name;
 	private TranslationProfile translationProfile;
@@ -48,32 +48,32 @@ public class IndividualTrustedSamlIdpConfiguration
 	private boolean accountAssociation;
 	private boolean signRequest;
 	private List<String> requestedNameFormats;
-
 	private String postLogoutEndpoint;
 	private String postLogoutResponseEndpoint;
 	private String redirectLogoutEndpoint;
 	private String redirectLogoutResponseEndpoint;
 	private String soapLogoutEndpoint;
 
-	public IndividualTrustedSamlIdpConfiguration()
+	public SAMLIndividualTrustedSamlIdpConfiguration()
 	{
 		setBinding(SAMLSPProperties.DEFAULT_IDP_BINDING);
 		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
 	}
 
-	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService,
-			SAMLSPProperties source, String name)
+	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService, SAMLSPProperties source,
+			String name)
 	{
 
 		setName(name);
 		String prefix = SAMLSPProperties.IDP_PREFIX + name + ".";
 		setId(source.getValue(prefix + SAMLSPProperties.IDP_ID));
-		setDisplayedName(source.getLocalizedStringWithoutFallbackToDefault(msg, prefix + SAMLSPProperties.IDP_NAME));
+		setDisplayedName(source.getLocalizedStringWithoutFallbackToDefault(msg,
+				prefix + SAMLSPProperties.IDP_NAME));
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
-			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));	
+			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));
 		}
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))
@@ -127,7 +127,8 @@ public class IndividualTrustedSamlIdpConfiguration
 
 	}
 
-	public void toProperties(Properties raw, UnityMessageSource msg,  FileStorageService fileService, String authName)
+	public void toProperties(Properties raw, UnityMessageSource msg, FileStorageService fileService,
+			String authName)
 	{
 		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + getName() + ".";
 
@@ -203,9 +204,9 @@ public class IndividualTrustedSamlIdpConfiguration
 
 	}
 
-	public IndividualTrustedSamlIdpConfiguration clone()
+	public SAMLIndividualTrustedSamlIdpConfiguration clone()
 	{
-		IndividualTrustedSamlIdpConfiguration clone = new IndividualTrustedSamlIdpConfiguration();
+		SAMLIndividualTrustedSamlIdpConfiguration clone = new SAMLIndividualTrustedSamlIdpConfiguration();
 		clone.setName(this.getName());
 		clone.setId(new String(this.getId()));
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);

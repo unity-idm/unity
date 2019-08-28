@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class WebServiceControllerBase extends DefaultServicesControllerBase
+public class WebServiceControllerBase extends DefaultServicesControllerBase implements ServiceController
 {
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;

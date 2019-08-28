@@ -3,13 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.service;
+package pl.edu.icm.unity.saml.idp.service;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
@@ -28,24 +29,25 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
- * OAuth service editor
+ * SAML Service editor
  * 
  * @author P.Piernik
  *
  */
-class OAuthServiceEditor implements ServiceEditor
+class SAMLServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
+	private PKIManagement pkiMan;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
-	private OAuthServiceEditorComponent editor;
+	private SAMLServiceEditorComponent editor;
 	private List<String> allAttributes;
 	private List<Group> allGroups;
 	private List<IdpUser> allUsers;
-	private List<OAuthClient> allClients;
 	private List<String> registrationForms;
 	private Set<String> credentials;
+	private Set<String> truststores;
 	private URIAccessService uriAccessService;
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
@@ -56,13 +58,13 @@ class OAuthServiceEditor implements ServiceEditor
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private List<String> usedPaths;
 
-	OAuthServiceEditor(UnityMessageSource msg, SubViewSwitcher subViewSwitcher,
+	SAMLServiceEditor(UnityMessageSource msg, PKIManagement pkiMan, SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, NetworkServer server,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
-			List<OAuthClient> allClients, List<String> registrationForms, Set<String> credentials,
+			List<String> registrationForms, Set<String> credentials, Set<String> truststores,
 			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
 			List<String> usedPaths)
 	{
@@ -84,16 +86,17 @@ class OAuthServiceEditor implements ServiceEditor
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.usedPaths = usedPaths;
 		this.allUsers = allUsers;
-		this.allClients = allClients;
+		this.truststores = truststores;
+		this.pkiMan = pkiMan;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new OAuthServiceEditorComponent(msg, subViewSwitcher, server, uriAccessService,
+		editor = new SAMLServiceEditorComponent(msg, pkiMan, subViewSwitcher, server, uriAccessService,
 				fileStorageService, serverConfig, outputTranslationProfileFieldFactory, endpoint,
-				allRealms, flows, authenticators, allGroups, allUsers, allClients, registrationForms,
-				credentials, authenticatorSupportService, idTypes, allAttributes, usedPaths);
+				allRealms, flows, authenticators, allGroups, allUsers, registrationForms, credentials,
+				truststores, authenticatorSupportService, idTypes, allAttributes, usedPaths);
 		return editor;
 	}
 

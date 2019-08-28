@@ -41,9 +41,8 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
 {
-
 	private UnityMessageSource msg;
-	private Binder<TrustedFederationConfiguration> binder;
+	private Binder<SAMLAuthnTrustedFederationConfiguration> binder;
 	private boolean editMode = false;
 	private Set<String> validators;
 	private Set<String> certificates;
@@ -51,10 +50,10 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 	private Set<String> usedNames;
 
 	EditTrustedFederationSubView(UnityMessageSource msg,
-			InputTranslationProfileFieldFactory profileFieldFactory, TrustedFederationConfiguration toEdit,
+			InputTranslationProfileFieldFactory profileFieldFactory, SAMLAuthnTrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Set<String> registrationForms,
-			Consumer<TrustedFederationConfiguration> onConfirm, Runnable onCancel)
+			Consumer<SAMLAuthnTrustedFederationConfiguration> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
 		this.validators = validators;
@@ -64,12 +63,12 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 
 		editMode = toEdit != null;
 
-		binder = new Binder<>(TrustedFederationConfiguration.class);
+		binder = new Binder<>(SAMLAuthnTrustedFederationConfiguration.class);
 		FormLayout header = buildHeaderSection();
 		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				binder, "translationProfile");
 
-		binder.setBean(editMode ? toEdit.clone() : new TrustedFederationConfiguration());
+		binder.setBean(editMode ? toEdit.clone() : new SAMLAuthnTrustedFederationConfiguration());
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
@@ -83,7 +82,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 			} catch (FormValidationException e)
 			{
 				NotificationPopup.showError(msg, msg.getMessage(
-						"EditTrustedFederationSubView.inconsistentConfiguration"), e);
+						"EditTrustedFederationSubView.invalidConfiguration"), e);
 			}
 		};
 
@@ -170,7 +169,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 	
 	}
 
-	private TrustedFederationConfiguration getTrustedFederation() throws FormValidationException
+	private SAMLAuthnTrustedFederationConfiguration getTrustedFederation() throws FormValidationException
 	{
 		if (binder.validate().hasErrors())
 			throw new FormValidationException();

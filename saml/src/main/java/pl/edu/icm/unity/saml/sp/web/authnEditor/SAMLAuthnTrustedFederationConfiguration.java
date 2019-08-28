@@ -17,10 +17,11 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * SAML trusted federation configuration
+ * 
  * @author P.Piernik
  *
  */
-public class TrustedFederationConfiguration
+public class SAMLAuthnTrustedFederationConfiguration
 {
 	private String name;
 	private String url;
@@ -31,10 +32,10 @@ public class TrustedFederationConfiguration
 	private String registrationForm;
 	private TranslationProfile translationProfile;
 
-	public TrustedFederationConfiguration()
+	public SAMLAuthnTrustedFederationConfiguration()
 	{
 		setRefreshInterval(SamlProperties.DEFAULT_METADATA_REFRESH);
-		setIgnoreSignatureVerification(false);
+		setIgnoreSignatureVerification(true);
 		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
 	}
 
@@ -76,7 +77,7 @@ public class TrustedFederationConfiguration
 
 	public void toProperties(Properties raw)
 	{
-		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDPMETA_PREFIX  + getName() + ".";
+		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDPMETA_PREFIX + getName() + ".";
 
 		raw.put(prefix + SamlProperties.METADATA_URL, getUrl());
 
@@ -87,10 +88,12 @@ public class TrustedFederationConfiguration
 
 		if (!isIgnoreSignatureVerification())
 		{
-			raw.put(prefix + SamlProperties.METADATA_SIGNATURE, MetadataSignatureValidation.require.toString());
+			raw.put(prefix + SamlProperties.METADATA_SIGNATURE,
+					MetadataSignatureValidation.require.toString());
 		} else
 		{
-			raw.put(prefix + SamlProperties.METADATA_SIGNATURE, MetadataSignatureValidation.ignore.toString());
+			raw.put(prefix + SamlProperties.METADATA_SIGNATURE,
+					MetadataSignatureValidation.ignore.toString());
 		}
 
 		if (getSignatureVerificationCertificate() != null)
@@ -195,9 +198,9 @@ public class TrustedFederationConfiguration
 		this.translationProfile = translationProfile;
 	}
 
-	public TrustedFederationConfiguration clone()
+	public SAMLAuthnTrustedFederationConfiguration clone()
 	{
-		TrustedFederationConfiguration clone = new TrustedFederationConfiguration();
+		SAMLAuthnTrustedFederationConfiguration clone = new SAMLAuthnTrustedFederationConfiguration();
 
 		clone.setName(new String(this.getName()));
 

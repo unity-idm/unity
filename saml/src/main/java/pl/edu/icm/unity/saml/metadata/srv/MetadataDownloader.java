@@ -57,7 +57,7 @@ public class MetadataDownloader
 	 * @throws XmlException
 	 * @throws InterruptedException 
 	 */
-	EntitiesDescriptorDocument getFresh(String rawUri, String customTruststore)
+	public EntitiesDescriptorDocument getFresh(String rawUri, String customTruststore)
 			throws EngineException, IOException, XmlException, InterruptedException
 	{
 		URI uri = URIHelper.parseURI(rawUri);
@@ -77,7 +77,7 @@ public class MetadataDownloader
 	 * @throws XmlException 
 	 * @throws InterruptedException 
 	 */
-	Optional<EntitiesDescriptorDocument> getCached(String uri)
+	public Optional<EntitiesDescriptorDocument> getCached(String uri)
 			throws XmlException, IOException, InterruptedException
 	{
 		FileData data;

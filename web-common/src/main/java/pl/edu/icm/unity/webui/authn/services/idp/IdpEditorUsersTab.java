@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.service;
+package pl.edu.icm.unity.webui.authn.services.idp;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,19 +44,19 @@ import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
  * @author P.Piernik
  *
  */
-public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
+public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
-	private Binder<?> configBinder;
-	private List<Group> allGroups;
-	private List<OAuthUser> allUsers;
-	private SerializablePredicate<OAuthUser> searchFilter = null;
+	protected UnityMessageSource msg;
+	protected Binder<?> configBinder;
+	protected List<Group> allGroups;
+	private List<IdpUser> allUsers;
+	private SerializablePredicate<IdpUser> searchFilter = null;
 	private List<String> allAttrTypes;
-	private Map<String, String> availableClients;
+	protected Map<String, String> availableClients;
 	private GridWithEditorInDetails<ActiveValueConfig> releasedAttrsGrid;
 
-	public OAuthEditorUsersTab(UnityMessageSource msg, Binder<?> configBinder, List<Group> groups,
-			List<OAuthUser> allUsers, List<String> attrTypes)
+	public IdpEditorUsersTab(UnityMessageSource msg, Binder<?> configBinder, List<Group> groups,
+			List<IdpUser> allUsers, List<String> attrTypes)
 	{
 		this.msg = msg;
 		this.configBinder = configBinder;
@@ -66,11 +66,10 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		initUI();
 	}
 
-	private void initUI()
+	protected void initUI()
 	{
 		setCaption(msg.getMessage("IdpServiceEditorBase.users"));
 		setIcon(Images.family.getResource());
-
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setMargin(false);
 		mainLayout.addComponent(buildUsersSection());
@@ -78,17 +77,17 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		setCompositionRoot(mainLayout);
 	}
 
-	private Component buildUsersSection()
+	protected Component buildUsersSection()
 	{
 		VerticalLayout mainClientLayout = new VerticalLayout();
 		mainClientLayout.setMargin(false);
 
-		GridWithActionColumn<OAuthUser> usersGrid = new GridWithActionColumn<>(msg, Collections.emptyList());
+		GridWithActionColumn<IdpUser> usersGrid = new GridWithActionColumn<>(msg, Collections.emptyList());
 		usersGrid.setActionColumnHidden(true);
-		usersGrid.addColumn(u -> u.name, msg.getMessage("OAuthEditorUsersTab.entity"), 20);
-		usersGrid.addColumn(u -> u.identity, msg.getMessage("OAuthEditorUsersTab.identity"), 20);
-		usersGrid.addColumn(u -> u.identityType, msg.getMessage("OAuthEditorUsersTab.identityType"), 20);
-		usersGrid.addColumn(u -> u.state.toString(), msg.getMessage("OAuthEditorUsersTab.status"), 20);
+		usersGrid.addColumn(u -> u.name, msg.getMessage("IdpEditorUsersTab.entity"), 20);
+		usersGrid.addColumn(u -> u.identity, msg.getMessage("IdpEditorUsersTab.identity"), 20);
+		usersGrid.addColumn(u -> u.identityType, msg.getMessage("IdpEditorUsersTab.identityType"), 20);
+		usersGrid.addColumn(u -> u.state.toString(), msg.getMessage("IdpEditorUsersTab.status"), 20);
 		usersGrid.setItems(allUsers);
 		usersGrid.setHeightByRows(true);
 		usersGrid.setHeightByRows(10);
@@ -109,7 +108,7 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 			usersGrid.addFilter(searchFilter);
 		});
 
-		Toolbar<OAuthUser> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		Toolbar<IdpUser> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addSearch(searchText, Alignment.MIDDLE_RIGHT);
 		ComponentWithToolbar usersGridWithToolbar = new ComponentWithToolbar(usersGrid, toolbar,
@@ -124,7 +123,7 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		FormLayoutWithFixedCaptionWidth comboWrapper = new FormLayoutWithFixedCaptionWidth();
 		MandatoryGroupSelection groupCombo = new MandatoryGroupSelection(msg);
 		groupCombo.setWidth(30, Unit.EM);
-		groupCombo.setCaption(msg.getMessage("OAuthEditorUsersTab.usersGroup"));
+		groupCombo.setCaption(msg.getMessage("IdpEditorUsersTab.usersGroup"));
 		groupCombo.setItems(allGroups);
 		groupCombo.setRequiredIndicatorVisible(false);
 		configBinder.forField(groupCombo).bind("usersGroup");
@@ -140,7 +139,7 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		return mainClientLayout;
 	}
 
-	private Component buildReleasedAttributesSection()
+	protected Component buildReleasedAttributesSection()
 	{
 		VerticalLayout mainAttrLayout = new VerticalLayout();
 		mainAttrLayout.setMargin(false);
@@ -148,17 +147,17 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		releasedAttrsGrid = new GridWithEditorInDetails<>(msg, ActiveValueConfig.class,
 				() -> new ActiveValueConfigEditor(msg, allAttrTypes, availableClients), u -> false);
 		releasedAttrsGrid.addTextColumn(s -> availableClients.get(s.getClientId()),
-				msg.getMessage("OAuthEditorUsersTab.serviceProviderName"), 10);
+				msg.getMessage("IdpEditorUsersTab.client"), 10);
 		releasedAttrsGrid.addTextColumn(
 				s -> s.getSingleSelectableAttributes() != null
 						? String.join(",", s.getSingleSelectableAttributes())
 						: "",
-				msg.getMessage("OAuthEditorUsersTab.singleActiveValueSelection"), 10);
+				msg.getMessage("IdpEditorUsersTab.singleActiveValueSelection"), 10);
 		releasedAttrsGrid.addTextColumn(
 				s -> s.getMultiSelectableAttributes() != null
 						? String.join(",", s.getMultiSelectableAttributes())
 						: "",
-				msg.getMessage("OAuthEditorUsersTab.multipleActiveValueSelection"), 10);
+				msg.getMessage("IdpEditorUsersTab.multipleActiveValueSelection"), 10);
 
 		releasedAttrsGrid.setMinHeightByRow(7);
 		configBinder.forField(releasedAttrsGrid).bind("activeValueSelections");
@@ -166,7 +165,7 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		mainAttrLayout.addComponent(releasedAttrsGrid);
 
 		CollapsibleLayout attrSection = new CollapsibleLayout(
-				msg.getMessage("OAuthEditorUsersTab.advancedAttributeReleaseControl"), mainAttrLayout);
+				msg.getMessage("IdpEditorUsersTab.advancedAttributeReleaseControl"), mainAttrLayout);
 		attrSection.expand();
 		return attrSection;
 	}
@@ -208,17 +207,17 @@ public class OAuthEditorUsersTab extends CustomComponent implements EditorTab
 		{
 			binder = new Binder<>(ActiveValueConfig.class);
 			ComboBox<String> clientId = new ComboBox<>();
-			clientId.setCaption("OAuthEditorUsersTab.client");
+			clientId.setCaption(msg.getMessage("IdpEditorUsersTab.client"));
 			clientId.setItems(clients.keySet());
 			clientId.setItemCaptionGenerator(i -> clients.get(i));
 			binder.forField(clientId).asRequired().bind("clientId");
 			ChipsWithFreeText sattributes = new ChipsWithFreeText(msg);
-			sattributes.setCaption(msg.getMessage("OAuthEditorUsersTab.singleActiveValueSelection") + ":");
+			sattributes.setCaption(msg.getMessage("IdpEditorUsersTab.singleActiveValueSelection") + ":");
 			sattributes.setItems(attrTypes);
 			binder.forField(sattributes).bind("singleSelectableAttributes");
 			ChipsWithFreeText mattributes = new ChipsWithFreeText(msg);
 			mattributes.setCaption(
-					msg.getMessage("OAuthEditorUsersTab.multipleActiveValueSelection") + ":");
+					msg.getMessage("IdpEditorUsersTab.multipleActiveValueSelection") + ":");
 			mattributes.setItems(attrTypes);
 			binder.forField(mattributes).bind("multiSelectableAttributes");
 			FormLayout main = new FormLayout();

@@ -27,54 +27,51 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.idp.service.common.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 
 /**
- * Main SAML configuration
+ * Related to {@link SAMLSPProperties}. Contains whole SAML authenticator
+ * configuration
  * 
  * @author P.Piernik
  *
  */
-public class SAMLConfiguration
+public class SAMLAuthneticatorConfiguration
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLConfiguration.class);
-	
+	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAuthneticatorConfiguration.class);
+
 	private String requesterId;
 	private String credential;
 	private List<String> acceptedNameFormats;
 	private boolean requireSignedAssertion;
 	private boolean defSignRequest;
-
 	private List<String> defaultRequestedNameFormat;
 	private String registrationForm;
 	private boolean defAccountAssociation;
-
-	private List<TrustedFederationConfiguration> trustedFederations;
-	private List<IndividualTrustedSamlIdpConfiguration> individualTrustedIdps;
-
+	private List<SAMLAuthnTrustedFederationConfiguration> trustedFederations;
+	private List<SAMLIndividualTrustedSamlIdpConfiguration> individualTrustedIdps;
 	private boolean publishMetadata;
 	private String metadataPath;
 	private boolean signMetadata;
 	private boolean autoGenerateMetadata;
 	private LocalOrRemoteResource metadataSource;
-
-	
 	private String sloPath;
 	private String sloRealm;
-	private List<SloMapping> sloMappings;
+	private List<SAMLIdentityMapping> sloMappings;
 
-	public SAMLConfiguration()
+	public SAMLAuthneticatorConfiguration()
 	{
 		setPublishMetadata(true);
 		setAutoGenerateMetadata(true);
 		setMetadataPath("sp");
 	}
 
-	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, UnityMessageSource msg, String name)
-			throws ConfigurationException
+	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, UnityMessageSource msg,
+			String name) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 		raw.put(SAMLSPProperties.P + SAMLSPProperties.REQUESTER_ID, getRequesterId());
@@ -119,7 +116,7 @@ public class SAMLConfiguration
 			getIndividualTrustedIdps().stream().forEach(f -> f.toProperties(raw, msg, fileService, name));
 		}
 
-		raw.put(SAMLSPProperties.P + SamlProperties.PUBLISH_METADATA, String.valueOf(isPublishMetadata()));
+		raw.put(SAMLSPProperties.P + SAMLSPProperties.PUBLISH_METADATA, String.valueOf(isPublishMetadata()));
 		if (getMetadataPath() != null)
 		{
 			raw.put(SAMLSPProperties.P + SAMLSPProperties.METADATA_PATH, getMetadataPath());
@@ -127,13 +124,13 @@ public class SAMLConfiguration
 
 		raw.put(SAMLSPProperties.P + SAMLSPProperties.SIGN_METADATA, String.valueOf(isSignMetadata()));
 
-		
 		if (getMetadataSource() != null && !isAutoGenerateMetadata())
 		{
-			FileFieldUtils.saveInProperties(getMetadataSource(), SAMLSPProperties.P + SamlProperties.METADATA_SOURCE, raw, fileService,
-					StandardOwner.AUTHENTICATOR.toString(), name);
+			FileFieldUtils.saveInProperties(getMetadataSource(),
+					SAMLSPProperties.P + SAMLSPProperties.METADATA_SOURCE, raw, fileService,
+					StandardOwner.SERVICE.toString(), name);
 		}
-		
+
 		if (getSloPath() != null)
 		{
 			raw.put(SAMLSPProperties.P + SAMLSPProperties.SLO_PATH, getSloPath());
@@ -178,7 +175,7 @@ public class SAMLConfiguration
 		}
 
 		SAMLSPProperties samlSpProp = new SAMLSPProperties(raw, pkiMan);
-		
+
 		setRequesterId(samlSpProp.getValue(SAMLSPProperties.REQUESTER_ID));
 		setCredential(samlSpProp.getValue(SAMLSPProperties.CREDENTIAL));
 		setAcceptedNameFormats(samlSpProp.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS));
@@ -199,7 +196,7 @@ public class SAMLConfiguration
 		fedKeys.forEach(
 
 				key -> {
-					TrustedFederationConfiguration fed = new TrustedFederationConfiguration();
+					SAMLAuthnTrustedFederationConfiguration fed = new SAMLAuthnTrustedFederationConfiguration();
 					key = key.substring(SAMLSPProperties.IDPMETA_PREFIX.length(), key.length() - 1);
 					fed.fromProperties(samlSpProp, key);
 					trustedFederations.add(fed);
@@ -211,7 +208,7 @@ public class SAMLConfiguration
 		idpKeys.forEach(
 
 				key -> {
-					IndividualTrustedSamlIdpConfiguration idp = new IndividualTrustedSamlIdpConfiguration();
+					SAMLIndividualTrustedSamlIdpConfiguration idp = new SAMLIndividualTrustedSamlIdpConfiguration();
 					key = key.substring(SAMLSPProperties.IDP_PREFIX.length(), key.length() - 1);
 					idp.fromProperties(msg, uriAccessService, samlSpProp, key);
 					individualTrustedIdps.add(idp);
@@ -228,13 +225,13 @@ public class SAMLConfiguration
 		{
 			setSignMetadata(samlSpProp.getBooleanValue(SamlProperties.SIGN_METADATA));
 		}
-		
+
 		if (samlSpProp.isSet(SamlProperties.METADATA_SOURCE))
 		{
 			setAutoGenerateMetadata(false);
-			
+
 			String metaUri = samlSpProp.getValue(SamlProperties.METADATA_SOURCE);
-	
+
 			try
 			{
 				URI uri = URIHelper.parseURI(metaUri);
@@ -244,18 +241,19 @@ public class SAMLConfiguration
 				} else
 				{
 					FileData fileData = uriAccessService.readURI(uri);
-					setMetadataSource(new LocalOrRemoteResource(fileData.getContents(), uri.toString()));
+					setMetadataSource(new LocalOrRemoteResource(fileData.getContents(),
+							uri.toString()));
 				}
-				
-				
+
 			} catch (Exception e)
 			{
 				log.error("Can not load configured metadata from uri: " + metaUri);
 			}
-		}else {
+		} else
+		{
 			setAutoGenerateMetadata(true);
 		}
-		
+
 		setSloPath(samlSpProp.getValue(SAMLSPProperties.SLO_PATH));
 		setSloRealm(samlSpProp.getValue(SAMLSPProperties.SLO_REALM));
 
@@ -265,16 +263,18 @@ public class SAMLConfiguration
 		sloMappingsKeys.forEach(
 
 				key -> {
-					SloMapping m = new SloMapping();
+					SAMLIdentityMapping m = new SAMLIdentityMapping();
 					if (samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL) != null
 							&& !samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL)
 									.isEmpty())
 					{
-						m.setUnityId(samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL));
+						m.setUnityId(samlSpProp
+								.getValue(key + SAMLSPProperties.IDENTITY_LOCAL));
 					}
 
-					if (samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_SAML) != null && !samlSpProp
-							.getValue(key + SAMLSPProperties.IDENTITY_SAML).isEmpty())
+					if (samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_SAML) != null
+							&& !samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_SAML)
+									.isEmpty())
 					{
 						m.setSamlId(samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_SAML));
 					}
@@ -362,22 +362,22 @@ public class SAMLConfiguration
 		this.defAccountAssociation = defAccountAssociation;
 	}
 
-	public List<TrustedFederationConfiguration> getTrustedFederations()
+	public List<SAMLAuthnTrustedFederationConfiguration> getTrustedFederations()
 	{
 		return trustedFederations;
 	}
 
-	public void setTrustedFederations(List<TrustedFederationConfiguration> trustedFederations)
+	public void setTrustedFederations(List<SAMLAuthnTrustedFederationConfiguration> trustedFederations)
 	{
 		this.trustedFederations = trustedFederations;
 	}
 
-	public List<IndividualTrustedSamlIdpConfiguration> getIndividualTrustedIdps()
+	public List<SAMLIndividualTrustedSamlIdpConfiguration> getIndividualTrustedIdps()
 	{
 		return individualTrustedIdps;
 	}
 
-	public void setIndividualTrustedIdps(List<IndividualTrustedSamlIdpConfiguration> individualTrustedIdps)
+	public void setIndividualTrustedIdps(List<SAMLIndividualTrustedSamlIdpConfiguration> individualTrustedIdps)
 	{
 		this.individualTrustedIdps = individualTrustedIdps;
 	}
@@ -432,12 +432,12 @@ public class SAMLConfiguration
 		this.sloRealm = sloRealm;
 	}
 
-	public List<SloMapping> getSloMappings()
+	public List<SAMLIdentityMapping> getSloMappings()
 	{
 		return sloMappings;
 	}
 
-	public void setSloMappings(List<SloMapping> sloMappings)
+	public void setSloMappings(List<SAMLIdentityMapping> sloMappings)
 	{
 		this.sloMappings = sloMappings;
 	}
@@ -460,36 +460,5 @@ public class SAMLConfiguration
 	public void setMetadataSource(LocalOrRemoteResource metadataSource)
 	{
 		this.metadataSource = metadataSource;
-	}
-
-	public static class SloMapping
-	{
-		private String unityId;
-		private String samlId;
-
-		public SloMapping()
-		{
-
-		}
-
-		public String getUnityId()
-		{
-			return unityId;
-		}
-
-		public void setUnityId(String unityId)
-		{
-			this.unityId = unityId;
-		}
-
-		public String getSamlId()
-		{
-			return samlId;
-		}
-
-		public void setSamlId(String samlId)
-		{
-			this.samlId = samlId;
-		}
 	}
 }

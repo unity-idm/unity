@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.client.ClientType;
@@ -40,7 +41,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -63,13 +63,11 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.stdext.utils.UnityImage.ImageType;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
@@ -82,6 +80,7 @@ import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
 import pl.edu.icm.unity.webui.authn.services.idp.IdpServiceController;
+import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -89,7 +88,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 /**
  * Controller for Auth service. Responsible for creating and updating full oauth
  * service - pair of {@link OAuthAuthzWebEndpoint} and
- * {@link OAuthTokenEndpoint}. 
+ * {@link OAuthTokenEndpoint}.
  * 
  * @author P.Piernik
  *
@@ -116,13 +115,14 @@ public class OAuthServiceController implements IdpServiceController
 	private PKIManagement pkiMan;
 	private NetworkServer server;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
-	private AttributeSupport atttributeSupport;
 	private AttributeTypeSupport attrTypeSupport;
 	private AttributesManagement attrMan;
 	private EntityManagement entityMan;
 	private GroupsManagement groupMan;
 	private EntityCredentialManagement entityCredentialManagement;
+	private IdpUsersHelper idpUsersHelper;
 
+	@Autowired
 	OAuthServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
@@ -131,9 +131,9 @@ public class OAuthServiceController implements IdpServiceController
 			AuthenticatorSupportService authenticatorSupportService, PKIManagement pkiMan,
 			NetworkServer server, IdentityTypeSupport idTypeSupport,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			AttributeSupport atttributeSupport, AttributeTypeSupport attrTypeSupport,
-			AttributesManagement attrMan, EntityManagement entityMan, GroupsManagement groupMan,
-			EntityCredentialManagement entityCredentialManagement)
+			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
+			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
+			IdpUsersHelper idpUsersHelper)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -151,12 +151,12 @@ public class OAuthServiceController implements IdpServiceController
 		this.server = server;
 		this.idTypeSupport = idTypeSupport;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
-		this.atttributeSupport = atttributeSupport;
 		this.attrTypeSupport = attrTypeSupport;
 		this.attrMan = attrMan;
 		this.entityMan = entityMan;
 		this.groupMan = groupMan;
 		this.entityCredentialManagement = entityCredentialManagement;
+		this.idpUsersHelper = idpUsersHelper;
 	}
 
 	@Override
@@ -365,7 +365,7 @@ public class OAuthServiceController implements IdpServiceController
 	private void updateClients(List<OAuthClient> clients, String fromGroup)
 			throws EngineException, URISyntaxException
 	{
-		String clientNameAttr = getClientNameAttr();
+		String clientNameAttr = idpUsersHelper.getClientNameAttr();
 
 		for (OAuthClient client : clients.stream().filter(c -> c.getGroup().equals(fromGroup))
 				.collect(Collectors.toList()))
@@ -416,10 +416,6 @@ public class OAuthServiceController implements IdpServiceController
 	{
 		IdentityParam id = new IdentityParam(UsernameIdentity.ID, client.getId());
 		Identity addEntity = entityMan.addEntity(id, EntityState.valid, false);
-		// entityCredentialManagement.setEntityCredential(new
-		// EntityParam(addEntity.getEntityId()),
-		// DEFAULT_CREDENTIAL, new
-		// PasswordToken(client.getSecret()).toJson());
 		Deque<String> notMember = Group.getMissingGroups(client.getGroup(), Arrays.asList("/"));
 		addToGroupRecursive(notMember, addEntity.getEntityId());
 		return addEntity.getEntityId();
@@ -507,7 +503,6 @@ public class OAuthServiceController implements IdpServiceController
 
 		Attribute logoAttr = JpegImageAttribute.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group,
 				image.getBufferedImage());
-
 		attrMan.setAttribute(entity, logoAttr);
 	}
 
@@ -545,7 +540,7 @@ public class OAuthServiceController implements IdpServiceController
 
 		Map<Long, GroupMembershipInfo> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
-		String nameAttr = getClientNameAttr();
+		String nameAttr = idpUsersHelper.getClientNameAttr();
 
 		for (GroupMembershipInfo info : membershipInfo.values())
 		{
@@ -640,51 +635,6 @@ public class OAuthServiceController implements IdpServiceController
 		return null;
 	}
 
-	private String getClientNameAttr() throws EngineException
-	{
-		List<AttributeType> nameAttrs = atttributeSupport
-				.getAttributeTypeWithMetadata(EntityNameMetadataProvider.NAME);
-		if (!nameAttrs.isEmpty())
-		{
-			return nameAttrs.get(0).getName();
-		}
-		return null;
-	}
-
-	private List<OAuthUser> getAllUsers() throws EngineException
-	{
-		List<OAuthUser> users = new ArrayList<>();
-
-		Map<Long, GroupMembershipInfo> membershipInfo = bulkService
-				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
-		String nameAttr = getClientNameAttr();
-
-		for (GroupMembershipInfo info : membershipInfo.values())
-		{
-			EntityState state = info.entityInfo.getEntityState();
-			Long entity = info.entityInfo.getId();
-			String name = "";
-			if (nameAttr != null && info.attributes.get("/").keySet().contains(nameAttr))
-			{
-				name = info.attributes.get("/").get(nameAttr).getValues().get(0);
-			}
-
-			for (String group : info.groups)
-			{
-
-				for (Identity id : info.identities)
-				{
-					OAuthUser user = new OAuthUser(entity, name, group, id.getValue(),
-							id.getTypeId(), state);
-					users.add(user);
-				}
-			}
-		}
-
-		return users;
-
-	}
-
 	@Override
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
@@ -697,7 +647,7 @@ public class OAuthServiceController implements IdpServiceController
 				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
 				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
-				getAllUsers(), getOAuthClients(),
+				idpUsersHelper.getAllUsers(), getOAuthClients(),
 				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService,

@@ -24,6 +24,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.authn.services.idp.ActiveValueConfig;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 /**

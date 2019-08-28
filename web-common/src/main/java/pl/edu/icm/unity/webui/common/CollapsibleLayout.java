@@ -6,6 +6,7 @@
 
 package pl.edu.icm.unity.webui.common;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -25,7 +26,8 @@ public class CollapsibleLayout extends CustomComponent
 {
 	private VerticalLayout contentWrapper;
 	private Button modeButton;
-	
+	private VerticalLayout main;
+			
 	public CollapsibleLayout(String caption, Layout content)
 	{
 		HorizontalLayout bar = new HorizontalLayout();
@@ -57,7 +59,7 @@ public class CollapsibleLayout extends CustomComponent
 		contentWrapper = new VerticalLayout();
 		contentWrapper.addComponent(content);
 		
-		VerticalLayout main = new VerticalLayout();
+		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.addComponents(bar, contentWrapper);
@@ -65,6 +67,11 @@ public class CollapsibleLayout extends CustomComponent
 		collapse();
 		
 		setCompositionRoot(main);	
+	}
+	
+	public void setMargin(MarginInfo margin)
+	{
+		main.setMargin(margin);
 	}
 	
 	private void changeMode()

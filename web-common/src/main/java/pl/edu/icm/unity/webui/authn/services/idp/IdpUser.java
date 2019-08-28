@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.service;
+package pl.edu.icm.unity.webui.authn.services.idp;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -14,7 +14,7 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
  * @author P.Piernik
  *
  */
-public class OAuthUser implements FilterableEntry
+public class IdpUser implements FilterableEntry
 {
 	public final Long entity;
 	public final String name;
@@ -23,7 +23,7 @@ public class OAuthUser implements FilterableEntry
 	public final String identityType;
 	public final EntityState state;
 
-	OAuthUser(Long entity, String name, String group, String identity, String identityType, EntityState state)
+	public IdpUser(Long entity, String name, String group, String identity, String identityType, EntityState state)
 	{
 		this.entity = entity;
 		this.name = name;

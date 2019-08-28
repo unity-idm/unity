@@ -26,6 +26,7 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.grid.Editor;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -214,8 +215,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 		grid.refreshActionColumn();
 		return column;
-	}
-
+	}	
+	
 	public void addElement(T el)
 	{
 		grid.addElement(el);
@@ -267,4 +268,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	}
 
+	public Editor<T> getEditor()
+	{
+		return grid.getEditor();
+	}
 }

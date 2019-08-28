@@ -35,8 +35,8 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.idp.service.common.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLVerificator;
-import pl.edu.icm.unity.saml.sp.web.authnEditor.SAMLConfiguration.SloMapping;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
@@ -73,12 +73,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
-
 	private InputTranslationProfileFieldFactory profileFieldFactory;
-
 	private RegistrationsManagement registrationMan;
-
-	private Binder<SAMLConfiguration> configBinder;
+	private Binder<SAMLAuthneticatorConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
 	private Set<String> credentials;
@@ -120,7 +117,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		boolean editMode = init(msg.getMessage("SAMLAuthenticatorEditor.defaultName"), toEdit,
 				forceNameEditable);
 
-		configBinder = new Binder<>(SAMLConfiguration.class);
+		configBinder = new Binder<>(SAMLAuthneticatorConfiguration.class);
 
 		FormLayoutWithFixedCaptionWidth header = buildHeaderSection();
 		CollapsibleLayout trustedFederations = buildTrustedFederationsSection();
@@ -137,7 +134,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		mainView.addComponent(metadataPublishing);
 		mainView.addComponent(singleLogout);
 
-		SAMLConfiguration config = new SAMLConfiguration();
+		SAMLAuthneticatorConfiguration config = new SAMLAuthneticatorConfiguration();
 		if (editMode)
 		{
 			config.fromProperties(pkiMan, uriAccessService, msg, toEdit.configuration);
@@ -286,7 +283,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			boolean isEmpty = value == null || (value.getLocal() == null
 					&& (value.getRemote() == null || value.getRemote().isEmpty()));
 
-			if (!autoGenerateMetadata.getValue() && isEmpty)
+			if (publishMetadata.getValue() && (!autoGenerateMetadata.getValue() && isEmpty))
 			{
 				return ValidationResult.error(msg.getMessage("SAMLAuthenticatorEditor.spMetaEmpty"));
 			}
@@ -295,7 +292,6 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		}));
 		metadataSource.setEnabled(false);
-
 		metadataPublishing.addComponent(metadataSource);
 
 		publishMetadata.addValueChangeListener(e -> {
@@ -328,7 +324,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		singleLogout.addComponent(sloRealm);
 		configBinder.forField(sloRealm).bind("sloRealm");
 
-		GridWithEditor<SloMapping> sloMappings = new GridWithEditor<>(msg, SloMapping.class);
+		GridWithEditor<SAMLIdentityMapping> sloMappings = new GridWithEditor<>(msg, SAMLIdentityMapping.class);
 		sloMappings.setCaption(msg.getMessage("SAMLAuthenticatorEditor.sloMappings"));
 		singleLogout.addComponent(sloMappings);
 		sloMappings.addComboColumn(s -> s.getUnityId(), (t, v) -> t.setUnityId(v),
@@ -348,7 +344,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		if (idps != null && idps.getValue() != null)
 		{
-			for (IndividualTrustedSamlIdpConfiguration i : idps.getValue())
+			for (SAMLIndividualTrustedSamlIdpConfiguration i : idps.getValue())
 			{
 				v |= i.isSignRequest();
 
@@ -381,9 +377,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		return registrationMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toSet());
 	}
 
-	private class TrustedFederationComponent extends CustomField<List<TrustedFederationConfiguration>>
+	private class TrustedFederationComponent extends CustomField<List<SAMLAuthnTrustedFederationConfiguration>>
 	{
-		private GridWithActionColumn<TrustedFederationConfiguration> federationList;
+		private GridWithActionColumn<SAMLAuthnTrustedFederationConfiguration> federationList;
 
 		public TrustedFederationComponent()
 		{
@@ -399,7 +395,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			VerticalLayout main = new VerticalLayout();
 			main.setMargin(false);
 
-			Button add = new Button(msg.getMessage("TrustedFederationComponent.addFederation"));
+			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
 			add.setIcon(Images.add.getResource());
 			main.addComponent(add);
@@ -408,18 +404,20 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			return main;
 		}
 
-		private List<SingleActionHandler<TrustedFederationConfiguration>> getActionsHandlers()
+		private List<SingleActionHandler<SAMLAuthnTrustedFederationConfiguration>> getActionsHandlers()
 		{
-			SingleActionHandler<TrustedFederationConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg, TrustedFederationConfiguration.class).withHandler(r -> {
-						TrustedFederationConfiguration edited = r.iterator().next();
+			SingleActionHandler<SAMLAuthnTrustedFederationConfiguration> edit = SingleActionHandler
+					.builder4Edit(msg, SAMLAuthnTrustedFederationConfiguration.class)
+					.withHandler(r -> {
+						SAMLAuthnTrustedFederationConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
 					}
 
 					).build();
 
-			SingleActionHandler<TrustedFederationConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg, TrustedFederationConfiguration.class).withHandler(r -> {
+			SingleActionHandler<SAMLAuthnTrustedFederationConfiguration> remove = SingleActionHandler
+					.builder4Delete(msg, SAMLAuthnTrustedFederationConfiguration.class)
+					.withHandler(r -> {
 						federationList.removeElement(r.iterator().next());
 						fireChange();
 					}).build();
@@ -438,7 +436,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					});
 		}
 
-		private void gotoEdit(TrustedFederationConfiguration edited)
+		private void gotoEdit(SAMLAuthnTrustedFederationConfiguration edited)
 		{
 			gotoEditSubView(edited,
 					federationList.getElements().stream()
@@ -451,8 +449,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					});
 		}
 
-		private void gotoEditSubView(TrustedFederationConfiguration edited, Set<String> usedNames,
-				Consumer<TrustedFederationConfiguration> onConfirm)
+		private void gotoEditSubView(SAMLAuthnTrustedFederationConfiguration edited, Set<String> usedNames,
+				Consumer<SAMLAuthnTrustedFederationConfiguration> onConfirm)
 		{
 			Set<String> forms;
 			Set<String> validators;
@@ -484,27 +482,27 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		}
 
 		@Override
-		public List<TrustedFederationConfiguration> getValue()
+		public List<SAMLAuthnTrustedFederationConfiguration> getValue()
 		{
 			return federationList.getElements();
 		}
 
 		@Override
-		protected void doSetValue(List<TrustedFederationConfiguration> value)
+		protected void doSetValue(List<SAMLAuthnTrustedFederationConfiguration> value)
 		{
 			federationList.setItems(value);
 		}
 
 		private void fireChange()
 		{
-			fireEvent(new ValueChangeEvent<List<TrustedFederationConfiguration>>(this,
+			fireEvent(new ValueChangeEvent<List<SAMLAuthnTrustedFederationConfiguration>>(this,
 					federationList.getElements(), true));
 		}
 	}
 
-	private class IndividualTrustedIdpComponent extends CustomField<List<IndividualTrustedSamlIdpConfiguration>>
+	private class IndividualTrustedIdpComponent extends CustomField<List<SAMLIndividualTrustedSamlIdpConfiguration>>
 	{
-		private GridWithActionColumn<IndividualTrustedSamlIdpConfiguration> idpList;
+		private GridWithActionColumn<SAMLIndividualTrustedSamlIdpConfiguration> idpList;
 
 		public IndividualTrustedIdpComponent()
 		{
@@ -515,7 +513,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		}
 
 		@Override
-		public List<IndividualTrustedSamlIdpConfiguration> getValue()
+		public List<SAMLIndividualTrustedSamlIdpConfiguration> getValue()
 		{
 			return idpList.getElements();
 		}
@@ -526,7 +524,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			VerticalLayout main = new VerticalLayout();
 			main.setMargin(false);
 
-			Button add = new Button(msg.getMessage("IndividualTrustedIdpComponent.addIdp"));
+			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
 			add.setIcon(Images.add.getResource());
 			main.addComponent(add);
@@ -535,19 +533,19 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			return main;
 		}
 
-		private List<SingleActionHandler<IndividualTrustedSamlIdpConfiguration>> getActionsHandlers()
+		private List<SingleActionHandler<SAMLIndividualTrustedSamlIdpConfiguration>> getActionsHandlers()
 		{
-			SingleActionHandler<IndividualTrustedSamlIdpConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg, IndividualTrustedSamlIdpConfiguration.class)
+			SingleActionHandler<SAMLIndividualTrustedSamlIdpConfiguration> edit = SingleActionHandler
+					.builder4Edit(msg, SAMLIndividualTrustedSamlIdpConfiguration.class)
 					.withHandler(r -> {
-						IndividualTrustedSamlIdpConfiguration edited = r.iterator().next();
+						SAMLIndividualTrustedSamlIdpConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
 					}
 
 					).build();
 
-			SingleActionHandler<IndividualTrustedSamlIdpConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg, IndividualTrustedSamlIdpConfiguration.class)
+			SingleActionHandler<SAMLIndividualTrustedSamlIdpConfiguration> remove = SingleActionHandler
+					.builder4Delete(msg, SAMLIndividualTrustedSamlIdpConfiguration.class)
 					.withHandler(r -> {
 						idpList.removeElement(r.iterator().next());
 						fireChange();
@@ -567,7 +565,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					});
 		}
 
-		private void gotoEdit(IndividualTrustedSamlIdpConfiguration edited)
+		private void gotoEdit(SAMLIndividualTrustedSamlIdpConfiguration edited)
 		{
 			gotoEditSubView(edited,
 					idpList.getElements().stream().filter(p -> p.getName() != edited.getName())
@@ -579,8 +577,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					});
 		}
 
-		private void gotoEditSubView(IndividualTrustedSamlIdpConfiguration edited, Set<String> usedNames,
-				Consumer<IndividualTrustedSamlIdpConfiguration> onConfirm)
+		private void gotoEditSubView(SAMLIndividualTrustedSamlIdpConfiguration edited, Set<String> usedNames,
+				Consumer<SAMLIndividualTrustedSamlIdpConfiguration> onConfirm)
 		{
 			Set<String> forms;
 			Set<String> certificates;
@@ -610,14 +608,14 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		}
 
 		@Override
-		protected void doSetValue(List<IndividualTrustedSamlIdpConfiguration> value)
+		protected void doSetValue(List<SAMLIndividualTrustedSamlIdpConfiguration> value)
 		{
 			idpList.setItems(value);
 		}
 
 		private void fireChange()
 		{
-			fireEvent(new ValueChangeEvent<List<IndividualTrustedSamlIdpConfiguration>>(this,
+			fireEvent(new ValueChangeEvent<List<SAMLIndividualTrustedSamlIdpConfiguration>>(this,
 					idpList.getElements(), true));
 		}
 

@@ -225,6 +225,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 	protected void doSetValue(List<T> value)
 	{
 		grid.setItems(value);
+		newElement = null;
 	}
 
 	public static interface EmbeddedEditor<T> extends Component

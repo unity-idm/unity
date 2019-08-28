@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-public abstract class DefaultServicesControllerBase implements ServiceController
+public abstract class DefaultServicesControllerBase implements ServiceControllerBaseInt
 {
 	protected UnityMessageSource msg;
 	protected EndpointManagement endpointMan;

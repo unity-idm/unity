@@ -86,6 +86,7 @@ public abstract class EditServiceViewBase extends ViewWithSubViewBase
 		mainView.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg, () -> onConfirm(),
 				() -> onCancel()));
 		setMainView(mainView);
+		refreshBreadCrumbs();
 	}
 
 	private void onConfirm()

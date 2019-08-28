@@ -34,6 +34,8 @@ import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.authn.services.authnlayout.ServiceWebConfiguration;
+import pl.edu.icm.unity.webui.authn.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.authn.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
@@ -61,7 +63,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, OutputTranslationProfileFieldFactory profileFieldFactory,
 			ServiceDefinition toEdit, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<Group> allGroups, List<OAuthUser> allUsers,
+			List<AuthenticatorInfo> authenticators, List<Group> allGroups, List<IdpUser> allUsers,
 			List<OAuthClient> allClients, List<String> registrationForms, Set<String> credentials,
 			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
 			List<String> attrTypes, List<String> usedPaths)
@@ -96,7 +98,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 				OAuthTokenEndpoint.TYPE.getSupportedBinding(), oauthServiceTokenBinder,
 				oauthConfigBinder, clientsBinder);
 
-		OAuthEditorUsersTab usersTab = new OAuthEditorUsersTab(msg, oauthConfigBinder, allGroups, allUsers,
+		IdpEditorUsersTab usersTab = new IdpEditorUsersTab(msg, oauthConfigBinder, allGroups, allUsers,
 				attrTypes);
 
 		generalTab.addNameValueChangeListener(e -> {

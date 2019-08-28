@@ -57,6 +57,7 @@ public abstract class NewServiceViewBase extends ViewWithSubViewBase
 		mainView.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> onConfirm(),
 				() -> onCancel()));
 		setMainView(mainView);
+		refreshBreadCrumbs();
 	}
 
 	private void onConfirm()

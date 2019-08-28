@@ -72,7 +72,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		String entityId = meta.getEntityID();
 		for (IDPSSODescriptorType idpDef: idpDefs)
 		{
-			if (!supportsSaml2(idpDef))
+			if (!MetaToConfigConverterHelper.supportsSaml2(idpDef))
 			{
 				log.trace("IDP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
 				continue;
@@ -115,9 +115,9 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 						+ "skipping IdP: " + entityId, e);
 				continue;
 			}
-			UIInfoType uiInfo = parseMDUIInfo(idpDef.getExtensions(), entityId);
-			Map<String, String> names = getLocalizedNames(uiInfo, idpDef, meta);
-			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
+			UIInfoType uiInfo = MetaToConfigConverterHelper.parseMDUIInfo(idpDef.getExtensions(), entityId);
+			Map<String, String> names = MetaToConfigConverterHelper.getLocalizedNames(msg, uiInfo, idpDef, meta);
+			Map<String, LogoType> logos = MetaToConfigConverterHelper.getLocalizedLogos(uiInfo);
 			
 			if (webEndpoint != null)
 			{

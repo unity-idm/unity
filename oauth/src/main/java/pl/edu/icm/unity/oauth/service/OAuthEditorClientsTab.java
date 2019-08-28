@@ -37,6 +37,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
+import pl.edu.icm.unity.webui.authn.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -69,14 +70,14 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 	private List<String> flows;
 	private List<String> authenticators;
 	private List<Group> groups;
-	private List<OAuthUser> users;
+	private List<IdpUser> users;
 
 	private MandatoryGroupSelection groupCombo;
 
 	OAuthEditorClientsTab(UnityMessageSource msg, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, SubViewSwitcher subViewSwitcher,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<Group> groups, List<OAuthUser> users, String binding,
+			List<String> allRealms, List<Group> groups, List<IdpUser> users, String binding,
 			Binder<DefaultServiceDefinition> oauthTokenBinder,
 			Binder<OAuthServiceConfiguration> configBinder, Binder<OAuthClientsBean> clientsBinder)
 	{
