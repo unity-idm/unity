@@ -64,7 +64,9 @@ public class AuthenticationFlowsComponent extends CustomComponent
 				}).setId("name");
 		flowsGrid.setItems(getFlows());
 		flowsGrid.sort("name");
-
+		flowsGrid.setHeightByRows(false);
+		flowsGrid.setHeight(100, Unit.PERCENTAGE);
+		
 		VerticalLayout main = new VerticalLayout();
 		Label flowCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
 		flowCaption.setStyleName(Styles.sectionTitle.toString());

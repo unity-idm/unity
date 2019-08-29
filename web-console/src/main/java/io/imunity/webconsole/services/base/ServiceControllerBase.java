@@ -20,7 +20,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * 
+ * Common part for idp and standard service controllers
  * @author P.Piernik
  *
  */

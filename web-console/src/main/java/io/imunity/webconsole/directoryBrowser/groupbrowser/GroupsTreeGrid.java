@@ -147,6 +147,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			loadNode("/", null);
 			expand(treeData.getRootItems());
+			if( treeData.getRootItems().size() > 0)
+			{
+				select(treeData.getRootItems().get(0));
+			}
 
 		} catch (ControllerException e)
 		{

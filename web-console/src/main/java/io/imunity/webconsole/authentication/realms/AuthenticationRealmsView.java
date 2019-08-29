@@ -82,6 +82,8 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 		
 		realmsGrid.setItems(getRealms());
 		realmsGrid.sort("name");
+		realmsGrid.setHeightByRows(false);
+		realmsGrid.setHeight(100, Unit.PERCENTAGE);
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);

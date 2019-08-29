@@ -15,6 +15,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webconsole.directoryBrowser.attributes.AttributesComponentPanel;
@@ -26,6 +27,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
 
@@ -79,6 +81,7 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 		setSizeFull();
 
 		setCompositionRoot(mainL);
+		WebSession.getCurrent().getEventBus().fireEvent(new GroupChangedEvent("/"));
 	}
 
 	@Override

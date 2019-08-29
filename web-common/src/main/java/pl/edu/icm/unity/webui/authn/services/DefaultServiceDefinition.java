@@ -13,6 +13,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Contains information necessary for create or update service
+ * 
  * @author P.Piernik
  *
  */
@@ -31,9 +32,9 @@ public class DefaultServiceDefinition implements ServiceDefinition
 
 	public DefaultServiceDefinition()
 	{
-		
+
 	}
-	
+
 	public DefaultServiceDefinition(ResolvedEndpoint base)
 	{
 		setTypeId(base.getType().getName());
@@ -46,7 +47,7 @@ public class DefaultServiceDefinition implements ServiceDefinition
 		setName(base.getName());
 		setState(base.getEndpoint().getState());
 		setBinding(base.getType().getSupportedBinding());
-		
+
 	}
 
 	public DefaultServiceDefinition(String type)
@@ -145,7 +146,7 @@ public class DefaultServiceDefinition implements ServiceDefinition
 	{
 		return binding;
 	}
-	
+
 	public void setState(EndpointState state)
 	{
 		this.state = state;
@@ -155,6 +156,5 @@ public class DefaultServiceDefinition implements ServiceDefinition
 	{
 		this.binding = binding;
 	}
-
 
 }

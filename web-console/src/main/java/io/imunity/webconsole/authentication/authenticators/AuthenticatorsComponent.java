@@ -66,6 +66,8 @@ public class AuthenticatorsComponent extends CustomComponent
 		;
 		authenticatorsGrid.setItems(getAuthenticators());
 		authenticatorsGrid.sort("name");
+		authenticatorsGrid.setHeightByRows(false);
+		authenticatorsGrid.setHeight(100, Unit.PERCENTAGE);
 
 		VerticalLayout main = new VerticalLayout();
 		Label authCaption = new Label(msg.getMessage("AuthenticatorsComponent.caption"));

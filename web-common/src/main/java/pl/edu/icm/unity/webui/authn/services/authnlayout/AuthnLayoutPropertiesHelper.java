@@ -67,6 +67,7 @@ public class AuthnLayoutPropertiesHelper
 				I18nString sepVal = properties.getLocalizedStringWithoutFallbackToDefault(msg,
 						columnKey + VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR);
 				I18nTextField sepField = new I18nTextField(msg);
+				sepField.setPlaceholder(msg.getMessage("WebServiceAuthnScreenLayoutEditor.separator"));
 
 				if (sepVal != null)
 				{

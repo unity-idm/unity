@@ -27,6 +27,7 @@ public class ChipsWithFreeText extends ChipsWithDropdown<String>
 			return Optional.of(s);
 		});
 		combo.setDescription(msg.getMessage("addWithEnter"));
+		combo.setPlaceholder(msg.getMessage("addWithEnter"));
 	}
 	
 	@Override

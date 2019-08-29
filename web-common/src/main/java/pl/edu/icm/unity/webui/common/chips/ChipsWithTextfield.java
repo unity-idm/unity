@@ -55,6 +55,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		chipsRow.setVisible(false);
 
 		textInput = new TextField();
+		textInput.setPlaceholder(msg.getMessage("addWithEnter"));
 		ShortcutListener shortcutListener = new ShortcutListener("Default key", KeyCode.ENTER, null)
 		{
 			@Override

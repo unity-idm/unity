@@ -104,6 +104,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 			if (columns.size() > 1)
 			{
 				I18nTextField field = new I18nTextField(msg);
+				field.setPlaceholder(msg.getMessage("WebServiceAuthnScreenLayoutEditor.separator"));
 				field.addValueChangeListener(e -> valueChange.run());
 				separators.add(field);
 			}
