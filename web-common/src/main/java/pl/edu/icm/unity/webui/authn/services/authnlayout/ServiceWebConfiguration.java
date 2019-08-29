@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
@@ -44,6 +45,8 @@ public class ServiceWebConfiguration
 
 	private Properties authnScreenProperties;
 	private Properties layoutForRetUserProperties;
+	private String defaultMainTheme;
+	private String defaultAuthnTheme;
 
 	public ServiceWebConfiguration(List<String> regForms)
 	{
@@ -64,8 +67,17 @@ public class ServiceWebConfiguration
 				VaadinEndpointProperties.PREFIX
 						+ VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT,
 				VaadinEndpointProperties.DEFAULT_AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT_CONTENT);
+		
+		defaultMainTheme = ThemeConstans.sidebarTheme;
+		defaultAuthnTheme = ThemeConstans.unityTheme;	
 	}
 
+	public ServiceWebConfiguration(String defaultMainTheme)
+	{
+		this();
+		this.defaultMainTheme = defaultMainTheme;
+	}
+	
 	public Properties toProperties(UnityMessageSource msg, FileStorageService fileStorageService,
 			String serviceName)
 	{
@@ -116,6 +128,9 @@ public class ServiceWebConfiguration
 			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
 		}
 
+		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
+		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
+		
 		raw.putAll(authnScreenProperties);
 		raw.putAll(layoutForRetUserProperties);
 
@@ -241,6 +256,8 @@ public class ServiceWebConfiguration
 		layoutForRetUserProperties.putAll(labels);
 		authnScreenProperties.putAll(labels);
 
+		defaultMainTheme = vaadinProperties.getValue(VaadinEndpointProperties.THEME);
+		defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);	
 	}
 
 	public boolean isShowSearch()

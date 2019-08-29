@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  * @author P.Piernik
  *
  */
-public class WebServiceEditorBase implements ServiceEditor
+public class WebServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
 	private List<String> allRealms;
@@ -41,13 +41,14 @@ public class WebServiceEditorBase implements ServiceEditor
 	private AuthenticatorSupportService authenticatorSupportService;
 	private List<String> usedPaths;
 	private EndpointTypeDescription type;
+	private String defaultMainTheme;
 
-	public WebServiceEditorBase(EndpointTypeDescription type, UnityMessageSource msg,
+	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> registrationForms, List<String> usedPaths,
-			AuthenticatorSupportService authenticatorSupportService)
+			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -60,6 +61,7 @@ public class WebServiceEditorBase implements ServiceEditor
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.usedPaths = usedPaths;
 		this.type = type;
+		this.defaultMainTheme = defaultMainTheme;
 	}
 
 	@Override
@@ -67,7 +69,7 @@ public class WebServiceEditorBase implements ServiceEditor
 	{
 		editor = new WebServiceEditorComponent(msg, type, uriAccessService, fileStorageService, serverConfig,
 				(DefaultServiceDefinition) endpoint, allRealms, flows, authenticators,
-				registrationForms, usedPaths, authenticatorSupportService);
+				registrationForms, usedPaths, authenticatorSupportService, defaultMainTheme);
 
 		return editor;
 	}

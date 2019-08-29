@@ -38,7 +38,9 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, DefaultServiceDefinition toEdit, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> registrationForms, List<String> usedPaths, AuthenticatorSupportService authenticatorSupportService)
+			List<String> registrationForms, List<String> usedPaths,
+			AuthenticatorSupportService authenticatorSupportService,
+			String defaultMainTheme)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
@@ -52,7 +54,7 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 				type.getSupportedBinding(), serviceBinder, webConfigBinder));
 
 		DefaultServiceDefinition service = new DefaultServiceDefinition(type.getName());
-		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
+		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(defaultMainTheme);
 
 		if (editMode)
 		{

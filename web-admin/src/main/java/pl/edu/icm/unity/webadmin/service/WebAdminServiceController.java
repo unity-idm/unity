@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
 import pl.edu.icm.unity.webui.authn.services.WebServiceControllerBase;
+import pl.edu.icm.unity.webui.common.ThemeConstans;
 
 /**
  * 
@@ -36,6 +37,6 @@ public class WebAdminServiceController extends WebServiceControllerBase
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		super(WebAdminEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
-				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService);
+				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService, ThemeConstans.unityTheme);
 	}
 }

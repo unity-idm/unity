@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.webui.authn.services;
 
 import java.util.stream.Collectors;
@@ -20,6 +19,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
@@ -38,12 +38,26 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
 	private EndpointTypeDescription type;
+	private String defaultMainTheme;
 
-	public WebServiceControllerBase(EndpointTypeDescription type, UnityMessageSource msg, EndpointManagement endpointMan,
-			RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan, RegistrationsManagement registrationMan,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService)
+	public WebServiceControllerBase(EndpointTypeDescription type, UnityMessageSource msg,
+			EndpointManagement endpointMan, RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
+			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService)
+	{
+		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService,
+				fileStorageService, serverConfig, authenticatorSupportService,
+				ThemeConstans.sidebarTheme);
+	}
+
+	public WebServiceControllerBase(EndpointTypeDescription type, UnityMessageSource msg,
+			EndpointManagement endpointMan, RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
+			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -55,6 +69,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.type = type;
+		this.defaultMainTheme = defaultMainTheme;
 	}
 
 	@Override
@@ -66,13 +81,13 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	@Override
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
-		return new WebServiceEditorBase(type, msg, uriAccessService, fileStorageService, serverConfig,
+		return new WebServiceEditor(type, msg, uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				registrationMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
-				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
-						.collect(Collectors.toList()),
-				authenticatorSupportService);
+				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(
+						Collectors.toList()),
+				authenticatorSupportService, defaultMainTheme);
 	}
 }

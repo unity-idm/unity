@@ -32,7 +32,7 @@ public class DefaultServiceDefinition implements ServiceDefinition
 
 	public DefaultServiceDefinition()
 	{
-
+		displayedName = new I18nString();
 	}
 
 	public DefaultServiceDefinition(ResolvedEndpoint base)
@@ -47,11 +47,11 @@ public class DefaultServiceDefinition implements ServiceDefinition
 		setName(base.getName());
 		setState(base.getEndpoint().getState());
 		setBinding(base.getType().getSupportedBinding());
-
 	}
 
 	public DefaultServiceDefinition(String type)
 	{
+		this();
 		typeId = type;
 	}
 

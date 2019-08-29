@@ -44,6 +44,7 @@ import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
+import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
@@ -94,7 +95,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 				: new DefaultServiceDefinition(UserHomeEndpointFactory.TYPE.getName()));
 
 		HomeServiceConfiguration config = new HomeServiceConfiguration();
-		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
+		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(ThemeConstans.unityTheme);
 
 		if (editMode && toEdit.getConfiguration() != null)
 		{
