@@ -28,6 +28,8 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -257,4 +259,17 @@ public class TestEndpoints extends DBIntegrationTestBase
 		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(0).getId() , is("auth1"));
 		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(1).getId() , is("auth2"));
 	}
+	
+	@Test
+	public void shouldUndeployEndpoint() throws Exception
+	{
+		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", new ArrayList<String>(), "", REALM_NAME);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg2);
+		endpointMan.undeploy("endpoint1");	
+		List<Endpoint> endpoints = endpointMan.getEndpoints();
+		assertThat(endpoints.size() , is(1));	
+		Endpoint endpoint = endpoints.get(0);
+		assertThat(endpoint.getState() , is(EndpointState.UNDEPLOYED));	
+	}	
 }

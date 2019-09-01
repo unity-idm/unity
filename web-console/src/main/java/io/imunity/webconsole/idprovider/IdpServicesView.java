@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
+ * Shows IDP services list
  * 
  * @author P.Piernik
  *

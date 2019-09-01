@@ -10,7 +10,8 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 /**
- * Contains information about single identity 
+ * Contains information about single identity
+ * 
  * @author P.Piernik
  *
  */

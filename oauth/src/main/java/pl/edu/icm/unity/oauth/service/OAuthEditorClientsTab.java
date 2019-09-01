@@ -88,7 +88,6 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		this.oauthTokenBinder = oauthTokenBinder;
 		this.configBinder = configBinder;
 		this.clientsBinder = clientsBinder;
-
 		this.allRealms = allRealms;
 		this.flows = WebServiceAuthenticationTab.filterAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
@@ -139,7 +138,6 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		clientsBinder.forField(clients).bind("clients");
 
 		return mainClientLayout;
-
 	}
 
 	private Component buildAuthenticationSection()
@@ -276,7 +274,6 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 
 		private void gotoEditSubView(OAuthClient edited, Consumer<OAuthClient> onConfirm)
 		{
-
 			EditOAuthClientSubView subView = new EditOAuthClientSubView(msg, uriAccessService, serverConfig,
 					getClientsIds(edited), edited, c -> {
 						onConfirm.accept(c);
@@ -334,7 +331,6 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 			clientsList.addFilter(removedFilter);
 			clientsList.addFilter(c -> c.getGroup().equals(path));
 		}
-
 	}
 
 	public void addGroupValueChangeListener(ValueChangeListener<GroupWithIndentIndicator> listener)

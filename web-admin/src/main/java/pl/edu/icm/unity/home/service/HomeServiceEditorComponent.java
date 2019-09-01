@@ -50,6 +50,7 @@ import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 
 /**
+ * Home service editor component. 
  * 
  * @author P.Piernik
  *
@@ -86,17 +87,14 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
 		homeBinder = new Binder<>(HomeServiceConfiguration.class);
 		webConfigBinder = new Binder<>(ServiceWebConfiguration.class);
-
 		registerTab(new HomeGeneralTab(msg, serviceBinder, UserHomeEndpointFactory.TYPE, usedPaths, editMode));
 		registerTab(new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
 				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
 				UserHomeEndpointFactory.TYPE.getSupportedBinding(), serviceBinder, webConfigBinder));
 		serviceBinder.setBean(editMode ? toEdit
 				: new DefaultServiceDefinition(UserHomeEndpointFactory.TYPE.getName()));
-
 		HomeServiceConfiguration config = new HomeServiceConfiguration();
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(ThemeConstans.unityTheme);
-
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg, extraTab, allGroups);
@@ -189,9 +187,9 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 			MandatoryGroupSelection groupCombo = new MandatoryGroupSelection(msg);
 			groupCombo.setItems(allGroups);
 
-			exposedAttributes.addCustomColumn(s -> s.getGroup(), g -> g.group.getDisplayedName().getValue(msg),
-					(t, v) -> t.setGroup(v), groupCombo,
-					msg.getMessage("HomeServiceEditorComponent.attributeGroup"), 20);
+			exposedAttributes.addCustomColumn(s -> s.getGroup(),
+					g -> g.group.getDisplayedName().getValue(msg), (t, v) -> t.setGroup(v),
+					groupCombo, msg.getMessage("HomeServiceEditorComponent.attributeGroup"), 20);
 
 			exposedAttributes.setWidth(100, Unit.PERCENTAGE);
 			homeBinder.forField(exposedAttributes).bind("exposedAttributes");
@@ -418,7 +416,8 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg, String extraTab, List<Group> allGroups)
+		public void fromProperties(String properties, UnityMessageSource msg, String extraTab,
+				List<Group> allGroups)
 		{
 			Properties raw = new Properties();
 			try
@@ -446,11 +445,11 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 			{
 				ExposedAttribute attr = new ExposedAttribute();
 				attr.setName(homeProperties.getValue(key + HomeEndpointProperties.GWA_ATTRIBUTE));
-					
-				String groupPath = homeProperties
-						.getValue(key + HomeEndpointProperties.GWA_GROUP);
+
+				String groupPath = homeProperties.getValue(key + HomeEndpointProperties.GWA_GROUP);
 				attr.setGroup(new GroupWithIndentIndicator(
-						allGroups.stream().filter(g -> g.toString().equals(groupPath)).findFirst().orElse(new Group(groupPath)),
+						allGroups.stream().filter(g -> g.toString().equals(groupPath))
+								.findFirst().orElse(new Group(groupPath)),
 						false));
 				attr.setEditable(homeProperties
 						.getBooleanValue(key + HomeEndpointProperties.GWA_EDITABLE));

@@ -13,15 +13,16 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.services.ServiceControllersRegistry;
 
 /**
+ * Controller for standard services
  * 
  * @author P.Piernik
  *
  */
 @Component
 class ServicesController extends ServiceControllerBase
-{			
+{
 	ServicesController(UnityMessageSource msg, EndpointManagement endpointMan,
-			 ServiceControllersRegistry controllersRegistry)
+			ServiceControllersRegistry controllersRegistry)
 	{
 		super(msg, endpointMan, controllersRegistry);
 	}

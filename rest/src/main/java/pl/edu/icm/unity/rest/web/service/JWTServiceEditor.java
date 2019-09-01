@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  * @author P.Piernik
  *
  */
-public class JWTServiceEditor implements ServiceEditor
+class JWTServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
 	private List<String> allRealms;
@@ -33,7 +33,7 @@ public class JWTServiceEditor implements ServiceEditor
 	private JWTServiceEditorComponent editor;
 	private List<String> usedPaths;
 
-	public JWTServiceEditor(UnityMessageSource msg, List<String> allRealms,
+	JWTServiceEditor(UnityMessageSource msg, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			Set<String> credentials, List<String> usedPaths)
 	{

@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
+ * Controller for service which support web authentication
  * 
  * @author P.Piernik
  *

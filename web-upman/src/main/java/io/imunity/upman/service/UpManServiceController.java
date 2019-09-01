@@ -21,18 +21,19 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.services.WebServiceControllerBase;
 
 /**
+ * Upman service controller. Based on the standard web service editor
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class UpManServiceController extends WebServiceControllerBase
+class UpManServiceController extends WebServiceControllerBase
 {
-	public UpManServiceController(UnityMessageSource msg, EndpointManagement endpointMan,
-			RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan, RegistrationsManagement registrationMan,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService)
+	UpManServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
+			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService)
 	{
 		super(UpManEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
 				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService);

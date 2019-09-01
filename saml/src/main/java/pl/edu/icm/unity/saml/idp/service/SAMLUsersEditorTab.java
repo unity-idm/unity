@@ -60,17 +60,14 @@ class SAMLUsersEditorTab extends IdpEditorUsersTab
 
 		groupMappings = new GridWithEditor<>(msg, GroupMapping.class);
 		groupMappingLayout.addComponent(groupMappings);
-
 		clientsCombo = new ComboBox<String>();
 		clientsCombo.setEmptySelectionAllowed(false);
 		groupMappings.addCustomColumn(m -> m.getClientId(), m -> m, (t, v) -> t.setClientId(v), clientsCombo,
 				msg.getMessage("IdpEditorUsersTab.client"), 30);
-
 		MandatoryGroupSelection groupCombo = new MandatoryGroupSelection(msg);
 		groupCombo.setWidth(30, Unit.EM);
 		groupCombo.setItems(allGroups);
 		groupCombo.setRequiredIndicatorVisible(false);
-
 		groupMappings.addCustomColumn(m -> m.getGroup(),
 				m -> m != null ? m.group.getDisplayedName().getValue(msg) : "", (t, v) -> t.setGroup(v),
 				groupCombo, msg.getMessage("SAMLUsersEditorTab.group"), 30);

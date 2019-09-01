@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 
 /**
- * OAuth service editor users tab
+ * Common Idp service editor users tab
  * 
  * @author P.Piernik
  *

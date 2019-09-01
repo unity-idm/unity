@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
+ * Controller for JWT service. 
  * 
  * @author P.Piernik
  *

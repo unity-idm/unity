@@ -24,6 +24,8 @@ import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
+ * Service editor component with web authentication configuration support. It
+ * consists of two tabs: general and authentication.
  * 
  * @author P.Piernik
  *
@@ -39,33 +41,27 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 			UnityServerConfiguration serverConfig, DefaultServiceDefinition toEdit, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> registrationForms, List<String> usedPaths,
-			AuthenticatorSupportService authenticatorSupportService,
-			String defaultMainTheme)
+			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
 
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
 		webConfigBinder = new Binder<>(ServiceWebConfiguration.class);
-
 		registerTab(new GeneralTab(msg, serviceBinder, type, usedPaths, editMode));
 		registerTab(new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
 				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
 				type.getSupportedBinding(), serviceBinder, webConfigBinder));
-
 		DefaultServiceDefinition service = new DefaultServiceDefinition(type.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(defaultMainTheme);
-
 		if (editMode)
 		{
 			service = (DefaultServiceDefinition) toEdit;
-
 			if (service.getConfiguration() != null)
 			{
 				webConfig.fromProperties(service.getConfiguration(), msg, uriAccessService);
 			}
 		}
-
 		serviceBinder.setBean(service);
 		webConfigBinder.setBean(webConfig);
 	}

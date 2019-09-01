@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webui.authn.services;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
+ * Convert service binding and type to more readable form
  * 
  * @author P.Piernik
  *

@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
 /**
- * Subview for edit oauth client. 
+ * Subview for edit oauth client.
  * 
  * @author P.Piernik
  *
@@ -59,17 +59,14 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
-
 		this.allClientsIds = allClientsIds;
 
 		editMode = toEdit != null;
 		binder = new Binder<>(OAuthClient.class);
-
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(buildHeaderSection());
 		mainView.addComponent(buildConsentScreenSection());
-
 		Runnable onConfirmR = () -> {
 			try
 			{
@@ -80,13 +77,12 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 						msg.getMessage("EditOAuthClientSubView.invalidConfiguration"), e);
 			}
 		};
-
 		mainView.addComponent(editMode
 				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
 				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
 
-		binder.setBean(editMode ? toEdit.clone() : new OAuthClient(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-
+		binder.setBean(editMode ? toEdit.clone()
+				: new OAuthClient(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
 		setCompositionRoot(mainView);
 	}
 
@@ -121,7 +117,7 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).asRequired(msg.getMessage("fieldRequired")).bind("secret");
 			header.addComponent(secret);
-			
+
 		} else
 		{
 			TextFieldWithChangeConfirmation secret = new TextFieldWithChangeConfirmation(msg);

@@ -94,7 +94,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @Component
-public class OAuthServiceController implements IdpServiceController
+class OAuthServiceController implements IdpServiceController
 {
 	public static final String DEFAULT_CREDENTIAL = "sys:password";
 	public static final String IDP_CLIENT_MAIN_GROUP = "/IdPs";

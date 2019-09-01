@@ -22,21 +22,22 @@ import pl.edu.icm.unity.webui.authn.services.WebServiceControllerBase;
 import pl.edu.icm.unity.webui.common.ThemeConstans;
 
 /**
+ * Webadmin service controller. Based on the standard web service editor
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class WebAdminServiceController extends WebServiceControllerBase
+class WebAdminServiceController extends WebServiceControllerBase
 {
-	public WebAdminServiceController(UnityMessageSource msg,
-			EndpointManagement endpointMan, RealmsManagement realmsMan,
+	WebAdminServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		super(WebAdminEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
-				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService, ThemeConstans.unityTheme);
+				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService,
+				ThemeConstans.unityTheme);
 	}
 }

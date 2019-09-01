@@ -32,12 +32,13 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 
 /**
+ * Home service controller.
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class HomeServiceController extends DefaultServicesControllerBase implements ServiceController
+class HomeServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;
@@ -51,10 +52,9 @@ public class HomeServiceController extends DefaultServicesControllerBase impleme
 	private URIAccessService uriAccessService;
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
-
 	private AuthenticatorSupportService authenticatorSupportService;
 
-	public HomeServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+	HomeServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			HomeUITabProvider tabProvider, AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 			ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
@@ -103,7 +103,6 @@ public class HomeServiceController extends DefaultServicesControllerBase impleme
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
 						.collect(Collectors.toList()),
-
 				authenticatorSupportService);
 	}
 }

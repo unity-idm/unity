@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  * @author P.Piernik
  *
  */
-public class HomeServiceEditor implements ServiceEditor
+class HomeServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
 	private List<String> allRealms;
@@ -46,7 +46,7 @@ public class HomeServiceEditor implements ServiceEditor
 	private AuthenticatorSupportService authenticatorSupportService;
 	private List<String> usedPaths;
 
-	public HomeServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
+	HomeServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, String extraTab, List<String> allAttributes,

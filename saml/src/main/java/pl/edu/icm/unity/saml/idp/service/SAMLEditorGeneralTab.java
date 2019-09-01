@@ -348,9 +348,7 @@ class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 
 		}));
 		metadataSource.setEnabled(false);
-
 		metadataPublishing.addComponent(metadataSource);
-
 		publishMetadata.addValueChangeListener(e -> {
 			boolean v = e.getValue();
 			signMetadata.setEnabled(v);

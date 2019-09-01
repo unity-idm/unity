@@ -44,6 +44,7 @@ import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
+ * Shows services list
  * 
  * @author P.Piernik
  *
@@ -81,7 +82,8 @@ class ServicesView extends CustomComponent implements UnityView
 		servicesGrid.addComponentColumn(e -> getStatusLabel(e.getState()),
 				msg.getMessage("ServicesView.statusCaption"), 10);
 
-		servicesGrid.addColumn(e -> ServiceTypeInfoHelper.getType(msg, e.getType()), msg.getMessage("ServicesView.typeCaption"), 10);
+		servicesGrid.addColumn(e -> ServiceTypeInfoHelper.getType(msg, e.getType()),
+				msg.getMessage("ServicesView.typeCaption"), 10);
 
 		servicesGrid.addColumn(e -> ServiceTypeInfoHelper.getBinding(msg, e.getBinding()),
 				msg.getMessage("ServicesView.bindingCaption"), 10);
@@ -104,11 +106,11 @@ class ServicesView extends CustomComponent implements UnityView
 	{
 		Label l = new Label();
 		l.setContentMode(ContentMode.HTML);
-		l.setValue(state.equals(EndpointState.DEPLOYED)? Images.ok.getHtml() : Images.reject.getHtml());
+		l.setValue(state.equals(EndpointState.DEPLOYED) ? Images.ok.getHtml() : Images.reject.getHtml());
 		l.setDescription(state.toString());
 		return l;
 	}
-	
+
 	private Collection<ServiceDefinition> getServices()
 	{
 		try
@@ -129,7 +131,8 @@ class ServicesView extends CustomComponent implements UnityView
 
 	private List<SingleActionHandler<ServiceDefinition>> getActionsHandlers()
 	{
-		SingleActionHandler<ServiceDefinition> editGeneral = SingleActionHandler.builder(ServiceDefinition.class)
+		SingleActionHandler<ServiceDefinition> editGeneral = SingleActionHandler
+				.builder(ServiceDefinition.class)
 				.withCaption(msg.getMessage("ServicesView.generalConfig"))
 				.withIcon(Images.cogs.getResource())
 				.withHandler(r -> gotoEdit(r.iterator().next(), ServiceEditorTab.GENERAL)).build();
@@ -146,7 +149,8 @@ class ServicesView extends CustomComponent implements UnityView
 
 	private List<SingleActionHandler<ServiceDefinition>> getHamburgerActionsHandlers()
 	{
-		SingleActionHandler<ServiceDefinition> remove = SingleActionHandler.builder4Delete(msg, ServiceDefinition.class)
+		SingleActionHandler<ServiceDefinition> remove = SingleActionHandler
+				.builder4Delete(msg, ServiceDefinition.class)
 				.withHandler(r -> tryRemove(r.iterator().next())).build();
 		SingleActionHandler<ServiceDefinition> deploy = SingleActionHandler.builder(ServiceDefinition.class)
 				.withCaption(msg.getMessage("ServicesView.deploy")).withIcon(Images.play.getResource())
@@ -188,8 +192,7 @@ class ServicesView extends CustomComponent implements UnityView
 	private void tryRemove(ServiceDefinition endpoint)
 	{
 
-		String confirmText = MessageUtils.createConfirmFromStrings(msg,
-				Arrays.asList(endpoint.getName()));
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, Arrays.asList(endpoint.getName()));
 
 		new ConfirmDialog(msg, msg.getMessage("ServicesView.confirmDelete", confirmText),
 				() -> remove(endpoint)).show();
@@ -239,11 +242,10 @@ class ServicesView extends CustomComponent implements UnityView
 		public ServicesNavigationInfoProvider(UnityMessageSource msg,
 				WebConsoleRootNavigationInfoProvider parent, ObjectFactory<ServicesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)				
-					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.services"))
-					.withIcon(Images.server.getResource()).withPosition(50).build());					
+					.withIcon(Images.server.getResource()).withPosition(50).build());
 		}
 	}
 }

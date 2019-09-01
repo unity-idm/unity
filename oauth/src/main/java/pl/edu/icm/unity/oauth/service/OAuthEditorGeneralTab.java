@@ -96,7 +96,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		this.subViewSwitcher = subViewSwitcher;
 		this.profileFieldFactory = profileFieldFactory;
 		this.usedPaths = usedPaths;
-		serverPrefix = server.getAdvertisedAddress().toString();
+		this.serverPrefix = server.getAdvertisedAddress().toString();
 		initUI();
 	}
 

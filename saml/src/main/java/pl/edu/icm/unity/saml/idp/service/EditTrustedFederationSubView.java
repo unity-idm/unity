@@ -88,13 +88,10 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		this.usedNames = usedNames;
 
 		editMode = toEdit != null;
-
 		binder = new Binder<>(SAMLServiceTrustedFederationConfiguration.class);
 		FormLayout header = buildHeaderSection();
 		CollapsibleLayout fetchMeta = buildFederationFetchSection();
-
 		binder.setBean(editMode ? toEdit.clone() : new SAMLServiceTrustedFederationConfiguration());
-
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(header);
@@ -110,13 +107,11 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 						msg.getMessage("EditTrustedFederationSubView.invalidConfiguration"), e);
 			}
 		};
-
 		mainView.addComponent(editMode
 				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
 				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
 
 		setCompositionRoot(mainView);
-
 	}
 
 	private FormLayout buildHeaderSection()
@@ -180,7 +175,6 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 	{
 		VerticalLayout federationListLayout = new VerticalLayout();
 		federationListLayout.setMargin(false);
-
 		ProgressBar spinner = new ProgressBar();
 		spinner.setIndeterminate(true);
 		spinner.setVisible(false);
@@ -190,24 +184,22 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		samlEntities.setActionColumnHidden(true);
 		samlEntities.setHeightByRows(false);
 		samlEntities.setHeightByRows(20);
-
-		samlEntities.addComponentColumn(v -> getLogo(v), msg.getMessage("EditTrustedFederationSubView.logo"), 3);
+		samlEntities.addComponentColumn(v -> getLogo(v), msg.getMessage("EditTrustedFederationSubView.logo"),
+				3);
 		samlEntities.addColumn(v -> v.name, msg.getMessage("EditTrustedFederationSubView.name"), 40);
 		samlEntities.addColumn(v -> v.id, msg.getMessage("EditTrustedFederationSubView.entityIdentifier"), 40);
-		
+
 		SearchField search = FilterableGridHelper.generateSearchField(samlEntities, msg);
-		
 		Toolbar<SAMLEntityWithLogo> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);
-		ComponentWithToolbar samlEntitiesListWithToolbar = new ComponentWithToolbar(samlEntities, toolbar, Alignment.BOTTOM_LEFT);
+		ComponentWithToolbar samlEntitiesListWithToolbar = new ComponentWithToolbar(samlEntities, toolbar,
+				Alignment.BOTTOM_LEFT);
 		samlEntitiesListWithToolbar.setSpacing(false);
 		samlEntitiesListWithToolbar.setSizeFull();
 		samlEntitiesListWithToolbar.setVisible(false);
-		
 		Button fetch = new Button(msg.getMessage("EditTrustedFederationSubView.fetch"));
 		UI ui = UI.getCurrent();
-		
 		fetch.addClickListener(e -> {
 			ui.setPollInterval(500);
 			spinner.setVisible(true);
@@ -217,12 +209,13 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 				{
 					MetadataDownloader metaDownloader = new MetadataDownloader(uriAccessService,
 							fileStorageService);
-					
-					EntitiesDescriptorDocument entDoc = metaDownloader.getCached(url.getValue()).orElse(null);
+
+					EntitiesDescriptorDocument entDoc = metaDownloader.getCached(url.getValue())
+							.orElse(null);
 					if (entDoc == null)
 					{
 						entDoc = metaDownloader.getFresh(url.getValue(),
-							httpsTruststore.getValue());	
+								httpsTruststore.getValue());
 					}
 					SimpleIDPMetaConverter convert = new SimpleIDPMetaConverter(msg);
 					List<SAMLEntityWithLogo> entries = convert

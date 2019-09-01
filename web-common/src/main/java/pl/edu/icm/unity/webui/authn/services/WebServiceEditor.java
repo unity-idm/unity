@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.authn.services.WebServiceEditorComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
+ * Editor for services which web authentication
  * 
  * @author P.Piernik
  *
@@ -43,11 +44,10 @@ public class WebServiceEditor implements ServiceEditor
 	private EndpointTypeDescription type;
 	private String defaultMainTheme;
 
-	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> registrationForms, List<String> usedPaths,
+	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg, URIAccessService uriAccessService,
+			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
+			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths,
 			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		this.msg = msg;

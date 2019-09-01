@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
  * @author P.Piernik
  *
  */
-public class RestAdminServiceEditorComponent extends ServiceEditorBase
+class RestAdminServiceEditorComponent extends ServiceEditorBase
 {
 	private Binder<RestAdminConfiguration> restBinder;
 	private Binder<DefaultServiceDefinition> serviceBinder;
@@ -49,27 +49,22 @@ public class RestAdminServiceEditorComponent extends ServiceEditorBase
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
-
 		restBinder = new Binder<>(RestAdminConfiguration.class);
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
-
 		registerTab(new RestAdminGeneralTab(msg, serviceBinder, RESTAdminEndpoint.TYPE, usedPaths, editMode));
 		registerTab(new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding(), serviceBinder));
 		serviceBinder.setBean(
 				editMode ? toEdit : new DefaultServiceDefinition(RESTAdminEndpoint.TYPE.getName()));
-
 		RestAdminConfiguration config = new RestAdminConfiguration();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg);
 		}
-
 		restBinder.setBean(config);
-
 	}
 
-	public ServiceDefinition getServiceDefiniton() throws FormValidationException
+	ServiceDefinition getServiceDefiniton() throws FormValidationException
 	{
 		boolean hasErrors = serviceBinder.validate().hasErrors();
 		hasErrors |= restBinder.validate().hasErrors();
@@ -84,7 +79,7 @@ public class RestAdminServiceEditorComponent extends ServiceEditorBase
 		return service;
 	}
 
-	public class RestAdminGeneralTab extends GeneralTab
+	private class RestAdminGeneralTab extends GeneralTab
 	{
 		public RestAdminGeneralTab(UnityMessageSource msg, Binder<DefaultServiceDefinition> serviceBinder,
 				EndpointTypeDescription type, List<String> usedPaths, boolean editMode)

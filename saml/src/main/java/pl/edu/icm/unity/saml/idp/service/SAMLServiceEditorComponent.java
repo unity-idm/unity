@@ -74,15 +74,12 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		registerTab(new SAMLEditorGeneralTab(msg, server, serverConfig, subViewSwitcher,
 				outputTranslationProfileFieldFactory, samlServiceBinder, samlConfigBinder, editMode,
 				usedPaths, credentials, truststores, idTypes));
-
 		SAMLEditorClientsTab clientsTab = new SAMLEditorClientsTab(msg, pkiMan, serverConfig, uriAccessService,
 				fileStorageService, samlConfigBinder, subViewSwitcher);
 		registerTab(clientsTab);
-
 		IdpEditorUsersTab usersTab = new SAMLUsersEditorTab(msg, samlConfigBinder, allGroups, allUsers,
 				allAttributes);
 		registerTab(usersTab);
-
 		registerTab(new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
 				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
 				SamlIdPWebEndpointFactory.TYPE.getSupportedBinding(), samlServiceBinder,
@@ -102,7 +99,6 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 				samlConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService, pkiMan,
 						allGroups);
 			}
-
 		}
 
 		samlServiceBinder.setBean(serviceBean);

@@ -22,12 +22,13 @@ import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
+ * Rest admin service controller. 
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class RestAdminServiceController extends DefaultServicesControllerBase implements ServiceController
+class RestAdminServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;

@@ -13,17 +13,17 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.services.idp.IdpServiceControllersRegistry;
 
 /**
+ * Controller for idp services
  * 
  * @author P.Piernik
  *
  */
 @Component
 class IdpServicesController extends ServiceControllerBase
-{			
+{
 	IdpServicesController(UnityMessageSource msg, EndpointManagement endpointMan,
-			 IdpServiceControllersRegistry controllersRegistry)
+			IdpServiceControllersRegistry controllersRegistry)
 	{
 		super(msg, endpointMan, controllersRegistry);
 	}
-
 }

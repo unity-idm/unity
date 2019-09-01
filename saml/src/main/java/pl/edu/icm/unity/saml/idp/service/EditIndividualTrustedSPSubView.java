@@ -65,17 +65,13 @@ class EditIndividualTrustedSPSubView extends CustomComponent implements UnitySub
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(SAMLIndividualTrustedSPConfiguration.class);
-
 		FormLayout header = buildHeaderSection();
 		CollapsibleLayout singleLogout = buildSingleLogoutSection();
-
 		configBinder.setBean(editMode ? toEdit.clone() : new SAMLIndividualTrustedSPConfiguration());
-
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(header);
 		mainView.addComponent(singleLogout);
-
 		Runnable onConfirmR = () -> {
 			try
 			{
@@ -87,7 +83,6 @@ class EditIndividualTrustedSPSubView extends CustomComponent implements UnitySub
 						e);
 			}
 		};
-
 		mainView.addComponent(editMode
 				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
 				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));

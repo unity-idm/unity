@@ -43,15 +43,15 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
  * @author P.Piernik
  *
  */
-public class JWTServiceEditorComponent extends ServiceEditorBase
+class JWTServiceEditorComponent extends ServiceEditorBase
 {
 	private Binder<JWTConfiguration> jwtBinder;
 	private Set<String> credentials;
 	private Binder<DefaultServiceDefinition> serviceBinder;
 
-	public JWTServiceEditorComponent(UnityMessageSource msg, DefaultServiceDefinition toEdit,
-			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, Set<String> credentials, List<String> usedPaths)
+	JWTServiceEditorComponent(UnityMessageSource msg, DefaultServiceDefinition toEdit, List<String> allRealms,
+			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
+			Set<String> credentials, List<String> usedPaths)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
@@ -59,21 +59,17 @@ public class JWTServiceEditorComponent extends ServiceEditorBase
 
 		jwtBinder = new Binder<>(JWTConfiguration.class);
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
-
 		registerTab(new JWTGeneralTab(msg, serviceBinder, JWTManagementEndpoint.TYPE, usedPaths, editMode));
 		registerTab(new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding(), serviceBinder));
 		serviceBinder.setBean(
 				editMode ? toEdit : new DefaultServiceDefinition(JWTManagementEndpoint.TYPE.getName()));
-
 		JWTConfiguration config = new JWTConfiguration();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg);
 		}
-
 		jwtBinder.setBean(config);
-
 	}
 
 	public ServiceDefinition getServiceDefiniton() throws FormValidationException
@@ -159,7 +155,6 @@ public class JWTServiceEditorComponent extends ServiceEditorBase
 	}
 
 	public class JWTConfiguration
-
 	{
 		private List<String> allowedCORSheaders;
 		private List<String> allowedCORSorigins;
@@ -260,6 +255,5 @@ public class JWTServiceEditorComponent extends ServiceEditorBase
 			ttl = jwtProp.getIntValue(JWTAuthenticationProperties.TOKEN_TTL);
 
 		}
-
 	}
 }

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  * @author P.Piernik
  *
  */
-public class RestAdminServiceEditor implements ServiceEditor
+class RestAdminServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
 	private List<String> allRealms;
@@ -32,7 +32,7 @@ public class RestAdminServiceEditor implements ServiceEditor
 	private RestAdminServiceEditorComponent editor;
 	private List<String> usedPaths;
 
-	public RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms,
+	RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> usedPaths)
 	{

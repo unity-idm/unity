@@ -3,18 +3,22 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.webui.authn.services;
 
 import com.vaadin.ui.Component;
 
 /**
+ * UI for service edit
  * 
  * @author P.Piernik
  *
  */
 public interface ServiceEditorComponent extends Component
 {
-	public enum ServiceEditorTab { GENERAL, AUTHENTICATION, CLIENTS, USERS}
+	public enum ServiceEditorTab
+	{
+		GENERAL, AUTHENTICATION, CLIENTS, USERS
+	}
+
 	void setActiveTab(ServiceEditorTab tab);
 }

@@ -12,6 +12,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
+ * Base service controller interface. 
  * 
  * @author P.Piernik
  *
@@ -19,18 +20,11 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public interface ServiceControllerBaseInt
 {
 	List<ServiceDefinition> getServices() throws ControllerException;
-
 	ServiceDefinition getService(String name) throws ControllerException;
-
 	void deploy(ServiceDefinition service) throws ControllerException;
-
 	void undeploy(ServiceDefinition service) throws ControllerException;
-
 	void update(ServiceDefinition service) throws ControllerException;
-
 	void remove(ServiceDefinition service) throws ControllerException;
-
 	String getSupportedEndpointType();
-	
 	ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException;
 }
