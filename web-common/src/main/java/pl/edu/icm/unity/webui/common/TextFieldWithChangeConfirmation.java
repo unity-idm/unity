@@ -10,7 +10,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
@@ -20,18 +19,18 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
  * @author P.Piernik
  *
  */
-public class TextFieldWithChangeConfirmation extends CustomField<String>
+public class TextFieldWithChangeConfirmation<T extends CustomField<String>> extends CustomField<String>
 {
 	private UnityMessageSource msg;
-	private TextField field;
+	private T field;
 	private boolean editMode;
 	private Binder<StringBindingValue> binder;
 
-	public TextFieldWithChangeConfirmation(UnityMessageSource msg)
+	public TextFieldWithChangeConfirmation(UnityMessageSource msg, T content)
 	{
 		this.msg = msg;
 		binder = new Binder<>(StringBindingValue.class);
-		field = new TextField();
+		field = content;
 	}
 
 	@Override

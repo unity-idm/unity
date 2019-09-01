@@ -460,6 +460,11 @@
 				<version>2.0.2</version>
 			</dependency>
 			<dependency>
+  				 <groupId>com.github.vaadin4qbanos</groupId>
+   				<artifactId>jsclipboard</artifactId>
+  				 <version>1.0.12</version>
+			</dependency>
+			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-client-compiler</artifactId>
 				<version>${vaadin.version}</version>

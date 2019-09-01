@@ -112,12 +112,10 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 	{
 		VerticalLayout mainClientLayout = new VerticalLayout();
 		mainClientLayout.setMargin(false);
-
 		ClientsComponent clients = new ClientsComponent();
 		VerticalLayout clientsWrapper = new VerticalLayout();
 		clientsWrapper.setMargin(true);
 		clientsWrapper.addComponent(clients);
-
 		FormLayoutWithFixedCaptionWidth comboWrapper = new FormLayoutWithFixedCaptionWidth();
 		groupCombo = new MandatoryGroupSelection(msg);
 		groupCombo.setWidth(30, Unit.EM);
@@ -131,12 +129,9 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		groupCombo.setGroupChangeConfirmationQuestion(
 				msg.getMessage("OAuthEditorClientsTab.groupChangeConfirmationQuestion"));
 		comboWrapper.addComponent(groupCombo);
-
 		mainClientLayout.addComponent(comboWrapper);
 		mainClientLayout.addComponent(clientsWrapper);
-
 		clientsBinder.forField(clients).bind("clients");
-
 		return mainClientLayout;
 	}
 

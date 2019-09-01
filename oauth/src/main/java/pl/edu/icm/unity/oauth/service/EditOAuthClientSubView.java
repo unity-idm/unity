@@ -16,9 +16,13 @@ import java.util.stream.Stream;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
+import com.vaadin.jsclipboard.JSClipboard;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -27,10 +31,14 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TextFieldWithChangeConfirmation;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
@@ -68,13 +76,31 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		mainView.addComponent(buildHeaderSection());
 		mainView.addComponent(buildConsentScreenSection());
 		Runnable onConfirmR = () -> {
+
+			OAuthClient client;
 			try
 			{
-				onConfirm.accept(getOAuthClient());
+				client = getOAuthClient();
 			} catch (FormValidationException e)
 			{
 				NotificationPopup.showError(msg,
 						msg.getMessage("EditOAuthClientSubView.invalidConfiguration"), e);
+				return;
+			}
+			if (client.getSecret() != null && !client.getSecret().isEmpty())
+			{
+				ConfirmDialog confirmDialog = new ConfirmDialog(msg,
+						msg.getMessage("EditOAuthClientSubView.confirmAddClient"),
+						msg.getMessage("EditOAuthClientSubView.confirm"),
+						msg.getMessage("EditOAuthClientSubView.confirmTooltip"),
+						msg.getMessage("EditOAuthClientSubView.goBack"),
+						msg.getMessage("EditOAuthClientSubView.goBackTooltip"), () -> {
+							onConfirm.accept(client);
+						});
+				confirmDialog.show();
+			} else
+			{
+				onConfirm.accept(client);
 			}
 		};
 		mainView.addComponent(editMode
@@ -96,7 +122,7 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		binder.forField(name).bind("name");
 		header.addComponent(name);
 
-		TextField id = new TextField();
+		TextFieldWithGenerator id = new TextFieldWithGenerator();
 		id.setCaption(msg.getMessage("EditOAuthClientSubView.id"));
 		id.setReadOnly(editMode);
 		id.setWidth(30, Unit.EM);
@@ -112,7 +138,7 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 
 		if (!editMode)
 		{
-			TextField secret = new TextField();
+			TextFieldWithGenerator secret = new TextFieldWithGenerator();
 			secret.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).asRequired(msg.getMessage("fieldRequired")).bind("secret");
@@ -120,7 +146,8 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 
 		} else
 		{
-			TextFieldWithChangeConfirmation secret = new TextFieldWithChangeConfirmation(msg);
+			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secret = new TextFieldWithChangeConfirmation<>(
+					msg, new TextFieldWithGenerator());
 			secret.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).withValidator((v, c) -> {
@@ -199,6 +226,85 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			return Arrays.asList(msg.getMessage("EditOAuthClientSubView.client"), binder.getBean().getId());
 		else
 			return Arrays.asList(msg.getMessage("EditOAuthClientSubView.newClient"));
+	}
+
+	private class TextFieldWithGenerator extends CustomField<String>
+	{
+		private TextField field;
+
+		public TextFieldWithGenerator()
+		{
+			field = new TextField();
+			field.addValueChangeListener(
+					e -> fireEvent(new ValueChangeEvent<String>(this, field.getValue(), true)));
+		}
+
+		@Override
+		public String getValue()
+		{
+			return field.getValue();
+		}
+
+		@Override
+		protected Component initContent()
+		{
+			HorizontalLayout main = new HorizontalLayout();
+			main.setSpacing(false);
+			main.addComponent(field);
+
+			Button copy = new Button();
+			copy.setDescription(msg.getMessage("EditOAuthClientSubView.copyToClipboard"));
+			copy.setIcon(Images.copy.getResource());
+			copy.setStyleName(Styles.vButtonLink.toString());
+			copy.addStyleName(Styles.vButtonBorderless.toString());
+			copy.addStyleName(Styles.link.toString());
+			JSClipboard clipboard = new JSClipboard();
+			clipboard.apply(copy, field);
+			clipboard.addSuccessListener(new JSClipboard.SuccessListener()
+			{
+				@Override
+				public void onSuccess()
+				{
+					NotificationTray.showSuccess(msg
+							.getMessage("EditOAuthClientSubView.successCopiedToClipboard"));
+				}
+			});
+
+			main.addComponent(copy);
+
+			Button gen = new Button();
+			gen.addClickListener(e -> {
+				field.setValue(UUID.randomUUID().toString());
+			});
+			gen.setDescription(msg.getMessage("EditOAuthClientSubView.generate"));
+			gen.setIcon(Images.cogs.getResource());
+			gen.setStyleName(Styles.vButtonLink.toString());
+			gen.addStyleName(Styles.vButtonBorderless.toString());
+			gen.addStyleName(Styles.link.toString());
+			main.addComponent(gen);
+
+			return main;
+
+		}
+
+		@Override
+		protected void doSetValue(String value)
+		{
+			field.setValue(value);
+
+		}
+
+		@Override
+		public void setWidth(float width, Unit unit)
+		{
+			if (field != null)
+			{
+				field.setWidth(width, unit);
+			} else
+			{
+				super.setWidth(width, unit);
+			}
+		}
 	}
 
 }

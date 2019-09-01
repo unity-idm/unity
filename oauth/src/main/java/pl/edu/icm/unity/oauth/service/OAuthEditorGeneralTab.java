@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm.Family;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue.ValueChangeListener;
@@ -296,7 +298,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingAlg.setEmptySelectionAllowed(false);
 		signingAlg.setItems(SigningAlgorithms.values());
 		configBinder.forField(signingAlg).bind("signingAlg");
-		signingAlg.setEnabled(false);
+		//signingAlg.setEnabled(false);
 		mainGeneralLayout.addComponent(signingAlg);
 		signingAlg.addValueChangeListener(e -> {
 			refreshOpenIDControls();
@@ -306,13 +308,31 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		credential.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingCredential"));
 		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
-		configBinder.forField(credential).bind("credential");
+		configBinder.forField(credential).asRequired((v,c) -> {
+			if ((v == null || v.isEmpty()) && !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			}
+			
+			return ValidationResult.ok();
+		
+		}).bind("credential");
+		
 		credential.setEnabled(false);
 		mainGeneralLayout.addComponent(credential);
 
 		signingSecret = new TextField();
 		signingSecret.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
-		configBinder.forField(signingSecret).bind("signingSecret");
+		configBinder.forField(signingSecret).asRequired((v, c) -> {
+			if ((v == null || v.isEmpty()) && Family.HMAC_SHA
+					.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			}
+
+			return ValidationResult.ok();
+
+		}).bind("signingSecret");
 		signingSecret.setEnabled(false);
 		mainGeneralLayout.addComponent(signingSecret);
 
@@ -368,13 +388,12 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private void refreshOpenIDControls()
 	{
 		OAuthServiceConfiguration config = configBinder.getBean();
-
 		SigningAlgorithms alg = config.getSigningAlg();
-		boolean openid = config.isOpenIDConnect();
+//		boolean openid = config.isOpenIDConnect();
 
-		if (openid)
-		{
-			signingAlg.setEnabled(true);
+//		if (openid)
+//		{
+//			signingAlg.setEnabled(true);
 			if (alg.toString().startsWith("HS"))
 			{
 				signingSecret.setEnabled(true);
@@ -384,13 +403,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				signingSecret.setEnabled(false);
 				credential.setEnabled(true);
 			}
-		} else
-		{
-			signingSecret.setEnabled(false);
-			credential.setEnabled(false);
-			signingAlg.setEnabled(false);
-		}
-
+//		} else
+//		{
+//			signingSecret.setEnabled(false);
+//			credential.setEnabled(false);
+//			signingAlg.setEnabled(false);
+//		}
+//
 	}
 
 	public void addNameValueChangeListener(ValueChangeListener<String> valueChangeListener)

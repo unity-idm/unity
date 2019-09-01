@@ -256,8 +256,14 @@ public class ServiceWebConfiguration
 		layoutForRetUserProperties.putAll(labels);
 		authnScreenProperties.putAll(labels);
 
-		defaultMainTheme = vaadinProperties.getValue(VaadinEndpointProperties.THEME);
-		defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);	
+		if (vaadinProperties.isSet(VaadinEndpointProperties.THEME))
+		{
+			defaultMainTheme = vaadinProperties.getValue(VaadinEndpointProperties.THEME);
+		}
+		if (vaadinProperties.isSet(VaadinEndpointProperties.AUTHN_THEME))
+		{
+			defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);	
+		}
 	}
 
 	public boolean isShowSearch()

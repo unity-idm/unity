@@ -245,16 +245,12 @@ class OAuthServiceController implements IdpServiceController
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
-
 		String tag = UUID.randomUUID().toString();
-
 		try
 		{
 			EndpointConfiguration wconfig = new EndpointConfiguration(webAuthzService.getDisplayedName(),
 					webAuthzService.getDescription(), webAuthzService.getAuthenticationOptions(),
-					webAuthzService.getConfiguration(), webAuthzService.getRealm());
-			wconfig.setTag(tag);
-
+					webAuthzService.getConfiguration(), webAuthzService.getRealm(), tag);
 			endpointMan.deploy(webAuthzService.getType(), webAuthzService.getName(),
 					webAuthzService.getAddress(), wconfig);
 			if (tokenService != null)
@@ -262,8 +258,7 @@ class OAuthServiceController implements IdpServiceController
 				EndpointConfiguration rconfig = new EndpointConfiguration(
 						tokenService.getDisplayedName(), tokenService.getDescription(),
 						tokenService.getAuthenticationOptions(),
-						tokenService.getConfiguration(), tokenService.getRealm());
-				rconfig.setTag(tag);
+						tokenService.getConfiguration(), tokenService.getRealm(), tag);
 				endpointMan.deploy(tokenService.getType(), tokenService.getName(),
 						tokenService.getAddress(), rconfig);
 			}
@@ -316,24 +311,19 @@ class OAuthServiceController implements IdpServiceController
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
-
 		String tag = UUID.randomUUID().toString();
-
 		try
 		{
 			EndpointConfiguration wconfig = new EndpointConfiguration(webAuthzService.getDisplayedName(),
 					webAuthzService.getDescription(), webAuthzService.getAuthenticationOptions(),
-					webAuthzService.getConfiguration(), webAuthzService.getRealm());
-			wconfig.setTag(tag);
-
+					webAuthzService.getConfiguration(), webAuthzService.getRealm(), tag);
 			endpointMan.updateEndpoint(webAuthzService.getName(), wconfig);
 			if (tokenService != null)
 			{
 				EndpointConfiguration rconfig = new EndpointConfiguration(
 						tokenService.getDisplayedName(), tokenService.getDescription(),
 						tokenService.getAuthenticationOptions(),
-						tokenService.getConfiguration(), tokenService.getRealm());
-				rconfig.setTag(tag);
+						tokenService.getConfiguration(), tokenService.getRealm(), tag);
 				endpointMan.updateEndpoint(tokenService.getName(), rconfig);
 			}
 

@@ -12,6 +12,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * Confirmation dialog
+ * 
  * @author K. Benedyczak
  */
 public class ConfirmDialog extends AbstractDialog
@@ -20,13 +21,22 @@ public class ConfirmDialog extends AbstractDialog
 	private String question;
 	private boolean htmlContent = false;
 
-	public ConfirmDialog(UnityMessageSource msg, String question, Callback callback) 
+	public ConfirmDialog(UnityMessageSource msg, String question, Callback callback)
 	{
 		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, callback);
 	}
-	
-	public ConfirmDialog(UnityMessageSource msg, String caption, String question, 
-			Callback callback) 
+
+	public ConfirmDialog(UnityMessageSource msg, String question, String confirmM, String confirmT, String cancelM,
+			String cancelT, Callback callback)
+	{
+		super(msg, msg.getMessage("ConfirmDialog.confirm"), confirmM, confirmT, cancelM, cancelT);
+		this.question = question;
+		this.callback = callback;
+		this.lightweightWrapperPanel = true;
+		setSizeMode(SizeMode.SMALL);
+	}
+
+	public ConfirmDialog(UnityMessageSource msg, String caption, String question, Callback callback)
 	{
 		super(msg, caption);
 		this.question = question;
@@ -34,28 +44,28 @@ public class ConfirmDialog extends AbstractDialog
 		this.lightweightWrapperPanel = true;
 		setSizeMode(SizeMode.SMALL);
 	}
-	
-	protected ConfirmDialog(UnityMessageSource msg, String question) 
+
+	protected ConfirmDialog(UnityMessageSource msg, String question)
 	{
 		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, null);
 	}
-	
+
 	protected void setCallback(Callback callback)
 	{
 		this.callback = callback;
 	}
-	
+
 	public void setSizeEm(float widthEm, float heightEm)
 	{
 		super.setSizeEm(widthEm, heightEm);
 	}
-	
+
 	public void setHTMLContent(boolean how)
 	{
 		this.htmlContent = how;
 	}
-	
-	public interface Callback 
+
+	public interface Callback
 	{
 		public void onConfirm();
 	}

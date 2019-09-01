@@ -38,6 +38,10 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-context-menu</artifactId>
 		</dependency>
+		<dependency>
+  			<groupId>com.github.vaadin4qbanos</groupId>
+   			<artifactId>jsclipboard</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

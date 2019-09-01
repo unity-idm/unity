@@ -62,6 +62,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	private float heightEm;
 	private String confirmMessage;
 	private String cancelMessage;
+	private String confirmTooltip;
+	private String cancelTooltip;
 	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
@@ -80,6 +82,19 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		this.msg = msg;
 		this.cancelMessage = cancelM;
 		this.confirmMessage = confirmM;
+		if (cancelM != null)
+			cancel = createCancelButton();
+		confirm = createConfirmButton();
+	}
+	
+	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM,String confirmT, String cancelM, String cancelT) 
+	{
+		super(caption);
+		this.msg = msg;
+		this.cancelMessage = cancelM;
+		this.confirmMessage = confirmM;
+		this.confirmTooltip = confirmT;
+		this.cancelTooltip = cancelT;
 		if (cancelM != null)
 			cancel = createCancelButton();
 		confirm = createConfirmButton();
@@ -116,6 +131,10 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected Button createConfirmButton()
 	{
 		Button confirm = new Button(confirmMessage == null ? msg.getMessage("ok") : confirmMessage, this);
+		if (confirmTooltip != null)
+		{
+			confirm.setDescription(confirmTooltip);
+		}
 		confirm.setId("AbstractDialog.confirm");
 		confirm.addStyleName("u-dialog-confirm");
 		return confirm;
@@ -123,9 +142,13 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 
 	protected Button createCancelButton()
 	{
-		Button confirm = new Button(cancelMessage == null ? msg.getMessage("cancel") : cancelMessage, this);
-		confirm.addStyleName("u-dialog-cancel");
-		return confirm;
+		Button cancel = new Button(cancelMessage == null ? msg.getMessage("cancel") : cancelMessage, this);
+		if (cancelTooltip != null)
+		{
+			cancel.setDescription(cancelTooltip);
+		}
+		cancel.addStyleName("u-dialog-cancel");
+		return cancel;
 	}
 	
 	/**

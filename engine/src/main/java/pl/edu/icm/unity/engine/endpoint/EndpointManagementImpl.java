@@ -289,7 +289,8 @@ public class EndpointManagementImpl implements EndpointManagement
 						newDesc, 
 						newAuthn, 
 						jsonConf, 
-						realm.getName());
+						realm.getName(), configuration.getTag());
+				
 				
 				Endpoint current = endpointDB.get(id);
 				Endpoint updatedEndpoint = new Endpoint(id, 

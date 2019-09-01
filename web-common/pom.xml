@@ -119,6 +119,10 @@
 		<dependency>
   			<groupId>org.vaadin.addons</groupId>
    			<artifactId>simplefiledownloader</artifactId>
+		</dependency>
+		<dependency>
+  				<groupId>com.github.vaadin4qbanos</groupId>
+   				<artifactId>jsclipboard</artifactId>
 		</dependency>		
 	</dependencies>
 

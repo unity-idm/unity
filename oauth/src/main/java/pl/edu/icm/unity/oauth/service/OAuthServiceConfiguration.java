@@ -70,6 +70,7 @@ public class OAuthServiceConfiguration
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
+		openIDConnect = true;
 	}
 
 	public String toProperties()

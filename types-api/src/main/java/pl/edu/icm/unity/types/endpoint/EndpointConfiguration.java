@@ -41,6 +41,14 @@ public class EndpointConfiguration
 		this.configuration = configuration;
 		this.realm = realm;
 	}
+	
+	public EndpointConfiguration(I18nString displayedName, String description,
+			List<String> authnOptions, String configuration,
+			String realm, String tag)
+	{
+		this(displayedName, description, authnOptions, configuration, realm);
+		this.tag = tag;
+	}
 
 	@JsonCreator
 	public EndpointConfiguration(ObjectNode json)
