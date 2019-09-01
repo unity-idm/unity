@@ -6,8 +6,6 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +22,7 @@ import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -68,10 +67,13 @@ public class DiscoveryResource extends BaseOAuthResource
 			meta.setAuthorizationEndpointURI(authzEndpointUri);
 			meta.setTokenEndpointURI(tokenEndpointUri);
 			meta.setUserInfoEndpointURI(userInfoEndpointUri);
+			meta.setIntrospectionEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_INTROSPECTION_PATH));
 		} catch (URISyntaxException e)
 		{
 			throw new InternalException("Can't encode URI", e);
 		}
+
+		meta.setCodeChallengeMethods(Lists.newArrayList(CodeChallengeMethod.PLAIN, CodeChallengeMethod.S256));
 		
 		Set<String> scopeKeys = config.getStructuredListKeys(OAuthASProperties.SCOPES);
 		Set<String> scopes = new HashSet<>();
@@ -90,9 +92,7 @@ public class DiscoveryResource extends BaseOAuthResource
 		ResponseType rt6 = new ResponseType(ResponseType.Value.TOKEN, ResponseType.Value.CODE);
 		ResponseType rt7 = new ResponseType(ResponseType.Value.TOKEN, ResponseType.Value.CODE, 
 				OIDCResponseTypeValue.ID_TOKEN);
-		List<ResponseType> l = new ArrayList<ResponseType>();
-		Collections.addAll(l, rt1, rt2, rt3, rt4, rt5, rt6, rt7);
-		meta.setResponseTypes(l);
+		meta.setResponseTypes(Lists.newArrayList(rt1, rt2, rt3, rt4, rt5, rt6, rt7));
 		
 		meta.setResponseModes(Lists.newArrayList(ResponseMode.QUERY, ResponseMode.FRAGMENT));
 		meta.setGrantTypes(Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));

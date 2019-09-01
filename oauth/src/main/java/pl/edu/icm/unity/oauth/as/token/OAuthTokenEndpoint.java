@@ -58,6 +58,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String USER_INFO_PATH = "/userinfo";
 	public static final String JWK_PATH = "/jwk";
 	public static final String TOKEN_INFO_PATH = "/tokeninfo";
+	public static final String TOKEN_INTROSPECTION_PATH = "/introspect";
 	public static final String TOKEN_REVOCATION_PATH = "/revoke";
 	
 	private TokensManagement tokensManagement;
@@ -121,6 +122,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(tokensManagement));
+			ret.add(new TokenIntrospectionResource(tokensManagement));
 			ret.add(new UserInfoResource(tokensManagement));
 			ret.add(new RevocationResource(tokensManagement, sessionMan, getEndpointDescription().getRealm()));
 			installExceptionHandlers(ret);
