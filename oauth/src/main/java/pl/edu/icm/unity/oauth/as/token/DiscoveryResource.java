@@ -68,11 +68,14 @@ public class DiscoveryResource extends BaseOAuthResource
 			meta.setTokenEndpointURI(tokenEndpointUri);
 			meta.setUserInfoEndpointURI(userInfoEndpointUri);
 			meta.setIntrospectionEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_INTROSPECTION_PATH));
+			meta.setRevocationEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_REVOCATION_PATH));
 		} catch (URISyntaxException e)
 		{
 			throw new InternalException("Can't encode URI", e);
 		}
 
+		
+		
 		meta.setCodeChallengeMethods(Lists.newArrayList(CodeChallengeMethod.PLAIN, CodeChallengeMethod.S256));
 		
 		Set<String> scopeKeys = config.getStructuredListKeys(OAuthASProperties.SCOPES);
