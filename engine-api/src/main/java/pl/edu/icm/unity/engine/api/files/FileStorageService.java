@@ -20,7 +20,7 @@ public interface FileStorageService
 {
 	public static enum StandardOwner
 	{
-		AUTHENTICATOR, FORM
+		AUTHENTICATOR, FORM, SERVICE,
 	}
 
 	URI storeFile(byte[] content, String ownerType, String ownerId) throws EngineException;

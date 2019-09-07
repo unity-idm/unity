@@ -538,7 +538,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private SingleActionHandler<TreeNode> getExpandAllAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
-				.withCaption(msg.getMessage("GroupsTree.expandGroupsAction"))
+				.withCaption(msg.getMessage("GroupsTree.expandGroupAction"))
 				.withIcon(Images.expand.getResource())
 				.withHandler(this::expandItemsRecursively).build();
 	}
@@ -556,7 +556,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private SingleActionHandler<TreeNode> getCollapseAllAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
-				.withCaption(msg.getMessage("GroupsTree.collapseGroupsAction"))
+				.withCaption(msg.getMessage("GroupsTree.collapseGroupAction"))
 				.withIcon(Images.collapse.getResource())
 				.withHandler(this::collapseItemsRecursively).build();
 	}

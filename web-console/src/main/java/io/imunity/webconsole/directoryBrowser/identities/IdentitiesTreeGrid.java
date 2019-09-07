@@ -295,6 +295,19 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		dataProvider.refreshAll();
 		addResolvedEntities(cachedEntitites, selected, -1);
 	}
+	
+	public List<IdentityEntry> getItems()
+	{
+		
+		List<IdentityEntry> entries = new ArrayList<>();
+				
+		for (IdentityEntry e : dataProvider.getTreeData().getRootItems())
+		{
+			entries.add(e);
+			entries.addAll(dataProvider.getTreeData().getChildren(e));
+		}
+		return entries;	
+	}
 
 	private void addAndCacheResolvedEntities(List<ResolvedEntity> entities, Set<IdentityEntry> selected,
 			float progress)
@@ -609,8 +622,19 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		}
 		dataProvider.refreshAll();
 	}
-
-	private void selectionChanged(Set<IdentityEntry> selectedItems)
+	
+	public void expandParent(IdentityEntry entry)
+	{
+		if (dataProvider.getTreeData().getParent(entry) == null)
+		{
+			expand(entry);
+		}else
+		{
+			expand(dataProvider.getTreeData().getParent(entry));
+		}
+	}
+	
+	public void selectionChanged(Set<IdentityEntry> selectedItems)
 	{
 		IdentityEntry selected = null;
 		if (selectedItems.size() == 1)

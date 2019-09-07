@@ -363,7 +363,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.9</version>
+				<version>2.9.9.1</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -458,6 +458,11 @@
 				<groupId>org.vaadin.addons</groupId>
 				<artifactId>simplefiledownloader</artifactId>
 				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+  				 <groupId>com.github.vaadin4qbanos</groupId>
+   				<artifactId>jsclipboard</artifactId>
+  				 <version>1.0.12</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>

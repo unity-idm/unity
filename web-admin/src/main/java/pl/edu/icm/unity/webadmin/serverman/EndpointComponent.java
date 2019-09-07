@@ -210,7 +210,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 
 		try
 		{
-			for (ResolvedEndpoint en : endpointMan.getEndpoints())
+			for (ResolvedEndpoint en : endpointMan.getDeployedEndpoints())
 			{
 				if (id.equals(en.getName()))
 				{

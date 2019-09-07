@@ -34,11 +34,6 @@ public class FilterableGridHelper
 	
 	public static SearchField getRowSearchField(UnityMessageSource msg)
 	{
-//		TextField searchText = new TextField();
-//		searchText.addStyleName(Styles.vSmall.toString());
-//		searchText.setWidth(10, Unit.EM);
-//		searchText.setPlaceholder(msg.getMessage("search"));
-//		return searchText;
 		return new SearchField(msg);
 	}
 }

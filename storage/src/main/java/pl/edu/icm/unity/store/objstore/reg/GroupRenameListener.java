@@ -24,10 +24,10 @@ public class GroupRenameListener<T extends BaseForm> implements ReferenceUpdateH
 	}
 
 	@Override
-	public void preUpdateCheck(long modifiedId, String modifiedName,
-			Group newValue)
+	public void preUpdateCheck(PlannedUpdateEvent<Group> update)
 	{
-		String newGroup = newValue.getName();
+		String newGroup = update.newValue.getName();
+		String modifiedName = update.modifiedName;
 		if (modifiedName.equals(newGroup))
 			return;
 		List<T> forms = dao.getAll();

@@ -18,6 +18,7 @@ import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
@@ -25,8 +26,10 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.grid.Editor;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Grid with row editor. By default action column with delete button is added as
@@ -88,7 +91,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 			myObject = cls.newInstance();
 		} catch (Exception e)
 		{
-			return null;
+			throw new InternalException(e.getMessage());
 		}
 		return myObject;
 	}
@@ -140,8 +143,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		return column;
 	}
 
-	public Column<T, ?> addComboColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter, String caption,
-			List<String> items, int expandRatio, boolean emptyAllowed)
+	public Column<T, ?> addComboColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter,
+			String caption, List<String> items, int expandRatio, boolean emptyAllowed)
 	{
 		ComboBox<String> field = new ComboBox<String>();
 		field.setItems(items);
@@ -150,7 +153,15 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		Binder<T> binder = grid.getEditor().getBinder();
 		Column<T, ?> column = grid.addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio)
 				.setResizable(false).setSortable(false)
-				.setEditorBinding(binder.forField(field).bind(valueProvider, setter));
+				.setEditorBinding(binder.forField(field).asRequired((v, c) -> {
+					if (!emptyAllowed && (v == null || v.isEmpty()))
+					{
+						return ValidationResult.error(msg.getMessage("fieldRequired"));
+					} else
+					{
+						return ValidationResult.ok();
+					}
+				}).bind(valueProvider, setter));
 
 		grid.refreshActionColumn();
 		return column;
@@ -174,6 +185,24 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		return column;
 	}
 
+	public Column<T, ?> addCheckBoxColumn(ValueProvider<T, Boolean> valueProvider, Setter<T, Boolean> setter,
+			String caption, int expandRatio)
+	{
+		CheckBox field = new CheckBox();
+
+		Binder<T> binder = grid.getEditor().getBinder();
+		Column<T, ?> column = grid.addComponentColumn(t -> {
+			CheckBox val = new CheckBox();
+			val.setValue(valueProvider.apply(t));
+			val.setReadOnly(true);
+			return val;
+		}).setCaption(caption).setExpandRatio(expandRatio).setResizable(false).setSortable(false)
+				.setEditorBinding(binder.forField(field).bind(valueProvider, setter));
+
+		grid.refreshActionColumn();
+		return column;
+	}
+
 	public <V> Column<T, V> addCustomColumn(ValueProvider<T, V> valueProvider,
 			ValueProvider<V, String> presentationProvider, Setter<T, V> setter, HasValue<V> field,
 			String caption, int expandRatio)
@@ -186,8 +215,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 		grid.refreshActionColumn();
 		return column;
-	}
-
+	}	
+	
 	public void addElement(T el)
 	{
 		grid.addElement(el);
@@ -205,6 +234,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
 		HorizontalLayout buttonBar = new HorizontalLayout();
 		buttonBar.setWidth(100, Unit.PERCENTAGE);
 		buttonBar.setMargin(false);
@@ -238,4 +268,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	}
 
+	public Editor<T> getEditor()
+	{
+		return grid.getEditor();
+	}
 }

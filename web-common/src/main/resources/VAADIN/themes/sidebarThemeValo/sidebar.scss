@@ -67,7 +67,15 @@ $narrow-bar-size: 50px;
        	color: $button-hover-color;
     }
     
-     .v-button-link {
+    .u-inactiveButton:hover {
+		background-color: $button-bg-color !important;
+	}
+	
+	.u-inactiveButton:after {
+ 		 content: none !important;
+	}
+    
+    .v-button-link {
        	background-color: transparent;
        	text-decoration: none;
     }

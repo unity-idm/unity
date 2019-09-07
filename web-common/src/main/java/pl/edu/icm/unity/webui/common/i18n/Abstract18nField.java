@@ -129,7 +129,6 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	@Override
 	public void setComponentError(ErrorMessage componentError)
 	{
-		super.setComponentError(componentError);
 		defaultTf.setComponentError(componentError);
 		for (T tf : translationTFs.values())
 		{
@@ -227,11 +226,16 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 			}
 		}
 	}
-	
+
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		defaultTf.setReadOnly(readOnly);
 		translationTFs.values().forEach(tf -> tf.setReadOnly(readOnly));
+	}
+
+	public void setPlaceholder(String placeholder)
+	{
+		defaultTf.setPlaceholder(placeholder);
 	}
 }

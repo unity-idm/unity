@@ -18,7 +18,6 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.attributeClasses.AttributeClassesView.AttributeClassesNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

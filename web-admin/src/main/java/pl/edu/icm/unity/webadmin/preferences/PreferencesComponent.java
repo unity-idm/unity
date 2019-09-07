@@ -47,7 +47,7 @@ public class PreferencesComponent extends VerticalLayout
 		Set<String> deployedTypes = null;
 		try
 		{
-			List<ResolvedEndpoint> deployed = endpMan.getEndpoints();
+			List<ResolvedEndpoint> deployed = endpMan.getDeployedEndpoints();
 			deployedTypes = new HashSet<String>();
 			for (ResolvedEndpoint desc: deployed)
 				deployedTypes.add(desc.getType().getName());

@@ -64,7 +64,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("jwtMan"), "desc", Lists.newArrayList("flow1"), 
 				JWT_CONFIG, realm.getName());
 		endpointMan.deploy(JWTManagementEndpoint.NAME, "jwtMan", "/jwt", cfg);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(1, endpoints.size());
 
 		httpServer.start();

@@ -28,6 +28,7 @@ public class EndpointConfiguration
 	private List<String> authenticationOptions;
 	private String configuration;
 	private String realm;
+	private String tag;
 	
 	public EndpointConfiguration(I18nString displayedName, String description,
 			List<String> authnOptions, String configuration,
@@ -39,6 +40,14 @@ public class EndpointConfiguration
 		this.authenticationOptions = authnOptions;
 		this.configuration = configuration;
 		this.realm = realm;
+	}
+	
+	public EndpointConfiguration(I18nString displayedName, String description,
+			List<String> authnOptions, String configuration,
+			String realm, String tag)
+	{
+		this(displayedName, description, authnOptions, configuration, realm);
+		this.tag = tag;
 	}
 
 	@JsonCreator
@@ -60,6 +69,8 @@ public class EndpointConfiguration
 				authenticationOptions.add(node.asText());
 			
 		}
+		if (json.has("tag"))
+			tag = json.get("tag").asText();
 	}
 	
 	@JsonValue
@@ -70,6 +81,10 @@ public class EndpointConfiguration
 		root.put("description", description);
 		root.put("configuration", configuration);
 		root.put("realm", realm);
+		if (tag != null)
+		{
+			root.put("tag", tag);
+		}
 		ArrayNode aopts = root.withArray("authenticationOptions");
 		for (String aod : authenticationOptions)
 			aopts.add(aod);
@@ -100,6 +115,16 @@ public class EndpointConfiguration
 	{
 		return realm;
 	}
+	
+	public String getTag()
+	{
+		return tag;
+	}
+	
+	public void setTag(String tag)
+	{
+		this.tag = tag;
+	}
 
 	@Override
 	public String toString()
@@ -120,6 +145,7 @@ public class EndpointConfiguration
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
 		result = prime * result + ((realm == null) ? 0 : realm.hashCode());
+		result = prime * result + ((tag == null) ? 0 : tag.hashCode());
 		return result;
 	}
 
@@ -163,6 +189,14 @@ public class EndpointConfiguration
 				return false;
 		} else if (!realm.equals(other.realm))
 			return false;
+		
+		if (tag == null)
+		{
+			if (other.tag != null)
+				return false;
+		} else if (!tag.equals(other.tag))
+			return false;
+		
 		return true;
 	}
 }

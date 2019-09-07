@@ -6,10 +6,12 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Management of endpoints
@@ -25,7 +27,7 @@ public interface EndpointManagement
 	/**
 	 * @return list of deployed endpoints
 	 */
-	List<ResolvedEndpoint> getEndpoints() throws EngineException;
+	List<ResolvedEndpoint> getDeployedEndpoints() throws EngineException;
 	
 	/**
 	 * Deploys a new instance of an endpoint of id type, at address location.
@@ -52,4 +54,19 @@ public interface EndpointManagement
 	 * @param configuration updated configuration, can have null elements to leave the existing values unchanged.
 	 */
 	void updateEndpoint(String id, EndpointConfiguration configuration) throws EngineException;
+
+	/**
+	 * 
+	 * @return all endpoints from db
+	 * @throws AuthorizationException 
+	 */
+	List<Endpoint> getEndpoints() throws AuthorizationException;
+	
+	
+	/**
+	 * Removes endpoint with given name
+	 * @param id mandatory id of removed endpoint
+	 * @throws EngineException
+	 */
+	void removeEndpoint(String id) throws EngineException;
 }

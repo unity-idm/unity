@@ -12,6 +12,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
@@ -59,10 +60,10 @@ public class GroupSelectionHelper
 			return;
 		Map<String, Group> groupByPath = source.stream().collect(Collectors.toMap(g -> g.toString(), g -> g));
 
-		Group sortRoot = new Group("");
+		Group sortRoot = new Group("_sortRoot_" + UUID.randomUUID());
 		Map<Group, List<Group>> byParent = source.stream()
 				.collect(Collectors.groupingBy(
-						g -> groupByPath.get(g.getParentPath()) == null ? sortRoot
+						g -> (g.toString().equals("/") || groupByPath.get(g.getParentPath()) == null) ? sortRoot
 								: groupByPath.get(g.getParentPath()),
 						Collectors.toList()));
 

@@ -51,12 +51,12 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class AuthnOptionsColumns extends CustomComponent
 {
-	private static final String SPECIAL_ENTRY_LAST_USED = "_LAST_USED";
-	private static final String SPECIAL_ENTRY_REGISTER = "_REGISTER";
-	private static final String SPECIAL_ENTRY_SEPARATOR = "_SEPARATOR";
-	private static final String SPECIAL_ENTRY_HEADER = "_HEADER";
-	private static final String SPECIAL_ENTRY_GRID = "_GRID_";
-	private static final String SPECIAL_ENTRY_EXPAND = "_EXPAND"; //note that this one is not documented, for internal use
+	public static final String SPECIAL_ENTRY_LAST_USED = "_LAST_USED";
+	public static final String SPECIAL_ENTRY_REGISTER = "_REGISTER";
+	public static final String SPECIAL_ENTRY_SEPARATOR = "_SEPARATOR";
+	public static final String SPECIAL_ENTRY_HEADER = "_HEADER";
+	public static final String SPECIAL_ENTRY_GRID = "_GRID_";
+	public static final String SPECIAL_ENTRY_EXPAND = "_EXPAND"; //note that this one is not documented, for internal use
 	
 	private final VaadinEndpointProperties config;
 	private final UnityMessageSource msg;

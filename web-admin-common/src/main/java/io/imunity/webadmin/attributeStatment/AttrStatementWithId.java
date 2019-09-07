@@ -29,7 +29,7 @@ public class AttrStatementWithId
 	{
 		return "Assign " + (statement.dynamicAttributeMode() ? 
 				statement.getDynamicAttributeType() :
-					statement.getFixedAttribute().getName()) + " ...";
+					statement.getFixedAttribute().getName());
 	}
 	
 	@Override

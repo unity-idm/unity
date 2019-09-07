@@ -119,7 +119,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 	private void establishSandboxURL(EndpointManagement endpointMan) throws EngineException
 	{
-		List<ResolvedEndpoint> endpointList = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpointList = endpointMan.getDeployedEndpoints();
 		for (ResolvedEndpoint endpoint : endpointList)
 		{
 			if (endpoint.getType().getName().equals(WebAdminEndpointFactory.NAME))

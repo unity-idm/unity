@@ -17,6 +17,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.TransactionalMap;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.hz.HzDAO;
@@ -63,29 +64,29 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 		entityDAO.addRemovalHandler(this::entityRemoved);
 	}
 
-	private void groupUpdated(long updatedId, String oldName, Group newValue)
+	private void groupUpdated(PlannedUpdateEvent<Group> update)
 	{
-		if (oldName.equals(newValue.getName()))
+		if (update.modifiedName.equals(update.newValue.getName()))
 			return;
 		
 		TransactionalMap<String, Map<Long, GroupMembership>> byGroupMap = getByGroupMap();
 		TransactionalMap<Long, Map<String, GroupMembership>> byEntityMap = getByEntityMap();
-		Map<Long, GroupMembership> map = byGroupMap.remove(oldName);
+		Map<Long, GroupMembership> map = byGroupMap.remove(update.modifiedName);
 		if (map == null)
 			return;
 		for (Map.Entry<Long, GroupMembership> e: map.entrySet())
 		{
 			GroupMembership gm = e.getValue();
-			gm.setGroup(newValue.getName());
+			gm.setGroup(update.newValue.getName());
 			
 			Map<String, GroupMembership> entityMemberships = byEntityMap.get(e.getKey());
-			GroupMembership removed = entityMemberships.remove(oldName);
+			GroupMembership removed = entityMemberships.remove(update.modifiedName);
 			GroupMembership cloned = new GroupMembership(removed);
-			cloned.setGroup(newValue.getName());
-			entityMemberships.put(newValue.getName(), cloned);
+			cloned.setGroup(update.newValue.getName());
+			entityMemberships.put(update.newValue.getName(), cloned);
 			byEntityMap.put(e.getKey(), entityMemberships);
 		}
-		byGroupMap.put(newValue.getName(), map);
+		byGroupMap.put(update.newValue.getName(), map);
 		
 	}
 	

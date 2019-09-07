@@ -106,7 +106,7 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString(name),
 				"desc", authnCfg, "", realm.getName());
 		endpointMan.deploy(endpointTypeName, name, context, cfg);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(1, endpoints.size());
 
 		httpServer.start();

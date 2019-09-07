@@ -28,6 +28,8 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -67,7 +69,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		
 		assertThat(endpoints.size(), is(1));
 		assertThat(endpoints.get(0).getEndpoint().getConfiguration(), is(cfg));
@@ -88,7 +90,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				new I18nString("endpoint1I"), "ada", new ArrayList<>(), "", REALM_NAME);
 		endpointMan.updateEndpoint("endpoint1", cfg2);
 
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.size(), is(1));
 		assertThat(endpoints.get(0).getEndpoint().getConfiguration(), is(cfg2));
 		assertThat(endpoints.get(0).getRealm().getName(), is(REALM_NAME));
@@ -106,7 +108,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		endpointMan.undeploy("endpoint1");
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		
 		assertThat(endpoints.isEmpty(), is(true));
 	}
@@ -128,7 +130,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			assertThat(e.getMessage(), containsString("exists"));
 		}
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.size(), is(1));
 	}
 
@@ -147,7 +149,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			assertThat(e.getMessage(), containsString("configuration"));
 		}
 		
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.isEmpty(), is(true));
 	}
 	
@@ -182,7 +184,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			assertThat(e.getMessage(), containsString("path"));
 		}
 
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertThat(endpoints.isEmpty(), is(true));
 	}
 	
@@ -196,7 +198,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		EndpointConfiguration cfg3 = new EndpointConfiguration(new I18nString("endpoint2"), 
 				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint2", "/foo2", cfg3);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(2, endpoints.size());
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
 				new EndpointConfiguration(new I18nString("endp1"), 
@@ -208,12 +210,12 @@ public class TestEndpoints extends DBIntegrationTestBase
 		internalEndpointMan.undeploy(endpoints.get(0).getEndpoint().getName());
 		internalEndpointMan.undeploy(endpoints.get(1).getEndpoint().getName());
 
-		endpoints = endpointMan.getEndpoints();
+		endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(0, endpoints.size());
 		
 		internalEndpointMan.loadPersistedEndpoints();
 		
-		endpoints = endpointMan.getEndpoints();
+		endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(2, endpoints.size());
 		ResolvedEndpoint re1 = endpoints.stream().filter(
 				re -> re.getEndpoint().getConfiguration().getDescription().
@@ -231,7 +233,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		//finally test if removal from DB works
 		internalEndpointMan.removeAllPersistedEndpoints();
 		internalEndpointMan.loadPersistedEndpoints();
-		endpoints = endpointMan.getEndpoints();
+		endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(0, endpoints.size());
 	}
 	
@@ -257,4 +259,17 @@ public class TestEndpoints extends DBIntegrationTestBase
 		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(0).getId() , is("auth1"));
 		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(1).getId() , is("auth2"));
 	}
+	
+	@Test
+	public void shouldUndeployEndpoint() throws Exception
+	{
+		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", new ArrayList<String>(), "", REALM_NAME);
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg2);
+		endpointMan.undeploy("endpoint1");	
+		List<Endpoint> endpoints = endpointMan.getEndpoints();
+		assertThat(endpoints.size() , is(1));	
+		Endpoint endpoint = endpoints.get(0);
+		assertThat(endpoint.getState() , is(EndpointState.UNDEPLOYED));	
+	}	
 }

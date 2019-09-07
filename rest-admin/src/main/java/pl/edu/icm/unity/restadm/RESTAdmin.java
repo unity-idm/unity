@@ -45,7 +45,6 @@ import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -620,10 +619,10 @@ public class RESTAdmin
 			@QueryParam("identityType") String identityType, 
 			@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
-		String effectiveType = identityType == null ? EmailIdentity.ID : identityType; 
 		log.debug("Triggering UserNotification \'{}\' for identity {} type {}", 
-				templateId,  identityValue,  effectiveType);
-		Entity entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(effectiveType, identityValue)));
+				templateId,  identityValue,  identityType);
+		EntityParam entityParam = getEP(identityValue, identityType);
+		Entity entity = identitiesMan.getEntity(entityParam);
 		
 		Map<String, String> customTemplateParams = Maps.newHashMap();
 		uriInfo.getQueryParameters().forEach((key, value) -> 
@@ -660,7 +659,7 @@ public class RESTAdmin
 	@GET
 	public String getEndpoints() throws EngineException, JsonProcessingException
 	{
-		List<ResolvedEndpoint> endpoints = endpointManagement.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointManagement.getDeployedEndpoints();
 		return mapper.writeValueAsString(endpoints);
 	}
 	

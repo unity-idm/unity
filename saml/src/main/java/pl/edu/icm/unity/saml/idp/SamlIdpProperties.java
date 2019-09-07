@@ -8,7 +8,7 @@
 
 package pl.edu.icm.unity.saml.idp;
 
-import java.io.IOException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
@@ -97,7 +97,9 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String USER_EDIT_CONSENT = "userCanEditConsent";
 	
 	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:saml";
-	
+	public static final int DEFAULT_SAML_REQUEST_VALIDITY = 600;
+	public static final int DEFAULT_AUTHENTICATION_TIMEOUT = 600;
+	public static final int DEFAULT_ATTR_ASSERTION_VALIDITY = 14400;
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
 
@@ -127,9 +129,9 @@ public class SamlIdpProperties extends SamlProperties
 						+ "what is useful for turning off the default mappings."));
 		defaults.put(IDENTITY_SAML, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(samlCat).
 				setDescription("SAML identity to be mapped"));	
-		defaults.put(SAML_REQUEST_VALIDITY, new PropertyMD("600").setPositive().setCategory(samlCat).
+		defaults.put(SAML_REQUEST_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_SAML_REQUEST_VALIDITY)).setPositive().setCategory(samlCat).
 				setDescription("Defines maximum validity period (in seconds) of a SAML request. Requests older than this value are denied. It also controls the validity of an authentication assertion."));
-		defaults.put(AUTHENTICATION_TIMEOUT, new PropertyMD("600").setPositive().setCategory(samlCat).
+		defaults.put(AUTHENTICATION_TIMEOUT, new PropertyMD(String.valueOf(DEFAULT_AUTHENTICATION_TIMEOUT)).setPositive().setCategory(samlCat).
 				setDescription("Defines maximum time (in seconds) after which the authentication in progress is invalidated. This feature is used to clean up authentications started by users but not finished."));
 		defaults.put(SIGN_RESPONSE, new PropertyMD(ResponseSigningPolicy.asRequest).setCategory(samlCat).
 				setDescription("Defines when SAML responses should be signed. "
@@ -141,7 +143,7 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Defines when SAML assertions (contained in SAML response) "
 						+ "should be signed: either always or if signing may be skipped "
 						+ "if wrapping request will be anyway signed"));
-		defaults.put(DEF_ATTR_ASSERTION_VALIDITY, new PropertyMD("14400").setPositive().setCategory(samlCat).
+		defaults.put(DEF_ATTR_ASSERTION_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ATTR_ASSERTION_VALIDITY)).setPositive().setCategory(samlCat).
 				setDescription("Controls the maximum validity period of an attribute assertion returned to client (in seconds). It is inserted whenever query is compliant with 'SAML V2.0 Deployment Profiles for X.509 Subjects', what usually is the case."));
 		defaults.put(ISSUER_URI, new PropertyMD().setCategory(samlCat).setMandatory().
 				setDescription("This property controls the server's URI which is inserted into SAML responses (the Issuer field). It should be a unique URI which identifies the server. The best approach is to use the server's URL."));
@@ -249,7 +251,7 @@ public class SamlIdpProperties extends SamlProperties
 	private IdentityTypeMapper idTypeMapper;
 	private Map<Integer, String> allowedRequestersByIndex;
 	
-	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
+	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException
 	{
 		super(P, cleanupLegacyProperties(src), defaults, log);
 		sourceProperties = new Properties();
@@ -652,7 +654,7 @@ public class SamlIdpProperties extends SamlProperties
 		try
 		{
 			return new SamlIdpProperties(getProperties(), pkiManagement);
-		} catch (IOException e)
+		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can not clone saml properties", e);
 		} 

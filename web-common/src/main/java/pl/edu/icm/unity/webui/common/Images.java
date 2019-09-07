@@ -118,6 +118,7 @@ public enum Images
 	envelope	(VaadinIcons.ENVELOPE),
 	records	        (VaadinIcons.RECORDS),
 	bullet	        (VaadinIcons.CIRCLE),
+	bullets	        (VaadinIcons.BULLETS),
 	file_add	(VaadinIcons.FILE_ADD),
 	picture		(VaadinIcons.PICTURE),
 	caret_right	(VaadinIcons.CARET_RIGHT),
@@ -137,8 +138,12 @@ public enum Images
 	cogs		(VaadinIcons.COGS),
 	diploma		(VaadinIcons.DIPLOMA),
 	tools		(VaadinIcons.TOOLS),
-	cloud_download	(VaadinIcons.CLOUD_DOWNLOAD_O);
-	
+	cloud_download	(VaadinIcons.CLOUD_DOWNLOAD_O),
+	text		(VaadinIcons.TEXT_LABEL),
+	header		(VaadinIcons.HEADER),
+	grid_v		(VaadinIcons.GRID_V),
+	combobox	(VaadinIcons.COMBOBOX);
+
 	
 	private final Resource resource;
 	private final String path;

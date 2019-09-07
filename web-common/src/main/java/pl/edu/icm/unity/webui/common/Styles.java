@@ -71,6 +71,7 @@ public enum Styles
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
 	uDenseTreeGrid("u-denseTreeGrid"),
 	smallIconLabel("u-smallIconLabel"),
+	mediumIcon("u-mediumIcon"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
 	signInButton("u-signInButton"),

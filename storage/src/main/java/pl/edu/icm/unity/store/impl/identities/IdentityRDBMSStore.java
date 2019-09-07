@@ -45,9 +45,9 @@ public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, Id
 	}
 	
 	@Override
-	protected void preUpdateCheck(IdentityBean oldBean, StoredIdentity supdated)
+	protected void preUpdateCheck(StoredIdentity oldBean, StoredIdentity supdated)
 	{
-		Identity old = jsonSerializer.fromDB(oldBean).getIdentity();
+		Identity old = oldBean.getIdentity();
 		Identity updated = supdated.getIdentity();
 		if (!old.getTypeId().equals(updated.getTypeId()))
 			throw new IllegalArgumentException("Can not change identity type from " + 

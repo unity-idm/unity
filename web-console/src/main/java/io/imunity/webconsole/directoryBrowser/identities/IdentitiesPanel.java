@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
@@ -42,9 +43,13 @@ import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -81,19 +86,30 @@ public class IdentitiesPanel extends SafePanel
 	private HorizontalLayout filtersBar;
 	private EntityFilter fastSearchFilter;
 	private EventsBus bus;
-
+	private String entityNameAttribute = null;
+	
 	@Autowired
 	public IdentitiesPanel(UnityMessageSource msg, AttributeTypeManagement attrsMan,
 			RemoveFromGroupHandler removeFromGroupHandler, AddToGroupHandler addToGroupHandler,
 			EntityCreationHandler entityCreationDialogHandler, DeleteEntityHandler deleteEntityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,
 			IdentityConfirmHandler confirmHandler, EntityMergeHandler entityMergeHandler,
-			IdentitiesTreeGrid identitiesTable)
+			IdentitiesTreeGrid identitiesTable, AttributeSupport attributeSupport)
 	{
 		this.msg = msg;
 		this.identitiesTable = identitiesTable;
 		this.attrsMan = attrsMan;
-
+			
+		try
+		{
+			AttributeType nameAt = attributeSupport
+					.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
+			this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
+		} catch (EngineException e)
+		{
+			log.error("Can not determine name attribute");
+		}
+		
 		main = new VerticalLayout();
 		main.addStyleName(Styles.visibleScroll.toString());
 
@@ -136,10 +152,11 @@ public class IdentitiesPanel extends SafePanel
 
 		bus.addListener(event -> {
 			Set<String> interestingCurrent = identitiesTable.getAttributeColumns(false);
+			interestingCurrent.add(entityNameAttribute);
 			String curGroup = identitiesTable.getGroup();
 			if (interestingCurrent.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
 			{
-				setGroup(curGroup);
+				setGroupWithSelectionSave(curGroup);
 				return;
 			}
 			if (curGroup.equals("/") && curGroup.equals(event.getGroup()))
@@ -147,13 +164,41 @@ public class IdentitiesPanel extends SafePanel
 				Set<String> interestingRoot = identitiesTable.getAttributeColumns(true);
 				if (interestingRoot.contains(event.getAttributeName()))
 				{
-					setGroup(curGroup);
+					setGroupWithSelectionSave(curGroup);
 					return;
 				}
-			}
+			}		
 		}, AttributeChangedEvent.class);
 
 		setGroup(null);
+	}
+	
+	
+	
+	private void setGroupWithSelectionSave(String group)
+	{
+
+		Set<IdentityEntry> selectedItems = identitiesTable.getSelectedItems();
+		setGroup(group);
+
+		if (selectedItems.isEmpty())
+			return;
+
+		IdentityEntry selectedEntry = selectedItems.iterator().next();
+		Identity sourceIdentity = selectedEntry.getSourceIdentity();
+		for (IdentityEntry entry : identitiesTable.getItems())
+		{
+			if (entry.getSourceEntity().getEntity().getId()
+					.equals(selectedEntry.getSourceEntity().getEntity().getId())
+					&& ((sourceIdentity == null && entry.getSourceIdentity() == null ) || (sourceIdentity.equals(entry.getSourceIdentity())))
+			)
+			{
+				identitiesTable.select(entry);
+				identitiesTable.selectionChanged(Sets.newHashSet((entry)));
+				identitiesTable.expandParent(entry);
+			}
+		}
+
 	}
 
 	private SearchField getSearchField()

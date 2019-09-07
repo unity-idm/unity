@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import com.vaadin.event.selection.SingleSelectionEvent;
 import com.vaadin.event.selection.SingleSelectionListener;
+import com.vaadin.server.ErrorMessage;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
@@ -40,7 +41,9 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	private int maxSelection = 0;
 	private VerticalLayout main;
 	private final boolean chipsOnTop;
-	
+	private boolean skipRemoveInvalidSelections = false;
+
+
 	public ChipsWithDropdown()
 	{
 		this(Object::toString, true);
@@ -178,7 +181,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		Set<T> selected = new HashSet<>(chipsRow.getChipsData());
 		
 		//remove not available which were previously selected
-		if (combo.getNewItemProvider() == null)
+		if (combo.getNewItemProvider() == null && !skipRemoveInvalidSelections)
 			selected.stream().filter(item -> !allItems.contains(item))
 					.forEach(item -> chipsRow.removeItem(item));
 		
@@ -200,6 +203,11 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		updateComboVisibility(selected, available);
 	}
 	
+	public void setSkipRemoveInvalidSelections(boolean skipRemoveInvalidSelections)
+	{
+		this.skipRemoveInvalidSelections = skipRemoveInvalidSelections;
+	}
+
 	protected void sortItems(List<T> items)
 	{
 		Collections.sort(items, this::compareItems);
@@ -270,5 +278,15 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	{
 		setSelectedItems(value);
 		
+	}
+
+	@Override
+	public void setComponentError(ErrorMessage componentError)
+	{
+		super.setComponentError(componentError);
+		if (componentError != null)
+			combo.addStyleName("error");
+		else
+			combo.removeStyleName("error");
 	}
 }

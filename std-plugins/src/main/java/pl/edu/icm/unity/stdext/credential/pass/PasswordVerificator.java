@@ -478,6 +478,15 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return new PasswordValidator(ruleList);
 	}
 
+
+	@Override
+	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
+	{
+		PasswordCredential updated = new PasswordCredential();
+		updated.setSerializedConfiguration(JsonUtil.parse(newCredentialDefinition));
+		return updated.hasStrongerRequirementsThen(credential);
+	}
+	
 	public static List<CharacterRule> getCharacteristicsRules()
 	{
 		return Lists.newArrayList(

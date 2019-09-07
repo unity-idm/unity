@@ -1,0 +1,37 @@
+{
+	"ver": "2",
+	"name": "localProfile",
+	"description": "Useful on loopback login (Unity->Unity)",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"userName",
+					"id",
+					"sys:all",
+					"MATCH"
+				]
+			}
+		 },
+			{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"email",
+					"/",
+					"'xxxx@xx.pl'",
+					"CREATE_OR_UPDATE"
+				]
+			}			
+		}
+						
+		
+	]
+}

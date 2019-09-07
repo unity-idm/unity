@@ -143,6 +143,11 @@ public class RegistrationForm extends BaseForm
 		return externalSignupSpec;
 	}
 
+	public boolean isLocalSignupEnabled()
+	{
+		return hasAnyLocalCredential() || !getExternalSignupSpec().isEnabled();
+	}
+	
 	public void setExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
 	{
 		this.externalSignupSpec = externalSignupSpec;

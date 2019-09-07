@@ -88,6 +88,25 @@ public class PasswordCredential
 			minScore = 0;
 	}
 	
+	public boolean hasStrongerRequirementsThen(PasswordCredential other)
+	{
+		if (minLength > other.minLength)
+			return true;
+		if (minClassesNum > other.minClassesNum)
+			return true;
+		if (denySequences && !other.denySequences)
+			return true;
+		if (!allowLegacy && other.allowLegacy)
+			return true;
+		if (minScore > other.minScore)
+			return true;
+		if (maxAge < other.maxAge)
+			return true;
+		if (scryptParams.hasStrongerRequirementsThen(other.scryptParams))
+			return true;
+		return false;
+	}
+	
 	public int getMinLength()
 	{
 		return minLength;

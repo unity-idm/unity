@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
+import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
@@ -46,6 +47,21 @@ public class TranslationProfileGenerator
 		return new TranslationProfile(name, "", ProfileType.INPUT, Arrays.asList(rule));
 	}
 	
+	public static TranslationProfile generateIncludeOutputProfile(String profileToInclude)
+	{
+
+		return generateIncludeOutputProfile(EMBEDDED_PROFILE, profileToInclude);
+	}
+	
+	
+	public static TranslationProfile generateIncludeOutputProfile(String name, String profileToInclude)
+	{
+
+		TranslationRule rule = new TranslationRule("true",
+				new TranslationAction(IncludeOutputProfileActionFactory.NAME, profileToInclude));
+		return new TranslationProfile(name, "", ProfileType.OUTPUT, Arrays.asList(rule));
+	}
+	
 	public static TranslationProfile getProfileFromString(String profile)
 	{
 		try
@@ -64,5 +80,10 @@ public class TranslationProfileGenerator
 	public static TranslationProfile generateEmptyInputProfile()
 	{
 		return new TranslationProfile(EMBEDDED_PROFILE, "", ProfileType.INPUT, new ArrayList<>());
+	}
+	
+	public static TranslationProfile generateEmptyOutputProfile()
+	{
+		return new TranslationProfile(EMBEDDED_PROFILE, "", ProfileType.OUTPUT, new ArrayList<>());
 	}
 }

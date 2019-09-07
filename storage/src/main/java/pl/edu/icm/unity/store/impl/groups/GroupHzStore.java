@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hazelcast.core.TransactionalMap;
 
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
@@ -71,16 +72,16 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAOI
 		}
 	}
 
-	private void cascadeParentRename(long id, String oldPath, Group newObj)
+	private void cascadeParentRename(PlannedUpdateEvent<Group> update)
 	{
 		TransactionalMap<Long, Group> hMap = getMap();
 		TransactionalMap<String, Long> nameMap = getNameMap();
-		String newPath = newObj.getName(); 
-		int oldPathLen = oldPath.length();
+		String newPath = update.newValue.getName(); 
+		int oldPathLen = update.modifiedName.length();
 		for (long key: hMap.keySet())
 		{
 			Group gb = hMap.get(key);
-			if (Group.isChild(gb.getName(), oldPath))
+			if (Group.isChild(gb.getName(), update.modifiedName))
 			{
 				String updatedPath = newPath + gb.getName().substring(oldPathLen);
 				nameMap.remove(gb.getName());

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-class TestTxRunner implements TransactionalRunner
+public class TestTxRunner implements TransactionalRunner
 {
 	@Override
 	public <T> T runInTransactionRet(TxRunnableRet<T> code)

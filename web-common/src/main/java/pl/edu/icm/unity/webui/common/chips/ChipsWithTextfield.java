@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.SerializablePredicate;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
@@ -23,8 +24,9 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
 
 /**
- * In a top row displays a {@link ChipsRow}. Under it a {@link TextField} is displayed. Any text entered in textfield 
- * is added to chips. 
+ * In a top row displays a {@link ChipsRow}. Under it a {@link TextField} is
+ * displayed. Any text entered in textfield is added to chips.
+ *
  * @author K. Benedyczak
  */
 public class ChipsWithTextfield extends CustomField<List<String>>
@@ -35,7 +37,9 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 	private int maxSelection = 0;
 	private VerticalLayout main;
 	private SingleStringFieldBinder binder;
-	
+
+	private Registration shortcutReg;
+
 	public ChipsWithTextfield(UnityMessageSource msg)
 	{
 		this(msg, true, true);
@@ -45,21 +49,34 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 	{
 		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
 		chipsRow = new ChipsRow<>();
-		chipsRow.addChipRemovalListener(e -> fireEvent(new ValueChangeEvent<List<String>>(this, getItems(), true)));
+		chipsRow.addChipRemovalListener(
+				e -> fireEvent(new ValueChangeEvent<List<String>>(this, getItems(), true)));
 		chipsRow.addChipRemovalListener(this::onChipRemoval);
 		chipsRow.setVisible(false);
 
 		textInput = new TextField();
-		textInput.addShortcutListener(new ShortcutListener("Default key", KeyCode.ENTER, null)
+		textInput.setPlaceholder(msg.getMessage("addWithEnter"));
+		ShortcutListener shortcutListener = new ShortcutListener("Default key", KeyCode.ENTER, null)
 		{
 			@Override
 			public void handleAction(Object sender, Object target)
 			{
 				onSelectionChange();
 			}
+		};
+
+		textInput.addFocusListener(e -> {
+
+			shortcutReg = textInput.addShortcutListener(shortcutListener);
 		});
+
+		textInput.addBlurListener(e -> {
+			if (shortcutReg != null)
+				shortcutReg.remove();
+		});
+
 		textInput.setDescription(msg.getMessage("addWithEnter"));
-		
+
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
@@ -71,19 +88,20 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 			main.addComponents(textInput, chipsRow);
 		}
 	}
-	
+
 	@Override
 	protected Component initContent()
 	{
 		return main;
 	}
-	
+
 	public void addChipRemovalListener(ClickListener listner)
 	{
 		chipsRow.addChipRemovalListener(listner);
 	}
 
-	public void setValidator(UnityMessageSource msg, SerializablePredicate<String> validityPredicate, String message)
+	public void setValidator(UnityMessageSource msg, SerializablePredicate<String> validityPredicate,
+			String message)
 	{
 		binder = new SingleStringFieldBinder(msg);
 		binder.forField(textInput).withValidator(validityPredicate, message).bind("value");
@@ -94,7 +112,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
 		updateTextInputVisibility();
 	}
-	
+
 	public void setItems(List<String> items)
 	{
 		chipsRow.removeAll();
@@ -110,7 +128,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		updateTextInputVisibility();
 		chipsRow.setVisible(!(items == null || items.isEmpty()));
 	}
-	
+
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
@@ -118,12 +136,12 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		textInput.setVisible(!readOnly);
 		chipsRow.setReadOnly(readOnly);
 	}
-	
+
 	public List<String> getItems()
 	{
 		return chipsRow.getChipsData();
 	}
-	
+
 	private void onSelectionChange()
 	{
 		textInput.setComponentError(null);
@@ -141,31 +159,30 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		chipsRow.addChip(new Chip<>(selected, selected));
 		chipsRow.setVisible(true);
 		updateTextInputVisibility();
+		fireEvent(new ValueChangeEvent<List<String>>(this, getItems(), true));
 	}
 
 	protected void sortItems(List<String> items)
 	{
 		Collections.sort(items, this::compareItems);
 	}
-	
+
 	private int compareItems(String a, String b)
 	{
 		return a.compareTo(b);
 	}
-	
+
 	protected List<String> checkAvailableItems(Set<String> allItems, Set<String> selected)
 	{
-		return allItems.stream()
-				.filter(i -> !selected.contains(i))
-				.collect(Collectors.toList());
+		return allItems.stream().filter(i -> !selected.contains(i)).collect(Collectors.toList());
 	}
-		
+
 	private void onChipRemoval(ClickEvent event)
 	{
 		chipsRow.setVisible(!chipsRow.getChipsData().isEmpty());
 		updateTextInputVisibility();
 	}
-	
+
 	private void updateTextInputVisibility()
 	{
 		if (readOnly)
@@ -173,7 +190,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		else if (maxSelection > 0)
 			textInput.setVisible(getItems().size() < maxSelection);
 	}
-	
+
 	@Override
 	public void setWidth(float width, Unit unit)
 	{
@@ -181,7 +198,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		if (textInput != null)
 			textInput.setWidth(width, unit);
 	}
-	
+
 	public void setMaxSelection(int maxSelection)
 	{
 		this.maxSelection = maxSelection;

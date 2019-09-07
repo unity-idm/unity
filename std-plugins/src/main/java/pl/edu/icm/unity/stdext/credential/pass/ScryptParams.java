@@ -89,6 +89,19 @@ public class ScryptParams
 		return length;
 	}
 	
+	public boolean hasStrongerRequirementsThen(ScryptParams other)
+	{
+		if (workFactor > other.workFactor)
+			return true;
+		if (length > other.length)
+			return true;
+		if (parallelization > other.parallelization)
+			return true;
+		if (blockSize != other.blockSize)
+			return true;
+		return false;
+	}
+	
 	@Override
 	public int hashCode()
 	{

@@ -85,16 +85,16 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 		}
 
 		@Override
-		public void preUpdateCheck(long modifiedId, String modifiedName,
-				MessageTemplate newValue)
+		public void preUpdateCheck(PlannedUpdateEvent<MessageTemplate> update)
 		{
 			List<EnquiryForm> forms = getAll();
+			String modifiedName = update.modifiedName;
 			for (EnquiryForm form: forms)
 			{
 				EnquiryFormNotifications notCfg = form.getNotificationsConfiguration();
-				boolean needUpdate = checkUpdated(notCfg, modifiedName, newValue, form.getName());
+				boolean needUpdate = checkUpdated(notCfg, modifiedName, update.newValue, form.getName());
 				if (modifiedName.equals(notCfg.getEnquiryToFillTemplate()) && 
-						!newValue.getConsumer().equals(NewEnquiryTemplateDef.NAME))
+						!update.newValue.getConsumer().equals(NewEnquiryTemplateDef.NAME))
 				{
 					throw new IllegalArgumentException("The message template is used by "
 							+ "an enquiry form " + form.getName() + 
@@ -102,7 +102,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 							+ "template incompatible with it");
 				}
 				if (modifiedName.equals(notCfg.getSubmittedTemplate()) && 
-						!newValue.getConsumer().equals(EnquiryFilledTemplateDef.NAME))
+						!update.newValue.getConsumer().equals(EnquiryFilledTemplateDef.NAME))
 				{
 					throw new IllegalArgumentException("The message template is used by "
 							+ "a registration form " + form.getName() + 
@@ -112,12 +112,12 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 				
 				if (modifiedName.equals(notCfg.getEnquiryToFillTemplate()))
 				{
-					notCfg.setEnquiryToFillTemplate(newValue.getName());
+					notCfg.setEnquiryToFillTemplate(update.newValue.getName());
 					needUpdate = true;
 				}
 				if (modifiedName.equals(notCfg.getSubmittedTemplate()))
 				{
-					notCfg.setSubmittedTemplate(newValue.getName());
+					notCfg.setSubmittedTemplate(update.newValue.getName());
 					needUpdate = true;
 				}
 				
@@ -205,7 +205,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 		}
 		
 		@Override
-		public void preUpdateCheck(long modifiedId, String modifiedName, EnquiryForm newValue)
+		public void preUpdateCheck(PlannedUpdateEvent<EnquiryForm> update)
 		{
 			List<Group> all = groupDAO.getAll();
 			for (Group group : all)
@@ -214,8 +214,8 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 				GroupDelegationConfiguration config = group.getDelegationConfiguration();
 
 				if (config.membershipUpdateEnquiryForm != null
-						&& config.membershipUpdateEnquiryForm.equals(modifiedName)
-						&& !newValue.getType().equals(EnquiryType.STICKY))
+						&& config.membershipUpdateEnquiryForm.equals(update.modifiedName)
+						&& !update.newValue.getType().equals(EnquiryType.STICKY))
 				{
 					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
 							config.enabled, config.logoUrl, config.registrationForm,

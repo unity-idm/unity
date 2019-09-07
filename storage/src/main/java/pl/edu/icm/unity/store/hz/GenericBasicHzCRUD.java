@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
@@ -187,7 +188,7 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T oldVal)
 	{
 		for (ReferenceUpdateHandler<T> handler: updateHandlers)
-			handler.preUpdateCheck(modifiedId, modifiedName, newVal);
+			handler.preUpdateCheck(new PlannedUpdateEvent<>(modifiedId, modifiedName, newVal, oldVal));
 	}
 	
 	protected TransactionalMap<Long, T> getMap()

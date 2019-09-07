@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.rdbms;
 
 import java.sql.SQLException;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.store.types.UpdateFlag;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -66,7 +68,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	}
 
 	@Override
-	public void updateByName(String current, T obj)
+	public void updateByNameControlled(String current, T obj, EnumSet<UpdateFlag> updateFlags)
 	{
 		NamedCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
 		DBT byName = mapper.getByName(current);
@@ -145,7 +147,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 	}
 
 	@Override
-	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, DBT old)
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T old)
 	{
 		super.firePreUpdate(modifiedId, old.getName(), newVal, old);
 	}

@@ -651,7 +651,7 @@ public class EngineInitialization extends LifecycleBase
 
 		try
 		{
-			List<ResolvedEndpoint> endpoints = endpointManager.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointManager.getDeployedEndpoints();
 			log.info("Initialized the following endpoints:");
 			for (ResolvedEndpoint endpoint : endpoints)
 			{
@@ -672,7 +672,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		log.info("Loading all configured endpoints");
 
-		List<ResolvedEndpoint> existing = endpointManager.getEndpoints();
+		List<ResolvedEndpoint> existing = endpointManager.getDeployedEndpoints();
 
 		Set<String> endpointsList = config.getStructuredListKeys(UnityServerConfiguration.ENDPOINTS);
 		for (String endpointKey : endpointsList)
@@ -704,6 +704,9 @@ public class EngineInitialization extends LifecycleBase
 			log.info(" - " + name + ": " + type + " " + description);
 			EndpointConfiguration endpointConfiguration = new EndpointConfiguration(displayedName,
 					description, endpointAuthn, jsonConfiguration, realmName);
+			endpointConfiguration.setTag(config.getValue(
+					endpointKey + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
+			
 			endpointManager.deploy(type, name, address, endpointConfiguration);
 		}
 	}

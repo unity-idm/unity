@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:idpdisc="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:saml1md="urn:mace:shibboleth:metadata:1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="DFN-AAI_20141119130028" Name="https://www.aai.dfn.de/DFN-AAI" validUntil="2014-11-24T13:00:28Z" xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+
+<urn:EntityDescriptor entityID="http://example-saml-idp.org" xmlns:urn="urn:oasis:names:tc:SAML:2.0:metadata">
+  <urn:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" WantAuthnRequestsSigned="false">
+    <urn:KeyDescriptor>
+      <xd:KeyInfo xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+        <xd:X509Data>
+          <xd:X509Certificate>MIIDazCCAlOgAwIBAgIJAPm9oVHHE5xAMA0GCSqGSIb3DQEBCwUAMDoxCzAJBgNV
+BAYTAkVVMQ4wDAYDVQQKDAVVbml0eTEbMBkGA1UEAwwSVW5pdHkgTG93IFRydXN0
+IENBMB4XDTE3MDQyNTE3NDIzMloXDTIyMDQyNDE3NDIzMlowQTELMAkGA1UEBhMC
+RVUxDzANBgNVBAcMBldhcnNhdzEOMAwGA1UECgwFVW5pdHkxETAPBgNVBAMMCGlk
+cC10ZXN0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6Nkr8agXkorz
+5F2LeI8vwQ48nxYnkgP8LH+QtHZd4jzO2s0zuoe/FQU99pWwbTfcCN7bGALLKOU3
+zVEnRtMxebzqlydXzCKzik/AZ9hoNdWI6eU1l8mKOCgYS4lEW4zAIBG13/SwA7MG
+gx+EkwcgBKilbygWMlHupdFfeVHAN8JJkkCwYKHcQ1UHQYB8zOPRpQ0uRBtzeOJy
+YJ9Sl7GCiIurHMUy1E/nvUXcCfLQtLabYrEjS5TNWStDIqlTdbhzR8ep9lb4ACEM
+sKXOtUGEVSZGCN01X9G2IPu3qf+chTA20Q49lZe34ellbz0BUn7dDp2MN2LA4eRX
+QO32vJuy8wIDAQABo20wazAJBgNVHRMEAjAAMBEGCWCGSAGG+EIBAQQEAwIE8DAL
+BgNVHQ8EBAMCBPAwHQYDVR0OBBYEFL2Dou/SHPao2rNW3GiyZ7itqv5ZMB8GA1Ud
+IwQYMBaAFGbezRzWktqnUrpG8CR7PgxyB8AWMA0GCSqGSIb3DQEBCwUAA4IBAQAr
+6oUTagoa4hw8DhXslgJOfapcyw8xnkHn+KM5+bH2MBd9YFJz0JMX2OARCnCQUZZB
+z68UXRBYJ7FDLwOSyeXhM90hHaKdwJZWcvPrdzxxRU4u/wMaMNkepAGqAiI77qGP
+c3jMvv/zpr+6zaDVSqIrFZyWqWBsTSHpwaE+7ptLA7BFB6NXoF2zIPRmtQHnLEnv
+xIQOo/jejYO6gETMqlPFnmZpYjGEMhjkVHoZ0j9zTgNFQGDn4tdOoJ+lAQ0McF+w
+2CU3iXDTzVnrfUKsV/tMI8zPze8eVcIPV2d4AURI5+tl54F/MbrJO0yqNWkqfGZS
+IDdNUqCiD+D4rTvF4uP5</xd:X509Certificate>
+        </xd:X509Data>
+      </xd:KeyInfo>
+    </urn:KeyDescriptor>
+    <urn:SingleLogoutService Location="https://localhost:2443/saml-idp/SLO-WEB" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" ResponseLocation="https://localhost:2443/unitygw/SAMLSLOResponseConsumer"/>
+    <urn:SingleLogoutService Location="https://localhost:2443/saml-idp/SLO-WEB" ResponseLocation="https://localhost:2443/unitygw/SAMLSLOResponseConsumer" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"/>
+    <urn:SingleLogoutService Location="https://localhost:2443/saml-idp/SLO-SOAP" Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"/>
+    <urn:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</urn:NameIDFormat>
+    <urn:NameIDFormat>unity:userName</urn:NameIDFormat>
+    <urn:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</urn:NameIDFormat>
+    <urn:NameIDFormat>unity:persistent</urn:NameIDFormat>
+    <urn:NameIDFormat>unity:identifier</urn:NameIDFormat>
+    <urn:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</urn:NameIDFormat>
+    <urn:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</urn:NameIDFormat>
+    <urn:SingleSignOnService Location="https://localhost:2443/saml-idp/saml2idp-web" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"/>
+    <urn:SingleSignOnService Location="https://localhost:2443/saml-idp/saml2idp-web" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"/>
+  </urn:IDPSSODescriptor>
+</urn:EntityDescriptor>
+
+<!-- 
+MIIDbDCCAlSgAwIBAgIJAPm9oVHHE5w+MA0GCSqGSIb3DQEBBQUAMDoxCzAJBgNVBAYTAkVVMQ4wDAYDVQQKDAVVbml0eTEbMBkGA1UEAwwSVW5pdHkgTG93IFRydXN0IENBMB4XDTE2MDMyNDEzNTk0NFoXDTIxMDMyMzEzNTk0NFowQjELMAkGA1UEBhMCRVUxDzANBgNVBAcMBldhcnNhdzEOMAwGA1UECgwFVW5pdHkxEjAQBgNVBAMMCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN6S2OegRYU11rM8w4uGwp4g3HToZ5dHjWIAeU3ngtpJ6yHMVwAqWwmPvOJTYg+Hed4tFwbr5+xt9kbZwNVjojbSFueoRjD6c5ycTkUjPA+ORKawflCxp8kUuggyr2abcp3+C+AuY76OcxttGBaRiyzkAca+I0LzcU3wdSl2/h5guEdUobyzBGmt8Kmm2lHqhj1iTPz6Chg5yFnsdCXTDUCVAoxB0Mf/bm0/1BDElCpA/pqE9ktGxFErUDtHr8K03eW3U5DZ48/3jKtSEPg443YfffDn81PDvvxRzebJP0T9qKzUYshMeZZr5kN9hwMwmpzLSYHYnL1mx+lhvZivRVkCAwEAAaNtMGswCQYDVR0TBAIwADARBglghkgBhvhCAQEEBAMCBPAwCwYDVR0PBAQDAgTwMB0GA1UdDgQWBBTBrFcGtlUpRgdy9otQNqZZP/QNnTAfBgNVHSMEGDAWgBRm3s0c1pLap1K6RvAkez4McgfAFjANBgkqhkiG9w0BAQUFAAOCAQEAJN40mS+s2OU3t40h1ghTgLj3JNKtl5fucd3w8ZYawAHTgJGDw3l6eTUPwhDPGV6If1gNsIDzoGDUmb1iPwR27xzsP+iWZ5SO0q03tpH3lpYcFV1tnWJ8MrFYHgAvt/j7tRC1N9j2MMvRf9oSNYtlbj/pXq3f8MkLf4uGJK9SYTmd4EpCch5DiLYHHTkknmYLxMtdqwl2SRfpu2/Ch989Ha1yokQgkZfYJKFA3BvgYgZc+Q6aeXeVUkBedE5SyDVpChGjdTN7iVgu9kL6l1aRGo1KnN78ce8JwhljjaAm9Fckt4OFMpuNhX879+8p8lQcNFBto0ILS+I4AjFR4Ljtlg==
+ -->
+  
+</EntitiesDescriptor>

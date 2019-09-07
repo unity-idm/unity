@@ -81,7 +81,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 		Random r = new Random(); 
 		for (SPSSODescriptorType spDef: spDefs)
 		{
-			if (!supportsSaml2(spDef))
+			if (!MetaToConfigConverterHelper.supportsSaml2(spDef))
 			{
 				log.trace("SP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
 				continue;
@@ -127,9 +127,9 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			EndpointType soapSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(), 
 					SAMLConstants.BINDING_SOAP);
 		
-			UIInfoType uiInfo = parseMDUIInfo(spDef.getExtensions(), entityId);
-			Map<String, String> names = getLocalizedNames(uiInfo, spDef, meta);
-			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
+			UIInfoType uiInfo = MetaToConfigConverterHelper.parseMDUIInfo(spDef.getExtensions(), entityId);
+			Map<String, String> names = MetaToConfigConverterHelper.getLocalizedNames(msg, uiInfo, spDef, meta);
+			Map<String, LogoType> logos = MetaToConfigConverterHelper.getLocalizedLogos(uiInfo);
 				
 			addEntryToProperties(entityId, defaultEndpoint, endpointURLs, 
 					soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,

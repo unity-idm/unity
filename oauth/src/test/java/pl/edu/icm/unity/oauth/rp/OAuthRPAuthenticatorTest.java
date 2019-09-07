@@ -197,7 +197,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 							Lists.newArrayList("flow4"), JWT_ENDP_CFG,
 							REALM_NAME));
 
-			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 			assertEquals(4, endpoints.size());
 
 			httpServer.start();

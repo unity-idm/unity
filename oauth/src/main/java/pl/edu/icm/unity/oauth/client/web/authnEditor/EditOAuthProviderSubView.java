@@ -25,7 +25,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -52,6 +51,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
@@ -171,7 +171,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 				return ValidationResult.ok();
 			}
 
-		}).withValidator(new NoSpaceValidator()).bind("id");
+		}).withValidator(new NoSpaceValidator(msg)).bind("id");
 		id.setReadOnly(editMode);
 		header.addComponent(id);
 

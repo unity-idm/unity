@@ -12,6 +12,7 @@ import java.util.Set;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
@@ -61,10 +62,11 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 	public void updateByKey(long key, T obj)
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
-		DBT old = mapper.getByKey(key);
-		if (old == null)
+		DBT oldBean = mapper.getByKey(key);
+		if (oldBean == null)
 			throw new IllegalArgumentException(elementName + " with key [" + key + 
 					"] does not exist");
+		T old = jsonSerializer.fromDB(oldBean);
 		preUpdateCheck(old, obj);
 		firePreUpdate(key, null, obj, old);
 		DBT toUpdate = jsonSerializer.toDB(obj);
@@ -80,10 +82,8 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 	
 	/**
 	 * For extensions
-	 * @param old
-	 * @param updated
 	 */
-	protected void preUpdateCheck(DBT old, T updated)
+	protected void preUpdateCheck(T old, T updated)
 	{
 	}
 	
@@ -161,9 +161,9 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 			handler.preRemoveCheck(modifiedId, modifiedName);
 	}
 
-	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, DBT old)
+	protected void firePreUpdate(long modifiedId, String modifiedName, T newVal, T old)
 	{
 		for (ReferenceUpdateHandler<T> handler: updateHandlers)
-			handler.preUpdateCheck(modifiedId, modifiedName, newVal);
+			handler.preUpdateCheck(new PlannedUpdateEvent<>(modifiedId, modifiedName, newVal, old));
 	}
 }

@@ -13,10 +13,10 @@ import org.apache.log4j.Logger;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
  * respectively).
  * @author K. Benedyczak
  */
-public class OAuthASProperties extends PropertiesHelper
+public class OAuthASProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthASProperties.class);
 	
@@ -61,20 +61,24 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm"; 
 	public static final String SIGNING_SECRET = "signingSecret"; 
 	
+	public static final int DEFAULT_CODE_TOKEN_VALIDITY = 600;
+	public static final int DEFAULT_ID_TOKEN_VALIDITY = 3600;
+	public static final int DEFAULT_ACCESS_TOKEN_VALIDITY = 3600;
+	
 	static
 	{
 		defaults.put(ISSUER_URI, new PropertyMD().setMandatory().
 				setDescription("This property controls the server's URI which is used in tokens to identify the Authorization Server. "
 						+ "To be compliant with OAuth&OIDC specifications it should be the server's URL of the OAuth endpoint."));
-		defaults.put(CODE_TOKEN_VALIDITY, new PropertyMD("600").setPositive().
+		defaults.put(CODE_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_CODE_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
-		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
+		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ID_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
 		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD("-1")
 				.setDescription("Controls the validity period of a refresh token (in seconds). "
 						+ "If is set to a negative number refresh tokens won’t be issued. "
 						+ "If is set to 0 refresh tokens will have an unlimited lifetime. "));
-		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD("3600").setPositive().
+		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ACCESS_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
 		defaults.put(MAX_EXTEND_ACCESS_TOKEN_VALIDITY, new PropertyMD().setInt().setPositive().
 				setDescription("If defined then Unity will extend lifetime of a previously issued access token"
@@ -138,6 +142,11 @@ public class OAuthASProperties extends PropertiesHelper
 		this.baseAddress = baseAddress;
 		
 		tokenSigner = new TokenSigner(this, pkiManamgenet);
+	}
+	
+	public OAuthASProperties(Properties properties) throws ConfigurationException
+	{
+		super(P, properties, defaults, log);
 	}
 
 	

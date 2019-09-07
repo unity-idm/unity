@@ -21,7 +21,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.file.ImageField;
@@ -47,22 +47,20 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySubView
 {
-
 	private UnityMessageSource msg;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
-	private Binder<IndividualTrustedSamlIdpConfiguration> configBinder;
-	private boolean editMode = false;
-
+	private Binder<SAMLIndividualTrustedSamlIdpConfiguration> configBinder;
 	private Set<String> certificates;
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
+	private boolean editMode = false;
 
 	EditIndividualTrustedIdpSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, URIAccessService uriAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
-			IndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
+			SAMLIndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,
-			Consumer<IndividualTrustedSamlIdpConfiguration> onConfirm, Runnable onCancel)
+			Consumer<SAMLIndividualTrustedSamlIdpConfiguration> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
 		this.certificates = certificates;
@@ -72,7 +70,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		this.serverConfig = serverConfig;
 		editMode = toEdit != null;
 
-		configBinder = new Binder<>(IndividualTrustedSamlIdpConfiguration.class);
+		configBinder = new Binder<>(SAMLIndividualTrustedSamlIdpConfiguration.class);
 
 		FormLayout header = buildHeaderSection();
 		CollapsibleLayout singleLogout = buildSingleLogoutSection();
@@ -80,7 +78,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				configBinder, "translationProfile");
 
-		configBinder.setBean(editMode ? toEdit.clone() : new IndividualTrustedSamlIdpConfiguration());
+		configBinder.setBean(editMode ? toEdit.clone() : new SAMLIndividualTrustedSamlIdpConfiguration());
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
@@ -114,7 +112,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		TextField name = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.name"));
 		name.focus();
 		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(new NoSpaceValidator()).withValidator((s, c) -> {
+				.withValidator(new NoSpaceValidator(msg)).withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{
 						return ValidationResult.error(msg.getMessage(
@@ -253,7 +251,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 			return Arrays.asList(msg.getMessage("EditIndividualTrustedIdpSubView.newTrustedIdp"));
 	}
 
-	private IndividualTrustedSamlIdpConfiguration getTrustedFederation() throws FormValidationException
+	private SAMLIndividualTrustedSamlIdpConfiguration getTrustedFederation() throws FormValidationException
 	{
 		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();

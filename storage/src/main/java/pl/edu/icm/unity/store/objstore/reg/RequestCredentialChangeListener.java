@@ -8,6 +8,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.types.UpdateFlag;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
@@ -24,9 +25,10 @@ public class RequestCredentialChangeListener<T extends UserRequestState<?>>
 	}
 
 	@Override
-	public void preUpdateCheck(long modifiedId, String modifiedName,
-			CredentialDefinition newValue)
+	public void preUpdateCheck(PlannedUpdateEvent<CredentialDefinition> update)
 	{
+		if (update.updateFlags.contains(UpdateFlag.DOESNT_MAKE_INSTANCES_INVALID))
+			return;
 		List<T> requests = dao.getAll();
 		for (UserRequestState<?> req: requests)
 		{
@@ -34,7 +36,7 @@ public class RequestCredentialChangeListener<T extends UserRequestState<?>>
 				continue;
 			for (CredentialParamValue crParam: req.getRequest().getCredentials())
 			{
-				if (modifiedName.equals(crParam.getCredentialId()))
+				if (update.modifiedName.equals(crParam.getCredentialId()))
 					throw new IllegalArgumentException("The credential "
 							+ "is used by a pending registration request and "
 							+ "can not be modified: " + req.getName());

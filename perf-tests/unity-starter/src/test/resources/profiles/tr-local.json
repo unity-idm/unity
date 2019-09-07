@@ -1,0 +1,21 @@
+{
+	"ver": "2",
+	"name": "localProfile",
+	"description": "Useful on loopback login (Unity->Unity)",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"id",
+					"sys:all",
+					"MATCH"
+				]
+			}			
+		}
+	]
+}

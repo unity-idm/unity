@@ -37,7 +37,7 @@ public class AddFilterDialog extends AbstractDialog
 		super(msg, msg.getMessage("AddFilterDialog.caption"));
 		this.columns = columns;
 		this.callback = callback;
-		setSize(70, 40);
+		setSizeEm(60, 12);
 	}
 
 	@Override

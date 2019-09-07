@@ -22,18 +22,17 @@ public class AttributeTypeRenameListener<T extends BaseForm > implements Referen
 	}
 
 	@Override
-	public void preUpdateCheck(long modifiedId, String modifiedName,
-			AttributeType newValue)
+	public void preUpdateCheck(PlannedUpdateEvent<AttributeType> update)
 	{
-		if (modifiedName.equals(newValue.getName()))
+		if (update.modifiedName.equals(update.newValue.getName()))
 			return;
 		List<T> forms = dao.getAll();
 		for (T form: forms)
 		{
 			for (AttributeRegistrationParam aParam: form.getAttributeParams())
-				if (modifiedName.equals(aParam.getAttributeType()))
+				if (update.modifiedName.equals(aParam.getAttributeType()))
 				{
-					aParam.setAttributeType(newValue.getName());
+					aParam.setAttributeType(update.newValue.getName());
 					dao.update(form);
 				}
 		}

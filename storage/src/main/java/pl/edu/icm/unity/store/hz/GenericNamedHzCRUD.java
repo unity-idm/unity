@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.store.hz;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.types.UpdateFlag;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -43,7 +45,7 @@ public abstract class GenericNamedHzCRUD<T extends NamedObject> extends GenericB
 	}
 	
 	@Override
-	public void updateByName(String current, T newValue)
+	public void updateByNameControlled(String current, T newValue, EnumSet<UpdateFlag> flags)
 	{
 		Long key = getNameMap().get(current);
 		if (key == null)

@@ -19,13 +19,13 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -64,7 +64,9 @@ public class AuthenticationFlowsComponent extends CustomComponent
 				}).setId("name");
 		flowsGrid.setItems(getFlows());
 		flowsGrid.sort("name");
-
+		flowsGrid.setHeightByRows(false);
+		flowsGrid.setHeight(100, Unit.PERCENTAGE);
+		
 		VerticalLayout main = new VerticalLayout();
 		Label flowCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
 		flowCaption.setStyleName(Styles.sectionTitle.toString());

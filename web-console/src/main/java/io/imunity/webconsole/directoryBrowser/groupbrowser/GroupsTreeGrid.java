@@ -147,6 +147,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			loadNode("/", null);
 			expand(treeData.getRootItems());
+			if( treeData.getRootItems().size() > 0)
+			{
+				select(treeData.getRootItems().get(0));
+			}
 
 		} catch (ControllerException e)
 		{
@@ -158,15 +162,22 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	}
 
+	
+	
+	
 	private MenuBar getRowHamburgerMenuComponent(Set<TreeNode> target)
 	{
 		SingleActionHandler<TreeNode> editAction = getEditAction();
 		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
 		SingleActionHandler<TreeNode> editDelegationConfigAction = getEditDelegationConfigAction();
 
+		SingleActionHandler<TreeNode> expandAllAction = getExpandAction();
+		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAction();
+		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
+		
 		HamburgerMenu<TreeNode> menu = new HamburgerMenu<TreeNode>();
 		menu.setTarget(target);
-		menu.addActionHandlers(Arrays.asList(editAction, editACAction, editDelegationConfigAction));
+		menu.addActionHandlers(Arrays.asList(expandAllAction, collapseAllAction, deleteAction, editAction, editACAction, editDelegationConfigAction));
 		menu.addStyleName(SidebarStyles.sidebar.toString());
 
 		return menu;
@@ -419,9 +430,17 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private SingleActionHandler<TreeNode> getExpandAllAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
-				.withCaption(msg.getMessage("GroupsTree.expandGroupsAction")).dontRequireTarget()
+				.withCaption(msg.getMessage("GroupsTree.expandAllGroupsAction")).dontRequireTarget()
 				.withIcon(Images.expand.getResource())
 				.withHandler(g -> expandItemsRecursively(getParentOnly(g))).build();
+	}
+	
+	private SingleActionHandler<TreeNode> getExpandAction()
+	{
+		return SingleActionHandler.builder(TreeNode.class)
+				.withCaption(msg.getMessage("GroupsTree.expandGroupAction")).dontRequireTarget()
+				.withIcon(Images.expand.getResource())
+				.withHandler(g -> expandItemsRecursively(g)).build();
 	}
 
 	private void expandItemsRecursively(Collection<TreeNode> items)
@@ -442,9 +461,17 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private SingleActionHandler<TreeNode> getCollapseAllAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
-				.withCaption(msg.getMessage("GroupsTree.collapseGroupsAction")).dontRequireTarget()
+				.withCaption(msg.getMessage("GroupsTree.collapseAllGroupsAction")).dontRequireTarget()
 				.withIcon(Images.collapse.getResource())
 				.withHandler(g -> collapseItemsRecursively(getParentOnly(g))).build();
+	}
+	
+	private SingleActionHandler<TreeNode> getCollapseAction()
+	{
+		return SingleActionHandler.builder(TreeNode.class)
+				.withCaption(msg.getMessage("GroupsTree.collapseGroupAction")).dontRequireTarget()
+				.withIcon(Images.collapse.getResource())
+				.withHandler(g -> collapseItemsRecursively(g)).build();
 	}
 
 	private void collapseItemsRecursively(Collection<TreeNode> items)

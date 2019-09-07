@@ -67,7 +67,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
 
 		authenticatorTypeCombo = new ComboBox<AuthenticatorTypeDescription>();
-		authenticatorTypeCombo.setCaption(msg.getMessage("AuthenticatorEditor.typeComboCaption"));
+		authenticatorTypeCombo.setCaption(msg.getMessage("MainAuthenticatorEditor.typeComboCaption"));
 		authenticatorTypeCombo.addSelectionListener(e -> reloadEditor());
 		if (typeChangeListener.isPresent())
 		{
@@ -80,7 +80,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 
 		authenticatorTypeLabel = new TextField();
 		authenticatorTypeLabel.setWidth(25, Unit.EM);
-		authenticatorTypeLabel.setCaption(msg.getMessage("AuthenticatorEditor.typeLabelCaption"));
+		authenticatorTypeLabel.setCaption(msg.getMessage("MainAuthenticatorEditor.typeLabelCaption"));
 		authenticatorTypeLabel.setReadOnly(true);
 		
 		mainLayout = new VerticalLayout();

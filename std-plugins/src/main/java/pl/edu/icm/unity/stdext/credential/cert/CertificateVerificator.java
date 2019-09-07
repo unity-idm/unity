@@ -139,6 +139,12 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	{
 		return checkX500Id(entity);
 	}
+
+	@Override
+	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
+	{
+		return false;
+	}
 	
 	@Component
 	public static class Factory extends AbstractLocalCredentialVerificatorFactory

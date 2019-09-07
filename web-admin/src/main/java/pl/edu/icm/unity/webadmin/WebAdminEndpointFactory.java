@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -28,8 +27,10 @@ public class WebAdminEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "WebAdminUI";
 	public static final String SERVLET_PATH = "/admin";
+	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
+			"Web administrative user interface", VaadinAuthentication.NAME,
+			Collections.singletonMap(SERVLET_PATH, "Web admin endpoint"));
 
-	private EndpointTypeDescription description;
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
 	private UnityMessageSource msg;
@@ -41,17 +42,12 @@ public class WebAdminEndpointFactory implements EndpointFactory
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
-		
-		Map<String,String> paths=new HashMap<>();
-		paths.put(SERVLET_PATH,"Web admin endpoint");
-		description = new EndpointTypeDescription(NAME, 
-				"Web administrative user interface", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
-		return description;
+		return TYPE;
 	}
 
 	@Override

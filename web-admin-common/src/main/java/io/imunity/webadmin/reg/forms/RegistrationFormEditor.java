@@ -54,6 +54,7 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnProvidersMultiSelection;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
@@ -92,9 +93,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private CheckBox showGotoSignin;
 	private TextField signInUrl;
 	private TextField registrationCode;
-	private RemoteAuthnProvidersSelection remoteAuthnSelections;
+	private RemoteAuthnProvidersMultiSelection remoteAuthnSelections;
 	
-	private RemoteAuthnProvidersSelection remoteAuthnGridSelections;
+	private RemoteAuthnProvidersMultiSelection remoteAuthnGridSelections;
 	private IntStepper remoteAuthnGridHeight;
 	private CheckBox remoteAuthnGridSearchable;
 	
@@ -346,11 +347,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException
 	{
-		remoteAuthnSelections = new RemoteAuthnProvidersSelection(authenticatorSupport,
+		remoteAuthnSelections = new RemoteAuthnProvidersMultiSelection(authenticatorSupport,
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"),
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description"));
 
-		remoteAuthnGridSelections = new RemoteAuthnProvidersSelection(
+		remoteAuthnGridSelections = new RemoteAuthnProvidersMultiSelection(
 				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions"),
 				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions.description"));
 

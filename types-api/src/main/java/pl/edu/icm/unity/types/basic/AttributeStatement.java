@@ -281,7 +281,7 @@ public class AttributeStatement
 		return "Assign " + (dynamicAttributeMode() ? 
 				(dynamicAttributeType + " = expr(" + dynamicAttributeExpression) + ")":
 				fixedAttribute.toString())
-				+ " if '" + condition + "' is true";
+				+ " if '" + condition + "'";
 	}
 
 	@JsonValue
