@@ -166,7 +166,7 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 
 		CollapsibleLayout attrSection = new CollapsibleLayout(
 				msg.getMessage("IdpEditorUsersTab.advancedAttributeReleaseControl"), mainAttrLayout);
-		attrSection.expand();
+		attrSection.collapse();
 		return attrSection;
 	}
 

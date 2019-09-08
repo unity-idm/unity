@@ -93,11 +93,11 @@ public class AttributesGrid extends CustomComponent
 		attributesGrid.addComponentColumn(a -> getShortValue(a), msg.getMessage("AttributesGrid.valueCaption"),
 				80).setResizable(true);
 
-		attributesGrid.addSortableColumn(a -> TimeUtil.formatMediumInstant(a.getCreationTs().toInstant()),
+		attributesGrid.addSortableColumn(a -> TimeUtil.formatStandardInstant(a.getCreationTs().toInstant()),
 				msg.getMessage("AttributesGrid.createCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 
-		attributesGrid.addSortableColumn(a -> TimeUtil.formatMediumInstant(a.getUpdateTs().toInstant()),
+		attributesGrid.addSortableColumn(a -> TimeUtil.formatStandardInstant(a.getUpdateTs().toInstant()),
 				msg.getMessage("AttributesGrid.updateCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 

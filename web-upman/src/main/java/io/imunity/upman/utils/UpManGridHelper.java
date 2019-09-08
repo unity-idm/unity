@@ -52,7 +52,7 @@ public class UpManGridHelper
 			String caption)
 	{
 		return grid.addColumn(
-				t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t))
+				t -> timeProvider.apply(t) != null ? TimeUtil.formatStandardInstant(timeProvider.apply(t))
 						: "")
 				.setCaption(caption).setExpandRatio(3);
 	}

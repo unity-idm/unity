@@ -64,7 +64,7 @@ public class RequestEntry implements FilterableEntry
 
 	public String getSubmitTime()
 	{
-		return TimeUtil.formatMediumInstant(request.getTimestamp().toInstant());
+		return TimeUtil.formatStandardInstant(request.getTimestamp().toInstant());
 	}
 
 	public String getStatus()

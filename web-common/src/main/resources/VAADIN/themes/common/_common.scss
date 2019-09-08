@@ -22,7 +22,7 @@
 	
 	.v-button-link:after {
 		content: none;
-	}gri
+	}
 
 	.v-label-light {
     	font-size: small;
@@ -758,7 +758,7 @@
 		border-top : none;
 		border-right : none;
 		border-left: none;
-		border-bottom: 1px solid #d4d4d4;
+		border-bottom: 2px solid #d4d4d4;
 	}
 	
 	.u-gridWithActionMulti .v-grid-header th:first-child {
@@ -829,7 +829,11 @@
     	background-image: none;
     	border: none;
 	}
-		 
+	
+	.u-gridWithAction .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button:after {
+    	content: "\f142";
+    	font-family: FontAwesome;
+	}	 
 	.u-wordWrap {
 		word-wrap : break-word !important;
 		white-space : normal !important;	

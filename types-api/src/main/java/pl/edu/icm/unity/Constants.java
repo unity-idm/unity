@@ -21,4 +21,7 @@ public class Constants
 	
 	public static final DateTimeFormatter DT_FORMATTER_MEDIUM = 
 			DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+	
+	public static final DateTimeFormatter DT_FORMATTER_STANDARD = 
+			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 }

@@ -17,17 +17,21 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 /**
  * Shows all authenticators
@@ -40,21 +44,39 @@ public class AuthenticatorsComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private AuthenticatorsController controller;
 	private GridWithActionColumn<AuthenticatorEntry> authenticatorsGrid;
+	private SandboxAuthnRouter sandBoxRouter;
 
-	public AuthenticatorsComponent(UnityMessageSource msg, AuthenticatorsController controller)
+	public AuthenticatorsComponent(UnityMessageSource msg, AuthenticatorsController controller,
+			SandboxAuthnRouter sandBoxRouter)
 	{
 		this.msg = msg;
 		this.controller = controller;
+		this.sandBoxRouter = sandBoxRouter;
 		initUI();
 	}
 
 	private void initUI()
 	{
 		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
-				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
+				.buildActionButton(msg.getMessage("AuthenticatorsComponent.test"), Images.dryrun, e -> {
+					DryRunWizardProvider dryRunProvider = null;
+					try
+					{
+						dryRunProvider = controller.getDryRunProvider(sandBoxRouter);
+					} catch (ControllerException e1)
+					{
+						NotificationPopup.showError(msg, e1);
+						return;
+					}
+					SandboxWizardDialog dialog = new SandboxWizardDialog(
+							dryRunProvider.getWizardInstance(),
+							dryRunProvider.getCaption());
+					dialog.show();
+				}), StandardButtonsHelper.build4AddAction(msg,
+						e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
 
 		authenticatorsGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		authenticatorsGrid.addShowDetailsColumn(a -> getDetailsComponent(a));	
+		authenticatorsGrid.addShowDetailsColumn(a -> getDetailsComponent(a));
 		authenticatorsGrid
 				.addComponentColumn(
 						a -> StandardButtonsHelper.buildLinkButton(a.authenticator.id,
@@ -79,7 +101,7 @@ public class AuthenticatorsComponent extends CustomComponent
 		main.setMargin(false);
 		setCompositionRoot(main);
 	}
-	
+
 	private FormLayout getDetailsComponent(AuthenticatorEntry authenticator)
 	{
 		Label endpoints = new Label();

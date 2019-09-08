@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
+ * Shows service editor
  * 
  * @author P.Piernik
  *

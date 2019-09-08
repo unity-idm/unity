@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
+ * Shows new IDP service editor
  * 
  * @author P.Piernik
  *

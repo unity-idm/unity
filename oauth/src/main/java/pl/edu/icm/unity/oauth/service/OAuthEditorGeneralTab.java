@@ -179,6 +179,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		webAuthzContextPath.setRequiredIndicatorVisible(true);
 		webAuthzContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.usersAuthnPath"));
 		webAuthzContextPath.setReadOnly(editMode);
+		webAuthzContextPath.setPlaceholder("/oauth");
 		oauthWebAuthzBinder.forField(webAuthzContextPath).withValidator((v, c) -> {
 
 			if (!editMode && v != null && usedPaths.contains(v) || (tokenContextPath.getValue() != null
@@ -204,6 +205,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		mainGeneralLayout.addComponent(webAuthzContextPath);
 		tokenContextPath.setRequiredIndicatorVisible(true);
 		tokenContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.clientTokenPath"));
+		tokenContextPath.setPlaceholder("/oauth-token");
 		tokenContextPath.setReadOnly(editMode);
 		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {
 
@@ -242,6 +244,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		mainGeneralLayout.addComponent(description);
 
 		TextField issuerURI = new TextField();
+		issuerURI.setPlaceholder(msg.getMessage("OAuthEditorGeneralTab.issuerURIPlaceholder"));
 		issuerURI.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		issuerURI.setCaption(msg.getMessage("OAuthEditorGeneralTab.issuerURI"));
 		configBinder.forField(issuerURI).asRequired().bind("issuerURI");
@@ -309,7 +312,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
 		configBinder.forField(credential).asRequired((v,c) -> {
-			if ((v == null || v.isEmpty()) && !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
+			if (credential.isEnabled() && (v == null || v.isEmpty()) && !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
@@ -324,7 +327,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingSecret = new TextField();
 		signingSecret.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
 		configBinder.forField(signingSecret).asRequired((v, c) -> {
-			if ((v == null || v.isEmpty()) && Family.HMAC_SHA
+			if (signingSecret.isEnabled() && (v == null || v.isEmpty()) && Family.HMAC_SHA
 					.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
@@ -389,11 +392,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	{
 		OAuthServiceConfiguration config = configBinder.getBean();
 		SigningAlgorithms alg = config.getSigningAlg();
-//		boolean openid = config.isOpenIDConnect();
+		boolean openid = config.isOpenIDConnect();
 
-//		if (openid)
-//		{
-//			signingAlg.setEnabled(true);
+		if (openid)
+		{
+			signingAlg.setEnabled(true);
 			if (alg.toString().startsWith("HS"))
 			{
 				signingSecret.setEnabled(true);
@@ -403,13 +406,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				signingSecret.setEnabled(false);
 				credential.setEnabled(true);
 			}
-//		} else
-//		{
-//			signingSecret.setEnabled(false);
-//			credential.setEnabled(false);
-//			signingAlg.setEnabled(false);
-//		}
-//
+		} else
+		{
+			signingSecret.setEnabled(false);
+			credential.setEnabled(false);
+			signingAlg.setEnabled(false);
+		}
+
 	}
 
 	public void addNameValueChangeListener(ValueChangeListener<String> valueChangeListener)

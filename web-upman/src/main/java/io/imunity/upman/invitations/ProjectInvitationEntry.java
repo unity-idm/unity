@@ -79,11 +79,11 @@ class ProjectInvitationEntry implements FilterableEntry
 		if (email != null && email.toLowerCase().contains(textLower))
 			return true;
 
-		if (requestedTime != null && TimeUtil.formatMediumInstant(requestedTime).toString().toLowerCase()
+		if (requestedTime != null && TimeUtil.formatStandardInstant(requestedTime).toString().toLowerCase()
 				.contains(textLower))
 			return true;
 
-		if (expirationTime != null && TimeUtil.formatMediumInstant(expirationTime).toString().toLowerCase()
+		if (expirationTime != null && TimeUtil.formatStandardInstant(expirationTime).toString().toLowerCase()
 				.contains(textLower))
 			return true;
 
