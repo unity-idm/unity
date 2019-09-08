@@ -216,7 +216,7 @@ public class OAuthServiceConfiguration
 			oauthScope.setAttributes(attributes);
 			scopes.add(oauthScope);
 
-			if (name.equals(OIDCScopeValue.OPENID.toString()))
+			if (name.equals(OIDCScopeValue.OPENID.getValue().toString()))
 			{
 				openIDConnect = true;
 			}

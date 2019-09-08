@@ -144,10 +144,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		super(P, properties, defaults, log);
 		this.baseAddress = baseAddress;
 		
-		if (isOpenIdConnect())
-		{
-			tokenSigner = new TokenSigner(this, pkiManamgenet);
-		}
+		tokenSigner = new TokenSigner(this, pkiManamgenet);
+		
 	}
 	
 	public OAuthASProperties(Properties properties) throws ConfigurationException
@@ -223,7 +221,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		for (String scopeKey : scopeKeys)
 		{
 			String name = getValue(scopeKey + OAuthASProperties.SCOPE_NAME);
-			if (name.equals(OIDCScopeValue.OPENID.toString()))
+			if (name.equals(OIDCScopeValue.OPENID.getValue().toString()))
 			{
 				return true;
 			}

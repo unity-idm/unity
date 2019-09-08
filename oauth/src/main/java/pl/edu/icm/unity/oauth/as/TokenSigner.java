@@ -27,6 +27,7 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Wrapper for  {@link JWSSigner}. Can signs token using RSA, EC or HMAC algorithm. 
@@ -43,26 +44,27 @@ public class TokenSigner
 	{
 		String signAlg = config.getSigningAlgorithm();
 		algorithm = JWSAlgorithm.parse(signAlg);
-		
-		
-		if (Family.RSA.contains(algorithm))
-		{
-			setupCredential(config, pkiManamgenet);
-			setupRSASigner();
-		}
 
-		else if (Family.EC.contains(algorithm))
+		if (config.isOpenIdConnect())
 		{
-			setupCredential(config, pkiManamgenet);
-			setupECSigner(signAlg);
+			if (Family.RSA.contains(algorithm))
+			{
+				setupCredential(config, pkiManamgenet);
+				setupRSASigner();
+			}
 
-		} else if (Family.HMAC_SHA.contains(algorithm))
-		{
-			setupHMACSigner(config, signAlg);
-		} else
-		{
-			throw new ConfigurationException(
-					"Unsupported signing algorithm " + signAlg);
+			else if (Family.EC.contains(algorithm))
+			{
+				setupCredential(config, pkiManamgenet);
+				setupECSigner(signAlg);
+
+			} else if (Family.HMAC_SHA.contains(algorithm))
+			{
+				setupHMACSigner(config, signAlg);
+			} else
+			{
+				throw new ConfigurationException("Unsupported signing algorithm " + signAlg);
+			}
 		}
 
 	}
@@ -161,6 +163,11 @@ public class TokenSigner
 	
 	public SignedJWT sign(IDTokenClaimsSet idTokenClaims) throws JOSEException, ParseException
 	{
+		if (internalSigner == null)
+		{
+			throw new InternalException("Token signer is not initialized");
+		}
+		
 		SignedJWT ret = new SignedJWT(new JWSHeader(algorithm),
 				idTokenClaims.toJWTClaimsSet());	
 		ret.sign(internalSigner);

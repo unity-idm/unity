@@ -76,6 +76,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.name=bar\n"
 			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n"
+			+ "unity.oauth2.as.scopes.3.name=openid\n"
 			+ "unity.oauth2.as.refreshTokenValidity=3600\n";
 
 	public static final String REALM_NAME = "testr";
