@@ -7,8 +7,11 @@ package pl.edu.icm.unity.oauth.as;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -142,6 +145,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		this.baseAddress = baseAddress;
 		
 		tokenSigner = new TokenSigner(this, pkiManamgenet);
+		
 	}
 	
 	public OAuthASProperties(Properties properties) throws ConfigurationException
@@ -209,5 +213,19 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public String getSubjectIdentityType()
 	{
 		return getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT);
+	}
+	
+	public boolean isOpenIdConnect()
+	{
+		Set<String> scopeKeys = getStructuredListKeys(OAuthASProperties.SCOPES);
+		for (String scopeKey : scopeKeys)
+		{
+			String name = getValue(scopeKey + OAuthASProperties.SCOPE_NAME);
+			if (name.equals(OIDCScopeValue.OPENID.getValue().toString()))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

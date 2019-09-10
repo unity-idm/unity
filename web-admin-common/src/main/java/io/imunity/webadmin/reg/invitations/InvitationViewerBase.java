@@ -179,12 +179,12 @@ public abstract class InvitationViewerBase extends CustomComponent
 		
 		formId.setValue(invitation.getFormId());
 		code.setValue(invitationWithCode.getRegistrationCode());
-		expiration.setValue(TimeUtil.formatMediumInstant(invitation.getExpiration()));
+		expiration.setValue(TimeUtil.formatStandardInstant(invitation.getExpiration()));
 		contactAddress.setValue(invitation.getContactAddress());
 		channelId.setValue(getChannel(form));
 		notificationsSent.setValue(String.valueOf(invitationWithCode.getNumberOfSends()));
 		lastSentTime.setValue(invitationWithCode.getLastSentTime() != null
-				? TimeUtil.formatMediumInstant(invitationWithCode.getLastSentTime())
+				? TimeUtil.formatStandardInstant(invitationWithCode.getLastSentTime())
 				: "-");
 		messageParams.setVisible(!invitation.getMessageParams().isEmpty());
 		messageParams.setValue(invitation.getMessageParams().toString());

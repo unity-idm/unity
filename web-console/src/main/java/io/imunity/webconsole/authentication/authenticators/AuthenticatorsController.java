@@ -19,22 +19,29 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.event.selection.SingleSelectionListener;
 
+import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
+import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactoriesRegistry;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * Authenticators controller
+ * 
  * @author P.Piernik
  *
  */
@@ -42,23 +49,28 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class AuthenticatorsController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorsController.class);
-	
+
 	private AuthenticatorManagement authnMan;
 	private AuthenticationFlowManagement flowsMan;
 	private UnityMessageSource msg;
 	private EndpointController endpointController;
 	private AuthenticatorEditorFactoriesRegistry editorsRegistry;
+	private TranslationProfileManagement profileMan;
+	private InputTranslationActionsRegistry inputActionsRegistry;
 
 	@Autowired
 	AuthenticatorsController(AuthenticatorManagement authnMan, UnityMessageSource msg,
-			EndpointController endpointController,
-			AuthenticationFlowManagement flowsMan, AuthenticatorEditorFactoriesRegistry editorsRegistry)
+			EndpointController endpointController, AuthenticationFlowManagement flowsMan,
+			AuthenticatorEditorFactoriesRegistry editorsRegistry, TranslationProfileManagement profileMan,
+			InputTranslationActionsRegistry inputActionsRegistry)
 	{
 		this.authnMan = authnMan;
 		this.msg = msg;
 		this.endpointController = endpointController;
 		this.flowsMan = flowsMan;
 		this.editorsRegistry = editorsRegistry;
+		this.profileMan = profileMan;
+		this.inputActionsRegistry = inputActionsRegistry;
 	}
 
 	Collection<AuthenticatorEntry> getAllAuthenticators() throws ControllerException
@@ -107,7 +119,7 @@ public class AuthenticatorsController
 	{
 		try
 		{
-			
+
 			authnMan.createAuthenticator(authenticator.id, authenticator.type, authenticator.configuration,
 					authenticator.localCredentialName);
 		} catch (Exception e)
@@ -163,7 +175,8 @@ public class AuthenticatorsController
 		}
 	}
 
-	MainAuthenticatorEditor getEditor(AuthenticatorEntry toEdit, SubViewSwitcher subViewSwitcher, SingleSelectionListener<AuthenticatorTypeDescription> typeChangeListener)
+	MainAuthenticatorEditor getEditor(AuthenticatorEntry toEdit, SubViewSwitcher subViewSwitcher,
+			SingleSelectionListener<AuthenticatorTypeDescription> typeChangeListener)
 	{
 
 		return new MainAuthenticatorEditor(msg, editorsRegistry, authnMan.getAvailableAuthenticatorsTypes(),
@@ -183,4 +196,36 @@ public class AuthenticatorsController
 						.anyMatch(toSearch::contains))
 				.map(e -> e.getName()).sorted().collect(Collectors.toList());
 	}
+
+	private String getSandboxURL() throws ControllerException
+	{
+		List<ResolvedEndpoint> endpoints = endpointController.getEndpoints();
+		for (ResolvedEndpoint endpoint : endpoints)
+		{
+			if (endpoint.getType().getName().equals(WebConsoleEndpointFactory.NAME))
+			{
+				return endpoint.getEndpoint().getContextAddress()
+						+ VaadinEndpoint.SANDBOX_PATH_TRANSLATION;
+
+			}
+		}
+
+		throw new ControllerException(msg.getMessage("AuthenticatorsController.getDryRunProviderError"), null);
+	}
+
+	public DryRunWizardProvider getDryRunProvider(SandboxAuthnRouter sandBoxRouter) throws ControllerException
+	{
+		try
+		{
+			DryRunWizardProvider provider = new DryRunWizardProvider(msg, getSandboxURL(), sandBoxRouter,
+					profileMan, inputActionsRegistry);
+
+			return provider;
+		} catch (Exception e)
+		{
+			throw new ControllerException(msg.getMessage("AuthenticatorsController.getDryRunProviderError"),
+					e);
+		}
+	}
+
 }

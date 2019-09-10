@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.services.idp.IdpServiceControllersRegistry;
 
 /**
- * Controller for idp services
+ * Controller for IDP services
  * 
  * @author P.Piernik
  *

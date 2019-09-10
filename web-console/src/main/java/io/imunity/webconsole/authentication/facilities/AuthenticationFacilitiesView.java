@@ -14,6 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webconsole.UnityViewWithSandbox;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webconsole.authentication.authenticators.AuthenticatorsComponent;
@@ -22,10 +23,10 @@ import io.imunity.webconsole.authentication.flows.AuthenticationFlowsComponent;
 import io.imunity.webconsole.authentication.flows.AuthenticationFlowsController;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * Lists all authenticators and flows
@@ -34,13 +35,14 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @PrototypeComponent
-public class AuthenticationFacilitiesView extends CustomComponent implements UnityView
+public class AuthenticationFacilitiesView extends CustomComponent implements UnityViewWithSandbox
 {
 	public static final String VIEW_NAME = "AuthenticationSetup";
 
 	private UnityMessageSource msg;
 	private AuthenticationFlowsController flowsMan;
 	private AuthenticatorsController authnMan;
+	private SandboxAuthnRouter sandBoxRouter;
 
 	@Autowired
 	AuthenticationFacilitiesView(UnityMessageSource msg, AuthenticationFlowsController flowsMan,
@@ -55,7 +57,7 @@ public class AuthenticationFacilitiesView extends CustomComponent implements Uni
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.addComponent(new AuthenticatorsComponent(msg, authnMan));
+		main.addComponent(new AuthenticatorsComponent(msg, authnMan, sandBoxRouter));
 		main.addComponent(new Label());
 		main.addComponent(new AuthenticationFlowsComponent(msg, flowsMan));
 		main.addComponent(new Label());
@@ -92,5 +94,12 @@ public class AuthenticationFacilitiesView extends CustomComponent implements Uni
 					.withPosition(10).build());
 
 		}
+	}
+
+	@Override
+	public void setSandboxRouter(SandboxAuthnRouter router)
+	{
+		sandBoxRouter = router;
+		
 	}
 }

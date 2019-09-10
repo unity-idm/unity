@@ -791,6 +791,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	@Test
 	public void testCreate() throws Exception
 	{
+		Thread.sleep(20);  // make sure new AuditEvents will have different time than already triggered
 		Date startTime = new Date();
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");

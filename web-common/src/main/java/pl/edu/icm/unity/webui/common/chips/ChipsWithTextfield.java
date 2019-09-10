@@ -55,7 +55,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		chipsRow.setVisible(false);
 
 		textInput = new TextField();
-		textInput.setPlaceholder(msg.getMessage("addWithEnter"));
+		textInput.setPlaceholder(msg.getMessage("typeAndConfirm"));
 		ShortcutListener shortcutListener = new ShortcutListener("Default key", KeyCode.ENTER, null)
 		{
 			@Override
@@ -75,7 +75,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 				shortcutReg.remove();
 		});
 
-		textInput.setDescription(msg.getMessage("addWithEnter"));
+		textInput.setDescription(msg.getMessage("typeAndConfirm"));
 
 		main = new VerticalLayout();
 		main.setMargin(false);

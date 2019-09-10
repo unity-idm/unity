@@ -79,6 +79,7 @@ public class OAuthTestUtils
 		properties.setProperty(P + IDENTITY_TYPE_FOR_SUBJECT, TargetedPersistentIdentity.ID);
 		properties.setProperty(P + SCOPES + "1." + SCOPE_NAME, "s1");
 		properties.setProperty(P + SCOPES + "2." + SCOPE_NAME, "s2");
+		properties.setProperty(P + SCOPES + "3." + SCOPE_NAME, "openid");
 		PKIManagement pkiManagement = new MockPKIMan();
 		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR);
 	}

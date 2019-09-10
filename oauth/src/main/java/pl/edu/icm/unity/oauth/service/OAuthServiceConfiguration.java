@@ -70,7 +70,7 @@ public class OAuthServiceConfiguration
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
-		openIDConnect = true;
+		openIDConnect = false;
 	}
 
 	public String toProperties()
@@ -216,7 +216,7 @@ public class OAuthServiceConfiguration
 			oauthScope.setAttributes(attributes);
 			scopes.add(oauthScope);
 
-			if (name.equals(OIDCScopeValue.OPENID.toString()))
+			if (name.equals(OIDCScopeValue.OPENID.getValue().toString()))
 			{
 				openIDConnect = true;
 			}

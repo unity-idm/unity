@@ -49,7 +49,7 @@ public class InvitationEntry implements FilterableEntry
 
 	public String getExpiration()
 	{
-		return TimeUtil.formatMediumInstant(invitation.getExpiration());
+		return TimeUtil.formatStandardInstant(invitation.getExpiration());
 	}
 
 	public boolean isExpired()

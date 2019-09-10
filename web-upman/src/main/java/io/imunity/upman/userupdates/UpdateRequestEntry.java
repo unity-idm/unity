@@ -90,7 +90,7 @@ class UpdateRequestEntry implements FilterableEntry
 		if (email != null && email.getValue().toLowerCase().contains(textLower))
 			return true;
 
-		if (requestedTime != null && TimeUtil.formatMediumInstant(requestedTime).toString().toLowerCase()
+		if (requestedTime != null && TimeUtil.formatStandardInstant(requestedTime).toString().toLowerCase()
 				.contains(textLower))
 			return true;
 

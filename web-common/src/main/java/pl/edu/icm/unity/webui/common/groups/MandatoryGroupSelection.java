@@ -125,21 +125,6 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		return items.stream().map(g -> g.toString()).collect(Collectors.toSet());
 	}
 
-//	@Override
-//	public void setSelectedItem(GroupWithIndentIndicator item)
-//	{
-//		Group realGroup = items.stream().filter(i -> i.toString().equals(item.group.toString())).findFirst()
-//				.orElse(null);
-//		if (realGroup != null)
-//		{
-//			super.setSelectedItem(new GroupWithIndentIndicator(realGroup, false));
-//		} else
-//		{
-//
-//			super.setSelectedItem(item);
-//		}
-//	}
-//	
 	@Override
 	protected void setSelectedItem(GroupWithIndentIndicator value, boolean userOriginated)
 	{

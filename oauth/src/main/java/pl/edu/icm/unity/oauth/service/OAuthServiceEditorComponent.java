@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.RandomStringUtils;
 
 import com.vaadin.data.Binder;
 
@@ -82,11 +83,22 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		List<Group> groupsWithAutoGen = new ArrayList<>();
 		groupsWithAutoGen.addAll(allGroups);
 
+		String genPath = null;
+		do
+		{
+			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + RandomStringUtils.randomAlphabetic(6);
+		} while (checkIfGroupExists(allGroups, genPath));
+
 		autoGenGroup = new Group(
-				OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + UUID.randomUUID().toString());
+				genPath);
+		Group autoGenGroupOAuth = new Group(
+				autoGenGroup.toString() + "/" + OAuthServiceController.OAUTH_CLIENTS_SUBGROUP);
+		autoGenGroupOAuth.setDisplayedName(new I18nString(OAuthServiceController.OAUTH_CLIENTS_SUBGROUP));
+
 		if (!editMode)
 		{
 			groupsWithAutoGen.add(autoGenGroup);
+			groupsWithAutoGen.add(autoGenGroupOAuth);
 		}
 
 		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, server, subViewSwitcher,
@@ -104,7 +116,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		generalTab.addNameValueChangeListener(e -> {
 			if (e.getValue() != null && !e.getValue().isEmpty())
 			{
-				autoGenGroup.setDisplayedName(new I18nString(e.getValue() + "/oauth-client"));
+				autoGenGroup.setDisplayedName(new I18nString(e.getValue()));
 			} else
 			{
 				autoGenGroup.setDisplayedName(new I18nString(autoGenGroup.toString()));
@@ -123,7 +135,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		OAuthServiceDefinition oauthServiceToEdit;
 		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(allGroups);
-		oauthConfig.setClientGroup(new GroupWithIndentIndicator(autoGenGroup, false));
+		oauthConfig.setClientGroup(new GroupWithIndentIndicator(autoGenGroupOAuth, false));
 
 		DefaultServiceDefinition webAuthzService = new DefaultServiceDefinition(
 				OAuthAuthzWebEndpoint.Factory.TYPE.getName());
@@ -169,6 +181,18 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			refreshClients.run();
 		});
 		refreshClients.run();
+	}
+
+	private boolean checkIfGroupExists(List<Group> allGroups, String path)
+	{
+		for (Group group : allGroups)
+		{
+			if (group.toString().equals(path))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private List<OAuthClient> cloneClients(List<OAuthClient> clients)

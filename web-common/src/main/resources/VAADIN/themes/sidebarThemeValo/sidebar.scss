@@ -210,8 +210,12 @@ $narrow-bar-size: 50px;
 			border-top : none;
 			border-right : none;
 			border-left: none;
-			border-bottom: 1px solid #d4d4d4;
+			border-bottom: 2px solid #d4d4d4;
 		}
+		
+		.u-denseTreeGrid .v-treegrid-header th:last-child {
+			padding: 0px 0px 0px 2px;
+		}	
 		
 		.u-denseTreeGrid .v-treegrid-tablewrapper {
     		border: none;
@@ -276,6 +280,11 @@ $narrow-bar-size: 50px;
     		background-image: none;
     		border: none;
 		 }
+		 
+		 .u-denseTreeGrid .v-treegrid-sidebar.v-contextmenu .v-treegrid-sidebar-button:after {
+    		content: "\f142";
+    		font-family: FontAwesome;
+		 }	 
 		 
 		.u-denseTreeGrid  .v-treegrid-cell div.component-wrap {
 			
