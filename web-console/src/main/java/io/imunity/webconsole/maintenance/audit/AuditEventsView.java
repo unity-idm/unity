@@ -16,6 +16,7 @@ import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.identities.EntityDetailsDialog;
 import io.imunity.webadmin.identities.EntityDetailsPanel;
@@ -117,6 +118,27 @@ class AuditEventsView extends CustomComponent implements UnityView
 		auditEventsGrid = new GridWithActionColumn<>(msg, Collections.emptyList(), false, false);
 
 		auditEventsGrid.addHamburgerActions(getActionsHandlers());
+
+		initGridColumns();
+		Layout filterLayout = initFilters();
+
+		VerticalLayout gridWrapper = new VerticalLayout();
+		gridWrapper.setMargin(false);
+		gridWrapper.setSpacing(false);
+		titleLabel.addStyleName("u-AuditEventsGridTitle");
+		gridWrapper.addComponents(titleLabel, filterLayout, auditEventsGrid);
+		gridWrapper.setExpandRatio(auditEventsGrid, 2);
+		gridWrapper.setSizeFull();
+
+		auditEventsGrid.setSizeFull();
+		setCompositionRoot(gridWrapper);
+		setSizeFull();
+
+		refreshDataSet(null);
+	}
+
+	private void initGridColumns()
+	{
 		auditEventsGrid.addShowDetailsColumn(this::getDetailsComponent);
 
 		auditEventsGrid.addSortableColumn(AuditEventEntry::formatTimestamp,
@@ -163,6 +185,11 @@ class AuditEventsView extends CustomComponent implements UnityView
 				msg.getMessage("AuditEventsView.initiatorEmail"), 10)
 				.setSortable(true).setHidable(true).setHidden(true).setId("initiator_email");
 
+		auditEventsGrid.sort("timestamp", SortDirection.DESCENDING);
+	}
+
+	private Layout initFilters()
+	{
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.addStyleName("u-auditEvents-filterLayout");
 		filterLayout.setWidth("100%");
@@ -209,21 +236,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 		searchFilter.addValueChangeListener(this::refreshGrid);
 		tagsFilter.addValueChangeListener(this::refreshGrid);
 
-		auditEventsGrid.sort("timestamp", SortDirection.DESCENDING);
-
-		VerticalLayout gridWrapper = new VerticalLayout();
-		gridWrapper.setMargin(false);
-		gridWrapper.setSpacing(false);
-		titleLabel.addStyleName("u-AuditEventsGridTitle");
-		gridWrapper.addComponents(titleLabel, filterLayout, auditEventsGrid);
-		gridWrapper.setExpandRatio(auditEventsGrid, 2);
-		gridWrapper.setSizeFull();
-
-		auditEventsGrid.setSizeFull();
-		setCompositionRoot(gridWrapper);
-		setSizeFull();
-
-		refreshDataSet(null);
+		return filterLayout;
 	}
 
 	private FormLayout getDetailsComponent(AuditEventEntry ae)

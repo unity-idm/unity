@@ -17,9 +17,9 @@ import java.util.Objects;
  */
 public class AuditEntity
 {
-	final private Long entityId;
-	final private String name;
-	final private String email;
+	private final Long entityId;
+	private final String name;
+	private final String email;
 
 	@JsonCreator
 	public AuditEntity(@JsonProperty("entityId") @NonNull final Long entityId,

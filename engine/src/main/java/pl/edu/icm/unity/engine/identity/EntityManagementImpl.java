@@ -82,6 +82,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static java.lang.String.join;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
@@ -228,7 +229,7 @@ public class EntityManagementImpl implements EntityManagement
 					.action(AuditEventAction.ADD)
 					.name(join(":", toCreate.getTypeId(), toCreate.getName()))
 					.subject(toCreate.getEntityId())
-					.tags("Users"));
+					.tags(USERS));
 			if (extractAttributes && fullAuthz)
 				identityHelper.addExtractedAttributes(toCreate);
 			return new IdentityWithAuthzInfo(toCreate, fullAuthz);
@@ -330,7 +331,7 @@ public class EntityManagementImpl implements EntityManagement
 				.action(AuditEventAction.REMOVE)
 				.name(join(":", toRemove.getTypeId(), identities.stream().filter(id -> id.getTypeId().equals(toRemove.getTypeId())).findFirst().get().getName()))
 				.subject(auditEventListener.createAuditEntity(entityId))
-				.tags("Users"));
+				.tags(USERS));
 	}
 
 	@Override
@@ -361,7 +362,7 @@ public class EntityManagementImpl implements EntityManagement
 				.name(join(":", updatedFull.getTypeId(), updatedFull.getName()))
 				.subject(updatedFull.getEntityId())
 				.details(ImmutableMap.of("action", "manual update"))
-				.tags("Users"));
+				.tags(USERS));
 	}
 
 	@Override
@@ -596,7 +597,7 @@ public class EntityManagementImpl implements EntityManagement
 				.action(AuditEventAction.REMOVE)
 				.name("")
 				.subject(auditEntity)
-				.tags("Users"));
+				.tags(USERS));
 	}
 	
 	@Override
@@ -633,7 +634,7 @@ public class EntityManagementImpl implements EntityManagement
 				.name("")
 				.subject(entityId)
 				.details(ImmutableMap.of("state", status.toString()))
-				.tags("Users"));
+				.tags(USERS));
 		sendNotification(entityId, notificationToSend);
 	}
 
@@ -927,7 +928,7 @@ public class EntityManagementImpl implements EntityManagement
 					.action(AuditEventAction.UPDATE)
 					.name(join(":", id.getTypeId(), id.getName()))
 					.details(ImmutableMap.of("description", "Merged identities", "source", "Entity id " + mergedId, "destination", "Entity id " + targetId))
-					.tags("Users"));
+					.tags(USERS));
 		}
 	}
 	
@@ -961,7 +962,7 @@ public class EntityManagementImpl implements EntityManagement
 						.action(AuditEventAction.REMOVE)
 						.name(join(":", id.getTypeId(), id.getName()))
 						.subject(id.getEntityId())
-						.tags("Users"));
+						.tags(USERS));
 			}
 		}
 	}

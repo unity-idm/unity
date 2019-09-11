@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.lang.String.join;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 /**
  * Shared code related to handling entities and identities
@@ -184,7 +185,7 @@ public class IdentityHelper
 				.action(AuditEventAction.ADD)
 				.name("")
 				.subject(entityId)
-				.tags("Users"));
+				.tags(USERS));
 
 		Identity ret = insertIdentity(toAdd, entityId, false);
 
@@ -289,7 +290,7 @@ public class IdentityHelper
 					.action(AuditEventAction.ADD)
 					.name(join(":", identity.getTypeId(), identity.getName()))
 					.subject(identity.getEntityId())
-					.tags("Users"));
+					.tags(USERS));
 		} catch (Exception e)
 		{
 			throw new IllegalIdentityValueException("Can not add identity " + toAdd, e);

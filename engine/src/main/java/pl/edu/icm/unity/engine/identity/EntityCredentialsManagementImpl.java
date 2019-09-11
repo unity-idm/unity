@@ -41,6 +41,8 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import java.util.Date;
 import java.util.Map;
 
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
+
 /**
  * Implementation of credential and credential requirement operations on
  * entities.
@@ -187,7 +189,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 					.action(AuditEventAction.REMOVE)
 					.name(credentialAttributeName)
 					.subject(entityId)
-					.tags("Authn"));
+					.tags(AUTHN));
 		} else if (desiredCredentialState == LocalCredentialState.outdated)
 		{
 			if (!handler.isSupportingInvalidation())
@@ -207,7 +209,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 					.name(credentialAttributeName)
 					.subject(entityId)
 					.details(ImmutableMap.of("state", "outdated"))
-					.tags("Authn"));
+					.tags(AUTHN));
 		}
 	}
 }

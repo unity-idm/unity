@@ -102,7 +102,7 @@ public class AuditEvent
 		return "AuditEvent{" +
 				"name='" + name + '\'' +
 				", type=" + type +
-				", timestamp=" + timestamp +
+				", timestamp=" + timestamp.getTime() +
 				", subject=" + subject +
 				", initiator=" + initiator +
 				", action=" + action +

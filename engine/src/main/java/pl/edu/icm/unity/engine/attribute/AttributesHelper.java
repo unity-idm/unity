@@ -4,20 +4,9 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
@@ -55,6 +44,17 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
@@ -535,7 +535,7 @@ public class AttributesHelper
 						.action(AuditEventAction.ADD)
 						.name(toCreate.getName())
 						.subject(entityId)
-						.tags("Authn"));
+						.tags(AUTHN));
 			}
 		} else
 		{
@@ -548,7 +548,7 @@ public class AttributesHelper
 						.action(AuditEventAction.UPDATE)
 						.name(toCreate.getName())
 						.subject(entityId)
-						.tags("Authn"));
+						.tags(AUTHN));
 			}
 		}
 	}

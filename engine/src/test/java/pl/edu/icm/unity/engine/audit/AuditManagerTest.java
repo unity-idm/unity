@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 public class AuditManagerTest extends DBIntegrationTestBase
 {
@@ -57,7 +58,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 			.action(AuditEventAction.UPDATE)
 			.name("")
 			.subject(1L)
-			.tags("Users")));
+			.tags(USERS)));
 
 		//than
 		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == initialLogSize + 1));
@@ -98,45 +99,44 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	public void shouldGetEventsForDefinedPeriodAndLimit()
 	{
 		// given
-		int initialLogSize = auditManager.getAllEvents().size();
-		Date now = new Date(System.currentTimeMillis() + 1000);
-		Date nowPlus1 = new Date(now.getTime() + (24 * 3600 * 1000));
-		Date nowPlus2 = new Date(now.getTime() + (48 * 3600 * 1000));
+		Date nowPlusHour = new Date(System.currentTimeMillis() + 3600 * 1000);
+		Date nowPlusDay = new Date(nowPlusHour.getTime() + (23 * 3600 * 1000));
+		Date nowPlus2Days = new Date(nowPlusHour.getTime() + (47 * 3600 * 1000));
 
 		// when
 		tx.runInTransaction(() -> {
 			auditManager.log(AuditEventTrigger.builder()
 					.type(AuditEventType.ENTITY)
 					.action(AuditEventAction.UPDATE)
-					.timestamp(now)
+					.timestamp(nowPlusHour)
 					.name("")
 					.subject(1L)
-					.tags("Users"));
+					.tags(USERS));
 			auditManager.log(AuditEventTrigger.builder()
 					.type(AuditEventType.ENTITY)
 					.action(AuditEventAction.UPDATE)
-					.timestamp(nowPlus1)
+					.timestamp(nowPlusDay)
 					.name("")
 					.subject(2L)
-					.tags("Users"));
+					.tags(USERS));
 			auditManager.log(AuditEventTrigger.builder()
 					.type(AuditEventType.ENTITY)
 					.action(AuditEventAction.UPDATE)
-					.timestamp(nowPlus2)
+					.timestamp(nowPlus2Days)
 					.name("")
 					.subject(3L)
-					.tags("Users"));
+					.tags(USERS));
 		});
 
 		//than
-		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == initialLogSize + 3));
+		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3).size() == 3));
 
 		assertTrue(auditManager.getAuditEvents(null, null, 10).size() > 3);
-		assertEquals(3, auditManager.getAuditEvents(now, null, 10).size());
-		assertEquals(2, auditManager.getAuditEvents(nowPlus1, null, 10).size());
-		assertEquals(2, auditManager.getAuditEvents(now, nowPlus1, 10).size());
-		assertEquals(3, auditManager.getAuditEvents(now, nowPlus2, 10).size());
-		assertEquals(3, auditManager.getAuditEvents(now, null, 3).size());
-		assertEquals(1, auditManager.getAuditEvents(now, null, 1).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10).size());
+		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10).size());
+		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, nowPlus2Days, 10).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 3).size());
+		assertEquals(1, auditManager.getAuditEvents(nowPlusHour, null, 1).size());
 	}
 }

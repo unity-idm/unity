@@ -41,6 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
+
 /**
  * Shared group-related utility methods
  * @author K. Benedyczak
@@ -107,7 +110,7 @@ public class GroupHelper
 				.subject(entityId)
 				.name(group.getName())
 				.details(ImmutableMap.of("action", "add"))
-				.tags("Members", "Groups"));
+				.tags(MEMBERS, GROUPS));
 		log.debug("Added entity " + entityId + " to group " + group.toString());
 	}
 	
@@ -201,7 +204,7 @@ public class GroupHelper
 							.name(group)
 							.subject(entityId)
 							.details(ImmutableMap.of("action", "remove"))
-							.tags("Members", "Groups"));
+							.tags(MEMBERS, GROUPS));
 					dbAttributes.deleteAttributesInGroup(entityId, group);
 					log.debug("Removed entity " + entityId + " from group " + group);
 				}

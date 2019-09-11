@@ -55,6 +55,8 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import static java.util.Objects.nonNull;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
 
 
 /**
@@ -129,7 +131,7 @@ public class GroupsManagementImpl implements GroupsManagement
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.ADD)
 				.name(toAdd.getName())
-				.tags("Groups"));
+				.tags(GROUPS));
 	}
 
 	@Override
@@ -146,7 +148,7 @@ public class GroupsManagementImpl implements GroupsManagement
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.REMOVE)
 				.name(path)
-				.tags("Groups"));
+				.tags(GROUPS));
 	}
 
 	@Override
@@ -209,7 +211,7 @@ public class GroupsManagementImpl implements GroupsManagement
 						.name(group)
 						.subject(entityId)
 						.details(ImmutableMap.of("action", "remove"))
-						.tags("Members", "Groups"));
+						.tags(MEMBERS, GROUPS));
 				dbAttributes.deleteAttributesInGroup(entityId, group);
 			}
 		}
@@ -344,7 +346,7 @@ public class GroupsManagementImpl implements GroupsManagement
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.UPDATE)
 				.name(group.getName())
-				.tags("Groups");
+				.tags(GROUPS);
 		if (nonNull(changedProperty) && nonNull(newValue)) {
 			auditEvent.details(ImmutableMap.of("action", changedProperty, "value", newValue));
 		}

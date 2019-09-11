@@ -9,6 +9,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.Event;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import java.util.Arrays;
@@ -158,6 +159,12 @@ public class AuditEventTrigger implements Event
 		public AuditEventTriggerBuilder tags(String... tags)
 		{
 			auditEvent.tags = tags;
+			return this;
+		}
+
+		public AuditEventTriggerBuilder tags(AuditEventTag... tags)
+		{
+			auditEvent.tags = Arrays.stream(tags).map(AuditEventTag::getStringValue).toArray(String[]::new);
 			return this;
 		}
 

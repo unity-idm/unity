@@ -58,6 +58,7 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	@Override
 	public long create(final AuditEvent obj)
 	{
+		log.debug("Inserting " + obj.toString());
 		long id = super.create(obj);
 		if (obj.getTags() != null && obj.getTags().size() > 0) {
 			tagDAO.insertAuditTags(id, obj.getTags());
