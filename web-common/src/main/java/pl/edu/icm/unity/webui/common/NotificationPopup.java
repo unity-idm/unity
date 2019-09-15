@@ -12,6 +12,7 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -146,7 +147,7 @@ public class NotificationPopup
 				break;
 			if (e.getMessage().equals(lastMessage))
 				continue;
-			if (!(e instanceof EngineException))
+			if (!(e instanceof EngineException || e instanceof ConfigurationException))
 				break;
 			lastMessage = e.getMessage();
 			sb.append(separator).append(lastMessage);

@@ -190,8 +190,9 @@ public class IdentitiesPanel extends SafePanel
 		{
 			if (entry.getSourceEntity().getEntity().getId()
 					.equals(selectedEntry.getSourceEntity().getEntity().getId())
-					&& ((sourceIdentity == null && entry.getSourceIdentity() == null ) || (sourceIdentity.equals(entry.getSourceIdentity())))
-			)
+					&& ((sourceIdentity == null && entry.getSourceIdentity() == null)
+							|| (sourceIdentity != null && sourceIdentity
+									.equals(entry.getSourceIdentity()))))
 			{
 				identitiesTable.select(entry);
 				identitiesTable.selectionChanged(Sets.newHashSet((entry)));

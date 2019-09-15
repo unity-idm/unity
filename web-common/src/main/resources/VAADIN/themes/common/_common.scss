@@ -890,6 +890,10 @@
 		margin-left: -20em;
 	}
 	
+	.u-marginLeftMinus30{
+		margin-left: -30em;
+	}
+	
 	.u-gridEmbeddedEditor{
 		margin-top: -2em;
 		background-color: $content-bg-color;
@@ -930,6 +934,12 @@
 	
 	.u-maxWidth3{
 		max-width : 3em;
+	}
+	
+	.u-clearTextField{
+		margin-top: 3px;
+		margin-left: -1.5em;
+		background : $content-bg-color !important;
 	}
 }
 

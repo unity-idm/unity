@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-class SAMLEditorClientsTab extends CustomComponent implements EditorTab
+public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 {
 	private UnityMessageSource msg;
 	private Binder<SAMLServiceConfiguration> configBinder;
@@ -55,7 +55,7 @@ class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 	private FileStorageService fileStorageService;
 	private IndividualTrustedSPComponent trustedSPs;
 	
-	SAMLEditorClientsTab(UnityMessageSource msg, PKIManagement pkiMan, UnityServerConfiguration serverConfig,
+	public SAMLEditorClientsTab(UnityMessageSource msg, PKIManagement pkiMan, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, FileStorageService fileStorageService, Binder<SAMLServiceConfiguration> configBinder,
 			SubViewSwitcher subViewSwitcher)
 	{

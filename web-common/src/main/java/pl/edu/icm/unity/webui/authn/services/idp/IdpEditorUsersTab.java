@@ -84,9 +84,10 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 
 		GridWithActionColumn<IdpUser> usersGrid = new GridWithActionColumn<>(msg, Collections.emptyList());
 		usersGrid.setActionColumnHidden(true);
-		usersGrid.addColumn(u -> u.name, msg.getMessage("IdpEditorUsersTab.entity"), 20);
-		usersGrid.addColumn(u -> u.identity, msg.getMessage("IdpEditorUsersTab.identity"), 20);
-		usersGrid.addColumn(u -> u.identityType, msg.getMessage("IdpEditorUsersTab.identityType"), 20);
+		usersGrid.addColumn(u -> {
+			return "[" + u.entity + "] " + (u.name != null ? u.name : "");
+
+		}, msg.getMessage("IdpEditorUsersTab.entity"), 20);
 		usersGrid.addColumn(u -> u.state.toString(), msg.getMessage("IdpEditorUsersTab.status"), 20);
 		usersGrid.setItems(allUsers);
 		usersGrid.setHeightByRows(true);
@@ -159,7 +160,7 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 						: "",
 				msg.getMessage("IdpEditorUsersTab.multipleActiveValueSelection"), 10);
 
-		releasedAttrsGrid.setMinHeightByRow(7);
+		releasedAttrsGrid.setMinHeightByRow(9);
 		configBinder.forField(releasedAttrsGrid).bind("activeValueSelections");
 
 		mainAttrLayout.addComponent(releasedAttrsGrid);

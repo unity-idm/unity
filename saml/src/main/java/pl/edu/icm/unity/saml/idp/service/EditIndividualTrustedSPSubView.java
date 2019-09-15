@@ -138,6 +138,7 @@ class EditIndividualTrustedSPSubView extends CustomComponent implements UnitySub
 		header.addComponent(encryptAssertions);
 
 		ChipsWithTextfield authorizedURIs = new ChipsWithTextfield(msg);
+		authorizedURIs.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		authorizedURIs.setCaption(msg.getMessage("EditIndividualTrustedSPSubView.authorizedURIs"));
 		configBinder.forField(authorizedURIs).bind("authorizedRedirectsUri");
 		header.addComponent(authorizedURIs);

@@ -42,7 +42,7 @@ class OAuthServiceEditor implements ServiceEditor
 	private OAuthServiceEditorComponent editor;
 	private List<String> allAttributes;
 	private List<Group> allGroups;
-	private List<IdpUser> allUsers;
+	private List<IdpUser> allIdpUsers;
 	private List<OAuthClient> allClients;
 	private List<String> registrationForms;
 	private Set<String> credentials;
@@ -55,14 +55,15 @@ class OAuthServiceEditor implements ServiceEditor
 	private SubViewSwitcher subViewSwitcher;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private List<String> usedPaths;
+	private List<String> allUsernames;
 
 	OAuthServiceEditor(UnityMessageSource msg, SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, NetworkServer server,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
-			List<OAuthClient> allClients, List<String> registrationForms, Set<String> credentials,
+			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allIdpUsers,
+			List<OAuthClient> allClients, List<String> allUsernames, List<String> registrationForms, Set<String> credentials,
 			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
 			List<String> usedPaths)
 	{
@@ -83,8 +84,9 @@ class OAuthServiceEditor implements ServiceEditor
 		this.subViewSwitcher = subViewSwitcher;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.usedPaths = usedPaths;
-		this.allUsers = allUsers;
+		this.allIdpUsers = allIdpUsers;
 		this.allClients = allClients;
+		this.allUsernames = allUsernames;
 	}
 
 	@Override
@@ -92,7 +94,7 @@ class OAuthServiceEditor implements ServiceEditor
 	{
 		editor = new OAuthServiceEditorComponent(msg, subViewSwitcher, server, uriAccessService,
 				fileStorageService, serverConfig, outputTranslationProfileFieldFactory, endpoint,
-				allRealms, flows, authenticators, allGroups, allUsers, allClients, registrationForms,
+				allRealms, flows, authenticators, allGroups, allIdpUsers, allClients, allUsernames, registrationForms,
 				credentials, authenticatorSupportService, idTypes, allAttributes, usedPaths);
 		return editor;
 	}

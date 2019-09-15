@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.service;
+package pl.edu.icm.unity.saml.idp.ws;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +11,6 @@ import java.util.Set;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -30,12 +29,12 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
- * SAML Service editor
+ * SAML SOAP Service editor
  * 
  * @author P.Piernik
  *
  */
-public class SAMLServiceEditor implements ServiceEditor
+public class SAMLSoapServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
 	private EndpointTypeDescription type;
@@ -43,32 +42,29 @@ public class SAMLServiceEditor implements ServiceEditor
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
-	private SAMLServiceEditorComponent editor;
+	private SAMLSoapServiceEditorComponent editor;
 	private List<String> allAttributes;
 	private List<Group> allGroups;
 	private List<IdpUser> allUsers;
-	private List<String> registrationForms;
 	private Set<String> credentials;
 	private Set<String> truststores;
 	private URIAccessService uriAccessService;
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
-	private AuthenticatorSupportService authenticatorSupportService;
 	private NetworkServer server;
 	private Collection<IdentityType> idTypes;
 	private SubViewSwitcher subViewSwitcher;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private List<String> usedPaths;
 
-	public SAMLServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
+	public SAMLSoapServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, NetworkServer server,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
-			List<String> registrationForms, Set<String> credentials, Set<String> truststores,
-			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
+			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes,
 			List<String> usedPaths)
 	{
 		this.msg = msg;
@@ -78,11 +74,9 @@ public class SAMLServiceEditor implements ServiceEditor
 		this.flows = flows;
 		this.allAttributes = allAttributes;
 		this.allGroups = allGroups;
-		this.registrationForms = registrationForms;
 		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
-		this.authenticatorSupportService = authenticatorSupportService;
 		this.credentials = credentials;
 		this.server = server;
 		this.idTypes = idTypes;
@@ -97,10 +91,10 @@ public class SAMLServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new SAMLServiceEditorComponent(msg, type, pkiMan, subViewSwitcher, server, uriAccessService,
-				fileStorageService, serverConfig, outputTranslationProfileFieldFactory, endpoint,
-				allRealms, flows, authenticators, allGroups, allUsers, registrationForms, credentials,
-				truststores, authenticatorSupportService, idTypes, allAttributes, usedPaths);
+		editor = new SAMLSoapServiceEditorComponent(msg, type, pkiMan, subViewSwitcher, server,
+				uriAccessService, fileStorageService, serverConfig,
+				outputTranslationProfileFieldFactory, endpoint, allRealms, flows, authenticators,
+				allGroups, allUsers, credentials, truststores, idTypes, allAttributes, usedPaths);
 		return editor;
 	}
 

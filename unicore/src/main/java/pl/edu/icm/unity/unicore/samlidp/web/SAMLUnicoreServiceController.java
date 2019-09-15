@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.service;
+package pl.edu.icm.unity.unicore.samlidp.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
+import pl.edu.icm.unity.saml.idp.service.SAMLServiceControllerBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
 
@@ -34,12 +34,11 @@ import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
  *
  */
 @Component
-public class SAMLServiceController extends SAMLServiceControllerBase
+public class SAMLUnicoreServiceController extends SAMLServiceControllerBase
 {
-
 	@Autowired
-	public SAMLServiceController(UnityMessageSource msg, EndpointManagement endpointMan, UnityMessageSource msg2,
-			EndpointManagement endpointMan2, RealmsManagement realmsMan,
+	public SAMLUnicoreServiceController(UnityMessageSource msg, EndpointManagement endpointMan,
+			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
@@ -58,6 +57,6 @@ public class SAMLServiceController extends SAMLServiceControllerBase
 	@Override
 	public EndpointTypeDescription getType()
 	{
-		return SamlIdPWebEndpointFactory.TYPE;
+		return SamlUnicoreIdPWebEndpointFactory.TYPE;
 	}
 }

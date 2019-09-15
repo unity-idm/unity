@@ -5,52 +5,8 @@
 
 package io.imunity.webconsole.maintenance.audit;
 
-import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.data.provider.Query;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.SerializablePredicate;
-import com.vaadin.shared.data.sort.SortDirection;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.VerticalLayout;
-import io.imunity.webadmin.identities.EntityDetailsDialog;
-import io.imunity.webadmin.identities.EntityDetailsPanel;
-import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
-import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.engine.api.AuditEventManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.UnknownIdentityException;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import static java.lang.String.join;
+import static java.util.Objects.nonNull;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -64,8 +20,53 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.String.join;
-import static java.util.Objects.nonNull;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.data.provider.Query;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.SerializablePredicate;
+import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DateTimeField;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
+import com.vaadin.ui.VerticalLayout;
+
+import io.imunity.webadmin.identities.EntityDetailsDialog;
+import io.imunity.webadmin.identities.EntityDetailsPanel;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
+import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.NavigationInfo.Type;
+import io.imunity.webelements.navigation.UnityView;
+import pl.edu.icm.unity.engine.api.AuditEventManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Lists AuditEvent object with ability to filter data.
@@ -374,6 +375,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 		refreshGrid(null);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> void refreshGrid(T newValue)
 	{
 		auditEventsGrid.getDataProvider().refreshAll();

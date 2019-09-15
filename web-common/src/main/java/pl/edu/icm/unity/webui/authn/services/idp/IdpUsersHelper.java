@@ -19,7 +19,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * A collection of methods helpful in getting Idp users
@@ -72,13 +71,8 @@ public class IdpUsersHelper
 
 			for (String group : info.groups)
 			{
-
-				for (Identity id : info.identities)
-				{
-					IdpUser user = new IdpUser(entity, name, group, id.getValue(), id.getTypeId(),
-							state);
-					users.add(user);
-				}
+				IdpUser user = new IdpUser(entity, name, group, state);
+				users.add(user);
 			}
 		}
 

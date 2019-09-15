@@ -20,17 +20,13 @@ public class IdpUser implements FilterableEntry
 	public final Long entity;
 	public final String name;
 	public final String group;
-	public final String identity;
-	public final String identityType;
 	public final EntityState state;
 
-	public IdpUser(Long entity, String name, String group, String identity, String identityType, EntityState state)
+	public IdpUser(Long entity, String name, String group, EntityState state)
 	{
 		this.entity = entity;
 		this.name = name;
 		this.group = group;
-		this.identity = identity;
-		this.identityType = identityType;
 		this.state = state;
 	}
 
@@ -38,16 +34,8 @@ public class IdpUser implements FilterableEntry
 	public boolean anyFieldContains(String searched, UnityMessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
-
 		if (name != null && name.toLowerCase().contains(textLower))
 			return true;
-
-		if (identity != null && identity.toLowerCase().contains(textLower))
-			return true;
-
-		if (identityType != null && identityType.toLowerCase().contains(textLower))
-			return true;
-
 		if (state != null && state.toString().toLowerCase().contains(textLower))
 			return true;
 

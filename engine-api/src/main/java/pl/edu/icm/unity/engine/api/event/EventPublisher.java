@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.event;
 
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.Event;
 
 /**

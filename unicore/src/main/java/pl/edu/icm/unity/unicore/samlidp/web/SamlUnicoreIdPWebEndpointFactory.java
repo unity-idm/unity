@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import java.util.HashMap;
+import java.util.AbstractMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,9 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
- * Factory creating {@link SamlAuthVaadinEndpoint} endpoints with the UNICORE specific UI.
+ * Factory creating {@link SamlAuthVaadinEndpoint} endpoints with the UNICORE
+ * specific UI.
+ * 
  * @author K. Benedyczak
  */
 @Component
@@ -26,30 +30,27 @@ public class SamlUnicoreIdPWebEndpointFactory implements EndpointFactory
 {
 	public static final String NAME = "SAMLUnicoreWebIdP";
 
+	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
+			"SAML 2 UNICORE identity provider web endpoint", VaadinAuthentication.NAME,
+			Stream.of(new AbstractMap.SimpleEntry<>(SamlAuthETDVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH,
+					"SAML 2 UNICORE identity provider web endpoint"),
+					new AbstractMap.SimpleEntry<>(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH,
+							"Metadata of the SAML 2 identity provider web endpoint"),
+					new AbstractMap.SimpleEntry<>(
+							SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH,
+							"Single Logout web endpoint "
+									+ "(supports POST and Redirect bindings)"),
+					new AbstractMap.SimpleEntry<>(SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH,
+							"Single Logout web endpoint (supports SOAP binding)"))
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+
 	@Autowired
 	private ObjectFactory<SamlAuthETDVaadinEndpoint> factory;
-	
-	private EndpointTypeDescription description;
 
-	public SamlUnicoreIdPWebEndpointFactory()
-	{
-		Map<String,String> paths=new HashMap<>();
-		paths.put(SamlAuthETDVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH,
-				"SAML 2 UNICORE identity provider web endpoint");
-		paths.put(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH, 
-				"Metadata of the SAML 2 identity provider web endpoint");
-		paths.put(SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH, "Single Logout web endpoint "
-				+ "(supports POST and Redirect bindings)");
-		paths.put(SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH, 
-				"Single Logout web endpoint (supports SOAP binding)");
-		description = new EndpointTypeDescription(NAME, 
-				"SAML 2 UNICORE identity provider web endpoint", VaadinAuthentication.NAME, paths);
-	}
-	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
-		return description;
+		return TYPE;
 	}
 
 	@Override

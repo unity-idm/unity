@@ -17,7 +17,9 @@ import org.vaadin.risto.stepper.IntStepper;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -38,7 +40,6 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.ResponseSigningPolicy;
 import pl.edu.icm.unity.saml.idp.service.common.SAMLIdentityMapping;
-import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase.EditorTab;
@@ -48,6 +49,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.FileField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -59,7 +61,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
  * @author P.Piernik
  *
  */
-class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
+public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 {
 	private UnityMessageSource msg;
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
@@ -75,7 +77,7 @@ class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private boolean editMode;
 	private CheckBox signMetadata;
 
-	SAMLEditorGeneralTab(UnityMessageSource msg, NetworkServer server, UnityServerConfiguration serverConfig,
+	public SAMLEditorGeneralTab(UnityMessageSource msg, NetworkServer server, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
 			Binder<DefaultServiceDefinition> samlServiceBinder,
 			Binder<SAMLServiceConfiguration> configBinder, boolean editMode, List<String> usedPaths,
@@ -119,36 +121,34 @@ class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		FormLayoutWithFixedCaptionWidth mainGeneralLayout = new FormLayoutWithFixedCaptionWidth();
 		main.addComponent(mainGeneralLayout);
 
-		HorizontalLayout infoLayout = new HorizontalLayout();
-		infoLayout.setMargin(new MarginInfo(false, true, false, true));
-		infoLayout.setStyleName("u-marginLeftMinus20");
-		infoLayout.addStyleName("u-border");
-		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setMargin(false);
-		infoLayout.addComponent(wrapper);
-		wrapper.addComponent(new Label(msg.getMessage("SAMLEditorGeneralTab.exposedURLs")));
-		FormLayout infoLayoutWrapper = new FormLayout();
-		infoLayoutWrapper.setSpacing(false);
-		infoLayoutWrapper.setMargin(false);
-		wrapper.addComponent(infoLayoutWrapper);
-
-		Label userAuthnEndpointPath = new Label();
-		userAuthnEndpointPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.userAuthnEndpointPath"));
-		infoLayoutWrapper.addComponent(userAuthnEndpointPath);
-
-		Label metadataEndpointPath = new Label();
-		metadataEndpointPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataEndpointPath"));
-		infoLayoutWrapper.addComponent(metadataEndpointPath);
-
-		Label singleLogoutUserPath = new Label();
-		singleLogoutUserPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.singleLogoutUserPath"));
-		infoLayoutWrapper.addComponent(singleLogoutUserPath);
-
-		Label singleLogoutPath = new Label();
-		singleLogoutPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.singleLogoutPath"));
-		infoLayoutWrapper.addComponent(singleLogoutPath);
-
-		main.addComponent(infoLayout);
+		Button metaPath = new Button();
+		
+		if (editMode)
+		{
+			HorizontalLayout infoLayout = new HorizontalLayout();
+			infoLayout.setMargin(new MarginInfo(false, true, false, true));
+			infoLayout.setStyleName("u-marginLeftMinus30");
+			infoLayout.addStyleName("u-border");
+			VerticalLayout wrapper = new VerticalLayout();
+			wrapper.setMargin(false);
+			infoLayout.addComponent(wrapper);
+			wrapper.addComponent(new Label(msg.getMessage("SAMLEditorGeneralTab.importantURLs")));
+			FormLayout infoLayoutWrapper = new FormLayout();
+			infoLayoutWrapper.setSpacing(false);
+			infoLayoutWrapper.setMargin(false);
+			wrapper.addComponent(infoLayoutWrapper);
+			HorizontalLayout l = new HorizontalLayout();
+			l.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
+			metaPath.setStyleName(Styles.vButtonLink.toString());
+			l.addComponent(metaPath);
+			infoLayoutWrapper.addComponent(l);
+			metaPath.addClickListener(e -> {
+				  Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
+			});
+			main.addComponent(infoLayout);
+		}
+		
+		
 
 		TextField name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
@@ -157,6 +157,7 @@ class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		mainGeneralLayout.addComponent(name);
 
 		TextField contextPath = new TextField();
+		contextPath.setPlaceholder("/saml-idp");
 		contextPath.setRequiredIndicatorVisible(true);
 		contextPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.contextPath"));
 		contextPath.setReadOnly(editMode);
@@ -170,21 +171,24 @@ class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			try
 			{
 				EndpointPathValidator.validateEndpointPath(v);
-				userAuthnEndpointPath.setValue(
-						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH);
-				metadataEndpointPath.setValue(
-						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH);
-				singleLogoutUserPath.setValue(
-						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH);
-				singleLogoutPath.setValue(
-						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH);
+				metaPath.setCaption(serverPrefix + v +"/metadata" );
+				
+				
+//				userAuthnEndpointPath.setValue(
+//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH);
+//				metadataEndpointPath.setValue(
+//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH);
+//				singleLogoutUserPath.setValue(
+//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH);
+//				singleLogoutPath.setValue(
+//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH);
 
 			} catch (WrongArgumentException e)
 			{
-				userAuthnEndpointPath.setValue("");
-				metadataEndpointPath.setValue("");
-				singleLogoutUserPath.setValue("");
-				singleLogoutPath.setValue("");
+//				userAuthnEndpointPath.setValue("");
+//				metadataEndpointPath.setValue("");
+//				singleLogoutUserPath.setValue("");
+//				singleLogoutPath.setValue("");
 
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
 

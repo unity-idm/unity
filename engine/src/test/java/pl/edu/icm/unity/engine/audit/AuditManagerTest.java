@@ -4,11 +4,21 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
-import org.apache.logging.log4j.Logger;
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.base.utils.Log;
+
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -17,21 +27,8 @@ import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
-
 public class AuditManagerTest extends DBIntegrationTestBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditManagerTest.class);
-
 	@Autowired
 	private AuditManager auditManager;
 

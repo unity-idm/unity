@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
@@ -119,7 +120,15 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 
 		TextField name = new TextField();
 		name.setCaption(msg.getMessage("EditOAuthClientSubView.name"));
-		binder.forField(name).bind("name");
+		binder.forField(name).withValidator((v, c) -> {
+
+			if (v != null && !v.isEmpty() && v.length() < 2)
+			{
+				return ValidationResult.error(msg.getMessage("toShortValue"));
+			}
+			return ValidationResult.ok();
+
+		}).bind("name");
 		header.addComponent(name);
 
 		TextFieldWithGenerator id = new TextFieldWithGenerator();
@@ -183,6 +192,7 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		header.addComponent(type);
 
 		ChipsWithTextfield redirectURIs = new ChipsWithTextfield(msg);
+		redirectURIs.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		redirectURIs.setCaption(msg.getMessage("EditOAuthClientSubView.authorizedRedirectURIs"));
 		binder.forField(redirectURIs).bind("redirectURIs");
 		header.addComponent(redirectURIs);

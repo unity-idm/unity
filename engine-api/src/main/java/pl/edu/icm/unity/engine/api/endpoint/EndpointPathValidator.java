@@ -24,6 +24,8 @@ public class EndpointPathValidator
 			throw new WrongArgumentException("Context path must start with a leading '/'");
 		if (contextPath.indexOf("/", 1) != -1)
 			throw new WrongArgumentException("Context path must not possess more then one '/'");
+		if (contextPath.length() == 1)
+			throw new WrongArgumentException("Context path must be a valid path element of a URL");
 		try
 		{
 			URL tested = new URL("https://localhost:8080" + contextPath);

@@ -65,7 +65,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			UnityServerConfiguration serverConfig, OutputTranslationProfileFieldFactory profileFieldFactory,
 			ServiceDefinition toEdit, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<Group> allGroups, List<IdpUser> allUsers,
-			List<OAuthClient> allClients, List<String> registrationForms, Set<String> credentials,
+			List<OAuthClient> allClients, List<String> allUserames, List<String> registrationForms, Set<String> credentials,
 			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
 			List<String> attrTypes, List<String> usedPaths)
 	{
@@ -106,7 +106,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 				oauthConfigBinder, editMode, credentials, idTypes, attrTypes, usedPaths);
 
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
-				subViewSwitcher, flows, authenticators, allRealms, groupsWithAutoGen, allUsers,
+				subViewSwitcher, flows, authenticators, allRealms, groupsWithAutoGen, allUserames,
 				OAuthTokenEndpoint.TYPE.getSupportedBinding(), oauthServiceTokenBinder,
 				oauthConfigBinder, clientsBinder);
 

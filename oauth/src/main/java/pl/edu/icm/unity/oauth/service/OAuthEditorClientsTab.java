@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
 import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -30,14 +30,12 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.service.OAuthClient.OAuthClientsBean;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -70,14 +68,14 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 	private List<String> flows;
 	private List<String> authenticators;
 	private List<Group> groups;
-	private List<IdpUser> users;
+	private List<String> allUsernames;
 
 	private MandatoryGroupSelection groupCombo;
 
 	OAuthEditorClientsTab(UnityMessageSource msg, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, SubViewSwitcher subViewSwitcher,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<Group> groups, List<IdpUser> users, String binding,
+			List<String> allRealms, List<Group> groups, List<String> allUsernames, String binding,
 			Binder<DefaultServiceDefinition> oauthTokenBinder,
 			Binder<OAuthServiceConfiguration> configBinder, Binder<OAuthClientsBean> clientsBinder)
 	{
@@ -93,7 +91,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
 		this.groups = groups;
-		this.users = users;
+		this.allUsernames = allUsernames;
 		initUI();
 	}
 
@@ -286,8 +284,9 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 			Set<String> clients = new HashSet<>();
 			clients.addAll(clientsList.getElements().stream().filter(c -> c.getEntity() == null)
 					.map(c -> c.getId()).collect(Collectors.toSet()));
-			clients.addAll(users.stream().filter(u -> u.identityType.equals(UsernameIdentity.ID))
-					.map(u -> u.identity).collect(Collectors.toSet()));
+//			clients.addAll(users.stream().filter(u -> u.identityType.equals(UsernameIdentity.ID))
+//					.map(u -> u.identity).collect(Collectors.toSet()));
+			clients.addAll(allUsernames);
 			if (edited != null)
 			{
 				clients.remove(edited.getId());

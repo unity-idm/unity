@@ -19,7 +19,9 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -48,6 +50,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithEditorInDetails;
 import pl.edu.icm.unity.webui.common.GridWithEditorInDetails.EmbeddedEditor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
@@ -143,38 +146,49 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		HorizontalLayout infoLayout = new HorizontalLayout();
 		infoLayout.setMargin(new MarginInfo(false, true, false, true));
-		infoLayout.setStyleName("u-marginLeftMinus20");
+		infoLayout.setStyleName("u-marginLeftMinus30");
 		infoLayout.addStyleName("u-border");
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setMargin(false);
 		infoLayout.addComponent(wrapper);
-		wrapper.addComponent(new Label(msg.getMessage("OAuthEditorGeneralTab.exposedURLs")));
+		wrapper.addComponent(new Label(msg.getMessage("OAuthEditorGeneralTab.importantURLs")));
 		FormLayout infoLayoutWrapper = new FormLayout();
 		infoLayoutWrapper.setSpacing(false);
 		infoLayoutWrapper.setMargin(false);
 		wrapper.addComponent(infoLayoutWrapper);
 
-		Label tokenEndpointPath = new Label();
-		tokenEndpointPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.tokenEndpointPath"));
-		infoLayoutWrapper.addComponent(tokenEndpointPath);
-
-		Label tokenRevokeEndpointPath = new Label();
-		tokenRevokeEndpointPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.tokenRevokeEndpointPath"));
-		infoLayoutWrapper.addComponent(tokenRevokeEndpointPath);
-
 		Label userAuthnEndpointPath = new Label();
 		userAuthnEndpointPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.userAuthnEndpointPath"));
 		infoLayoutWrapper.addComponent(userAuthnEndpointPath);
 		main.addComponent(infoLayout);
-
+		
+		Label tokenEndpointPath = new Label();
+		tokenEndpointPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.tokenEndpointPath"));
+		infoLayoutWrapper.addComponent(tokenEndpointPath);
+		
+		
+		Button metaPath = new Button();
+		
+		if (editMode)
+		{
+			HorizontalLayout l = new HorizontalLayout();
+			l.setCaption(msg.getMessage("OAuthEditorGeneralTab.metadataLink"));
+			metaPath.setStyleName(Styles.vButtonLink.toString());
+			l.addComponent(metaPath);
+			infoLayoutWrapper.addComponent(l);
+			metaPath.addClickListener(e -> {
+				  Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
+			});		
+		}
+		
 		name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
 		name.setReadOnly(editMode);
 		oauthWebAuthzBinder.forField(name).asRequired().bind("name");
 		mainGeneralLayout.addComponent(name);
-
+		
 		TextField tokenContextPath = new TextField();
-
+		
 		TextField webAuthzContextPath = new TextField();
 		webAuthzContextPath.setRequiredIndicatorVisible(true);
 		webAuthzContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.usersAuthnPath"));
@@ -219,12 +233,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			{
 				EndpointPathValidator.validateEndpointPath(v);
 				tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
-				tokenRevokeEndpointPath
-						.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_REVOCATION_PATH);
+				metaPath.setCaption(serverPrefix + tokenContextPath.getValue() + "/.well-known/openid-configuration");
+				
 			} catch (WrongArgumentException e)
 			{
 				tokenEndpointPath.setValue("");
-				tokenRevokeEndpointPath.setValue("");
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
 			}
 
@@ -370,7 +383,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 	private CollapsibleLayout buildScopesSection()
 	{
-		FormLayoutWithFixedCaptionWidth scopesLayout = new FormLayoutWithFixedCaptionWidth();
+		VerticalLayout scopesLayout = new VerticalLayout();
 		scopesLayout.setMargin(false);
 
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),

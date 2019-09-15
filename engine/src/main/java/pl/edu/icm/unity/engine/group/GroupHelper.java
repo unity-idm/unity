@@ -4,13 +4,25 @@
  */
 package pl.edu.icm.unity.engine.group;
 
-import com.google.common.collect.ImmutableMap;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableMap;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditManager;
@@ -32,17 +44,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
 
 /**
  * Shared group-related utility methods

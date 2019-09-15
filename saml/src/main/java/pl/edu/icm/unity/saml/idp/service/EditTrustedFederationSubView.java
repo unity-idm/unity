@@ -183,7 +183,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 				Collections.emptyList());
 		samlEntities.setActionColumnHidden(true);
 		samlEntities.setHeightByRows(false);
-		samlEntities.setHeightByRows(20);
+		samlEntities.setHeightByRows(14);
 		samlEntities.addComponentColumn(v -> getLogo(v), msg.getMessage("EditTrustedFederationSubView.logo"),
 				3);
 		samlEntities.addColumn(v -> v.name, msg.getMessage("EditTrustedFederationSubView.name"), 40);

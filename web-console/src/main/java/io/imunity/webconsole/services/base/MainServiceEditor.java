@@ -6,7 +6,9 @@
 package io.imunity.webconsole.services.base;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.ui.ComboBox;
@@ -40,16 +42,14 @@ public class MainServiceEditor extends CustomComponent
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends ServiceControllerBaseInt> editorsRegistry;
 	private ServiceDefinition toEdit;
-
 	private ServiceEditor editor;
 	private ServiceEditorComponent editorComponent;
 	private VerticalLayout mainLayout;
-
 	private ServiceEditorTab initTab;
-	
 	private SubViewSwitcher subViewSwitcher;
 
-	public MainServiceEditor(UnityMessageSource msg, TypesRegistryBase<? extends ServiceControllerBaseInt> editorsRegistry,
+	public MainServiceEditor(UnityMessageSource msg,
+			TypesRegistryBase<? extends ServiceControllerBaseInt> editorsRegistry,
 			Collection<EndpointTypeDescription> autnTypes, ServiceDefinition toEdit,
 			ServiceEditorTab initTab, SubViewSwitcher subViewSwitcher)
 	{
@@ -63,16 +63,19 @@ public class MainServiceEditor extends CustomComponent
 
 	private void initUI()
 	{
-		List<String> servicesTypesSorted = getSupportedServicesTypes().stream().sorted()
-				.collect(Collectors.toList());
+		Map<String, String> servicesTypesSorted = getSupportedServicesTypes();
 
+		Set<String> sorted = servicesTypesSorted.entrySet().stream().sorted(Map.Entry.comparingByValue())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
+						LinkedHashMap::new))
+				.keySet();
 		serviceTypeCombo = new ComboBox<String>();
 		serviceTypeCombo.setCaption(msg.getMessage("MainServiceEditor.typeComboCaption"));
 		serviceTypeCombo.addSelectionListener(e -> reloadEditor());
 		serviceTypeCombo.setEmptySelectionAllowed(false);
-		serviceTypeCombo.setItemCaptionGenerator(t -> ServiceTypeInfoHelper.getType(msg, t));
+		serviceTypeCombo.setItemCaptionGenerator(i -> servicesTypesSorted.get(i));
 		serviceTypeCombo.setWidth(25, Unit.EM);
-		serviceTypeCombo.setItems(servicesTypesSorted);
+		serviceTypeCombo.setItems(sorted);
 
 		serviceTypeLabel = new TextField();
 		serviceTypeLabel.setWidth(25, Unit.EM);
@@ -99,15 +102,15 @@ public class MainServiceEditor extends CustomComponent
 		{
 			serviceTypeCombo.setVisible(true);
 			serviceTypeLabel.setVisible(false);
-			serviceTypeCombo.setValue(servicesTypesSorted.iterator().next());
+			serviceTypeCombo.setValue(sorted.iterator().next());
 
 		}
 	}
 
-	private List<String> getSupportedServicesTypes()
+	private Map<String, String> getSupportedServicesTypes()
 	{
 		return editorsRegistry.getAll().stream().map(f -> f.getSupportedEndpointType())
-				.collect(Collectors.toList());
+				.collect(Collectors.toMap(e -> e, e -> ServiceTypeInfoHelper.getType(msg, e)));
 	}
 
 	private void reloadEditor()

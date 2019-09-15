@@ -216,7 +216,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 		buttonBar.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
 		main.addComponent(buttonBar);
 		main.addComponent(grid);
-		grid.getEditor().setEnabled(true);
+		grid.getEditor().setEnabled(false);
 		return main;
 
 	}

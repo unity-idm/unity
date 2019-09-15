@@ -29,12 +29,12 @@ import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
  * @author P.Piernik
  *
  */
-class SAMLUsersEditorTab extends IdpEditorUsersTab
+public class SAMLUsersEditorTab extends IdpEditorUsersTab
 {
 	private ComboBox<String> clientsCombo;
 	private GridWithEditor<GroupMapping> groupMappings;
 
-	SAMLUsersEditorTab(UnityMessageSource msg, Binder<?> configBinder, List<Group> groups,
+	public SAMLUsersEditorTab(UnityMessageSource msg, Binder<?> configBinder, List<Group> groups,
 			List<IdpUser> allUsers, List<String> attrTypes)
 	{
 		super(msg, configBinder, groups, allUsers, attrTypes);
@@ -75,7 +75,7 @@ class SAMLUsersEditorTab extends IdpEditorUsersTab
 
 		CollapsibleLayout groupMappingSection = new CollapsibleLayout(
 				msg.getMessage("SAMLUsersEditorTab.groupMapping"), groupMappingLayout);
-		groupMappingSection.expand();
+		groupMappingSection.collapse();
 		return groupMappingSection;
 	}
 

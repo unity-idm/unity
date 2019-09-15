@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
-import java.util.HashMap;
+import java.util.AbstractMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.Servlet;
 
@@ -196,21 +198,17 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		@Autowired
 		private ObjectFactory<SamlSoapEndpoint> factory;
 		
-		private final EndpointTypeDescription description = initDescription();
-		
-		private static EndpointTypeDescription initDescription()
-		{
-			Map<String,String> paths = new HashMap<>();
-			paths.put(SERVLET_PATH, "SAML 2 identity provider web endpoint");
-			paths.put(METADATA_SERVLET_PATH, "Metadata of the SAML 2 identity provider web endpoint");
-			return new EndpointTypeDescription(NAME, 
-					"SAML 2 identity provider web endpoint", WebServiceAuthentication.NAME, paths);
-		}
-
+		public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
+				"SAML 2 identity provider web endpoint", WebServiceAuthentication.NAME,
+				Stream.of(new AbstractMap.SimpleEntry<>(SERVLET_PATH,
+						"SAML 2 identity provider web endpoint"),
+						new AbstractMap.SimpleEntry<>(METADATA_SERVLET_PATH,
+								"Metadata of the SAML 2 identity provider web endpoint"))
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 		@Override
 		public EndpointTypeDescription getDescription()
 		{
-			return description;
+			return TYPE;
 		}
 
 		@Override
