@@ -37,6 +37,18 @@ public class AuditManager implements AuditEventManagement
 	private TxManager txMan;
 	private TransactionalRunner tx;
 
+	public boolean isAsync()
+	{
+		return async;
+	}
+
+	public void setAsync(boolean async)
+	{
+		this.async = async;
+	}
+
+	private volatile boolean async = false;
+
 	@Autowired
 	public AuditManager(final EventProcessor eventProcessor, final AuditEventDAO dao,
 						final TxManager txMan, final TransactionalRunner tx)
@@ -58,7 +70,12 @@ public class AuditManager implements AuditEventManagement
 			triggerBuilder.initiator(SYSTEM_ENTITY);
 		}
 
-		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
+		if (async)
+		{
+			txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
+		} else {
+			eventProcessor.fireEvent(triggerBuilder.build());
+		}
 	}
 
 	@Override

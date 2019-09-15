@@ -43,16 +43,18 @@ public class AuditEventListener implements EventListener
 	private EmailFacility emailFacility;
 	private AuditEventDAO dao;
 	private TransactionalRunner tx;
+	private AuditManager auditManager;
 
 	@Autowired
 	public AuditEventListener(final AttributeDAO attributeDAO, final EmailFacility emailFacility,
 							  final AttributeSupport attributeSupport, final AuditEventDAO dao,
-							  final TransactionalRunner tx)
+							  final TransactionalRunner tx, final AuditManager auditManager)
 	{
 		this.attributeDAO = attributeDAO;
 		this.emailFacility = emailFacility;
 		this.dao = dao;
 		this.tx = tx;
+		this.auditManager = auditManager;
 
 		AttributeType attr = null;
 		try
@@ -87,9 +89,7 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean isAsync(Event event)
 	{
-		// NOTE: Changing to synchronous processing requires changes in AuditManager.
-		// It need to fire events directly instead of using tx.addPostCommitAction().
-		return true;
+		return auditManager.isAsync();
 	}
 
 	@Override

@@ -33,7 +33,11 @@ public class AuditEventTest
 	@Test
 	public void shouldBeValidWithAllFields()
 	{
-		AuditEvent event = getEvent();
+		// when
+		Throwable ex = Assertions.catchThrowable(this::getEvent);
+
+		// than
+		Assertions.assertThat(ex).isNull();
 	}
 
 	@Test
