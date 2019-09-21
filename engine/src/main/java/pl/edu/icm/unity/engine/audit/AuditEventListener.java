@@ -63,7 +63,7 @@ public class AuditEventListener implements EventListener
 					EntityNameMetadataProvider.NAME);
 		} catch (Exception e)
 		{
-			log.error("Cannot retrieve attributeType: {}", e.getLocalizedMessage());
+			log.warn("Cannot retrieve attributeType: {}. Using 'name'.", e.getLocalizedMessage());
 		}
 		if (attr == null)
 		{
@@ -89,7 +89,9 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean isAsync(Event event)
 	{
-		return auditManager.isAsync();
+		// NOTE: Changing to synchronous processing requires changes in AuditManager.
+		// It need to fire events directly instead of using tx.addPostCommitAction().
+		return true;
 	}
 
 	@Override

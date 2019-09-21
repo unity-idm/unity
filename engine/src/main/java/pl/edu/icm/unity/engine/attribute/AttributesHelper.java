@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +57,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
@@ -364,6 +368,13 @@ public class AttributesHelper
 				throw new IllegalGroupValueException("The entity is not a member "
 						+ "of the group specified in the attribute");
 			attributeDAO.create(param);
+			auditManager.log(AuditEventTrigger.builder()
+					.type(AuditEventType.ENTITY)
+					.action(AuditEventAction.UPDATE)
+					.name("")
+					.subject(entityId)
+					.details(ImmutableMap.of("group", attribute.getGroupPath(), "attrAdded", attribute.getName()))
+					.tags(USERS, GROUPS));
 		} else
 		{
 			if (!update)
@@ -371,6 +382,13 @@ public class AttributesHelper
 			AttributeExt updated = existing.get(0);
 			param.getAttribute().setCreationTs(updated.getCreationTs());
 			attributeDAO.updateAttribute(param);
+			auditManager.log(AuditEventTrigger.builder()
+					.type(AuditEventType.ENTITY)
+					.action(AuditEventAction.UPDATE)
+					.name("")
+					.subject(entityId)
+					.details(ImmutableMap.of("group", attribute.getGroupPath(), "attrUpdated", attribute.getName()))
+					.tags(USERS, GROUPS));
 		}
 	}
 	
@@ -536,6 +554,14 @@ public class AttributesHelper
 						.name(toCreate.getName())
 						.subject(entityId)
 						.tags(AUTHN));
+			} else {
+				auditManager.log(AuditEventTrigger.builder()
+						.type(AuditEventType.ENTITY)
+						.action(AuditEventAction.UPDATE)
+						.name("")
+						.subject(entityId)
+						.details(ImmutableMap.of("attrAdded", toCreate.getName()))
+						.tags(USERS));
 			}
 		} else
 		{
@@ -549,6 +575,14 @@ public class AttributesHelper
 						.name(toCreate.getName())
 						.subject(entityId)
 						.tags(AUTHN));
+			} else {
+				auditManager.log(AuditEventTrigger.builder()
+						.type(AuditEventType.ENTITY)
+						.action(AuditEventAction.UPDATE)
+						.name("")
+						.subject(entityId)
+						.details(ImmutableMap.of("attrUpdated", toCreate.getName()))
+						.tags(USERS));
 			}
 		}
 	}

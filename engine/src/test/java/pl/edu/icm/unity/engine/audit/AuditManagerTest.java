@@ -42,7 +42,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	@Before
 	public void setup()
 	{
-		auditManager.setAsync(true);
+		auditManager.setEnabled(true);
 		InvocationContext invContext = new InvocationContext(null, null, null);
 		invContext.setLoginSession(new LoginSession("1", null, null, 100, 1L, null, null, null, null));
 		InvocationContext.setCurrent(invContext);
@@ -50,7 +50,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 
 	@After
 	public void after() {
-		auditManager.setAsync(false);
+		auditManager.setEnabled(false);
 	}
 
 	@Test
@@ -138,7 +138,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		//than
 		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3).size() == 3));
 
-		assertTrue(auditManager.getAuditEvents(null, null, 10).size() > 3);
+		assertTrue(auditManager.getAuditEvents(null, null, 10).size() == 3);
 		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10).size());
 		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10).size());
 		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10).size());

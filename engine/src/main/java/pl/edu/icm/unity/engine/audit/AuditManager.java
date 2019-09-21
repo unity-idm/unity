@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -36,30 +37,37 @@ public class AuditManager implements AuditEventManagement
 	private AuditEventDAO dao;
 	private TxManager txMan;
 	private TransactionalRunner tx;
-
-	public boolean isAsync()
-	{
-		return async;
-	}
-
-	public void setAsync(boolean async)
-	{
-		this.async = async;
-	}
-
-	private volatile boolean async = false;
+	private volatile boolean enabled;
 
 	@Autowired
 	public AuditManager(final EventProcessor eventProcessor, final AuditEventDAO dao,
-						final TxManager txMan, final TransactionalRunner tx)
+						final TxManager txMan, final TransactionalRunner tx,
+						final UnityServerConfiguration mainConfig)
 	{
 		this.eventProcessor = eventProcessor;
 		this.dao = dao;
 		this.txMan = txMan;
 		this.tx = tx;
+		this.enabled = mainConfig.getBooleanValue(UnityServerConfiguration.AUDITEVENTLOGS_ENABLED);
+		log.info("AuditManager is " + (enabled ? "enabled" : "disabled"));
+	}
+
+	@Override
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+		log.info("AuditManager changed to " + (enabled ? "enabled" : "disabled"));
 	}
 
 	public void log(final AuditEventTrigger.AuditEventTriggerBuilder triggerBuilder) {
+		if (!enabled)
+			return;
+
 		if (InvocationContext.hasCurrent() &&
 				InvocationContext.getCurrent().getLoginSession() != null)
 		{
@@ -70,12 +78,7 @@ public class AuditManager implements AuditEventManagement
 			triggerBuilder.initiator(SYSTEM_ENTITY);
 		}
 
-		if (async)
-		{
-			txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
-		} else {
-			eventProcessor.fireEvent(triggerBuilder.build());
-		}
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
 	}
 
 	@Override
@@ -95,4 +98,5 @@ public class AuditManager implements AuditEventManagement
 	{
 		return tx.runInTransactionRet(() -> dao.getAllTags());
 	}
+
 }

@@ -3,27 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.maintenance.audit;
-
-import static java.lang.String.join;
-import static java.util.Objects.nonNull;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package io.imunity.webconsole.audit;
 
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
@@ -38,14 +18,16 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
-
 import io.imunity.webadmin.identities.EntityDetailsDialog;
 import io.imunity.webadmin.identities.EntityDetailsPanel;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -68,6 +50,21 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.lang.String.join;
+import static java.util.Objects.nonNull;
+
 /**
  * Lists AuditEvent object with ability to filter data.
  *
@@ -77,7 +74,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @PrototypeComponent
 class AuditEventsView extends CustomComponent implements UnityView
 {
-	public final static String VIEW_NAME = "AuditEvents";
+	public final static String VIEW_NAME = "AuditLog";
 	private final static int DEFAULT_LIMIT = 10000;
 	private final static String DATETIME_FORMAT_SHORT_PATTERN = "yyyy-MM-dd HH:mm";
 
@@ -88,6 +85,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	private final ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory;
 
 	private final Label titleLabel = new Label();
+	private final Label diabledMsg = new Label();
 	private final ChipsWithDropdown<String> typeFilter = new ChipsWithDropdown<>(Objects::toString, Objects::toString, true, false);
 	private final ChipsWithDropdown<String> actionFilter = new ChipsWithDropdown<>(Objects::toString, Objects::toString, true, false);
 	private final ChipsWithDropdown<String> tagsFilter = new ChipsWithDropdown<>(Objects::toString, Objects::toString, true, false);
@@ -127,7 +125,13 @@ class AuditEventsView extends CustomComponent implements UnityView
 		gridWrapper.setMargin(false);
 		gridWrapper.setSpacing(false);
 		titleLabel.addStyleName("u-AuditEventsGridTitle");
-		gridWrapper.addComponents(titleLabel, filterLayout, auditEventsGrid);
+
+		diabledMsg.addStyleName("u-AuditEventsWarnMsg");
+		diabledMsg.setValue(msg.getMessage("AuditEventsView.disabledMsg"));
+		diabledMsg.setVisible(!eventManagement.isEnabled());
+
+		gridWrapper.addComponents(diabledMsg, titleLabel, filterLayout, auditEventsGrid);
+
 		gridWrapper.setExpandRatio(auditEventsGrid, 2);
 		gridWrapper.setSizeFull();
 
@@ -144,47 +148,47 @@ class AuditEventsView extends CustomComponent implements UnityView
 
 		auditEventsGrid.addSortableColumn(AuditEventEntry::formatTimestamp,
 				msg.getMessage("AuditEventsView.timestamp"), 10)
-				.setId("timestamp");
+				.setResizable(true).setId("timestamp");
 
 		auditEventsGrid.addSortableColumn(ae -> ae.getEvent().getType().toString(),
 				msg.getMessage("AuditEventsView.type"), 10)
-				.setHidable(true).setHidden(false).setId("type");
+				.setResizable(true).setHidable(true).setHidden(false).setId("type");
 
 		auditEventsGrid.addSortableColumn(ae -> ae.getEvent().getAction().toString(),
 				msg.getMessage("AuditEventsView.action"), 10)
-				.setHidable(true).setHidden(false).setId("action");
+				.setResizable(true).setHidable(true).setHidden(false).setId("action");
 
 		auditEventsGrid.addSortableColumn(AuditEventEntry::getName,
 				msg.getMessage("AuditEventsView.name"), 10)
-				.setHidable(true).setHidden(false).setId("name");
+				.setResizable(true).setHidable(true).setHidden(false).setId("name");
 
 		auditEventsGrid.addSortableColumn(AuditEventEntry::formatTags,
 				msg.getMessage("AuditEventsView.tags"), 10)
-				.setHidable(true).setHidden(false).setId("tags");
+				.setResizable(true).setHidable(true).setHidden(false).setId("tags");
 
 		auditEventsGrid.addColumn(AuditEventEntry::getSubjectId,
 				msg.getMessage("AuditEventsView.subjectId"), 10)
-				.setSortable(false).setHidable(true).setHidden(true).setId("subject_id");
+				.setResizable(true).setSortable(false).setHidable(true).setHidden(true).setId("subject_id");
 
 		auditEventsGrid.addColumn(AuditEventEntry::getSubjectName,
 				msg.getMessage("AuditEventsView.subjectName"), 10)
-				.setSortable(true).setHidable(true).setHidden(true).setId("subject_name");
+				.setResizable(true).setSortable(true).setHidable(true).setHidden(true).setId("subject_name");
 
 		auditEventsGrid.addColumn(AuditEventEntry::getSubjectEmail,
 				msg.getMessage("AuditEventsView.subjectEmail"), 10)
-				.setSortable(true).setHidable(true).setHidden(true).setId("subject_email");
+				.setResizable(true).setSortable(true).setHidable(true).setHidden(true).setId("subject_email");
 
 		auditEventsGrid.addColumn(AuditEventEntry::getInitiatorId,
 				msg.getMessage("AuditEventsView.initiatorId"), 10)
-				.setSortable(false).setHidable(true).setHidden(true).setId("initiator_id");
+				.setResizable(true).setSortable(false).setHidable(true).setHidden(true).setId("initiator_id");
 
 		auditEventsGrid.addColumn(AuditEventEntry::getInitiatorName,
 				msg.getMessage("AuditEventsView.initiatorName"), 10)
-				.setSortable(true).setHidable(true).setHidden(true).setId("initiator_name");
+				.setResizable(true).setSortable(true).setHidable(true).setHidden(true).setId("initiator_name");
 
 		auditEventsGrid.addColumn(AuditEventEntry::getInitiatorEmail,
 				msg.getMessage("AuditEventsView.initiatorEmail"), 10)
-				.setSortable(true).setHidable(true).setHidden(true).setId("initiator_email");
+				.setResizable(true).setSortable(true).setHidable(true).setHidden(true).setId("initiator_email");
 
 		auditEventsGrid.sort("timestamp", SortDirection.DESCENDING);
 	}
@@ -252,12 +256,17 @@ class AuditEventsView extends CustomComponent implements UnityView
 		initiatorLabel.setValue(ae.getFormattedInitiator());
 		initiatorLabel.setStyleName(Styles.wordWrap.toString());
 
-		HtmlSimplifiedLabel detailsLabel = new HtmlSimplifiedLabel();
-		detailsLabel.setCaption(msg.getMessage("AuditEventsView.details") + ":");
-		detailsLabel.setValue(ae.formatDetails());
-		detailsLabel.setStyleName(Styles.wordWrap.toString());
+		FormLayout wrapper = new FormLayout(subjectLabel, initiatorLabel);
 
-		FormLayout wrapper = new FormLayout(subjectLabel, initiatorLabel, detailsLabel);
+		if (!"".equals(ae.formatDetails()))
+		{
+			HtmlSimplifiedLabel detailsLabel = new HtmlSimplifiedLabel();
+			detailsLabel.setCaption(msg.getMessage("AuditEventsView.details") + ":");
+			detailsLabel.setValue(ae.formatDetails());
+			detailsLabel.setStyleName(Styles.wordWrap.toString());
+			wrapper.addComponent(detailsLabel);
+		}
+
 		wrapper.setWidth(95, Unit.PERCENTAGE);
 		return wrapper;
 	}
@@ -354,18 +363,18 @@ class AuditEventsView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public static class AuditEventsInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class AuditLogInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public AuditEventsInfoProvider(UnityMessageSource msg,
-											MaintenanceNavigationInfoProvider parent,
-											ObjectFactory<AuditEventsView> factory)
+		public AuditLogInfoProvider(UnityMessageSource msg,
+									AuditEventsNavigationInfoProvider parent,
+									ObjectFactory<AuditEventsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.auditEvents"))
+					.withCaption(msg.getMessage("WebConsoleMenu.auditEvents.auditLog"))
 					.withIcon(Images.records.getResource())
-					.withPosition(20).build());
+					.withPosition(10).build());
 		}
 	}
 
