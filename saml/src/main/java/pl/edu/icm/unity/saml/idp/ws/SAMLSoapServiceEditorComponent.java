@@ -103,6 +103,7 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 		if (editMode)
 		{
 			samlServiceBinder.validate();
+			samlConfigBinder.validate();
 		}
 
 		Runnable refreshClients = () -> usersTab.setAvailableClients(clientsTab.getActiveClients().stream()

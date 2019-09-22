@@ -558,6 +558,12 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		for (EntityFilter filter : filters)
 			dataProvider.addFilter(filter);
 	}
+	
+	public void clearFilters()
+	{
+		dataProvider.clearFilters();
+	}
+
 
 	public List<String> getColumnIds()
 	{

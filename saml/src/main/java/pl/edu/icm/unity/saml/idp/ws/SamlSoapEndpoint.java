@@ -134,9 +134,12 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		
 		String endpointURL = getServletUrl(servletPath);
 		Servlet metadataServlet = getMetadataServlet(endpointURL);
-		ServletHolder holder = new ServletHolder(metadataServlet);
-		context.addServlet(holder, METADATA_SERVLET_PATH + "/*");
 		
+		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+		{
+			ServletHolder holder = new ServletHolder(metadataServlet);
+			context.addServlet(holder, METADATA_SERVLET_PATH + "/*");
+		}
 		return context;
 	}
 	

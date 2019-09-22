@@ -76,6 +76,8 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private Collection<IdentityType> idTypes;
 	private boolean editMode;
 	private CheckBox signMetadata;
+	private HorizontalLayout infoLayout;
+	private boolean initialValidation;
 
 	public SAMLEditorGeneralTab(UnityMessageSource msg, NetworkServer server, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
@@ -122,33 +124,29 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		main.addComponent(mainGeneralLayout);
 
 		Button metaPath = new Button();
-		
-		if (editMode)
-		{
-			HorizontalLayout infoLayout = new HorizontalLayout();
-			infoLayout.setMargin(new MarginInfo(false, true, false, true));
-			infoLayout.setStyleName("u-marginLeftMinus30");
-			infoLayout.addStyleName("u-border");
-			VerticalLayout wrapper = new VerticalLayout();
-			wrapper.setMargin(false);
-			infoLayout.addComponent(wrapper);
-			wrapper.addComponent(new Label(msg.getMessage("SAMLEditorGeneralTab.importantURLs")));
-			FormLayout infoLayoutWrapper = new FormLayout();
-			infoLayoutWrapper.setSpacing(false);
-			infoLayoutWrapper.setMargin(false);
-			wrapper.addComponent(infoLayoutWrapper);
-			HorizontalLayout l = new HorizontalLayout();
-			l.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
-			metaPath.setStyleName(Styles.vButtonLink.toString());
-			l.addComponent(metaPath);
-			infoLayoutWrapper.addComponent(l);
-			metaPath.addClickListener(e -> {
-				  Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
-			});
-			main.addComponent(infoLayout);
-		}
-		
-		
+
+		infoLayout = new HorizontalLayout();
+		infoLayout.setMargin(new MarginInfo(false, true, false, true));
+		infoLayout.setStyleName("u-marginLeftMinus30");
+		infoLayout.addStyleName("u-border");
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setMargin(false);
+		infoLayout.addComponent(wrapper);
+		wrapper.addComponent(new Label(msg.getMessage("SAMLEditorGeneralTab.importantURLs")));
+		FormLayout infoLayoutWrapper = new FormLayout();
+		infoLayoutWrapper.setSpacing(false);
+		infoLayoutWrapper.setMargin(false);
+		wrapper.addComponent(infoLayoutWrapper);
+		HorizontalLayout l = new HorizontalLayout();
+		l.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
+		metaPath.setStyleName(Styles.vButtonLink.toString());
+		l.addComponent(metaPath);
+		infoLayoutWrapper.addComponent(l);
+		metaPath.addClickListener(e -> {
+			Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
+		});
+		main.addComponent(infoLayout);
+		infoLayout.setVisible(editMode);
 
 		TextField name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
@@ -171,27 +169,10 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			try
 			{
 				EndpointPathValidator.validateEndpointPath(v);
-				metaPath.setCaption(serverPrefix + v +"/metadata" );
-				
-				
-//				userAuthnEndpointPath.setValue(
-//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_CONSUMER_SERVLET_PATH);
-//				metadataEndpointPath.setValue(
-//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH);
-//				singleLogoutUserPath.setValue(
-//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_SLO_ASYNC_SERVLET_PATH);
-//				singleLogoutPath.setValue(
-//						serverPrefix + v + SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH);
-
+				metaPath.setCaption(serverPrefix + v + "/metadata");
 			} catch (WrongArgumentException e)
 			{
-//				userAuthnEndpointPath.setValue("");
-//				metadataEndpointPath.setValue("");
-//				singleLogoutUserPath.setValue("");
-//				singleLogoutPath.setValue("");
-
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
-
 			}
 
 			return ValidationResult.ok();
@@ -309,7 +290,21 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		metadataPublishing.setMargin(false);
 
 		CheckBox publishMetadata = new CheckBox(msg.getMessage("SAMLEditorGeneralTab.publishMetadata"));
-		configBinder.forField(publishMetadata).bind("publishMetadata");
+		configBinder.forField(publishMetadata).withValidator((v, c) -> {
+			if (!initialValidation)
+			{
+				if (v)
+				{
+					infoLayout.setVisible(editMode);
+				} else
+				{
+					infoLayout.setVisible(false);
+				}
+				initialValidation = true;
+			}
+			return ValidationResult.ok();
+
+		}).bind("publishMetadata");
 		metadataPublishing.addComponent(publishMetadata);
 
 		signMetadata = new CheckBox(msg.getMessage("SAMLEditorGeneralTab.signMetadata"));

@@ -86,7 +86,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		String genPath = null;
 		do
 		{
-			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + RandomStringUtils.randomAlphabetic(6);
+			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + RandomStringUtils.randomAlphabetic(6).toLowerCase();
 		} while (checkIfGroupExists(allGroups, genPath));
 
 		autoGenGroup = new Group(
@@ -97,6 +97,12 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		if (!editMode)
 		{
+			if (allGroups.stream().map(g -> g.toString())
+			.filter(g -> g.equals(OAuthServiceController.IDP_CLIENT_MAIN_GROUP)).count() == 0)
+			{
+				groupsWithAutoGen.add(new Group(OAuthServiceController.IDP_CLIENT_MAIN_GROUP));
+			}
+
 			groupsWithAutoGen.add(autoGenGroup);
 			groupsWithAutoGen.add(autoGenGroupOAuth);
 		}
