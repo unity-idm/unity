@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.unicore.samlidp.web;
+package pl.edu.icm.unity.saml.idp.ws.console;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,8 +15,6 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
@@ -24,7 +22,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.saml.idp.console.SAMLServiceControllerBase;
+import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
 
@@ -34,29 +32,27 @@ import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
  *
  */
 @Component
-public class SAMLUnicoreServiceController extends SAMLServiceControllerBase
+class SAMLSoapServiceController extends SAMLSoapServiceControllerBase
 {
-	@Autowired
-	public SAMLUnicoreServiceController(UnityMessageSource msg, EndpointManagement endpointMan,
+        @Autowired
+	public SAMLSoapServiceController(UnityMessageSource msg, EndpointManagement endpointMan,
 			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, IdentityTypeSupport idTypeSupport,
-			PKIManagement pkiMan, NetworkServer server,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			URIAccessService uriAccessService, FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
+			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper)
 	{
-		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
-				registrationMan, uriAccessService, fileStorageService, serverConfig,
-				authenticatorSupportService, idTypeSupport, pkiMan, server,
-				outputTranslationProfileFieldFactory, idpUserHelper);
+		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService, uriAccessService,
+				fileStorageService, serverConfig, idTypeSupport, pkiMan, server, outputTranslationProfileFieldFactory,
+				idpUserHelper);
 	}
 
 	@Override
 	public EndpointTypeDescription getType()
 	{
-		return SamlUnicoreIdPWebEndpointFactory.TYPE;
+		return SamlSoapEndpoint.Factory.TYPE;
 	}
+	
 }
