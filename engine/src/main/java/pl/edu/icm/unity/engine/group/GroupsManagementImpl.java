@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.engine.group;
 
+import static java.util.Objects.nonNull;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,10 +17,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableMap;
 
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
@@ -29,9 +34,9 @@ import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
-import pl.edu.icm.unity.engine.audit.AuditManager;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,10 +58,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-
-import static java.util.Objects.nonNull;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
 
 
 /**
@@ -83,7 +84,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private TransactionalRunner tx;
 	private AttributeClassUtil acUtil;
 	private UnityMessageSource msg;
-	private AuditManager auditManager;
+	private AuditPublisher audit;
 
 	
 	@Autowired
@@ -93,7 +94,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
 			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg,
-			AuditManager auditManager)
+			AuditPublisher audit)
 	{
 		this.dbGroups = dbGroups;
 		this.membershipDAO = membershipDAO;
@@ -108,7 +109,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.acUtil = acUtil;
 		this.tx = tx;
 		this.msg = msg;
-		this.auditManager = auditManager;
+		this.audit = audit;
 	}
 
 	@Override
@@ -127,7 +128,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		
 		dbGroups.create(toAdd);
-		auditManager.log(AuditEventTrigger.builder()
+		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.ADD)
 				.name(toAdd.getName())
@@ -144,7 +145,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (!recursive && !getSubGroups(path).isEmpty())
 			throw new IllegalGroupValueException("The group contains subgroups");
 		dbGroups.delete(path);
-		auditManager.log(AuditEventTrigger.builder()
+		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.REMOVE)
 				.name(path)
@@ -205,7 +206,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			if (Group.isChildOrSame(group, path))
 			{
 				membershipDAO.deleteByKey(entityId, group);
-				auditManager.log(AuditEventTrigger.builder()
+				audit.log(AuditEventTrigger.builder()
 						.type(AuditEventType.GROUP)
 						.action(AuditEventAction.UPDATE)
 						.name(group)
@@ -350,7 +351,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (nonNull(changedProperty) && nonNull(newValue)) {
 			auditEvent.details(ImmutableMap.of("action", changedProperty, "value", newValue));
 		}
-		auditManager.log(auditEvent);
+		audit.log(auditEvent);
 	}
 	
 	

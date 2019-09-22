@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.event.EventListener;
@@ -23,8 +26,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-
-import java.util.List;
 
 /**
  * Listens to AuditEvents and stores them in database.
@@ -43,18 +44,18 @@ public class AuditEventListener implements EventListener
 	private EmailFacility emailFacility;
 	private AuditEventDAO dao;
 	private TransactionalRunner tx;
-	private AuditManager auditManager;
+	private AuditPublisher audit;
 
 	@Autowired
 	public AuditEventListener(final AttributeDAO attributeDAO, final EmailFacility emailFacility,
-							  final AttributeSupport attributeSupport, final AuditEventDAO dao,
-							  final TransactionalRunner tx, final AuditManager auditManager)
+				final AttributeSupport attributeSupport, final AuditEventDAO dao,
+				final TransactionalRunner tx, final AuditPublisher audit)
 	{
 		this.attributeDAO = attributeDAO;
 		this.emailFacility = emailFacility;
 		this.dao = dao;
 		this.tx = tx;
-		this.auditManager = auditManager;
+		this.audit = audit;
 
 		AttributeType attr = null;
 		try
@@ -89,7 +90,7 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean isAsync(Event event)
 	{
-		return auditManager.isAsync();
+		return audit.isAsync();
 	}
 
 	@Override

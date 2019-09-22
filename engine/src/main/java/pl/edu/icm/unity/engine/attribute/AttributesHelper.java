@@ -4,16 +4,31 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import com.google.common.collect.Lists;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
-import pl.edu.icm.unity.engine.audit.AuditManager;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -41,20 +56,10 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
@@ -76,7 +81,7 @@ public class AttributesHelper
 	private AttributeStatementProcessor statementsHelper;
 	private AttributeTypeHelper atHelper;
 	private GroupDAO groupDAO;
-	private AuditManager auditManager;
+	private AuditPublisher audit;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -85,7 +90,7 @@ public class AttributesHelper
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
-			GroupDAO groupDAO, AuditManager auditManager)
+			GroupDAO groupDAO, AuditPublisher audit)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
@@ -99,7 +104,7 @@ public class AttributesHelper
 		this.atHelper = atHelper;
 		this.acUtil = acUtil;
 		this.groupDAO = groupDAO;
-		this.auditManager = auditManager;
+		this.audit = audit;
 	}
 
 	/**
@@ -364,6 +369,7 @@ public class AttributesHelper
 				throw new IllegalGroupValueException("The entity is not a member "
 						+ "of the group specified in the attribute");
 			attributeDAO.create(param);
+			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.ADD));
 		} else
 		{
 			if (!update)
@@ -371,7 +377,28 @@ public class AttributesHelper
 			AttributeExt updated = existing.get(0);
 			param.getAttribute().setCreationTs(updated.getCreationTs());
 			attributeDAO.updateAttribute(param);
+			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.UPDATE));
 		}
+	}
+	
+	private AuditEventTriggerBuilder getAttrAudit(long entityId, Attribute attribute, AuditEventAction action)
+	{
+		return AuditEventTrigger.builder()
+				.type(AuditEventType.ATTRIBUTE)
+				.action(action)
+				.name(attribute.getName())
+				.subject(entityId)
+				.details(ImmutableMap.of("group", attribute.getGroupPath(),
+						"value", getTrimmedFirstValue(attribute)))
+				.tags(AuditEventTag.USERS);
+	}
+	
+	private String getTrimmedFirstValue(Attribute attr)
+	{
+		if (attr.getValues().isEmpty())
+			return "-NONE-";
+		String fValue = attr.getValues().get(0);
+		return fValue.length() > 20 ? fValue.substring(0, 20) + "..." : fValue;
 	}
 	
 	/**
@@ -530,7 +557,7 @@ public class AttributesHelper
 			attributeDAO.create(sAttr);
 			if (toCreate.getName().startsWith(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX))
 			{
-				auditManager.log(AuditEventTrigger.builder()
+				audit.log(AuditEventTrigger.builder()
 						.type(AuditEventType.CREDENTIALS)
 						.action(AuditEventAction.ADD)
 						.name(toCreate.getName())
@@ -543,7 +570,7 @@ public class AttributesHelper
 			attributeDAO.updateAttribute(sAttr);
 			if (toCreate.getName().startsWith(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX))
 			{
-				auditManager.log(AuditEventTrigger.builder()
+				audit.log(AuditEventTrigger.builder()
 						.type(AuditEventType.CREDENTIALS)
 						.action(AuditEventAction.UPDATE)
 						.name(toCreate.getName())

@@ -4,12 +4,29 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
+import static java.lang.String.join;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -24,7 +41,7 @@ import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventListener;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
-import pl.edu.icm.unity.engine.audit.AuditManager;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
@@ -69,21 +86,6 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-
-import static java.lang.String.join;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
-
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
  * proper error logging and authorization.
@@ -116,7 +118,7 @@ public class EntityManagementImpl implements EntityManagement
 	private UnityServerConfiguration cfg;
 	private NotificationProducer notificationProducer;
 	private AuditEventListener auditEventListener;
-	private AuditManager auditManager;
+	private AuditPublisher auditPublisher;
 
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -130,7 +132,7 @@ public class EntityManagementImpl implements EntityManagement
 			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
 			TransactionalRunner tx,
 			UnityServerConfiguration cfg, NotificationProducer notificationProducer,
-			AuditEventListener auditEventListener, AuditManager auditManager)
+			AuditEventListener auditEventListener, AuditPublisher auditPublisher)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -153,7 +155,7 @@ public class EntityManagementImpl implements EntityManagement
 		this.cfg = cfg;
 		this.notificationProducer = notificationProducer;
 		this.auditEventListener = auditEventListener;
-		this.auditManager = auditManager;
+		this.auditPublisher = auditPublisher;
 	}
 
 	@Override
@@ -224,7 +226,7 @@ public class EntityManagementImpl implements EntityManagement
 						+ "the configured maximum number of instances was reached.");
 			Identity toCreate = idTypeHelper.upcastIdentityParam(toAdd, entityId);
 			idDAO.create(new StoredIdentity(toCreate));
-			auditManager.log(AuditEventTrigger.builder()
+			auditPublisher.log(AuditEventTrigger.builder()
 					.type(AuditEventType.IDENTITY)
 					.action(AuditEventAction.ADD)
 					.name(join(":", toCreate.getTypeId(), toCreate.getName()))
@@ -326,7 +328,7 @@ public class EntityManagementImpl implements EntityManagement
 		String cmpValue = typeDefinition.getComparableValue(toRemove.getValue(), toRemove.getRealm(), 
 				toRemove.getTarget()); 
 		idDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue));
-		auditManager.log(AuditEventTrigger.builder()
+		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.IDENTITY)
 				.action(AuditEventAction.REMOVE)
 				.name(join(":", toRemove.getTypeId(), identities.stream().filter(id -> id.getTypeId().equals(toRemove.getTypeId())).findFirst().get().getName()))
@@ -356,7 +358,7 @@ public class EntityManagementImpl implements EntityManagement
 		long entityId = idResolver.getEntityId(new EntityParam(original));
 		Identity updatedFull = idTypeHelper.upcastIdentityParam(updated, entityId);
 		idDAO.updateByName(inDBKey, new StoredIdentity(updatedFull));
-		auditManager.log(AuditEventTrigger.builder()
+		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.IDENTITY)
 				.action(AuditEventAction.UPDATE)
 				.name(join(":", updatedFull.getTypeId(), updatedFull.getName()))
@@ -592,7 +594,7 @@ public class EntityManagementImpl implements EntityManagement
 		sendNotification(entityId, cfg.getValue(UnityServerConfiguration.ACCOUNT_REMOVED_NOTIFICATION));
 		AuditEntity auditEntity = auditEventListener.createAuditEntity(entityId);
 		entityDAO.deleteByKey(entityId);
-		auditManager.log(AuditEventTrigger.builder()
+		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ENTITY)
 				.action(AuditEventAction.REMOVE)
 				.name("")
@@ -628,7 +630,7 @@ public class EntityManagementImpl implements EntityManagement
 		
 		current.setEntityState(status);
 		entityDAO.updateByKey(entityId, current);
-		auditManager.log(AuditEventTrigger.builder()
+		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ENTITY)
 				.action(AuditEventAction.UPDATE)
 				.name("")
@@ -923,7 +925,7 @@ public class EntityManagementImpl implements EntityManagement
 			}
 			id.setEntityId(targetId);
 			idDAO.update(new StoredIdentity(id));
-			auditManager.log(AuditEventTrigger.builder()
+			auditPublisher.log(AuditEventTrigger.builder()
 					.type(AuditEventType.IDENTITY)
 					.action(AuditEventAction.UPDATE)
 					.name(join(":", id.getTypeId(), id.getName()))
@@ -957,7 +959,7 @@ public class EntityManagementImpl implements EntityManagement
 				if (target != null && !target.equals(id.getTarget()))
 					continue;
 				idDAO.delete(sid.getName());
-				auditManager.log(AuditEventTrigger.builder()
+				auditPublisher.log(AuditEventTrigger.builder()
 						.type(AuditEventType.IDENTITY)
 						.action(AuditEventAction.REMOVE)
 						.name(join(":", id.getTypeId(), id.getName()))

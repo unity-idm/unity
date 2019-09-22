@@ -4,95 +4,57 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AuditEventManagement;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.events.EventProcessor;
-import pl.edu.icm.unity.store.api.AuditEventDAO;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.api.tx.TxManager;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.engine.api.AuditEventManagement;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.store.api.AuditEventDAO;
+import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
+
 /**
- * Main interface to interact with {@link AuditEvent} storage layer.
+ * Read access and management of audit log.
  *
  * @author R. Ledzinski
  */
 @Component
+@Transactional
 public class AuditManager implements AuditEventManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditManager.class);
-	private static final AuditEntity SYSTEM_ENTITY = new AuditEntity(0L, "System", null);
-
-	private EventProcessor eventProcessor;
 	private AuditEventDAO dao;
-	private TxManager txMan;
-	private TransactionalRunner tx;
-
-	public boolean isAsync()
-	{
-		return async;
-	}
-
-	public void setAsync(boolean async)
-	{
-		this.async = async;
-	}
-
-	private volatile boolean async = false;
+	private InternalAuthorizationManager authz;
 
 	@Autowired
-	public AuditManager(final EventProcessor eventProcessor, final AuditEventDAO dao,
-						final TxManager txMan, final TransactionalRunner tx)
+	public AuditManager(AuditEventDAO dao, InternalAuthorizationManager authz)
 	{
-		this.eventProcessor = eventProcessor;
 		this.dao = dao;
-		this.txMan = txMan;
-		this.tx = tx;
-	}
-
-	public void log(final AuditEventTrigger.AuditEventTriggerBuilder triggerBuilder) {
-		if (InvocationContext.hasCurrent() &&
-				InvocationContext.getCurrent().getLoginSession() != null)
-		{
-			triggerBuilder.initiator(InvocationContext.getCurrent().getLoginSession().getEntityId());
-		} else
-		{
-			log.debug("Missing data in InvocationContext - using System initiator");
-			triggerBuilder.initiator(SYSTEM_ENTITY);
-		}
-
-		if (async)
-		{
-			txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
-		} else {
-			eventProcessor.fireEvent(triggerBuilder.build());
-		}
+		this.authz = authz;
 	}
 
 	@Override
 	public List<AuditEvent> getAllEvents()
 	{
-		return tx.runInTransactionRet(() -> dao.getAll());
+		authz.checkAuthorizationRT("/", AuthzCapability.maintenance);
+		return dao.getAll();
 	}
 
 	@Override
 	public List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit)
 	{
-		return tx.runInTransactionRet(() -> dao.getLogs(from, until, limit));
+		authz.checkAuthorizationRT("/", AuthzCapability.maintenance);
+		return dao.getLogs(from, until, limit);
 	}
 
 	@Override
 	public Set<String> getAllTags()
 	{
-		return tx.runInTransactionRet(() -> dao.getAllTags());
+		authz.checkAuthorizationRT("/", AuthzCapability.maintenance);
+		return dao.getAllTags();
 	}
 }

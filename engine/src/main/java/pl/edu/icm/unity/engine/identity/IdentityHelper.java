@@ -4,17 +4,29 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import com.google.common.collect.Sets;
+import static java.lang.String.join;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
-import pl.edu.icm.unity.engine.audit.AuditManager;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
@@ -40,16 +52,6 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.lang.String.join;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
-
 /**
  * Shared code related to handling entities and identities
  * @author K. Benedyczak
@@ -67,14 +69,14 @@ public class IdentityHelper
 	private AttributesHelper attributeHelper;
 	private GroupHelper groupHelper;
 	private EntityCredentialsHelper credentialHelper;
-	private AuditManager auditManager;
+	private AuditPublisher audit;
 
 	
 	@Autowired
 	public IdentityHelper(IdentityTypesRegistry idTypesRegistry, EntityDAO entityDAO,
 			IdentityDAO identityDAO, AttributeDAO attributeDAO, IdentityTypeHelper idTypeHelper,
 			AttributesHelper attributeHelper, GroupHelper groupHelper,
-			EntityCredentialsHelper credentialHelper, AuditManager auditManager)
+			EntityCredentialsHelper credentialHelper, AuditPublisher audit)
 	{
 		this.idTypesRegistry = idTypesRegistry;
 		this.entityDAO = entityDAO;
@@ -84,7 +86,7 @@ public class IdentityHelper
 		this.attributeHelper = attributeHelper;
 		this.groupHelper = groupHelper;
 		this.credentialHelper = credentialHelper;
-		this.auditManager = auditManager;
+		this.audit = audit;
 	}
 
 	/**
@@ -180,7 +182,7 @@ public class IdentityHelper
 		EntityInformation entity = new EntityInformation();
 		entity.setEntityState(initialState);
 		long entityId = entityDAO.create(entity);
-		auditManager.log(AuditEventTrigger.builder()
+		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ENTITY)
 				.action(AuditEventAction.ADD)
 				.name("")
@@ -285,7 +287,7 @@ public class IdentityHelper
 		try
 		{
 			identityDAO.create(new StoredIdentity(identity));
-			auditManager.log(AuditEventTrigger.builder()
+			audit.log(AuditEventTrigger.builder()
 					.type(AuditEventType.IDENTITY)
 					.action(AuditEventAction.ADD)
 					.name(join(":", identity.getTypeId(), identity.getName()))
