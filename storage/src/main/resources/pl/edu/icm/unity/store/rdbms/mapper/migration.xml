@@ -24,7 +24,24 @@
 	</update>
 
 	<update id="updateSchema-20800-00">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initAuditTables"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEntities"/>
+	</update>
+	<update id="updateSchema-20800-01">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEvents"/>
+	</update>
+	<update id="updateSchema-20800-02">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsIdx"/>
+	</update>
+	<update id="updateSchema-20800-03">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditTags"/>
+	</update>
+	<update id="updateSchema-20800-04">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsTags"/>
+	</update>
+	<update id="updateSchema-20800-05">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditInitialTags"/>
+	</update>
+	<update id="updateSchema-20800-06">
 		UPDATE UVOS_FLAG SET VAL = '2_8_0'
 	</update>
 </mapper>

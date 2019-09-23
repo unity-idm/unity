@@ -42,10 +42,16 @@
 		DROP TABLE IF EXISTS FILES;
 	</update>
 	<update id="cleardb-12">
-		DROP TABLE IF EXISTS AUDIT_ENTITIES;
-		DROP TABLE IF EXISTS AUDIT_EVENTS;
-		DROP TABLE IF EXISTS AUDIT_TAGS;
 		DROP TABLE IF EXISTS AUDIT_EVENTS_TAGS;
+	</update>
+	<update id="cleardb-13">
+		DROP TABLE IF EXISTS AUDIT_EVENTS;
+	</update>
+	<update id="cleardb-14">
+		DROP TABLE IF EXISTS AUDIT_ENTITIES;
+	</update>
+	<update id="cleardb-15">
+		DROP TABLE IF EXISTS AUDIT_TAGS;
 	</update>
 	<update id="cleardb-99">
 		DROP TABLE IF EXISTS UVOS_FLAG;
@@ -90,9 +96,15 @@
 		DELETE FROM FILES;
 	</delete>
 	<delete id="deletedb-11">
-		DELETE FROM AUDIT_ENTITIES;
-		DELETE FROM AUDIT_EVENTS;
-		DELETE FROM AUDIT_TAGS;
 		DELETE FROM AUDIT_EVENTS_TAGS;
 	</delete>
+	<delete id="deletedb-12">
+		DELETE FROM AUDIT_ENTITIES;
+	</delete>
+	<delete id="deletedb-13">
+		DELETE FROM AUDIT_EVENTS;
+	</delete>
+	<delete id="deletedb-14">
+		DELETE FROM AUDIT_TAGS;
+	</delete>	
 </mapper>
