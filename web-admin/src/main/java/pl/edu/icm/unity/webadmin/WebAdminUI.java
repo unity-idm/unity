@@ -26,7 +26,6 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
@@ -40,7 +39,7 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 @Component("WebAdminUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
+public class WebAdminUI extends UnityEndpointUIBase
 {
 	private ContentsManagementTab contentsManagement;
 	private RegistrationsManagementTab registrationsManagement;
