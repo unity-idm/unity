@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import java.net.URI;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -54,6 +55,12 @@ import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
  */
 public class TokenEndpointTest extends TokenTestBase
 {
+	@Before
+	public void init()
+	{
+		super.setupPlain();
+	}
+	
 	@Test
 	public void shouldReturnCompleteBearerTokenAfterCodeFlow() throws Exception
 	{
@@ -125,7 +132,7 @@ public class TokenEndpointTest extends TokenTestBase
 	@Test
 	public void nonceIsReturnedInClaimSetForOIDCRequest() throws Exception
 	{
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getOIDCConfig(),
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId(), "nonce-VAL");
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils

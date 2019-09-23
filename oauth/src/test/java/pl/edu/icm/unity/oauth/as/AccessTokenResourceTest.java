@@ -107,7 +107,7 @@ public class AccessTokenResourceTest
 	public void accessTokenIsReturnedWithValidCodeWithOIDC() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
 		setupInvocationContext(100);
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
@@ -165,7 +165,7 @@ public class AccessTokenResourceTest
 	public void refreshTokenPresentIfConfigured() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "3600");
 		
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
@@ -191,7 +191,7 @@ public class AccessTokenResourceTest
 	public void refreshTokenHasUnlimitedLifetimeIfConfiguredToZero() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "0");
 		
 		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);

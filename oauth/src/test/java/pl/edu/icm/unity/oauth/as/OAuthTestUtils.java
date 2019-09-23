@@ -62,10 +62,15 @@ public class OAuthTestUtils
 	
 	public static OAuthASProperties getConfig()
 	{
-		return getConfig(DEFAULT_ACCESS_TOKEN_VALIDITY, 0);
+		return getConfig(DEFAULT_ACCESS_TOKEN_VALIDITY, 0, false);
+	}
+
+	public static OAuthASProperties getOIDCConfig()
+	{
+		return getConfig(DEFAULT_ACCESS_TOKEN_VALIDITY, 0, true);
 	}
 	
-	public static OAuthASProperties getConfig(int accessTokenValidity, int maxValidity)
+	public static OAuthASProperties getConfig(int accessTokenValidity, int maxValidity, boolean oidc)
 	{
 		Properties properties = new Properties();
 		properties.setProperty(P + ISSUER_URI, ISSUER);
@@ -79,7 +84,8 @@ public class OAuthTestUtils
 		properties.setProperty(P + IDENTITY_TYPE_FOR_SUBJECT, TargetedPersistentIdentity.ID);
 		properties.setProperty(P + SCOPES + "1." + SCOPE_NAME, "s1");
 		properties.setProperty(P + SCOPES + "2." + SCOPE_NAME, "s2");
-		properties.setProperty(P + SCOPES + "3." + SCOPE_NAME, "openid");
+		if (oidc)
+			properties.setProperty(P + SCOPES + "3." + SCOPE_NAME, "openid");
 		PKIManagement pkiManagement = new MockPKIMan();
 		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR);
 	}

@@ -54,6 +54,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToExchangeTokenWithIncorrectAudience() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -79,7 +80,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToExchangeTokenWithIncorrectRequestedTokenType() throws Exception
 	{
-
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -106,6 +107,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldExchangeTokenWithIdToken() throws Exception
 	{
+		super.setupOIDC();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -142,6 +144,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldExchangeAccessTokenWithoutIdToken() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),

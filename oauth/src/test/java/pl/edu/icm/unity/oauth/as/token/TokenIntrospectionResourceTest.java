@@ -71,7 +71,7 @@ public class TokenIntrospectionResourceTest
 	public void shouldReturnInfoOnValidRefreshToken() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "3600");
 		setupInvocationContext(100);
 
