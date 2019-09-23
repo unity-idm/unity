@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.services.WebServiceControllerBase;
+import pl.edu.icm.unity.webui.console.services.WebServiceControllerBase;
 
 /**
  * Upman service controller. Based on the standard web service editor

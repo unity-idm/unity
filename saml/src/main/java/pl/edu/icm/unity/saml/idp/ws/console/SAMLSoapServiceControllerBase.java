@@ -23,11 +23,11 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.services.DefaultServicesControllerBase;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpServiceController;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 /**
  * 

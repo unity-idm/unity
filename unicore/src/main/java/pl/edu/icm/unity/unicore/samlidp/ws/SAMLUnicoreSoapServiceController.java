@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.ws.console.SAMLSoapServiceControllerBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 /**
  * 

@@ -34,12 +34,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase;
-import pl.edu.icm.unity.webui.authn.services.authnlayout.ServiceWebConfiguration;
-import pl.edu.icm.unity.webui.authn.services.tabs.GeneralTab;
-import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -48,6 +42,12 @@ import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
+import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * Home service editor component. 

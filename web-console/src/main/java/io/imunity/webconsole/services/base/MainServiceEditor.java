@@ -19,16 +19,16 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.services.ServiceControllerBaseInt;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.authn.services.ServiceTypeInfoHelper;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.ServiceControllerBaseInt;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.ServiceTypeInfoHelper;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
 /**
  * 

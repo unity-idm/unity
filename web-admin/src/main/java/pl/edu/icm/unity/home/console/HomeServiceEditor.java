@@ -15,11 +15,11 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
 
 /**
  * Home service editor

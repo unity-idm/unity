@@ -36,10 +36,10 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties.ResponseSigningPolicy;
 import pl.edu.icm.unity.saml.idp.console.common.SAMLIdentityMapping;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.authn.services.idp.ActiveValueConfig;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
+import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
 
 /**
  * Related to {@link SamlIdpProperties}. Contains whole SAML service configuration

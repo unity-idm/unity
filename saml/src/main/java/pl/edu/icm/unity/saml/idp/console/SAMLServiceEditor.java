@@ -22,12 +22,12 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
 
 /**
  * SAML Service editor

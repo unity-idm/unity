@@ -76,13 +76,13 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpServiceController;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

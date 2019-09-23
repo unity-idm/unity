@@ -16,12 +16,12 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpEditorUsersTab;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
 
 /**
  * SAML service editor users tab

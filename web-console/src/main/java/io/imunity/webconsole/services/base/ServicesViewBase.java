@@ -23,15 +23,15 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.authn.services.ServiceTypeInfoHelper;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceTypeInfoHelper;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

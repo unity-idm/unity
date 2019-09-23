@@ -12,14 +12,14 @@ import com.vaadin.data.Binder;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditor;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent;
-import pl.edu.icm.unity.webui.authn.services.tabs.AuthenticationTab;
-import pl.edu.icm.unity.webui.authn.services.tabs.GeneralTab;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
+import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 import pl.edu.icm.unity.webui.wellknownurl.WellKnownURLEndpointFactory;
 
 /**

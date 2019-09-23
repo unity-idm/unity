@@ -40,9 +40,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase.EditorTab;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -55,6 +52,9 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
 /**
  * OAuth service editor general tab

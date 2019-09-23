@@ -28,8 +28,6 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase.EditorTab;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
@@ -37,6 +35,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
 /**
  * SAML service editor clients tab

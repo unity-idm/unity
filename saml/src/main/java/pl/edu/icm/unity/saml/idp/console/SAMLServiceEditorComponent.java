@@ -26,15 +26,15 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase;
-import pl.edu.icm.unity.webui.authn.services.authnlayout.ServiceWebConfiguration;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpEditorUsersTab;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpUser;
-import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * SAML Service editor ui component. It consists of 4 tabs: general, clients,

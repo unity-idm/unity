@@ -33,10 +33,6 @@ import pl.edu.icm.unity.oauth.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webui.authn.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorBase.EditorTab;
-import pl.edu.icm.unity.webui.authn.services.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.authn.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -46,6 +42,10 @@ import pl.edu.icm.unity.webui.common.chips.GroupedValuesChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * OAuth service editor clients tab.
