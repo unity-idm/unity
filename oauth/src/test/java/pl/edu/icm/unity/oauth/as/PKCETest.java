@@ -66,7 +66,7 @@ public class PKCETest
 
 	
 	@Test
-	public void shouldFailToGetAccessTokenWithoutVodeVerifierWhenChallengeSet() throws Exception
+	public void shouldFailToGetAccessTokenWithoutCodeVerifierWhenChallengeSet() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
@@ -87,7 +87,7 @@ public class PKCETest
 	}
 	
 	@Test
-	public void shouldFailToGetAccessTokenWithWrongVodeVerifierWhenChallengeSet() throws Exception
+	public void shouldFailToGetAccessTokenWithWrongCodeVerifierWhenChallengeSet() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();

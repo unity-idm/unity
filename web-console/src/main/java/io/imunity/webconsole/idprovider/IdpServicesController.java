@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import io.imunity.webconsole.services.base.ServiceControllerBase;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.services.idp.IdpServiceControllersRegistry;
+import pl.edu.icm.unity.webui.console.services.idp.IdpServiceControllersRegistry;
 
 /**
  * Controller for IDP services

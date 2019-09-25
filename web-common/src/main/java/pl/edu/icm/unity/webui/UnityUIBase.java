@@ -137,6 +137,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			if (pollings.isEmpty())
 			{
 				log.debug("Poll disabled");
+				
 				super.setPollInterval(-1);
 			}
 		} else

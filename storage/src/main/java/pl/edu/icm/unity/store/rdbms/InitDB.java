@@ -160,7 +160,11 @@ public class InitDB
 		{
 			for (String name: ops)
 				if (name.startsWith(operationPfx))
+				{
 					session.update(name);
+					if (name.endsWith("-requireCommit"))
+						session.commit();
+				}
 			session.commit();
 		} finally
 		{

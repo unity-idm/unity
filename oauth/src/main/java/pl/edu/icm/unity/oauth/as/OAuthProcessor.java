@@ -107,7 +107,8 @@ public class OAuthProcessor
 		
 		Optional<IDTokenClaimsSet> idToken = generateIdTokenIfRequested(config, ctx, responseType, 
 				internalToken, identity, userInfo, now);
-		JWSAlgorithm signingAlgorithm = config.getTokenSigner().getSigningAlgorithm();
+		JWSAlgorithm signingAlgorithm = config.getTokenSigner().isPKIEnabled() ? 
+				config.getTokenSigner().getSigningAlgorithm() : null;
 		
 		AuthorizationSuccessResponse oauthResponse = null;
 		if (GrantFlow.authorizationCode == ctx.getFlow())

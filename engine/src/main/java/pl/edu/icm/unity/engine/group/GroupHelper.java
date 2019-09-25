@@ -25,7 +25,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
-import pl.edu.icm.unity.engine.audit.AuditManager;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -60,13 +60,13 @@ public class GroupHelper
 	private AttributesHelper attributesHelper;
 	private GroupDAO groupDAO;
 	private AttributeDAO dbAttributes;
-	private AuditManager auditManager;
+	private AuditPublisher audit;
 	
 	@Autowired
 	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper,
 			GroupDAO groupDAO, AttributeDAO dbAttributes,
-			AuditManager auditManager)
+			AuditPublisher audit)
 	{
 		this.membershipDAO = membershipDAO;
 		this.entityResolver = entityResolver;
@@ -74,7 +74,7 @@ public class GroupHelper
 		this.attributesHelper = attributesHelper;
 		this.groupDAO = groupDAO;
 		this.dbAttributes = dbAttributes;
-		this.auditManager = auditManager;
+		this.audit = audit;
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class GroupHelper
 
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);
-		auditManager.log(AuditEventTrigger.builder()
+		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.UPDATE)
 				.subject(entityId)
@@ -199,7 +199,7 @@ public class GroupHelper
 				if (Group.isChildOrSame(group, groupToRemove))
 				{
 					membershipDAO.deleteByKey(entityId, group);
-					auditManager.log(AuditEventTrigger.builder()
+					audit.log(AuditEventTrigger.builder()
 							.type(AuditEventType.GROUP)
 							.action(AuditEventAction.UPDATE)
 							.name(group)

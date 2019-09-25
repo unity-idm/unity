@@ -57,6 +57,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldRefreshToken() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -73,6 +74,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldAssumeOriginalScopesWhenNoScopesAreRequestedUponRefresh() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -89,6 +91,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void refreshedTokenCanBeUsedToObtainUserInfo() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -104,6 +107,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldRefreshTokenWithIdToken() throws Exception
 	{
+		super.setupOIDC();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -126,7 +130,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToRefreshTokenWithIncorrectScope() throws Exception
 	{
-
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -148,6 +152,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToRefreshTokenByAnotherClient() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -171,6 +176,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldRefreshUserInfoAfterRefreshToken() throws Exception
 	{
+		super.setupPlain();
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 

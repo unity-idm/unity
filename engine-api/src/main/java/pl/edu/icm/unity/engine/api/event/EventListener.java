@@ -26,7 +26,6 @@ public interface EventListener
 	
 	/**
 	 * This method should perform a fast filtering of uninteresting events.
-	 * @param event
 	 * @return true if the event should be handled by this listener
 	 */
 	boolean isWanted(Event event);
@@ -35,7 +34,6 @@ public interface EventListener
 	 * This method should return whether async processing is allowed. Otherwise processing is
 	 * done immediately.
 	 * 
-	 * @param event
 	 * @return true if the event should be handled in async mode.
 	 */
 	boolean isAsync(Event event);

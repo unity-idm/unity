@@ -21,7 +21,7 @@ public class TokenSignerTest
 	@Test(expected = ConfigurationException.class)
 	public void shouldThrowConfigExceptionWhenEmptyHMACsecret()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.HS512.toString());
 		new TokenSigner(config, new MockPKIMan());
@@ -30,7 +30,7 @@ public class TokenSignerTest
 	@Test(expected = ConfigurationException.class)
 	public void shouldThrowConfigExceptionWhenTooShortHMACsecret()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_SECRET,
 				"b8e7ae12510bdfb1812e463a7f086122cf37e4f7");
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
@@ -41,7 +41,7 @@ public class TokenSignerTest
 	@Test
 	public void shouldCreateHMACTokenSigner()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_SECRET,
 				"b8e7ae12510bdfb1812e463a7f086122cf37e4f7");
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
@@ -55,7 +55,7 @@ public class TokenSignerTest
 	@Test(expected = ConfigurationException.class)
 	public void shouldThrowConfigExceptionWhenIncorrectECPrivateKey()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.ES512.toString());
 		new TokenSigner(config, new MockPKIMan());
@@ -64,7 +64,7 @@ public class TokenSignerTest
 	@Test
 	public void shouldCreateECTokenSigner()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.ES512.toString());
 		
@@ -78,7 +78,7 @@ public class TokenSignerTest
 	@Test(expected = ConfigurationException.class)
 	public void shouldThrowConfigExceptionWhenIncorrectRSAPrivateKey()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.RS512.toString());
 		new TokenSigner(config,
@@ -88,7 +88,7 @@ public class TokenSignerTest
 	@Test
 	public void shouldCreateRSTokenSigner()
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.RS512.toString());
 	

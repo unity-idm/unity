@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.ImmutableMap;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
@@ -20,8 +22,10 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService;
@@ -38,6 +42,9 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 /**
  * Implements attributes operations.
@@ -59,6 +66,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private TransactionalRunner txRunner;
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private AdditionalAuthenticationService additionalAuthnService;
+	private final AuditPublisher audit;
 
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
@@ -67,7 +75,8 @@ public class AttributesManagementImpl implements AttributesManagement
 			AttributesHelper attributesHelper, EmailConfirmationManager confirmationManager,
 			TransactionalRunner txRunner,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			AdditionalAuthenticationService repeatedAuthnService)
+			AdditionalAuthenticationService repeatedAuthnService,
+			AuditPublisher audit)
 	{
 		this.acUtil = acUtil;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -79,6 +88,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.txRunner = txRunner;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.additionalAuthnService = repeatedAuthnService;
+		this.audit = audit;
 	}
 
 	
@@ -132,6 +142,7 @@ public class AttributesManagementImpl implements AttributesManagement
 
 			attributesHelper.addAttribute(entityId, attribute, at, allowUpdate, fullAuthz);
 		});
+
 		//this is merely to propagate the change to authz layer more quickly in typical situations. It does 
 		// not guarantee that authz cache is cleared after all possible situations when roles are be altered. 
 		if (RoleAttributeTypeProvider.AUTHORIZATION_ROLE.equals(attribute.getName()))
@@ -209,6 +220,14 @@ public class AttributesManagementImpl implements AttributesManagement
 		checkIfMandatory(entityId, groupPath, attributeTypeId);
 		
 		dbAttributes.deleteAttribute(attributeTypeId, entityId, groupPath);
+		
+		audit.log(AuditEventTrigger.builder()
+				.type(AuditEventType.ATTRIBUTE)
+				.action(AuditEventAction.REMOVE)
+				.name(attributeTypeId)
+				.subject(entityId)
+				.details(ImmutableMap.of("group", groupPath))
+				.tags(AuditEventTag.USERS));
 	}
 
 	@Override
@@ -267,9 +286,6 @@ public class AttributesManagementImpl implements AttributesManagement
 	
 	/**
 	 * Verifies if the attribute is allowed wrt attribute classes defined for the entity in the respective group.
-	 * @param entityId
-	 * @param attribute
-	 * @throws EngineException
 	 */
 	private void checkIfAllowed(long entityId, String groupPath, String attributeTypeId) 
 			throws EngineException
@@ -282,9 +298,6 @@ public class AttributesManagementImpl implements AttributesManagement
 
 	/**
 	 * Verifies if the attribute is allowed wrt attribute classes defined for the entity in the respective group.
-	 * @param entityId
-	 * @param attribute
-	 * @throws EngineException
 	 */
 	private void checkIfMandatory(long entityId, String groupPath, String attributeTypeId) 
 			throws EngineException

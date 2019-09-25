@@ -50,7 +50,7 @@ public class OAuthProcessorTest
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getOIDCConfig(),
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100, "nonce");
 		
@@ -75,7 +75,7 @@ public class OAuthProcessorTest
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getOIDCConfig(),
 				new ResponseType(ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN),
 				GrantFlow.implicit, 100, "nonce");
 		
@@ -103,7 +103,7 @@ public class OAuthProcessorTest
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getConfig(),
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getOIDCConfig(),
 				new ResponseType(ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid, 100, "nonce");
 		

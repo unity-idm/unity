@@ -51,9 +51,7 @@ public class TokenSigner
 			{
 				setupCredential(config, pkiManamgenet);
 				setupRSASigner();
-			}
-
-			else if (Family.EC.contains(algorithm))
+			} else if (Family.EC.contains(algorithm))
 			{
 				setupCredential(config, pkiManamgenet);
 				setupECSigner(signAlg);
@@ -71,7 +69,6 @@ public class TokenSigner
 
 	private void setupRSASigner()
 	{
-		
 		PrivateKey pk = credential.getKey();
 		if (pk == null || !(pk instanceof RSAPrivateKey))
 		{
@@ -146,27 +143,29 @@ public class TokenSigner
 		}
 	}
 	
-	public X509Credential getCredential()
+	public boolean isPKIEnabled()
 	{
-		return credential;
+		return internalSigner != null;
 	}
 	
 	public X509Certificate getCredentialCertificate()
 	{
+		if (!isPKIEnabled())
+			throw new InternalException("Token signer is not initialized");
 		return credential.getCertificate();
 	}
 	
 	public JWSAlgorithm getSigningAlgorithm()
 	{
+		if (!isPKIEnabled())
+			throw new InternalException("Token signer is not initialized");
 		return algorithm;
 	}
 	
 	public SignedJWT sign(IDTokenClaimsSet idTokenClaims) throws JOSEException, ParseException
 	{
-		if (internalSigner == null)
-		{
+		if (!isPKIEnabled())
 			throw new InternalException("Token signer is not initialized");
-		}
 		
 		SignedJWT ret = new SignedJWT(new JWSHeader(algorithm),
 				idTokenClaims.toJWTClaimsSet());	

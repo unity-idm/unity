@@ -107,6 +107,7 @@ class TestWorkFactorDialog extends AbstractDialog
 		long end = System.currentTimeMillis();
 		float result = ((end-start)/(float)TEST)/1000f;
 		ui.accessSynchronously(() -> showFinalResults(result));
+		try { Thread.sleep(300); } catch (InterruptedException e) {}
 		ui.setPollInterval(-1);
 	}
 	

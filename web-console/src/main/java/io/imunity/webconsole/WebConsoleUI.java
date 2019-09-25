@@ -28,7 +28,6 @@ import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -45,7 +44,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 @Component("WebConsoleUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("sidebarThemeValo")
-public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
+public class WebConsoleUI extends UnityEndpointUIBase
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private SidebarLayout webConsoleLayout;

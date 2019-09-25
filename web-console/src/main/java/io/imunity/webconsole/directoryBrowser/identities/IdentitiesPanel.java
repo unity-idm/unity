@@ -87,6 +87,7 @@ public class IdentitiesPanel extends SafePanel
 	private EntityFilter fastSearchFilter;
 	private EventsBus bus;
 	private String entityNameAttribute = null;
+	private SearchField searchText;
 	
 	@Autowired
 	public IdentitiesPanel(UnityMessageSource msg, AttributeTypeManagement attrsMan,
@@ -204,7 +205,7 @@ public class IdentitiesPanel extends SafePanel
 
 	private SearchField getSearchField()
 	{
-		final SearchField searchText = FilterableGridHelper.getRowSearchField(msg);
+		searchText = FilterableGridHelper.getRowSearchField(msg);
 		searchText.addValueChangeListener(event -> {
 			String searched = event.getValue();
 			if (fastSearchFilter != null)
@@ -301,6 +302,9 @@ public class IdentitiesPanel extends SafePanel
 
 	private void setGroup(String group)
 	{
+		identitiesTable.clearFilters();
+		searchText.clear();
+		
 		if (group == null)
 		{
 			try

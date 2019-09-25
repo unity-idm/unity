@@ -4,16 +4,23 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import com.google.common.collect.ImmutableMap;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
+
+import java.util.Date;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableMap;
+
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
-import pl.edu.icm.unity.engine.audit.AuditManager;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
@@ -38,11 +45,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
-import java.util.Date;
-import java.util.Map;
-
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
-
 /**
  * Implementation of credential and credential requirement operations on
  * entities.
@@ -60,14 +62,14 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	private AttributesHelper attributesHelper;
 	private EntityCredentialsHelper credHelper;
 	private AdditionalAuthenticationService repeatedAuthnService;
-	private AuditManager auditManager;
+	private AuditPublisher audit;
 
 	@Autowired
 	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityCredentialsHelper credHelper,
 			AdditionalAuthenticationService repeatedAuthnService,
-			AuditManager auditManager)
+			AuditPublisher audit)
 	{
 		this.idResolver = idResolver;
 		this.attributeDAO = attributeDAO;
@@ -75,7 +77,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 		this.attributesHelper = attributesHelper;
 		this.credHelper = credHelper;
 		this.repeatedAuthnService = repeatedAuthnService;
-		this.auditManager = auditManager;
+		this.audit = audit;
 	}
 
 	@Override
@@ -184,7 +186,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 		{
 			attributeDAO.deleteAttribute(credentialAttributeName, entityId, "/");
 			attributes.remove(credentialAttributeName);
-			auditManager.log(AuditEventTrigger.builder()
+			audit.log(AuditEventTrigger.builder()
 					.type(AuditEventType.CREDENTIALS)
 					.action(AuditEventAction.REMOVE)
 					.name(credentialAttributeName)
@@ -203,7 +205,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 			attributes.put(credentialAttributeName, added);
 			StoredAttribute updatedA = new StoredAttribute(added, entityId);
 			attributeDAO.updateAttribute(updatedA);
-			auditManager.log(AuditEventTrigger.builder()
+			audit.log(AuditEventTrigger.builder()
 					.type(AuditEventType.CREDENTIALS)
 					.action(AuditEventAction.UPDATE)
 					.name(credentialAttributeName)

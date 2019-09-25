@@ -10,5 +10,6 @@ public enum AuditEventType
 	IDENTITY,
 	GROUP,
 	SESSION,
-	CREDENTIALS;
+	CREDENTIALS,
+	ATTRIBUTE;
 }

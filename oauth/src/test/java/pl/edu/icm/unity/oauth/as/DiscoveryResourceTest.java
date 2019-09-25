@@ -30,7 +30,7 @@ public class DiscoveryResourceTest
 	{
 		OAuthEndpointsCoordinator coordinator = new OAuthEndpointsCoordinator();
 		coordinator.registerAuthzEndpoint("https://localhost:233/foo/token", "https://localhost:233/as");
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		DiscoveryResource tested = new DiscoveryResource(config, coordinator);
 		
 		Response resp = tested.getMetadata();

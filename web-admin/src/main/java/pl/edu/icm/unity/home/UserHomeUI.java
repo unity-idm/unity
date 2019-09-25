@@ -24,7 +24,6 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webadmin.utils.ProjectManagementHelper;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
@@ -37,7 +36,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 @Component("UserHomeUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
+public class UserHomeUI extends UnityEndpointUIBase
 {
 	private UserAccountComponent userAccount;
 	private StandardWebAuthenticationProcessor authnProcessor;

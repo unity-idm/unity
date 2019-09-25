@@ -112,12 +112,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
-		SingleActionHandler<TreeNode> addAction = getAddAction();
+		
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
-		hamburgerMenu.addActionHandler(addAction);
-		hamburgerMenu.addSeparator();
 		hamburgerMenu.addActionHandler(expandAllAction);
 		hamburgerMenu.addActionHandler(collapseAllAction);
 		hamburgerMenu.addActionHandler(deleteAction);
@@ -167,6 +165,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	
 	private MenuBar getRowHamburgerMenuComponent(Set<TreeNode> target)
 	{
+		SingleActionHandler<TreeNode> addAction = getAddAction();
 		SingleActionHandler<TreeNode> editAction = getEditAction();
 		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
 		SingleActionHandler<TreeNode> editDelegationConfigAction = getEditDelegationConfigAction();
@@ -177,7 +176,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		
 		HamburgerMenu<TreeNode> menu = new HamburgerMenu<TreeNode>();
 		menu.setTarget(target);
-		menu.addActionHandlers(Arrays.asList(expandAllAction, collapseAllAction, deleteAction, editAction, editACAction, editDelegationConfigAction));
+		menu.addActionHandlers(Arrays.asList(addAction, expandAllAction, collapseAllAction, deleteAction, editAction, editACAction, editDelegationConfigAction));
 		menu.addStyleName(SidebarStyles.sidebar.toString());
 
 		return menu;

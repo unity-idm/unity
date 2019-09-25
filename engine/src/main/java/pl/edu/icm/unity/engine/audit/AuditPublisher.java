@@ -1,0 +1,64 @@
+/*
+ * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.engine.audit;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.events.EventProcessor;
+import pl.edu.icm.unity.store.api.tx.TxManager;
+import pl.edu.icm.unity.types.basic.audit.AuditEntity;
+
+/**
+ * Used to publish log events from various parts of the app
+ *
+ * @author R. Ledzinski
+ */
+@Component
+public class AuditPublisher
+{
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditPublisher.class);
+	private static final AuditEntity SYSTEM_ENTITY = new AuditEntity(0L, "System", null);
+
+	private EventProcessor eventProcessor;
+	private TxManager txMan;
+	private final boolean async = false;
+
+	@Autowired
+	public AuditPublisher(final EventProcessor eventProcessor, final TxManager txMan)
+	{
+		this.eventProcessor = eventProcessor;
+		this.txMan = txMan;
+	}
+
+	public void log(final AuditEventTrigger.AuditEventTriggerBuilder triggerBuilder) 
+	{
+		if (InvocationContext.hasCurrent() &&
+				InvocationContext.getCurrent().getLoginSession() != null)
+		{
+			triggerBuilder.initiator(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		} else
+		{
+			log.debug("Missing data in InvocationContext - using System initiator");
+			triggerBuilder.initiator(SYSTEM_ENTITY);
+		}
+
+		if (async)
+		{
+			txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
+		} else 
+		{
+			eventProcessor.fireEvent(triggerBuilder.build());
+		}
+	}
+	
+	public boolean isAsync()
+	{
+		return false;
+	}
+}

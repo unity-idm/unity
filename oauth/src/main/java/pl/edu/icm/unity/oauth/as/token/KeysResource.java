@@ -42,6 +42,8 @@ public class KeysResource extends BaseOAuthResource
 	@Produces(JWKSet.MIME_TYPE)	
 	public String getKeys()
 	{
+		if (!config.getTokenSigner().isPKIEnabled())
+			return new JWKSet().toString();
 		JWSAlgorithm signAlg = config.getTokenSigner().getSigningAlgorithm();
 		JWKSet set;
 		if (Family.RSA.contains(signAlg))

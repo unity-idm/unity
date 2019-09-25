@@ -12,7 +12,6 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -63,7 +62,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
  */
 public abstract class TokenTestBase extends DBIntegrationTestBase
 {
-	protected static final String OAUTH_ENDP_CFG = "unity.oauth2.as.issuerUri=https://localhost:2443/oauth2\n"
+	private static final String OAUTH_ENDP_CFG = "unity.oauth2.as.issuerUri=https://localhost:2443/oauth2\n"
 			+ "unity.oauth2.as.signingCredential=MAIN\n"
 			+ "unity.oauth2.as.clientsGroup=/oauth-clients\n"
 			+ "unity.oauth2.as.usersGroup=/oauth-users\n"
@@ -76,8 +75,10 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.name=bar\n"
 			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n"
-			+ "unity.oauth2.as.scopes.3.name=openid\n"
 			+ "unity.oauth2.as.refreshTokenValidity=3600\n";
+
+	private static final String OIDC_ENDP_CFG = OAUTH_ENDP_CFG 
+			+ "unity.oauth2.as.scopes.3.name=openid\n";
 
 	public static final String REALM_NAME = "testr";
 
@@ -122,8 +123,6 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	/**
 	 * Only simple add user so the token may be added - attributes etc are
 	 * loaded by the WebAuths endpoint which is skipped here.
-	 * 
-	 * @throws Exception
 	 */
 	protected void createUser() throws Exception
 	{
@@ -138,8 +137,17 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		authnMan.createAuthenticator("Apass", "password", "", "credential1");
 	}
 	
-	@Before
-	public void setup()
+	protected void setupPlain()
+	{
+		setup(false);
+	}
+
+	protected void setupOIDC()
+	{
+		setup(true);
+	}
+	
+	private void setup(boolean withOIDC)
 	{
 		try
 		{
@@ -159,7 +167,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			
 			EndpointConfiguration config = new EndpointConfiguration(
 					new I18nString("endpointIDP"), "desc", Lists.newArrayList("flow1"),
-					OAUTH_ENDP_CFG, REALM_NAME);
+					withOIDC ? OIDC_ENDP_CFG : OAUTH_ENDP_CFG, REALM_NAME);
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
 					config);
 			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
@@ -181,13 +189,12 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	 * @param scope requested scope in code flow
 	 * @param ca user auth 
 	 * @return Parsed access token response
-	 * @throws Exception
 	 */
 	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca)
 			throws Exception
 	{
 		IdentityParam identity = initUser("userA");
-		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(),
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getOIDCConfig(),
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 

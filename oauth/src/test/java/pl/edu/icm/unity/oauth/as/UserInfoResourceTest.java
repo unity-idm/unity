@@ -67,7 +67,7 @@ public class UserInfoResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(
-				OAuthTestUtils.getConfig(100, 1000), 
+				OAuthTestUtils.getConfig(100, 1000, false), 
 				tokensManagement);
 		
 		UserInfoResource tested = new UserInfoResource(tokensManagement);
@@ -89,7 +89,7 @@ public class UserInfoResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(
-				OAuthTestUtils.getConfig(100, 101), 
+				OAuthTestUtils.getConfig(100, 101, false), 
 				tokensManagement);
 		
 		UserInfoResource tested = new UserInfoResource(tokensManagement);
@@ -111,7 +111,7 @@ public class UserInfoResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		
-		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(100, 0), 
+		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(100, 0, false), 
 				tokensManagement);
 		
 		UserInfoResource tested = new UserInfoResource(tokensManagement);
