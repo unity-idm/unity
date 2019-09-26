@@ -78,6 +78,8 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private CheckBox signMetadata;
 	private HorizontalLayout infoLayout;
 	private boolean initialValidation;
+	private HorizontalLayout metaLinkButtonWrapper;
+	private Label metaOffInfo;
 
 	public SAMLEditorGeneralTab(UnityMessageSource msg, NetworkServer server, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
@@ -123,8 +125,10 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		FormLayoutWithFixedCaptionWidth mainGeneralLayout = new FormLayoutWithFixedCaptionWidth();
 		main.addComponent(mainGeneralLayout);
 
-		Button metaPath = new Button();
-
+		Button metaLinkButton = new Button();
+		metaOffInfo = new Label();
+		metaOffInfo.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataOff"));
+		
 		infoLayout = new HorizontalLayout();
 		infoLayout.setMargin(new MarginInfo(false, true, false, true));
 		infoLayout.setStyleName("u-marginLeftMinus30");
@@ -137,13 +141,14 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		infoLayoutWrapper.setSpacing(false);
 		infoLayoutWrapper.setMargin(false);
 		wrapper.addComponent(infoLayoutWrapper);
-		HorizontalLayout l = new HorizontalLayout();
-		l.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
-		metaPath.setStyleName(Styles.vButtonLink.toString());
-		l.addComponent(metaPath);
-		infoLayoutWrapper.addComponent(l);
-		metaPath.addClickListener(e -> {
-			Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
+		metaLinkButtonWrapper = new HorizontalLayout();
+		metaLinkButtonWrapper.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
+		metaLinkButton.setStyleName(Styles.vButtonLink.toString());
+		metaLinkButtonWrapper.addComponent(metaLinkButton);
+		infoLayoutWrapper.addComponent(metaLinkButtonWrapper);
+		infoLayoutWrapper.addComponent(metaOffInfo);
+		metaLinkButton.addClickListener(e -> {
+			Page.getCurrent().open(metaLinkButton.getCaption(), "_blank", false);
 		});
 		main.addComponent(infoLayout);
 		infoLayout.setVisible(editMode);
@@ -169,7 +174,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			try
 			{
 				EndpointPathValidator.validateEndpointPath(v);
-				metaPath.setCaption(serverPrefix + v + "/metadata");
+				metaLinkButton.setCaption(serverPrefix + v + "/metadata");
 			} catch (WrongArgumentException e)
 			{
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
@@ -295,10 +300,14 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			{
 				if (v)
 				{
-					infoLayout.setVisible(editMode);
+					//infoLayout.setVisible(editMode);
+					metaLinkButtonWrapper.setVisible(true);
+					metaOffInfo.setVisible(false);
 				} else
 				{
-					infoLayout.setVisible(false);
+					//infoLayout.setVisible(false);
+					metaLinkButtonWrapper.setVisible(false);
+					metaOffInfo.setVisible(true);
 				}
 				initialValidation = true;
 			}
