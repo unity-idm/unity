@@ -300,12 +300,10 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			{
 				if (v)
 				{
-					//infoLayout.setVisible(editMode);
 					metaLinkButtonWrapper.setVisible(true);
 					metaOffInfo.setVisible(false);
 				} else
 				{
-					//infoLayout.setVisible(false);
 					metaLinkButtonWrapper.setVisible(false);
 					metaOffInfo.setVisible(true);
 				}

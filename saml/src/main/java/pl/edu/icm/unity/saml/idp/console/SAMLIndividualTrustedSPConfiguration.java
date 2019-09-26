@@ -31,6 +31,7 @@ public class SAMLIndividualTrustedSPConfiguration
 {
 	private String name;
 	private String id;
+	private boolean x500Name;
 	private I18nString displayedName;
 	private LocalOrRemoteResource logo;
 	private List<String> certificates;
@@ -45,6 +46,7 @@ public class SAMLIndividualTrustedSPConfiguration
 	public SAMLIndividualTrustedSPConfiguration()
 	{
 		authorizedRedirectsUri = new ArrayList<>();
+		x500Name = false;
 	}
 
 	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService, SamlIdpProperties source,
@@ -52,7 +54,17 @@ public class SAMLIndividualTrustedSPConfiguration
 	{
 		setName(name);
 		String prefix = SamlIdpProperties.ALLOWED_SP_PREFIX + name + ".";
-		setId(source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY));
+		
+		if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY))
+		{
+			setX500Name(false);
+			setId(source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY));
+		}else
+		{
+			setX500Name(true);
+			setId(source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_DN));
+		}
+		
 		setDisplayedName(source.getLocalizedStringWithoutFallbackToDefault(msg,
 				prefix + SamlIdpProperties.ALLOWED_SP_NAME));
 
@@ -102,8 +114,14 @@ public class SAMLIndividualTrustedSPConfiguration
 	{
 		String prefix = SamlIdpProperties.P + SamlIdpProperties.ALLOWED_SP_PREFIX + getName() + ".";
 
-		raw.put(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY, getId());
-
+		if (isX500Name())
+		{
+			raw.put(prefix + SamlIdpProperties.ALLOWED_SP_DN, getId());
+		} else
+		{
+			raw.put(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY, getId());
+		}
+		
 		if (getDisplayedName() != null)
 		{
 			getDisplayedName().toProperties(raw, prefix + SamlIdpProperties.ALLOWED_SP_NAME, msg);
@@ -161,6 +179,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		clone.setName(this.getName());
 		clone.setDisplayedName(this.getDisplayedName() != null ? this.getDisplayedName().clone() : null);
 		clone.setId(new String(this.getId()));
+		clone.setX500Name(new Boolean(this.isX500Name()));
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setCertificates(this.getCertificates() != null
 				? this.getCertificates().stream().map(s -> new String(s)).collect(Collectors.toList())
@@ -304,5 +323,15 @@ public class SAMLIndividualTrustedSPConfiguration
 	public void setAuthorizedRedirectsUri(List<String> authorizedRedirectsUri)
 	{
 		this.authorizedRedirectsUri = authorizedRedirectsUri;
+	}
+	
+	public boolean isX500Name()
+	{
+		return x500Name;
+	}
+
+	public void setX500Name(boolean x500Name)
+	{
+		this.x500Name = x500Name;
 	}
 }

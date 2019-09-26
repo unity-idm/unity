@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.bouncycastle.asn1.x500.X500Name;
+
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.CheckBox;
@@ -113,7 +115,7 @@ class EditIndividualTrustedSPSubView extends CustomComponent implements UnitySub
 
 		I18nTextField displayedName = new I18nTextField(msg,
 				msg.getMessage("EditIndividualTrustedSPSubView.displayedName"));
-		configBinder.forField(displayedName).asRequired(msg.getMessage("fieldRequired")).bind("displayedName");
+		configBinder.forField(displayedName).bind("displayedName");
 		header.addComponent(displayedName);
 
 		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
@@ -121,9 +123,29 @@ class EditIndividualTrustedSPSubView extends CustomComponent implements UnitySub
 		logo.configureBinding(configBinder, "logo");
 		header.addComponent(logo);
 
+		CheckBox x500Name = new CheckBox(msg.getMessage("EditIndividualTrustedSPSubView.X500NameUse"));
+		configBinder.forField(x500Name).bind("x500Name");
+		header.addComponent(x500Name);
+
 		TextField id = new TextField(msg.getMessage("EditIndividualTrustedSPSubView.id"));
 		id.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(id).asRequired(msg.getMessage("fieldRequired")).bind("id");
+		configBinder.forField(id).asRequired(msg.getMessage("fieldRequired")).withValidator((s, c) -> {
+			if (x500Name.getValue())
+			{
+				try
+				{
+					new X500Name(s);
+					return ValidationResult.ok();
+				} catch (Exception e)
+				{
+					return ValidationResult.error(
+							msg.getMessage("EditIndividualTrustedSPSubView.invalidX500Name"));
+				}
+			} else
+			{
+				return ValidationResult.ok();
+			}
+		}).bind("id");
 		header.addComponent(id);
 
 		ChipsWithDropdown<String> certificatesCombo = new ChipsWithDropdown<>();
