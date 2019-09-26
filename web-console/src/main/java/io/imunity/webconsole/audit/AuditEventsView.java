@@ -128,7 +128,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 
 		diabledMsg.addStyleName("u-AuditEventsWarnMsg");
 		diabledMsg.setValue(msg.getMessage("AuditEventsView.disabledMsg"));
-		diabledMsg.setVisible(!eventManagement.isEnabled());
+		diabledMsg.setVisible(!eventManagement.isPublisherEnabled());
 
 		gridWrapper.addComponents(diabledMsg, titleLabel, filterLayout, auditEventsGrid);
 

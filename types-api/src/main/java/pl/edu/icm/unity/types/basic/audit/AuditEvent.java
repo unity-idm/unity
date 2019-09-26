@@ -20,6 +20,8 @@ import static java.util.Objects.requireNonNull;
  */
 public class AuditEvent
 {
+	public static final int MAX_NAME_LENGTH = 200;
+
 	private String name;
 	private AuditEventType type;
 	private Date timestamp;

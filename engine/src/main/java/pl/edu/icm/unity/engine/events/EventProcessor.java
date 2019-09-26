@@ -95,6 +95,7 @@ public class EventProcessor implements EventPublisher
 	public void addEventListener(EventListener eventListener)
 	{
 		lock.writeLock().lock();
+		eventListener.init();
 		try
 		{
 			listeners.add(eventListener);

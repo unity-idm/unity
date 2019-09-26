@@ -122,7 +122,7 @@ class AuditEventEntry implements FilterableEntry
 		{
 			return "-";
 		}
-		return auditEvent.getTags().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(","));
+		return auditEvent.getTags().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "));
 	}
 
 	private String formatName() {

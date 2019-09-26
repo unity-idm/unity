@@ -45,5 +45,5 @@ public interface AuditEventManagement
 	 * Checks, if Audit Logs feature (Audit Logs gathering) in enabled in the system.
 	 * @return Audit Logs feature status
 	 */
-	boolean isEnabled();
+	boolean isPublisherEnabled();
 }

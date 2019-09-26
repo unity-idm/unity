@@ -4,12 +4,9 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
-import java.util.List;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.event.EventListener;
@@ -27,6 +24,8 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
+import java.util.List;
+
 /**
  * Listens to AuditEvents and stores them in database.
  *
@@ -38,25 +37,29 @@ public class AuditEventListener implements EventListener
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventListener.class);
 	public static final String ID = AuditEventListener.class.getName();
 
-	private final String entityNameAttribute;
+	private String entityNameAttribute;
 
 	private AttributeDAO attributeDAO;
 	private EmailFacility emailFacility;
+	private AttributeSupport attributeSupport;
 	private AuditEventDAO dao;
 	private TransactionalRunner tx;
-	private AuditPublisher audit;
 
 	@Autowired
 	public AuditEventListener(final AttributeDAO attributeDAO, final EmailFacility emailFacility,
 				final AttributeSupport attributeSupport, final AuditEventDAO dao,
-				final TransactionalRunner tx, final AuditPublisher audit)
+				final TransactionalRunner tx)
 	{
 		this.attributeDAO = attributeDAO;
 		this.emailFacility = emailFacility;
 		this.dao = dao;
 		this.tx = tx;
-		this.audit = audit;
+		this.attributeSupport = attributeSupport;
+	}
 
+	@Override
+	public void init()
+	{
 		AttributeType attr = null;
 		try
 		{
@@ -64,14 +67,16 @@ public class AuditEventListener implements EventListener
 					EntityNameMetadataProvider.NAME);
 		} catch (Exception e)
 		{
-			log.warn("Cannot retrieve attributeType: {}. Using 'name'.", e.getLocalizedMessage());
+			log.error("Failed to get attributeType", e);
 		}
 		if (attr == null)
 		{
 			entityNameAttribute = "name";
+			log.warn("No attributeType for 'entityDisplayedName'. Using 'name' value as default.");
 		} else
 		{
 			entityNameAttribute = attr.getName();
+			log.debug("attributeType initialize to " + attr.getName());
 		}
 	}
 

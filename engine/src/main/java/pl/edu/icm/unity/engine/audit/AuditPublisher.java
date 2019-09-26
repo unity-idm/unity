@@ -6,10 +6,12 @@ package pl.edu.icm.unity.engine.audit;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.store.api.tx.TxManager;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
  * @author R. Ledzinski
  */
 @Component
+//@DependsOn({InitializerCommon.class})
 public class AuditPublisher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditPublisher.class);
@@ -27,17 +30,28 @@ public class AuditPublisher
 
 	private EventProcessor eventProcessor;
 	private TxManager txMan;
-	private final boolean async = false;
+	private volatile boolean enabled;
 
 	@Autowired
-	public AuditPublisher(final EventProcessor eventProcessor, final TxManager txMan)
+	public AuditPublisher(final EventProcessor eventProcessor, final TxManager txMan,
+						  final UnityServerConfiguration mainConfig)
 	{
 		this.eventProcessor = eventProcessor;
 		this.txMan = txMan;
+		this.enabled = mainConfig.getBooleanValue(UnityServerConfiguration.AUDITEVENTLOGS_ENABLED);
+		log.info("AuditPublisher is " + (enabled ? "enabled" : "disabled"));
+	}
+
+	public boolean isEnabled()
+	{
+		return enabled;
 	}
 
 	public void log(final AuditEventTrigger.AuditEventTriggerBuilder triggerBuilder) 
 	{
+		if (!enabled)
+			return;
+
 		if (InvocationContext.hasCurrent() &&
 				InvocationContext.getCurrent().getLoginSession() != null)
 		{
@@ -48,17 +62,7 @@ public class AuditPublisher
 			triggerBuilder.initiator(SYSTEM_ENTITY);
 		}
 
-		if (async)
-		{
-			txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
-		} else 
-		{
-			eventProcessor.fireEvent(triggerBuilder.build());
-		}
-	}
-	
-	public boolean isAsync()
-	{
-		return false;
+
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(triggerBuilder.build()));
 	}
 }
