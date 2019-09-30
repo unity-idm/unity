@@ -4,19 +4,12 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
+import org.awaitility.Awaitility;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.test.util.ReflectionTestUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -25,6 +18,16 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 public class AuditManagerTest extends DBIntegrationTestBase
 {
@@ -43,13 +46,18 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		
 		InvocationContext invContext = InvocationContext.getCurrent();
 		invContext.setLoginSession(new LoginSession("1", null, null, 100, 1L, null, null, null, null));
+		ReflectionTestUtils.setField(auditPublisher, "enabled", true);
+	}
+
+	@After
+	public void after() {
+		ReflectionTestUtils.setField(auditPublisher, "enabled", false);
 	}
 
 	@Test
 	public void shouldStoreAndRetrieveAuditEvent()
 	{
 		// given
-		int initialLogSize = auditManager.getAllEvents().size();
 
 		// when
 		tx.runInTransaction(() -> auditPublisher.log(AuditEventTrigger.builder()
@@ -60,8 +68,10 @@ public class AuditManagerTest extends DBIntegrationTestBase
 			.tags(USERS)));
 
 		//than
+		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == 1));
+
 		List<AuditEvent> allEvents = auditManager.getAllEvents();
-		assertEquals(allEvents.size(), initialLogSize + 1);
+		assertEquals(allEvents.size(), 1);
 		AuditEvent lastEvent = allEvents.get(allEvents.size() - 1);
 		assertEquals(AuditEventType.ENTITY, lastEvent.getType());
 		assertEquals(AuditEventAction.UPDATE, lastEvent.getAction());
@@ -75,7 +85,6 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	public void shouldGetAllTags()
 	{
 		// given
-		int initialLogSize = auditManager.getAllEvents().size();
 
 		// when
 		tx.runInTransaction(() -> auditPublisher.log(AuditEventTrigger.builder()
@@ -86,7 +95,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 				.tags("Users", "Members", "Groups", "Authn", "Test tag")));
 
 		//than
-		assertEquals(auditManager.getAllEvents().size(), initialLogSize + 1);
+		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == 1));
 		Set<String> allTags = auditManager.getAllTags();
 		System.out.println("All: " + allTags);
 		assertEquals(5, allTags.size());
@@ -127,8 +136,8 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		});
 
 		//than
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 3).size());
-		assertTrue(auditManager.getAuditEvents(null, null, 10).size() > 3);
+		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3).size() == 3));
+		assertTrue(auditManager.getAuditEvents(null, null, 10).size() == 3);
 		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10).size());
 		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10).size());
 		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10).size());

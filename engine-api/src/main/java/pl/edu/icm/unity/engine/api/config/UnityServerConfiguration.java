@@ -87,6 +87,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
 	public static final String DEFAULT_WEB_PATH = "defaultWebPath";
 	public static final String REDIRECT_MODE = "redirectMode";
+	public static final String AUDITEVENTLOGS_ENABLED = "auditEventLogsEnabled";
 	
 	public static final String IMPORT_PFX = "userImport."; 
 	
@@ -270,6 +271,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				+ " as it is impossible to insert links and other advanced formating."));
 		defaults.put(DEFAULT_WEB_PATH, new PropertyMD().setCategory(mainCat).setDescription(
 				"If set Unity will redirect request without the path to this one"));
+		defaults.put(AUDITEVENTLOGS_ENABLED, new PropertyMD("true").setCategory(mainCat).setDescription(
+				"Indicate if AuditEvent logs are gathered by the system."));
 		defaults.put(UNITYGW_WEB_CONTENT_PATH, new PropertyMD().setPath().setCategory(mainCat).setDescription(
 				"Defines a folder from which all the web applications operating on the shared unitygw path "
 				+ "(e.g. the email confirmation screen) "

@@ -57,4 +57,9 @@ public interface EventListener
 	 * to return {@link #DEFAULT_MAX_FAILURES}  
 	 */
 	int getMaxFailures();
+
+	/**
+	 * Called before {@link EventListener} is being added to {@link EventProcessor}
+	 */
+	default void init() {}
 }

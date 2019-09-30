@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.Event;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
@@ -178,6 +179,11 @@ public class AuditEventTrigger implements Event
 				requireNonNull(auditEvent.initiatorEntity, "AuditEventTrigger.initiator field is required!");
 			}
 			requireNonNull(auditEvent.action, "AuditEventTrigger.action field is required!");
+			// Make sure AuditEvent.name match DB limitation
+			if (auditEvent.name.length() > AuditEvent.MAX_NAME_LENGTH)
+			{
+				auditEvent.name = auditEvent.name.substring(0,  AuditEvent.MAX_NAME_LENGTH - 3) + "...";
+			}
 			return auditEvent;
 		}
 	}

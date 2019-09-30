@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.maintenance.audit;
+package io.imunity.webconsole.audit;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
@@ -122,7 +122,7 @@ class AuditEventEntry implements FilterableEntry
 		{
 			return "-";
 		}
-		return auditEvent.getTags().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(","));
+		return auditEvent.getTags().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "));
 	}
 
 	private String formatName() {
