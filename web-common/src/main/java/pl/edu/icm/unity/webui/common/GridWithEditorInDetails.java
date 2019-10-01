@@ -17,6 +17,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -35,36 +36,29 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 	private GridWithActionColumn<T> grid;
 	private Class<T> type;
 	private T newElement;
+	private Predicate<T> disableEditAndRemovePredicate;
 
 	public GridWithEditorInDetails(UnityMessageSource msg, Class<T> type,
 			Supplier<EmbeddedEditor<T>> gridEditorSupplier, Predicate<T> disableEditAndRemovePredicate)
 	{
 		this.type = type;
+		this.disableEditAndRemovePredicate = disableEditAndRemovePredicate;
+
 		SingleActionHandler<T> remove = SingleActionHandler.builder4Delete(msg, type)
-			.withDisabledPredicate(disableEditAndRemovePredicate)	
-			.withHandler(r -> {
-			T element = r.iterator().next();
-			grid.removeElement(element);
-			if (newElement == element)
-			{
-				resetNewElement();
-			}
-			fireChange();
-		}).build();
+				.withDisabledPredicate(disableEditAndRemovePredicate).withHandler(r -> {
+					T element = r.iterator().next();
+					grid.removeElement(element);
+					if (newElement == element)
+					{
+						resetNewElement();
+					}
+					fireChange();
+				}).build();
 
 		SingleActionHandler<T> edit = SingleActionHandler.builder4Edit(msg, type)
-				.withDisabledPredicate(t -> grid.isDetailsVisible(t) || disableEditAndRemovePredicate.test(t)).withHandler(r -> {
-					for (T t : grid.getElements())
-					{
-						grid.setDetailsVisible(t, false);
-					}
-					if (newElement != null)
-					{
-						grid.removeElement(newElement);
-					}
-					resetNewElement();
-					grid.setDetailsVisible(r.iterator().next(), true);
-				}).build();
+				.withDisabledPredicate(
+						t -> grid.isDetailsVisible(t) || disableEditAndRemovePredicate.test(t))
+				.withHandler(r -> edit(r.iterator().next())).build();
 
 		grid = new GridWithActionColumn<>(msg, Arrays.asList(edit, remove));
 		grid.setDetailsGenerator(t -> {
@@ -88,8 +82,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 					{
 						return;
 					}
-					
-					
+
 					grid.setDetailsVisible(t, false);
 					grid.replaceElement(t, value);
 					fireChange();
@@ -111,7 +104,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 					{
 						return;
 					}
-					
+
 					grid.setDetailsVisible(t, false);
 					grid.replaceElement(t, value);
 					fireChange();
@@ -126,6 +119,20 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 			return wrapper;
 		});
 		setHeight(100, Unit.PERCENTAGE);
+	}
+
+	private void edit(T toEdit)
+	{
+		for (T t : grid.getElements())
+		{
+			grid.setDetailsVisible(t, false);
+		}
+		if (newElement != null)
+		{
+			grid.removeElement(newElement);
+		}
+		resetNewElement();
+		grid.setDetailsVisible(toEdit, true);
 	}
 
 	private void resetNewElement()
@@ -167,12 +174,27 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 		return column;
 	}
 
+	public Column<T, Component> addGotoEditColumn(ValueProvider<T, String> valueProvider, String caption,
+			int expandRatio)
+	{
+		Column<T, Component> column = grid
+				.addComponentColumn(
+						p -> !disableEditAndRemovePredicate.test(p)
+								? StandardButtonsHelper.buildLinkButton(
+										valueProvider.apply(p), e -> edit(p))
+								: new Label(valueProvider.apply(p)),
+
+						caption, expandRatio);
+		grid.refreshActionColumn();
+		return column;
+	}
+
 	public void addElement(T el)
 	{
 		grid.addElement(el);
 		fireChange();
 	}
-	
+
 	public void removeElement(T el)
 	{
 		grid.removeElement(el);

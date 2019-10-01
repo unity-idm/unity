@@ -66,7 +66,7 @@ class IdpServicesView extends ServicesViewBase
 				.withIcon(Images.bullets.getResource())
 				.withHandler(r -> gotoEdit(r.iterator().next(), ServiceEditorTab.CLIENTS)).build();
 
-		return Arrays.asList(editGeneral, editAuth, editClients, editUsers);
+		return Arrays.asList(editGeneral, editClients, editUsers, editAuth);
 
 	}
 

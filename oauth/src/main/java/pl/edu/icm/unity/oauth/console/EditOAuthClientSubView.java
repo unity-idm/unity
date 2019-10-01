@@ -98,7 +98,10 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 						msg.getMessage("EditOAuthClientSubView.goBackTooltip"), () -> {
 							onConfirm.accept(client);
 						});
+				confirmDialog.setHTMLContent(true);
+				confirmDialog.setSizeEm(30, 28);
 				confirmDialog.show();
+				
 			} else
 			{
 				onConfirm.accept(client);

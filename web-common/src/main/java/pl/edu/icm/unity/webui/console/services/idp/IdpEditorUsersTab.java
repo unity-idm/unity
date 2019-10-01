@@ -147,7 +147,7 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 
 		releasedAttrsGrid = new GridWithEditorInDetails<>(msg, ActiveValueConfig.class,
 				() -> new ActiveValueConfigEditor(msg, allAttrTypes, availableClients), u -> false);
-		releasedAttrsGrid.addTextColumn(s -> availableClients.get(s.getClientId()),
+		releasedAttrsGrid.addGotoEditColumn(s -> availableClients.get(s.getClientId()),
 				msg.getMessage("IdpEditorUsersTab.client"), 10);
 		releasedAttrsGrid.addTextColumn(
 				s -> s.getSingleSelectableAttributes() != null

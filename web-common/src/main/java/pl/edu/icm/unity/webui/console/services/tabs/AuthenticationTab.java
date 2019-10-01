@@ -75,6 +75,7 @@ public class AuthenticationTab extends CustomComponent implements EditorTab
 			return ValidationResult.ok();
 
 		}).bind("authenticationOptions");
+		authAndFlows.setRequiredIndicatorVisible(true);
 		mainAuthenticationLayout.addComponent(authAndFlows);
 		setCompositionRoot(mainAuthenticationLayout);
 	}

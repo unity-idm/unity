@@ -39,6 +39,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
@@ -205,7 +206,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			try
 			{
 				EndpointPathValidator.validateEndpointPath(v);
-				userAuthnEndpointPath.setValue(serverPrefix + v);
+				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
 			} catch (WrongArgumentException e)
 			{
 				userAuthnEndpointPath.setValue("");
@@ -389,7 +390,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),
 				s -> s != null && s.getName() != null
 						&& s.getName().equals(OIDCScopeValue.OPENID.toString()));
-		scopesGrid.addTextColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
+		scopesGrid.addGotoEditColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
 		scopesGrid.addTextColumn(s -> s.getDescription(),
 				msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
 		scopesGrid.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",

@@ -38,6 +38,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.chips.GroupedValuesChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
@@ -157,6 +158,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 			return ValidationResult.ok();
 
 		}).bind("authenticationOptions");
+		authAndFlows.setRequiredIndicatorVisible(true);
 		mainAuthenticationLayout.addComponent(authAndFlows);
 
 		CollapsibleLayout authSection = new CollapsibleLayout(
@@ -209,7 +211,11 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
 
 			clientsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			clientsList.addColumn(p -> p.getName(), msg.getMessage("ClientsComponent.name"), 20);
+			
+			clientsList.addComponentColumn(
+					p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
+					msg.getMessage("ClientsComponent.name"), 20);
+			
 			clientsList.addColumn(p -> p.getType(), msg.getMessage("ClientsComponent.type"), 30);
 			clientsList.addColumn(p -> p.getFlows() != null ? String.join(",", p.getFlows()) : "",
 					msg.getMessage("ClientsComponent.enabledGrants"), 40);
@@ -284,8 +290,6 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 			Set<String> clients = new HashSet<>();
 			clients.addAll(clientsList.getElements().stream().filter(c -> c.getEntity() == null)
 					.map(c -> c.getId()).collect(Collectors.toSet()));
-//			clients.addAll(users.stream().filter(u -> u.identityType.equals(UsernameIdentity.ID))
-//					.map(u -> u.identity).collect(Collectors.toSet()));
 			clients.addAll(allUsernames);
 			if (edited != null)
 			{

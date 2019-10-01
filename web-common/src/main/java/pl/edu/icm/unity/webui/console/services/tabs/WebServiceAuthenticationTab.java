@@ -164,6 +164,7 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 			return ValidationResult.ok();
 
 		}).bind("authenticationOptions");
+		authAndFlows.setRequiredIndicatorVisible(true);
 		mainAuthenticationLayout.addComponent(authAndFlows);
 
 		CheckBox showSearch = new CheckBox();
