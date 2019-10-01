@@ -98,13 +98,11 @@
 		SELECT TAG FROM AUDIT_TAGS;
 	</select>
 
-	<insert id="createTags">
-		<foreach collection="tagList" item="item" index="index" separator=";">
-			INSERT INTO AUDIT_TAGS
-				SELECT NULL,#{item} FROM AUDIT_TAGS
-					WHERE ID=(SELECT MAX(ID) from AUDIT_TAGS)
-						AND NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{item})
-		</foreach>
+	<insert id="createTag">
+		INSERT INTO AUDIT_TAGS
+			SELECT NULL,#{tag} FROM AUDIT_TAGS
+				WHERE ID=(SELECT MAX(ID) from AUDIT_TAGS)
+					AND NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{tag})
 	</insert>
 
 	<insert id="insertAuditTags">

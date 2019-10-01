@@ -101,11 +101,18 @@ public class AuditEventTrigger implements Event
 
 	public static class AuditEventTriggerBuilder
 	{
+		private final static String EMPTY_STRING = "";
 		private AuditEventTrigger auditEvent = new AuditEventTrigger();
 
 		public AuditEventTriggerBuilder name(final String name)
 		{
 			auditEvent.name = name;
+			return this;
+		}
+
+		public AuditEventTriggerBuilder emptyName()
+		{
+			auditEvent.name = EMPTY_STRING;
 			return this;
 		}
 

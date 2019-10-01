@@ -22,7 +22,7 @@ public interface AuditEventMapper extends BasicCRUDMapper<AuditEventBean>
 	long createAuditEntity(AuditEntityBean bean);
 
 	Set<String> getAllTags();
-	void createTags(@Param("tagList") Set<String> tagList);
+	void createTag(@Param("tag") String tag);
 
 	void insertAuditTags(@Param("eventId") long eventId, @Param("tagList") Set<String> tags);
 

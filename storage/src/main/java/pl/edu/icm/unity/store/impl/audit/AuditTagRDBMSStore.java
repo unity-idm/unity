@@ -54,7 +54,10 @@ class AuditTagRDBMSStore
 			return;
 		}
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		mapper.createTags(missing);
+		for (String tag : missing)
+		{
+			mapper.createTag(tag);
+		}
 		knownTags.addAll(missing);
 	}
 }

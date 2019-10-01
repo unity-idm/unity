@@ -63,7 +63,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		tx.runInTransaction(() -> auditPublisher.log(AuditEventTrigger.builder()
 			.type(AuditEventType.ENTITY)
 			.action(AuditEventAction.UPDATE)
-			.name("")
+			.emptyName()
 			.subject(13L)
 			.tags(USERS)));
 

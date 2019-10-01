@@ -185,7 +185,7 @@ public class IdentityHelper
 		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ENTITY)
 				.action(AuditEventAction.ADD)
-				.name("")
+				.emptyName()
 				.subject(entityId)
 				.tags(USERS));
 

@@ -597,7 +597,7 @@ public class EntityManagementImpl implements EntityManagement
 		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ENTITY)
 				.action(AuditEventAction.REMOVE)
-				.name("")
+				.emptyName()
 				.subject(auditEntity)
 				.tags(USERS));
 	}
@@ -633,7 +633,7 @@ public class EntityManagementImpl implements EntityManagement
 		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ENTITY)
 				.action(AuditEventAction.UPDATE)
-				.name("")
+				.emptyName()
 				.subject(entityId)
 				.details(ImmutableMap.of("state", status.toString()))
 				.tags(USERS));
