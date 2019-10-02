@@ -123,7 +123,7 @@ CREATE TABLE EVENTS_QUEUE(
 
 	<sql id="sql-auditEntities">
 CREATE TABLE AUDIT_ENTITIES (
-		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.primaryKeyColumn"/>,
 		ENTITY_ID INTEGER NOT NULL,
 		NAME VARCHAR(200),
 		EMAIL VARCHAR(200),
@@ -133,7 +133,7 @@ CREATE TABLE AUDIT_ENTITIES (
 	
 	<sql id="sql-auditEvents">	
 CREATE TABLE AUDIT_EVENTS (
-		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.primaryKeyColumn"/>,
 		TIMESTAMP <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.dateTimeType"/> NOT NULL,
 		TYPE VARCHAR(100) NOT NULL,
 		NAME VARCHAR(200) NOT NULL,
@@ -152,7 +152,7 @@ CREATE INDEX AUDIT_EVENTS_TIMESTAMP_IDX ON AUDIT_EVENTS(TIMESTAMP);
 	
 	<sql id="sql-auditTags">	
 CREATE TABLE AUDIT_TAGS (
-		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.primaryKeyColumn"/>,
 		TAG VARCHAR(200) NOT NULL,
 		UNIQUE(TAG)
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>

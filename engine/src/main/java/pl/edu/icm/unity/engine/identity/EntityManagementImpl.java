@@ -331,7 +331,7 @@ public class EntityManagementImpl implements EntityManagement
 		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.IDENTITY)
 				.action(AuditEventAction.REMOVE)
-				.name(join(":", toRemove.getTypeId(), identities.stream().filter(id -> id.getTypeId().equals(toRemove.getTypeId())).findFirst().get().getName()))
+				.name(join(":", toRemove.getTypeId(), cmpValue))
 				.subject(auditEventListener.createAuditEntity(entityId))
 				.tags(USERS));
 	}

@@ -36,7 +36,9 @@
 	<sql id="tableOpts">
 		);
 	</sql>
-
+	<sql id="createAuditTag">
+		INSERT INTO AUDIT_TAGS(tag) VALUES (#{tag}) ON CONFLICT DO NOTHING;
+	</sql>
 
 	<update id="initdb-04-01">
 		CREATE INDEX IDENTITIES_ENTITY_ID_IDX ON IDENTITIES (ENTITY_ID);

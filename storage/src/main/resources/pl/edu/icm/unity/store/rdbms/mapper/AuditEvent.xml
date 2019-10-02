@@ -99,10 +99,7 @@
 	</select>
 
 	<insert id="createTag">
-		INSERT INTO AUDIT_TAGS
-			SELECT NULL,#{tag} FROM AUDIT_TAGS
-				WHERE ID=(SELECT MAX(ID) from AUDIT_TAGS)
-					AND NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{tag})
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.createAuditTag"/>
 	</insert>
 
 	<insert id="insertAuditTags">
