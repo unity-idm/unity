@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
-import org.apache.logging.log4j.Logger;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
+
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Read access and management of audit log.
@@ -28,7 +27,6 @@ import java.util.Set;
 @Transactional
 public class AuditManager implements AuditEventManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditManager.class);
 	private AuditEventDAO dao;
 	private InternalAuthorizationManager authz;
 	private AuditPublisher auditPublisher;
