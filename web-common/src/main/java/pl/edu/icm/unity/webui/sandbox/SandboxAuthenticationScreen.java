@@ -4,12 +4,18 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_ADD_ALL;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRIDS_PFX;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRID_CONTENTS;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRID_ROWS;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_TITLE;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -53,7 +59,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			String title,
 			SandboxAuthnRouter sandboxRouter)
 	{
-		super(msg, uriAccessService, prepareConfiguration(config.getProperties(), title), 
+		super(msg, uriAccessService, prepareConfiguration(config.getProperties(), title, authenticators), 
 				endpointDescription, 
 				() -> false,
 				new NoOpCredentialRestLauncher(),
@@ -70,20 +76,19 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 	/**
 	 * @return configuration of the sandbox based on the properties of the base endpoint
 	 */
-	private static VaadinEndpointProperties prepareConfiguration(Properties endpointProperties, String title)
+	private static VaadinEndpointProperties prepareConfiguration(Properties endpointProperties, String title,
+			List<AuthenticationFlow> authenticators)
 	{
-		Properties stripDown = new Properties();
-		Map<Object, Object> reduced = endpointProperties.entrySet().stream().filter(entry -> {
-			String key = (String) entry.getKey();
-			return !(key.endsWith(VaadinEndpointProperties.ENABLE_REGISTRATION) || 
-					key.endsWith(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS) ||
-					key.endsWith(VaadinEndpointProperties.PRODUCTION_MODE) ||
-					key.endsWith(VaadinEndpointProperties.WEB_CONTENT_PATH));
-		}).collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-		stripDown.putAll(reduced);
-		stripDown.setProperty(PREFIX + AUTHN_TITLE, title);
-		stripDown.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
-		return new VaadinEndpointProperties(stripDown);
+		Properties sandboxConfig = new Properties();
+		sandboxConfig.setProperty(PREFIX + AUTHN_TITLE, title);
+		sandboxConfig.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
+		sandboxConfig.setProperty(PREFIX + AUTHN_ADD_ALL, "true");
+		String authnsSpec = authenticators.stream().map(flow -> flow.getId()).collect(Collectors.joining(" "));
+		sandboxConfig.setProperty(PREFIX + AUTHN_GRIDS_PFX + "G1." + AUTHN_GRID_CONTENTS, authnsSpec);
+		sandboxConfig.setProperty(PREFIX + AUTHN_GRIDS_PFX + "G1." + AUTHN_GRID_ROWS, "15");
+		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_CONTENTS, "_GRID_G1");
+		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_WIDTH, "28");
+		return new VaadinEndpointProperties(sandboxConfig);
 	}
 	
 	

@@ -57,8 +57,9 @@ public class AuthenticatorsComponent extends CustomComponent
 
 	private void initUI()
 	{
-		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
-				.buildActionButton(msg.getMessage("AuthenticatorsComponent.test"), Images.dryrun, e -> {
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(
+				StandardButtonsHelper.buildButton(msg.getMessage("AuthenticatorsComponent.test"), 
+						Images.dryrun, e -> {
 					DryRunWizardProvider dryRunProvider = null;
 					try
 					{
@@ -72,7 +73,8 @@ public class AuthenticatorsComponent extends CustomComponent
 							dryRunProvider.getWizardInstance(),
 							dryRunProvider.getCaption());
 					dialog.show();
-				}), StandardButtonsHelper.build4AddAction(msg,
+				}), 
+				StandardButtonsHelper.build4AddAction(msg,
 						e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
 
 		authenticatorsGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);

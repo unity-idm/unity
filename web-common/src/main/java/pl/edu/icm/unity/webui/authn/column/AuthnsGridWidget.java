@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.Resource;
@@ -21,6 +23,7 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Image;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
@@ -32,6 +35,7 @@ import pl.edu.icm.unity.webui.common.Images;
  */
 public class AuthnsGridWidget extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthnsGridWidget.class);
 	private final AuthNPanelFactory authNPanelFactory;
 	private final List<AuthNOption> options;
 
@@ -107,6 +111,15 @@ public class AuthnsGridWidget extends CustomComponent
 
 		for (AuthNOption entry: options)
 		{
+			FirstFactorAuthNPanel authnPanel;
+			try
+			{
+				authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(entry);
+			} catch (UnsupportedOperationException e)
+			{
+				log.warn("Skipping {} option which is not grid compatible", entry.flow.getId());
+				continue;
+			}
 			String name = entry.authenticatorUI.getLabel();
 			Resource logo = entry.authenticatorUI.getImage();
 			String id = entry.authenticatorUI.getId();
@@ -120,7 +133,6 @@ public class AuthnsGridWidget extends CustomComponent
 			NameWithTags nameWithTags = new NameWithTags(name,
 					entry.authenticatorUI.getTags(), collator);
 			Resource logoImage = logo == null ? Images.empty.getResource() : logo;
-			FirstFactorAuthNPanel authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(entry);
 			AuthenticationOptionGridEntry providerEntry = new AuthenticationOptionGridEntry(globalId, nameWithTags,
 					logoImage, authnPanel);
 			providers.add(providerEntry);
