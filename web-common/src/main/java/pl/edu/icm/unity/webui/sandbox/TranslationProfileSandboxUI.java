@@ -101,7 +101,8 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 				localeChoice, 
 				authnFlows,
 				getTitle(validationMode),
-				sandboxRouter);
+				sandboxRouter,
+				false);
 		setContent(ui);
 		setSizeFull();
 	}

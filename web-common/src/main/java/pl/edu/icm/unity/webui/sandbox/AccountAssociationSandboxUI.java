@@ -91,7 +91,8 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 				localeChoice, 
 				authnFlows,
 				title,
-				sandboxRouter);
+				sandboxRouter,
+				true);
 		setContent(ui);
 		setSizeFull();
 	}

@@ -16,6 +16,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_TITLE;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -57,9 +58,12 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			LocaleChoiceComponent localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,
-			SandboxAuthnRouter sandboxRouter)
+			SandboxAuthnRouter sandboxRouter,
+			boolean baseOnOriginalEndpointConfig)
 	{
-		super(msg, uriAccessService, prepareConfiguration(config.getProperties(), title, authenticators), 
+		super(msg, uriAccessService, baseOnOriginalEndpointConfig ? 
+				prepareConfigurationBasingOnEndpoint(config.getProperties(), title) : 
+				prepareFreshConfigurationWithAllOptions(title, authenticators), 
 				endpointDescription, 
 				() -> false,
 				new NoOpCredentialRestLauncher(),
@@ -73,10 +77,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		this.sandboxRouter = sandboxRouter;
 	}
 
-	/**
-	 * @return configuration of the sandbox based on the properties of the base endpoint
-	 */
-	private static VaadinEndpointProperties prepareConfiguration(Properties endpointProperties, String title,
+	private static VaadinEndpointProperties prepareFreshConfigurationWithAllOptions(String title,
 			List<AuthenticationFlow> authenticators)
 	{
 		Properties sandboxConfig = new Properties();
@@ -90,7 +91,23 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_WIDTH, "28");
 		return new VaadinEndpointProperties(sandboxConfig);
 	}
-	
+
+	private static VaadinEndpointProperties prepareConfigurationBasingOnEndpoint(Properties endpointProperties, String title)
+	{
+		Properties stripDown = new Properties();
+		Map<Object, Object> reduced = endpointProperties.entrySet().stream().filter(entry -> {
+			String key = (String) entry.getKey();
+			return !(key.endsWith(VaadinEndpointProperties.ENABLE_REGISTRATION) || 
+					key.endsWith(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS) ||
+					key.endsWith(VaadinEndpointProperties.PRODUCTION_MODE) ||
+					key.endsWith(VaadinEndpointProperties.WEB_CONTENT_PATH));
+		}).collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+		stripDown.putAll(reduced);
+		stripDown.setProperty(PREFIX + AUTHN_TITLE, title);
+		stripDown.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
+		return new VaadinEndpointProperties(stripDown);
+	}
+
 	
 	@Override
 	protected void init() 
