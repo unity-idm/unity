@@ -16,7 +16,7 @@ After creation, a registration form can be tested and also filled (use case no 2
 the Admin Web UI. If the form is public it can be associated with any Web endpoint.
 Then a link to register a new account will appear on the login screen of the endpoint. Additionally all public
 forms get its own public address which can be used to directly launch a form. This address is constructed
-from the form name and can be seen in the forms table (Registrations management -> Registration forms). 
+from the form name and can be seen in the forms table (Signup & Enquiry -> Forms). 
 
 Finally a form can be associated with a remote authenticator as a "handler" for unknown users who were 
 correctly authenticated remotely. For this last case the form need not to be public. It is also
@@ -91,7 +91,7 @@ Unity offers invitations support. Invitations are bound to an existing registrat
 and must not possess a fixed (shared) registration code. Typically such forms are marked as 'by invitation only'
 what ensures that only the invited users can fill the form (but this is not a requirement).
 
-Invitations can be created in the AdminUI (Registration management -> Invitations). What is very useful in
+Invitations can be created in the AdminUI (Signup & Enquiry -> Invitations). What is very useful in
 various integration scenarios, the invitations feature can be also fully controlled by the REST API of Unity,
 see <<endp-rest-admin>> for details. 
 

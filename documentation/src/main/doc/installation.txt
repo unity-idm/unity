@@ -9,17 +9,17 @@ Unity theoretically can be run on Windows server, however we neither provide sta
 test it. If you would love to run Unity on Windows machine, write to the support mailing list. 
 
 Unity is distributed with everything needed to install and run the system except of Java. 
-Java Runtime Environment 8 must be installed, both OpenJDK and Oracle distributions are supported.
-It is strongly advised to use the latest, updated version of the JRE.
+Java Runtime Environment 8 is a minimal supported version. Unity can be also run on newer version of Java,
+up to version 11. Later versions likely will work too. 
 
 [NOTE]
-The recent OpenJDK often cause troubles (depending on distribution) as it has sometimes certain 
+The recent OpenJDK 8 often cause troubles (depending on distribution) as it has sometimes certain 
 ciphers disabled and clients (as web browsers) may be unable to find commonly supported, safe ciphers suites
 for bootstrapping TLS connection. If your browser is unable to connect to Unity then most probably 
 this is the case.
 
 [NOTE]
-In case of the Oracle JDK, the unlimited strength cryptography policy needs to be 
+In case of the Oracle JDK 8, the unlimited strength cryptography policy needs to be 
 installed, as otherwise only the low quality key sizes are supported and even the demo certificate 
 of Unity is not working.
 
@@ -73,6 +73,22 @@ Stopping the server is simple as well:
 $> unity-idm-server-stop
 ----
 
+=== File vs Console control
+
+Since Unity 3 it is possible to set (almost) all settings at runtime using the web Console (and some with REST Admin API).
+Except very basic settings as DB connection and HTTP server settings, the configuration from config files is only loaded
+at the first start to populate initial contents of the server. After subsequent restarts all modifications done at runtime are
+preserved. This applies to endpoints, authenticators, realms, etc.
+
+If, however, it is preferred to configure Unity with a configuration file, in a way that its settings are overwritting 
+the settings made at runtime, it is possible to change the initialization behavior. To do so set 
+
+----
+unityServer.core.useConfiguredContentsOnFreshStartOnly=false
+----
+
+If this option is set as above Unity will use the same initialization logic as in older version 2.
+
 
 === Notes on redundant installations
 
@@ -93,7 +109,7 @@ Please note that several runtime features of the system are propagated to other 
 For instance a removal of an endpoint on one instance will be reflected in the shared database immediately, however
 other Unity instances will catch up and undeploy the endpoint with some delay.
 
-If the server is being managed (via AdminUI) with two instances simultaneously, the 'Refresh' buttons are more then handy: 
+If the server is being managed (via Admin Console) with two instances simultaneously, the 'Refresh' buttons are more then handy: 
 the UI state is not updated automatically.
 
 Finally note about login sessions: login sessions are shared between Unity instances, while HTTP sessions are not.

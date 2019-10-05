@@ -11,7 +11,7 @@ asks Unity to authenticate its client (e.g. using OAuth or SAML). However such f
 in Unity authentication works in the very same way regardless whether is was initiated by redirection 
 from 3rd party service or directly by a person or agent accessing Unity.
 
-Each Unity endpoint (regardless whether it is WebAdmin UI, web OAuth IdP or SOAP SAML Attribute Authority) 
+Each Unity endpoint (regardless whether it is Web Console, web OAuth IdP or SOAP SAML Attribute Authority) 
 requires its client to authenticate itself. Therefore administrator has to configure authentication per
 endpoint.
 
@@ -71,22 +71,18 @@ authenticator. Input translation profiles are discussed in <<translation>>. In e
 	* Finally a user (who is logging for the first time) may be mapped to an identity which does not exist
 	in Unity database. In such case user can have a choice: either to fill a registration form 
 	to create a new local account or to associate the remote identity with an existing local account manually.
-	
-Registration of unknown users is performed by using a very flexible mechanism of registration forms
-described in <<registration>>. To enable registration of unknown remote users
-a chosen registration form must be associated with an authenticator. See authenticator's documentation 
-for details how to do this. Note that some authenticators allow for setting different registration 
-forms per each remote identity provider. Registration forms may be configured to be automatically or
-manually accepted, also subject to dynamic conditions. 
+
+Registration of users using remote credential can be performed in two ways:
+
+* By creating a registration form and including in it a remote authenticator. User will have an option to setup
+using a remote login after entering the form.  
+* By adding a form to remote authenticator as a handler for unknown locally users who were authenticated remotely.
+Such users will be shown a registration form upon return from remote authentication - if they try to login to Unity 
+for the first time.
+* Finally authenticator may be configured to auto provision remote users.  
 
 Account association is enabled by default. It requires additional login to the existing account in a 
 popup window. It can be turned off in authenticator settings.
-	
-Additionally it can be noted that translation profiles are very powerful. Translation profile
-can not only map the remote identity to a local representation but also it can be configured 
-to automatically create identities missing locally. In such case neither registration nor association 
-will be used as authentication will always complete. 
-
 
 === Step-up and repeated authentication
 

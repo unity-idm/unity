@@ -1,8 +1,8 @@
 [[cfg-authenticators]]
-=== Authenticators
+==== Authenticators
 
 [NOTE]
-Credential types and credential requirements can be configured in the Web Admin UI, so we skip 
+Credential types and credential requirements can be configured in the Admin Console, so we skip 
 a description of their configuration in the configuration files.
 
 Authenticators define different ways of authentication offered to end users. 

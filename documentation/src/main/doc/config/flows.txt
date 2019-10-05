@@ -1,5 +1,5 @@
 [[authn-flows]]
-=== Authentication flows
+==== Authentication flows
 
 Authentication flows are used to configure the authentication process as a whole, in the first place controlling 
 the policy used to trigger multi factor authentication. Additionally flows can be used to define reusable groups of 

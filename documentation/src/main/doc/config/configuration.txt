@@ -18,13 +18,11 @@ Configuration updates at runtime are handled as follows:
 
  * +conf/log4j2.xml+ file is automatically reloaded after it is modified (with few seconds latency). 
  It is recorded in the log file.
- * No other file is automatically reloaded after modification. However,
- * configuration of authenticators and endpoints can be reloaded from the Web Admin UI 
- (in the Server Management tab). It is possible to remove, add or reconfigure existing elements.
+ * No other file is automatically reloaded after modification.
  * Reconfiguration of the remaining options from the main configuration file and PKI settings 
  requires server restart. Note that most of the features configured in the files can be managed at runtime
- from the Web Admin UI.
- * Note however that the +directory+ and +openssl+ truststores which can be configured in PKI settings 
+ from the Web Admin Console.
+ * Note, however, that the +directory+ and +openssl+ truststores which can be configured in PKI settings 
  allows for automatic updates of their content when trusted certificates or CRLs are added or removed.
  
   
@@ -46,10 +44,7 @@ of the configuration:
  the advertised address, which should be an address or IP via which the server should be reached from Internet. 
  The remaining options of the HTTP server are fairly advanced.
  * Definitions of various artifacts of the server to be loaded: credentials, credential requirements, authenticators, 
-endpoints and translation profiles. Note that the credentials, credential requirements and translation profiles 
-can be also managed more conveniently with the Web Admin UI.
-The configuration of authenticators and endpoints is described in the subsection <<cfg-authenticators>>
-and the translation profiles are covered in <<external-idps>>.
+endpoints and translation profiles. All of them can be managed from Admin Console, what is strongly preferred.
  * Finally Unity configuration can contain so called _modules_. Configuration modules are simply a complete 
 fragments of related configuration, which can be enabled with a single statement. A few, ready to
 use, modules are available in the +conf/modules+ directory. You can also create new ones to maintain clarity in
@@ -85,15 +80,21 @@ include::storage.txt[]
 
 include::pki.txt[]
 
+include::http-server.txt[]
+
+include::logging.txt[]
+
+=== Advanced
+
+The following elements are best configured from Admin Console. The configuration below is kept only for advanced
+users and those who prefer to use config files instead of Console. 
+
 include::authenticators.txt[]
 
 include::flows.txt[]
-
-include::http-server.txt[]
 
 include::notifications.txt[]
 
 include::realms.txt[]
 
-include::logging.txt[]
 

@@ -17,7 +17,7 @@
 |Registration forms		| icon:check[role="green"]		|
 |Preferences			| icon:check[role="green"]		|
 |Notifications			| icon:check[role="green"]   	| Can be achieved with the scripts feature, may be enhanced in future 
-|Auditing				| icon:exclamation[role="red"]	| Not yet available.
+|Auditing				| icon:check[role="green"]   	| 
 |===
 
 === Local credentials
@@ -40,13 +40,13 @@
 |SAML 2, Web SSO profile		| icon:check[role="green"]		| 
 |SAML 2, SOAP binding			| icon:check[role="green"]		| 
 |SAML 2, PAOS binding (for ECP) | icon:check[role="green"]		| 
-|Web admin interface			| icon:check[role="green"]		|
+|Web Console interface			| icon:check[role="green"]		|
 |REST admin interface			| icon:check[role="green"]		| 
 |Web user profile management	| icon:check[role="green"]		| 
 |SAML 2, Web binding + UNICORE profile | icon:check[role="green"]	|
 |SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]	|
 |OpenID Connect					| icon:check[role="green"]		| 
-|OAuth 2						| icon:check[role="green"]		| Tokens management UI not yet available
+|OAuth 2						| icon:check[role="green"]		|
 |===
 
 
@@ -76,7 +76,7 @@
 |Integer number					| icon:check[role="green"]		|
 |Floating point number			| icon:check[role="green"]		|
 |JPEG image						| icon:check[role="green"]		|
-|Date & time					| icon:check[role="green"]		| There are variantsfor date, time and date+time
+|Date & time					| icon:check[role="green"]		| There are variants for date, time and date+time
 |===
 
 === Identity types

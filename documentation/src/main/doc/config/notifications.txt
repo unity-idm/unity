@@ -1,5 +1,5 @@
 [[notifications]]
-=== Notifications and e-mail settings
+==== Notifications and e-mail settings
 
 Notifications and other messages are sent by Unity in several cases, for instance as an optional verification
 step during password reset or to notify an administrator about a new registration request.
@@ -15,7 +15,7 @@ on the available options so should be easy to edit.
 * A customized channel(s) which send messages using a Groovy script. The typical use case is to use 
 an external mailing service with a rich feature set (like tracking of email opens, transactional emails etc).
 
-==== Templates
+===== Templates
 
 Message template in Unity is used to configure both message contents and channel over which message is sent.
 Thanks to it all consumers of notification feature (e.g. registration form, password credential) 
@@ -45,7 +45,7 @@ Certain subsystems (e.g. invitations) allow for defining custom variables that w
 Those non-standard variables are always prefixed with 'custom.' string: +${custom.myvar}+.
 
 
-==== External templates
+===== External templates
 
 When using a custom channel sending messages with an external mailing system, it is likely that the external service
 provides message templating functionality built in. External notification channel can be configured to take advantage

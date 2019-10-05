@@ -13,14 +13,14 @@ play around but before going into any real usage some reconfiguration is mandato
 
 Let's start from crucial facts about Unity in general:
 
-- Unity always uses a single HTTPS port. It must be opened on firewall. The port is configurable.
+- Unity by default uses a single HTTPS port. It must be opened on firewall. The port is configurable. 
+- Plain HTTP port may be used instead if you plan to hide Unity behind a HTTPS proxy.
 - Unity uses a configurable persistence mechanism to store its state. Not
 only the users and attributes are stored in database: also a nearly complete configuration of the system is.
 - Typically a RDBMS storage backend is used (several databases are supported) but more sophisticated deployments 
 may use Hazelcast in-memory data grid backend or maybe even others in future. 
-- Therefore the most of the Unity configuration which is provided in config files is only loaded on startup and
-persisted. Many of those settings can be edited in web admin interface. We plan to provide most of the configuration
-via the web interface.
+- Therefore the most of the Unity configuration which is provided in config files is only loaded on first startup and
+persisted. Those settings can be edited at runtime in the web Admin Console interface.
 
 Here we list the most important facts about the default configuration:
 
@@ -36,11 +36,10 @@ deployments where DB backups and high availability may easily become a requireme
 - The server should be started by an unprivileged user. It is not required in case of using 
 the system initialization scripts installed with RPM, which can be run by root 
 (the user will be automatically changed to +unity-idm+).
-- If one wants to use an a low port (e.g. 443) for Unity, then authbind is the suggested solution. It can be easily 
+- If one wants to use a low port (e.g. 443) for Unity, then authbind is the suggested solution. It can be easily 
 enabled in +startup.properties+
-- The distribution is set up to load some demo contents. If you don't need it - remove it from the configuration 
-by deleting the +unityServer.core.script.+ prefixed lines from the +unityServer.conf+ which 
-correspond to 'demo' contents.
+- The distribution can load some demo contents. If you need it enable the configuration module +demoContents.module+ 
+towards the end of the +unityServer.conf+ file.
 
 
 ==== The first and subsequent startups
@@ -53,13 +52,8 @@ scripts. The database is populated with the mandatory system contents.
 . If there is no configured admin user in the database, this user is created, using the configured credentials.
 The default admin user credential is automatically set to the _outdated_ state, what causes a necessity to change it 
 immediately after the first login. 
-. Subsequently the data structures defined in configuration files are loaded to the database. 
-This functionality is provided to be able to manage of those parts of the 
-Unity engine data/configuration which doesn't have management GUI (yet). In general those are low-level, rarely changed
-artifacts as endpoints or authenticators.
-. Finally the configured content initializers are run. Those initializers are useful to load the default contents
-for various use-cases.
-
+. Subsequently the data structures defined in configuration files are loaded to the database on the very first 
+(cold) start only. This is default behavior from version 3 onwards (and can be changed as noted in the installation section). 
 
 === What should be reconfigured always before going into production?
 
@@ -67,23 +61,23 @@ Once again, to have a short list:
 
 - Remove the demo truststore and credential (in +pki.properties+). Add regular truststore and certificate.
 - Set a desired bind address, port and external address in +unityServer.conf+.
-- Remove the demo content creation from the +unityServer.conf+.
-- Consider configuring a MySQL database instead of the default H2.
+- If demo content loading was enabled - remove it and disable creation.
+- Consider configuring a MySQL/PSQL database instead of the default H2.
 - After the first start consider commenting out the default admin user creation. You should use it only
 if you accidentally remove your last user with administrative privileges. 
 
 
-=== How to login to the Admin UI?
+=== How to login to the Admin Console?
 
 Navigate your browser to:
 
-   https://your-unity-host:2443/admin/
+   https://your-unity-host:2443/console/
    
 Of course if you changed the port use the one you set. Default login and password are provided in the 
 +unityServer.conf+ file. Note that you will be asked to change them immediately after logging in.
 
-Also note that the path +/admin+ can be reconfigured: this is the location of the Admin UI endpoint, and you can set 
-this path for each Unity endpoint.
+Also note that the path +/console+ can be reconfigured: this is the location of the Admin Console endpoint, and you can set 
+this path freely for each Unity endpoint.
 
 === How to work with Unity
 
@@ -105,72 +99,25 @@ A concrete example of the above schema can be as follows:
 
 image::./figures/fundamental-example.png[alt="Example diagram of an endpoint with two authenticators",align="center",scaledwidth="50%"]
 
-*Endpoints* are the modules which are entry points to Unity. Each endpoint has its *binding* 
-the low level access protocol which can be for instance _web_ (designated for web-browsers) or _SOAP_
-(for web service clients). Example of endpoints are SAML IdP endpoint (allows relying services to authenticate 
+*Endpoints* are the modules which are entry points to Unity. We can divide endpoints into two categories:
+*Identity provider (IdP)* endpoints and *Services*. IdPs provide fundamental Unity features to clients 
+(often called relaying parties). Services are a catch-all term for endpoint providing remaining functionalty. 
+
+Each endpoint has its *binding* the low level access protocol which can be for instance _web_ 
+(designated for web-browsers) or _SOAP_ (for web service clients). 
+Example of endpoints are SAML IdP endpoint (allows relying services to authenticate 
 their users with SAML) with the web binding or the Admin UI endpoint (again with the web binding) which provides
 an embedded administration UI.
 
-Each endpoint's authentication is configured by associating it with *authenticator*(s). It is possible to set more then 
-one authenticator to provide alternative authentication possibilities. It is also possible to group authenticators
-together to require providing of several credentials simultaneously.
+Each endpoint's authentication is configured by associating it with *authenticator*(s). 
+It is possible to set more then one on endpoint to provide alternative authentication possibilities. 
+It is also possible to group authenticators together to require providing of several credentials simultaneously (MFA) - 
+this is done using *authentication flows*(s) on endpoints.
 
-*Authenticator* is a pair of credential retrieval and verificator. The retrieval collects the credential in a binding
-specific way. The verificator checks if it is correct.
-
-The credential verificators can be local or external. Local verificator check the credential against 
-a credential stored in the local database. The only configuration of such verificator is the name of a local credential.
-On the other hand the external verificator uses an external service to check the credential. Examples are LDAP
-or remote SAML IdP. In this case a rather complicated configuration of verificator is required.  
-
-
-=== Walk through: a simple reconfiguration
-
-Let's try to use a client-authenticated TLS authentication for the SAML SOAP endpoint.
-By default this endpoint is enabled (all snippets are from the +unityServer.conf+, the main configuration file):
-
-----
-unityServer.core.endpoints.5.endpointType=SAMLSoapIdP
-unityServer.core.endpoints.5.endpointConfigurationFile=conf/endpoints/saml-webidp.properties
-unityServer.core.endpoints.5.contextPath=/soapidp
-unityServer.core.endpoints.5.endpointRealm=defaultRealm
-unityServer.core.endpoints.5.endpointName=UNITY SOAP SAML service
-unityServer.core.endpoints.5.endpointAuthenticators=pwdWS
----- 
-
-It uses the (single) authenticator +pwdWS+:
-
-----
-unityServer.core.authenticators.3.authenticatorName=pwdWS
-unityServer.core.authenticators.3.authenticatorType=password with cxf-httpbasic
-unityServer.core.authenticators.3.localCredential=Password credential
-unityServer.core.authenticators.3.retrievalConfigurationFile=conf/authenticators/empty.json
----- 
-
-So lets define a new one, called +certWS+:
-
-----
-unityServer.core.authenticators.4.authenticatorName=certWS
-unityServer.core.authenticators.4.authenticatorType=certificate with cxf-certificate
-unityServer.core.authenticators.4.localCredential=Certificate credential
-unityServer.core.authenticators.4.retrievalConfigurationFile=conf/authenticators/empty.json
-----
-
-The new authenticator uses a +certificate+ verificator with +cxf-certificate+ retrieval. Both are matching 
-as both are working with certificate credentials, so it is fine to use them together. The local credential
-setting (used by verificator) was set to +Certificate credential+. Of course such credential must be defined
-- you can check it in the Schema->Credential types tab of the Admin UI. As the retrieval requires no configuration
-we used an empty configuration file. The actual names of the retrievals and verificators are listed in 
-<<cfg-authenticators>>.
-
-Finally let's use this authenticator:
-
-----
-unityServer.core.endpoints.5.endpointAuthenticators=certWS
-----
-
-To apply changes one can restart the server. However it is more convenient to go to the Server management tab of
-Admin UI. There are tabs which allow to reload authenticators and endpoints on the fly.
+The authenticators can be local or external. Local authenticator checks the credential against 
+a data stored in the local Unity database. On the other hand an external authenticator uses a 3rd party service 
+to check the credential. Examples of such remote services are LDAP or remote SAML IdP. 
+In this case a more complicated authenticator configuration is required.  
 
 
 === What to read next
@@ -178,4 +125,4 @@ Admin UI. There are tabs which allow to reload authenticators and endpoints on t
 If you want to learn more about integration with external identity systems, the separate 
 SAML HowTo is the best starting point.
 
-It is also good to play with the Admin UI to get familiar with the features offered there.
+It is also good to play with the Admin Console to get familiar with the features offered there.

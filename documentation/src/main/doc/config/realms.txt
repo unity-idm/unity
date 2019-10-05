@@ -1,5 +1,5 @@
 [[realms]]
-=== Authentication realms and login sessions
+==== Authentication realms and login sessions
 
 Unity uses _authenticaiton realms_ to manage shared configuration of login sessions for endpoints. Each endpoint 
 must be associated with exactly one authentication realm. 

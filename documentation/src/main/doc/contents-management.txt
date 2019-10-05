@@ -1,28 +1,11 @@
 [[contents-management]]
 == Contents management
 
-The Web Admin UI allows to manage the schema and contents of the server.
+The web Admin Console allows to manage the schema and contents of the server.
 The initial admin user and its password is defined in the configuration file. 
-The actual address is defined there as well, if unchanged it is https://localhost:2443/admin/admin.
+The actual address is defined there as well, if unchanged it is https://localhost:2443/console.
 After the first login it is required to change the initial password.  
  
-
-The most important features of the Web Admin UI are:
-
-* Management of attribute types, attribute classes,
-  credential types and credential requirements (_Schema management tab_).
-* Possibility to manage groups, their attribute classes and attribute statements (_Contents management tab_).
-* Control over entities and identities and their group membership (_Contents management tab_).
-* Full attribute control (_Contents management tab_).
-* Management of registration forms, possibility to fill them instantly from the Web Admin UI and to manage
-the received requests (_Registrations management tab_).
-* Possibility to create and load database dumps and to browse and trigger reconfiguration of 
-endpoints, authenticators and translation profiles (_Server management tab_).
-
-We hope that the UI is easy to use, the base information is provided on the following screenshot and in 
-subsequent sections. In case of troubles please let us know through the mailing list, we will provide more details.
-
-image::./figures/contentsMan-comments.png[alt="Unity Web Admin UI",align="center",scaledwidth="50%"]
 
 === Identities and entities
 
@@ -55,8 +38,8 @@ The following table describes all available identity types:
 === Attributes and attribute statements
 
 Regular Unity attributes are assigned in groups and an attribute assigned in a group is valid and visible only 
-in the group where is was defined. Regular attributes are assigned either manually (in Admin UI or via REST interface)
-or by translation profile for users logging from remote IdP. 
+in the group where is was defined. Regular attributes are assigned either manually (in Console or via REST interface)
+or by authenticator for users logging from remote IdP. 
 
 In many cases it is not enough: some attributes should be visible in multiple groups, some attributes should be
 added just for everybody, other attributes should be added to all users fulfilling some criteria. For all those 
@@ -316,7 +299,7 @@ The only difference is that a user can not authenticate with e-mail identity if 
 === Bulk entity operations
 
 It is possible to invoke or schedule for recurring invocations conditional actions on entities database.
-This feature is activated in the Server management -> Bulk processing.
+This feature is activated in the Directory setup -> Automation.
 
 Scheduled actions are executed with a cron-like schedule (see tooltip for help). Actions are configured
 in a simple way. the only complicated and key part is rule condition, which must evaluate to true 
