@@ -104,7 +104,7 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	@Override
 	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
 	{
-		return false;
+		return Integer.parseInt(newCredentialDefinition) > minLen;
 	}
 
 }
