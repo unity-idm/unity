@@ -99,7 +99,7 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 							onConfirm.accept(client);
 						});
 				confirmDialog.setHTMLContent(true);
-				confirmDialog.setSizeEm(30, 28);
+				confirmDialog.setSizeEm(30, 20);
 				confirmDialog.show();
 				
 			} else
