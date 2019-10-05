@@ -71,6 +71,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String TEMPLATES_CONF = "templatesFile";
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
+	public static final String USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY = "useConfiguredContentsOnFreshStartOnly";
 	public static final String IGNORE_CONFIGURED_CONTENTS_SETTING = "ignoreContentsReloadingFromConfiguration";
 	public static final String RELOAD_MSG_TEMPLATES = "reloadMessageTemplatesFromConfiguration";
 	public static final String CONFIG_ONLY_ERA_CONTROL = "fullyRecreateEndpointsAROnStartup";
@@ -227,13 +228,21 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(RELOAD_MSG_TEMPLATES, new PropertyMD("false").setCategory(mainCat).
 				setDescription("If set to true then message templates will be reloaded at startup "
 						+ "from files on disk. Otherwise only the new templates are "
-						+ "loaded and the tempaltes in DB are left untouched."));
+						+ "loaded and the templates in DB are left untouched."));
+		defaults.put(USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY, new PropertyMD("true").setCategory(mainCat).
+				setDescription("If set to true then every element of system features (i.e. endpoints, "
+						+ "authenticators, credentials, message templates, etc) defined in configuration "
+						+ "are loaded only during the first start. This is the default and needed for preserving "
+						+ "config changes performed at runtime using admin Console or REST API. "
+						+ "If set to false then those settings will be also consulted on each restart. See other options (" 
+						+ CONFIG_ONLY_ERA_CONTROL + ", " + RELOAD_MSG_TEMPLATES + ") for how this can be further controlled in such case."));
 		defaults.put(CONFIG_ONLY_ERA_CONTROL, new PropertyMD("true").setCategory(mainCat).
-				setDescription("If set to true then all Endpoints, Authenticators and authentication Realms "
-						+ "are fully recreated from configuration at startup. This is convenient unless you "
-						+ "use other management means for those artefacts (as REST interface). "
-						+ "Then set it to false, to have only incremental changes from configuration "
-						+ "- elements not present in configuration will not be removed then. "
+				setDescription("If set to true then all Endpoints, Authenticators (with their translation profiles), "
+						+ "authentication Flows and authentication Realms "
+						+ "are fully recreated from configuration at startup. This is convenient if you "
+						+ "prefer to steer the system with configuration file, and use UI only for contents management. "
+						+ "By default (when option is false), only the new options from configuration are loaded, "
+						+ "which basically becomes an initial system configuration template. "
 						+ "Note that this option is ignored if " + IGNORE_CONFIGURED_CONTENTS_SETTING + 
 						" is true."));
 		defaults.put(LOGOUT_MODE, new PropertyMD(LogoutMode.internalAndSyncPeers).setCategory(mainCat).

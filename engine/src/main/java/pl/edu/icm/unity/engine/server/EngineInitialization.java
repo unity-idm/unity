@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine.server;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -242,19 +245,26 @@ public class EngineInitialization extends LifecycleBase
 	@Override
 	public void start()
 	{
-		installEventListeners();
-		endpointsLoadTime = System.currentTimeMillis();
-		boolean skipLoading = config
+		try
+		{
+			installEventListeners();
+			endpointsLoadTime = System.currentTimeMillis();
+			boolean skipLoading = config
 				.getBooleanValue(UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
-		if (!skipLoading)
-			initializeDatabaseContents();
-		else
-			log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
-		startLogConfigurationMonitoring();
-		initializeBackgroundTasks();
-		deployConfirmationServlet();
-		deployPublicWellKnownURLServlet();
-		super.start();
+			if (!skipLoading)
+				initializeDatabaseContents();
+			else
+				log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
+			startLogConfigurationMonitoring();
+			initializeBackgroundTasks();
+			deployConfirmationServlet();
+			deployPublicWellKnownURLServlet();
+			super.start();
+		} catch (Exception e)
+		{
+			log.error("Fatal error initializating server.", e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -344,10 +354,24 @@ public class EngineInitialization extends LifecycleBase
 
 	public void initializeDatabaseContents()
 	{
-		Boolean isColdStart = determineIfColdStart();
+		boolean isColdStart = determineIfColdStart();
+		boolean loadElementsConfiguredInFile = isColdStart || !config.getBooleanValue(USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY);
+		
+		if (loadElementsConfiguredInFile)
+			initializeSystemContentsFromConfigFile(isColdStart);
+		else
+			initializeSystemContentsFromDBOnly();
+
+		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.POST_INIT, Boolean.toString(isColdStart)));
+	}
+
+	private void initializeSystemContentsFromConfigFile(boolean isColdStart)
+	{
 		initializeIdentityTypes();
 		initializeAttributeTypes();
+		
 		initializeAdminUser();
+		
 		initializeCredentials();
 		initializeCredentialReqirements();
 
@@ -359,19 +383,42 @@ public class EngineInitialization extends LifecycleBase
 
 		runInitializers();
 
-		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.PRE_INIT, isColdStart.toString()));
+		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.PRE_INIT, Boolean.toString(isColdStart)));
 
-		initializeTranslationProfiles();
+		boolean updateExisting = config.getBooleanValue(CONFIG_ONLY_ERA_CONTROL);
+		initializeTranslationProfiles(updateExisting);
 		checkSystemTranslationProfiles();
-		boolean eraClean = config.getBooleanValue(UnityServerConfiguration.CONFIG_ONLY_ERA_CONTROL);
-		if (eraClean)
+		if (updateExisting)
 			removeERA();
 		initializeAuthenticators();
 		initializeAuthenticationFlows();
 		initializeRealms();
 		initializeEndpoints();
+	}
 
-		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.POST_INIT, isColdStart.toString()));
+	private void initializeSystemContentsFromDBOnly()
+	{
+		boolean isColdStart = false;
+		initializeIdentityTypes();
+		initializeAdminUser();
+		notificationChannelLoader.initialize();
+		runInitializers();
+
+		eventsProcessor.fireEvent(new PersistableEvent(EventCategory.PRE_INIT, Boolean.toString(isColdStart)));
+		deployPersistedEndpoints();
+	}
+
+	
+	private void deployPersistedEndpoints()
+	{
+		try
+		{
+			internalEndpointManager.loadPersistedEndpoints();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Initialization problem: can't deploy endpoints stored in DB", e);
+		}
+		logEndpoints();
 	}
 
 	private boolean determineIfColdStart()
@@ -648,7 +695,11 @@ public class EngineInitialization extends LifecycleBase
 			log.fatal("Can't load endpoints which are configured", e);
 			throw new InternalException("Can't load endpoints which are configured", e);
 		}
+		logEndpoints();
+	}
 
+	private void logEndpoints()
+	{
 		try
 		{
 			List<ResolvedEndpoint> endpoints = endpointManager.getDeployedEndpoints();
@@ -667,7 +718,7 @@ public class EngineInitialization extends LifecycleBase
 		}
 		endpointsLoadTime = System.currentTimeMillis();
 	}
-
+	
 	private void loadEndpointsFromConfiguration() throws IOException, EngineException
 	{
 		log.info("Loading all configured endpoints");
@@ -912,7 +963,7 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 
-	private void initializeTranslationProfiles()
+	private void initializeTranslationProfiles(boolean allowUpdatingExisting)
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
 		Map<String, TranslationProfile> existingInputProfiles;
@@ -946,9 +997,12 @@ public class EngineInitialization extends LifecycleBase
 						|| tp.getProfileType() == ProfileType.OUTPUT
 								&& existingOutputProfiles.containsKey(tp.getName()))
 				{
-					log.info(" - updated the in-DB translation profile : " + tp.getName()
+					if (allowUpdatingExisting)
+					{
+						profilesManagement.updateProfile(tp);
+						log.info(" - updated the in-DB translation profile : " + tp.getName()
 							+ " with file definition: " + profileFile);
-					profilesManagement.updateProfile(tp);
+					}
 				} else
 				{
 					profilesManagement.addProfile(tp);
@@ -969,7 +1023,7 @@ public class EngineInitialization extends LifecycleBase
 		{
 			if (profile.getProfileMode() != ProfileMode.READ_ONLY)
 				throw new IllegalArgumentException(
-						"Sytem profile " + profile + " is not in READ_ONLY mode");
+						"System profile " + profile + " is not in READ_ONLY mode");
 			profileHelper.checkBaseProfileContent(profile);
 		}
 	}

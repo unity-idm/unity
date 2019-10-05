@@ -10,12 +10,13 @@ unityServer.core.script.1.file=${CONF}/scripts/confirmationsInitializer.groovy
 unityServer.core.script.1.trigger=pre-init
 
 
-unityServer.core.endpoints.adminUI.endpointType=WebAdminUI
-unityServer.core.endpoints.adminUI.endpointConfigurationFile=${CONF}/modules/core/webadmin.properties
-unityServer.core.endpoints.adminUI.contextPath=/admin
-unityServer.core.endpoints.adminUI.endpointRealm=adminRealm
-unityServer.core.endpoints.adminUI.endpointName=UNITY administration interface
-unityServer.core.endpoints.adminUI.endpointAuthenticators=pwd;cert
+#Deprecated as of Unity 3.0. Will be fully dropped in future version. Use admin Console as a replacement. 
+#unityServer.core.endpoints.adminUI.endpointType=WebAdminUI
+#unityServer.core.endpoints.adminUI.endpointConfigurationFile=${CONF}/modules/core/webadmin.properties
+#unityServer.core.endpoints.adminUI.contextPath=/admin
+#unityServer.core.endpoints.adminUI.endpointRealm=adminRealm
+#unityServer.core.endpoints.adminUI.endpointName=UNITY administration interface
+#unityServer.core.endpoints.adminUI.endpointAuthenticators=pwd;cert
 
 unityServer.core.endpoints.consoleUI.endpointType=WebConsoleUI
 unityServer.core.endpoints.consoleUI.endpointConfigurationFile=${CONF}/modules/core/console.properties
