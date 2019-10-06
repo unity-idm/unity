@@ -99,7 +99,7 @@
 	</select>
 
 	<insert id="createTag">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.createAuditTag"/>
+		INSERT INTO AUDIT_TAGS (TAG) VALUES (#{tag})
 	</insert>
 
 	<insert id="insertAuditTags">

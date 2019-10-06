@@ -104,4 +104,7 @@
 	<delete id="deletedb-13">
 		DELETE FROM AUDIT_EVENTS;
 	</delete>
+	<delete id="deletedb-14">
+		DELETE FROM AUDIT_TAGS;
+	</delete>
 </mapper>

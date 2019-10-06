@@ -60,9 +60,8 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	{
 		log.debug("Inserting " + obj.toString());
 		long id = super.create(obj);
-		if (obj.getTags() != null && obj.getTags().size() > 0) {
+		if (obj.getTags() != null && obj.getTags().size() > 0) 
 			tagDAO.insertAuditTags(id, obj.getTags());
-		}
 
 		return id;
 	}
@@ -73,12 +72,14 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	}
 
 	@Override
-	public Set<String> getAllTags() {
+	public Set<String> getAllTags() 
+	{
 		return tagDAO.getAllTags();
 	}
 
 	@Override
-	public void invalidateCache() {
+	public void invalidateCache() 
+	{
 		tagDAO.invalidateCache();
 	}
 }

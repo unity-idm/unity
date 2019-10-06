@@ -39,9 +39,6 @@
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsTags"/>
 	</update>
 	<update id="updateSchema-20800-05">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditInitialTags"/>
-	</update>
-	<update id="updateSchema-20800-06">
 		UPDATE UVOS_FLAG SET VAL = '2_8_0'
 	</update>
 </mapper>

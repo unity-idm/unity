@@ -25,7 +25,8 @@ public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEven
 	private AuditEntityRDBMSStore auditEntityDAO;
 
 	@Autowired
-	public AuditEventJsonSerializer(final AuditEntityRDBMSStore auditEntityDAO) {
+	public AuditEventJsonSerializer(final AuditEntityRDBMSStore auditEntityDAO) 
+	{
 		this.auditEntityDAO = auditEntityDAO;
 	}
 

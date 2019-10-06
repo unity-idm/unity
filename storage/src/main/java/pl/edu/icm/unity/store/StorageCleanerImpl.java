@@ -43,8 +43,7 @@ public class StorageCleanerImpl implements StorageCleaner
 	public void reset()
 	{
 		storeLoaderInternal.reset();
-		for (CachingDAO dao: cachingDAOs) 
-			dao.invalidateCache();
+		clearCache();
 	}
 
 	@Override
@@ -65,6 +64,7 @@ public class StorageCleanerImpl implements StorageCleaner
 	public void deleteEverything()
 	{
 		storeLoaderInternal.deleteEverything();
+		clearCache();
 	}
 
 	@Override
@@ -77,5 +77,11 @@ public class StorageCleanerImpl implements StorageCleaner
 	public void shutdown()
 	{
 		storeLoaderInternal.shutdown();
+	}
+	
+	private void clearCache()
+	{
+		for (CachingDAO dao: cachingDAOs) 
+			dao.invalidateCache();
 	}
 }

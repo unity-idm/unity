@@ -158,10 +158,6 @@ CREATE TABLE AUDIT_TAGS (
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
 	</sql>
 	
-	<sql id="sql-auditInitialTags">	
-INSERT INTO AUDIT_TAGS (TAG) VALUES ('Users'), ('Groups'), ('Authn');
-	</sql>
-	
 	<sql id="sql-auditEventsTags">	
 CREATE TABLE AUDIT_EVENTS_TAGS (
 		EVENT_ID INTEGER NOT NULL,
@@ -190,10 +186,6 @@ CREATE TABLE AUDIT_EVENTS_TAGS (
 	
 	<update id="initdb-18">	
 		<include refid="sql-auditEventsTags"/>
-	</update>
-	
-	<update id="initdb-19">	
-		<include refid="sql-auditInitialTags"/>
 	</update>
 
 	<update id="initdb-99">

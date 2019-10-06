@@ -5,9 +5,15 @@
 package pl.edu.icm.unity.store.impl.audit;
 
 import com.google.common.collect.Sets;
+
+import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
+
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +27,7 @@ import java.util.Set;
 @Repository
 class AuditTagRDBMSStore
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, AuditTagRDBMSStore.class);
 	private Set<String> knownTags = Sets.newConcurrentHashSet();
 
 	void invalidateCache()
@@ -50,13 +57,26 @@ class AuditTagRDBMSStore
 	{
 		Set<String> missing = new HashSet<>(tagList);
 		missing.removeAll(knownTags);
-		if (missing.isEmpty()) {
+		if (missing.isEmpty())
 			return;
-		}
+
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
 		for (String tag : missing)
 		{
-			mapper.createTag(tag);
+			try
+			{
+				mapper.createTag(tag);
+			} catch (PersistenceException e)
+			{
+				if (e.getCause() instanceof SQLIntegrityConstraintViolationException)
+				{
+					log.info("Can't add tag {}, it is already in db. Can happen but shouldn't happen often");
+					log.debug("Adding tag error details", e);
+				} else
+				{
+					throw e;
+				}
+			}
 		}
 		knownTags.addAll(missing);
 	}

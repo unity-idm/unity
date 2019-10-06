@@ -36,12 +36,6 @@
 	<sql id="tableOpts">
 		);
 	</sql>
-	<sql id="createAuditTag">
-		INSERT INTO AUDIT_TAGS
-			SELECT NULL,#{tag} FROM AUDIT_TAGS
-				WHERE ID=(SELECT MAX(ID) from AUDIT_TAGS)
-					AND NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{tag})
-	</sql>
 	
 	<update id="shutdown">
 		SHUTDOWN;
