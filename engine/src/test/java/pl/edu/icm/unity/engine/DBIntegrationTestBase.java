@@ -71,6 +71,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		setupUserContext("admin", null);
 		authzMan.clearCache();
 	}
+	
 	@After
 	public void clearAuthnCtx() throws EngineException
 	{

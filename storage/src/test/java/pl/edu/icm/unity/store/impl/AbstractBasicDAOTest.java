@@ -47,7 +47,7 @@ public abstract class AbstractBasicDAOTest<T>
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 	}
 
 	
@@ -240,7 +240,7 @@ public abstract class AbstractBasicDAOTest<T>
 		});
 		
 		tx.runInTransaction(() -> {
-			dbCleaner.reset();
+			dbCleaner.cleanOrDelete();
 		});
 		
 		tx.runInTransaction(() -> {

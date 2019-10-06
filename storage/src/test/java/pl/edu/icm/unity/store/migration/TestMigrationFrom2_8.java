@@ -37,7 +37,7 @@ public class TestMigrationFrom2_8
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 	}
 	
 	@Test

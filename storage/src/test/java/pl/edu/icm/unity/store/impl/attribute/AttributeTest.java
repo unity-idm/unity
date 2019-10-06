@@ -56,7 +56,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 		tx.runInTransaction(() -> {
 			entityId = entityDAO.create(new EntityInformation());
 			entityId2 = entityDAO.create(new EntityInformation());

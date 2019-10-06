@@ -75,7 +75,7 @@ public class TestMigrationFrom2_6
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 	}
 	
 	@Test

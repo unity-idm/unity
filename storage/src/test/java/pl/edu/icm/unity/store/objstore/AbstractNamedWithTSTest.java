@@ -108,7 +108,7 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 		});
 
 		tx.runInTransaction(() -> {
-			dbCleaner.reset();
+			dbCleaner.cleanOrDelete();
 		});			
 
 		tx.runInTransaction(() -> {

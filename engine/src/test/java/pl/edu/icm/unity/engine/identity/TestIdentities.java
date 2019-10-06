@@ -72,7 +72,6 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class TestIdentities extends DBIntegrationTestBase
 {
-	
 	@Autowired
 	private EntitiesScheduledUpdater entitiesUpdater;
 	private EntityParam entityParam;

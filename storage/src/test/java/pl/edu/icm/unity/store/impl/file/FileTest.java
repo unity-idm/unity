@@ -23,7 +23,7 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 	}
 
 	@Override

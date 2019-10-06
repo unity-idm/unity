@@ -56,7 +56,7 @@ public class MembershipTest
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 		createReferenced();
 	}
 

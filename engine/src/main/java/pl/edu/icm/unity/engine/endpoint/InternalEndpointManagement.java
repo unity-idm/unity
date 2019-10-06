@@ -58,10 +58,17 @@ public class InternalEndpointManagement
 			if (endpoint.getState().equals(EndpointState.UNDEPLOYED))
 				continue;
 			
-			EndpointInstance instance = loader.createEndpointInstance(endpoint);
-			deploy(instance);
-			log.debug(" - " + endpoint.getName() + ": " + endpoint.getTypeId() + 
+			try
+			{
+				EndpointInstance instance = loader.createEndpointInstance(endpoint);
+				deploy(instance);
+				log.info(" - " + endpoint.getName() + ": " + endpoint.getTypeId() + 
 					" " + endpoint.getConfiguration().getDescription());
+			} catch (Exception e)
+			{
+				log.error("Can't load endpoint " + endpoint.getName() + 
+						" of type " + endpoint.getTypeId(), e);
+			}
 		}
 	}	
 

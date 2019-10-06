@@ -46,6 +46,9 @@ class EndpointInstanceLoader
 	EndpointInstance createEndpointInstance(Endpoint src)
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(src.getTypeId());
+		if (factory == null)
+			throw new IllegalStateException("Endpoint stored in DB has no matching implementation: " 
+					+ src.getTypeId());
 		EndpointInstance instance = factory.newInstance();
 		List<String> authnOptions = src.getConfiguration().getAuthenticationOptions();
 		

@@ -82,7 +82,7 @@ public class ServerManagementImpl implements ServerManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		bulkProcessing.removeAllRules();
-		initDb.reset();
+		initDb.cleanOrDelete();
 		endpointMan.undeployAll();
 		engineInit.initializeDatabaseContents();
 	}

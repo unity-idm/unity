@@ -57,7 +57,7 @@ public class RDBMSTransactionTest
 	@After
 	public void cleanDB()
 	{
-		initDB.reset();
+		initDB.cleanOrDelete();
 	}
 	
 	@Test

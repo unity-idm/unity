@@ -56,7 +56,7 @@ public class HzRDBMSFlushTest
 		StorageEngine engine = systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
 		Assume.assumeTrue(engine == StorageEngine.hz);
 		
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 		
 		
 		//let's mess with the RDBMS primary keys for the table which will be used during tests.

@@ -62,7 +62,7 @@ public class HzTransactionTest
 	@After
 	public void cleanDB()
 	{
-		initDB.reset();
+		initDB.cleanOrDelete();
 	}
 	
 	@Test

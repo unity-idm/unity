@@ -86,7 +86,7 @@ public class TestMigrationFrom1_9
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 	}
 
 	

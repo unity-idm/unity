@@ -126,10 +126,10 @@ public class InitDB
 	
 	/**
 	 * Deletes all main DB records except version. After deletion creates the root group.
-	 * @param session
 	 */
 	public void deleteEverything(SqlSession session)
 	{
+		log.info("Database contents will be completely deleted");
 		Collection<String> ops = new TreeSet<>(db.getMyBatisConfiguration().getMappedStatementNames());
 		for (String name: ops)
 			if (name.startsWith("deletedb-"))
@@ -137,6 +137,7 @@ public class InitDB
 		for (String name: ops)
 			if (name.startsWith("resetIndex-"))
 				session.update(name);
+		log.info("Database contents was completely deleted");
 		createRootGroup(session);
 	}
 
@@ -162,13 +163,18 @@ public class InitDB
 				if (name.startsWith(operationPfx))
 				{
 					session.update(name);
+					log.trace("Update run: {}", name);
 					if (name.endsWith("-requireCommit"))
+					{
 						session.commit();
+						log.debug("per-update commit performed");
+					}
 				}
 			session.commit();
 		} finally
 		{
 			session.close();
+			log.debug("Finished update with prefix {}", operationPfx);
 		}
 	}
 	
@@ -184,6 +190,7 @@ public class InitDB
 		} finally
 		{
 			session.close();
+			log.info("Initialized DB schema");
 		}
 	}
 	

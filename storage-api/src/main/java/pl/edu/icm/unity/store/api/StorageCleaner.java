@@ -31,4 +31,9 @@ public interface StorageCleaner
 	 * Manual shutdown of the store
 	 */
 	void shutdown();
+
+	/**
+	 * On first time in JVM {@link #reset()} is called, on subsequent runs {@link #deleteEverything()} is invoked
+	 */
+	void cleanOrDelete();
 }

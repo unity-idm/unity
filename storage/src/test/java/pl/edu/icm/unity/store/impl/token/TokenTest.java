@@ -37,7 +37,7 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	@Before
 	public void cleanDB()
 	{
-		dbCleaner.reset();
+		dbCleaner.cleanOrDelete();
 		tx.runInTransaction(() -> {
 			entityId = entityDAO.create(new EntityInformation());
 			entityId2 = entityDAO.create(new EntityInformation());

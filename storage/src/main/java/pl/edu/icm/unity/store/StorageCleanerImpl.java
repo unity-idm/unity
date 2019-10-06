@@ -7,6 +7,7 @@ package pl.edu.icm.unity.store;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.store.api.StorageCleaner;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 import java.util.Map;
 import java.util.Set;
@@ -25,9 +26,15 @@ public class StorageCleanerImpl implements StorageCleaner
 
 	private Set<CachingDAO> cachingDAOs;
 
+	private boolean resetDone = false;
+
+	private TransactionalRunner tx;
+	
 	@Autowired
-	public StorageCleanerImpl(Map<String, StoreLoaderInternal> impl, StorageConfiguration cfg, Set<CachingDAO> cachingDAOs) throws Exception
+	public StorageCleanerImpl(Map<String, StoreLoaderInternal> impl, StorageConfiguration cfg, 
+			Set<CachingDAO> cachingDAOs, TransactionalRunner tx) throws Exception
 	{
+		this.tx = tx;
 		storeLoaderInternal = impl.get(BEAN_PFX + cfg.getEngine().name());
 		this.cachingDAOs =  cachingDAOs;
 	}
@@ -36,11 +43,24 @@ public class StorageCleanerImpl implements StorageCleaner
 	public void reset()
 	{
 		storeLoaderInternal.reset();
-		for(CachingDAO dao: cachingDAOs) {
+		for (CachingDAO dao: cachingDAOs) 
 			dao.invalidateCache();
+	}
+
+	@Override
+	public void cleanOrDelete()
+	{
+		if (resetDone)
+		{
+			tx.runInTransaction(() -> deleteEverything());
+		} else
+		{
+			reset();
+			resetDone = true;
 		}
 	}
 
+	
 	@Override
 	public void deleteEverything()
 	{

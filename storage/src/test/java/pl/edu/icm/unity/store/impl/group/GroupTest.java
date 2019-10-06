@@ -160,7 +160,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		});
 		
 		tx.runInTransaction(() -> {
-			dbCleaner.reset();
+			dbCleaner.cleanOrDelete();
 		});
 
 		tx.runInTransaction(() -> {
