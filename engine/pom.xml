@@ -115,6 +115,12 @@
 			<artifactId>groovy-all</artifactId>
 			<type>pom</type>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testng</groupId>
+					<artifactId>testng</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
