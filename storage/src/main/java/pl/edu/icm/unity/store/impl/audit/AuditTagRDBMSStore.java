@@ -4,18 +4,20 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import com.google.common.collect.Sets;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * RDBMS storage of AuditEvent Tags. Helper repository to handle actions on Tag related tables entries.
@@ -37,7 +39,6 @@ class AuditTagRDBMSStore
 
 	Set<String> getAllTags()
 	{
-
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
 		Set<String> allTags = mapper.getAllTags();
 		knownTags.addAll(allTags);
@@ -53,6 +54,10 @@ class AuditTagRDBMSStore
 		mapper.insertAuditTags(eventId, tagList);
 	}
 
+	/**
+	 * Impl note: tx savepoints are used to workaround postgres specific problem, which rollback complete transaction
+	 * on error. As in the case of adding tag error is harmless we rollback only the failed insert.  
+	 */
 	private void insertTags(Set<String> tagList)
 	{
 		Set<String> missing = new HashSet<>(tagList);
@@ -60,23 +65,27 @@ class AuditTagRDBMSStore
 		if (missing.isEmpty())
 			return;
 
+		Connection connection = SQLTransactionTL.getSql().getConnection();
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		for (String tag : missing)
+		try
 		{
-			try
+			for (String tag : missing)
 			{
-				mapper.createTag(tag);
-			} catch (PersistenceException e)
-			{
-				if (e.getCause() instanceof SQLIntegrityConstraintViolationException)
+				Savepoint savepoint = connection.setSavepoint();
+				try
 				{
-					log.info("Can't add tag {}, it is already in db. Can happen but shouldn't happen often");
+					mapper.createTag(tag);
+					connection.releaseSavepoint(savepoint);
+				} catch (PersistenceException e)
+				{
+					log.info("Can't add tag {}, it is already in db. Can happen but shouldn't happen often", tag);
 					log.debug("Adding tag error details", e);
-				} else
-				{
-					throw e;
+					connection.rollback(savepoint);
 				}
 			}
+		} catch (SQLException e)
+		{
+			throw new PersistenceException(e);
 		}
 		knownTags.addAll(missing);
 	}
