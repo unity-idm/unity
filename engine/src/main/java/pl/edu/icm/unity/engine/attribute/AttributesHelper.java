@@ -397,8 +397,18 @@ public class AttributesHelper
 	{
 		if (attr.getValues().isEmpty())
 			return "-NONE-";
+		
+		final int showLength = 30;
 		String fValue = attr.getValues().get(0);
-		return fValue.length() > 20 ? fValue.substring(0, 20) + "..." : fValue;
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
+		String deserialized = internalValueToExternal(syntax, fValue);
+		return deserialized.length() > showLength ? deserialized.substring(0, showLength-3) + "..." : deserialized;
+	}
+	
+	private <T> String internalValueToExternal(AttributeValueSyntax<T> syntax, String internalValue)
+	{
+		T deserialized = syntax.convertFromString(internalValue);
+		return syntax.serializeSimple(deserialized);
 	}
 	
 	/**

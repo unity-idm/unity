@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.audit;
+package io.imunity.webconsole.maintenance.audit;
 
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
@@ -21,6 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.identities.EntityDetailsDialog;
 import io.imunity.webadmin.identities.EntityDetailsPanel;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -199,7 +200,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 		filterLayout.addStyleName("u-auditEvents-filterLayout");
 		filterLayout.setWidth("100%");
 
-		LocalDateTime initialDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(30);
+		LocalDateTime initialDate = LocalDateTime.now().minusDays(1);
 		fromFilter.setValue(initialDate);
 		fromFilter.setDateFormat(DATETIME_FORMAT_SHORT_PATTERN);
 		fromFilter.setWidth("100%");
@@ -283,7 +284,8 @@ class AuditEventsView extends CustomComponent implements UnityView
 			if (nonNull(untilFilter.getValue())) {
 				until = Date.from(untilFilter.getValue().atZone(ZoneId.systemDefault()).toInstant());
 			}
-			return eventManagement.getAuditEvents(from, until, limitFilter.getValue()).stream().map(ae -> new AuditEventEntry(msg, ae))
+			return eventManagement.getAuditEvents(from, until, limitFilter.getValue()).stream()
+					.map(ae -> new AuditEventEntry(msg, ae))
 					.collect(Collectors.toList());
 		} catch (Exception e)
 		{
@@ -338,7 +340,8 @@ class AuditEventsView extends CustomComponent implements UnityView
 			label = idsMan.getEntityLabel(param);
 			groups = entityMan.getGroups(new EntityParam(entityId)).values();
 		} catch (UnknownIdentityException e) {
-			NotificationPopup.showNotice("Not found", join(" ", "Cannot display entity details.\nEntity", Long.toString(entityId), "was removed from the system."));
+			NotificationPopup.showNotice("Not found", join(" ", "Cannot display entity details.\nEntity", 
+					Long.toString(entityId), "was removed from the system."));
 			return;
 		} catch (EngineException e)
 		{
@@ -367,12 +370,12 @@ class AuditEventsView extends CustomComponent implements UnityView
 	{
 		@Autowired
 		public AuditLogInfoProvider(UnityMessageSource msg,
-									AuditEventsNavigationInfoProvider parent,
-									ObjectFactory<AuditEventsView> factory)
+					MaintenanceNavigationInfoProvider parent,
+					ObjectFactory<AuditEventsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.auditEvents.auditLog"))
+					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.auditLog"))
 					.withIcon(Images.records.getResource())
 					.withPosition(10).build());
 		}

@@ -60,7 +60,7 @@
 		<if test="from == null and until != null">
 		WHERE E.TIMESTAMP &lt;= #{until}
 		</if>
-		ORDER BY E.TIMESTAMP
+		ORDER BY E.TIMESTAMP DESC
 		LIMIT #{limit}
 	</select>
 

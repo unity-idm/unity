@@ -3,22 +3,26 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.audit;
+package io.imunity.webconsole.maintenance.audit;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
-
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * Represent grid AuditEvent entry.
@@ -103,55 +107,67 @@ class AuditEventEntry implements FilterableEntry
 
 	private String getEntityName(AuditEntity entity)
 	{
-		if (isNull(entity) || isNull(entity.getName()) ) {
+		if (isNull(entity) || isNull(entity.getName()) ) 
 			return "";
-		}
 		return entity.getName();
 	}
 
 	private String getEntityEmail(AuditEntity entity)
 	{
-		if (isNull(entity) || isNull(entity.getEmail()) ) {
+		if (isNull(entity) || isNull(entity.getEmail()) ) 
 			return "";
-		}
 		return entity.getEmail();
 	}
 
-	String formatTags() {
+	String formatTags() 
+	{
 		if (auditEvent.getTags().isEmpty())
-		{
 			return "-";
-		}
 		return auditEvent.getTags().stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "));
 	}
 
-	private String formatName() {
-		if (isNull(auditEvent.getSubject()) || !USERS_LOG.contains(auditEvent.getType())) {
+	private String formatName() 
+	{
+		if (isNull(auditEvent.getSubject()) || !USERS_LOG.contains(auditEvent.getType())) 
+		{
 			return auditEvent.getName();
 		}
 		return msg.getMessage("AuditEventsView.nameFormat", auditEvent.getName(), auditEvent.getSubject().getEntityId());
 	}
 
-	String formatTimestamp() {
+	String formatTimestamp() 
+	{
 		return DATETIME_FORMAT.format(auditEvent.getTimestamp());
 	}
 
-	private String formatSubject(UnityMessageSource msg) {
+	private String formatSubject(UnityMessageSource msg) 
+	{
 		return formatEntity(msg, auditEvent.getSubject());
 	}
 
-	private String formatInitiator(UnityMessageSource msg) {
+	private String formatInitiator(UnityMessageSource msg) 
+	{
 		return formatEntity(msg, auditEvent.getInitiator());
 	}
 
-	String formatDetails() {
-		return auditEvent.getDetails() != null ? auditEvent.getDetails().toString() : "";
+	String formatDetails() 
+	{
+		if (auditEvent.getDetails() == null || auditEvent.getDetails().size() == 0)
+			return "";
+		
+		StringBuilder formatted = new StringBuilder();
+		Iterator<Entry<String, JsonNode>> fields = auditEvent.getDetails().fields();
+		fields.forEachRemaining(field ->
+		{
+			formatted.append(field.getKey()).append(": ").append(field.getValue().toString()).append(", ");
+		});
+		return formatted.toString().substring(0, formatted.length()-2);
 	}
 
-	private String formatEntity(UnityMessageSource msg, AuditEntity entity) {
-		if (isNull(entity)) {
+	private String formatEntity(UnityMessageSource msg, AuditEntity entity) 
+	{
+		if (isNull(entity))
 			return "";
-		}
 		return msg.getMessage("AuditEventsView.entityFormat",
 				nonNull(entity.getName()) ? entity.getName() : "",
 				entity.getEntityId(),

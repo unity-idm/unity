@@ -80,13 +80,6 @@ public class GroupHelper
 	/**
 	 * Adds entity to the given group. The entity must be a member of the parent group
 	 * (unless adding to the root group).
-	 * @param path
-	 * @param entity
-	 * @param idp
-	 * @param translationProfile
-	 * @param creationTs
-	 * @throws IllegalGroupValueException
-	 * @throws IllegalIdentityValueException
 	 */
 	public void addMemberFromParent(String path, EntityParam entity, String idp, String translationProfile,
 			Date creationTs) 
@@ -106,11 +99,10 @@ public class GroupHelper
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);
 		audit.log(AuditEventTrigger.builder()
-				.type(AuditEventType.GROUP)
-				.action(AuditEventAction.UPDATE)
+				.type(AuditEventType.MEMBERSHIP)
+				.action(AuditEventAction.ADD)
 				.subject(entityId)
 				.name(group.getName())
-				.details(ImmutableMap.of("action", "add"))
 				.tags(MEMBERS, GROUPS));
 		log.debug("Added entity " + entityId + " to group " + group.toString());
 	}
@@ -122,10 +114,6 @@ public class GroupHelper
 
 	/**
 	 * Checks if all group's attribute statements seems correct.
-	 * @param group
-	 * @throws IllegalAttributeValueException
-	 * @throws IllegalAttributeTypeException
-	 * @throws IllegalTypeException
 	 */
 	public void validateGroupStatements(Group group) throws IllegalAttributeValueException, 
 		IllegalAttributeTypeException, IllegalTypeException
@@ -138,11 +126,6 @@ public class GroupHelper
 
 	/**
 	 * Checks if the given group's statement seems correct
-	 * @param group
-	 * @param statement
-	 * @throws IllegalAttributeValueException
-	 * @throws IllegalAttributeTypeException
-	 * @throws IllegalTypeException
 	 */
 	public void validateGroupStatement(String group, AttributeStatement statement) 
 			throws IllegalAttributeValueException, IllegalAttributeTypeException, IllegalTypeException
@@ -179,9 +162,6 @@ public class GroupHelper
 	
 	/**
 	 * Remove from group
-	 * 
-	 * @param entityId
-	 * @param toRemove
 	 */
 	public void removeFromGroups(long entityId, Set<String> toRemove)
 	{

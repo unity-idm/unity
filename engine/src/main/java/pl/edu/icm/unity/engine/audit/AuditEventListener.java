@@ -105,20 +105,20 @@ public class AuditEventListener implements EventListener
 	{
 		AuditEventTrigger event = (AuditEventTrigger) abstractEvent;
 
-        AuditEvent auditEvent = AuditEvent.builder()
-                .type(event.getType())
+		AuditEvent auditEvent = AuditEvent.builder()
+				.type(event.getType())
 				.action(event.getAction())
 				.timestamp(event.getTimestamp())
-                .name(event.getName())
-                .subject(event.getSubjectEntity().orElseGet(() -> createAuditEntity(event.getSubjectEntityID())))
-                .initiator(event.getInitiatorEntity().orElseGet(() -> createAuditEntity(event.getInitiatorEntityID())))
-                .details(event.getDetails())
-                .tags(event.getTags())
-                .build();
+				.name(event.getName())
+				.subject(event.getSubjectEntity().orElseGet(() -> createAuditEntity(event.getSubjectEntityID())))
+				.initiator(event.getInitiatorEntity().orElseGet(() -> createAuditEntity(event.getInitiatorEntityID())))
+				.details(event.getDetails())
+				.tags(event.getTags())
+				.build();
 
-        // Make sure only one event is stored in the same time - AuditEntities and Tags are shared resources.
+		// Make sure only one event is stored in the same time - AuditEntities and Tags are shared resources.
 		// Transaction retry is also addressing this problem - synchronized block is for code optimization.
-        synchronized (this)
+		synchronized (this)
 		{
 			tx.runInTransaction(() -> dao.create(auditEvent));
 		}

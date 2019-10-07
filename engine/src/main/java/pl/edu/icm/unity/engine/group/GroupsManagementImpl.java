@@ -207,11 +207,10 @@ public class GroupsManagementImpl implements GroupsManagement
 			{
 				membershipDAO.deleteByKey(entityId, group);
 				audit.log(AuditEventTrigger.builder()
-						.type(AuditEventType.GROUP)
-						.action(AuditEventAction.UPDATE)
+						.type(AuditEventType.MEMBERSHIP)
+						.action(AuditEventAction.REMOVE)
 						.name(group)
 						.subject(entityId)
-						.details(ImmutableMap.of("action", "remove"))
 						.tags(MEMBERS, GROUPS));
 				dbAttributes.deleteAttributesInGroup(entityId, group);
 			}
