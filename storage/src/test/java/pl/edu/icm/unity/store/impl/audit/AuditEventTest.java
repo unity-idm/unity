@@ -363,17 +363,17 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 			assertEquals(4, dao.getLogs(now, nowPlus3, 10).size());
 			List<AuditEvent> logs = dao.getLogs(nowPlus1, nowPlus2, 10);
 			assertEquals(2, logs.size());
-			assertEquals("name2", logs.get(0).getName());
-			assertEquals("name3", logs.get(1).getName());
+			assertEquals("name3", logs.get(0).getName());
+			assertEquals("name2", logs.get(1).getName());
 			assertEquals(4, dao.getLogs(null, nowPlus3, 10).size());
 			logs = dao.getLogs(null, nowPlus1, 10);
 			assertEquals(2, logs.size());
-			assertEquals("name1", logs.get(0).getName());
-			assertEquals("name2", logs.get(1).getName());
+			assertEquals("name2", logs.get(0).getName());
+			assertEquals("name1", logs.get(1).getName());
 			logs = dao.getLogs(null, null, 2);
 			assertEquals(2, logs.size());
-			assertEquals("name1", logs.get(0).getName());
-			assertEquals("name2", logs.get(1).getName());
+			assertEquals("name4", logs.get(0).getName());
+			assertEquals("name3", logs.get(1).getName());
 		});
 	}
 
