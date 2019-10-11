@@ -62,49 +62,55 @@
 	</select>
 	
 	
-	<delete id="deletedb-00">
+	<delete id="deletedb-common-tokens">
 		DELETE FROM TOKENS;
 	</delete>
-	<delete id="deletedb-01">
+	<delete id="deletedb-var">
 		DELETE FROM VAR_OBJECTS;
 	</delete>
-	<delete id="deletedb-02">
+	<delete id="deletedb-groupMembers">
 		DELETE FROM GROUP_ENTITIES;
 	</delete>
-	<delete id="deletedb-03">
+	<delete id="deletedb-attributes">
 		DELETE FROM ATTRIBUTES;
 	</delete>
-	<delete id="deletedb-04">
+	<delete id="deletedb-groups">
 		DELETE FROM GROUPS;
 	</delete>
-	<delete id="deletedb-05">
+	<delete id="deletedb-identities">
 		DELETE FROM IDENTITIES;
 	</delete>
-	<delete id="deletedb-06">
+	<delete id="deletedb-entities">
 		DELETE FROM ENTITIES;
 	</delete>
-	<delete id="deletedb-07">
+	<delete id="deletedb-identityTypes">
 		DELETE FROM IDENTITY_TYPES;
 	</delete>
-	<delete id="deletedb-08">
+	<delete id="deletedb-attributeTypes">
 		DELETE FROM ATTRIBUTE_TYPES;
 	</delete>
-	<delete id="deletedb-09">
+	<delete id="deletedb-common-events">
 		DELETE FROM EVENTS_QUEUE;
 	</delete>
-	<delete id="deletedb-10">
+	<delete id="deletedb-files">
 		DELETE FROM FILES;
 	</delete>
-	<delete id="deletedb-11">
+	<delete id="deletedb-auditEvents-00">
 		DELETE FROM AUDIT_EVENTS_TAGS;
 	</delete>
-	<delete id="deletedb-12">
+	<delete id="deletedb-auditEvents-01">
 		DELETE FROM AUDIT_ENTITIES;
 	</delete>
-	<delete id="deletedb-13">
+	<delete id="deletedb-auditEvents-02">
 		DELETE FROM AUDIT_EVENTS;
 	</delete>
-	<delete id="deletedb-14">
+	<delete id="deletedb-auditEvents-03">
 		DELETE FROM AUDIT_TAGS;
 	</delete>
+
+	<delete id="deletedbvar" parameterType="string">
+		DELETE FROM VAR_OBJECTS WHERE TYPE = #{value}
+	</delete>
+	
+	
 </mapper>

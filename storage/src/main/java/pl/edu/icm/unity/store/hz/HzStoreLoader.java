@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.hz;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -183,5 +184,13 @@ public class HzStoreLoader implements StoreLoaderInternal
 	public void shutdown()
 	{
 		sink.stop();
+	}
+
+	@Override
+	public void deletePreImport(List<String> content)
+	{
+		rdbmstx.runInTransaction(() -> {
+			initDB.deletePreImport(content);
+		});
 	}
 }

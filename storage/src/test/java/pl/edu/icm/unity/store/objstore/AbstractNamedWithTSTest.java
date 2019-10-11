@@ -24,6 +24,7 @@ import org.junit.Test;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
 import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends AbstractNamedDAOTest<T>
 {
@@ -94,7 +95,7 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				ie.store(baos);
+				ie.store(baos, new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

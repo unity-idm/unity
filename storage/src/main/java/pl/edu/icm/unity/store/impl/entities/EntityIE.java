@@ -22,12 +22,14 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 @Component
 public class EntityIE extends AbstractIEBase<EntityInformation>
 {
+	public static final String ENTITIES_OBJECT_TYPE = "entities";
+	
 	private EntityDAO dbIds;
 	
 	@Autowired
 	public EntityIE(EntityDAO dbIds)
 	{
-		super(2, "entities");
+		super(2, ENTITIES_OBJECT_TYPE);
 		this.dbIds = dbIds;
 	}
 

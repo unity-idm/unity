@@ -23,6 +23,7 @@ import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -57,7 +58,7 @@ public class TestMigrationFrom2_5
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.5.x/"
 								+ "testbed-from2.5.0.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"));
+				ie.store(new FileOutputStream("target/afterImport.json"),  new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

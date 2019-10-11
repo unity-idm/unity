@@ -22,12 +22,14 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Component
 public class IdentityTypeIE extends AbstractIEBase<IdentityType>
 {
+	public static final String IDENTITY_TYPE_OBJECT_TYPE = "identityTypes";
+
 	private IdentityTypeDAO dbIdTypes;
 	
 	@Autowired
 	public IdentityTypeIE(IdentityTypeDAO dbIdTypes)
 	{
-		super(1, "identityTypes");
+		super(1, IDENTITY_TYPE_OBJECT_TYPE);
 		this.dbIdTypes = dbIdTypes;
 	}
 

@@ -22,13 +22,15 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 @Component
 public class AttributeIE extends AbstractIEBase<StoredAttribute>
 {
+	public static final String ATTRIBUTES_OBJECT_TYPE = "attributes";
+	
 	private AttributeDAO dao;
 	private AttributeJsonSerializer serializer;
 	
 	@Autowired
 	public AttributeIE(AttributeDAO dao, AttributeJsonSerializer serializer)
 	{
-		super(6, "attributes");
+		super(6, ATTRIBUTES_OBJECT_TYPE);
 		this.dao = dao;
 		this.serializer = serializer;
 	}

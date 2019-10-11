@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.api;
 
+import java.util.List;
+
 /**
  * Storage engine independent storage cleaning.
  * 
@@ -21,6 +23,13 @@ public interface StorageCleaner
 	 */
 	void deleteEverything();
 
+
+	/**
+	 * Deletes data selected to import from database. 
+	 */
+	void deletePreImport(List<String> dbContent);
+
+	
 	/**
 	 * Should be called after calling {@link #deleteEverything()} method and subsequently adding new data:
 	 * performs additional cleanup needed for some DBs (currently only PSQL).

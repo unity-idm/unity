@@ -8,6 +8,8 @@
 
 package pl.edu.icm.unity.store.rdbms;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,5 +130,12 @@ public class DB implements StoreLoaderInternal
 	@Override
 	public void shutdown()
 	{
+	}
+
+	@Override
+	public void deletePreImport(List<String> contentType)
+	{
+		initDB.deletePreImport(SQLTransactionTL.getSql(), contentType);
+		
 	}
 }

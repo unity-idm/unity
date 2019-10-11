@@ -4,13 +4,15 @@
  */
 package pl.edu.icm.unity.store;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.store.api.StorageCleaner;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.store.api.StorageCleaner;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * Storage engine independent storage cleaning.
@@ -83,5 +85,11 @@ public class StorageCleanerImpl implements StorageCleaner
 	{
 		for (CachingDAO dao: cachingDAOs) 
 			dao.invalidateCache();
+	}
+
+	@Override
+	public void deletePreImport(List<String> content)
+	{
+		storeLoaderInternal.deletePreImport(content);	
 	}
 }

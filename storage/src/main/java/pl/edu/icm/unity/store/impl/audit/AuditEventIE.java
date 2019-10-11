@@ -23,15 +23,17 @@ import java.util.List;
  * @author R. Ledzinski
  */
 @Component
-class AuditEventIE extends AbstractIEBase<AuditEvent>
+public class AuditEventIE extends AbstractIEBase<AuditEvent>
 {
+	public static final String AUDIT_EVENTS_OBJECT_TYPE = "auditEvents";
+	
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, AuditEventIE.class);
 	private AuditEventDAO dao;
 
 	@Autowired
 	public AuditEventIE(AuditEventDAO dao)
 	{
-		super(8, "auditEvents");
+		super(8, AUDIT_EVENTS_OBJECT_TYPE);
 		this.dao = dao;
 	}
 

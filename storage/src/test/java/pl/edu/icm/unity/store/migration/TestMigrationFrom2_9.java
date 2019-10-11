@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -48,7 +49,7 @@ public class TestMigrationFrom2_9
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.9.x/"
 						+ "testbed-from2.9.0.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"));
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

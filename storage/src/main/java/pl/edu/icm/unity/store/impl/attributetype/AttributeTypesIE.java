@@ -22,12 +22,14 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 {
+	public static final String ATTRIBUTES_TYPE_OBJECT_TYPE = "attributeTypes";
+	
 	private AttributeTypeDAO dbAttributes;
 	
 	@Autowired
 	public AttributeTypesIE(AttributeTypeDAO dbAttributes)
 	{
-		super(0, "attributeTypes");
+		super(0, ATTRIBUTES_TYPE_OBJECT_TYPE);
 		this.dbAttributes = dbAttributes;
 	}
 	

@@ -30,6 +30,7 @@ import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionTL;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -230,7 +231,7 @@ public abstract class AbstractBasicDAOTest<T>
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				ie.store(baos);
+				ie.store(baos, new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

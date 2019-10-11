@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store;
 
+import java.util.List;
+
 import pl.edu.icm.unity.store.api.StorageCleaner;
 
 /**
@@ -33,4 +35,7 @@ public interface StoreLoaderInternal
 	 * Stops and cleanups the store
 	 */
 	void shutdown();
+	
+
+	void deletePreImport(List<String> content);
 }

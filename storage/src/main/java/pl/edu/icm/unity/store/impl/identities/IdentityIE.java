@@ -25,13 +25,15 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 public class IdentityIE extends AbstractIEBase<StoredIdentity>
 {
+	public static final String IDENTITIES_OBJECT_TYPE = "identities";
+
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, IdentityIE.class);
 	private IdentityDAO dbIds;
 	
 	@Autowired
 	public IdentityIE(IdentityDAO dbIds)
 	{
-		super(3, "identities");
+		super(3, IDENTITIES_OBJECT_TYPE);
 		this.dbIds = dbIds;
 	}
 

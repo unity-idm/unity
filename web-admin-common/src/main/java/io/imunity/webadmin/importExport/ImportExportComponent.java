@@ -19,15 +19,19 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.data.Binder;
 import com.vaadin.server.DownloadStream;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.FileResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
@@ -38,6 +42,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
@@ -87,11 +92,57 @@ public class ImportExportComponent extends VerticalLayout
 		hl.setMargin(true);
 		exportPanel.setContent(hl);
 
+		Binder<DBDumpContentType> configBinder = new Binder<>(DBDumpContentType.class);
+		
+		CheckBox systemConfig = new CheckBox(msg.getMessage("ImportExport.systemConfig"));
+		configBinder.forField(systemConfig).bind("systemConfig");
+		
+		CheckBox directorySchema = new CheckBox(msg.getMessage("ImportExport.directorySchema"));
+		configBinder.forField(directorySchema).bind("directorySchema");
+
+		CheckBox users = new CheckBox(msg.getMessage("ImportExport.users"));
+		configBinder.forField(users).bind("users");
+		
+		CheckBox auditLogs = new CheckBox(msg.getMessage("ImportExport.auditLogs"));
+		configBinder.forField(auditLogs).bind("auditLogs");
+		
+		users.addValueChangeListener(v -> {
+			if (v.getValue())
+			{
+				directorySchema.setValue(true);;
+			}
+		});
+		
+		directorySchema.addValueChangeListener(v -> {
+			if (!v.getValue())
+			{
+				users.setValue(false);
+			}
+		});
+		
+		hl.addComponent(systemConfig);
+		hl.addComponent(directorySchema);		
+		HorizontalLayout usersWrapper = new HorizontalLayout();
+		usersWrapper.setMargin(new MarginInfo(false, true));
+		usersWrapper.setSpacing(true);
+		usersWrapper.addComponent(users);
+		hl.addComponent(usersWrapper);
+		hl.addComponent(auditLogs);	
+		
 		final DBDumpResource dumpResource = new DBDumpResource(serverManagement);
 		DeletingFileDownloader downloader = new DeletingFileDownloader(dumpResource);
 		Button createDump = new Button(msg.getMessage("ImportExport.createDump"));
 		downloader.extend(createDump);
+
 		hl.addComponents(createDump);
+
+		configBinder.addStatusChangeListener( v -> {
+			DBDumpContentType type = (DBDumpContentType) v.getBinder().getBean();
+			createDump.setEnabled(type.isSystemConfig() || type.isDirectorySchema() || type.isUsers() || type.isAuditLogs());
+			dumpResource.setExportContent((DBDumpContentType) v.getBinder().getBean());
+		});
+		configBinder.setBean(new DBDumpContentType());
+		
 		createDump.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -328,12 +379,19 @@ public class ImportExportComponent extends VerticalLayout
 		private File dump;
 		private String filename;
 		private Exception error;
+		private DBDumpContentType content;
 
 		public DBDumpResource(ServerManagement serverManagement)
 		{
 			super(new File(getNewFilename()));
 			this.serverManagement = serverManagement;
 			filename = super.getFilename();
+		}
+
+		public void setExportContent(DBDumpContentType value)
+		{
+			this.content = value;
+			
 		}
 
 		@Override
@@ -343,7 +401,7 @@ public class ImportExportComponent extends VerticalLayout
 			{
 				try
 				{
-					dump = serverManagement.exportDb();
+					dump = serverManagement.exportDb(content);
 					clearError();
 				} catch (Exception e1)
 				{

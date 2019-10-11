@@ -32,6 +32,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 import pl.edu.icm.unity.types.basic.Group;
 
 public class GroupTest extends AbstractNamedDAOTest<Group>
@@ -150,7 +151,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				ie.store(baos);
+				ie.store(baos, new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 /**
  * Tests the import and export. Only a integration test. Import and export of all stored elements is tested 
@@ -43,7 +44,7 @@ public class TestImportExport extends DBIntegrationTestBase
 		int atsSize = aTypeMan.getAttributeTypes().size();
 		int idTypesSize = idTypeMan.getIdentityTypes().size();
 		
-		File exported = serverMan.exportDb();
+		File exported = serverMan.exportDb(new DBDumpContentType());
 		assertTrue(exported.exists());
 		serverMan.importDb(exported);
 		

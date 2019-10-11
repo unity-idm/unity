@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.StorageCleaner;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 /**
  * Implementation of general maintenance.
@@ -90,14 +92,14 @@ public class ServerManagementImpl implements ServerManagement
 
 	@Override
 	@Transactional
-	public File exportDb() throws EngineException
+	public File exportDb(DBDumpContentType content) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try
 		{
 			File exportFile = createExportFile();
 			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(exportFile));
-			dbDump.store(os);
+			dbDump.store(os, content);
 			return exportFile;
 		} catch (JsonGenerationException e)
 		{
@@ -115,11 +117,13 @@ public class ServerManagementImpl implements ServerManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		
 		tx.runInTransaction(() -> {
-			initDb.deleteEverything();
 			try
 			{
+			
 				BufferedInputStream is = new BufferedInputStream(new FileInputStream(from));
-				dbDump.load(is);
+				List<String> dbContent = dbDump.getDBDummpContentType(is);
+				initDb.deletePreImport(dbContent);	
+				dbDump.load(new BufferedInputStream(is));
 			} catch (Exception e)
 			{
 				throw new InternalException("Database import failed. " +
@@ -222,4 +226,5 @@ public class ServerManagementImpl implements ServerManagement
 					"Subsequent dumps can be created in few minutes.");
 		return File.createTempFile(getExportFilePrefix(), getExportFileSuffix(), exportDir);
 	}
+
 }

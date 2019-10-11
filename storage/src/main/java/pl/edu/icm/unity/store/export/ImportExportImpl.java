@@ -7,10 +7,12 @@ package pl.edu.icm.unity.store.export;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 /**
  * Import/export functionality. 
@@ -68,13 +71,13 @@ public class ImportExportImpl implements ImportExport
 	}
 
 	@Override
-	public void store(OutputStream os) throws IOException
+	public void store(OutputStream os, DBDumpContentType content) throws IOException
 	{
-		storeWithVersion(os, AppDataSchemaVersion.CURRENT.getJsonDumpVersion());
+		storeWithVersion(os, content, AppDataSchemaVersion.CURRENT.getJsonDumpVersion());
 	}
 	
 	@Override
-	public void storeWithVersion(OutputStream os, int version) throws IOException
+	public void storeWithVersion(OutputStream os, DBDumpContentType content, int version) throws IOException
 	{
 		JsonFactory jsonF = new JsonFactory(objectMapper);
 		JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
@@ -86,9 +89,16 @@ public class ImportExportImpl implements ImportExport
 		jg.writeNumberField("versionMinor", 0);
 		jg.writeNumberField("timestamp", System.currentTimeMillis());
 
+		jg.writeFieldName("dumpContent");
+		jg.writeObject(DBDumpContentTypeMapper.getDBElements(content));
+		
+		
 		jg.writeObjectFieldStart("contents");
 
-		for (AbstractIEBase<?> impl: implementations)
+		List<String> elements = DBDumpContentTypeMapper.getDBElements(content);
+		
+		for (AbstractIEBase<?> impl : implementations.stream().filter(i -> elements.contains(i.getStoreKey()))
+				.collect(Collectors.toList()))
 		{
 			jg.writeFieldName(impl.getStoreKey());
 			impl.serialize(jg);
@@ -109,6 +119,7 @@ public class ImportExportImpl implements ImportExport
 		is.mark(1000);
 		JsonParser jp = jsonF.createParser(is);
 		DumpHeader header = loadHeader(jp);
+		List<String> elements = loadDumpContentType(jp);	
 		jp.close();
 		is.reset();
 		
@@ -116,10 +127,13 @@ public class ImportExportImpl implements ImportExport
 
 		JsonParser jp2 = jsonF.createParser(isUpdated);
 		loadHeader(jp2);
+		loadDumpContentType(jp2);
 		
 		JsonUtils.nextExpect(jp2, "contents");
 		
-		for (AbstractIEBase<?> impl: implementations)
+		//List<String> elements = DBDumpContentTypeMapper.getDBElements(dbDumpContent);
+		for (AbstractIEBase<?> impl : implementations.stream().filter(i -> elements.contains(i.getStoreKey()))
+				.collect(Collectors.toList()))
 		{
 			log.info("Importing " + impl.getStoreKey());
 			JsonUtils.nextExpect(jp2, impl.getStoreKey());
@@ -128,6 +142,33 @@ public class ImportExportImpl implements ImportExport
 		jp2.close();
 	}
 	
+	@Override
+	public List<String> getDBDummpContentType(InputStream is) throws IOException
+	{
+		if (!is.markSupported())
+			throw new IllegalArgumentException("Only input streams with mark/reset support can "
+					+ "be used to load imported data");
+		is.mark(1000);
+		JsonParser jp = jsonF.createParser(is);
+		loadHeader(jp);
+		List<String> dbDumpContent = loadDumpContentType(jp);
+		jp.close();
+		is.reset();
+		return dbDumpContent;
+	}
+	
+	private List<String> loadDumpContentType(JsonParser jp)
+	{
+		try{
+			JsonUtils.nextExpect(jp, "dumpContent");
+			return Arrays.asList(jp.readValueAs(String[].class));
+			
+		}catch (Exception e) {
+			return DBDumpContentTypeMapper.getDBElements(new DBDumpContentType());
+		}
+		
+	}
+
 	private DumpHeader loadHeader(JsonParser jp) throws JsonParseException, IOException
 	{
 		JsonUtils.nextExpect(jp, JsonToken.START_OBJECT);
@@ -138,6 +179,7 @@ public class ImportExportImpl implements ImportExport
 		ret.setVersionMinor(jp.getIntValue());
 		JsonUtils.nextExpect(jp, "timestamp");
 		ret.setTimestamp(jp.getLongValue());
+
 		return ret;
 	}
 }

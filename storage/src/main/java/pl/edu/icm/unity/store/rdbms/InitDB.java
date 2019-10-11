@@ -11,7 +11,9 @@ package pl.edu.icm.unity.store.rdbms;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ExecutorType;
@@ -26,6 +28,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.impl.groups.GroupBean;
+import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
 import pl.edu.icm.unity.store.impl.groups.GroupsMapper;
 
@@ -244,6 +247,39 @@ public class InitDB
 			log.info("Updating DB contents to the actual version");
 			contentsUpdater.update(dbVersionAtServerStarup);
 			log.info("Updated DB contents to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
+		}
+	}
+
+	public void deletePreImport(SqlSession session, List<String> objectTypes)
+	{
+		Collection<String> ops = new TreeSet<>(db.getMyBatisConfiguration().getMappedStatementNames());
+	
+		log.info("Following database elements will be cleared: " + objectTypes);
+		List<String> copts = ops.stream().filter(n -> n.startsWith("deletedb-common")).collect(Collectors.toList());
+		for (String o : copts)
+		{
+			session.update(o);
+		}
+		
+		for (String eName : objectTypes)
+		{
+			List<String> sopts = ops.stream().filter(n -> n.startsWith("deletedb-" + eName)).collect(Collectors.toList());
+			if (sopts.size() > 0)
+			{
+				for (String o : sopts)
+				{
+					session.update(o);
+				}
+			}else
+			{
+				session.update("deletedbvar", eName);
+			}
+		}
+	
+		log.info("Following database elements was cleared: " + objectTypes);
+		if (objectTypes.contains(GroupIE.GROUPS_OBJECT_TYPE))
+		{
+			createRootGroup(session);
 		}
 	}
 }

@@ -22,12 +22,14 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 @Component
 public class MembershipIE extends AbstractIEBase<GroupMembership>
 {
+	public static final String GROUP_MEMBERS_OBJECT_TYPE = "groupMembers";
+
 	private MembershipDAO dao;
 	
 	@Autowired
 	public MembershipIE(MembershipDAO dao)
 	{
-		super(5, "groupMembers");
+		super(5, GROUP_MEMBERS_OBJECT_TYPE);
 		this.dao = dao;
 	}
 

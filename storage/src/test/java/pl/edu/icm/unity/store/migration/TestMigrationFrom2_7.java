@@ -28,6 +28,7 @@ import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.DBDumpContentType;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -72,7 +73,7 @@ public class TestMigrationFrom2_7
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.7.x/"
 						+ "testbed-from2.7.3-withTriggeringMode.afterRemoteLogin.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"));
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -93,7 +94,7 @@ public class TestMigrationFrom2_7
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.7.x/"
 						+ "testbed-from-2.7.5-withInvitation.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"));
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
 			} catch (Exception e)
 			{
 				e.printStackTrace();
