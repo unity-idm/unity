@@ -19,6 +19,7 @@ import eu.unicore.security.etd.DelegationRestrictions;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -57,7 +58,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 
 	private UnicoreConfirmationConsumer acceptHandler;
 
-	public UnicoreConsentScreen(UnityMessageSource msg, 
+	public UnicoreConsentScreen(UnityMessageSource msg, URIAccessService uriAccessService, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan, 
 			StandardWebAuthenticationProcessor authnProcessor,
@@ -69,7 +70,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 			Runnable declineHandler, 
 			UnicoreConfirmationConsumer acceptHandler)
 	{
-		super(msg, handlersRegistry, preferencesMan, authnProcessor, identityTypeSupport, aTypeSupport, 
+		super(msg, uriAccessService, handlersRegistry, preferencesMan, authnProcessor, identityTypeSupport, aTypeSupport, 
 				validIdentities, attributes, attributeTypes, declineHandler, null);
 		this.acceptHandler = acceptHandler;
 	}

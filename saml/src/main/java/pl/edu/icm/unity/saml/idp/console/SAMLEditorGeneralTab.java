@@ -78,6 +78,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private CheckBox signMetadata;
 	private HorizontalLayout infoLayout;
 	private boolean initialValidation;
+	private Button metaLinkButton;
 	private HorizontalLayout metaLinkButtonWrapper;
 	private Label metaOffInfo;
 
@@ -125,7 +126,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		FormLayoutWithFixedCaptionWidth mainGeneralLayout = new FormLayoutWithFixedCaptionWidth();
 		main.addComponent(mainGeneralLayout);
 
-		Button metaLinkButton = new Button();
+		metaLinkButton = new Button();
 		metaOffInfo = new Label();
 		metaOffInfo.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataOff"));
 		
@@ -147,12 +148,13 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		metaLinkButtonWrapper.addComponent(metaLinkButton);
 		infoLayoutWrapper.addComponent(metaLinkButtonWrapper);
 		infoLayoutWrapper.addComponent(metaOffInfo);
+		metaOffInfo.setVisible(false);
 		metaLinkButton.addClickListener(e -> {
 			Page.getCurrent().open(metaLinkButton.getCaption(), "_blank", false);
 		});
 		main.addComponent(infoLayout);
-		infoLayout.setVisible(editMode);
-
+		refreshMetaButton(false);
+				
 		TextField name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
 		name.setReadOnly(editMode);
@@ -298,17 +300,19 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(publishMetadata).withValidator((v, c) -> {
 			if (!initialValidation)
 			{
-				if (v)
-				{
-					metaLinkButtonWrapper.setVisible(true);
-					metaOffInfo.setVisible(false);
-				} else
-				{
-					metaLinkButtonWrapper.setVisible(false);
-					metaOffInfo.setVisible(true);
-				}
+				refreshMetaButton(v);
 				initialValidation = true;
 			}
+			if (v)
+			{
+				metaLinkButtonWrapper.setVisible(true);
+				metaOffInfo.setVisible(false);
+			} else
+			{
+				metaLinkButtonWrapper.setVisible(false);
+				metaOffInfo.setVisible(true);
+			}
+
 			return ValidationResult.ok();
 
 		}).bind("publishMetadata");
@@ -367,6 +371,18 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		});
 
 		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.metadata"), metadataPublishing);
+	}
+	
+	private void refreshMetaButton(Boolean enabled)
+	{
+		metaLinkButton.setEnabled(enabled);
+		if (!enabled)
+		{
+			metaLinkButton.addStyleName(Styles.disabledButton.toString());
+		} else
+		{
+			metaLinkButton.removeStyleName(Styles.disabledButton.toString());
+		}
 	}
 
 	private CollapsibleLayout buildIdenityTypeMappingSection()

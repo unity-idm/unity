@@ -162,7 +162,15 @@ class EditIndividualTrustedSPSubView extends CustomComponent implements UnitySub
 		ChipsWithTextfield authorizedURIs = new ChipsWithTextfield(msg);
 		authorizedURIs.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		authorizedURIs.setCaption(msg.getMessage("EditIndividualTrustedSPSubView.authorizedURIs"));
-		configBinder.forField(authorizedURIs).bind("authorizedRedirectsUri");
+		configBinder.forField(authorizedURIs).withValidator((v, c) -> {
+			if (v == null || v.isEmpty())
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			}
+			return ValidationResult.ok();
+		}
+
+		).bind("authorizedRedirectsUri");
 		header.addComponent(authorizedURIs);
 
 		return header;

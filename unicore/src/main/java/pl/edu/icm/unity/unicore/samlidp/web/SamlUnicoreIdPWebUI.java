@@ -20,6 +20,7 @@ import eu.unicore.security.etd.DelegationRestrictions;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
@@ -55,7 +56,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	private AuthnWithETDResponseProcessor samlWithEtdProcessor;
 
 	@Autowired
-	public SamlUnicoreIdPWebUI(UnityMessageSource msg, FreemarkerAppHandler freemarkerHandler,
+	public SamlUnicoreIdPWebUI(UnityMessageSource msg, URIAccessService uriAccessService, FreemarkerAppHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine, 
 			IdentityTypeSupport idTypeSupport, SessionManagement sessionMan, 
@@ -63,7 +64,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			EnquiresDialogLauncher enquiryDialogLauncher,
 			AttributeTypeSupport aTypeSupport)
 	{
-		super(msg, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
+		super(msg, uriAccessService, freemarkerHandler, handlersRegistry, preferencesMan,	authnProcessor, idpEngine,
 				idTypeSupport, sessionMan, attrMan,  
 				enquiryDialogLauncher, aTypeSupport);
 	}
@@ -89,7 +90,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			return;
 		}
 		
-		UnicoreConsentScreen consentScreen = new UnicoreConsentScreen(msg, 
+		UnicoreConsentScreen consentScreen = new UnicoreConsentScreen(msg, uriAccessService, 
 				handlersRegistry, 
 				preferencesMan, 
 				authnProcessor, 

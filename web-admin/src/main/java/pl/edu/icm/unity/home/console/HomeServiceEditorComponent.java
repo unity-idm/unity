@@ -34,6 +34,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -133,8 +134,12 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		}
 
 		DefaultServiceDefinition service = serviceBinder.getBean();
+		VaadinEndpointProperties prop = new VaadinEndpointProperties(
+				webConfigBinder.getBean().toProperties(msg, fileStorageService, service.getName()));
+		
+		
 		service.setConfiguration(homeBinder.getBean().toProperties(extraTab) + "\n"
-				+ webConfigBinder.getBean().toProperties(msg, fileStorageService, service.getName()));
+				+ prop.getAsString());
 		return service;
 	}
 

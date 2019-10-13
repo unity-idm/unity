@@ -86,6 +86,8 @@ public enum Styles
 	sectionTitle("u-sectionTitle"),
 	showHideButton("u-showHideButton"),
 	imagePreview("u-imagePreview"),
+	disabledButton("u-button-disabled "),
+	
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

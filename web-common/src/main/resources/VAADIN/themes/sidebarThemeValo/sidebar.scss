@@ -67,6 +67,10 @@ $narrow-bar-size: 50px;
        	color: $button-hover-color;
     }
     
+    .u-button-disabled {
+	   pointer-events: none;  
+    }
+    
     .u-inactiveButton:hover {
 		background-color: $button-bg-color !important;
 	}
