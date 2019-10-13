@@ -142,10 +142,11 @@ public class SAMLIndividualTrustedSPConfiguration
 		raw.put(prefix + SamlIdpProperties.ALLOWED_SP_ENCRYPT, String.valueOf(isEncryptAssertions()));
 
 		
-		raw.put(prefix + SamlIdpProperties.ALLOWED_SP_RETURN_URL, authorizedRedirectsUri.get(0));
+		
 		
 		if (authorizedRedirectsUri != null && !authorizedRedirectsUri.isEmpty())
 		{
+			raw.put(prefix + SamlIdpProperties.ALLOWED_SP_RETURN_URL, authorizedRedirectsUri.get(0));
 			authorizedRedirectsUri.stream().skip(1).forEach(c -> raw.put(prefix + SamlIdpProperties.ALLOWED_SP_RETURN_URLS
 					+ (authorizedRedirectsUri.indexOf(c) + 1), c));
 		}

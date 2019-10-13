@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.vaadin.server.Resource;
+
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -40,11 +42,15 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
@@ -499,11 +505,31 @@ public class SamlIdpProperties extends SamlProperties
 		String spKey = getSPConfigKey(req.getIssuer());
 		if (spKey == null)
 			return null;
-		Integer requestedServiceIdx = req.isSetAssertionConsumerServiceIndex() ? 
-				req.getAssertionConsumerServiceIndex() : null;
-		return (requestedServiceIdx != null) ? 
-				allowedRequestersByIndex.get(requestedServiceIdx) 
+		Integer requestedServiceIdx = req.isSetAssertionConsumerServiceIndex()
+				? req.getAssertionConsumerServiceIndex()
+				: null;
+		return (requestedServiceIdx != null) ? allowedRequestersByIndex.get(requestedServiceIdx)
 				: getValue(spKey + ALLOWED_SP_RETURN_URL);
+	}
+
+	public String getDisplayedNameForRequester(NameIDType id)
+	{
+		String spKey = getSPConfigKey(id);
+		if (spKey == null)
+			return null;
+		return getValue(spKey + ALLOWED_SP_NAME);
+	}
+
+	public Resource getLogoForRequester(NameIDType id, UnityMessageSource msg, URIAccessService uriService)
+	{
+		String spKey = getSPConfigKey(id);
+		if (spKey == null)
+			return Images.empty.getResource();
+
+		String logoURI = getLocalizedValue(spKey + ALLOWED_SP_LOGO, msg.getLocale());
+
+		return logoURI == null ? Images.empty.getResource()
+				: ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
 	}
 	
 	/**

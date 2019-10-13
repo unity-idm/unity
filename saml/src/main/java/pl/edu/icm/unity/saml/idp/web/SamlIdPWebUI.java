@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
@@ -79,6 +80,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected PreferencesManagement preferencesMan;
 	protected StandardWebAuthenticationProcessor authnProcessor;
 	protected SessionManagement sessionMan;
+	protected URIAccessService uriAccessService;
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
@@ -88,7 +90,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected Map<String, AttributeType> attributeTypes;
 
 	@Autowired
-	public SamlIdPWebUI(UnityMessageSource msg, FreemarkerAppHandler freemarkerHandler,
+	public SamlIdPWebUI(UnityMessageSource msg, URIAccessService uriAccessService
+			,FreemarkerAppHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan, 
@@ -98,6 +101,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
+		this.uriAccessService = uriAccessService;
 		this.freemarkerHandler = freemarkerHandler;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
@@ -169,7 +173,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			return;
 		}
 		
-		SamlConsentScreen consentScreen = new SamlConsentScreen(msg, 
+		SamlConsentScreen consentScreen = new SamlConsentScreen(msg, uriAccessService,
 				handlersRegistry, 
 				preferencesMan, 
 				authnProcessor, 
