@@ -28,6 +28,18 @@ public class JsonUtils
 		jp.nextToken();
 	}
 	
+	
+	public static void expect(JsonParser jp, String name) throws IOException
+	{
+		String fieldName = jp.getCurrentName();
+		if (!fieldName.equals(name))
+			throw new IOException("Expected " + name + 
+					" element, got: " + fieldName + 
+					" " + jp.getCurrentLocation() + " tokenType: [" +
+					jp.getCurrentToken() + "]");
+		jp.nextToken();
+	}
+	
 	public static void nextExpect(JsonParser jp, JsonToken tokenType) throws IOException
 	{
 		if (tokenType != jp.nextToken())

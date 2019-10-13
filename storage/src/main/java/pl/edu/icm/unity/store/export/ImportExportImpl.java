@@ -119,21 +119,21 @@ public class ImportExportImpl implements ImportExport
 		is.mark(1000);
 		JsonParser jp = jsonF.createParser(is);
 		DumpHeader header = loadHeader(jp);
-		List<String> elements = loadDumpContentType(jp);	
+		jp.nextToken();
+		loadDumpContentType(jp);	
 		jp.close();
 		is.reset();
 		
 		InputStream isUpdated = updater.update(is, header);
-
 		JsonParser jp2 = jsonF.createParser(isUpdated);
 		loadHeader(jp2);
-		loadDumpContentType(jp2);
-		
-		JsonUtils.nextExpect(jp2, "contents");
-		
-		//List<String> elements = DBDumpContentTypeMapper.getDBElements(dbDumpContent);
-		for (AbstractIEBase<?> impl : implementations.stream().filter(i -> elements.contains(i.getStoreKey()))
-				.collect(Collectors.toList()))
+		jp2.nextToken();
+		List<String> elements = loadDumpContentType(jp2);
+		JsonUtils.expect(jp2, "contents");	
+		List<AbstractIEBase<?>> implFiltered = implementations.stream()
+				.filter(i -> elements.contains(i.getStoreKey())).collect(Collectors.toList());
+		Collections.sort(implFiltered, (i1, i2) -> i1.getSortKey() < i2.getSortKey() ? -1 : 1);
+		for (AbstractIEBase<?> impl : implFiltered)
 		{
 			log.info("Importing " + impl.getStoreKey());
 			JsonUtils.nextExpect(jp2, impl.getStoreKey());
@@ -151,17 +151,20 @@ public class ImportExportImpl implements ImportExport
 		is.mark(1000);
 		JsonParser jp = jsonF.createParser(is);
 		loadHeader(jp);
+		jp.nextToken();
 		List<String> dbDumpContent = loadDumpContentType(jp);
 		jp.close();
 		is.reset();
 		return dbDumpContent;
 	}
 	
-	private List<String> loadDumpContentType(JsonParser jp)
+	private List<String> loadDumpContentType(JsonParser jp) throws IOException
 	{
 		try{
-			JsonUtils.nextExpect(jp, "dumpContent");
-			return Arrays.asList(jp.readValueAs(String[].class));
+			JsonUtils.expect(jp, "dumpContent");	
+			List<String> asList = Arrays.asList(jp.readValueAs(String[].class));
+			jp.nextToken();
+			return asList;
 			
 		}catch (Exception e) {
 			return DBDumpContentTypeMapper.getDBElements(new DBDumpContentType());
