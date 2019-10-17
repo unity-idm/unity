@@ -26,6 +26,8 @@ public interface BulkGroupQueryService
 	
 	GroupMembershipData getBulkMembershipData(String group, Set<Long> filter) throws EngineException;
 
+	MultiGroupMembershipData getMultiGroupMembershipData(String rootGroup, Set<String> groupFilter) throws EngineException;
+
 	GroupStructuralData getBulkStructuralData(String group) throws EngineException;
 	
 	Map<Long, Map<String, AttributeExt>> getGroupUsersAttributes(String group, GroupMembershipData dataO);
