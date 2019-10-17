@@ -185,8 +185,10 @@ the authentication and what data will be shared with the requesting service. Det
 IdP endpoints, e.g. OAuth endpoint shows requested scopes, while SAML endpoint doesn't. Users can save the consent 
 decision and then consent is skipped for them. It is also possible to turn off the consent screen completely.   
 
+include::output-translation.txt[]
 
-include::endpoint-admin.txt[]
+
+include::endpoint-console.txt[]
 
 include::endpoint-home.txt[]
 
@@ -203,6 +205,6 @@ include::endpoint-restadmin.txt[]
 include::endpoint-wellknown.txt[]
 
 
-
+include::endpoint-admin.txt[]
 
 

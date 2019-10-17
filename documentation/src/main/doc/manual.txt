@@ -34,8 +34,6 @@ include::scripts.txt[]
 
 include::branding.txt[]
 
-include::translation.txt[]
-
 include::external-idps.txt[]
 
 include::endpoints.txt[]

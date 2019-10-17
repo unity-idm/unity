@@ -1,18 +1,9 @@
-=== Web Admin UI endpoint
+=== Web Admin UI endpoint (deprecated)
 
 Endpoint type:: +WebAdminUI+
 Binding:: Web
 Exposed paths:: +/admin+
 Default path:: +/admin+
 
-Web Admin UI is the first place to visit after server installation and startup as it offers
-a administrator oriented management interface. 
-By default it is accessible under the link: +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT/admin]+  
-or simply +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT]+ as the +/admin+ path is the default.
-
-The features of the Web Admin interface are covered in the <<contents-management>> section.
-
-Currently the Admin UI endpoint offers the same options as the Home endpoint naturally including the options common 
-for all web endpoints. The Home endpoint's options 
-can usually be left unchanged as are used only to control the logged user's profile screen, which is also available 
-for administrator's convenience in the Admin UI.
+Web Admin UI is a legacy administrative interface, a predecessor of Admin Console. This endpoint is going to be dropped in one 
+subsequent releases, so switching to Admin Console is highly suggested. Admin Console offers a better and more capable UI. 

@@ -181,11 +181,14 @@ screen. See the main server reference documentation: <<configuration>>.
 
 Unity offers internationalization (i18) features out of the box. However, the list of available languages
 is hardcoded and currently includes only English (en), Polish (pl) and German (de) locales. English locale is
-the default one and all default messages are in this language. The Polish and German translations are mostly complete with the
-exception of the Admin UI. Administrator can configure which of the supported locale are enabled (see +unityServer.conf+ documentation).
+the default one and all default messages are in this language. Couple of other translations are mostly complete with the
+exception of the Admin Console which is English only. 
+Administrator can configure which of the supported languages are enabled 
+(see +unityServer.conf+ documentation for up to date list of allowed ones in <<configuration>>).
 
 If you would like to have other locale supported please contact us via the mailing list - there is no problem to add 
-them or to allow for admin-configured locales outside from those predefined in distribution.
+them or to allow for admin-configured locales outside from those predefined in distribution. We also use Weblate at 
+https://hosted.weblate.org/projects/unity-idm for collecting open source improvements to existing translations.
 
 Actual translations are fully controlled by Unity administrator. 
 In the +i18n/+ subfolder of the configuration directory a copy of all system messages is stored. 

@@ -106,7 +106,7 @@ image::./figures/fundamental-example.png[alt="Example diagram of an endpoint wit
 Each endpoint has its *binding* the low level access protocol which can be for instance _web_ 
 (designated for web-browsers) or _SOAP_ (for web service clients). 
 Example of endpoints are SAML IdP endpoint (allows relying services to authenticate 
-their users with SAML) with the web binding or the Admin UI endpoint (again with the web binding) which provides
+their users with SAML) with the web binding or the Admin Console endpoint (again with the web binding) which provides
 an embedded administration UI.
 
 Each endpoint's authentication is configured by associating it with *authenticator*(s). 

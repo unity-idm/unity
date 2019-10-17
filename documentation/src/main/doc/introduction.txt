@@ -122,7 +122,7 @@ Below a glossary of key terms which are used throughout this manual is presented
 Endpoint::
  Unity provides a portfolio of access modules. Those modules are called _endpoint types_. 
  Each endpoint type can be deployed multiple times, with different configuration. A deployed and configured endpoint type
- is called an _endpoint instance_ or just an _endpoint_ for short. Examples: Web Admin UI is an endpoint type providing 
+ is called an _endpoint instance_ or just an _endpoint_ for short. Examples: Admin Console is an endpoint type providing 
  web browser management access; SAML SOAP authentication is enabled by another endpoint.
 
 Authenticator::

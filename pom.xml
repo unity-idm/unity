@@ -94,6 +94,14 @@
 
 	<repositories>
 		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+		</repository>
+		<repository>
 			<id>unicore.eu</id>
 			<name>UNICORE repository</name>
 			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>
@@ -105,6 +113,17 @@
 	</repositories>
 
 	<pluginRepositories>
+		<pluginRepository>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+		</pluginRepository>
 		<pluginRepository>
 			<id>unicore.eu</id>
 			<url>http://unicore-dev.zam.kfa-juelich.de/maven</url>

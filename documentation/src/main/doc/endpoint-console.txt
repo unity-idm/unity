@@ -1,0 +1,15 @@
+=== Web Admin Console endpoint
+
+Endpoint type:: +WebConsoleUI+
+Binding:: Web
+Exposed paths:: +/console+
+Default path:: +/console+
+
+Web Admin Console is the first place to visit after server installation and startup as it offers
+an administrator oriented management interface. 
+By default it is accessible under the link: +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT/console]+  
+or simply +pass:[https://localhost:2443/ENDPOINT-CONFIGURED-CONTEXT]+ as the +/console+ path is the default.
+
+The features of the Console interface are covered in the <<contents-management>> section.
+
+Currently the Admin Console endpoint offers only options common for all web endpoints.

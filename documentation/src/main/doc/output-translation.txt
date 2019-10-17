@@ -1,0 +1,107 @@
+[[output-translation]]
+
+
+Translation profile is a named, ordered list of conditional rules. The rules are used to 
+modify the information about a principal being processed by Unity. Such situation occurs when:
+
+. Remote user was externally authenticated and its data is consumed by Unity. In this case
+translation is performed by so called _input translation profiles_.
+. Information about Unity's entity is being exposed to outside world with an IdP-like endpoint
+as SAML web endpoint.  In this case translation is performed by so called _output translation profiles_.
+
+For instance, an input translation profile can change remote attribute 'size' name to
+'width' and insert a remotely authenticated user to the local database (to a desired group)
+if the user is not yet there. An output profile can return an additional dynamic identity named 'email' 
+with a value of an email attribute.   
+
+The following subsections cover both types of translation profiles in details. Though many of the features
+are common. The profiles are managed with the Admin Console in the Server management->Translation profiles tab.
+The profile has a name and a list of rules. Each rule has a condition and an action.
+
+Conditions are used to dynamically turn action execution on or off. Conditions (as well as some of the arguments 
+of translation actions have) have to be specified as _MVEL expressions_. Such expressions allow for a powerful, 
+dynamic functionality. 
+
+The full MVEL documentation can be found here: {mveldoc}
+
+The following example condition:
+----
+attr contains 'cn'
+----
+will trigger an action whenever the subject has an attribute +cn+. In the following sections there are 
+additional examples and a complete reference of all variables which are available to write conditions. Nevertheless
+the most popular condition is simply: +true+.
+
+Actions are different for each type of the profile. The editor provides you with helpful interface to create them.
+
+
+
+=== Output translation
+
+An output translation profile can be associated with an IdP-like endpoint as the OAuth AS endpoint.
+It can be used to filter the data being exposed. For instance so called _attribute release policies_ can be implemented
+with output profiles. Output profile can dynamically create additional data to be returned. It is even possible to
+store the dynamically created data back into the local Unity database, so it becomes a regular data.
+
+Configuration of output profiles is optional. If no profile is manually installed on an endpoint, then a so called
+_default output profile_ is used. The default profile is simplistic: it doesn't filter anything and only adds 
+one additional attribute: +memberOf+ with all groups of the principal as value. 
+
+Output translation profile is a named, ordered list of conditionally executed actions. 
+Conditions (as well as some of the arguments of translation actions) have to be specified as _MVEL expressions_. 
+Such expressions allow for a powerful, dynamic functionality. 
+
+The full MVEL documentation can be found here: {mveldoc}
+
+Output translation profile operate on a data structure which is initially
+filled by Unity with all attributes and identities of the queried principal. Attributes are from the group configured
+in the endpoint.
+
+MVEL context used in conditions and as value of some action parameters can use the following variables:
+
+. +protocol+ Name of the protocol being used 
+. +protocolSubtype+ Name of the protocol variant
+. +requester+ Name of the requester
+. +usedGroup+ Unity group from which attributes are served 
+. +subGroups+ All sub groups of the Unity group from which attributes are served
+. +attr+ Map indexed with principal's attribute names. Value of each entry is a single value of the attribute. 
+If the attribute is multi-valued then the first value is returned. 
+If the attribute has no value then empty string is returned. 
+. +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
+. +attrObj+ Map indexed with attribute names. Value of each entry is a list of all values provided as 
+objects with attribute-type specific contents. Useful for inspecting complex types like email and accessing its confirmation status.
+. +requesterAttr+, +requesterAttrs+ and +requesterObj+ attributes of the requester, 
+if it is represented by an entity in Unity. This is the case for OAuth authentication.
+. +idsByType+ Map of identity values indexed by type.
+. +groups+ List of all groups the user is a member. 
+. +authenticatedWith+ List of identities that were used to authenticate the user. 
+If remote authentication was used the list contains a single identity that was used 
+to map the remote user to the local entity (as chosen by the input translation profile). 
+The list can have two elements when MFA was used.
+. +importStatus+ Map indexed with importer names which are enabled for the endpoint on which output profile 
+is executed. Status of each importer is value of map entries. The following values are possible: +notApplicable+ and
++success+.
+. +idp+ Identifier of a remote IdP that was used to authenticate the current user's session. 
+In case when only a local authentication was used, the value is set to +_LOCAL+.  
+ 
+
+Example output profile:
+------
+1: Condition: idsByType contains 'userName'
+Action: createAttribute
+Action parameters:
+  attributeName = userid
+  expression = idsByType['userName']
+
+2: Condition: true
+Action: filterAttribute
+Action parameters:
+  unityAttribute = email
+------
+
+The above profile in the first action creates a new attribute +userid+ with a value of user's identity 
+of the +userName+ type. The attribute is added only if the principal has such identity.
+The second rule hides the email attribute unconditionally.
+
+Additional examples of expressions and conditions can be found in the <<input-translation>> above. Note however
+that only the variables from the output MVEL context can be used.
