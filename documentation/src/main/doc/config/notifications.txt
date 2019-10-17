@@ -33,7 +33,7 @@ ${VARIABLE_NAME}
 
 Besides variables, message template may also include other templates which are set as "generic" fragments.
 
-Message templates are configured using Admin UI (Server management->Message templates). 
+Message templates are configured using Admin Console (Setting->Message templates). 
 It is also possible to configure them with configuration file (by default +msgTemplates.properties+). 
 
 Variables are replaced dynamically with concrete values when a message is prepared to be sent. Naturally

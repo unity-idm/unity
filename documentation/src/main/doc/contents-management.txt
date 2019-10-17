@@ -140,7 +140,7 @@ attribute: +sys:AuthorizationRole+. The attribute is of enumeration type, and th
 
 By assigning this attribute to entities, those entities are granted some roles and therefore are authorized to perform 
 certain operations in Unity. The detailed information on what is allowed for each role holder is provided 
-in attribute type description (see Schema Management->Attribute Types). The two most important roles are:
+in attribute type description (see Directory setup->Attribute types). The two most important roles are:
 
  . +System manager+ who is authorized to perform all actions and
  . +Regular user+ who can perform all the typical operations reserved for users, i.e. read information about itself.
@@ -193,28 +193,17 @@ To enable confirmations the following basic elements needs to be configured:
 . There must be a message template (or templates) suitable for use with confirmation facility. See <<notifications>>.
 . To confirm attributes at least one attribute type must be defined which will use the +verifiableEmail+ syntax. 
 What's more each such attribute type must have confirmations enabled and configured by selecting a proper 
-message template (see below).
+message template in its definition.
 . To confirm email identities, identity confirmations must be enabled and configured by selecting a proper 
-message template (see below).
-
-The configuration of confirmations (for identities and for each email attribute type) is performed in the 
-Server management -> Confirmations configuration tab of the Admin UI. It is rather simplistic as the only 
-really variable property is the template to be used.
-
-Note that Unity contains a convenient initializer script which can be enabled in the +unityServer.conf+ to load 
-default confirmation configurations on startup:
-
-----
-unityServer.core.script.1.file=scripts/confirmationsInitializer.groovy
-unityServer.core.script.1.trigger=pre-init
-----
+message template in its definition.
 
 Later in this section we assume that the confirmations were set up as described above.
 
 ==== When confirmations are sent?
 
 Whenever an email attribute or identity is created or changed manually in Unity interface 
-the confirmation message is sent. The sole exception is a change of an attribute by administrator via the Admin UI: 
+it is assumed to be not confirmed and the confirmation message is sent. 
+The exception is a change of an attribute by administrator via the Admin Console: 
 it is possible to control whether the attribute value should be added as confirmed or not.
 
 Confirmations are also sent whenever a registration request is submitted, with an e-mail attribute or identity which
@@ -231,7 +220,7 @@ Unity also takes care not to resent a confirmation if the same e-mail address wa
 identity and attribute (or multiple attributes). Then only a single confirmation is sent and is used to 
 confirm all elements. 
 
-It is also possible to reset a confirmation state by the administrator (from Admin UI) 
+It is also possible to reset a confirmation state by the administrator (from Admin Console) 
 by setting the unconfirmed state of an attribute value.  
 
 ==== Registration forms and confirmations

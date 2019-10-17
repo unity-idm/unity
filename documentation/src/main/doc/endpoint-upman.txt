@@ -42,7 +42,7 @@ other actions taken for those users as configured in the forms. However, project
 re-configure any of the project forms, therefore in a sense a person controlling the forms, also have some 
 general responsibility and control over the project.
 
-As it can be guessed from the above description that all UpMan triggered changes are visible in Admin UI, 
+As it can be guessed from the above description that all UpMan triggered changes are visible in Admin Console, 
 including project subgroups, project members, registration requests etc. 
 
 ==== Using UpMan

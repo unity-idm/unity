@@ -63,7 +63,7 @@ authenticator works as follows:
 an information about the logged user.
 2. If the remote login was successful the remotely provided data is mapped to the local representation
 (translated, enhanced, filtered...) using an _input translation profile_ which is assigned to the 
-authenticator. Input translation profiles are discussed in <<translation>>. In effect of translation: 
+authenticator. Input translation profiles are discussed in <<input-translation>>. In effect of translation: 
 	* The remote user may be mapped to an existing account (at not-the-first login
 	or when it is possible to automatically map remote user to local account using some attribute as email). 
 	In such case authentication is finished just after the translation.
@@ -83,6 +83,10 @@ for the first time.
 
 Account association is enabled by default. It requires additional login to the existing account in a 
 popup window. It can be turned off in authenticator settings.
+
+
+include::input-translation.txt[]
+
 
 === Step-up and repeated authentication
 
@@ -124,4 +128,5 @@ The remaining option can be used to control for how long additional authenticati
 to 600s then user won't need to perform additional authentication for one minute) and whether to block operation
 if there is no applicable additional authentication authenticator for the user (what typically means that system
 is misconfigured).    
+
 

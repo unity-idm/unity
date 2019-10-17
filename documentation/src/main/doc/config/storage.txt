@@ -14,7 +14,7 @@ The following option allows to select the database backend:
 unityServer.storage.engine=rdbms  # 'hz' is another possible option 
 ----
 
-Note that the Admin UI provides a possibility to create a dump JSON dump of the complete server state and to restore 
+Note that the Admin Console provides a possibility to create a dump JSON dump of the complete server state and to restore 
 the system from such dump regardless of the selected storage engine.
 
  
