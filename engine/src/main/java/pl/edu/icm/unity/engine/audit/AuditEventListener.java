@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeChangedEvent;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.UnknownIdentityException;
@@ -36,6 +37,7 @@ public class AuditEventListener implements EventListener
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventListener.class);
 	public static final String ID = AuditEventListener.class.getName();
+	private static final String DEFAULT_ATTRIBUTE_NAME = "name";
 
 	private String entityNameAttribute;
 
@@ -71,12 +73,12 @@ public class AuditEventListener implements EventListener
 		}
 		if (attr == null)
 		{
-			entityNameAttribute = "name";
-			log.warn("No attributeType for 'entityDisplayedName'. Using 'name' value as default.");
+			entityNameAttribute = DEFAULT_ATTRIBUTE_NAME;
+			log.warn("No entity name attribute. Using default '" + entityNameAttribute + "' value.");
 		} else
 		{
 			entityNameAttribute = attr.getName();
-			log.debug("attributeType initialize to " + attr.getName());
+			log.debug("Entity name attribute set to: '" + attr.getName() + "'");
 		}
 	}
 
@@ -89,7 +91,7 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean isWanted(Event event)
 	{
-		return (event instanceof AuditEventTrigger);
+		return (event instanceof AuditEventTrigger) || (event instanceof AttributeTypeChangedEvent);
 	}
 
 	@Override
@@ -103,6 +105,25 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean handleEvent(final Event abstractEvent)
 	{
+		if (abstractEvent instanceof AttributeTypeChangedEvent) {
+			AttributeTypeChangedEvent atChange = (AttributeTypeChangedEvent)abstractEvent;
+			if (atChange.oldAT != null && atChange.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) &&
+					!atChange.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
+			{
+				// entityDisplayedName remove from attribute type, assign default value
+				entityNameAttribute = DEFAULT_ATTRIBUTE_NAME;
+				log.info("Entity name attribute set to default value: '" + entityNameAttribute + "'");
+			}
+			if ((atChange.oldAT == null || !atChange.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) &&
+					atChange.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
+			{
+				// entityDisplayedName assigned to new attribute
+				entityNameAttribute = atChange.newAT.getName();
+				log.info("Entity name attribute set to value: '" + entityNameAttribute + "'");
+			}
+			return true;
+		}
+
 		AuditEventTrigger event = (AuditEventTrigger) abstractEvent;
 
 		AuditEvent auditEvent = AuditEvent.builder()

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.api.tx.TxManager;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -49,7 +51,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private InternalAuthorizationManager authz;
 	private AttributeTypeHelper atHelper;
 	private AttributesHelper aHelper;
-
+	private TxManager txMan;
+	private EventProcessor eventProcessor;
 
 	@Autowired
 	public AttributeTypeManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
@@ -57,7 +60,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
-			AttributesHelper aHelper)
+			AttributesHelper aHelper, TxManager txMan, EventProcessor eventProcessor)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -67,6 +70,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.authz = authz;
 		this.atHelper = atHelper;
 		this.aHelper = aHelper;
+		this.txMan = txMan;
+		this.eventProcessor = eventProcessor;
 	}
 
 	@Override
@@ -94,6 +99,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(toAdd, existingAts);
 		attributeTypeDAO.create(toAdd);
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(null, toAdd)));
 	}
 
 	
@@ -120,8 +126,9 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(at, existingAts);
 		verifyAttributesConsistencyWithUpdatedType(at);
-		
+
 		attributeTypeDAO.update(at);
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(atExisting, at)));
 		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
 			clearAttributeExtractionFromIdentities(at.getName());
 	}
