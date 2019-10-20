@@ -100,8 +100,6 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	@Test
 	public void shouldUseProperNameAttribute() throws EngineException {
 		// given
-		// initial value is default to 'name'
-		assertTrue(((String)ReflectionTestUtils.getField(auditListener, "entityNameAttribute")).equalsIgnoreCase("name"));
 		Collection<AttributeType> types = attributeTypeMan.getAttributeTypes();
 		AttributeType type = new AttributeType("theName", "string");
 		type.setDescription(new I18nString("desc"));
