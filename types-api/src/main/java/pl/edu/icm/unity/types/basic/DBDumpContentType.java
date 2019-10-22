@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.types.basic;
 
 /**
+ * Contains information about db dump content. 
  * 
  * @author P.Piernik
  *
@@ -16,6 +17,7 @@ public class DBDumpContentType
 	private boolean directorySchema = true;
 	private boolean users = true;
 	private boolean auditLogs = true;
+	private boolean signupRequests = true;
 
 	public DBDumpContentType()
 	{
@@ -62,4 +64,13 @@ public class DBDumpContentType
 		this.auditLogs = auditLogs;
 	}
 
+	public boolean isSignupRequests()
+	{
+		return signupRequests;
+	}
+
+	public void setSignupRequests(boolean signupRequests)
+	{
+		this.signupRequests = signupRequests;
+	}
 }

@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.impl.tokens.TokensIE;
 import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 /**
@@ -89,10 +90,9 @@ public class ImportExportImpl implements ImportExport
 		jg.writeNumberField("versionMinor", 0);
 		jg.writeNumberField("timestamp", System.currentTimeMillis());
 
-		jg.writeFieldName("dumpContent");
+		jg.writeFieldName("dumpElements");
 		jg.writeObject(DBDumpContentTypeMapper.getDBElements(content));
-		
-		
+			
 		jg.writeObjectFieldStart("contents");
 
 		List<String> elements = DBDumpContentTypeMapper.getDBElements(content);
@@ -133,17 +133,29 @@ public class ImportExportImpl implements ImportExport
 		List<AbstractIEBase<?>> implFiltered = implementations.stream()
 				.filter(i -> elements.contains(i.getStoreKey())).collect(Collectors.toList());
 		Collections.sort(implFiltered, (i1, i2) -> i1.getSortKey() < i2.getSortKey() ? -1 : 1);
+		
+		jp2.nextToken();
 		for (AbstractIEBase<?> impl : implFiltered)
 		{
 			log.info("Importing " + impl.getStoreKey());
-			JsonUtils.nextExpect(jp2, impl.getStoreKey());
+			try{
+				JsonUtils.expect(jp2, impl.getStoreKey());
+			}catch (Exception e) {
+				if (impl.getStoreKey() == TokensIE.TOKEN_OBJECT_TYPE);
+				{
+					log.info(impl.getStoreKey() + " are not available, skipping import");
+					continue;
+				}
+			}
+			
 			impl.deserialize(jp2);
+			jp2.nextToken();
 		}
 		jp2.close();
 	}
 	
 	@Override
-	public List<String> getDBDummpContentType(InputStream is) throws IOException
+	public List<String> getDBDumpElements(InputStream is) throws IOException
 	{
 		if (!is.markSupported())
 			throw new IllegalArgumentException("Only input streams with mark/reset support can "
@@ -161,7 +173,7 @@ public class ImportExportImpl implements ImportExport
 	private List<String> loadDumpContentType(JsonParser jp) throws IOException
 	{
 		try{
-			JsonUtils.expect(jp, "dumpContent");	
+			JsonUtils.expect(jp, "dumpElements");	
 			List<String> asList = Arrays.asList(jp.readValueAs(String[].class));
 			jp.nextToken();
 			return asList;

@@ -22,5 +22,5 @@ public interface ImportExport
 	void load(InputStream is) throws IOException;
 	void store(OutputStream os, DBDumpContentType content) throws IOException;
 	void storeWithVersion(OutputStream os, DBDumpContentType content, int version) throws IOException;
-	List<String> getDBDummpContentType(InputStream is) throws IOException;
+	List<String> getDBDumpElements(InputStream is) throws IOException;
 }

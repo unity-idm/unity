@@ -121,8 +121,8 @@ public class ServerManagementImpl implements ServerManagement
 			{
 			
 				BufferedInputStream is = new BufferedInputStream(new FileInputStream(from));
-				List<String> dbContent = dbDump.getDBDummpContentType(is);
-				initDb.deletePreImport(dbContent);	
+				List<String> dbDumpElements = dbDump.getDBDumpElements(is);
+				initDb.deletePreImport(dbDumpElements);	
 				dbDump.load(new BufferedInputStream(is));
 			} catch (Exception e)
 			{

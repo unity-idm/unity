@@ -102,6 +102,8 @@ public class ImportExportComponent extends VerticalLayout
 
 		CheckBox users = new CheckBox(msg.getMessage("ImportExport.users"));
 		configBinder.forField(users).bind("users");
+		CheckBox signupRequests = new CheckBox(msg.getMessage("ImportExport.signupRequests"));
+		configBinder.forField(signupRequests).bind("signupRequests");
 		
 		CheckBox auditLogs = new CheckBox(msg.getMessage("ImportExport.auditLogs"));
 		configBinder.forField(auditLogs).bind("auditLogs");
@@ -113,10 +115,18 @@ public class ImportExportComponent extends VerticalLayout
 			}
 		});
 		
+		signupRequests.addValueChangeListener(v -> {
+			if (v.getValue())
+			{
+				directorySchema.setValue(true);;
+			}
+		});
+		
 		directorySchema.addValueChangeListener(v -> {
 			if (!v.getValue())
 			{
 				users.setValue(false);
+				signupRequests.setValue(false);
 			}
 		});
 		
@@ -126,7 +136,14 @@ public class ImportExportComponent extends VerticalLayout
 		usersWrapper.setMargin(new MarginInfo(false, true));
 		usersWrapper.setSpacing(true);
 		usersWrapper.addComponent(users);
+		
+		HorizontalLayout signupWrapper = new HorizontalLayout();
+		signupWrapper.setMargin(new MarginInfo(false, true));
+		signupWrapper.setSpacing(true);
+		signupWrapper.addComponent(signupRequests);
+	
 		hl.addComponent(usersWrapper);
+		hl.addComponent(signupWrapper);
 		hl.addComponent(auditLogs);	
 		
 		final DBDumpResource dumpResource = new DBDumpResource(serverManagement);
@@ -138,7 +155,7 @@ public class ImportExportComponent extends VerticalLayout
 
 		configBinder.addStatusChangeListener( v -> {
 			DBDumpContentType type = (DBDumpContentType) v.getBinder().getBean();
-			createDump.setEnabled(type.isSystemConfig() || type.isDirectorySchema() || type.isUsers() || type.isAuditLogs());
+			createDump.setEnabled(type.isSystemConfig() || type.isDirectorySchema() || type.isUsers() || type.isAuditLogs() || type.isSignupRequests());
 			dumpResource.setExportContent((DBDumpContentType) v.getBinder().getBean());
 		});
 		configBinder.setBean(new DBDumpContentType());

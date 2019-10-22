@@ -18,6 +18,7 @@ import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
 import pl.edu.icm.unity.store.impl.membership.MembershipIE;
+import pl.edu.icm.unity.store.impl.tokens.TokensIE;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.authnFlow.AuthenticationFlowHandler;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.types.basic.DBDumpContentType;
 
 /**
+ * Helper which maps from {@link DBDumpContentType} to database elements list.
  * 
  * @author P.Piernik
  *
@@ -61,7 +63,22 @@ public class DBDumpContentTypeMapper
 
 		if (content.isUsers())
 		{
+			if (!content.isDirectorySchema() && !ret.containsAll(getDirSchemaElements()))
+			{
+				ret.addAll(getDirSchemaElements());
+			}
+
 			ret.addAll(getUsersElements());
+		}
+
+		if (content.isSignupRequests())
+		{
+			if (!content.isDirectorySchema() && !ret.containsAll(getDirSchemaElements()))
+			{
+				ret.addAll(getDirSchemaElements());
+			}
+
+			ret.addAll(getSignupRequestsElements());
 		}
 
 		if (content.isAuditLogs())
@@ -71,18 +88,33 @@ public class DBDumpContentTypeMapper
 
 		return ret;
 	}
-	
+
 	public static List<String> getElementsForClearDB(DBDumpContentType content)
 	{
 		List<String> ret = getDBElements(content);
-		
+
 		if (content.isDirectorySchema() && !ret.containsAll(getUsersElements()))
 		{
 			ret.addAll(getUsersElements());
 		}
+
+		if (content.isDirectorySchema() && !ret.containsAll(getSignupRequestsElements()))
+		{
+			ret.addAll(getSignupRequestsElements());
+		}
+
+		if (content.isUsers() && !ret.containsAll(getDirSchemaElements()))
+		{
+			ret.addAll(getDirSchemaElements());
+		}
+
+		if (content.isSignupRequests() && !ret.containsAll(getDirSchemaElements()))
+		{
+			ret.addAll(getDirSchemaElements());
+		}
+
 		return ret;
 	}
-	
 
 	public static List<String> getSystemConfigElements()
 	{
@@ -93,8 +125,7 @@ public class DBDumpContentTypeMapper
 				InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE,
 				CertificateHandler.CERTIFICATE_OBJECT_TYPE,
 				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID,
-				OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE
-		);
+				OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE);
 
 	}
 
@@ -103,10 +134,8 @@ public class DBDumpContentTypeMapper
 		return Arrays.asList(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE,
 				ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE,
 				AttributeTypesIE.ATTRIBUTES_TYPE_OBJECT_TYPE,
-				EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE,
-				RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE, GroupIE.GROUPS_OBJECT_TYPE,
-				EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE,
-				InvitationHandler.INVITATION_OBJECT_TYPE, IdentityTypeIE.IDENTITY_TYPE_OBJECT_TYPE,
+				EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE, GroupIE.GROUPS_OBJECT_TYPE,
+				IdentityTypeIE.IDENTITY_TYPE_OBJECT_TYPE,
 				AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE,
 				RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE,
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE);
@@ -116,7 +145,15 @@ public class DBDumpContentTypeMapper
 	public static List<String> getUsersElements()
 	{
 		return Arrays.asList(IdentityIE.IDENTITIES_OBJECT_TYPE, EntityIE.ENTITIES_OBJECT_TYPE,
-				AttributeIE.ATTRIBUTES_OBJECT_TYPE, MembershipIE.GROUP_MEMBERS_OBJECT_TYPE);
+				AttributeIE.ATTRIBUTES_OBJECT_TYPE, MembershipIE.GROUP_MEMBERS_OBJECT_TYPE,
+				TokensIE.TOKEN_OBJECT_TYPE);
+	}
+
+	public static List<String> getSignupRequestsElements()
+	{
+		return Arrays.asList(InvitationHandler.INVITATION_OBJECT_TYPE,
+				EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE,
+				RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE);
 	}
 
 	public static List<String> getAuditLogsElements()

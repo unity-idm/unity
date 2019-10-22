@@ -25,8 +25,8 @@ public interface ServerManagement
 	public void resetDatabase() throws EngineException;
 	
 	/**
-	 * Exports the whole database contents to a JSON file.
-	 * @param content 
+	 * Exports database contents to a JSON file.
+	 * @param content dump content type
 	 * @return the file reference
 	 * @throws EngineException
 	 */
