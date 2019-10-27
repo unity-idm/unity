@@ -27,6 +27,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordEngine;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -41,22 +42,25 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class CompositePasswordResetImpl  implements CredentialReset
 {
 	private PasswordCredentialResetImpl resetBackend;
-	private CredentialHelper credentialHelper;
-	private List<LocalCredentialVerificator> localVerificators;
-	private IdentityResolver identityResolver;
-	private NotificationProducer notificationProducer;
+	private final CredentialHelper credentialHelper;
+	private final List<LocalCredentialVerificator> localVerificators;
+	private final IdentityResolver identityResolver;
+	private final NotificationProducer notificationProducer;
+	private final PasswordEngine passwordEngine;
 	
 	
 	public CompositePasswordResetImpl(CredentialHelper credentialHelper,
 			List<LocalCredentialVerificator> localVerificators,
 			IdentityResolver identityResolver,
-			NotificationProducer notificationProducer)
+			NotificationProducer notificationProducer, 
+			PasswordEngine passwordEngine)
 	{
 		
 		this.credentialHelper = credentialHelper;
 		this.localVerificators = localVerificators;
 		this.identityResolver = identityResolver;
 		this.notificationProducer = notificationProducer;
+		this.passwordEngine = passwordEngine;
 	}
 	
 	@Override
@@ -138,7 +142,8 @@ public class CompositePasswordResetImpl  implements CredentialReset
 		return new PasswordCredentialResetImpl(notificationProducer, identityResolver,
 				verificator, credentialHelper, verificator.getCredentialName(),
 				passwordCredential.getSerializedConfiguration(),
-				passwordCredential.getPasswordResetSettings());
+				passwordCredential.getPasswordResetSettings(),
+				passwordEngine);
 	}
 
 	@Override

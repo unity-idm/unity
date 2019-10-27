@@ -8,8 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Random;
 
-import org.bouncycastle.crypto.generators.SCrypt;
-
 import com.google.common.util.concurrent.AtomicDouble;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -20,15 +18,13 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
-import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
+import pl.edu.icm.unity.stdext.credential.pass.SCryptEncoder;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Shows a small dialog which first measures average password hashing time with given settings,
  * then presents the result with some hints.
- * 
- * @author K. Benedyczak
  */
 class TestWorkFactorDialog extends AbstractDialog
 {
@@ -38,13 +34,16 @@ class TestWorkFactorDialog extends AbstractDialog
 	private static final float TOO_FAST_THRESHOLD = 0.1f;
 	private static final float TOO_SLOW_THRESHOLD = 0.49f;
 	private VerticalLayout layout;
+	private final SCryptEncoder scryptEncoder;
 	
-	public TestWorkFactorDialog(UnityMessageSource msg, PasswordCredential config)
+	public TestWorkFactorDialog(UnityMessageSource msg, PasswordCredential config, 
+			SCryptEncoder scryptEncoder)
 	{
 		super(msg, msg.getMessage("PasswordDefinitionEditor.testWorkFactor"), 
 				msg.getMessage("close"));
 		this.config = config;
-		setSizeEm(35, 20);
+		this.scryptEncoder = scryptEncoder;
+		setSizeEm(35, 22);
 	}
 
 	@Override
@@ -114,19 +113,9 @@ class TestWorkFactorDialog extends AbstractDialog
 	private void performHashing(ProgressBar progress, UI ui, String password, String salt, 
 			AtomicDouble progressValue, float progressIncrement)
 	{
-		encode(password, salt, config.getScryptParams());
+		scryptEncoder.scrypt(password, salt.getBytes(StandardCharsets.UTF_8), config.getScryptParams());
 		progressValue.addAndGet(progressIncrement);
 		ui.access(() -> progress.setValue((float)progressValue.get()));
-	}
-	
-	private byte[] encode(String password, String salt, ScryptParams scryptParams)
-	{
-		return SCrypt.generate(password.getBytes(StandardCharsets.UTF_8), 
-				salt.getBytes(StandardCharsets.UTF_8),
-				1 << scryptParams.getWorkFactor(), 
-				scryptParams.getBlockSize(),
-				scryptParams.getParallelization(),
-				scryptParams.getLength());
 	}
 	
 	@Override

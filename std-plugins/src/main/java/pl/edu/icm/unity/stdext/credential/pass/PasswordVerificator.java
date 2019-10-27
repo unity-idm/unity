@@ -10,6 +10,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ForkJoinPool;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -91,12 +92,15 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private PasswordCredential credential = new PasswordCredential();
 
 	@Autowired
-	public PasswordVerificator(NotificationProducer notificationProducer, CredentialHelper credentialHelper)
+	public PasswordVerificator(NotificationProducer notificationProducer, CredentialHelper credentialHelper,
+			Optional<PasswordEncodingPoolProvider> threadPoolProvider)
 	{
 		super(NAME, DESC, PasswordExchange.ID, true);
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
-		this.passwordEngine = new PasswordEngine();
+		this.passwordEngine = new PasswordEngine(threadPoolProvider
+				.map(pp->pp.pool)
+				.orElse(ForkJoinPool.commonPool()));
 	}
 
 	@Override
@@ -306,7 +310,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return new PasswordCredentialResetImpl(notificationProducer, identityResolver, 
 				this, credentialHelper,
 				credentialName, credential.getSerializedConfiguration(), 
-				credential.getPasswordResetSettings());
+				credential.getPasswordResetSettings(),
+				passwordEngine);
 	}
 
 	/**

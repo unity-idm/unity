@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -45,6 +46,8 @@ import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.pam.PAMVerificator;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordEncodingPoolProvider;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordEngine;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -78,13 +81,15 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 	private List<CredentialVerificator> remoteVerificators;
 	private CompositePasswordProperties compositePasswordProperties;
 	private NotificationProducer notificationProducer;
+	private PasswordEngine passwordEngine;
 	
 	@Autowired
 	public CompositePasswordVerificator(
 			pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator.Factory passwordVerificator,
 			pl.edu.icm.unity.pam.PAMVerificator.Factory pamVerificator,
 			pl.edu.icm.unity.ldap.client.LdapPasswordVerificator.Factory ldapVerificator,
-			CredentialHelper credentialHelper, NotificationProducer notificationProducer)
+			CredentialHelper credentialHelper, NotificationProducer notificationProducer,
+			Optional<PasswordEncodingPoolProvider> threadPoolProvider)
 	{
 		super(NAME, DESC, PasswordExchange.ID);
 		this.credentialHelper = credentialHelper;
@@ -95,6 +100,9 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 		credentialVerificatorFactories.put(LdapPasswordVerificator.NAME, ldapVerificator);
 		localVerificators = new ArrayList<>();
 		remoteVerificators = new ArrayList<>();
+		this.passwordEngine = new PasswordEngine(threadPoolProvider
+				.map(pp->pp.pool)
+				.orElse(ForkJoinPool.commonPool()));
 	}
 
 	@Override
@@ -286,7 +294,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			return new NoCredentialResetImpl();
 
 		return new CompositePasswordResetImpl(credentialHelper, localVerificatorWithReset,
-				identityResolver, notificationProducer);
+				identityResolver, notificationProducer, passwordEngine);
 	}
 	
 	@Override

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.stdext.credential.pass;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Optional;
+
 import org.junit.Test;
 
 import pl.edu.icm.unity.JsonUtil;
@@ -18,7 +20,7 @@ public class PasswordStrengthChangeTest
 	@Test
 	public void scoreIncreaseOutdatesCredential() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMinScore(10);
 		verificator.setSerializedConfiguration(toCredConfig(credCfg));
@@ -32,7 +34,7 @@ public class PasswordStrengthChangeTest
 	@Test
 	public void scoreDecreaseDoesntOutdatesCredential() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMinScore(10);
 		verificator.setSerializedConfiguration(toCredConfig(credCfg));
@@ -46,7 +48,7 @@ public class PasswordStrengthChangeTest
 	@Test
 	public void storageIncreaseOutdatesCredential() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setScryptParams(new ScryptParams(10));
 		verificator.setSerializedConfiguration(toCredConfig(credCfg));
@@ -60,7 +62,7 @@ public class PasswordStrengthChangeTest
 	@Test
 	public void storageDecreaseDoesntOutdatesCredential() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setScryptParams(new ScryptParams(20));
 		verificator.setSerializedConfiguration(toCredConfig(credCfg));
@@ -74,7 +76,7 @@ public class PasswordStrengthChangeTest
 	@Test
 	public void resetSettingsChangeDoesntOutdatesCredential() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		PasswordCredentialResetSettings resetSettings = new PasswordCredentialResetSettings();
 		resetSettings.setCodeLength(3);
@@ -107,5 +109,10 @@ public class PasswordStrengthChangeTest
 		credCfg.setMinClassesNum(1);
 		credCfg.setScryptParams(new ScryptParams(10));
 		return credCfg;
+	}
+	
+	private PasswordVerificator getMockPasswordVerificator()
+	{
+		return new PasswordVerificator(null, null, Optional.empty());
 	}
 }

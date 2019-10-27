@@ -8,9 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
 
 import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.generators.SCrypt;
 import org.bouncycastle.util.Arrays;
 
 
@@ -18,19 +18,23 @@ import org.bouncycastle.util.Arrays;
  * Low level password handling.
  * Allows for initial obfuscation of a given password (PasswordInfo is generated, 
  * ready to be stored in DB) and for checking a given password against the one loaded.
- * 
- * @author K. Benedyczak
  */
 public class PasswordEngine
 {
 	private static final int SALT_LENGTH = 32;
 	private Random random = new SecureRandom();
-
-	public PasswordInfo prepareForStore(PasswordCredential credentialSettings, String password)
+	private final SCryptEncoder scryptEncoder;
+	
+	public PasswordEngine(ForkJoinPool pool)
+	{
+		this.scryptEncoder = new SCryptEncoder(pool);
+	}
+	
+	PasswordInfo prepareForStore(PasswordCredential credentialSettings, String password)
 	{
 		byte[] salt = genSalt();
 		ScryptParams scryptParams = credentialSettings.getScryptParams();
-		byte[] hash = scrypt(password, salt, scryptParams);
+		byte[] hash = scryptEncoder.scrypt(password, salt, scryptParams);
 		return new PasswordInfo(PasswordHashMethod.SCRYPT, 
 				hash, 
 				salt, 
@@ -38,7 +42,7 @@ public class PasswordEngine
 				System.currentTimeMillis());
 	}
 
-	public boolean verify(PasswordInfo stored, String password)
+	boolean verify(PasswordInfo stored, String password)
 	{
 		PasswordHashMethod method = stored.getMethod();
 		switch (method)
@@ -71,11 +75,11 @@ public class PasswordEngine
 	private boolean verifySCrypt(PasswordInfo stored, String password)
 	{
 		ScryptParams params = new ScryptParams(stored.getMethodParams());
-		byte[] testedHash = scrypt(password, stored.getSalt(), params);
+		byte[] testedHash = scryptEncoder.scrypt(password, stored.getSalt(), params);
 		return Arrays.areEqual(testedHash, stored.getHash());
 	}
 
-	public boolean checkParamsUpToDate(PasswordCredential credentialSettings, PasswordInfo stored)
+	boolean checkParamsUpToDate(PasswordCredential credentialSettings, PasswordInfo stored)
 	{
 		if (stored.getMethod() != PasswordHashMethod.SCRYPT)
 			return credentialSettings.isAllowLegacy();
@@ -84,18 +88,6 @@ public class PasswordEngine
 		return credentialSettings.getScryptParams().equals(params);
 	}
 
-	private byte[] scrypt(String password, byte[] salt, ScryptParams params)
-	{
-		return SCrypt.generate(password.getBytes(StandardCharsets.UTF_8), 
-				salt,
-				1 << params.getWorkFactor(), 
-				params.getBlockSize(),
-				params.getParallelization(),
-				params.getLength());
-		//Memory use = 128 bytes × cost × blockSize
-	}
-
-	
 	private byte[] genSalt()
 	{
 		byte[] salt = new byte[SALT_LENGTH];

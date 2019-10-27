@@ -179,6 +179,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String RESTRICT_FILE_SYSTEM_ACCESS = "restrictFileSystemAccess";
 	public static final String FILE_SIZE_LIMIT = "fileSizeLimit";
+
+	public static final String MAX_CONCURRENT_PASSWORD_CHECKS = "maxConcurrentPasswordChecks";
+
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
@@ -507,6 +510,16 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				.setDescription("Whether the notification service handles message "
 						+ "templating on its own or not and requires complete messages."));
 
+		defaults.put(MAX_CONCURRENT_PASSWORD_CHECKS, new PropertyMD().setInt().setMin(1).setMax(256)
+				.setCategory(mainCat)
+				.setDescription("Number of concurrent passwords checks allowed to be run in parallel. "
+						+ "Password checking is a memory (and CPU) intensive, "
+						+ "and the biggger work factor, the bigger memory need for "
+						+ "a single password checking is. The bigger this number is "
+						+ "the lower the maximum allowed work factor is. "
+						+ "Having this number larger then the number of cores makes no sense. "
+						+ "By default this parameter is equal to "
+						+ "JVM max heap size in GB times 2 (but not less then 1)."));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
@@ -729,5 +742,18 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		}
 
 		return getIntValue(UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT);
+	}
+	
+	public int getMaxConcurrentPasswordChecks()
+	{
+		if (isSet(MAX_CONCURRENT_PASSWORD_CHECKS))
+			return getIntValue(MAX_CONCURRENT_PASSWORD_CHECKS);
+		
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		if (maxMemory == Long.MAX_VALUE)
+			maxMemory = 1 << 30;
+		double maxMemGB = maxMemory / (double)(1 << 30);
+		int maxConcurrency = (int)Math.round(maxMemGB * 2);
+		return maxConcurrency > 0 ? maxConcurrency : 1;
 	}
 }

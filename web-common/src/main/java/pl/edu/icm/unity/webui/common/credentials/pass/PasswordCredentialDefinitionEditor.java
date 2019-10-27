@@ -23,7 +23,9 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordEncodingPoolProvider;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
+import pl.edu.icm.unity.stdext.credential.pass.SCryptEncoder;
 import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -54,11 +56,14 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private IntStepper historySize;
 	private IntStepper workFactor;
 	private PasswordCredentialResetSettingsEditor resetSettings;
+	private SCryptEncoder scryptEncoder;
 	
-	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
+	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan, 
+			PasswordEncodingPoolProvider poolProvider)
 	{
 		this.msg = msg;
 		this.msgTplMan = msgTplMan;
+		this.scryptEncoder = new SCryptEncoder(poolProvider.pool);
 	}
 
 
@@ -151,7 +156,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		workFactor = new IntStepper(msg.getMessage("PasswordDefinitionEditor.workFactor"));
 		workFactor.setStepAmount(1);
 		workFactor.setMinValue(ScryptParams.MIN_WORK_FACTOR);
-		workFactor.setMaxValue(ScryptParams.MAX_WORK_FACTOR);
+		int maxWF = scryptEncoder.getMaxAllowedWorkFactor();
+		workFactor.setMaxValue(maxWF);
 		workFactor.setWidth(3, Unit.EM);
 		workFactor.setDescription(msg.getMessage("PasswordDefinitionEditor.workFactorDesc"));
 		Button testWorkFactor = new Button(msg.getMessage("PasswordDefinitionEditor.testWorkFactor"));
@@ -171,7 +177,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		if (credentialDefinitionConfiguration != null)
 			helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 		else
-			helper.setScryptParams(new ScryptParams());
+			helper.setScryptParams(new ScryptParams(16 > maxWF ? maxWF : 16));
 		initUIState(helper);
 		resetSettings = new PasswordCredentialResetSettingsEditor(msg, msgTplMan, helper.getPasswordResetSettings());
 		resetSettings.addEditorToLayout(form);
@@ -193,7 +199,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		PasswordCredential cred = getCredentialSave();
 		if (cred == null)
 			return;
-		new TestWorkFactorDialog(msg, cred).show();
+		new TestWorkFactorDialog(msg, cred, scryptEncoder).show();
 	}
 	
 	private PasswordCredential getCredentialSave()

@@ -14,6 +14,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.Test;
 
 import pl.edu.icm.unity.JsonUtil;
@@ -32,7 +34,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldAssumeNotSetOnNullPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 
 		assertEquals(LocalCredentialState.notSet, verificator.checkCredentialState(null).getState());
 	}
@@ -40,7 +42,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldDenyTooWeakPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMinScore(10);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -56,7 +58,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldAcceptStrongPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMinScore(10);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -74,7 +76,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldDenyTooShortPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMinLength(5);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -90,7 +92,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldDenyPasswordWithSequence() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setDenySequences(true);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -106,7 +108,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldDenyPasswordTooFewClasses() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMinClassesNum(2);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -122,7 +124,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldDenyPasswordFromHistory1() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setHistorySize(1);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -139,7 +141,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldDenyPasswordFromHistory2() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setHistorySize(2);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -159,7 +161,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldAcceptCurrentPasswordForNoHistory() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setHistorySize(0);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -180,7 +182,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldAcceptUsedPasswordRemovedFromHistory1() throws Exception
 	{
-		PasswordVerificator verificator = new PasswordVerificator(null, null);
+		PasswordVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setHistorySize(1);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -202,7 +204,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldAcceptUsedPasswordAfterDecreasingHistoryLength() throws Exception
 	{
-		PasswordVerificator verificator = new PasswordVerificator(null, null);
+		PasswordVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setHistorySize(1);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -225,7 +227,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldReturnCorrectStateForValidPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
 		
@@ -237,7 +239,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldOutdatePassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		credCfg.setMaxAge(100);
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
@@ -252,7 +254,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldReturnOutdatedForInvalidatedPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
 		
@@ -265,7 +267,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldResetStateAfterSettingNewPassOnInvalidated() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
 		
@@ -279,7 +281,7 @@ public class PasswordVerificatorTest
 	@Test
 	public void shouldReturnOutdatedStateWhenScryptParamsAreChangedWithoutPassword() throws Exception
 	{
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		LocalCredentialVerificator verificator = getMockPasswordVerificator();
 		PasswordCredential credCfg = getEmpty();
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
 		
@@ -296,7 +298,7 @@ public class PasswordVerificatorTest
 	public void shouldRehashAndReturnCorrectWhenScryptParamsAreChangedAndPasswordGiven() throws Exception
 	{
 		CredentialHelper credHelper = mock(CredentialHelper.class);
-		PasswordVerificator verificator = new PasswordVerificator(null, credHelper);
+		PasswordVerificator verificator = new PasswordVerificator(null, credHelper, Optional.empty());
 		IdentityResolver identityResolver = mock(IdentityResolver.class);
 		verificator.setIdentityResolver(identityResolver);
 		EntityWithCredential entityWithCred = new EntityWithCredential();
@@ -327,5 +329,10 @@ public class PasswordVerificatorTest
 		credCfg.setMinClassesNum(1);
 		credCfg.setScryptParams(new ScryptParams(10));
 		return credCfg;
+	}
+	
+	private PasswordVerificator getMockPasswordVerificator()
+	{
+		return new PasswordVerificator(null, null, Optional.empty());
 	}
 }

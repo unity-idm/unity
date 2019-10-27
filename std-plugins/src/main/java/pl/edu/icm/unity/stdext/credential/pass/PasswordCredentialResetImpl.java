@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class PasswordCredentialResetImpl extends CredentialResetBase
 {	
 	private PasswordCredentialResetSettings settings;
-	private PasswordEngine passwordEngine = new PasswordEngine();
+	private PasswordEngine passwordEngine;
 	private int answerAttempts = 0;
 
 	public PasswordCredentialResetImpl(NotificationProducer notificationProducer,
@@ -37,11 +37,13 @@ public class PasswordCredentialResetImpl extends CredentialResetBase
 			LocalCredentialVerificator localVerificator,
 			CredentialHelper credentialHelper, String credentialId,
 			ObjectNode completeCredentialConfiguration,
-			PasswordCredentialResetSettings settings)
+			PasswordCredentialResetSettings settings,
+			PasswordEngine passwordEngine)
 	{
 		super(notificationProducer, identityResolver, localVerificator, credentialHelper,
 				credentialId, completeCredentialConfiguration);
 		this.settings = settings;
+		this.passwordEngine = passwordEngine;
 	}
 
 	@Override
