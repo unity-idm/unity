@@ -26,13 +26,15 @@ public class LinkedInProviderProperties extends CustomProviderProperties
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
 		setIfUnset(properties, prefix + PROVIDER_NAME, "LinkedIn");
-		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://www.linkedin.com/uas/oauth2/authorization");
+		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://www.linkedin.com/oauth/v2/authorization");
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, ClientAuthnMode.secretBasic.toString());
-		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://www.linkedin.com/uas/oauth2/accessToken");
-		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.linkedin.com/v1/people/~:"
-				+ "(id,firstName,lastName,emailAddress,location,pictureUrl,publicProfileURL)?format=json");
-		setIfUnset(properties, prefix + SCOPES, "r_basicprofile r_emailaddress");
+		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://www.linkedin.com/oauth/v2/accessToken");
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.linkedin.com/v2/me?projection=" 
+				+ "(id,localizedFirstName,localizedLastName,profilePicture(displayImage~:playableStreams),localizedHeadline,vanityName)");
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT+".1", 
+				"https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))");
+		setIfUnset(properties, prefix + SCOPES, "r_liteprofile r_basicprofile r_emailaddress");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/linkedin-small.png");
 		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,

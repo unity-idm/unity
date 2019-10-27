@@ -29,6 +29,7 @@ public class GoogleProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + OPENID_CONNECT, "true");
 		setIfUnset(properties, prefix + OPENID_DISCOVERY, 
 				"https://accounts.google.com/.well-known/openid-configuration");
+		setIfUnset(properties, prefix + SCOPES, "openid profile email");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/google-small.png");
 		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
 				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:oidc");

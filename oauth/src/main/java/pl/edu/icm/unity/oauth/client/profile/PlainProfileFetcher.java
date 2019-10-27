@@ -86,8 +86,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 					+ "but there was a problem fetching user's profile information: "
 					+ resp.getContent());
 		}
-		if (log.isTraceEnabled())
-			log.trace("Received user's profile:\n" + resp.getContent());
+		log.trace("Received user's profile from {}:\n{}", userInfoEndpoint, resp.getContent().trim());
 
 		if (resp.getContentType() == null || !"application/json"
 				.equals(resp.getContentType().getBaseType().toString()))

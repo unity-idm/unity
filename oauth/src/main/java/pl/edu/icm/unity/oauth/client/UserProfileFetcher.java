@@ -15,10 +15,6 @@ public interface UserProfileFetcher
 {
 	/**
 	 * Retrieves attributes from user's profile which is accessed in implementation specific way.
-	 * @param accessToken
-	 * @param providerConfig
-	 * @return
-	 * @throws Exception
 	 */
 	AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
 			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesFromACResponse) 

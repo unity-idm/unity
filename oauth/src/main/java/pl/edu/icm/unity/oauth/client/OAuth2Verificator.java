@@ -348,11 +348,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 		HTTPResponse response = httpRequest.send();
 		
-		log.debug("Received answer: " + response.getStatusCode());
+		log.debug("Received answer: {}", response.getStatusCode());
 		if (response.getStatusCode() != 200)
-			log.debug("Error received. Contents: " + response.getContent());
+			log.debug("Error received. Contents: {}", response.getContent());
 		else
-			log.trace("Received token: " + response.getContent());
+			log.trace("Received token: {}", response.getContent().trim());
 		return response;
 	}
 	
@@ -391,24 +391,14 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		Map<String, List<String>> ret = ProfileFetcherUtils.convertToAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
+		Map<String, List<String>> accessTokenAttributes = ProfileFetcherUtils.convertToAttributes(
+				new JSONObject(accessTokenClaimsSet.getClaims()));
 		
-		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
-		if (userInfoEndpoint == null && providerMeta.getUserInfoEndpointURI() != null) 
-			userInfoEndpoint = providerMeta.getUserInfoEndpointURI().toString();
+		List<String> userInfoEndpoints = providerCfg.getUserInfoEndpoints();
+		if (userInfoEndpoints.isEmpty() && providerMeta.getUserInfoEndpointURI() != null) 
+			userInfoEndpoints.add(providerMeta.getUserInfoEndpointURI().toString());
 
-		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
-		AttributeFetchResult fetchRet = new AttributeFetchResult();
-		if (userInfoEndpoint != null && userAttributesFetcher != null)
-		{
-			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
-					ret);
-		}
-		fetchRet.getAttributes().putAll(ret);
-		
-		log.debug("Received the following attributes from the OAuth provider: " + fetchRet);
-		
-		return fetchRet;
+		return fetchUserAttributes(providerCfg, accessToken, accessTokenAttributes, userInfoEndpoints);
 	}
 	
 	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
@@ -453,7 +443,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
 					ClientAuthnMode.class);
 		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
-		Map<String, List<String>> ret = new HashMap<>();
+		Map<String, List<String>> accessTokenAttributes = new HashMap<>();
 		BearerAccessToken accessToken;
 		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 		{
@@ -462,7 +452,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				jsonResp.put("token_type", AccessTokenType.BEARER.getValue());
 			AccessTokenResponse atResponse = AccessTokenResponse.parse(jsonResp);
 			accessToken = extractAccessToken(atResponse);
-			extractUserInfoFromStandardAccessToken(atResponse, ret);
+			extractUserInfoFromStandardAccessToken(atResponse, accessTokenAttributes);
 		} else
 		{
 			if (response.getStatusCode() != 200)
@@ -484,23 +474,32 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				lifetimeStr = DEFAULT_TOKEN_EXPIRATION;
 			}
 			accessToken = new BearerAccessToken(accessTokenVal, Long.parseLong(lifetimeStr), null);
-			extractUserInfoFromHttpParamsAccessToken(map, ret);
+			extractUserInfoFromHttpParamsAccessToken(map, accessTokenAttributes);
 		}
 
-		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
-		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
-		AttributeFetchResult fetchRet = new AttributeFetchResult();
-		if (userInfoEndpoint != null && userAttributesFetcher != null)
-		{
-			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
-					ret);
-		}
-		fetchRet.getAttributes().putAll(ret);
-		
-		log.debug("Received the following attributes from the OAuth provider: " + ret);
-		return fetchRet;
+		List<String> userInfoEndpoints = providerCfg.getUserInfoEndpoints();
+		return fetchUserAttributes(providerCfg, accessToken, accessTokenAttributes, userInfoEndpoints);
 	}
 	
+	private AttributeFetchResult fetchUserAttributes(CustomProviderProperties providerCfg, 
+			BearerAccessToken accessToken, Map<String, List<String>> baseAttributes,
+			List<String> userInfoEndpoints) throws Exception
+	{
+		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
+		AttributeFetchResult fetchRet = new AttributeFetchResult();
+		if (userAttributesFetcher != null)
+		{
+			for (String userInfoEndpoint: userInfoEndpoints)
+			{
+				AttributeFetchResult fetchSingle = userAttributesFetcher.fetchProfile(accessToken, 
+					userInfoEndpoint, providerCfg, baseAttributes);
+				fetchRet = fetchRet.mergeWith(fetchSingle);
+			}
+		}
+		fetchRet.getAttributes().putAll(baseAttributes); //minor bug - those won't be visible as rawAttribtues.
+		log.debug("Received the following attributes from the OAuth provider: {}", fetchRet.getAttributes());
+		return fetchRet;
+	}
 	
 	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, List<String>> ret)
 	{

@@ -101,7 +101,7 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx, new HashMap<>());
 			if (value == null)
 			{
-				log.debug("Attribute value evaluated to null, skipping");
+				log.debug("Attribute {} value evaluated to null, skipping", unityAttribute);
 				return ret;
 			}
 			

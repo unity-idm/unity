@@ -78,13 +78,15 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		META.put(ACCESS_TOKEN_ENDPOINT, new PropertyMD().
 				setDescription("Location (URL) of OAuth2 provider's access token endpoint. "
 						+ "In case of OpenID Connect mode can be discovered, otherwise mandatory."));
-		META.put(PROFILE_ENDPOINT, new PropertyMD().
+		META.put(PROFILE_ENDPOINT, new PropertyMD().setCanHaveSubkeys().
 				setDescription("Location (URL) of OAuth2 provider's user's profile endpoint. "
 						+ "It is used to obtain additional user's attributes. "
 						+ "It can be autodiscovered for OpenID Connect mode. Otherwise it should be"
 						+ " set as otherwise there is bearly no information about the user identity."
 						+ " If not set then the only information about the user is the one "
-						+ "extracted from the access token (if any)."));
+						+ "extracted from the access token (if any). "
+						+ "Additionally a subkeys can be added (.1, .2, ...) if user attributes"
+						+ " should be fetched from more then a single endpoint."));
 		META.put(PROVIDER_NAME, new PropertyMD().setMandatory().setCanHaveSubkeys().
 				setDescription("Name of the OAuth provider to be displayed. Can be localized with locale subkeys."));
 		META.put(ICON_URL, new PropertyMD().setCanHaveSubkeys().
@@ -217,6 +219,17 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 				ClientHttpMethod.class) == ClientHttpMethod.get) ? Method.GET
 						: Method.POST;
 	}	
+	
+	public List<String> getUserInfoEndpoints()
+	{
+		List<String> userInfoEndpoints = new ArrayList<>();
+
+		String mainUserInfoEndpoint = getValue(CustomProviderProperties.PROFILE_ENDPOINT);
+		if (mainUserInfoEndpoint != null)
+			userInfoEndpoints.add(mainUserInfoEndpoint);
+		userInfoEndpoints.addAll(getListOfValues(CustomProviderProperties.PROFILE_ENDPOINT + "."));
+		return userInfoEndpoints;
+	}
 	
 	public Properties getProperties()
 	{

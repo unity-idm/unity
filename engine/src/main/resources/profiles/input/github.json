@@ -49,14 +49,14 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'email'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"email",
 					"/",
-					"attr['email']",
+					"attr['email'] + '[CONFIRMED]'",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -119,7 +119,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'blog' && attr['blog'].length > 0"
 			},
 			"action": {
 				"name": "mapAttribute",

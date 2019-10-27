@@ -27,7 +27,7 @@
 				"parameters": [
 					"name",
 					"/",
-					"(attr contains 'headline') ? (attr['headline']) : (attr['firstName'] + ' ' + attr['lastName'])",
+					"(attr contains 'localizedHeadline') ? (attr['localizedHeadline']) : (attr['localizedFirstName'] + ' ' + attr['localizedLastName'])",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -41,7 +41,7 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['emailAddress']",
+					"attrObj.?elements[0]['handle~'].?emailAddress + '[CONFIRMED]'",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -55,7 +55,7 @@
 				"parameters": [
 					"firstname",
 					"/",
-					"attr['firstName']",
+					"attr['localizedFirstName']",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -69,63 +69,21 @@
 				"parameters": [
 					"surname",
 					"/",
-					"attr['lastName']",
+					"attr['localizedLastName']",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
-				"name": "mapAttribute",
-				"parameters": [
-					"locality",
-					"/",
-					"attrObj.?location.?name",
-					"CREATE_OR_UPDATE"
-				]
-			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
-				"name": "mapAttribute",
-				"parameters": [
-					"countryCode",
-					"/",
-					"attrObj.?location.?country.?code",
-					"CREATE_OR_UPDATE"
-				]
-			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
-			},
-			"action": {
-				"name": "mapAttribute",
-				"parameters": [
-					"profileURL",
-					"/",
-					"attr['publicProfileUrl']",
-					"CREATE_OR_UPDATE"
-				]
-			}
-		},
-		{
-			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attrObj contains 'profilePicture'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"pictureURL",
 					"/",
-					"attr['pictureURL']",
+					"attrObj['profilePicture']['displayImage~']['elements'][0]['identifiers'][0]['identifier']",
 					"CREATE_OR_UPDATE"
 				]
 			}
