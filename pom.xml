@@ -14,7 +14,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.16.v20190411</jetty.version>
+		<jetty.version>9.4.21.v20190926</jetty.version>
 		<slf4j.version>1.7.25</slf4j.version>
 		<log4j.version>2.11.2</log4j.version>
 		<spring.version>5.1.6.RELEASE</spring.version>
