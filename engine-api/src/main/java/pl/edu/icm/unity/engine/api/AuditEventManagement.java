@@ -31,9 +31,13 @@ public interface AuditEventManagement
 	 * 		Until date or till the latest timestamp (if null)
 	 * @param limit
 	 * 		Maximum number of returned records
+	 * @param order
+	 * 		AuditEvent field for sorting purposes - at this moment only "timestamp" value is supported
+	 * @param direction
+	 * 		Descending in case of negative value, ascending order in other cases.
 	 * @return AuditEvent list sorted by timestamp.
 	 */
-	List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit);
+	List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit, final String order, final int direction);
 
 	/**
 	 * List of tags.

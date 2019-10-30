@@ -21,7 +21,6 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
  * @author R. Ledzinski
  */
 @Component
-//@DependsOn({InitializerCommon.class})
 public class AuditPublisher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditPublisher.class);

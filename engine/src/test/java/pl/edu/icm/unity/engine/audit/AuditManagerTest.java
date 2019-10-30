@@ -13,25 +13,16 @@ import org.springframework.test.util.ReflectionTestUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -46,13 +37,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	@Autowired
 	private AuditPublisher auditPublisher;
 	@Autowired
-	private AuditEventListener auditListener;
-	@Autowired
 	private TransactionalRunner tx;
-	@Autowired
-	private AttributeTypeManagement attributeTypeMan;
-	@Autowired
-	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 
 	@Before
 	@Override
@@ -95,46 +80,6 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		assertEquals(13, (long) lastEvent.getSubject().getEntityId());
 		assertEquals(1, lastEvent.getTags().size());
 		assertTrue(lastEvent.getTags().contains("Users"));
-	}
-
-	@Test
-	public void shouldUseProperNameAttribute() throws EngineException {
-		// given
-		Collection<AttributeType> types = attributeTypeMan.getAttributeTypes();
-		AttributeType type = new AttributeType("theName", "string");
-		type.setDescription(new I18nString("desc"));
-		type.setDisplayedName(new I18nString("Displayed name"));
-		type.setUniqueValues(true);
-		type.setMaxElements(1);
-		type.setMinElements(1);
-		type.setSelfModificable(true);
-		Map<String, String> meta = new HashMap<>();
-		meta.put(EntityNameMetadataProvider.NAME, "");
-		type.setMetadata(meta);
-
-		//when/then
-		AttributeType type2 = type.clone();
-		type2.setMetadata(Collections.emptyMap());
-		type2.setName("theName 2");
-		attributeTypeMan.addAttributeType(type);
-		attributeTypeMan.addAttributeType(type2);
-		// attribute name set to 'theName'
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (((String)ReflectionTestUtils.getField(auditListener, "entityNameAttribute")).equalsIgnoreCase("theName")));
-		type.setMetadata(Collections.emptyMap());
-		attributeTypeMan.updateAttributeType(type);
-		// attribute name default to 'name'
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (((String)ReflectionTestUtils.getField(auditListener, "entityNameAttribute")).equalsIgnoreCase("name")));
-		type2.setMetadata(meta);
-		attributeTypeMan.updateAttributeType(type2);
-		// attribute name set to 'theName 2'
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (((String)ReflectionTestUtils.getField(auditListener, "entityNameAttribute")).equalsIgnoreCase("theName 2")));
-		type2.setMetadata(Collections.emptyMap());
-		attributeTypeMan.updateAttributeType(type2);
-		// attribute name default to 'name'
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (((String)ReflectionTestUtils.getField(auditListener, "entityNameAttribute")).equalsIgnoreCase("name")));
-		// cleanup
-		attributeTypeMan.removeAttributeType("theName", true);
-		attributeTypeMan.removeAttributeType("theName 2", true);
 	}
 
 	@Test
@@ -192,13 +137,13 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		});
 
 		//than
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3).size() == 3));
-		assertTrue(auditManager.getAuditEvents(null, null, 10).size() == 3);
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10).size());
-		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10).size());
-		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10).size());
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, nowPlus2Days, 10).size());
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 3).size());
-		assertEquals(1, auditManager.getAuditEvents(nowPlusHour, null, 1).size());
+		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3, "timestamp", -1).size() == 3));
+		assertTrue(auditManager.getAuditEvents(null, null, 10, "timestamp", -1).size() == 3);
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10, "timestamp", -1).size());
+		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10, "timestamp", -1).size());
+		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10, "timestamp", -1).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, nowPlus2Days, 10, "timestamp", -1).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 3, "timestamp", -1).size());
+		assertEquals(1, auditManager.getAuditEvents(nowPlusHour, null, 1, "timestamp", -1).size());
 	}
 }

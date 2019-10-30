@@ -40,12 +40,14 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	}
 
 	@Override
-	public List<AuditEvent> getLogs(final Date from, final Date until, int limit)
+	public List<AuditEvent> getLogsWithOrder(final Date from, final Date until, int limit, final String sortOrder, final int direction)
 	{
+		log.debug("Getting logs from: {}, until: {}, limit: {}, Order: {}, dir: {}", from, until, limit, sortOrder, direction);
+
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
 		// SQL returns duplicated AuditEvents, if there are multiple TAGS related to the event.
 		// The assumption is that, there will be no more than 2 tags in average.
-		List<AuditEvent> list = convertList(mapper.getForPeriod(from, until, limit * LIMIT_MULTIPLIER));
+		List<AuditEvent> list = convertList(mapper.getForPeriodWithOrder(from, until, limit * LIMIT_MULTIPLIER, AuditEventSortOrder.getByName(sortOrder).colName, direction < 0 ? "DESC" : "ASC"));
 		if (list.size() > limit)
 		{
 			return list.subList(0, limit);

@@ -7,6 +7,8 @@ package io.imunity.webconsole.maintenance.audit;
 
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
+import com.vaadin.data.provider.SortOrder;
+import com.vaadin.event.SortEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.data.sort.SortDirection;
@@ -26,9 +28,11 @@ import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -75,9 +79,12 @@ import static java.util.Objects.nonNull;
 @PrototypeComponent
 class AuditEventsView extends CustomComponent implements UnityView
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventsView.class);
+
 	public final static String VIEW_NAME = "AuditLog";
 	private final static int DEFAULT_LIMIT = 10000;
 	private final static String DATETIME_FORMAT_SHORT_PATTERN = "yyyy-MM-dd HH:mm";
+	private final static String TIMESTAMP = "timestamp";
 
 	private final UnityMessageSource msg;
 	private final AuditEventManagement eventManagement;
@@ -149,7 +156,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 
 		auditEventsGrid.addSortableColumn(AuditEventEntry::formatTimestamp,
 				msg.getMessage("AuditEventsView.timestamp"), 10)
-				.setResizable(true).setId("timestamp");
+				.setResizable(true).setId(TIMESTAMP);
 
 		auditEventsGrid.addSortableColumn(ae -> ae.getEvent().getType().toString(),
 				msg.getMessage("AuditEventsView.type"), 10)
@@ -191,7 +198,8 @@ class AuditEventsView extends CustomComponent implements UnityView
 				msg.getMessage("AuditEventsView.initiatorEmail"), 10)
 				.setResizable(true).setSortable(true).setHidable(true).setHidden(true).setId("initiator_email");
 
-		auditEventsGrid.sort("timestamp", SortDirection.DESCENDING);
+		auditEventsGrid.sort(TIMESTAMP, SortDirection.DESCENDING);
+		auditEventsGrid.addSortListener(this::sortOrderChanged);
 	}
 
 	private Layout initFilters()
@@ -284,9 +292,19 @@ class AuditEventsView extends CustomComponent implements UnityView
 			if (nonNull(untilFilter.getValue())) {
 				until = Date.from(untilFilter.getValue().atZone(ZoneId.systemDefault()).toInstant());
 			}
-			return eventManagement.getAuditEvents(from, until, limitFilter.getValue()).stream()
+			long now = System.currentTimeMillis();
+			SortDirection direction =  TIMESTAMP.equals(auditEventsGrid.getSortOrder().get(0).getSorted().getId())
+					? auditEventsGrid.getSortOrder().get(0).getDirection()
+					: SortDirection.DESCENDING;
+			List<AuditEventEntry> list = eventManagement.getAuditEvents(from,
+						until,
+						limitFilter.getValue(),
+						TIMESTAMP,
+						direction == SortDirection.ASCENDING ? 1 : -1).stream()
 					.map(ae -> new AuditEventEntry(msg, ae))
 					.collect(Collectors.toList());
+			log.info("AuditEvents retrieval time: {} ms" , System.currentTimeMillis() - now);
+			return list;
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, new ControllerException("Error", e));
@@ -378,6 +396,13 @@ class AuditEventsView extends CustomComponent implements UnityView
 					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.auditLog"))
 					.withIcon(Images.records.getResource())
 					.withPosition(10).build());
+		}
+	}
+
+	private <T> void sortOrderChanged(T sortEvent)
+	{
+		if (TIMESTAMP.equals(auditEventsGrid.getSortOrder().get(0).getSorted().getId())) {
+			refreshDataSet(null);
 		}
 	}
 

@@ -50,7 +50,8 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Initdb-common.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Maintenance.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/migration.xml" />
-		
+
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Custom-${dialect}.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/IdentityTypes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributeTypes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Entities.xml" />

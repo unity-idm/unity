@@ -49,10 +49,10 @@ public class AuditManager implements AuditEventManagement
 	}
 
 	@Override
-	public List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit)
+	public List<AuditEvent> getAuditEvents(final Date from, final Date until, final int limit, final String order, final int direction)
 	{
 		authz.checkAuthorizationRT("/", AuthzCapability.maintenance);
-		return dao.getLogs(from, until, limit);
+		return dao.getLogsWithOrder(from, until, limit, order, direction);
 	}
 
 	@Override

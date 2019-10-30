@@ -222,6 +222,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
 		
 		attributeTypeDAO.delete(id);
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(at, null)));
 		clearAttributeExtractionFromIdentities(id);
 	}
 

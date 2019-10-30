@@ -15,6 +15,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -375,6 +376,93 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 			assertEquals("name4", logs.get(0).getName());
 			assertEquals("name3", logs.get(1).getName());
 		});
+	}
+
+	@Test
+	public void shouldSortByTimestampAsc()
+	{
+		// given
+		List<AuditEvent> list = prepareAuditEvents();
+
+		tx.runInTransaction(() -> {
+			// when/than
+			assertEquals(Arrays.asList(list.get(0), list.get(1), list.get(2), list.get(3)), dao.getLogsWithOrder(null, null, 100, "timestamp", 1));
+		});
+	}
+
+	@Test
+	public void shouldSortByTimestampDesc()
+	{
+		// given
+		List<AuditEvent> list = prepareAuditEvents();
+
+		tx.runInTransaction(() -> {
+			// when/than
+			assertEquals(Arrays.asList(list.get(3), list.get(2), list.get(1), list.get(0)), dao.getLogsWithOrder(null, null, 100, "timestamp", -1));
+		});
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionForIncorrectOrderValue()
+	{
+		tx.runInTransaction(() -> {
+			// when
+			dao.getLogsWithOrder(null, null, 100, "incorrectOrder", -1);
+		});
+	}
+
+	private List<AuditEvent> prepareAuditEvents()
+	{
+		Date now = new Date();
+
+		AuditEvent event0 = AuditEvent.builder()
+				.name("name0")
+				.type(AuditEventType.IDENTITY)
+				.timestamp(now)
+				.action(AuditEventAction.ADD)
+				.initiator(new AuditEntity(100L, "Initiator a", "initiator_a@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(102L, null, null))
+				.tags("TAG1", "USERS")
+				.build();
+		AuditEvent event1 = AuditEvent.builder()
+				.name("name2")
+				.type(AuditEventType.IDENTITY)
+				.timestamp(new Date(now.getTime() + 1000))
+				.action(AuditEventAction.UPDATE)
+				.initiator(new AuditEntity(0L, "System", null))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(103L, "Subject name", null))
+				.tags("GROUPS")
+				.build();
+		AuditEvent event2 = AuditEvent.builder()
+				.name("name1")
+				.type(AuditEventType.GROUP)
+				.timestamp(new Date(now.getTime() + 2000))
+				.action(AuditEventAction.ADD)
+				.initiator(new AuditEntity(0L, "System", null))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(104L, "Subject b name", "subject_b@example.com"))
+				.tags("GROUP")
+				.build();
+		AuditEvent event3 = AuditEvent.builder()
+				.name("name3")
+				.type(AuditEventType.GROUP)
+				.timestamp(new Date(now.getTime() + 3000))
+				.action(AuditEventAction.ADD)
+				.initiator(new AuditEntity(101L, "Initiator b", "initiator_b@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(103L, "Subject a name", "subject_a@example.com"))
+				.tags("GROUP", "TAG2")
+				.build();
+
+		tx.runInTransaction(() -> {
+			dao.create(event0);
+			dao.create(event1);
+			dao.create(event2);
+			dao.create(event3);
+		});
+		return Arrays.asList(event0, event1, event2, event3);
 	}
 
 	@Override

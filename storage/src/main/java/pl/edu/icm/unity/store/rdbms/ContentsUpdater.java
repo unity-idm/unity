@@ -31,7 +31,7 @@ public class ContentsUpdater
 	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
 	 * when bumping it please make sure any required data migrations were implemented here.  
 	 */
-	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_8_0";
+	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_8_1";
 	
 	@Autowired
 	private TransactionalRunner txManager;

@@ -41,4 +41,10 @@
 	<update id="updateSchema-20800-05">
 		UPDATE UVOS_FLAG SET VAL = '2_8_0'
 	</update>
+	<update id="updateSchema-20801-00">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsTimestampDescIdx"/>
+	</update>
+	<update id="updateSchema-20801-01">
+		UPDATE UVOS_FLAG SET VAL = '2_8_1'
+	</update>
 </mapper>
