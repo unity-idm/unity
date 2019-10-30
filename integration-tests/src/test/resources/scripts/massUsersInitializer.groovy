@@ -31,7 +31,7 @@ import groovy.transform.Field
 @Field final String FNAME_ATTR = "firstname"
 @Field final String LNAME_ATTR = "surname"
 @Field final String EMAIL_ATTR = "email";
-@Field final int ENTITIES = 10;
+@Field final int ENTITIES = 4990;
 @Field final int GROUPS = 5000;
 
 //if (!isColdStart)
@@ -54,11 +54,11 @@ try
 		return;
 	}
 	
-	createExampleGroups();
-	for (int i=0; i<ENTITIES; i++)
+	//createExampleGroups();
+	for (int i=10; i<ENTITIES; i++)
 		createExampleUser(i);
 	//setCredentialForFirst();
-	addUsersToAllGroups();
+	//addUsersToAllGroups();
 	
 } catch (Exception e)
 {

@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.restadm;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
@@ -14,6 +14,8 @@ import javax.ws.rs.core.Application;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -41,15 +43,15 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			JAXRSAuthentication.NAME,
 			Collections.singletonMap(V1_PATH, "The REST management base path"));
 	
-	private ObjectFactory<RESTAdmin> factory;
+	private final ObjectFactory<List<RESTAdminHandler>> factories;
 	
 	@Autowired
 	public RESTAdminEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
 			NetworkServer server, AuthenticationProcessor authnProcessor, 
-			ObjectFactory<RESTAdmin> factory)
+			ObjectFactory<List<RESTAdminHandler>> factories)
 	{
 		super(msg, sessionMan, authnProcessor, server, "");
-		this.factory = factory;
+		this.factories = factories;
 	}
 
 	@Override
@@ -64,8 +66,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		@Override 
 		public Set<Object> getSingletons() 
 		{
-			HashSet<Object> ret = new HashSet<>();
-			ret.add(factory.getObject());
+			Set<Object> ret = Sets.newHashSet(factories.getObject());
 			installExceptionHandlers(ret);
 			return ret;
 		}

@@ -4,6 +4,35 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,9 +41,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import net.minidev.json.JSONArray;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
@@ -31,8 +59,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
@@ -56,7 +82,6 @@ import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -72,31 +97,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-
 /**
  * RESTful API implementation.
  * 
@@ -105,7 +105,7 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Path(RESTAdminEndpoint.V1_PATH)
 @PrototypeComponent
-public class RESTAdmin
+public class RESTAdmin implements RESTAdminHandler
 {
 	private static final int UUID_LENGTH = 36;
 	
@@ -128,8 +128,6 @@ public class RESTAdmin
 	private Token2JsonFormatter jsonFormatter;
 	private UserNotificationTriggerer userNotificationTriggerer;
 
-	private BulkGroupQueryService bulkQueryService;
-	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
@@ -143,8 +141,7 @@ public class RESTAdmin
 			EventPublisherWithAuthz eventPublisher,
 			SecuredTokensManagement securedTokenMan,
 			Token2JsonFormatter jsonFormatter,
-			UserNotificationTriggerer userNotificationTriggerer,
-			BulkGroupQueryService bulkQueryService)
+			UserNotificationTriggerer userNotificationTriggerer)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -162,7 +159,6 @@ public class RESTAdmin
 		this.securedTokenMan = securedTokenMan;
 		this.jsonFormatter = jsonFormatter;
 		this.userNotificationTriggerer = userNotificationTriggerer;
-		this.bulkQueryService = bulkQueryService;
 	}
 
 	
@@ -427,29 +423,6 @@ public class RESTAdmin
 		GroupContents contents = groupsMan.getContents(group, GroupContents.GROUPS | GroupContents.MEMBERS);
 		return mapper.writeValueAsString(contents);
 	}
-
-	@Path("/group-members/{groupPath}")
-	@GET
-	public String getGroupMembersResolved(@PathParam("groupPath") String group) 
-			throws EngineException, JsonProcessingException
-	{
-		log.debug("getGroupMembersResolved query for " + group);
-		if (!group.startsWith("/"))
-			group = "/" + group;
-		GroupMembershipData bulkMembershipData = bulkQueryService.getBulkMembershipData(group);
-		Map<Long, Map<String, AttributeExt>> userAttributes = 
-				bulkQueryService.getGroupUsersAttributes(group, bulkMembershipData);
-		Map<Long, Entity> entitiesData = bulkQueryService.getGroupEntitiesNoContextWithoutTargeted(bulkMembershipData);
-		List<GroupMember> ret = new ArrayList<>(userAttributes.size());
-		for (Long memberId: userAttributes.keySet())
-		{
-			Collection<AttributeExt> attributes = userAttributes.get(memberId).values(); 
-			Entity entity = entitiesData.get(memberId);
-			ret.add(new GroupMember(group, entity, attributes));
-		}
-		return mapper.writeValueAsString(ret);
-	}
-	
 	
 	@Path("/group/{groupPath}")
 	@DELETE
