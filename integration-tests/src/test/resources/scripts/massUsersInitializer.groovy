@@ -14,6 +14,8 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
 import pl.edu.icm.unity.stdext.identity.X500Identity
 import pl.edu.icm.unity.types.basic.Attribute
+import pl.edu.icm.unity.types.basic.AttributeStatement
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution
 import pl.edu.icm.unity.types.basic.AttributeType
 import pl.edu.icm.unity.types.basic.EntityParam
 import pl.edu.icm.unity.types.basic.EntityState
@@ -26,10 +28,11 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo
 import groovy.transform.Field
 
 
-@Field final String NAME_ATTR = "name"
+@Field final String FNAME_ATTR = "firstname"
+@Field final String LNAME_ATTR = "surname"
 @Field final String EMAIL_ATTR = "email";
-@Field final int ENTITIES = 10000;
-@Field final int GROUPS = 3000;
+@Field final int ENTITIES = 4990;
+@Field final int GROUPS = 5000;
 
 //if (!isColdStart)
 //{
@@ -44,7 +47,7 @@ try
 	GroupContents rootContents = groupsManagement.getContents("/", GroupContents.GROUPS);
 	
 	Map<String, AttributeType> existingATs = attributeTypeManagement.getAttributeTypesAsMap();
-	if (!existingATs.containsKey(NAME_ATTR) || !existingATs.containsKey(EMAIL_ATTR))
+	if (!existingATs.containsKey(FNAME_ATTR) || !existingATs.containsKey(EMAIL_ATTR))
 	{
 		log.error("Demo contents can be only installed if standard types were installed " +  
 			"prior to it. Attribute types cn, o and email are required.");
@@ -52,10 +55,10 @@ try
 	}
 	
 	//createExampleGroups();
-	//for (int i=0; i<ENTITIES; i++)
-	//	createExampleUser(i);
+	for (int i=10; i<ENTITIES; i++)
+		createExampleUser(i);
 	//setCredentialForFirst();
-	addUsersToAllGroups();
+	//addUsersToAllGroups();
 	
 } catch (Exception e)
 {
@@ -69,17 +72,25 @@ void createExampleGroups()
 	groupsManagement.addGroup(new Group("/root"));
 	for (int i=0; i<GROUPS; i++)
 	{
-		String grp = "/root/grp" + i;
-		groupsManagement.addGroup(new Group(grp));
-		log.warn("Group " + grp + " was created");
+		Group grp = new Group("/root/grp" + i);
+		AttributeStatement fnameStmt = new AttributeStatement("true", "/", ConflictResolution.skip, 
+			FNAME_ATTR, "eattr['firstname']");
+		AttributeStatement lnameStmt = new AttributeStatement("true", "/", ConflictResolution.skip, 
+			LNAME_ATTR, "eattr['surname']");
+		AttributeStatement emailStmt = new AttributeStatement("true", "/", ConflictResolution.skip, 
+			EMAIL_ATTR, "eattr['email']");
+		AttributeStatement[] statements = [fnameStmt, lnameStmt, emailStmt];
+		grp.setAttributeStatements(statements);
+		groupsManagement.addGroup(grp);
+		log.info("Group " + grp + " was created");
 	}
 }
 
 void addUsersToAllGroups()
 {
-	for (int e=4; e<104; e++)
+	for (int e=0; e<ENTITIES; e++)
 	{
-		EntityParam entityP = new EntityParam(e);
+		EntityParam entityP = new EntityParam(new IdentityParam(UsernameIdentity.ID, "demo-user-" + e));
 		groupsManagement.addMemberFromParent("/root", entityP);
 		for (int i=0; i<GROUPS; i++)
 		{
@@ -105,15 +116,15 @@ void createExampleUser(int suffix)
 	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user-" + suffix);
 	Identity base = entityManagement.addEntity(toAdd, EntityState.valid, false);
 
-	IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user " + suffix);
+//	IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user " + suffix);
 	EntityParam entityP = new EntityParam(base.getEntityId());
-	
-	entityManagement.addIdentity(toAddDn, entityP, true);
+//	
+//	entityManagement.addIdentity(toAddDn, entityP, true);
 
 	//Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
 	//attributesManagement.createAttribute(entityP, a);
 
-	groupsManagement.addMemberFromParent("/A", entityP);
+//	groupsManagement.addMemberFromParent("/A", entityP);
 
 	VerifiableEmail emailVal = new VerifiableEmail("some" + suffix + "@example.com", new ConfirmationInfo(true));
 	emailVal.getConfirmationInfo().setConfirmationDate(System.currentTimeMillis());
@@ -121,8 +132,11 @@ void createExampleUser(int suffix)
 	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", emailVal);
 	attributesManagement.createAttribute(entityP, emailA);
 
-	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "Demo user " + suffix);
-	attributesManagement.createAttribute(entityP, cnA);
+	Attribute fnameA = StringAttribute.of(FNAME_ATTR, "/", "Demo " + suffix);
+	attributesManagement.createAttribute(entityP, fnameA);
+
+	Attribute lnameA = StringAttribute.of(LNAME_ATTR, "/", "User " + suffix);
+	attributesManagement.createAttribute(entityP, lnameA);
 
 //	PasswordToken pToken = new PasswordToken("the!test12");
 	//entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL,

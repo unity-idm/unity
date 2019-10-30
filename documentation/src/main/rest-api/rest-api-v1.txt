@@ -228,6 +228,45 @@ Example output:
 ----
 
 
+=== Get multiple groups members with attributes
+
++@Path("/group-members-multi/{rootGroupPath}")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Returns all resolved members in all groups under a given path, also including grand children. 
+
+The body of the request must be JSON array with strings. If the array is empty then data for all groups is returned.
+Otherwise the array may contain a set of group names, all of which must be children of rootGroupPath. 
+Only the data for those groups will be returned.
+
+Output structure: 
+----
+{
+    "entities": [
+        {
+            // the same as result to resolve identity operation
+        },
+        ...
+    ],
+    "members": {
+        "/root/grp3": [
+            {
+                "attributes": [
+                    {
+						// the same syntax as in get entity attributes case
+					},
+					...
+			    ],
+                "entityId": 10	//one of group members, of which attributes are provided in this element
+            },
+            ...
+        ],
+        ...
+    }
+}
+----
+
 === Create group
 
 +@Path("/group/{groupPath}")+ +

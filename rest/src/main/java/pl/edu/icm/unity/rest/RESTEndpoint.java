@@ -221,7 +221,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	/**
 	 * Adds common exception handlers
 	 */
-	public static void installExceptionHandlers(HashSet<Object> ret)
+	public static void installExceptionHandlers(Set<Object> ret)
 	{
 		ret.add(new EngineExceptionMapper());
 		ret.add(new NPEExceptionMapper());

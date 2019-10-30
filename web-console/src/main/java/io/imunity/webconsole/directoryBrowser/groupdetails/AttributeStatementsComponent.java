@@ -212,15 +212,6 @@ public class AttributeStatementsComponent extends CustomComponent
 		this.group = group;
 		List<AttrStatementWithId> statemets = Arrays.stream(group.getAttributeStatements())
 				.map(AttrStatementWithId::new).collect(Collectors.toList());
-		if (!statemets.isEmpty())
-		{
-			attrStatementsGridWithToolbar.setVisible(true);
-			attrStatementsGrid.setItems(statemets);
-		} else
-		{
-			attrStatementsGridWithToolbar.setVisible(false);
-		}
-
+		attrStatementsGrid.setItems(statemets);
 	}
-
 }
