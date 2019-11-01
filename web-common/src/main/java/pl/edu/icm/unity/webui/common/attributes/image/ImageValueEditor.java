@@ -225,7 +225,7 @@ class ImageValueEditor implements AttributeValueEditor
 
 	static Component getHints(ImageAttributeSyntax syntax, UnityMessageSource msg)
 	{
-		Label ret = new Label(msg.getMessage("ImageAttributeHandler.maxSize", syntax.getMaxSize())
+		Label ret = new Label(msg.getMessage("ImageAttributeHandler.maxSize", syntax.getMaxSize()/1024)
 				+ "  " +
 				msg.getMessage("ImageAttributeHandler.maxDim", syntax.getMaxWidth(),
 						syntax.getMaxHeight()));

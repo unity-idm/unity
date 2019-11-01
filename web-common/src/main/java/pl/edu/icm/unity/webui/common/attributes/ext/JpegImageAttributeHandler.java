@@ -341,7 +341,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	
 	private Component getHints(JpegImageAttributeSyntax syntax)
 	{
-		Label ret = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
+		Label ret = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize()/1024)
 				+ "  " + 
 				msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(), 
 						syntax.getMaxHeight()));
