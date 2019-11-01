@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -213,7 +213,7 @@ class InvitationsController
 
 	}
 
-	private Map<Long, GroupMembershipInfo> getEntities() throws EngineException
+	private Map<Long, EntityInGroupData> getEntities() throws EngineException
 	{
 		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/");
 		return bulkQuery.getMembershipInfo(bulkMembershipData);

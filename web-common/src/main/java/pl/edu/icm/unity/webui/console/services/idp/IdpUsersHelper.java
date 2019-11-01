@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -55,18 +55,18 @@ public class IdpUsersHelper
 	{
 		List<IdpUser> users = new ArrayList<>();
 
-		Map<Long, GroupMembershipInfo> membershipInfo = bulkService
+		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
 		String nameAttr = getClientNameAttr();
 
-		for (GroupMembershipInfo info : membershipInfo.values())
+		for (EntityInGroupData info : membershipInfo.values())
 		{
-			EntityState state = info.entityInfo.getEntityState();
-			Long entity = info.entityInfo.getId();
+			EntityState state = info.entity.getState();
+			Long entity = info.entity.getId();
 			String name = "";
-			if (nameAttr != null && info.attributes.get("/").keySet().contains(nameAttr))
+			if (nameAttr != null && info.groupAttributesByName.keySet().contains(nameAttr))
 			{
-				name = info.attributes.get("/").get(nameAttr).getValues().get(0);
+				name = info.groupAttributesByName.get(nameAttr).getValues().get(0);
 			}
 
 			for (String group : info.groups)

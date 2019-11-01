@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityGroupAttributes;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.bulk.GroupsWithMembers;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
@@ -208,22 +208,29 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	}
 	
 	@Override
-	public Map<Long, GroupMembershipInfo> getMembershipInfo(GroupMembershipData dataO)
+	public Map<Long, EntityInGroupData> getMembershipInfo(GroupMembershipData dataO)
 	{
 		Stopwatch watch = Stopwatch.createStarted();
 		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
 		Map<Long, Set<String>> memberships = data.entitiesData.getMemberships();
-		Map<Long, List<Identity>> identities = data.entitiesData.getIdentities();
-		Map<Long, Map<String, Map<String, AttributeExt>>> directAttributes = data.entitiesData.getDirectAttributes();
-		Map<Long, GroupMembershipInfo> ret = new HashMap<>();
+		Map<Long, EntityInGroupData> ret = new HashMap<>();
 
 		for (Long e : memberships.keySet())
 		{
 			CredentialInfo credentialInfo = getCredentialInfo(e, data.entitiesData, data.globalSystemData);
-			ret.put(e, new GroupMembershipInfo(data.entitiesData.getEntityInfo().get(e), identities.get(e),
-					memberships.get(e), directAttributes.get(e),
-					getEnquiryForms(e, data, credentialInfo), getCredentialInfo(e, 
-							data.entitiesData, data.globalSystemData)));
+			Entity entity = assembleEntity(e, false, data.entitiesData, data.globalSystemData);
+			Map<String, AttributeExt> groupAttributesAsMap = getAllAttributesAsMap(e, data.group, 
+					data.entitiesData, data.globalSystemData);
+			Map<String, AttributeExt> rootAttributesAsMap = data.group.equals("/") ? 
+					groupAttributesAsMap : 
+					getAllAttributesAsMap(e, "/", data.entitiesData, data.globalSystemData);
+			ret.put(e, new EntityInGroupData(
+					entity,
+					data.group,
+					memberships.get(e), 
+					groupAttributesAsMap,
+					rootAttributesAsMap,
+					getEnquiryForms(e, data, credentialInfo)));
 		}
 
 		log.debug("Bulk members with groups: {}", watch.toString());

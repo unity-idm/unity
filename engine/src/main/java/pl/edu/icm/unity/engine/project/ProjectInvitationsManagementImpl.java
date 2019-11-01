@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -126,17 +126,17 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private Long getEntityByContactAddress(String contactAddress) throws EngineException
 	{
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
-		Map<Long, GroupMembershipInfo> members = bulkService.getMembershipInfo(bulkMembershipData);
+		Map<Long, EntityInGroupData> members = bulkService.getMembershipInfo(bulkMembershipData);
 
-		for (GroupMembershipInfo info : members.values())
+		for (EntityInGroupData info : members.values())
 		{
-			Identity emailId = info.identities.stream()
+			Identity emailId = info.entity.getIdentities().stream()
 					.filter(id -> id.getTypeId().equals(EmailIdentity.ID)
 							&& id.getValue().equals(contactAddress))
 					.findAny().orElse(null);
 			if (emailId != null)
 			{
-				return info.entityInfo.getId();
+				return info.entity.getId();
 			}
 
 		}
@@ -144,18 +144,18 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		return searchEntityByEmailAttr(members, contactAddress);
 	}
 
-	private Long searchEntityByEmailAttr(Map<Long, GroupMembershipInfo> membersWithGroups, String contactAddress)
+	private Long searchEntityByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String contactAddress)
 			throws EngineException
 	{
-		for (GroupMembershipInfo info : membersWithGroups.values())
+		for (EntityInGroupData info : membersWithGroups.values())
 		{
 			VerifiableElementBase contactEmail = attrHelper.searchVerifiableAttributeValueByMeta(ContactEmailMetadataProvider.NAME,
-					info.attributes.get("/").values().stream().map(e -> (Attribute) e)
+					info.groupAttributesByName.values().stream().map(e -> (Attribute) e)
 							.collect(Collectors.toList()));
 			if (contactEmail != null && contactEmail.getValue() != null
 					&& contactEmail.getValue().equals(contactAddress))
 			{
-				return info.entityInfo.getId();
+				return info.entity.getId();
 			}
 		}
 

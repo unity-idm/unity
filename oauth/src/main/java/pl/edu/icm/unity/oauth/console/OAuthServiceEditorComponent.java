@@ -5,23 +5,24 @@
 
 package pl.edu.icm.unity.oauth.console;
 
+import static pl.edu.icm.unity.oauth.console.OAuthServiceController.IDP_CLIENT_MAIN_GROUP;
+import static pl.edu.icm.unity.oauth.console.OAuthServiceController.OAUTH_CLIENTS_SUBGROUP;
+
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
 import com.vaadin.data.Binder;
 
-import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.oauth.console.OAuthClient.OAuthClientsBean;
@@ -29,11 +30,9 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
@@ -42,32 +41,35 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 class OAuthServiceEditorComponent extends ServiceEditorBase
 {
 	public static final String TOKEN_SERVICE_NAME_SUFFIX = "_TOKEN";
 
 	private Binder<DefaultServiceDefinition> oauthServiceWebAuthzBinder;
-	private Binder<DefaultServiceDefinition> oauthServiceTokenBinder;;
+	private Binder<DefaultServiceDefinition> oauthServiceTokenBinder;
 	private Binder<OAuthServiceConfiguration> oauthConfigBinder;
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private Binder<OAuthClientsBean> clientsBinder;
 	private FileStorageService fileStorageService;
-	private Group autoGenGroup;
+	private Group generatedIdPGroup;
 	private boolean editMode;
 
-	OAuthServiceEditorComponent(UnityMessageSource msg, SubViewSwitcher subViewSwitcher, NetworkServer server,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, OutputTranslationProfileFieldFactory profileFieldFactory,
-			ServiceDefinition toEdit, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<Group> allGroups, List<IdpUser> allUsers,
-			List<OAuthClient> allClients, List<String> allUserames, List<String> registrationForms, Set<String> credentials,
-			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
-			List<String> attrTypes, List<String> usedPaths)
+	OAuthServiceEditorComponent(UnityMessageSource msg, 
+			OAuthEditorGeneralTab generalTab,
+			OAuthEditorClientsTab clientsTab,
+			URIAccessService uriAccessService, 
+			FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig, 
+			ServiceDefinition toEdit, 
+			List<String> allRealms, 
+			List<AuthenticationFlowDefinition> flows,
+			List<AuthenticatorInfo> authenticators, 
+			List<Group> allGroups, 
+			List<IdpUser> allUsers,
+			Function<String, List<OAuthClient>> systemClientsSupplier, 
+			List<String> registrationForms, 
+			AuthenticatorSupportService authenticatorSupportService, 
+			List<String> attrTypes)
 	{
 		super(msg);
 		editMode = toEdit != null;
@@ -82,52 +84,33 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		List<Group> groupsWithAutoGen = new ArrayList<>();
 		groupsWithAutoGen.addAll(allGroups);
-
-		String genPath = null;
-		do
-		{
-			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + RandomStringUtils.randomAlphabetic(6).toLowerCase();
-		} while (checkIfGroupExists(allGroups, genPath));
-
-		autoGenGroup = new Group(
-				genPath);
-		Group autoGenGroupOAuth = new Group(
-				autoGenGroup.toString() + "/" + OAuthServiceController.OAUTH_CLIENTS_SUBGROUP);
-		autoGenGroupOAuth.setDisplayedName(new I18nString(OAuthServiceController.OAUTH_CLIENTS_SUBGROUP));
+		generatedIdPGroup = generateRandomIdPGroup(allGroups);
+		Group generatedClientsGroup = new Group(generatedIdPGroup, OAUTH_CLIENTS_SUBGROUP);
+		generatedClientsGroup.setDisplayedName(new I18nString(OAUTH_CLIENTS_SUBGROUP));
 
 		if (!editMode)
 		{
 			if (allGroups.stream().map(g -> g.toString())
-			.filter(g -> g.equals(OAuthServiceController.IDP_CLIENT_MAIN_GROUP)).count() == 0)
+					.filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP)).count() == 0)
 			{
-				groupsWithAutoGen.add(new Group(OAuthServiceController.IDP_CLIENT_MAIN_GROUP));
+				groupsWithAutoGen.add(new Group(IDP_CLIENT_MAIN_GROUP));
 			}
 
-			groupsWithAutoGen.add(autoGenGroup);
-			groupsWithAutoGen.add(autoGenGroupOAuth);
+			groupsWithAutoGen.add(generatedIdPGroup);
+			groupsWithAutoGen.add(generatedClientsGroup);
 		}
 
-		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, server, subViewSwitcher,
-				profileFieldFactory, oauthServiceWebAuthzBinder, oauthServiceTokenBinder,
-				oauthConfigBinder, editMode, credentials, idTypes, attrTypes, usedPaths);
-
-		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
-				subViewSwitcher, flows, authenticators, allRealms, groupsWithAutoGen, allUserames,
-				OAuthTokenEndpoint.TYPE.getSupportedBinding(), oauthServiceTokenBinder,
-				oauthConfigBinder, clientsBinder);
+		generalTab.initUI(oauthServiceWebAuthzBinder, oauthServiceTokenBinder, oauthConfigBinder);
+		clientsTab.initUI(groupsWithAutoGen, oauthServiceTokenBinder, oauthConfigBinder, clientsBinder);
 
 		IdpEditorUsersTab usersTab = new IdpEditorUsersTab(msg, oauthConfigBinder, allGroups, allUsers,
 				attrTypes);
 
-		generalTab.addNameValueChangeListener(e -> {
-			if (e.getValue() != null && !e.getValue().isEmpty())
-			{
-				autoGenGroup.setDisplayedName(new I18nString(e.getValue()));
-			} else
-			{
-				autoGenGroup.setDisplayedName(new I18nString(autoGenGroup.toString()));
-			}
-
+		generalTab.addNameValueChangeListener(e -> 
+		{
+			String displayedName = (e.getValue() != null && !e.getValue().isEmpty()) ?
+					e.getValue() : generatedIdPGroup.toString();
+			generatedIdPGroup.setDisplayedName(new I18nString(displayedName));
 			clientsTab.refreshGroups();
 		});
 
@@ -141,14 +124,13 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		OAuthServiceDefinition oauthServiceToEdit;
 		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(allGroups);
-		oauthConfig.setClientGroup(new GroupWithIndentIndicator(autoGenGroupOAuth, false));
+		oauthConfig.setClientGroup(new GroupWithIndentIndicator(generatedClientsGroup, false));
 
 		DefaultServiceDefinition webAuthzService = new DefaultServiceDefinition(
 				OAuthAuthzWebEndpoint.Factory.TYPE.getName());
 		DefaultServiceDefinition tokenService = new DefaultServiceDefinition(OAuthTokenEndpoint.TYPE.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		OAuthClientsBean clientsBean = new OAuthClientsBean();
-		clientsBean.setClients(cloneClients(allClients));
 
 		if (editMode)
 		{
@@ -161,7 +143,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 				oauthConfig.fromProperties(webAuthzService.getConfiguration(), msg, allGroups);
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, uriAccessService);
 			}
-
+			clientsBean.setClients(cloneClients(systemClientsSupplier.apply(
+					oauthConfig.getClientGroup().group.toString())));
 		}
 
 		oauthConfigBinder.setBean(oauthConfig);
@@ -176,39 +159,47 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			oauthServiceTokenBinder.validate();
 		}
 
-		Runnable refreshClients = () -> usersTab.setAvailableClients(clientsTab.getActiveClients().stream()
-				.collect(Collectors.toMap(c -> c.getId(),
-						c -> c.getName() == null || c.getName().isEmpty() ? c.getId()
-								: c.getName())));
+		Runnable refreshClients = () -> usersTab.setAvailableClients(
+				clientsTab.getActiveClients().stream().collect(
+					Collectors.toMap(c -> c.getId(), 
+							c -> c.getName() == null || c.getName().isEmpty() ? 
+									c.getId() : c.getName())));
 		clientsBinder.addValueChangeListener(e -> refreshClients.run());
-		clientsTab.addGroupValueChangeListener(e -> {
-			clientsBean.setClients(cloneClients(allClients));
+		clientsTab.addGroupValueChangeListener(e -> 
+		{
+			Group newGroup = e.getValue().group;
+			List<OAuthClient> newGroupClients = 
+					(newGroup.equals(generatedClientsGroup) || newGroup.equals(generatedIdPGroup)) ?
+					Collections.emptyList() : cloneClients(systemClientsSupplier.apply(newGroup.toString()));
+			clientsBean.setClients(newGroupClients);
 			clientsBinder.setBean(clientsBean);
 			refreshClients.run();
 		});
 		refreshClients.run();
 	}
 
+	private Group generateRandomIdPGroup(List<Group> allGroups)
+	{
+		String genPath = null;
+		do
+		{
+			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + 
+					RandomStringUtils.randomAlphabetic(6).toLowerCase();
+		} while (checkIfGroupExists(allGroups, genPath));
+
+		return new Group(genPath);
+	}
+	
 	private boolean checkIfGroupExists(List<Group> allGroups, String path)
 	{
-		for (Group group : allGroups)
-		{
-			if (group.toString().equals(path))
-			{
-				return true;
-			}
-		}
-		return false;
+		return allGroups.stream()
+				.filter(group -> group.toString().equals(path))
+				.findAny().isPresent();
 	}
 
 	private List<OAuthClient> cloneClients(List<OAuthClient> clients)
 	{
-		List<OAuthClient> clone = new ArrayList<>();
-		for (OAuthClient c : clients)
-		{
-			clone.add(c.clone());
-		}
-		return clone;
+		return clients.stream().map(OAuthClient::clone).collect(Collectors.toList()); 
 	}
 
 	public ServiceDefinition getServiceDefiniton() throws FormValidationException
@@ -237,10 +228,10 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			token.setName(webAuthz.getName() + TOKEN_SERVICE_NAME_SUFFIX);
 		}
 		OAuthServiceDefinition def = new OAuthServiceDefinition(webAuthz, token);
-		def.setClients(clientsBinder.getBean().getClients());
+		def.setSelectedClients(clientsBinder.getBean().getClients());
 		if (!editMode)
 		{
-			def.setAutoGeneratedClientsGroup(autoGenGroup.toString());
+			def.setAutoGeneratedClientsGroup(generatedIdPGroup.toString());
 		}
 		return def;
 	}

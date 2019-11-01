@@ -33,7 +33,7 @@ public interface BulkGroupQueryService
 
 	Map<Long, Entity> getGroupEntitiesNoContextWithoutTargeted(GroupMembershipData dataO);
 
-	Map<Long, GroupMembershipInfo> getMembershipInfo(GroupMembershipData dataO);
+	Map<Long, EntityInGroupData> getMembershipInfo(GroupMembershipData dataO);
 	
 	
 	GroupStructuralData getBulkStructuralData(String group) throws EngineException;

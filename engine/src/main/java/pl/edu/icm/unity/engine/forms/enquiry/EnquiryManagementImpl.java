@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -145,13 +145,13 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			
 			
 			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
-			Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
+			Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
 			
-			for (GroupMembershipInfo info : membershipInfo.values())
+			for (EntityInGroupData info : membershipInfo.values())
 			{
-				if (info.relevantEnquiryForm.contains(form.getName()))
+				if (info.relevantEnquiryForms.contains(form.getName()))
 				{
-					notificationProducer.sendNotification(new EntityParam(info.entityInfo.getId()),
+					notificationProducer.sendNotification(new EntityParam(info.entity.getId()),
 							notificationsCfg.getEnquiryToFillTemplate(), params,
 							msg.getDefaultLocaleCode(), null, false);
 				}
@@ -411,7 +411,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
 		ignored.addAll(getEnquiresFromAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
 	
-		GroupMembershipInfo entityInfo = getMemebershipInfo(entityId);
+		EntityInGroupData entityInfo = getMemebershipInfo(entityId);
 	
 		List<EnquiryForm> ret = new ArrayList<>();
 		if (entityInfo == null)
@@ -424,7 +424,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				continue;
 			if (form.isByInvitationOnly())
 				continue;
-			if (entityInfo.relevantEnquiryForm.contains(form.getName()))
+			if (entityInfo.relevantEnquiryForms.contains(form.getName()))
 				ret.add(form);
 		}
 		return ret;
@@ -437,7 +437,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		long entityId = identitiesResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readInfo);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
-		GroupMembershipInfo entityInfo = getMemebershipInfo(entityId);
+		EntityInGroupData entityInfo = getMemebershipInfo(entityId);
 		List<EnquiryForm> ret = new ArrayList<>();
 		if (entityInfo == null)
 			return ret;
@@ -447,16 +447,16 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				continue;
 			
 			if (form.getType().equals(EnquiryType.STICKY) &&
-					entityInfo.relevantEnquiryForm.contains(form.getName()))
+					entityInfo.relevantEnquiryForms.contains(form.getName()))
 				ret.add(form);
 		}
 		return ret;
 	}
 		
-	private GroupMembershipInfo getMemebershipInfo(Long entity) throws EngineException
+	private EntityInGroupData getMemebershipInfo(Long entity) throws EngineException
 	{
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Sets.newSet(entity));
-		Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);	
+		Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);	
 		return membershipInfo.get(entity);	
 	}
 	

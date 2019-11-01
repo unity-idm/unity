@@ -18,7 +18,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -50,9 +50,9 @@ public class BulkProcessingExecutor
 			log.info("Starting bulk entities processing rule");
 			Instant start = Instant.now();
 			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
-			Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
+			Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
 		
-			for (GroupMembershipInfo membership: membershipInfo.values())
+			for (EntityInGroupData membership: membershipInfo.values())
 				handleMember(rule, membership);
 			Instant end = Instant.now();
 			
@@ -67,11 +67,11 @@ public class BulkProcessingExecutor
 		}
 	}
 	
-	private void handleMember(TranslationRuleInstance<EntityAction> rule, GroupMembershipInfo membership)
+	private void handleMember(TranslationRuleInstance<EntityAction> rule, EntityInGroupData membership)
 	{
 		try
 		{
-			Entity entity = idManagement.getEntity(new EntityParam(membership.entityInfo.getId()));
+			Entity entity = idManagement.getEntity(new EntityParam(membership.entity.getId()));
 			Map<String, Object> context = EntityMVELContextBuilder.getContext(membership);
 
 			if (log.isDebugEnabled())

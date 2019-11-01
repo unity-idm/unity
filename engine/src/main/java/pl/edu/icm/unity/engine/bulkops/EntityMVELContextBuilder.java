@@ -14,7 +14,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -60,11 +60,11 @@ public class EntityMVELContextBuilder
 		return false;
 	}
 
-	public static Map<String, Object> getContext(GroupMembershipInfo membershipInfo)
+	public static Map<String, Object> getContext(EntityInGroupData membershipInfo)
 	{
-		return getContext(membershipInfo.identities, membershipInfo.entityInfo.getEntityState().toString(),
-				membershipInfo.credentialInfo.getCredentialRequirementId(), membershipInfo.groups,
-				membershipInfo.attributes.get("/").values());
+		return getContext(membershipInfo.entity.getIdentities(), membershipInfo.entity.getState().toString(),
+				membershipInfo.entity.getCredentialInfo().getCredentialRequirementId(), membershipInfo.groups,
+				membershipInfo.groupAttributesByName.values());
 	}
 
 	public static Map<String, Object> getContext(List<Identity> identities, String entityStatus,

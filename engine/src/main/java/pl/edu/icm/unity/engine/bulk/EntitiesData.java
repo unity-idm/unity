@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
- * Information about many entities. May include all system entities, or only a subset, depending on usage ocntext.
+ * Information about many entities. May include all system entities, or only a subset, depending on usage context.
  */
 class EntitiesData
 {

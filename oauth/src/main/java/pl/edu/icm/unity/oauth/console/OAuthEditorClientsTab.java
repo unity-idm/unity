@@ -76,28 +76,26 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 	OAuthEditorClientsTab(UnityMessageSource msg, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, SubViewSwitcher subViewSwitcher,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<Group> groups, List<String> allUsernames, String binding,
-			Binder<DefaultServiceDefinition> oauthTokenBinder,
-			Binder<OAuthServiceConfiguration> configBinder, Binder<OAuthClientsBean> clientsBinder)
+			List<String> allRealms, List<String> allUsernames, String binding)
 	{
 		this.subViewSwitcher = subViewSwitcher;
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
-		this.oauthTokenBinder = oauthTokenBinder;
-		this.configBinder = configBinder;
-		this.clientsBinder = clientsBinder;
 		this.allRealms = allRealms;
 		this.flows = WebServiceAuthenticationTab.filterAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
-		this.groups = groups;
 		this.allUsernames = allUsernames;
-		initUI();
 	}
 
-	private void initUI()
+	void initUI(List<Group> groups, Binder<DefaultServiceDefinition> oauthTokenBinder,
+			Binder<OAuthServiceConfiguration> configBinder, Binder<OAuthClientsBean> clientsBinder)
 	{
+		this.groups = groups;
+		this.oauthTokenBinder = oauthTokenBinder;
+		this.configBinder = configBinder;
+		this.clientsBinder = clientsBinder;
 		setCaption(msg.getMessage("IdpServiceEditorBase.clients"));
 		setIcon(Images.bullets.getResource());
 		VerticalLayout mainLayout = new VerticalLayout();

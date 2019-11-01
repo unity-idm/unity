@@ -33,7 +33,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -113,7 +113,7 @@ public class InvitationEditor extends CustomComponent
 
 	private Collection<RegistrationForm> availableRegistrationForms;
 	private Collection<EnquiryForm> availableEnquiryForms;
-	private Map<Long, GroupMembershipInfo> allEntities;
+	private Map<Long, EntityInGroupData> allEntities;
 	private Map<Long, String> availableEntities;
 	private String entityNameAttr;
 
@@ -121,7 +121,7 @@ public class InvitationEditor extends CustomComponent
 			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates,
 			Collection<RegistrationForm> availableRegistrationForms,
 			Collection<EnquiryForm> availableEnquiryForms, Map<String, AttributeType> attrTypes,
-			NotificationProducer notificationsProducer, Map<Long, GroupMembershipInfo> allEntities,
+			NotificationProducer notificationsProducer, Map<Long, EntityInGroupData> allEntities,
 			String entityNameAttr, List<Group> allGroups, MessageTemplateManagement msgTemplateMan)
 			throws WrongArgumentException
 	{
@@ -282,7 +282,7 @@ public class InvitationEditor extends CustomComponent
 			return;
 		}
 
-		allEntities.entrySet().stream().filter(e -> e.getValue().relevantEnquiryForm.contains(form.getName()))
+		allEntities.entrySet().stream().filter(e -> e.getValue().relevantEnquiryForms.contains(form.getName()))
 				.forEach(e -> availableEntities.put(e.getKey(), getLabel(e.getValue())));
 
 		List<Long> sortedEntities = availableEntities.keySet().stream().sorted().collect(Collectors.toList());
@@ -294,11 +294,11 @@ public class InvitationEditor extends CustomComponent
 		}
 	}
 
-	String getLabel(GroupMembershipInfo info)
+	String getLabel(EntityInGroupData info)
 	{
-		if (entityNameAttr != null && info.attributes.containsKey("/"))
+		if (entityNameAttr != null && info.groupAttributesByName.containsKey("/"))
 		{
-			AttributeExt name = info.attributes.get("/").get(entityNameAttr);
+			AttributeExt name = info.groupAttributesByName.get(entityNameAttr);
 			if (name != null && !name.getValues().isEmpty())
 			{
 				return name.getValues().get(0);

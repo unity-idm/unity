@@ -86,15 +86,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 	OAuthEditorGeneralTab(UnityMessageSource msg, NetworkServer server, SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory profileFieldFactory,
-			Binder<DefaultServiceDefinition> oauthWebAuthzBinder,
-			Binder<DefaultServiceDefinition> oauthTokenBinder,
-			Binder<OAuthServiceConfiguration> configBinder, boolean editMode, Set<String> credentials,
+			boolean editMode, Set<String> credentials,
 			Collection<IdentityType> identityTypes, List<String> attrTypes, List<String> usedPaths)
 	{
 		this.msg = msg;
-		this.oauthTokenBinder = oauthTokenBinder;
-		this.oauthWebAuthzBinder = oauthWebAuthzBinder;
-		this.configBinder = configBinder;
+
 		this.editMode = editMode;
 		this.credentials = credentials;
 		this.idTypes = identityTypes;
@@ -103,11 +99,15 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		this.profileFieldFactory = profileFieldFactory;
 		this.usedPaths = usedPaths;
 		this.serverPrefix = server.getAdvertisedAddress().toString();
-		initUI();
 	}
 
-	private void initUI()
+	void initUI(Binder<DefaultServiceDefinition> oauthWebAuthzBinder,
+			Binder<DefaultServiceDefinition> oauthTokenBinder,
+			Binder<OAuthServiceConfiguration> configBinder)
 	{
+		this.oauthTokenBinder = oauthTokenBinder;
+		this.oauthWebAuthzBinder = oauthWebAuthzBinder;
+		this.configBinder = configBinder;
 		setCaption(msg.getMessage("ServiceEditorBase.general"));
 		setIcon(Images.cogs.getResource());
 

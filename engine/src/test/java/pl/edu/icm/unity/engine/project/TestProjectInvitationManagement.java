@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalI
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.NotProjectInvitation;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -99,8 +100,10 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 
 		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
-		GroupMembershipInfo info = new GroupMembershipInfo(new EntityInformation(1), Arrays.asList(emailId), null, null, null, null);
-		Map<Long, GroupMembershipInfo> infoMap = new HashMap<>();
+		EntityInGroupData info = new EntityInGroupData(
+				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", 
+				null, null, null, null);
+		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
 		infoMap.put(1L, info);
 		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com", null,

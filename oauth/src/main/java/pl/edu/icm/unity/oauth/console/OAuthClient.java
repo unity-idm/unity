@@ -44,7 +44,6 @@ public class OAuthClient
 
 	public OAuthClient(String id, String secret)
 	{
-		this();
 		this.id = id;
 		this.secret = secret;
 		this.flows = new ArrayList<>(Arrays.asList(GrantFlow.authorizationCode.toString()));

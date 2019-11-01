@@ -8,7 +8,6 @@ package pl.edu.icm.unity.oauth.console;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +42,7 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -52,8 +50,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -232,7 +229,7 @@ class OAuthServiceController implements IdpServiceController
 			oauthWebService.setBinding(OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
 			OAuthServiceDefinition def = new OAuthServiceDefinition(oauthWebService,
 					getTokenService(endpoint.getEndpoint().getConfiguration().getTag()));
-			def.setClients(getOAuthClients());
+			def.setClientsSupplier(this::getOAuthClients);
 			return def;
 		} catch (Exception e)
 		{
@@ -278,7 +275,7 @@ class OAuthServiceController implements IdpServiceController
 			serviceClientGroupOAuth.setDisplayedName(new I18nString(OAUTH_CLIENTS_SUBGROUP));
 			groupMan.addGroup(serviceClientGroupOAuth);
 
-			updateClients(def.getClients(), getClientsGroup(webAuthzService.getConfiguration()));
+			updateClients(def.getSelectedClients());
 
 		} catch (Exception e)
 		{
@@ -332,9 +329,7 @@ class OAuthServiceController implements IdpServiceController
 						tokenService.getConfiguration(), tokenService.getRealm(), tag);
 				endpointMan.updateEndpoint(tokenService.getName(), rconfig);
 			}
-
-			updateClients(def.getClients(), getClientsGroup(webAuthzService.getConfiguration()));
-
+			updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()),
@@ -343,28 +338,12 @@ class OAuthServiceController implements IdpServiceController
 
 	}
 
-	private String getClientsGroup(String configuration)
-	{
-		Properties raw = new Properties();
-		try
-		{
-			raw.load(new StringReader(configuration));
-		} catch (IOException e)
-		{
-			throw new InternalException("Invalid configuration of the oauth idp service", e);
-		}
-
-		OAuthASProperties oauthProp = new OAuthASProperties(raw);
-		return oauthProp.getValue(OAuthASProperties.CLIENTS_GROUP);
-	}
-
-	private void updateClients(List<OAuthClient> clients, String fromGroup)
+	private void updateClients(List<OAuthClient> clients)
 			throws EngineException, URISyntaxException
 	{
 		String clientNameAttr = idpUsersHelper.getClientNameAttr();
 
-		for (OAuthClient client : clients.stream().filter(c -> c.getGroup().equals(fromGroup))
-				.collect(Collectors.toList()))
+		for (OAuthClient client : clients)
 		{
 			if (client.getEntity() == null)
 			{
@@ -372,10 +351,7 @@ class OAuthServiceController implements IdpServiceController
 				OAuthClient clone = client.clone();
 				clone.setEntity(id);
 				updateClient(clone, clientNameAttr);
-				continue;
-			}
-
-			if (client.isToRemove())
+			} else if (client.isToRemove())
 			{
 				EntityParam entity = new EntityParam(client.getEntity());
 				String group = client.getGroup();
@@ -397,13 +373,9 @@ class OAuthServiceController implements IdpServiceController
 						entityMan.removeEntity(entity);
 					}
 				}
-				continue;
-			}
-
-			if (client.isUpdated())
+			} else if (client.isUpdated())
 			{
 				updateClient(client, clientNameAttr);
-				continue;
 			}
 		}
 	}
@@ -530,41 +502,45 @@ class OAuthServiceController implements IdpServiceController
 		return OAuthAuthzWebEndpoint.Factory.TYPE.getName();
 	}
 
-	private List<OAuthClient> getOAuthClients() throws EngineException
+	private List<OAuthClient> getOAuthClients(String group)
 	{
-		List<OAuthClient> clients = new ArrayList<>();
-
-		Map<Long, GroupMembershipInfo> membershipInfo = bulkService
-				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
-		String nameAttr = idpUsersHelper.getClientNameAttr();
-
-		for (GroupMembershipInfo info : membershipInfo.values())
+		try
 		{
-			for (String group : info.attributes.keySet())
+			List<OAuthClient> clients = new ArrayList<>();
+
+			Map<Long, EntityInGroupData> membershipInfo = bulkService
+					.getMembershipInfo(bulkService.getBulkMembershipData(group));
+			String nameAttr = idpUsersHelper.getClientNameAttr();
+
+			for (EntityInGroupData member : membershipInfo.values())
 			{
-				Map<String, AttributeExt> attrs = info.attributes.get(group);
-				if (attrs.keySet().contains(OAuthSystemAttributesProvider.ALLOWED_FLOWS))
-				{
-					clients.add(getOAuthClient(info, group, attrs, nameAttr));
-				}
-
+				if (isOAuthClient(member))
+					clients.add(getOAuthClient(member, group, nameAttr));
 			}
-
+			return clients;
+		} catch (EngineException e)
+		{
+			throw new RuntimeEngineException(e);
 		}
-		return clients;
 	}
 
-	private OAuthClient getOAuthClient(GroupMembershipInfo info, String group, Map<String, AttributeExt> attrs,
-			String nameAttr) throws EngineException
+	private boolean isOAuthClient(EntityInGroupData candidate)
+	{
+		return candidate.groupAttributesByName.keySet().contains(OAuthSystemAttributesProvider.ALLOWED_FLOWS)
+				&& getUserName(candidate.entity.getIdentities()) != null;
+	}
+	
+	private OAuthClient getOAuthClient(EntityInGroupData info, String group, String nameAttr) throws EngineException
 	{
 		OAuthClient c = new OAuthClient();
-		c.setEntity(info.entityInfo.getId());
-		c.setId(getUserName(info.identities));
+		c.setEntity(info.entity.getId());
+		c.setId(getUserName(info.entity.getIdentities()));
 		c.setGroup(group);
-
+		Map<String, AttributeExt> attrs = info.groupAttributesByName;
+		
 		c.setFlows(attrs.get(OAuthSystemAttributesProvider.ALLOWED_FLOWS).getValues());
 
-		if (attrs.keySet().contains(OAuthSystemAttributesProvider.CLIENT_TYPE))
+		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_TYPE))
 		{
 			c.setType(attrs.get(OAuthSystemAttributesProvider.CLIENT_TYPE).getValues().get(0));
 		} else
@@ -572,27 +548,27 @@ class OAuthServiceController implements IdpServiceController
 			c.setType(ClientType.CONFIDENTIAL.toString());
 		}
 
-		if (attrs.keySet().contains(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
+		if (attrs.containsKey(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
 		{
 			c.setRedirectURIs(attrs.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI).getValues());
 		}
 
-		if (attrs.keySet().contains(OAuthSystemAttributesProvider.CLIENT_NAME))
+		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_NAME))
 		{
 			c.setTitle(attrs.get(OAuthSystemAttributesProvider.CLIENT_NAME).getValues().get(0));
 		}
 
-		if (attrs.keySet().contains(OAuthSystemAttributesProvider.CLIENT_NAME))
+		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_NAME))
 		{
 			c.setTitle(attrs.get(OAuthSystemAttributesProvider.CLIENT_NAME).getValues().get(0));
 		}
 
-		if (nameAttr != null && info.attributes.get("/").keySet().contains(nameAttr))
+		if (nameAttr != null && info.rootAttributesByName.containsKey(nameAttr))
 		{
-			c.setName(info.attributes.get("/").get(nameAttr).getValues().get(0));
+			c.setName(info.rootAttributesByName.get(nameAttr).getValues().get(0));
 		}
 
-		if (attrs.keySet().contains(OAuthSystemAttributesProvider.CLIENT_LOGO))
+		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_LOGO))
 		{
 
 			Attribute logo = attrs.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
@@ -618,16 +594,9 @@ class OAuthServiceController implements IdpServiceController
 
 	private String getUserName(List<Identity> identities)
 	{
-
 		for (Identity i : identities)
-		{
-
 			if (i.getTypeId().equals(UsernameIdentity.ID))
-			{
 				return i.getValue();
-			}
-
-		}
 		return null;
 	}
 
@@ -635,11 +604,11 @@ class OAuthServiceController implements IdpServiceController
 	{
 
 		List<String> ret = new ArrayList<>();
-		Map<Long, GroupMembershipInfo> membershipInfo = bulkService
+		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
-		for (GroupMembershipInfo info : membershipInfo.values())
+		for (EntityInGroupData info : membershipInfo.values())
 		{
-			for (Identity id : info.identities)
+			for (Identity id : info.entity.getIdentities())
 			{
 				if (id.getTypeId().equals(UsernameIdentity.ID))
 				{
@@ -665,7 +634,9 @@ class OAuthServiceController implements IdpServiceController
 				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
 				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
-				idpUsersHelper.getAllUsers(), getOAuthClients(), getAllUsernames(),
+				idpUsersHelper.getAllUsers(), 
+				this::getOAuthClients, 
+				getAllUsernames(),
 				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService,
