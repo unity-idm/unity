@@ -150,6 +150,14 @@ class OAuthWebRequestValidator
 		
 		context.setTranslationProfile(oauthConfig.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
 
+		validateAndRecordScopes(context, authzRequest);
+		
+		if (context.getClientType() == ClientType.PUBLIC)
+			validatePKCEIsUsedForCodeFlow(authzRequest, client);
+	}
+
+	private void validateAndRecordScopes(OAuthAuthzContext context, AuthorizationRequest authzRequest) throws OAuthValidationException
+	{
 		Scope requestedScopes = authzRequest.getScope();
 		if (requestedScopes != null)
 		{
@@ -157,12 +165,16 @@ class OAuthWebRequestValidator
 					.getValidRequestedScopes(requestedScopes);
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
+			
+			boolean openIdRequested = requestedScopes.contains("openid");
+			boolean openIdAvailable = validRequestedScopes.stream()
+					.filter(scope -> scope.getName().equals("openid")).findAny().isPresent();
+			if (openIdRequested && !openIdAvailable)
+				throw new OAuthValidationException("Client requested OpenId Connect with scope, which is "
+						+ "not enabled on this server");
 		}
-		
-		if (context.getClientType() == ClientType.PUBLIC)
-			validatePKCEIsUsedForCodeFlow(authzRequest, client);
 	}
-
+	
 	private void validatePKCEIsUsedForCodeFlow(AuthorizationRequest authzRequest, String client) throws OAuthValidationException
 	{
 		ResponseType responseType = authzRequest.getResponseType();
