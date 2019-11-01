@@ -34,6 +34,14 @@ public class SCryptEncoder
 		
 	}
 
+	/**
+	 * Computes a max currently considered safe work factor, taking into account the heap memory available for the VM
+	 * and the configured number of allowed concurrent password checks. Algorithm assumes 0.5G heap reserved for 
+	 * other purposes then password hashing (pretty arbitrary number, typically well enough, but may happen this is 
+	 * to low). 
+	 * 
+	 * @return max WF so that 1024*2^WF < MAX_AVAILABLE_HEAP - 500MB   
+	 */
 	public int getMaxAllowedWorkFactor()
 	{
 		int parallelizm = pool.getParallelism();
