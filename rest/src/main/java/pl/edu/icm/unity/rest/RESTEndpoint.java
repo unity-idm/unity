@@ -17,13 +17,8 @@ import javax.ws.rs.core.Application;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxrs.JAXRSBindingFactory;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.utils.ResourceUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.logging.log4j.Logger;
@@ -45,13 +40,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
-import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
-import pl.edu.icm.unity.rest.exception.IllegalArgumentExceptionMapper;
-import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
-import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
-import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
-import pl.edu.icm.unity.rest.exception.JSONParsingExceptionMapper;
-import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
@@ -114,18 +102,8 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected abstract Application getApplication();
 
 	private void deployResources(Bus bus)
-	{
-		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(getApplication(), false, false, false, bus);
-		
-		JAXRSBindingFactory factory = new JAXRSBindingFactory();
-		factory.setBus(bus);
-
-		BindingFactoryManager manager = bus.getExtension(BindingFactoryManager.class);
-		manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
-		
-		Server server = sf.create();
-		
-		Endpoint cxfEndpoint = server.getEndpoint();
+	{		
+		Endpoint cxfEndpoint = RestEndpointHelper.createCxfEndpoint(getApplication(), bus);
 		addInterceptors(cxfEndpoint.getInInterceptors(), cxfEndpoint.getOutInterceptors());
 	}
 	
@@ -216,19 +194,5 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 				interceptors.add(in);
 			added.add(authenticator.getAuthenticatorId());
 		}
-	}
-	
-	/**
-	 * Adds common exception handlers
-	 */
-	public static void installExceptionHandlers(Set<Object> ret)
-	{
-		ret.add(new EngineExceptionMapper());
-		ret.add(new NPEExceptionMapper());
-		ret.add(new IllegalArgumentExceptionMapper());
-		ret.add(new InternalExceptionMapper());
-		ret.add(new JSONParseExceptionMapper());
-		ret.add(new JSONParsingExceptionMapper());
-		ret.add(new JSONExceptionMapper());
 	}
 }

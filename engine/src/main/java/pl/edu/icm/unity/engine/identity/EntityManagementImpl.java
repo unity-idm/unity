@@ -44,12 +44,14 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -84,6 +86,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
@@ -119,6 +122,7 @@ public class EntityManagementImpl implements EntityManagement
 	private NotificationProducer notificationProducer;
 	private AuditEventListener auditEventListener;
 	private AuditPublisher auditPublisher;
+	private InternalCapacityLimitVerificator capacityLimit;
 
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -132,7 +136,8 @@ public class EntityManagementImpl implements EntityManagement
 			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
 			TransactionalRunner tx,
 			UnityServerConfiguration cfg, NotificationProducer notificationProducer,
-			AuditEventListener auditEventListener, AuditPublisher auditPublisher)
+			AuditEventListener auditEventListener, AuditPublisher auditPublisher,
+			InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -156,6 +161,7 @@ public class EntityManagementImpl implements EntityManagement
 		this.notificationProducer = notificationProducer;
 		this.auditEventListener = auditEventListener;
 		this.auditPublisher = auditPublisher;
+		this.capacityLimit = capacityLimit;
 	}
 
 	@Override
@@ -178,9 +184,12 @@ public class EntityManagementImpl implements EntityManagement
 			List<Attribute> attributesP) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.identityModify);
+		
 		List<Attribute> attributes = attributesP == null ? Collections.emptyList() : attributesP;
 		
 		Identity ret = tx.runInTransactionRetThrowing(() -> {
+			capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Entities, entityDAO.getAll().size());
+			assertIdentityLimit();
 			return identityHelper.addEntity(toAdd, credReqId, initialState, 
 					extractAttributes, attributes, true);
 		});
@@ -216,7 +225,8 @@ public class EntityManagementImpl implements EntityManagement
 			IdentityType identityType = idTypeDAO.get(toAdd.getTypeId());
 			
 			boolean fullAuthz = authorizeIdentityChange(entityId, Sets.newHashSet(toAdd), 
-					identityType.isSelfModificable());
+					identityType.isSelfModificable());	
+			assertIdentityLimit();
 			if (!fullAuthz)
 				toAdd.setConfirmationInfo(new ConfirmationInfo(false));
 			List<Identity> identities = idDAO.getByEntity(entityId);
@@ -245,6 +255,13 @@ public class EntityManagementImpl implements EntityManagement
 			});
 		}
 		return ret.identity;
+	}
+	
+	private void assertIdentityLimit() throws CapacityLimitReachedException
+	{
+		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Identities, idDAO.getAll().stream().filter(
+				id -> !idTypeHelper.getTypeDefinition(id.getIdentity().getTypeId()).isDynamic())
+				.count());
 	}
 
 	private int getIdentityCountOfType(List<Identity> identities, String type)

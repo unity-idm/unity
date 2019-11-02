@@ -510,6 +510,27 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 	
 	@Override
+	public synchronized void undeployAllHandlers() throws EngineException
+	{
+		for (ServletContextHandler handler : usedContextPaths.values())
+		{
+			try
+			{
+				handler.stop();
+			} catch (Exception e)
+			{
+				throw new EngineException("Can not stop handler", e);
+			}
+		}
+		usedContextPaths.clear();
+		
+		for (Handler handler : mainContextHandler.getHandlers().clone())
+		{
+			mainContextHandler.removeHandler(handler);
+		}	
+	}
+	
+	@Override
 	public synchronized void undeployEndpoint(String id) throws EngineException
 	{
 		WebAppEndpointInstance endpoint = null;

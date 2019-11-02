@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -56,14 +58,14 @@ public class EndpointManagementImpl implements EndpointManagement
 	private EndpointDB endpointDB;
 	private RealmDB realmDB;
 	private TransactionalRunner tx;
-
+	private InternalCapacityLimitVerificator capacityLimit;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater,
 			EndpointInstanceLoader endpointInstanceLoader, InternalAuthorizationManager authz,
-			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx)
+			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx, InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.internalManagement = internalManagement;
@@ -73,6 +75,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		this.endpointDB = endpointDB;
 		this.realmDB = realmDB;
 		this.tx = tx;
+		this.capacityLimit = capacityLimit;
 	}
 
 	@Override
@@ -98,6 +101,8 @@ public class EndpointManagementImpl implements EndpointManagement
 			String address, EndpointConfiguration configuration) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Endpoints, endpointDB.getAll().size());
+		
 		synchronized(internalManagement)
 		{
 			return deployInt(typeId, endpointName, address, configuration);

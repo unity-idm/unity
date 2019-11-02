@@ -88,7 +88,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.txRunner = txRunner;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.additionalAuthnService = repeatedAuthnService;
-		this.audit = audit;
+		this.audit = audit;	
 	}
 
 	
@@ -133,13 +133,13 @@ public class AttributesManagementImpl implements AttributesManagement
 		txRunner.runInTransactionThrowing(() -> {
 			//Important - attributes can be also set as a result of addMember and addEntity.
 			//  when changing this method, verify if those needs an update too.
+			
 			long entityId = idResolver.getEntityId(entity);
 			AttributeType at = attributeTypeDAO.get(attribute.getName());
 			boolean fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
 			if (!fullAuthz)
 				checkAdditionalAuthn(at);
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName());
-
 			attributesHelper.addAttribute(entityId, attribute, at, allowUpdate, fullAuthz);
 		});
 

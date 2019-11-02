@@ -143,6 +143,13 @@ public interface AttributeValueSyntax<T>
 	 */
 	boolean isUserVerifiable();
 
+	/**
+	 * @return max size of attribute values
+	 */
+	default int getMaxSize()
+	{
+		return 0;
+	}
 	
 	/**
 	 * If syntax is verifiable by email return confirmation configuration

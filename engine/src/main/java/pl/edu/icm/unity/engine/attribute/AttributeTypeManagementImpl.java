@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 /**
  * Implements attributes operations.
@@ -49,6 +51,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private InternalAuthorizationManager authz;
 	private AttributeTypeHelper atHelper;
 	private AttributesHelper aHelper;
+	private InternalCapacityLimitVerificator capacityLimit;
 
 
 	@Autowired
@@ -57,7 +60,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
-			AttributesHelper aHelper)
+			AttributesHelper aHelper, InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -67,6 +70,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.authz = authz;
 		this.atHelper = atHelper;
 		this.aHelper = aHelper;
+		this.capacityLimit = capacityLimit;
 	}
 
 	@Override
@@ -93,6 +97,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		atHelper.setDefaultSyntaxConfiguration(toAdd);
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(toAdd, existingAts);
+		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
+				atHelper.getSyntax(toAdd).getMaxSize());
 		attributeTypeDAO.create(toAdd);
 	}
 
@@ -120,7 +126,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(at, existingAts);
 		verifyAttributesConsistencyWithUpdatedType(at);
-		
+		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
+				atHelper.getSyntax(at).getMaxSize());
 		attributeTypeDAO.update(at);
 		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
 			clearAttributeExtractionFromIdentities(at.getName());

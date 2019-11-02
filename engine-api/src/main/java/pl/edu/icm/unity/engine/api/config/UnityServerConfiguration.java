@@ -182,6 +182,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 
 	public static final String MAX_CONCURRENT_PASSWORD_CHECKS = "maxConcurrentPasswordChecks";
 
+	public static final String EXTENSION_PFX = "ext.";
+	
+	public static final String SYS_ADMIN_TOKEN = "sysMaintenanceToken"; 
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
@@ -520,6 +523,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "Having this number larger then the number of cores makes no sense. "
 						+ "By default this parameter is equal to "
 						+ "JVM max heap size in GB times 2 (but not less then 1)."));
+		
+		defaults.put(EXTENSION_PFX + SYS_ADMIN_TOKEN, new PropertyMD().setCategory(mainCat).
+				setDescription("Access token value used for authentication sys admin requests"));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));

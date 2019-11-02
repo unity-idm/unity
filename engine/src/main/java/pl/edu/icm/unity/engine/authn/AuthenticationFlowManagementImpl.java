@@ -20,6 +20,7 @@ import com.google.common.collect.Sets.SetView;
 
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 /**
  * Authentication flow management implementation.
@@ -48,16 +50,19 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	private InternalAuthorizationManager authz;
 	private AuthenticatorConfigurationDB authenticatorDB;
 	private AttributeDAO dbAttributes;
+	private InternalCapacityLimitVerificator capacityLimit;
 	
 	@Autowired
 	public AuthenticationFlowManagementImpl(AuthenticationFlowDB authnFlowDB,
-			InternalAuthorizationManager authz, AuthenticatorConfigurationDB authenticatorDB, AttributeDAO dbAttributes)
+			InternalAuthorizationManager authz, AuthenticatorConfigurationDB authenticatorDB, AttributeDAO dbAttributes,
+			InternalCapacityLimitVerificator capacityLimit)
 	{
 		
 		this.authnFlowDB = authnFlowDB;
 		this.authz = authz;
 		this.authenticatorDB = authenticatorDB;
 		this.dbAttributes = dbAttributes;
+		this.capacityLimit = capacityLimit;
 	}
 
 	
@@ -66,6 +71,7 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 			AuthenticationFlowDefinition authFlowdef) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);	
+		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.AuthenticationFlows, authnFlowDB.getAll().size());
 		
 		if (authenticatorDB.getAllAsMap().get(authFlowdef.getName()) != null)
 		{

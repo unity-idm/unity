@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
@@ -58,6 +60,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
@@ -82,6 +85,7 @@ public class AttributesHelper
 	private AttributeTypeHelper atHelper;
 	private GroupDAO groupDAO;
 	private AuditPublisher audit;
+	private InternalCapacityLimitVerificator capacityLimit;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -90,7 +94,8 @@ public class AttributesHelper
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
-			GroupDAO groupDAO, AuditPublisher audit)
+			GroupDAO groupDAO, AuditPublisher audit,
+			InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
@@ -105,6 +110,7 @@ public class AttributesHelper
 		this.acUtil = acUtil;
 		this.groupDAO = groupDAO;
 		this.audit = audit;
+		this.capacityLimit = capacityLimit;
 	}
 
 	/**
@@ -363,11 +369,13 @@ public class AttributesHelper
 		StoredAttribute param = new StoredAttribute(aExt, entityId);
 		List<AttributeExt> existing = attributeDAO.getEntityAttributes(entityId, attribute.getName(), 
 				attribute.getGroupPath());
+			
 		if (existing.isEmpty())
 		{
 			if (!membershipDAO.isMember(entityId, attribute.getGroupPath()))
 				throw new IllegalGroupValueException("The entity is not a member "
 						+ "of the group specified in the attribute");
+			checkAttributeCapacityLimit(at, aExt, null);	
 			attributeDAO.create(param);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.ADD));
 		} else
@@ -376,9 +384,51 @@ public class AttributesHelper
 				throw new IllegalAttributeValueException("The attribute already exists");
 			AttributeExt updated = existing.get(0);
 			param.getAttribute().setCreationTs(updated.getCreationTs());
+			checkAttributeCapacityLimit(at, aExt, updated);
 			attributeDAO.updateAttribute(param);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.UPDATE));
 		}
+	}
+	
+	private void checkAttributeCapacityLimit(AttributeType at, Attribute attr, Attribute existing) throws CapacityLimitReachedException
+	{
+		
+		if (isSystemAttribute(at))
+			return;
+		
+		boolean update = existing != null;
+		
+		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
+		List<StoredAttribute> filteredAttributes = attributeDAO.getAll().stream().filter(a -> {
+			return !isSystemAttribute(allTypes.get(a.getAttribute().getName()));
+		}).collect(Collectors.toList());
+
+		if (!update)
+		{
+			capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Attributes, filteredAttributes.size());
+		}
+
+		for (String v : attr.getValues())
+		{
+			capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize, v.length());
+		}
+
+		long attrValuesSize = filteredAttributes.stream().flatMap(a -> a.getAttribute().getValues().stream()).count();
+
+		if (!update)
+		{
+			attrValuesSize += attr.getValues().size();
+		} else
+		{
+			attrValuesSize += attr.getValues().size() - existing.getValues().size();
+		}
+
+		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributesValues, attrValuesSize);
+	}
+	
+	private boolean isSystemAttribute(AttributeType at)
+	{
+		return at.isInstanceImmutable() || at.isTypeImmutable();
 	}
 	
 	private AuditEventTriggerBuilder getAttrAudit(long entityId, Attribute attribute, AuditEventAction action)

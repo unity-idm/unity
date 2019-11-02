@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.RESTEndpoint;
+import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -67,7 +68,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			Set<Object> ret = Sets.newHashSet(factories.getObject());
-			installExceptionHandlers(ret);
+			RestEndpointHelper.installExceptionHandlers(ret);
 			return ret;
 		}
 	}

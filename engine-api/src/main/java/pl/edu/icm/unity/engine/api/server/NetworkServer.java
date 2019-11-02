@@ -28,4 +28,6 @@ public interface NetworkServer
 	void undeployEndpoint(String id) throws EngineException;
 
 	void deployHandler(ServletContextHandler sharedHandler) throws EngineException;
+
+	void undeployAllHandlers() throws EngineException;
 }

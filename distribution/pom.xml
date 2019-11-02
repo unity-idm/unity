@@ -165,6 +165,14 @@
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-console</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>i18n</classifier>
+			<scope>test</scope>
+		</dependency>				
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-web-admin</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>

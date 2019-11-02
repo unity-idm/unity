@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 /**
  * Authentication management implementation.
@@ -50,6 +52,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 	private AuthenticatorLoader authenticatorLoader;
 	private InternalAuthorizationManager authz;
 	private TransactionalRunner tx;
+	private InternalCapacityLimitVerificator capacityLimit;
 	
 	@Autowired
 	public AuthenticatorManagementImpl(AuthenticatorsRegistry authReg, 
@@ -60,7 +63,8 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 			EndpointsUpdater endpointsUpdater, 
 			AuthenticatorLoader authenticatorLoader,
 			InternalAuthorizationManager authz, 
-			LocalCredentialsRegistry localCredReg)
+			LocalCredentialsRegistry localCredReg,
+			InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.authReg = authReg;
 		this.tx = tx;
@@ -71,6 +75,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 		this.endpointsUpdater = endpointsUpdater;
 		this.authenticatorLoader = authenticatorLoader;
 		this.authz = authz;
+		this.capacityLimit = capacityLimit;
 	}
 
 	@Override
@@ -79,7 +84,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 			String credentialName) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		
+		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Authenticators, authenticatorDB.getAll().size());
 		if (authenticationFlowDB.getAllAsMap().get(id) != null)
 		{
 			throw new IllegalArgumentException(

@@ -133,6 +133,12 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 	{
 		return maxLength;
 	}
+	
+	@Override
+	public int getMaxSize()
+	{
+		return maxLength;
+	}
 
 	/**
 	 * @param maxLength the maxLength to set

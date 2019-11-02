@@ -65,7 +65,7 @@ public class MockRESTEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(res);
-			installExceptionHandlers(ret);
+			RestEndpointHelper.installExceptionHandlers(ret);
 			return ret;
 		}
 	}

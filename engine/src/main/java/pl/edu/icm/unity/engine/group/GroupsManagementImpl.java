@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -58,6 +59,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 
 /**
@@ -85,6 +87,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private AttributeClassUtil acUtil;
 	private UnityMessageSource msg;
 	private AuditPublisher audit;
+	private InternalCapacityLimitVerificator capacityLimit;
 
 	
 	@Autowired
@@ -94,7 +97,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
 			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg,
-			AuditPublisher audit)
+			AuditPublisher audit, InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.dbGroups = dbGroups;
 		this.membershipDAO = membershipDAO;
@@ -110,6 +113,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.tx = tx;
 		this.msg = msg;
 		this.audit = audit;
+		this.capacityLimit = capacityLimit;
 	}
 
 	@Override
@@ -117,6 +121,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	public void addGroup(Group toAdd) throws EngineException
 	{
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
+		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Groups, dbGroups.getAll().size());	
 		groupHelper.validateGroupStatements(toAdd);
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
 		if (!dbGroups.exists(toAdd.getParentPath()))

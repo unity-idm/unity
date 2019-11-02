@@ -6,6 +6,7 @@ package pl.edu.icm.unity.stdext.attr;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -125,6 +126,12 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 			throw new IllegalAttributeValueException("Trying to validate enum attribute value on not configured syntax");
 		if (!allowed.contains(value))
 			throw new IllegalAttributeValueException("The value is not a valid enumeration element");
+	}
+	
+	@Override
+	public int getMaxSize()
+	{
+		return Collections.max(allowed, Comparator.comparing(String::length)).length();
 	}
 	
 	@Component
