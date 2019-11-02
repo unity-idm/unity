@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,7 +22,6 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.CapacityLimitManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
-import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
@@ -34,11 +32,11 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -74,9 +72,6 @@ public class CapacityLimitTest extends DBIntegrationTestBase
 	private EnquiryManagement enqMan;
 
 	@Autowired
-	private InternalCapacityLimitVerificator capacityLimit;
-
-	@Autowired
 	private AuthenticatorManagement authenticatorMan;
 
 	@Autowired
@@ -85,11 +80,6 @@ public class CapacityLimitTest extends DBIntegrationTestBase
 	@Autowired
 	private AuthenticatorsRegistry authenticatorsReg;
 
-	@After
-	public void clearLimits()
-	{
-		capacityLimit.clearCache();
-	}
 
 	@Test(expected = CapacityLimitReachedException.class)
 	public void shouldThrowLimitExceededExceptionForGroups() throws EngineException
