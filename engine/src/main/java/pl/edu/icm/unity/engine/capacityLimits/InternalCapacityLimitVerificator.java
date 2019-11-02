@@ -66,7 +66,7 @@ public class InternalCapacityLimitVerificator
 		if (limit < 0)
 			return;
 
-		log.debug("Checks capacity limit for {} limit ={}  value={}", name.toString(), limit, value);
+		log.trace("Checks capacity limit for {} limit ={}  value={}", name.toString(), limit, value);
 
 		if (limit < value)
 		{
@@ -84,7 +84,7 @@ public class InternalCapacityLimitVerificator
 		if (cached != null && !cached.isExpired())
 		{
 			limit = (int) cached.getObjectValue();
-			log.debug("Returning cached capacity limit {} for {}", limit, name);
+			log.trace("Returning cached capacity limit {} for {}", limit, name);
 
 		} else
 		{
@@ -95,7 +95,7 @@ public class InternalCapacityLimitVerificator
 			} catch (Exception e)
 			{
 				// ok, empty limit
-				log.debug("Empty capacity limit for {}", name);
+				log.trace("Empty capacity limit for {}", name);
 				return -1;
 			}
 		}

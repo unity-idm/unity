@@ -88,10 +88,6 @@ public class CapacityLimitTest extends DBIntegrationTestBase
 	@After
 	public void clearLimits()
 	{
-		for (CapacityLimit l : capacityMan.getAllLimits())
-		{
-			capacityMan.setLimit(new CapacityLimit(CapacityLimitName.valueOf(l.getName()), -1));
-		}
 		capacityLimit.clearCache();
 	}
 

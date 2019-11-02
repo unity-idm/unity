@@ -107,6 +107,9 @@
 	<delete id="deletedb-auditEvents-03">
 		DELETE FROM AUDIT_TAGS;
 	</delete>
+	<delete id="deletedb-capacityLimit">
+		DELETE FROM VAR_OBJECTS WHERE TYPE = 'capacityLimit'
+	</delete>
 
 	<delete id="deletedbvar" parameterType="string">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = #{value}
