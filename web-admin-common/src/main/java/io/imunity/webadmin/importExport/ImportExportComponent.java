@@ -42,7 +42,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
@@ -92,7 +92,7 @@ public class ImportExportComponent extends VerticalLayout
 		hl.setMargin(true);
 		exportPanel.setContent(hl);
 
-		Binder<DBDumpContentType> configBinder = new Binder<>(DBDumpContentType.class);
+		Binder<BinderDBDumpContentElements> configBinder = new Binder<>(BinderDBDumpContentElements.class);
 		
 		CheckBox systemConfig = new CheckBox(msg.getMessage("ImportExport.systemConfig"));
 		configBinder.forField(systemConfig).bind("systemConfig");
@@ -154,11 +154,11 @@ public class ImportExportComponent extends VerticalLayout
 		hl.addComponents(createDump);
 
 		configBinder.addStatusChangeListener( v -> {
-			DBDumpContentType type = (DBDumpContentType) v.getBinder().getBean();
+			BinderDBDumpContentElements type = (BinderDBDumpContentElements) v.getBinder().getBean();
 			createDump.setEnabled(type.isSystemConfig() || type.isDirectorySchema() || type.isUsers() || type.isAuditLogs() || type.isSignupRequests());
-			dumpResource.setExportContent((DBDumpContentType) v.getBinder().getBean());
+			dumpResource.setExportContent(new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(), type.isAuditLogs(), type.isSignupRequests()));
 		});
-		configBinder.setBean(new DBDumpContentType());
+		configBinder.setBean(new BinderDBDumpContentElements());
 		
 		createDump.addClickListener(new Button.ClickListener()
 		{
@@ -396,7 +396,7 @@ public class ImportExportComponent extends VerticalLayout
 		private File dump;
 		private String filename;
 		private Exception error;
-		private DBDumpContentType content;
+		private DBDumpContentElements content;
 
 		public DBDumpResource(ServerManagement serverManagement)
 		{
@@ -405,7 +405,7 @@ public class ImportExportComponent extends VerticalLayout
 			filename = super.getFilename();
 		}
 
-		public void setExportContent(DBDumpContentType value)
+		public void setExportContent(DBDumpContentElements value)
 		{
 			this.content = value;
 			
@@ -482,6 +482,72 @@ public class ImportExportComponent extends VerticalLayout
 		public synchronized void clearError()
 		{
 			error = null;
+		}
+	}
+	
+	
+	
+	public static class BinderDBDumpContentElements
+	{
+		private boolean systemConfig = true;
+		private boolean directorySchema = true;
+		private boolean users = true;
+		private boolean auditLogs = true;
+		private boolean signupRequests = true;
+
+		public BinderDBDumpContentElements()
+		{
+
+		}
+
+		public boolean isSystemConfig()
+		{
+			return systemConfig;
+		}
+
+		public void setSystemConfig(boolean systemConfig)
+		{
+			this.systemConfig = systemConfig;
+		}
+
+		public boolean isDirectorySchema()
+		{
+			return directorySchema;
+		}
+
+		public void setDirectorySchema(boolean directorySchema)
+		{
+			this.directorySchema = directorySchema;
+		}
+
+		public boolean isUsers()
+		{
+			return users;
+		}
+
+		public void setUsers(boolean users)
+		{
+			this.users = users;
+		}
+
+		public boolean isAuditLogs()
+		{
+			return auditLogs;
+		}
+
+		public void setAuditLogs(boolean auditLogs)
+		{
+			this.auditLogs = auditLogs;
+		}
+
+		public boolean isSignupRequests()
+		{
+			return signupRequests;
+		}
+
+		public void setSignupRequests(boolean signupRequests)
+		{
+			this.signupRequests = signupRequests;
 		}
 	}
 }

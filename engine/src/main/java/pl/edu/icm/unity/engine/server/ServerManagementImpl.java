@@ -38,7 +38,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.StorageCleaner;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * Implementation of general maintenance.
@@ -92,7 +92,7 @@ public class ServerManagementImpl implements ServerManagement
 
 	@Override
 	@Transactional
-	public File exportDb(DBDumpContentType content) throws EngineException
+	public File exportDb(DBDumpContentElements content) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try

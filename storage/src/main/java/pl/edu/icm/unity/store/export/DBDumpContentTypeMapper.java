@@ -37,33 +37,33 @@ import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
- * Helper which maps from {@link DBDumpContentType} to database elements list.
+ * Helper which maps from {@link DBDumpContentElements} to database elements list.
  * 
  * @author P.Piernik
  *
  */
 public class DBDumpContentTypeMapper
 {
-	public static List<String> getDBElements(DBDumpContentType content)
+	public static List<String> getDBElements(DBDumpContentElements content)
 	{
 		List<String> ret = new ArrayList<>();
 
-		if (content.isSystemConfig())
+		if (content.systemConfig)
 		{
 			ret.addAll(getSystemConfigElements());
 		}
 
-		if (content.isDirectorySchema())
+		if (content.directorySchema)
 		{
 			ret.addAll(getDirSchemaElements());
 		}
 
-		if (content.isUsers())
+		if (content.users)
 		{
-			if (!content.isDirectorySchema() && !ret.containsAll(getDirSchemaElements()))
+			if (!content.directorySchema && !ret.containsAll(getDirSchemaElements()))
 			{
 				ret.addAll(getDirSchemaElements());
 			}
@@ -71,9 +71,9 @@ public class DBDumpContentTypeMapper
 			ret.addAll(getUsersElements());
 		}
 
-		if (content.isSignupRequests())
+		if (content.signupRequests)
 		{
-			if (!content.isDirectorySchema() && !ret.containsAll(getDirSchemaElements()))
+			if (!content.directorySchema && !ret.containsAll(getDirSchemaElements()))
 			{
 				ret.addAll(getDirSchemaElements());
 			}
@@ -81,7 +81,7 @@ public class DBDumpContentTypeMapper
 			ret.addAll(getSignupRequestsElements());
 		}
 
-		if (content.isAuditLogs())
+		if (content.auditLogs)
 		{
 			ret.addAll(getAuditLogsElements());
 		}
@@ -89,26 +89,26 @@ public class DBDumpContentTypeMapper
 		return ret;
 	}
 
-	public static List<String> getElementsForClearDB(DBDumpContentType content)
+	public static List<String> getElementsForClearDB(DBDumpContentElements content)
 	{
 		List<String> ret = getDBElements(content);
 
-		if (content.isDirectorySchema() && !ret.containsAll(getUsersElements()))
+		if (content.directorySchema && !ret.containsAll(getUsersElements()))
 		{
 			ret.addAll(getUsersElements());
 		}
 
-		if (content.isDirectorySchema() && !ret.containsAll(getSignupRequestsElements()))
+		if (content.directorySchema && !ret.containsAll(getSignupRequestsElements()))
 		{
 			ret.addAll(getSignupRequestsElements());
 		}
 
-		if (content.isUsers() && !ret.containsAll(getDirSchemaElements()))
+		if (content.users && !ret.containsAll(getDirSchemaElements()))
 		{
 			ret.addAll(getDirSchemaElements());
 		}
 
-		if (content.isSignupRequests() && !ret.containsAll(getDirSchemaElements()))
+		if (content.signupRequests && !ret.containsAll(getDirSchemaElements()))
 		{
 			ret.addAll(getDirSchemaElements());
 		}

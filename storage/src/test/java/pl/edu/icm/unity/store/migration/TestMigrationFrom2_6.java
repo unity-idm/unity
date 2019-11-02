@@ -34,7 +34,7 @@ import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -88,7 +88,7 @@ public class TestMigrationFrom2_6
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.6.x/"
 								+ "testbed-from2.6.2-withregReqForGroup.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -110,7 +110,7 @@ public class TestMigrationFrom2_6
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.6.x/"
 						+ "local-from2.6.2-enquiryAndRegWithCustomLayouts.json")));
-				ie.store(new FileOutputStream("target/afterImport2.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport2.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -206,7 +206,7 @@ public class TestMigrationFrom2_6
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.6.x/"
 								+ "testbed-from2.6.2-withOrphanedAttr.json")));
-				ie.store(new FileOutputStream("target/afterImport2.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport2.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

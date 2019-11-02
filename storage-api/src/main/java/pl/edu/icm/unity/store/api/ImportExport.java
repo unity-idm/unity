@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * Provides feature to export and import database dumps to a file. 
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.DBDumpContentType;
 public interface ImportExport
 {
 	void load(InputStream is) throws IOException;
-	void store(OutputStream os, DBDumpContentType content) throws IOException;
-	void storeWithVersion(OutputStream os, DBDumpContentType content, int version) throws IOException;
+	void store(OutputStream os, DBDumpContentElements content) throws IOException;
+	void storeWithVersion(OutputStream os, DBDumpContentElements content, int version) throws IOException;
 	List<String> getDBDumpElements(InputStream is) throws IOException;
 }

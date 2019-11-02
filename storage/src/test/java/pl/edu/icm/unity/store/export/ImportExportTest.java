@@ -73,7 +73,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
@@ -238,12 +238,8 @@ public class ImportExportTest
 				outProfileDB.create(new TranslationProfile("test2", "test", ProfileType.OUTPUT,
 						Lists.emptyList()));
 
-				DBDumpContentType el = new DBDumpContentType();
-				el.setAuditLogs(false);
-				el.setDirectorySchema(false);
-				el.setUsers(false);
-				el.setSignupRequests(false);
-
+				DBDumpContentElements el = new DBDumpContentElements(true, false, false, false, false);
+				
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
@@ -307,12 +303,8 @@ public class ImportExportTest
 						new I18nMessage(new I18nString(), new I18nString()), "test",
 						MessageType.PLAIN, "test"));
 
-				DBDumpContentType el = new DBDumpContentType();
-				el.setAuditLogs(false);
-				el.setSystemConfig(false);
-				el.setUsers(false);
-				el.setSignupRequests(false);
-
+				DBDumpContentElements el = new DBDumpContentElements(false, true, false, false, false);
+	
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
@@ -367,12 +359,7 @@ public class ImportExportTest
 				tk.setExpires(new Date());
 				tokenDB.create(tk);
 
-				DBDumpContentType el = new DBDumpContentType();
-				el.setAuditLogs(false);
-				el.setSystemConfig(false);
-				el.setDirectorySchema(true);
-				el.setUsers(true);
-				el.setSignupRequests(false);
+				DBDumpContentElements el = new DBDumpContentElements(false, true, true, false, false);
 
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
@@ -413,11 +400,7 @@ public class ImportExportTest
 						.initiator(new AuditEntity(1L, "test", "test")).timestamp(new Date())
 						.name("test").build());
 
-				DBDumpContentType el = new DBDumpContentType();
-				el.setAuditLogs(true);
-				el.setSystemConfig(false);
-				el.setDirectorySchema(false);
-				el.setUsers(false);
+				DBDumpContentElements el = new DBDumpContentElements(false, false, false, true, false);
 
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
@@ -466,12 +449,7 @@ public class ImportExportTest
 						new RegistrationInvitationParam("test", new Date().toInstant()),
 						"test"));
 
-				DBDumpContentType el = new DBDumpContentType();
-				el.setAuditLogs(true);
-				el.setSystemConfig(false);
-				el.setDirectorySchema(true);
-				el.setUsers(false);
-				el.setSignupRequests(true);
+				DBDumpContentElements el = new DBDumpContentElements(false, false, false, false, true);
 
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 

@@ -50,7 +50,7 @@ import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -101,7 +101,7 @@ public class TestMigrationFrom1_9
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from1.9.x/"
 						+ "testbed-from1.9.2-complete.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -178,7 +178,7 @@ public class TestMigrationFrom1_9
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from1.9.x/"
 						+ "testbed-from1.9.5-password.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

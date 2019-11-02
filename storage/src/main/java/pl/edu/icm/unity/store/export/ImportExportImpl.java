@@ -30,7 +30,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.impl.tokens.TokensIE;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * Import/export functionality. 
@@ -72,13 +72,13 @@ public class ImportExportImpl implements ImportExport
 	}
 
 	@Override
-	public void store(OutputStream os, DBDumpContentType content) throws IOException
+	public void store(OutputStream os, DBDumpContentElements content) throws IOException
 	{
 		storeWithVersion(os, content, AppDataSchemaVersion.CURRENT.getJsonDumpVersion());
 	}
 	
 	@Override
-	public void storeWithVersion(OutputStream os, DBDumpContentType content, int version) throws IOException
+	public void storeWithVersion(OutputStream os, DBDumpContentElements content, int version) throws IOException
 	{
 		JsonFactory jsonF = new JsonFactory(objectMapper);
 		JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
@@ -179,7 +179,7 @@ public class ImportExportImpl implements ImportExport
 			return asList;
 			
 		}catch (Exception e) {
-			return DBDumpContentTypeMapper.getDBElements(new DBDumpContentType());
+			return DBDumpContentTypeMapper.getDBElements(new DBDumpContentElements());
 		}
 		
 	}

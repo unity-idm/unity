@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -50,7 +50,7 @@ public class TestMigrationFrom2_8
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.8.x/"
 						+ "testbed-from2.8.0.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();

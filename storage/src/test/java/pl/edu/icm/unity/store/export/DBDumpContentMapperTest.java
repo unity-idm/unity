@@ -17,7 +17,7 @@ import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
 import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * 
@@ -29,12 +29,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenSignupRequests()
 	{
-		DBDumpContentType ct = new DBDumpContentType();
-		ct.setAuditLogs(false);
-		ct.setDirectorySchema(false);
-		ct.setSignupRequests(true);
-		ct.setUsers(false);
-		ct.setSystemConfig(false);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, false, false, true);
 
 		List<String> ret = DBDumpContentTypeMapper.getDBElements(ct);
 		// Dir schema
@@ -50,12 +45,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenUsers()
 	{
-		DBDumpContentType ct = new DBDumpContentType();
-		ct.setAuditLogs(false);
-		ct.setDirectorySchema(false);
-		ct.setSignupRequests(false);
-		ct.setUsers(true);
-		ct.setSystemConfig(false);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, true, false, false);
 
 		List<String> ret = DBDumpContentTypeMapper.getDBElements(ct);
 		// Dir schema
@@ -71,12 +61,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenClearUsers()
 	{
-		DBDumpContentType ct = new DBDumpContentType();
-		ct.setAuditLogs(false);
-		ct.setDirectorySchema(false);
-		ct.setSignupRequests(false);
-		ct.setUsers(true);
-		ct.setSystemConfig(false);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, true, false, false);
 
 		List<String> ret = DBDumpContentTypeMapper.getElementsForClearDB(ct);
 		// Dir schema
@@ -89,12 +74,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenClearSignupRequests()
 	{
-		DBDumpContentType ct = new DBDumpContentType();
-		ct.setAuditLogs(false);
-		ct.setDirectorySchema(false);
-		ct.setSignupRequests(true);
-		ct.setUsers(false);
-		ct.setSystemConfig(false);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, false, false, true);
 
 		List<String> ret = DBDumpContentTypeMapper.getElementsForClearDB(ct);
 		// Dir schema

@@ -36,7 +36,7 @@ import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.DBDumpContentType;
+import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
@@ -78,7 +78,7 @@ public class TestMigrationFrom2_0
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from2.4.x/"
 								+ "testbed-from2.4.0-confirmationConfig.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentType());
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
 				e.printStackTrace();
