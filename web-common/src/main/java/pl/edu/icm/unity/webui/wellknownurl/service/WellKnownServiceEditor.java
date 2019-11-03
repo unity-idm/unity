@@ -49,8 +49,13 @@ public class WellKnownServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new WellKnownServiceEditorComponent(msg, (DefaultServiceDefinition) endpoint, allRealms, flows,
-				authenticators);
+		
+		GeneralTab generalTab = new GeneralTab(msg, WellKnownURLEndpointFactory.TYPE, usedPaths);
+		
+		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
+				WellKnownURLEndpointFactory.TYPE.getSupportedBinding());
+		
+		editor = new WellKnownServiceEditorComponent(msg, generalTab, authenticationTab, (DefaultServiceDefinition) endpoint);
 		return editor;
 	}
 
@@ -65,17 +70,17 @@ public class WellKnownServiceEditor implements ServiceEditor
 
 		private Binder<DefaultServiceDefinition> serviceBinder;
 
-		public WellKnownServiceEditorComponent(UnityMessageSource msg, DefaultServiceDefinition toEdit,
-				List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-				List<AuthenticatorInfo> authenticators)
+		public WellKnownServiceEditorComponent(UnityMessageSource msg, GeneralTab generalTab, AuthenticationTab authTab,
+				DefaultServiceDefinition toEdit)
 		{
 			super(msg);
 			boolean editMode = toEdit != null;
 			serviceBinder = new Binder<>(DefaultServiceDefinition.class);
 
-			registerTab(new GeneralTab(msg, serviceBinder, WellKnownURLEndpointFactory.TYPE, usedPaths, editMode));
-			registerTab(new AuthenticationTab(msg, flows, authenticators, allRealms,
-					WellKnownURLEndpointFactory.TYPE.getSupportedBinding(), serviceBinder));
+			generalTab.initUI(serviceBinder, editMode);
+			registerTab(generalTab);
+			authTab.initUI(serviceBinder);
+			registerTab(authTab);
 			serviceBinder.setBean(editMode ? toEdit
 					: new DefaultServiceDefinition(WellKnownURLEndpointFactory.TYPE.getName()));
 

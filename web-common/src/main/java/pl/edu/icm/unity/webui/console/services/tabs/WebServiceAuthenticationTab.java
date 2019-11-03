@@ -41,6 +41,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 
 /**
+ * Service web authentication editor tab
  * 
  * @author P.Piernik
  *
@@ -63,28 +64,23 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 	private Binder<DefaultServiceDefinition> binder;
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private GroupedValuesChipsWithDropdown authAndFlows;
-	
-	
+
 	public WebServiceAuthenticationTab(UnityMessageSource msg, URIAccessService uriAccessService,
 			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<String> registrationForms, String binding,
-			Binder<DefaultServiceDefinition> binder, Binder<ServiceWebConfiguration> webConfigBinder, String caption)
+			List<String> allRealms, List<String> registrationForms, String binding, String caption)
 	{
-		this(msg, uriAccessService, serverConfig, authenticatorSupportService, flows, authenticators, allRealms, registrationForms, binding, binder, webConfigBinder);
+		this(msg, uriAccessService, serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
+				registrationForms, binding);
 		setCaption(caption);
 	}
-	
-	
+
 	public WebServiceAuthenticationTab(UnityMessageSource msg, URIAccessService uriAccessService,
 			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<String> registrationForms, String binding,
-			Binder<DefaultServiceDefinition> binder, Binder<ServiceWebConfiguration> webConfigBinder)
+			List<String> allRealms, List<String> registrationForms, String binding)
 
 	{
-		this.binder = binder;
-		this.webConfigBinder = webConfigBinder;
 		this.msg = msg;
 		this.allRealms = allRealms;
 		this.registrationForms = registrationForms;
@@ -94,7 +90,6 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 		this.flows = filterAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
-		initUI();
 		setCaption(msg.getMessage("ServiceEditorBase.authentication"));
 	}
 
@@ -127,9 +122,12 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 
 	}
 
-	private void initUI()
+	public void initUI(Binder<DefaultServiceDefinition> binder, Binder<ServiceWebConfiguration> webConfigBinder)
 	{
-		setIcon(Images.sign_in.getResource());		
+		this.binder = binder;
+		this.webConfigBinder = webConfigBinder;
+
+		setIcon(Images.sign_in.getResource());
 		VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.addComponent(buildMainSection());
 		mainWrapper.addComponent(buildRegistrationSection());
@@ -268,8 +266,8 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 
-		webScreenEditor = new WebServiceAuthnScreenLayoutEditor(msg,
-				authenticatorSupportService, () -> authAndFlows.getSelectedItems());
+		webScreenEditor = new WebServiceAuthnScreenLayoutEditor(msg, authenticatorSupportService,
+				() -> authAndFlows.getSelectedItems());
 		authAndFlows.addValueChangeListener(e -> webScreenEditor.refreshColumnsElements());
 		webScreenEditor.configureBinding(webConfigBinder, "authnScreenProperties");
 		main.addComponent(webScreenEditor);
@@ -295,7 +293,6 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 
 		return layoutForRetUserSection;
 	}
-
 
 	@Override
 	public ServiceEditorTab getType()

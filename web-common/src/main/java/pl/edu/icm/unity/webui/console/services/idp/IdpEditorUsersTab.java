@@ -55,19 +55,18 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 	protected Map<String, String> availableClients;
 	private GridWithEditorInDetails<ActiveValueConfig> releasedAttrsGrid;
 
-	public IdpEditorUsersTab(UnityMessageSource msg, Binder<?> configBinder, List<Group> groups,
+	public IdpEditorUsersTab(UnityMessageSource msg, List<Group> groups,
 			List<IdpUser> allUsers, List<String> attrTypes)
 	{
 		this.msg = msg;
-		this.configBinder = configBinder;
 		this.allGroups = groups;
 		this.allUsers = allUsers;
 		this.allAttrTypes = attrTypes;
-		initUI();
 	}
 
-	protected void initUI()
+	public void initUI(Binder<?> configBinder)
 	{
+		this.configBinder = configBinder;
 		setCaption(msg.getMessage("IdpServiceEditorBase.users"));
 		setIcon(Images.family.getResource());
 		VerticalLayout mainLayout = new VerticalLayout();

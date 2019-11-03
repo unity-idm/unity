@@ -8,6 +8,8 @@ package pl.edu.icm.unity.restadm.web.console;
 import java.util.List;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
+import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -15,6 +17,7 @@ import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * 
@@ -32,9 +35,8 @@ class RestAdminServiceEditor implements ServiceEditor
 	private RestAdminServiceEditorComponent editor;
 	private List<String> usedPaths;
 
-	RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> usedPaths)
+	RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+			List<AuthenticatorInfo> authenticators, List<String> usedPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -46,8 +48,15 @@ class RestAdminServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new RestAdminServiceEditorComponent(msg, (DefaultServiceDefinition) endpoint, allRealms, flows,
-				authenticators, usedPaths);
+
+		RestAdminServiceEditorGeneralTab restAdminServiceEditorGeneralTab = new RestAdminServiceEditorGeneralTab(
+				msg, RESTAdminEndpoint.TYPE, usedPaths);
+
+		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
+				JWTManagementEndpoint.TYPE.getSupportedBinding());
+
+		editor = new RestAdminServiceEditorComponent(msg, restAdminServiceEditorGeneralTab, authenticationTab,
+				(DefaultServiceDefinition) endpoint);
 		return editor;
 	}
 

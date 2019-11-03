@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
@@ -27,7 +28,9 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditor implements ServiceEditor
 {
@@ -105,10 +108,15 @@ class OAuthServiceEditor implements ServiceEditor
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
 				subViewSwitcher, flows, authenticators, allRealms, allUsernames,
 				OAuthTokenEndpoint.TYPE.getSupportedBinding());
-		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, uriAccessService,
-				fileStorageService, serverConfig, endpoint,
-				allRealms, flows, authenticators, allGroups, allIdpUsers, systemClientsSupplier, registrationForms,
-				authenticatorSupportService, allAttributes);
+		WebServiceAuthenticationTab webAuthTab = new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
+				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
+				OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding(),
+				msg.getMessage("IdpServiceEditorBase.authentication"));
+		IdpEditorUsersTab usersTab = new IdpEditorUsersTab(msg, allGroups, allIdpUsers,
+				allAttributes);
+		
+		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab,
+				fileStorageService, uriAccessService, endpoint, allGroups, systemClientsSupplier);
 		return editor;
 	}
 

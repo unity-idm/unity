@@ -5,37 +5,26 @@
 
 package pl.edu.icm.unity.saml.idp.ws.console;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 
-import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLServiceConfiguration;
-import pl.edu.icm.unity.saml.idp.console.SAMLUsersEditorTab;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
-import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
@@ -52,35 +41,29 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 	private Binder<SAMLServiceConfiguration> samlConfigBinder;
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
 
-	SAMLSoapServiceEditorComponent(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
-			SubViewSwitcher subViewSwitcher, NetworkServer server, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			ServiceDefinition toEdit, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<Group> allGroups, List<IdpUser> allUsers,
-			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes,
-			List<String> allAttributes, List<String> usedPaths)
+	SAMLSoapServiceEditorComponent(UnityMessageSource msg, SAMLEditorGeneralTab generalTab,
+			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
+			AuthenticationTab authTab, EndpointTypeDescription type, PKIManagement pkiMan,
+			URIAccessService uriAccessService,
+			FileStorageService fileStorageService,
+			ServiceDefinition toEdit, List<Group> allGroups)
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
 		this.pkiMan = pkiMan;
-
 		boolean editMode = toEdit != null;
 
 		samlServiceBinder = new Binder<>(DefaultServiceDefinition.class);
 		samlConfigBinder = new Binder<>(SAMLServiceConfiguration.class);
 
-		registerTab(new SAMLEditorGeneralTab(msg, server, serverConfig, subViewSwitcher,
-				outputTranslationProfileFieldFactory, samlServiceBinder, samlConfigBinder, editMode,
-				usedPaths, credentials, truststores, idTypes));
-		SAMLEditorClientsTab clientsTab = new SAMLEditorClientsTab(msg, pkiMan, serverConfig, uriAccessService,
-				fileStorageService, samlConfigBinder, subViewSwitcher);
+		generalTab.initUI(samlServiceBinder, samlConfigBinder, editMode);
+		registerTab(generalTab);
+		clientsTab.initUI(samlConfigBinder);
 		registerTab(clientsTab);
-		IdpEditorUsersTab usersTab = new SAMLUsersEditorTab(msg, samlConfigBinder, allGroups, allUsers,
-				allAttributes);
+		usersTab.initUI(samlConfigBinder);
 		registerTab(usersTab);
-		registerTab(new AuthenticationTab(msg, flows, authenticators, allRealms, type.getSupportedBinding(),
-				samlServiceBinder));
+		authTab.initUI(samlServiceBinder);
+		registerTab(authTab);
 
 		DefaultServiceDefinition serviceBean = new DefaultServiceDefinition(type.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();

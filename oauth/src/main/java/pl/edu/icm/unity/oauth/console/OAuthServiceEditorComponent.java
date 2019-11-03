@@ -18,8 +18,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -27,8 +25,6 @@ import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.oauth.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -38,7 +34,6 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
-import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditorComponent extends ServiceEditorBase
@@ -57,25 +52,17 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	OAuthServiceEditorComponent(UnityMessageSource msg, 
 			OAuthEditorGeneralTab generalTab,
 			OAuthEditorClientsTab clientsTab,
-			URIAccessService uriAccessService, 
+			IdpEditorUsersTab usersTab,
+			WebServiceAuthenticationTab webAuthTab,
 			FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, 
+			URIAccessService uriAccessService,
 			ServiceDefinition toEdit, 
-			List<String> allRealms, 
-			List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, 
 			List<Group> allGroups, 
-			List<IdpUser> allUsers,
-			Function<String, List<OAuthClient>> systemClientsSupplier, 
-			List<String> registrationForms, 
-			AuthenticatorSupportService authenticatorSupportService, 
-			List<String> attrTypes)
+			Function<String, List<OAuthClient>> systemClientsSupplier)
 	{
 		super(msg);
-		editMode = toEdit != null;
-
 		this.fileStorageService = fileStorageService;
-
+		editMode = toEdit != null;
 		oauthServiceWebAuthzBinder = new Binder<>(DefaultServiceDefinition.class);
 		oauthConfigBinder = new Binder<>(OAuthServiceConfiguration.class);
 		oauthServiceTokenBinder = new Binder<>(DefaultServiceDefinition.class);
@@ -102,9 +89,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		generalTab.initUI(oauthServiceWebAuthzBinder, oauthServiceTokenBinder, oauthConfigBinder);
 		clientsTab.initUI(groupsWithAutoGen, oauthServiceTokenBinder, oauthConfigBinder, clientsBinder);
-
-		IdpEditorUsersTab usersTab = new IdpEditorUsersTab(msg, oauthConfigBinder, allGroups, allUsers,
-				attrTypes);
+		usersTab.initUI(oauthConfigBinder);
 
 		generalTab.addNameValueChangeListener(e -> 
 		{
@@ -113,14 +98,12 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			generatedIdPGroup.setDisplayedName(new I18nString(displayedName));
 			clientsTab.refreshGroups();
 		});
-
+		webAuthTab.initUI(oauthServiceWebAuthzBinder, webConfigBinder);
+		
 		registerTab(generalTab);
 		registerTab(clientsTab);
 		registerTab(usersTab);
-		registerTab(new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
-				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
-				OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding(), oauthServiceWebAuthzBinder,
-				webConfigBinder, msg.getMessage("IdpServiceEditorBase.authentication")));
+		registerTab(webAuthTab);
 
 		OAuthServiceDefinition oauthServiceToEdit;
 		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(allGroups);

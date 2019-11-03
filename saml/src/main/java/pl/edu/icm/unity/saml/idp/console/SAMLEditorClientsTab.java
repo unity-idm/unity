@@ -56,21 +56,20 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 	private IndividualTrustedSPComponent trustedSPs;
 	
 	public SAMLEditorClientsTab(UnityMessageSource msg, PKIManagement pkiMan, UnityServerConfiguration serverConfig,
-			URIAccessService uriAccessService, FileStorageService fileStorageService, Binder<SAMLServiceConfiguration> configBinder,
+			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			SubViewSwitcher subViewSwitcher)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
-		this.configBinder = configBinder;
 		this.subViewSwitcher = subViewSwitcher;
 		this.pkiMan = pkiMan;
 		this.serverConfig = serverConfig;
-		initUI();
 	}
 
-	private void initUI()
+	public void initUI(Binder<SAMLServiceConfiguration> configBinder)
 	{
+		this.configBinder = configBinder;
 		setCaption(msg.getMessage("IdpServiceEditorBase.clients"));
 		setIcon(Images.bullets.getResource());
 		VerticalLayout mainLayout = new VerticalLayout();

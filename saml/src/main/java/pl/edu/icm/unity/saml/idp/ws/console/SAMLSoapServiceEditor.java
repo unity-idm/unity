@@ -16,6 +16,9 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
+import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
+import pl.edu.icm.unity.saml.idp.console.SAMLUsersEditorTab;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
@@ -26,7 +29,9 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * SAML SOAP Service editor
@@ -91,10 +96,21 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new SAMLSoapServiceEditorComponent(msg, type, pkiMan, subViewSwitcher, server,
-				uriAccessService, fileStorageService, serverConfig,
-				outputTranslationProfileFieldFactory, endpoint, allRealms, flows, authenticators,
-				allGroups, allUsers, credentials, truststores, idTypes, allAttributes, usedPaths);
+		
+		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, server, serverConfig, subViewSwitcher,
+				outputTranslationProfileFieldFactory,
+				usedPaths, credentials, truststores, idTypes);
+		
+		SAMLEditorClientsTab clientsTab = new SAMLEditorClientsTab(msg, pkiMan, serverConfig, uriAccessService,
+				fileStorageService, subViewSwitcher);
+		
+		IdpEditorUsersTab usersTab = new SAMLUsersEditorTab(msg, allGroups, allUsers,
+				allAttributes);
+		
+		AuthenticationTab authTab = new AuthenticationTab(msg, flows, authenticators, allRealms, type.getSupportedBinding());
+		
+		editor = new SAMLSoapServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, authTab,
+				type, pkiMan, uriAccessService, fileStorageService, endpoint, allGroups);
 		return editor;
 	}
 

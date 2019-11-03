@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * JWT service service editor
@@ -33,9 +35,8 @@ class JWTServiceEditor implements ServiceEditor
 	private JWTServiceEditorComponent editor;
 	private List<String> usedPaths;
 
-	JWTServiceEditor(UnityMessageSource msg, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			Set<String> credentials, List<String> usedPaths)
+	JWTServiceEditor(UnityMessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+			List<AuthenticatorInfo> authenticators, Set<String> credentials, List<String> usedPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -48,8 +49,14 @@ class JWTServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new JWTServiceEditorComponent(msg, (DefaultServiceDefinition) endpoint, allRealms, flows,
-				authenticators, credentials, usedPaths);
+
+		JWTServiceEditorGeneralTab generalTab = new JWTServiceEditorGeneralTab(msg, JWTManagementEndpoint.TYPE,
+				usedPaths, credentials);
+
+		AuthenticationTab authTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
+				JWTManagementEndpoint.TYPE.getSupportedBinding());
+
+		editor = new JWTServiceEditorComponent(msg, generalTab, authTab, (DefaultServiceDefinition) endpoint);
 		return editor;
 	}
 

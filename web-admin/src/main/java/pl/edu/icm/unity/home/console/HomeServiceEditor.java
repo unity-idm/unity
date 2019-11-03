@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * Home service editor
@@ -74,10 +76,17 @@ class HomeServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new HomeServiceEditorComponent(msg, uriAccessService, fileStorageService, serverConfig,
-				(DefaultServiceDefinition) endpoint, allRealms, flows, authenticators, extraTab,
-				allAttributes, allGroups, upManServices, enquiryForms, registrationForms, usedPaths,
-				authenticatorSupportService);
+
+		HomeServiceEditorGeneralTab homeServiceEditorGeneralTab = new HomeServiceEditorGeneralTab(msg,
+				UserHomeEndpointFactory.TYPE, usedPaths, extraTab, allAttributes, allGroups,
+				upManServices, enquiryForms, registrationForms);
+		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService,
+				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
+				registrationForms, UserHomeEndpointFactory.TYPE.getSupportedBinding());
+
+		editor = new HomeServiceEditorComponent(msg, homeServiceEditorGeneralTab, authenticationTab,
+				uriAccessService, fileStorageService, serverConfig, (DefaultServiceDefinition) endpoint,
+				extraTab, allGroups);
 		return editor;
 	}
 

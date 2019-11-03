@@ -25,6 +25,12 @@ import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
+/**
+ * Service base authentication editor tab
+ * 
+ * @author P.Piernik
+ *
+ */
 public class AuthenticationTab extends CustomComponent implements EditorTab
 {
 	private UnityMessageSource msg;
@@ -32,11 +38,8 @@ public class AuthenticationTab extends CustomComponent implements EditorTab
 	private List<String> flows;
 	private List<String> authenticators;
 
-	private Binder<DefaultServiceDefinition> binder;
-
 	public AuthenticationTab(UnityMessageSource msg, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> allRealms, String binding,
-			Binder<DefaultServiceDefinition> binder)
+			List<AuthenticatorInfo> authenticators, List<String> allRealms, String binding)
 
 	{
 		this.msg = msg;
@@ -44,12 +47,10 @@ public class AuthenticationTab extends CustomComponent implements EditorTab
 		this.flows = WebServiceAuthenticationTab.filterAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
-		this.binder = binder;
-		initUI();
 	}
 
-	private void initUI()
-	{
+	public void initUI(Binder<DefaultServiceDefinition> binder)
+	{	
 		setCaption(msg.getMessage("ServiceEditorBase.authentication"));
 		setIcon(Images.sign_in.getResource());
 		

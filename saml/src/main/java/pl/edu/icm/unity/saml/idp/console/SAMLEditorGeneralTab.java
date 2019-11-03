@@ -84,15 +84,11 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 
 	public SAMLEditorGeneralTab(UnityMessageSource msg, NetworkServer server, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
-			Binder<DefaultServiceDefinition> samlServiceBinder,
-			Binder<SAMLServiceConfiguration> configBinder, boolean editMode, List<String> usedPaths,
+			List<String> usedPaths,
 			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes)
 	{
 		this.msg = msg;
 		this.serverConfig = serverConfig;
-		this.samlServiceBinder = samlServiceBinder;
-		this.configBinder = configBinder;
-		this.editMode = editMode;
 		this.subViewSwitcher = subViewSwitcher;
 		this.profileFieldFactory = profileFieldFactory;
 		this.usedPaths = usedPaths;
@@ -100,11 +96,15 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		this.truststores = truststores;
 		this.idTypes = idTypes;
 		serverPrefix = server.getAdvertisedAddress().toString();
-		initUI();
 	}
 
-	private void initUI()
+	public void initUI(Binder<DefaultServiceDefinition> samlServiceBinder,
+			Binder<SAMLServiceConfiguration> configBinder, boolean editMode)
 	{
+		this.samlServiceBinder = samlServiceBinder;
+		this.configBinder = configBinder;
+		this.editMode = editMode;
+		
 		setCaption(msg.getMessage("ServiceEditorBase.general"));
 		setIcon(Images.cogs.getResource());
 		VerticalLayout main = new VerticalLayout();

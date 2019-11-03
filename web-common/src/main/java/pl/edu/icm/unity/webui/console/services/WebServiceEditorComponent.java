@@ -5,17 +5,11 @@
 
 package pl.edu.icm.unity.webui.console.services;
 
-import java.util.List;
-
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -36,22 +30,19 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private FileStorageService fileStorageService;
 
-	public WebServiceEditorComponent(UnityMessageSource msg, EndpointTypeDescription type,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, DefaultServiceDefinition toEdit, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> registrationForms, List<String> usedPaths,
-			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
+	public WebServiceEditorComponent(UnityMessageSource msg, GeneralTab generalTab, WebServiceAuthenticationTab authTab,  EndpointTypeDescription type,
+			URIAccessService uriAccessService, FileStorageService fileStorageService,  DefaultServiceDefinition toEdit, String defaultMainTheme)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
-
+		this.fileStorageService = fileStorageService;
+		
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
 		webConfigBinder = new Binder<>(ServiceWebConfiguration.class);
-		registerTab(new GeneralTab(msg, serviceBinder, type, usedPaths, editMode));
-		registerTab(new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
-				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
-				type.getSupportedBinding(), serviceBinder, webConfigBinder));
+		generalTab.initUI(serviceBinder, editMode);
+		registerTab(generalTab);
+		authTab.initUI(serviceBinder, webConfigBinder);
+		registerTab(authTab);
 		DefaultServiceDefinition service = new DefaultServiceDefinition(type.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(defaultMainTheme);
 		if (editMode)

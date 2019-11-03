@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
 /**
+ * Service general editor tab
  * 
  * @author P.Piernik
  *
@@ -36,26 +37,20 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
 public class GeneralTab extends CustomComponent implements EditorTab
 {
 	protected UnityMessageSource msg;
-	private Binder<DefaultServiceDefinition> binder;
-	private boolean editMode;
 	private EndpointTypeDescription type;
 	private List<String> usedPaths;
-	
 	protected VerticalLayout mainLayout;
+	
 
-	public GeneralTab(UnityMessageSource msg, Binder<DefaultServiceDefinition> binder, EndpointTypeDescription type, List<String> usedPaths,
-			boolean editMode)
+	public GeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedPaths)
 	{
 		this.msg = msg;
-		this.binder = binder;
-		this.editMode = editMode;
 		this.type = type;
 		this.usedPaths = usedPaths;
-		initUI();
 	}
 
-	private void initUI()
-	{
+	public void initUI(Binder<DefaultServiceDefinition> binder, boolean editMode)
+	{		
 		setCaption(msg.getMessage("ServiceEditorBase.general"));
 		setIcon(Images.cogs.getResource());
 		

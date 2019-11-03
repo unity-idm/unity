@@ -21,6 +21,8 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.console.services.WebServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * Editor for services which web authentication
@@ -67,9 +69,14 @@ public class WebServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new WebServiceEditorComponent(msg, type, uriAccessService, fileStorageService, serverConfig,
-				(DefaultServiceDefinition) endpoint, allRealms, flows, authenticators,
-				registrationForms, usedPaths, authenticatorSupportService, defaultMainTheme);
+
+		GeneralTab generalTab = new GeneralTab(msg, type, usedPaths);
+		WebServiceAuthenticationTab webServiceAuthenticationTab = new WebServiceAuthenticationTab(msg,
+				uriAccessService, serverConfig, authenticatorSupportService, flows, authenticators,
+				allRealms, registrationForms, type.getSupportedBinding());
+
+		editor = new WebServiceEditorComponent(msg, generalTab, webServiceAuthenticationTab, type,
+				uriAccessService, fileStorageService, (DefaultServiceDefinition) endpoint, defaultMainTheme);
 
 		return editor;
 	}

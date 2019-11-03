@@ -34,14 +34,15 @@ public class SAMLUsersEditorTab extends IdpEditorUsersTab
 	private ComboBox<String> clientsCombo;
 	private GridWithEditor<GroupMapping> groupMappings;
 
-	public SAMLUsersEditorTab(UnityMessageSource msg, Binder<?> configBinder, List<Group> groups,
+	public SAMLUsersEditorTab(UnityMessageSource msg, List<Group> groups,
 			List<IdpUser> allUsers, List<String> attrTypes)
 	{
-		super(msg, configBinder, groups, allUsers, attrTypes);
+		super(msg, groups, allUsers, attrTypes);
 	}
 
-	protected void initUI()
+	public void initUI(Binder<?> configBinder)
 	{
+		this.configBinder = configBinder;
 		setCaption(msg.getMessage("IdpServiceEditorBase.users"));
 		setIcon(Images.family.getResource());
 

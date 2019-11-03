@@ -27,7 +27,9 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * SAML Service editor
@@ -97,10 +99,22 @@ public class SAMLServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		editor = new SAMLServiceEditorComponent(msg, type, pkiMan, subViewSwitcher, server, uriAccessService,
-				fileStorageService, serverConfig, outputTranslationProfileFieldFactory, endpoint,
-				allRealms, flows, authenticators, allGroups, allUsers, registrationForms, credentials,
-				truststores, authenticatorSupportService, idTypes, allAttributes, usedPaths);
+		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, server, serverConfig, subViewSwitcher,
+				outputTranslationProfileFieldFactory,
+				usedPaths, credentials, truststores, idTypes);
+		
+		SAMLEditorClientsTab clientsTab = new SAMLEditorClientsTab(msg, pkiMan, serverConfig, uriAccessService,
+				fileStorageService, subViewSwitcher);
+		
+		IdpEditorUsersTab usersTab = new SAMLUsersEditorTab(msg, allGroups, allUsers,
+				allAttributes);
+		
+		WebServiceAuthenticationTab webServiceAuthenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
+				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
+				type.getSupportedBinding(), msg.getMessage("IdpServiceEditorBase.authentication"));
+		
+		editor = new SAMLServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, webServiceAuthenticationTab,
+				type, pkiMan, uriAccessService, fileStorageService, endpoint, allGroups);
 		return editor;
 	}
 
