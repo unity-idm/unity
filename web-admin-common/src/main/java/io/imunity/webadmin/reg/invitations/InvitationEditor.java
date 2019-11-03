@@ -296,9 +296,9 @@ public class InvitationEditor extends CustomComponent
 
 	String getLabel(EntityInGroupData info)
 	{
-		if (entityNameAttr != null && info.groupAttributesByName.containsKey("/"))
+		if (entityNameAttr != null)
 		{
-			AttributeExt name = info.groupAttributesByName.get(entityNameAttr);
+			AttributeExt name = info.rootAttributesByName.get(entityNameAttr);
 			if (name != null && !name.getValues().isEmpty())
 			{
 				return name.getValues().get(0);
