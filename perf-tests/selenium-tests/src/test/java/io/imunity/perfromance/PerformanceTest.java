@@ -33,4 +33,12 @@ public class PerformanceTest
 		oper.run();
 		oper.afterRun();
 	}
+	
+	@Test
+	public void testAdminClient()
+	{
+		RestAdminHttpClient cli = new RestAdminHttpClient("https://localhost:2443");
+		
+		cli.invalidateSession("per-user-1");
+	}
 }

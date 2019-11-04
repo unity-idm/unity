@@ -36,11 +36,14 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 	private static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(System.getProperty("unity.selenium.delay", "1500"));
 	
 	private final int index;
+	private final RestAdminHttpClient adminClient;
+
 	private WebDriver driver;
 	
 	public SingleLoginLogoutOperation(int index)
 	{
 		this.index = index;
+		adminClient = new RestAdminHttpClient(baseUrl);
 	}
 
 	@Override
@@ -59,7 +62,6 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		driver.manage().timeouts().implicitlyWait(WAIT_TIME_S, TimeUnit.SECONDS);
 	}
 
-
 	@Override
 	public void run()
 	{
@@ -73,7 +75,8 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		waitForPageLoad(By.xpath("//*[contains(text(), 'Cancel authentication')]"));
 		
 		driver.findElement(By.className("u-passwordUsernameField")).clear();
-		driver.findElement(By.className("u-passwordUsernameField")).sendKeys("perf-user-" + index);
+		String userName = "perf-user-" + index;
+		driver.findElement(By.className("u-passwordUsernameField")).sendKeys(userName);
 		driver.findElement(By.className("u-passwordField")).clear();
 		driver.findElement(By.className("u-passwordField")).sendKeys("the!test12");
 		driver.findElement(By.className("u-passwordSignInButton")).click();
@@ -89,6 +92,8 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
 		waitForElement(By.id("MainHeader.logout")).click();
 		driver.manage().deleteAllCookies();
+		
+		adminClient.invalidateSession(userName);
 	}
 
 	@Override
