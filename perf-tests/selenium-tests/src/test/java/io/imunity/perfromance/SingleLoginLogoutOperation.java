@@ -35,8 +35,13 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 	private static final int SLEEP_TIME_MS = 100;
 	private static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(System.getProperty("unity.selenium.delay", "1500"));
 	
+	private final int index;
 	private WebDriver driver;
 	
+	public SingleLoginLogoutOperation(int index)
+	{
+		this.index = index;
+	}
 
 	@Override
 	public void beforeRun()
@@ -58,28 +63,37 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 	@Override
 	public void run()
 	{
-		driver.get(baseUrl + "/admin/admin");
+		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-passwordSignInButton"));
 		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
+		
+		driver.findElement(By.className("u-idpAuthentication-oauth-local")).click();
+		
+		waitForPageLoad(By.xpath("//*[contains(text(), 'Cancel authentication')]"));
+		
 		driver.findElement(By.className("u-passwordUsernameField")).clear();
-		driver.findElement(By.className("u-passwordUsernameField")).sendKeys("a");
+		driver.findElement(By.className("u-passwordUsernameField")).sendKeys("perf-user-" + index);
 		driver.findElement(By.className("u-passwordField")).clear();
-		driver.findElement(By.className("u-passwordField")).sendKeys("a");
+		driver.findElement(By.className("u-passwordField")).sendKeys("the!test12");
 		driver.findElement(By.className("u-passwordSignInButton")).click();
 		
+		waitForPageLoad(By.id("IdpButtonsBar.confirmButton"));
+		driver.findElement(By.id("IdpButtonsBar.confirmButton")).click();
+		
 		waitForPageLoad(By.id("MainHeader.logout"));
-		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Default Administrator"));
+		
+		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Perf user"));
 		driver.findElement(By.id("MainHeader.logout"));
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
 		waitForElement(By.id("MainHeader.logout")).click();
+		driver.manage().deleteAllCookies();
 	}
 
 	@Override
 	public void afterRun()
 	{
-		driver.manage().deleteAllCookies();
 		driver.quit();
 	}
 	

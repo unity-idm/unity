@@ -11,7 +11,6 @@ package io.imunity.perfromance;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,12 @@ import org.slf4j.LoggerFactory;
 public class PerformanceTestExecutor
 {
 	private static final Logger LOG = LoggerFactory.getLogger(PerformanceTestExecutor.class);
-	private final Supplier<PerformanceTestRunnable> singleOperationUnderTestSupplier;
+	private final PerformanceTestProvider singleOperationUnderTestProvider;
 	private final int numberOfThreads;
 	
-	public PerformanceTestExecutor(Supplier<PerformanceTestRunnable> singleOperationUnderTestSupplier, int numberOfThreads)
+	public PerformanceTestExecutor(PerformanceTestProvider singleOperationUnderTestProvider, int numberOfThreads)
 	{
-		this.singleOperationUnderTestSupplier = singleOperationUnderTestSupplier;
+		this.singleOperationUnderTestProvider = singleOperationUnderTestProvider;
 		this.numberOfThreads = numberOfThreads;
 	}
 
@@ -45,7 +44,7 @@ public class PerformanceTestExecutor
 	{
 		List<LoopedThread> loopedThreads = new ArrayList<>(numberOfThreads);
 		for (int i = 0; i < numberOfThreads; i++)
-			loopedThreads.add(new LoopedThread(singleOperationUnderTestSupplier.get()));
+			loopedThreads.add(new LoopedThread(singleOperationUnderTestProvider.get(i+1)));
 		loopedThreads.forEach(LoopedThread::start);
 		return loopedThreads;
 	}
@@ -60,11 +59,14 @@ public class PerformanceTestExecutor
 	{
 		private final Thread thread;
 		private final PerformanceTestRunnable singleOperationUnderTest;
+		private final LoopedRunnable loopedRunnable;
 		
 		LoopedThread(PerformanceTestRunnable singleOperationUnderTest)
 		{
 			this.singleOperationUnderTest = singleOperationUnderTest;
-			this.thread = new Thread(new LoopedRunnable(singleOperationUnderTest));
+			this.loopedRunnable = new LoopedRunnable(singleOperationUnderTest);
+			this.thread = new Thread(loopedRunnable);
+			this.thread.setDaemon(true);
 		}
 		
 		void start()
@@ -75,7 +77,7 @@ public class PerformanceTestExecutor
 		
 		void stop() throws InterruptedException
 		{
-			thread.interrupt();
+			loopedRunnable.stop();
 			thread.join();
 			singleOperationUnderTest.afterRun();
 		}
@@ -84,6 +86,7 @@ public class PerformanceTestExecutor
 	static class LoopedRunnable implements Runnable
 	{
 		private final Runnable runnable;
+		private boolean working = true;
 		
 		LoopedRunnable(Runnable runnable)
 		{
@@ -93,10 +96,15 @@ public class PerformanceTestExecutor
 		@Override
 		public void run()
 		{
-			while (!Thread.currentThread().isInterrupted())
+			while (this.working)
 			{
 				runnable.run();
 			}
+		}
+		
+		public void stop()
+		{
+			this.working = false;
 		}
 	}
 
@@ -107,16 +115,16 @@ public class PerformanceTestExecutor
 
 	public static final class Builder
 	{
-		private Supplier<PerformanceTestRunnable> singleOperationUnderTestSupplier;
+		private PerformanceTestProvider singleOperationUnderTestProvider;
 		private int numberOfThreads;
 
 		private Builder()
 		{
 		}
 
-		public Builder withSingleOperationSupplier(Supplier<PerformanceTestRunnable> singleOperationUnderTestSupplier)
+		public Builder withSingleOperationProvider(PerformanceTestProvider singleOperationUnderTestProvider)
 		{
-			this.singleOperationUnderTestSupplier = singleOperationUnderTestSupplier;
+			this.singleOperationUnderTestProvider = singleOperationUnderTestProvider;
 			return this;
 		}
 
@@ -128,7 +136,7 @@ public class PerformanceTestExecutor
 
 		public PerformanceTestExecutor build()
 		{
-			return new PerformanceTestExecutor(singleOperationUnderTestSupplier, numberOfThreads);
+			return new PerformanceTestExecutor(singleOperationUnderTestProvider, numberOfThreads);
 		}
 	}
 }
