@@ -66,10 +66,9 @@ public class InternalCapacityLimitVerificator
 	public void assertInSystemLimit(CapacityLimitName name, long value) throws CapacityLimitReachedException
 	{
 		int limit = limitCache.getUnchecked(name.toString());
+		log.trace("Checks capacity limit for {} limit={}  value={}", name.toString(), limit, value);
 		if (limit < 0)
 			return;
-
-		log.trace("Checks capacity limit for {} limit={}  value={}", name.toString(), limit, value);
 
 		if (limit < value)
 		{

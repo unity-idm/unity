@@ -414,10 +414,6 @@ public class AttributesHelper
 
 	}
 	
-	
-
-	
-	
 	private boolean isSystemAttribute(AttributeType at)
 	{
 		return at.isInstanceImmutable() || at.isTypeImmutable();

@@ -113,9 +113,13 @@ public abstract class SecuredDBIntegrationTestBase
 	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();
-		capacityLimit.clearCache();
+		clearCapacityCache();
 	}
 	
+	protected void clearCapacityCache()
+	{
+		capacityLimit.clearCache();
+	}
 	protected void checkArray(Object[] toBeChecked, Object... shouldBeIn)
 	{
 		for (Object o: shouldBeIn)
