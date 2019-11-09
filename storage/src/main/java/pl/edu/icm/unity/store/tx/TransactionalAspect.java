@@ -44,7 +44,7 @@ public class TransactionalAspect
 		defaultEngine = getEngine(defEngine);
 	}
 	
-	@Around("execution(public * pl.edu.icm.unity..*.*(..)) && "
+	@Around("(execution(public * pl.edu.icm.unity..*.*(..)) || execution(public * io.imunity..*.*(..))) && "
 			+ "@within(transactional)")
 	private Object retryIfNeeded4Class(ProceedingJoinPoint pjp, TransactionalExt transactional) throws Throwable 
 	{
@@ -52,7 +52,7 @@ public class TransactionalAspect
 				transactional.autoCommit());
 	};
 	
-	@Around("execution(public * pl.edu.icm.unity..*.*(..)) && "
+	@Around("(execution(public * pl.edu.icm.unity..*.*(..)) || execution(public * io.imunity..*.*(..))) && "
 			+ "@annotation(transactional)")
 	public Object retryIfNeeded4Method(ProceedingJoinPoint pjp, TransactionalExt transactional) throws Throwable 
 	{
@@ -60,7 +60,7 @@ public class TransactionalAspect
 				transactional.autoCommit());
 	}
 	
-	@Around("execution(public * pl.edu.icm.unity..*.*(..)) && "
+	@Around("(execution(public * pl.edu.icm.unity..*.*(..)) || execution(public * io.imunity..*.*(..))) && "
 			+ "@within(transactional)")
 	private Object retryIfNeeded4Class(ProceedingJoinPoint pjp, Transactional transactional) throws Throwable 
 	{
@@ -68,7 +68,7 @@ public class TransactionalAspect
 				transactional.autoCommit());
 	};
 	
-	@Around("execution(public * pl.edu.icm.unity..*.*(..)) && "
+	@Around("(execution(public * pl.edu.icm.unity..*.*(..)) || execution(public * io.imunity..*.*(..))) && "
 			+ "@annotation(transactional)")
 	public Object retryIfNeeded4Method(ProceedingJoinPoint pjp, Transactional transactional) throws Throwable 
 	{

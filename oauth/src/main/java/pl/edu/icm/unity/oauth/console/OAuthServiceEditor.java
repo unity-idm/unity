@@ -16,7 +16,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -49,7 +48,8 @@ class OAuthServiceEditor implements ServiceEditor
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
-	private NetworkServer server;
+	private String serverPrefix;
+	private Set<String> serverContextPaths;
 	private Collection<IdentityType> idTypes;
 	private SubViewSwitcher subViewSwitcher;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
@@ -59,7 +59,8 @@ class OAuthServiceEditor implements ServiceEditor
 	OAuthServiceEditor(UnityMessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, 
-			NetworkServer server,
+			String serverPrefix,
+			Set<String> serverContextPaths,
 			URIAccessService uriAccessService, 
 			FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, 
@@ -89,7 +90,8 @@ class OAuthServiceEditor implements ServiceEditor
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.credentials = credentials;
-		this.server = server;
+		this.serverPrefix = serverPrefix;
+		this.serverContextPaths = serverContextPaths;
 		this.idTypes = idTypes;
 		this.subViewSwitcher = subViewSwitcher;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
@@ -102,7 +104,7 @@ class OAuthServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, server, subViewSwitcher,
+		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, serverPrefix, serverContextPaths, subViewSwitcher,
 				outputTranslationProfileFieldFactory, 
 				endpoint != null, credentials, idTypes, allAttributes, usedPaths);
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,

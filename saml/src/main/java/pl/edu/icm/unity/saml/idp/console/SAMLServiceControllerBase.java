@@ -93,8 +93,8 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 		return new SAMLServiceEditor(msg, getType(), pkiMan, subViewSwitcher,
-				outputTranslationProfileFieldFactory, server, uriAccessService, fileStorageService,
-				serverConfig,
+				outputTranslationProfileFieldFactory, server.getAdvertisedAddress().toString(),
+				server.getUsedContextPaths(), uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),

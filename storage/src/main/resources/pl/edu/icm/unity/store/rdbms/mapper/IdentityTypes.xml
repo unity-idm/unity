@@ -42,4 +42,9 @@
 	<select id="getByKey" parameterType="long" resultType="BaseB">
 		select * from IDENTITY_TYPES where ID = #{value}
 	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM IDENTITY_TYPES
+	</select>
+	
 </mapper>

@@ -15,7 +15,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLUsersEditorTab;
@@ -56,7 +55,8 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 	private URIAccessService uriAccessService;
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
-	private NetworkServer server;
+	private String serverPrefix;
+	private Set<String> serverContextPaths;
 	private Collection<IdentityType> idTypes;
 	private SubViewSwitcher subViewSwitcher;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
@@ -64,7 +64,8 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 
 	public SAMLSoapServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, NetworkServer server,
+			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, String serverPrefix,
+			Set<String> serverContextPaths,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
@@ -83,7 +84,8 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.credentials = credentials;
-		this.server = server;
+		this.serverPrefix = serverPrefix;
+		this.serverContextPaths = serverContextPaths;
 		this.idTypes = idTypes;
 		this.subViewSwitcher = subViewSwitcher;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
@@ -97,7 +99,7 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 		
-		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, server, serverConfig, subViewSwitcher,
+		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, serverPrefix, serverContextPaths, serverConfig, subViewSwitcher,
 				outputTranslationProfileFieldFactory,
 				usedPaths, credentials, truststores, idTypes);
 		

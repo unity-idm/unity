@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.capacityLimit;
+package pl.edu.icm.unity.base.capacityLimit;
 
 import java.util.Objects;
 

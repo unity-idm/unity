@@ -63,6 +63,10 @@
 	<select id="getAllNames" resultType="string">
 		select NAME from GROUPS
 	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM GROUPS
+	</select>
 
 	<!-- non standard -->
 	

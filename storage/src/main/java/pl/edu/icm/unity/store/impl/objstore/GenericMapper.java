@@ -21,4 +21,5 @@ public interface GenericMapper extends BasicCRUDMapper<GenericObjectBean>
 	Set<String> selectObjectNamesByType(String type);
 	Set<String> selectObjectTypes();
 	GenericObjectBean selectObjectByNameType(GenericObjectBean nameType);
+	long getCountByType(String type);
 }

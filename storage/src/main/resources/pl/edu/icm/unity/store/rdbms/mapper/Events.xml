@@ -35,6 +35,10 @@
 		select * from EVENTS_QUEUE where ID = #{value}
 	</select>
 
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM EVENTS_QUEUE
+	</select>
+	
 	<delete id="deleteByKey" parameterType="long">
 		DELETE FROM EVENTS_QUEUE WHERE ID = #{value}
 	</delete>
@@ -42,7 +46,7 @@
 	<delete id="deleteAll">
 		DELETE FROM EVENTS_QUEUE
 	</delete>
-
+	
 	
 	<!-- custom -->
 	

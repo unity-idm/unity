@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -33,14 +34,16 @@ class RestAdminServiceController extends DefaultServicesControllerBase implement
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;
 	private AuthenticatorManagement authMan;
+	private NetworkServer networkServer;
 
 	RestAdminServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan)
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
+		this.networkServer = networkServer;
 	}
 
 	@Override
@@ -57,6 +60,6 @@ class RestAdminServiceController extends DefaultServicesControllerBase implement
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
-						.collect(Collectors.toList()));
+						.collect(Collectors.toList()), networkServer.getUsedContextPaths());
 	}
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
@@ -33,7 +34,6 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 /**
  * Authentication flow management implementation.
@@ -50,7 +50,7 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	private InternalAuthorizationManager authz;
 	private AuthenticatorConfigurationDB authenticatorDB;
 	private AttributeDAO dbAttributes;
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
 	
 	@Autowired
 	public AuthenticationFlowManagementImpl(AuthenticationFlowDB authnFlowDB,
@@ -62,17 +62,17 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 		this.authz = authz;
 		this.authenticatorDB = authenticatorDB;
 		this.dbAttributes = dbAttributes;
-		this.capacityLimit = capacityLimit;
+		this.capacityLimitVerificator = capacityLimit;
 	}
 
 	
 	@Override
-	public void addAuthenticationFlow(
-			AuthenticationFlowDefinition authFlowdef) throws EngineException
+	public void addAuthenticationFlow(AuthenticationFlowDefinition authFlowdef) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);	
-		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.AuthenticationFlows, authnFlowDB.getAll().size());
-		
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.AuthenticationFlowsCount,
+				authnFlowDB.getCount());
+
 		if (authenticatorDB.getAllAsMap().get(authFlowdef.getName()) != null)
 		{
 			throw new IllegalArgumentException(

@@ -218,4 +218,12 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 				.filter(sa -> members.contains(sa.getEntityId()))
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public long getCountWithoutType(List<String> types)
+	{
+		TransactionalMap<Long, StoredAttribute> hMap = getMap();
+		return hMap.values().stream().filter(a -> !types.contains(a.getAttribute().getName())).count();
+	}
+
 }

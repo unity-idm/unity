@@ -92,4 +92,10 @@ public class IdentityHzStore extends GenericNamedHzCRUD<StoredIdentity> implemen
 				.filter(si -> members.contains(si.getEntityId()))
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public long getCountByType(List<String> types)
+	{
+		return getAll().stream().filter(si -> types.contains(si.getIdentity().getTypeId())).count();
+	}
 }

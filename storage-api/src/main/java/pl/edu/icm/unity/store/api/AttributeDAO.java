@@ -44,4 +44,11 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	{
 		return getEntityAttributes(entity, null, null);
 	}
+	
+	/**
+	 * Counts attributes without attributes with given types
+	 * @param types
+	 * @return
+	 */
+	long getCountWithoutType(List<String> types);
 }

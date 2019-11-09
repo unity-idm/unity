@@ -33,17 +33,19 @@ class JWTServiceEditor implements ServiceEditor
 	private List<AuthenticatorInfo> authenticators;
 	private Set<String> credentials;
 	private JWTServiceEditorComponent editor;
-	private List<String> usedPaths;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
 
 	JWTServiceEditor(UnityMessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, Set<String> credentials, List<String> usedPaths)
+			List<AuthenticatorInfo> authenticators, Set<String> credentials, List<String> usedPaths, Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.credentials = credentials;
-		this.usedPaths = usedPaths;
+		this.usedEndpointsPaths = usedPaths;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	@Override
@@ -51,7 +53,7 @@ class JWTServiceEditor implements ServiceEditor
 	{
 
 		JWTServiceEditorGeneralTab generalTab = new JWTServiceEditorGeneralTab(msg, JWTManagementEndpoint.TYPE,
-				usedPaths, credentials);
+				usedEndpointsPaths, serverContextPaths, credentials);
 
 		AuthenticationTab authTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());

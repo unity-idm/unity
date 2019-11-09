@@ -91,4 +91,12 @@ public class GenericRDBMSStore extends GenericRDBMSCRUD<GenericObjectBean, Gener
 		GenericMapper mapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
 		return mapper.selectObjectTypes();
 	}
+
+
+	@Override
+	public long getCountByType(String type)
+	{
+		GenericMapper mapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
+		return mapper.getCountByType(type);
+	}
 }

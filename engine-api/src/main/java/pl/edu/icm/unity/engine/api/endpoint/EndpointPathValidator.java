@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.extensions.sysadmin.SysRESTAdminServletProvider;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 /**
@@ -36,9 +36,16 @@ public class EndpointPathValidator
 		{
 			throw new WrongArgumentException("Context path must be a valid path element of a URL", e);
 		}
+	}
+	
+	public static void validateEndpointPath(String contextPath, Set<String> usedContextPath)
+			throws WrongArgumentException
+	{
+		validateEndpointPath(contextPath);
 		
-		if (contextPath.equals(SysRESTAdminServletProvider.SERVLET_CONTEXT_PATH))
-			throw new WrongArgumentException("Context path "
-					+ SysRESTAdminServletProvider.SERVLET_CONTEXT_PATH + "is forbidden");
+		if (usedContextPath.contains(contextPath))
+		{
+			throw new WrongArgumentException("Context path is already used");
+		}
 	}
 }

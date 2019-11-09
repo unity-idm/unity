@@ -256,6 +256,12 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	}
 	
 	@Override
+	public long getCount()
+	{
+		return dbGeneric.getCountByType(type);
+	}
+	
+	@Override
 	public void addRemovalHandler(ReferenceRemovalHandler handler)
 	{
 		deleteHandlers.add(handler);

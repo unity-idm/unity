@@ -34,10 +34,10 @@ class JWTServiceEditorGeneralTab extends GeneralTab
 	private Binder<JWTServiceConfiguration> jwtBinder;
 	private Set<String> credentials;
 
-	JWTServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedPaths,
+	JWTServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
 			Set<String> credentials)
 	{
-		super(msg, type, usedPaths);
+		super(msg, type, usedEndpointsPaths, serverContextPaths);
 		this.credentials = credentials;
 	}
 

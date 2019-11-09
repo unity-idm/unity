@@ -14,12 +14,14 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
@@ -33,7 +35,6 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -58,14 +59,16 @@ public class EndpointManagementImpl implements EndpointManagement
 	private EndpointDB endpointDB;
 	private RealmDB realmDB;
 	private TransactionalRunner tx;
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
+	private NetworkServer httpServer;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater,
 			EndpointInstanceLoader endpointInstanceLoader, InternalAuthorizationManager authz,
-			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx, InternalCapacityLimitVerificator capacityLimit)
+			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx, InternalCapacityLimitVerificator capacityLimitVerificator,
+			NetworkServer httpServer)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.internalManagement = internalManagement;
@@ -75,7 +78,8 @@ public class EndpointManagementImpl implements EndpointManagement
 		this.endpointDB = endpointDB;
 		this.realmDB = realmDB;
 		this.tx = tx;
-		this.capacityLimit = capacityLimit;
+		this.capacityLimitVerificator = capacityLimitVerificator;
+		this.httpServer = httpServer;
 	}
 
 	@Override
@@ -101,8 +105,9 @@ public class EndpointManagementImpl implements EndpointManagement
 			String address, EndpointConfiguration configuration) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Endpoints, endpointDB.getAll().size());
-		
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EndpointsCount,
+				endpointDB.getCount());
+
 		synchronized(internalManagement)
 		{
 			return deployInt(typeId, endpointName, address, configuration);
@@ -118,7 +123,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
-		EndpointPathValidator.validateEndpointPath(address);
+		EndpointPathValidator.validateEndpointPath(address, httpServer.getUsedContextPaths());
 		EndpointInstance endpointInstance;
 		try
 		{

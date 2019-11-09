@@ -26,4 +26,6 @@ public interface BasicCRUDMapper<BEAN>
 	List<BEAN> getAll();
 	
 	BEAN getByKey(long key);
+	
+	long getCount();
 }

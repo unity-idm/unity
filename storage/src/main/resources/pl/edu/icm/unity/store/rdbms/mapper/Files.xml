@@ -47,10 +47,14 @@
 	</select>
 	
 	<select id="getAllNames" resultType="string">
-		select NAME from FILES
+		SELECT NAME from FILES
 	</select>
 	
 	<select id="getByName" parameterType="string" resultMap="fileResult">
-		select * from FILES WHERE NAME = #{value}
+		SELECT * from FILES WHERE NAME = #{value}
+	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM FILES
 	</select>
 </mapper>

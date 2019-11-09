@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,7 +23,6 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponsePreprocessor;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -361,10 +359,5 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 				.withIdentityType(EmailIdentity.ID)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive)
 				.withConfirmationMode(confirmationMode).endIdentityParam().build();
-	}
-
-	private void assertExceptionType(Throwable exception, Class<?> type)
-	{
-		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
 	}
 }

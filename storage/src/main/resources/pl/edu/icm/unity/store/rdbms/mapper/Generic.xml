@@ -42,6 +42,10 @@
 		SELECT * FROM VAR_OBJECTS WHERE ID = #{id}  
 	</select>
 	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM VAR_OBJECTS
+	</select>
+	
 	
 	<!-- custom operations -->
 	
@@ -55,6 +59,10 @@
 	
 	<select id="selectObjectsByType" parameterType="string" resultMap="objectResult">
 		SELECT * FROM VAR_OBJECTS WHERE type = #{value}
+	</select>
+	
+	<select id="getCountByType" parameterType="string" resultType="long">
+		SELECT COUNT(*) FROM VAR_OBJECTS WHERE type = #{value}
 	</select>
 
 	<select id="selectObjectTypes" resultType="string">

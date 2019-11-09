@@ -74,4 +74,11 @@ public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, Id
 			ret.add(jsonSerializer.fromDB(bean));
 		return ret;
 	}
+
+	@Override
+	public long getCountByType(List<String> types)
+	{
+		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		return mapper.getCountByType(types);
+	}
 }

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.ThemeConstans;
@@ -38,6 +39,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
+	private NetworkServer networkServer;
 	private EndpointTypeDescription type;
 	private String defaultMainTheme;
 
@@ -46,10 +48,10 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer)
 	{
 		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService,
-				fileStorageService, serverConfig, authenticatorSupportService,
+				fileStorageService, serverConfig, authenticatorSupportService, networkServer,
 				ThemeConstans.sidebarTheme);
 	}
 
@@ -58,7 +60,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer, String defaultMainTheme)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -71,6 +73,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.type = type;
 		this.defaultMainTheme = defaultMainTheme;
+		this.networkServer = networkServer;
 	}
 
 	@Override
@@ -88,7 +91,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				registrationMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(
-						Collectors.toList()),
+						Collectors.toList()), networkServer.getUsedContextPaths(),
 				authenticatorSupportService, defaultMainTheme);
 	}
 }

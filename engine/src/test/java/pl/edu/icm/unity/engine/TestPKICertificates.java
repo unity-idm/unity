@@ -15,7 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,10 +128,5 @@ public class TestPKICertificates extends DBIntegrationTestBase
 				+ "hX879+8p8lQcNFBto0ILS+I4AjFR4Ljtlg==\n" + "-----END CERTIFICATE-----\n";
 
 		return CertificateUtils.loadCertificate(new ByteArrayInputStream(cert.getBytes()), Encoding.PEM);
-	}
-
-	private void assertExceptionType(Throwable exception, Class<?> type)
-	{
-		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
 	}
 }

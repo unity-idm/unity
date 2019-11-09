@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
@@ -53,7 +54,6 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -89,7 +89,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private EntityResolver identitiesResolver;
 	private AttributesHelper dbAttributes;
 	private BulkGroupQueryService bulkService;
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
 	
 	@Autowired
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
@@ -103,7 +103,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			AttributesHelper dbAttributes,
 			@Qualifier("insecure")
 			BulkGroupQueryService bulkService,
-			InternalCapacityLimitVerificator capacityLimit)
+			InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.enquiryFormDB = enquiryFormDB;
 		this.requestDB = requestDB;
@@ -119,7 +119,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		this.identitiesResolver = identitiesResolver;
 		this.dbAttributes = dbAttributes;
 		this.bulkService = bulkService;
-		this.capacityLimit = capacityLimit;
+		this.capacityLimitVerificator = capacityLimitVerificator;
 	}
 
 	@Transactional
@@ -127,7 +127,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public void addEnquiry(EnquiryForm form) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.EnquiryForms, enquiryFormDB.getAll().size());	
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EnquiryFormsCount,
+				enquiryFormDB.getCount());
 		validateFormContents(form);
 		enquiryFormDB.create(form);
 	}

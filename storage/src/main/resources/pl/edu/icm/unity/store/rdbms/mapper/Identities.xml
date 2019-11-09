@@ -55,6 +55,15 @@
 		WHERE IDENTITIES.NAME = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
 	</select>
 
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM IDENTITIES
+	</select>
+	
+	<select id="getCountByType" parameterType="list" resultType="long">
+		SELECT COUNT(IDENTITIES.*) from IDENTITIES, IDENTITY_TYPES 
+		WHERE IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID AND IDENTITY_TYPES.NAME IN 
+		<foreach item="type" index="index" collection="list" open="(" separator="," close=")"> #{type} </foreach>
+	</select>
 
 	<!-- non standard -->
 	<select id="getByGroup" parameterType="string" resultMap="identityResult">

@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.home.console;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -46,14 +47,15 @@ class HomeServiceEditor implements ServiceEditor
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
-	private List<String> usedPaths;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
 
 	HomeServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, String extraTab, List<String> allAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
-			List<String> registrationForms, List<String> usedPaths,
+			List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
@@ -70,7 +72,8 @@ class HomeServiceEditor implements ServiceEditor
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
-		this.usedPaths = usedPaths;
+		this.usedEndpointsPaths = usedPaths;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	@Override
@@ -78,7 +81,7 @@ class HomeServiceEditor implements ServiceEditor
 	{
 
 		HomeServiceEditorGeneralTab homeServiceEditorGeneralTab = new HomeServiceEditorGeneralTab(msg,
-				UserHomeEndpointFactory.TYPE, usedPaths, extraTab, allAttributes, allGroups,
+				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, extraTab, allAttributes, allGroups,
 				upManServices, enquiryForms, registrationForms);
 		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,

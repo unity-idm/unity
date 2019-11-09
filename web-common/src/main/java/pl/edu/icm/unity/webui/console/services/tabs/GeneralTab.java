@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webui.console.services.tabs;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -38,15 +39,17 @@ public class GeneralTab extends CustomComponent implements EditorTab
 {
 	protected UnityMessageSource msg;
 	private EndpointTypeDescription type;
-	private List<String> usedPaths;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
 	protected VerticalLayout mainLayout;
 	
 
-	public GeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedPaths)
+	public GeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.type = type;
-		this.usedPaths = usedPaths;
+		this.usedEndpointsPaths = usedEndpointsPaths;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> binder, boolean editMode)
@@ -88,14 +91,14 @@ public class GeneralTab extends CustomComponent implements EditorTab
 		contextPath.setReadOnly(editMode);
 		binder.forField(contextPath).asRequired().withValidator((v, c) -> {
 			
-			if (!editMode && v != null && usedPaths.contains(v))
+			if (!editMode && v != null && usedEndpointsPaths.contains(v))
 			{
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
 			}
 			
 			try
 			{
-				EndpointPathValidator.validateEndpointPath(v);
+				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
 			} catch (WrongArgumentException e)
 			{
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));

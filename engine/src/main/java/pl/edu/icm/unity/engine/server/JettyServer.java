@@ -531,6 +531,21 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 	
 	@Override
+	public synchronized void undeployHandler(String contextPath) throws EngineException
+	{
+		ServletContextHandler handler = usedContextPaths.get(contextPath);
+		try
+		{
+			handler.stop();
+		} catch (Exception e)
+		{
+			throw new EngineException("Can not stop handler", e);
+		}
+		mainContextHandler.removeHandler(handler);
+		usedContextPaths.remove(handler.getContextPath());
+	}
+	
+	@Override
 	public synchronized void undeployEndpoint(String id) throws EngineException
 	{
 		WebAppEndpointInstance endpoint = null;
@@ -574,6 +589,12 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new IllegalStateException("Ups, URL can not " +
 					"be reconstructed, while it should", e);
 		}
+	}
+	
+	@Override
+	public Set<String> getUsedContextPaths()
+	{
+		return usedContextPaths.keySet();
 	}
 	
 	private FilterHolder createDoSFilterInstance()

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -35,15 +36,17 @@ class JWTServiceController extends DefaultServicesControllerBase implements Serv
 	private AuthenticationFlowManagement flowsMan;
 	private AuthenticatorManagement authMan;
 	private PKIManagement pkiMan;
+	private NetworkServer networkServer;
 
 	JWTServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, PKIManagement pkiMan)
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, PKIManagement pkiMan, NetworkServer networkServer)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
 		this.pkiMan = pkiMan;
+		this.networkServer = networkServer;
 	}
 
 	@Override
@@ -60,6 +63,6 @@ class JWTServiceController extends DefaultServicesControllerBase implements Serv
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), endpointMan.getEndpoints().stream()
-						.map(e -> e.getContextAddress()).collect(Collectors.toList()));
+						.map(e -> e.getContextAddress()).collect(Collectors.toList()), networkServer.getUsedContextPaths());
 	}
 }

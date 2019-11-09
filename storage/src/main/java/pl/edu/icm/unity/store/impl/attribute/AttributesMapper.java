@@ -21,4 +21,6 @@ public interface AttributesMapper extends BasicCRUDMapper<AttributeBean>
 	List<AttributeBean> getAttributes(AttributeBean a);
 	
 	List<AttributeBean> getGroupMembersAttributes(String group);
+	
+	long getCountWithoutType(List<String> types);
 }

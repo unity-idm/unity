@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
@@ -36,7 +37,6 @@ import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -70,7 +70,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private TransactionalRunner tx;
 	private RegistrationRequestPreprocessor registrationRequestValidator;
 	private BaseFormValidator baseValidator;
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -81,7 +81,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			TransactionalRunner tx,
 			RegistrationRequestPreprocessor registrationRequestValidator,
 			BaseFormValidator baseValidator,
-			InternalCapacityLimitVerificator capacityLimit)
+			InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
@@ -94,7 +94,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.tx = tx;
 		this.registrationRequestValidator = registrationRequestValidator;
 		this.baseValidator = baseValidator;
-		this.capacityLimit = capacityLimit;
+		this.capacityLimitVerificator = capacityLimitVerificator;
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public void addForm(RegistrationForm form) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.RegistrationForms, formsDB.getAll().size());	
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.RegistrationFormsCount, formsDB.getCount());	
 		validateFormContents(form);
 		formsDB.create(form);
 	}

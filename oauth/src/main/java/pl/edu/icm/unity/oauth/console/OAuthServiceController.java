@@ -338,8 +338,7 @@ class OAuthServiceController implements IdpServiceController
 
 	}
 
-	private void updateClients(List<OAuthClient> clients)
-			throws EngineException, URISyntaxException
+	private void updateClients(List<OAuthClient> clients) throws EngineException, URISyntaxException
 	{
 		String clientNameAttr = idpUsersHelper.getClientNameAttr();
 
@@ -529,7 +528,7 @@ class OAuthServiceController implements IdpServiceController
 		return candidate.groupAttributesByName.keySet().contains(OAuthSystemAttributesProvider.ALLOWED_FLOWS)
 				&& getUserName(candidate.entity.getIdentities()) != null;
 	}
-	
+
 	private OAuthClient getOAuthClient(EntityInGroupData info, String group, String nameAttr) throws EngineException
 	{
 		OAuthClient c = new OAuthClient();
@@ -537,7 +536,7 @@ class OAuthServiceController implements IdpServiceController
 		c.setId(getUserName(info.entity.getIdentities()));
 		c.setGroup(group);
 		Map<String, AttributeExt> attrs = info.groupAttributesByName;
-		
+
 		c.setFlows(attrs.get(OAuthSystemAttributesProvider.ALLOWED_FLOWS).getValues());
 
 		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_TYPE))
@@ -626,7 +625,8 @@ class OAuthServiceController implements IdpServiceController
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 
-		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory, server,
+		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
+				server.getAdvertisedAddress().toString(), server.getUsedContextPaths(),
 				uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
@@ -634,14 +634,12 @@ class OAuthServiceController implements IdpServiceController
 				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
 				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
-				idpUsersHelper.getAllUsers(), 
-				this::getOAuthClients, 
-				getAllUsernames(),
+				idpUsersHelper.getAllUsers(), this::getOAuthClients, getAllUsernames(),
 				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService,
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
-						.map(e -> e.getContextAddress()).collect(Collectors.toList()));
+				.map(e -> e.getContextAddress()).collect(Collectors.toList()));
 	}
 
 }

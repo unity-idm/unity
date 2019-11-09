@@ -34,7 +34,8 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
  * @author P.Piernik
  *
  */
-public abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBase implements IdpServiceController
+public abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBase
+		implements IdpServiceController
 {
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;
@@ -50,8 +51,8 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
 
-	public SAMLSoapServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan, UnityMessageSource msg2,
-			EndpointManagement endpointMan2, RealmsManagement realmsMan,
+	public SAMLSoapServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan,
+			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
@@ -85,8 +86,8 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 		return new SAMLSoapServiceEditor(msg, getType(), pkiMan, subViewSwitcher,
-				outputTranslationProfileFieldFactory, server, uriAccessService, fileStorageService,
-				serverConfig,
+				outputTranslationProfileFieldFactory, server.getAdvertisedAddress().toString(),
+				server.getUsedContextPaths(), uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
@@ -97,7 +98,7 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
 						.map(e -> e.getContextAddress()).collect(Collectors.toList()));
 	}
-	
+
 	public abstract EndpointTypeDescription getType();
 
 }

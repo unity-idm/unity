@@ -132,6 +132,13 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		return convertList(allInDB);
 	}
 	
+	@Override
+	public long getCount()
+	{
+		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
+		return mapper.getCount();
+	}
+	
 	protected List<T> convertList(List<DBT> fromDB)
 	{
 		List<T> ret = new ArrayList<>(fromDB.size());

@@ -16,4 +16,5 @@ public interface IdentitiesMapper extends NamedCRUDMapper<IdentityBean>
 {
 	List<IdentityBean> getByEntity(long entityId);
 	List<IdentityBean> getByGroup(String group);
+	long getCountByType(List<String> types);
 }

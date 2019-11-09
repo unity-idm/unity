@@ -108,7 +108,13 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
 				"updateByKey", id, obj));
 	}
-
+	
+	@Override
+	public long getCount()
+	{
+		TransactionalMap<Long, T> hMap = getMap();
+		return hMap.values().size();
+	}
 	/**
 	 * For extensions
 	 * @param old

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
@@ -60,7 +61,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
@@ -85,7 +85,7 @@ public class AttributesHelper
 	private AttributeTypeHelper atHelper;
 	private GroupDAO groupDAO;
 	private AuditPublisher audit;
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -95,7 +95,7 @@ public class AttributesHelper
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
 			GroupDAO groupDAO, AuditPublisher audit,
-			InternalCapacityLimitVerificator capacityLimit)
+			InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
@@ -110,7 +110,7 @@ public class AttributesHelper
 		this.acUtil = acUtil;
 		this.groupDAO = groupDAO;
 		this.audit = audit;
-		this.capacityLimit = capacityLimit;
+		this.capacityLimitVerificator = capacityLimitVerificator;
 	}
 
 	/**
@@ -375,7 +375,7 @@ public class AttributesHelper
 			if (!membershipDAO.isMember(entityId, attribute.getGroupPath()))
 				throw new IllegalGroupValueException("The entity is not a member "
 						+ "of the group specified in the attribute");
-			checkAttributeCapacityLimit(at, aExt, null);	
+			checkAttributeCapacityLimit(at, aExt);	
 			attributeDAO.create(param);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.ADD));
 		} else
@@ -384,47 +384,39 @@ public class AttributesHelper
 				throw new IllegalAttributeValueException("The attribute already exists");
 			AttributeExt updated = existing.get(0);
 			param.getAttribute().setCreationTs(updated.getCreationTs());
-			checkAttributeCapacityLimit(at, aExt, updated);
+			checkAttributeCapacityLimit(at, aExt);
 			attributeDAO.updateAttribute(param);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.UPDATE));
 		}
 	}
 	
-	private void checkAttributeCapacityLimit(AttributeType at, Attribute attr, Attribute existing) throws CapacityLimitReachedException
+	private void checkAttributeCapacityLimit(AttributeType at, Attribute attr) throws CapacityLimitReachedException
 	{
-		
+
 		if (isSystemAttribute(at))
 			return;
-		
-		boolean update = existing != null;
-		
-		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
-		List<StoredAttribute> filteredAttributes = attributeDAO.getAll().stream().filter(a -> {
-			return !isSystemAttribute(allTypes.get(a.getAttribute().getName()));
-		}).collect(Collectors.toList());
 
-		if (!update)
-		{
-			capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Attributes, filteredAttributes.size());
-		}
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.AttributesCount,
+				attributeDAO.getCountWithoutType(attributeTypeDAO.getAllAsMap().values().stream()
+						.filter(t -> isSystemAttribute(t)).map(t -> t.getName())
+						.collect(Collectors.toList())));
+		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeValuesCount,
+				attr.getValues().size());
+		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeCumulativeValuesSize,
+				attr.getValues().stream().filter(v -> v != null).mapToInt(String::length).sum());
 
 		for (String v : attr.getValues())
 		{
-			capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize, v.length());
+			if (v != null)
+				capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
+						v.length());
 		}
 
-		long attrValuesSize = filteredAttributes.stream().flatMap(a -> a.getAttribute().getValues().stream()).count();
-
-		if (!update)
-		{
-			attrValuesSize += attr.getValues().size();
-		} else
-		{
-			attrValuesSize += attr.getValues().size() - existing.getValues().size();
-		}
-
-		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributesValues, attrValuesSize);
 	}
+	
+	
+
+	
 	
 	private boolean isSystemAttribute(AttributeType at)
 	{

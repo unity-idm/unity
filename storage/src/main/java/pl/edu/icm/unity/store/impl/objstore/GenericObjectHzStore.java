@@ -147,4 +147,13 @@ public class GenericObjectHzStore extends GenericBasicHzCRUD<GenericObjectBean> 
 	{
 		return existing == null ? condition : existing.and(condition);
 	}
+
+	@Override
+	public long getCountByType(String type)
+	{
+		TransactionalMap<Long, GenericObjectBean> hMap = getMap();
+		PredicateBuilder pBuilder = getPredicate(type, null);
+		Collection<GenericObjectBean> values = hMap.values(pBuilder);
+		return values.size();
+	}
 }

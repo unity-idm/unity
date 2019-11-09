@@ -51,5 +51,10 @@
 	
 	<select id="getByKey" parameterType="long" resultMap="attributeTypeResult">
 		select * from ATTRIBUTE_TYPES WHERE ID = #{value}
-	</select>	
+	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM ENTITIES
+	</select>
+		
 </mapper>

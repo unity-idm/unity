@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.console.services;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -43,13 +44,14 @@ public class WebServiceEditor implements ServiceEditor
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
 	private List<String> usedPaths;
+	private Set<String> serverContextPaths;
 	private EndpointTypeDescription type;
 	private String defaultMainTheme;
 
 	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths,
+			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		this.msg = msg;
@@ -62,6 +64,7 @@ public class WebServiceEditor implements ServiceEditor
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.usedPaths = usedPaths;
+		this.serverContextPaths = serverContextPaths;
 		this.type = type;
 		this.defaultMainTheme = defaultMainTheme;
 	}
@@ -70,7 +73,7 @@ public class WebServiceEditor implements ServiceEditor
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 
-		GeneralTab generalTab = new GeneralTab(msg, type, usedPaths);
+		GeneralTab generalTab = new GeneralTab(msg, type, usedPaths, serverContextPaths);
 		WebServiceAuthenticationTab webServiceAuthenticationTab = new WebServiceAuthenticationTab(msg,
 				uriAccessService, serverConfig, authenticatorSupportService, flows, authenticators,
 				allRealms, registrationForms, type.getSupportedBinding());

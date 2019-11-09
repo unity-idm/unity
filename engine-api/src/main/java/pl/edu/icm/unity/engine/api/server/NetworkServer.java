@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.server;
 
 import java.net.URL;
+import java.util.Set;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
@@ -29,5 +30,9 @@ public interface NetworkServer
 
 	void deployHandler(ServletContextHandler sharedHandler) throws EngineException;
 
+	void undeployHandler(String contextPath) throws EngineException;
+	
 	void undeployAllHandlers() throws EngineException;
+	
+	Set<String> getUsedContextPaths();
 }

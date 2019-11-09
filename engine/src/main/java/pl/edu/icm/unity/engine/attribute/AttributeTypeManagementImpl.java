@@ -14,14 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 /**
  * Implements attributes operations.
@@ -97,8 +97,13 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		atHelper.setDefaultSyntaxConfiguration(toAdd);
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		verifyATMetadata(toAdd, existingAts);
+		
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
 				atHelper.getSyntax(toAdd).getMaxSize());
+		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValuesCount,
+				toAdd.getMaxElements());
+		
+		
 		attributeTypeDAO.create(toAdd);
 	}
 

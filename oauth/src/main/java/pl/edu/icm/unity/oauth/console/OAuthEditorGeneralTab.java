@@ -35,7 +35,6 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
@@ -72,8 +71,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private Set<String> credentials;
 	private Collection<IdentityType> idTypes;
 	private List<String> attrTypes;
-	private List<String> usedPaths;
+	private List<String> usedEndpointsPaths;
 	private String serverPrefix;
+	private Set<String> serverContextPaths;
 	private CheckBox openIDConnect;
 	private ComboBox<String> credential;
 	private ComboBox<SigningAlgorithms> signingAlg;
@@ -83,11 +83,12 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private SubViewSwitcher subViewSwitcher;
 	private TextField name;
 	private boolean editMode;
+	
 
-	OAuthEditorGeneralTab(UnityMessageSource msg, NetworkServer server, SubViewSwitcher subViewSwitcher,
+	OAuthEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths, SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory profileFieldFactory,
 			boolean editMode, Set<String> credentials,
-			Collection<IdentityType> identityTypes, List<String> attrTypes, List<String> usedPaths)
+			Collection<IdentityType> identityTypes, List<String> attrTypes, List<String> usedEndpointsPaths)
 	{
 		this.msg = msg;
 
@@ -97,8 +98,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		this.attrTypes = attrTypes;
 		this.subViewSwitcher = subViewSwitcher;
 		this.profileFieldFactory = profileFieldFactory;
-		this.usedPaths = usedPaths;
-		this.serverPrefix = server.getAdvertisedAddress().toString();
+		this.usedEndpointsPaths = usedEndpointsPaths;
+		this.serverPrefix = serverPrefix;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	void initUI(Binder<DefaultServiceDefinition> oauthWebAuthzBinder,
@@ -197,7 +199,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		webAuthzContextPath.setPlaceholder("/oauth");
 		oauthWebAuthzBinder.forField(webAuthzContextPath).withValidator((v, c) -> {
 
-			if (!editMode && v != null && usedPaths.contains(v) || (tokenContextPath.getValue() != null
+			if (!editMode && v != null && usedEndpointsPaths.contains(v) || (tokenContextPath.getValue() != null
 					&& tokenContextPath.getValue().equals(v)))
 			{
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
@@ -205,7 +207,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 			try
 			{
-				EndpointPathValidator.validateEndpointPath(v);
+				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
 				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
 			} catch (WrongArgumentException e)
 			{
@@ -224,7 +226,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		tokenContextPath.setReadOnly(editMode);
 		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {
 
-			if (!editMode && usedPaths.contains(v) || (webAuthzContextPath.getValue() != null
+			if (!editMode && usedEndpointsPaths.contains(v) || (webAuthzContextPath.getValue() != null
 					&& webAuthzContextPath.getValue().equals(v)))
 			{
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
@@ -232,7 +234,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 			try
 			{
-				EndpointPathValidator.validateEndpointPath(v);
+				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
 				tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
 				metaPath.setCaption(serverPrefix + tokenContextPath.getValue() + "/.well-known/openid-configuration");
 				

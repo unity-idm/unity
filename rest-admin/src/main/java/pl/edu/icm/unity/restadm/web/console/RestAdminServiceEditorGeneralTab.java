@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.restadm.web.console;
 
 import java.util.List;
+import java.util.Set;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
@@ -30,9 +31,9 @@ public class RestAdminServiceEditorGeneralTab extends GeneralTab
 	private Binder<RestAdminServiceConfiguration> restBinder;
 
 	public RestAdminServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type,
-			List<String> usedPaths)
+			List<String> usedEndpointsPaths, Set<String> serverContextPaths)
 	{
-		super(msg, type, usedPaths);
+		super(msg, type, usedEndpointsPaths, serverContextPaths);
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> serviceBinder,

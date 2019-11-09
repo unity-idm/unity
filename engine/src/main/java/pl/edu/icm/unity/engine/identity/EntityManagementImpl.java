@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -86,7 +88,6 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
@@ -122,7 +123,7 @@ public class EntityManagementImpl implements EntityManagement
 	private NotificationProducer notificationProducer;
 	private AuditEventListener auditEventListener;
 	private AuditPublisher auditPublisher;
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
 
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -137,7 +138,7 @@ public class EntityManagementImpl implements EntityManagement
 			TransactionalRunner tx,
 			UnityServerConfiguration cfg, NotificationProducer notificationProducer,
 			AuditEventListener auditEventListener, AuditPublisher auditPublisher,
-			InternalCapacityLimitVerificator capacityLimit)
+			InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -161,7 +162,7 @@ public class EntityManagementImpl implements EntityManagement
 		this.notificationProducer = notificationProducer;
 		this.auditEventListener = auditEventListener;
 		this.auditPublisher = auditPublisher;
-		this.capacityLimit = capacityLimit;
+		this.capacityLimitVerificator = capacityLimitVerificator;
 	}
 
 	@Override
@@ -188,10 +189,11 @@ public class EntityManagementImpl implements EntityManagement
 		List<Attribute> attributes = attributesP == null ? Collections.emptyList() : attributesP;
 		
 		Identity ret = tx.runInTransactionRetThrowing(() -> {
-			capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Entities, entityDAO.getAll().size());
+			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EntitiesCount,
+					entityDAO.getCount());
 			assertIdentityLimit();
-			return identityHelper.addEntity(toAdd, credReqId, initialState, 
-					extractAttributes, attributes, true);
+			return identityHelper.addEntity(toAdd, credReqId, initialState, extractAttributes, attributes,
+					true);
 		});
 		return ret;
 	}
@@ -259,9 +261,10 @@ public class EntityManagementImpl implements EntityManagement
 	
 	private void assertIdentityLimit() throws CapacityLimitReachedException
 	{
-		capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Identities, idDAO.getAll().stream().filter(
-				id -> !idTypeHelper.getTypeDefinition(id.getIdentity().getTypeId()).isDynamic())
-				.count());
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.IdentitiesCount,
+				idDAO.getCountByType(idTypeHelper.getIdentityTypes().stream()
+						.filter(t -> !idTypeHelper.getTypeDefinition(t.getName()).isDynamic())
+						.map(t -> t.getName()).collect(Collectors.toList())));
 	}
 
 	private int getIdentityCountOfType(List<Identity> identities, String type)

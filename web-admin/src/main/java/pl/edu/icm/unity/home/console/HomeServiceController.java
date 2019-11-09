@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.webadmin.utils.ProjectManagementHelper;
@@ -53,6 +54,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
+	private NetworkServer server;
 
 	HomeServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
@@ -60,7 +62,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 			ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer server)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -76,6 +78,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
+		this.server = server;
 	}
 
 	@Override
@@ -102,7 +105,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
-						.collect(Collectors.toList()),
+						.collect(Collectors.toList()), server.getUsedContextPaths(),
 				authenticatorSupportService);
 	}
 }

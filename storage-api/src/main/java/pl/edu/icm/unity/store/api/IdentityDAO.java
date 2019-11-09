@@ -21,4 +21,5 @@ public interface IdentityDAO extends NamedCRUDDAO<StoredIdentity>
 	List<Identity> getByEntity(long entityId);
 	List<StoredIdentity> getByEntityFull(long entityId);
 	List<StoredIdentity> getByGroup(String group);
+	long getCountByType(List<String> types);
 }

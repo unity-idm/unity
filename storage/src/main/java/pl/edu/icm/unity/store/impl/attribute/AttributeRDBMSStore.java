@@ -122,4 +122,11 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		List<AttributeBean> groupMembersAttributes = mapper.getGroupMembersAttributes(group);
 		return convertList(groupMembersAttributes);
 	}
+
+	@Override
+	public long getCountWithoutType(List<String> types)
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		return mapper.getCountWithoutType(types);
+	}
 }

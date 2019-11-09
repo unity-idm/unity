@@ -6,11 +6,11 @@
 package pl.edu.icm.unity.engine.forms.enquiry;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.hasItems;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -423,10 +422,5 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		EnquiryForm form = getFormBuilder(autoAcceptCondition).build();
 		enquiryManagement.addEnquiry(form);
 		return form;
-	}
-	
-	private void assertExceptionType(Throwable exception, Class<?> type)
-	{
-		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
 	}
 }

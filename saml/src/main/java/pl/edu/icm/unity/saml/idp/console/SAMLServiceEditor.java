@@ -16,7 +16,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
@@ -56,7 +55,8 @@ public class SAMLServiceEditor implements ServiceEditor
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
-	private NetworkServer server;
+	private String serverPrefix;
+	private Set<String> serverContextPaths;
 	private Collection<IdentityType> idTypes;
 	private SubViewSwitcher subViewSwitcher;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
@@ -64,7 +64,9 @@ public class SAMLServiceEditor implements ServiceEditor
 
 	public SAMLServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, NetworkServer server,
+			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			String serverPrefix,
+			Set<String> serverContextPaths,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
@@ -86,7 +88,6 @@ public class SAMLServiceEditor implements ServiceEditor
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.credentials = credentials;
-		this.server = server;
 		this.idTypes = idTypes;
 		this.subViewSwitcher = subViewSwitcher;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
@@ -94,12 +95,14 @@ public class SAMLServiceEditor implements ServiceEditor
 		this.allUsers = allUsers;
 		this.truststores = truststores;
 		this.pkiMan = pkiMan;
+		this.serverPrefix = serverPrefix;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, server, serverConfig, subViewSwitcher,
+		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, serverPrefix, serverContextPaths, serverConfig, subViewSwitcher,
 				outputTranslationProfileFieldFactory,
 				usedPaths, credentials, truststores, idTypes);
 		

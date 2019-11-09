@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webui.wellknownurl.service;
 
 import java.util.List;
+import java.util.Set;
 
 import com.vaadin.data.Binder;
 
@@ -34,23 +35,26 @@ public class WellKnownServiceEditor implements ServiceEditor
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
 	private WellKnownServiceEditorComponent editor;
-	private List<String> usedPaths;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
 
 	public WellKnownServiceEditor(UnityMessageSource msg, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,  List<String> usedPaths)
+			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,  List<String> usedPaths,
+			Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
-		this.usedPaths = usedPaths;
+		this.usedEndpointsPaths = usedPaths;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 		
-		GeneralTab generalTab = new GeneralTab(msg, WellKnownURLEndpointFactory.TYPE, usedPaths);
+		GeneralTab generalTab = new GeneralTab(msg, WellKnownURLEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths);
 		
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				WellKnownURLEndpointFactory.TYPE.getSupportedBinding());

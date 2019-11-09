@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,5 +192,10 @@ public abstract class SecuredDBIntegrationTestBase
 		CredentialRequirements cr = new CredentialRequirements(CR_MOCK, "mock cred req", 
 				Collections.singleton(credDef.getName()));
 		insecureCredReqMan.addCredentialRequirement(cr);
+	}
+	
+	protected void assertExceptionType(Throwable exception, Class<?> type)
+	{
+		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
 	}
 }

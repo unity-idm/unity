@@ -25,4 +25,6 @@ public interface BasicCRUDDAO<T>
 	T getByKey(long id);
 
 	List<T> getAll();
+	
+	long getCount();
 }

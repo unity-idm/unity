@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.restadm.web.console;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
@@ -34,15 +35,17 @@ class RestAdminServiceEditor implements ServiceEditor
 	private List<AuthenticatorInfo> authenticators;
 	private RestAdminServiceEditorComponent editor;
 	private List<String> usedPaths;
+	private Set<String> serverContextPaths;
 
 	RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> usedPaths)
+			List<AuthenticatorInfo> authenticators, List<String> usedPaths, Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.usedPaths = usedPaths;
+		this.serverContextPaths = serverContextPaths;
 	}
 
 	@Override
@@ -50,7 +53,7 @@ class RestAdminServiceEditor implements ServiceEditor
 	{
 
 		RestAdminServiceEditorGeneralTab restAdminServiceEditorGeneralTab = new RestAdminServiceEditorGeneralTab(
-				msg, RESTAdminEndpoint.TYPE, usedPaths);
+				msg, RESTAdminEndpoint.TYPE, usedPaths, serverContextPaths);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());

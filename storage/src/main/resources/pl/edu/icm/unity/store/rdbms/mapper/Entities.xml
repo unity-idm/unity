@@ -27,6 +27,10 @@
 		where GROUP_ENTITIES.GROUP_ID = GROUPS.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
 			AND GROUPS.NAME = #{value}  
 	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM ENTITIES
+	</select>
 
 	<delete id="deleteByKey" parameterType="long">
 		DELETE FROM ENTITIES WHERE ID = #{value}

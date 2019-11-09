@@ -8,22 +8,22 @@ package pl.edu.icm.unity.engine.capacityLimit;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.api.CapacityLimitManagement;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimit;
-import pl.edu.icm.unity.types.capacityLimit.CapacityLimitName;
 
 public class CapacityLimitVerificatorTest extends DBIntegrationTestBase
 {
 	@Autowired
-	private CapacityLimitManagement capacityMan;
+	private CapacityLimitDB limitDB;
 
 	@Autowired
-	private InternalCapacityLimitVerificator capacityLimit;
+	private InternalCapacityLimitVerificator capacityLimitVerificator;
 
 	@Autowired
 	private TransactionalRunner txRunner;
@@ -31,9 +31,11 @@ public class CapacityLimitVerificatorTest extends DBIntegrationTestBase
 	@Test(expected = CapacityLimitReachedException.class)
 	public void shouldThrowLimitExceededException() throws EngineException
 	{
-		capacityMan.setLimit(new CapacityLimit(CapacityLimitName.Groups, 1));
 		txRunner.runInTransactionThrowing(() -> {
-			capacityLimit.assertInSystemLimitForSingleAdd(CapacityLimitName.Groups, 2);
+			limitDB.create(new CapacityLimit(CapacityLimitName.GroupsCount, 1));
+		});
+		txRunner.runInTransactionThrowing(() -> {
+			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, 2);
 		});
 	}
 }

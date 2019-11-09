@@ -34,7 +34,6 @@ import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
@@ -71,7 +70,8 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private SubViewSwitcher subViewSwitcher;
 	private Set<String> credentials;
 	private Set<String> truststores;
-	private List<String> usedPaths;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
 	private String serverPrefix;
 	private Collection<IdentityType> idTypes;
 	private boolean editMode;
@@ -81,21 +81,23 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private Button metaLinkButton;
 	private HorizontalLayout metaLinkButtonWrapper;
 	private Label metaOffInfo;
-
-	public SAMLEditorGeneralTab(UnityMessageSource msg, NetworkServer server, UnityServerConfiguration serverConfig,
+	
+	public SAMLEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
-			List<String> usedPaths,
+			List<String> usedEndpointsPaths,
 			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes)
 	{
 		this.msg = msg;
 		this.serverConfig = serverConfig;
 		this.subViewSwitcher = subViewSwitcher;
 		this.profileFieldFactory = profileFieldFactory;
-		this.usedPaths = usedPaths;
+		this.usedEndpointsPaths = usedEndpointsPaths;
 		this.credentials = credentials;
 		this.truststores = truststores;
 		this.idTypes = idTypes;
-		serverPrefix = server.getAdvertisedAddress().toString();
+		this.serverPrefix = serverPrefix;
+		this.serverContextPaths = serverContextPaths;
+		
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> samlServiceBinder,
@@ -168,14 +170,14 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		contextPath.setReadOnly(editMode);
 		samlServiceBinder.forField(contextPath).withValidator((v, c) -> {
 
-			if (!editMode && v != null && usedPaths.contains(v))
+			if (!editMode && v != null && usedEndpointsPaths.contains(v))
 			{
 				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
 			}
 
 			try
 			{
-				EndpointPathValidator.validateEndpointPath(v);
+				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
 				metaLinkButton.setCaption(serverPrefix + v + "/metadata");
 			} catch (WrongArgumentException e)
 			{

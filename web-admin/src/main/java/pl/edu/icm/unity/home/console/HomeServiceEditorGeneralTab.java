@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.home.console;
 
 import java.util.List;
+import java.util.Set;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
@@ -38,11 +39,11 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 	private ChipsWithDropdown<String> enabledControls;
 	private CheckBox allowRemovalSheduling;
 
-	public HomeServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedPaths,
+	public HomeServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
 			String extraTab, List<String> allAttributes, List<Group> allGroups, List<String> upManServices,
 			List<String> enquiryForms, List<String> registrationForms)
 	{
-		super(msg, type, usedPaths);
+		super(msg, type, usedEndpointsPaths, serverContextPaths);
 		this.extraTab = extraTab;
 		this.allAttributes = allAttributes;
 		this.allGroups = allGroups;

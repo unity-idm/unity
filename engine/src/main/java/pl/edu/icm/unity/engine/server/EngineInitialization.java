@@ -33,7 +33,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,11 +61,9 @@ import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
-import pl.edu.icm.unity.engine.api.extensions.sysadmin.SysRESTAdminServletProvider;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
@@ -217,8 +214,6 @@ public class EngineInitialization extends LifecycleBase
 	private SharedEndpointManagementImpl sharedEndpointManagement;
 	@Autowired(required = false)
 	private EmailConfirmationServletProvider confirmationServletFactory;
-	@Autowired(required = false)
-	private SysRESTAdminServletProvider sysAdminServletFactory;
 	@Autowired
 	private EventProcessor eventsProcessor;
 	@Autowired
@@ -245,10 +240,6 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private PKIManagement pkiManagement;
 	
-	@Autowired
-	private NetworkServer httpServer;
-	
-	
 	private long endpointsLoadTime;
 
 	@Override
@@ -268,7 +259,6 @@ public class EngineInitialization extends LifecycleBase
 			initializeBackgroundTasks();
 			deployConfirmationServlet();
 			deployPublicWellKnownURLServlet();
-			deploySysAdminServlet();
 			super.start();
 		} catch (Exception e)
 		{
@@ -494,34 +484,6 @@ public class EngineInitialization extends LifecycleBase
 		} catch (EngineException e)
 		{
 			throw new InternalException("Cannot deploy internal confirmation servlet", e);
-		}
-	}
-
-	
-	private void deploySysAdminServlet()
-	{
-		if (sysAdminServletFactory == null)
-		{
-			log.info("Sysadmin servlet factory is not available, skipping its deploymnet");
-			return;
-		}
-
-		String token = config.getValue(UnityServerConfiguration.EXTENSION_PFX + UnityServerConfiguration.SYS_ADMIN_TOKEN);
-		if (token == null || token.isEmpty())
-		{
-			log.info("Sysadmin access token is not configured, skipping its deploymnet");
-			return;
-		}
-		
-		log.info("Deploing sysadmin servlet");
-		ServletContextHandler servletContext = sysAdminServletFactory.getServletContextHandler(token);
-		
-		try
-		{
-			httpServer.deployHandler(servletContext);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Cannot deploy sys admin servlet", e);
 		}
 	}
 
