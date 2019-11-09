@@ -14,11 +14,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.21.v20190926</jetty.version>
+		<jetty.version>9.4.22.v20191022</jetty.version>
 		<slf4j.version>1.7.25</slf4j.version>
 		<log4j.version>2.11.2</log4j.version>
 		<spring.version>5.1.6.RELEASE</spring.version>
-		<vaadin.version>8.7.2</vaadin.version>
+		<vaadin.version>8.9.2</vaadin.version>
 		<cxf.version>3.3.1</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
 		<bc.version>1.61</bc.version>
@@ -386,7 +386,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.10</version>
+				<version>2.9.10.1</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -435,17 +435,17 @@
 			<dependency>
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
-				<version>1.4.199</version>
+				<version>1.4.200</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
-				<version>3.5.1</version>
+				<version>3.5.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis-spring</artifactId>
-				<version>2.0.1</version>
+				<version>2.0.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -475,7 +475,7 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-context-menu</artifactId>
-				<version>3.0.0</version>
+				<version>3.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.vaadin.addons</groupId>
@@ -511,7 +511,7 @@
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.28</version>
+				<version>2.3.29</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
@@ -551,7 +551,7 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>4.0.10</version>
+				<version>4.0.12</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
@@ -561,17 +561,17 @@
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.8</version>
+				<version>4.5.10</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>6.7</version>
+				<version>6.18</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>7.0.1</version>
+				<version>8.2.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
