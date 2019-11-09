@@ -60,7 +60,7 @@
 	</select>
 	
 	<select id="getCountByType" parameterType="list" resultType="long">
-		SELECT COUNT(IDENTITIES.*) from IDENTITIES, IDENTITY_TYPES 
+		SELECT COUNT(*) from IDENTITIES, IDENTITY_TYPES 
 		WHERE IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID AND IDENTITY_TYPES.NAME IN 
 		<foreach item="type" index="index" collection="list" open="(" separator="," close=")"> #{type} </foreach>
 	</select>

@@ -89,7 +89,7 @@
 	</select>
 	
 	<select id="getCountWithoutType" parameterType="list" resultType="long">
-		SELECT COUNT(A.*) FROM ATTRIBUTES A, ATTRIBUTE_TYPES AT WHERE
+		SELECT COUNT(*) FROM ATTRIBUTES A, ATTRIBUTE_TYPES AT WHERE
 		A.TYPE_ID = AT.ID AND AT.NAME NOT IN 
 		<foreach item="type" index="index" collection="list" open="(" separator="," close=")"> #{type} </foreach>
 	</select>
