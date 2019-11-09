@@ -21,7 +21,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
@@ -60,15 +59,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	private RealmDB realmDB;
 	private TransactionalRunner tx;
 	private InternalCapacityLimitVerificator capacityLimitVerificator;
-	private NetworkServer httpServer;
 	
 	@Autowired
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater,
 			EndpointInstanceLoader endpointInstanceLoader, InternalAuthorizationManager authz,
-			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx, InternalCapacityLimitVerificator capacityLimitVerificator,
-			NetworkServer httpServer)
+			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx, InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;
 		this.internalManagement = internalManagement;
@@ -79,7 +76,6 @@ public class EndpointManagementImpl implements EndpointManagement
 		this.realmDB = realmDB;
 		this.tx = tx;
 		this.capacityLimitVerificator = capacityLimitVerificator;
-		this.httpServer = httpServer;
 	}
 
 	@Override
@@ -123,7 +119,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		EndpointFactory factory = endpointFactoriesReg.getById(typeId);
 		if (factory == null)
 			throw new WrongArgumentException("Endpoint type " + typeId + " is unknown");
-		EndpointPathValidator.validateEndpointPath(address, httpServer.getUsedContextPaths());
+		EndpointPathValidator.validateEndpointPath(address);
 		EndpointInstance endpointInstance;
 		try
 		{
