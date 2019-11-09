@@ -11,7 +11,7 @@
 
 	<properties>
 		<selenium.version>3.141.59</selenium.version>
-		<unity.version>2.9.0-SNAPSHOT</unity.version>
+		<unity.version>3.1.0-SNAPSHOT</unity.version>
 		<slf.version>1.7.28</slf.version>
 	</properties>
 

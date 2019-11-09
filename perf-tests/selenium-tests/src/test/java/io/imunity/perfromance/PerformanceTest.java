@@ -19,18 +19,26 @@ public class PerformanceTest
 	{
 		PerformanceTestExecutor testExecutor = PerformanceTestExecutor.builder()
 				.withNumberOfThreads(1)
-				.withSingleOperationSupplier(SingleLoginLogoutOperation::new)
+				.withSingleOperationProvider(SingleLoginLogoutOperation::new)
 				.build();
 		
-		testExecutor.run(TimeUnit.SECONDS, 5);
+		testExecutor.run(TimeUnit.SECONDS, 40);
 	}
 	
 	@Test
 	public void runOnceSingleLoginLogoutOperation()
 	{
-		SingleLoginLogoutOperation oper = new SingleLoginLogoutOperation();
+		SingleLoginLogoutOperation oper = new SingleLoginLogoutOperation(1);
 		oper.beforeRun();
 		oper.run();
 		oper.afterRun();
+	}
+	
+	@Test
+	public void testAdminClient()
+	{
+		RestAdminHttpClient cli = new RestAdminHttpClient("https://localhost:2443");
+		
+		cli.invalidateSession("per-user-1");
 	}
 }
