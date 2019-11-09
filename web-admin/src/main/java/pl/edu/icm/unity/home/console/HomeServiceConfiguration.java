@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
  * @author P.Piernik
  *
  */
-class HomeServiceConfiguration
+public class HomeServiceConfiguration
 {
 	private List<String> enabledTabs;
 	private List<String> enabledUserDetailsControls;
