@@ -141,11 +141,12 @@ public class ImportExportImpl implements ImportExport
 			try{
 				JsonUtils.expect(jp2, impl.getStoreKey());
 			}catch (Exception e) {
-				if (impl.getStoreKey() == TokensIE.TOKEN_OBJECT_TYPE);
+				if (impl.getStoreKey() == TokensIE.TOKEN_OBJECT_TYPE)
 				{
 					log.info(impl.getStoreKey() + " are not available, skipping import");
 					continue;
 				}
+				log.error("Can not import " + impl.getStoreKey() , e);
 			}
 			
 			impl.deserialize(jp2);
