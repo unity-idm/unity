@@ -146,7 +146,6 @@ public class ImportExportImpl implements ImportExport
 					log.info(impl.getStoreKey() + " are not available, skipping import");
 					continue;
 				}
-				log.error("Can not import " + impl.getStoreKey() , e);
 			}
 			
 			impl.deserialize(jp2);
