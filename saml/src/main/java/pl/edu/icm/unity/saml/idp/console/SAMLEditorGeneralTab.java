@@ -168,24 +168,22 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		contextPath.setRequiredIndicatorVisible(true);
 		contextPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.contextPath"));
 		contextPath.setReadOnly(editMode);
-		samlServiceBinder.forField(contextPath).withValidator((v, c) -> {
-
-			if (!editMode && v != null && usedEndpointsPaths.contains(v))
+		samlServiceBinder.forField(contextPath).withValidator((v, c) -> {			
+			ValidationResult r;
+			if (editMode)
 			{
-				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
+				r = validatePathForEdit(v);
+			}else
+			{
+				r = validatePathForAdd(v);
 			}
-
-			try
+			
+			if (!r.isError())
 			{
-				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
 				metaLinkButton.setCaption(serverPrefix + v + "/metadata");
-			} catch (WrongArgumentException e)
-			{
-				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
 			}
-
-			return ValidationResult.ok();
-
+			
+			return r;
 		}).bind("address");
 		mainGeneralLayout.addComponent(contextPath);
 
@@ -405,6 +403,44 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 
 		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.idenityTypeMapping"),
 				idTypeMappingLayout);
+	}
+	
+	private ValidationResult validatePathForAdd(String path)
+	{
+		if (path == null || path.isEmpty())
+		{
+			return ValidationResult.error(msg.getMessage("fieldRequired"));
+		}
+
+		if (usedEndpointsPaths.contains(path))
+		{
+			return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
+		}
+
+		try
+		{
+			EndpointPathValidator.validateEndpointPath(path, serverContextPaths);
+
+		} catch (WrongArgumentException e)
+		{
+			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
+		}
+
+		return ValidationResult.ok();
+	}
+	
+	private ValidationResult validatePathForEdit(String path)
+	{
+		try
+		{
+			EndpointPathValidator.validateEndpointPath(path);
+
+		} catch (WrongArgumentException e)
+		{
+			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
+		}
+
+		return ValidationResult.ok();	
 	}
 
 	@Override

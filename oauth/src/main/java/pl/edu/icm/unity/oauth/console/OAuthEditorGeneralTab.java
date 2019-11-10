@@ -199,24 +199,23 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		webAuthzContextPath.setPlaceholder("/oauth");
 		oauthWebAuthzBinder.forField(webAuthzContextPath).withValidator((v, c) -> {
 
-			if (!editMode && v != null && usedEndpointsPaths.contains(v) || (tokenContextPath.getValue() != null
-					&& tokenContextPath.getValue().equals(v)))
+			ValidationResult r;
+			if (editMode)
 			{
-				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
+				r = validatePathForEdit(v);
+			}else
+			{
+				r = validatePathForAdd(v, tokenContextPath.getValue());
 			}
-
-			try
-			{
-				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
-				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
-			} catch (WrongArgumentException e)
+			
+			if (r.isError())
 			{
 				userAuthnEndpointPath.setValue("");
-				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
-
+			}else
+			{
+				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
 			}
-
-			return ValidationResult.ok();
+			return r;
 
 		}).bind("address");
 		mainGeneralLayout.addComponent(webAuthzContextPath);
@@ -224,28 +223,26 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		tokenContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.clientTokenPath"));
 		tokenContextPath.setPlaceholder("/oauth-token");
 		tokenContextPath.setReadOnly(editMode);
-		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {
-
-			if (!editMode && usedEndpointsPaths.contains(v) || (webAuthzContextPath.getValue() != null
-					&& webAuthzContextPath.getValue().equals(v)))
+		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {			
+			ValidationResult r;
+			if (editMode)
 			{
-				return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
+				r = validatePathForEdit(v);
+			}else
+			{
+				r = validatePathForAdd(v, webAuthzContextPath.getValue());
 			}
-
-			try
-			{
-				EndpointPathValidator.validateEndpointPath(v, serverContextPaths);
-				tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
-				metaPath.setCaption(serverPrefix + tokenContextPath.getValue() + "/.well-known/openid-configuration");
-				
-			} catch (WrongArgumentException e)
+			
+			if (r.isError())
 			{
 				tokenEndpointPath.setValue("");
-				return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
+			}else
+			{
+				tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
+				metaPath.setCaption(serverPrefix + v + "/.well-known/openid-configuration");
 			}
-
-			return ValidationResult.ok();
-
+			return r;
+		
 		}).bind("address");
 		mainGeneralLayout.addComponent(tokenContextPath);
 
@@ -382,7 +379,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		});
 
 		return main;
-	}
+	}	
 
 	private CollapsibleLayout buildScopesSection()
 	{
@@ -446,6 +443,44 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	public CustomComponent getComponent()
 	{
 		return this;
+	}
+	
+	private ValidationResult validatePathForAdd(String path, String path2)
+	{
+		if (path == null || path.isEmpty())
+		{
+			return ValidationResult.error(msg.getMessage("fieldRequired"));
+		}
+
+		if (usedEndpointsPaths.contains(path) || (path2 != null && path2.equals(path)))
+		{
+			return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedContextPath"));
+		}
+
+		try
+		{
+			EndpointPathValidator.validateEndpointPath(path, serverContextPaths);
+
+		} catch (WrongArgumentException e)
+		{
+			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
+		}
+
+		return ValidationResult.ok();
+	}
+	
+	private ValidationResult validatePathForEdit(String path)
+	{
+		try
+		{
+			EndpointPathValidator.validateEndpointPath(path);
+
+		} catch (WrongArgumentException e)
+		{
+			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
+		}
+
+		return ValidationResult.ok();	
 	}
 
 	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScope>
