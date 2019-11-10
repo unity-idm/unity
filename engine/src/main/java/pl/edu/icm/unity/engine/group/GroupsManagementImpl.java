@@ -121,7 +121,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	public void addGroup(Group toAdd) throws EngineException
 	{
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
-		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, dbGroups.getCount());	
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, () -> dbGroups.getCount());	
 		groupHelper.validateGroupStatements(toAdd);
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
 		if (!dbGroups.exists(toAdd.getParentPath()))

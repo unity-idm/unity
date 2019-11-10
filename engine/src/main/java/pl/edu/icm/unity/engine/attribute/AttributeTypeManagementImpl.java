@@ -99,9 +99,9 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		verifyATMetadata(toAdd, existingAts);
 		
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
-				atHelper.getSyntax(toAdd).getMaxSize());
+				() -> Long.valueOf(atHelper.getSyntax(toAdd).getMaxSize()));
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValuesCount,
-				toAdd.getMaxElements());
+				() -> Long.valueOf(toAdd.getMaxElements()));
 		
 		
 		attributeTypeDAO.create(toAdd);
@@ -132,7 +132,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		verifyATMetadata(at, existingAts);
 		verifyAttributesConsistencyWithUpdatedType(at);
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
-				atHelper.getSyntax(at).getMaxSize());
+				() -> Long.valueOf(atHelper.getSyntax(at).getMaxSize()));
 		attributeTypeDAO.update(at);
 		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
 			clearAttributeExtractionFromIdentities(at.getName());

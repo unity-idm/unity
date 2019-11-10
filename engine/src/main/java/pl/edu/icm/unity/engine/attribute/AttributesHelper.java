@@ -397,19 +397,20 @@ public class AttributesHelper
 			return;
 
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.AttributesCount,
-				attributeDAO.getCountWithoutType(attributeTypeDAO.getAllAsMap().values().stream()
+				() -> attributeDAO.getCountWithoutType(attributeTypeDAO.getAllAsMap().values().stream()
 						.filter(t -> isSystemAttribute(t)).map(t -> t.getName())
 						.collect(Collectors.toList())));
 		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeValuesCount,
-				attr.getValues().size());
+				() -> Long.valueOf(attr.getValues().size()));
 		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeCumulativeValuesSize,
-				attr.getValues().stream().filter(v -> v != null).mapToInt(String::length).sum());
+				() -> Long.valueOf(attr.getValues().stream().filter(v -> v != null)
+						.mapToInt(String::length).sum()));
 
 		for (String v : attr.getValues())
 		{
 			if (v != null)
 				capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
-						v.length());
+						() -> Long.valueOf(v.length()));
 		}
 
 	}

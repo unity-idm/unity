@@ -71,7 +71,7 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.AuthenticationFlowsCount,
-				authnFlowDB.getCount());
+				() -> authnFlowDB.getCount());
 
 		if (authenticatorDB.getAllAsMap().get(authFlowdef.getName()) != null)
 		{

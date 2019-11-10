@@ -128,7 +128,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EnquiryFormsCount,
-				enquiryFormDB.getCount());
+				() -> enquiryFormDB.getCount());
 		validateFormContents(form);
 		enquiryFormDB.create(form);
 	}

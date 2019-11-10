@@ -85,7 +85,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.AuthenticatorsCount,
-				authenticatorDB.getCount());
+				() -> authenticatorDB.getCount());
 		if (authenticationFlowDB.getAllAsMap().get(id) != null)
 		{
 			throw new IllegalArgumentException(

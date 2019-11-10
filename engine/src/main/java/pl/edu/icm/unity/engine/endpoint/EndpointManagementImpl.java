@@ -102,7 +102,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EndpointsCount,
-				endpointDB.getCount());
+				() -> endpointDB.getCount());
 
 		synchronized(internalManagement)
 		{

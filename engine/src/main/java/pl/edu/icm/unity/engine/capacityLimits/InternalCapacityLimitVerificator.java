@@ -5,7 +5,10 @@
 
 package pl.edu.icm.unity.engine.capacityLimits;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
@@ -32,45 +36,49 @@ public class InternalCapacityLimitVerificator
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalCapacityLimitVerificator.class);
 
-	private LoadingCache<String, Integer> limitCache;
+	private LoadingCache<String, Map<String, Integer>> limitCache;
 
 	@Autowired
 	public InternalCapacityLimitVerificator(CapacityLimitDB limitDB)
 	{
-		limitCache = CacheBuilder.newBuilder().expireAfterAccess(120, TimeUnit.SECONDS)
-				.build(new CacheLoader<String, Integer>()
+		limitCache = initCache(limitDB);
+	}
+
+	private LoadingCache<String, Map<String, Integer>> initCache(CapacityLimitDB limitDB)
+	{
+		return CacheBuilder.newBuilder().expireAfterAccess(120, TimeUnit.SECONDS)
+				.build(new CacheLoader<String, Map<String, Integer>>()
 				{
-					public Integer load(String name)
+					public Map<String, Integer> load(String name)
 					{
-						if (limitDB.exists(name))
-						{
-							int limit = limitDB.get(name).getValue();
-							log.trace("Get fresh value of capacity limit {} for {}", limit,
-									name);
-							return limit;
-						} else
-						{
-							log.trace("Empty capacity limit for {}", name);
-							return -1;
-						}
+						log.trace("Get fresh values of capacity limits");
+						return limitDB.getAll().stream().collect(Collectors.toMap(
+								CapacityLimit::getName, CapacityLimit::getValue));
+
 					}
 				});
 	}
 
-	public void assertInSystemLimitForSingleAdd(CapacityLimitName name, long value)
+	public void assertInSystemLimitForSingleAdd(CapacityLimitName name, Supplier<Long> value)
 			throws CapacityLimitReachedException
 	{
-		assertInSystemLimit(name, value + 1);
+		assertInSystemLimit(name, () -> value.get() + 1);
 	}
 
-	public void assertInSystemLimit(CapacityLimitName name, long value) throws CapacityLimitReachedException
+	public void assertInSystemLimit(CapacityLimitName name, Supplier<Long> value) throws CapacityLimitReachedException
 	{
-		int limit = limitCache.getUnchecked(name.toString());
+		Map<String, Integer> limits = limitCache.getUnchecked("");
+		int limit = -1;
+		if (limits.containsKey(name.toString()))
+		{
+			limit = limits.get(name.toString());
+		}
+
 		log.trace("Checks capacity limit for {} limit={}  value={}", name.toString(), limit, value);
 		if (limit < 0)
 			return;
 
-		if (limit < value)
+		if (limit < value.get())
 		{
 			log.debug("Capacity limit {} reached (limit={}, value={})", name.toString(), limit, value);
 			throw new CapacityLimitReachedException("Capacity limit reached");

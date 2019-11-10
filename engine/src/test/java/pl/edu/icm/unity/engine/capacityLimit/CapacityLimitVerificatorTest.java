@@ -35,7 +35,7 @@ public class CapacityLimitVerificatorTest extends DBIntegrationTestBase
 			limitDB.create(new CapacityLimit(CapacityLimitName.GroupsCount, 1));
 		});
 		txRunner.runInTransactionThrowing(() -> {
-			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, 2);
+			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, () -> 2L);
 		});
 	}
 }

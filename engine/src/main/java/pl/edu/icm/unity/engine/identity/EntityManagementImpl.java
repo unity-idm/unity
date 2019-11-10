@@ -190,7 +190,7 @@ public class EntityManagementImpl implements EntityManagement
 		
 		Identity ret = tx.runInTransactionRetThrowing(() -> {
 			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EntitiesCount,
-					entityDAO.getCount());
+					() -> entityDAO.getCount());
 			assertIdentityLimit();
 			return identityHelper.addEntity(toAdd, credReqId, initialState, extractAttributes, attributes,
 					true);
@@ -262,7 +262,7 @@ public class EntityManagementImpl implements EntityManagement
 	private void assertIdentityLimit() throws CapacityLimitReachedException
 	{
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.IdentitiesCount,
-				idDAO.getCountByType(idTypeHelper.getIdentityTypes().stream()
+				() -> idDAO.getCountByType(idTypeHelper.getIdentityTypes().stream()
 						.filter(t -> !idTypeHelper.getTypeDefinition(t.getName()).isDynamic())
 						.map(t -> t.getName()).collect(Collectors.toList())));
 	}

@@ -102,7 +102,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public void addForm(RegistrationForm form) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.RegistrationFormsCount, formsDB.getCount());	
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.RegistrationFormsCount, () -> formsDB.getCount());	
 		validateFormContents(form);
 		formsDB.create(form);
 	}
