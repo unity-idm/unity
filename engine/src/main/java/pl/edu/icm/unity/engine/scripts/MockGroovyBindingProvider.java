@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 /**
@@ -104,7 +105,9 @@ public class MockGroovyBindingProvider
 		TranslationProfileManagement translationProfileManagement = mock(TranslationProfileManagement.class, 
 				withSettings().verboseLogging());
 		GroupDelegationConfigGenerator groupDelegationConfigGenerator = mock(GroupDelegationConfigGenerator.class, 
-				withSettings().verboseLogging());;
+				withSettings().verboseLogging());
+		SessionManagement sessionManagement = mock(SessionManagement.class, 
+				withSettings().verboseLogging());
 		
 		Binding binding = new Binding();
 		binding.setVariable("config", config);
@@ -133,6 +136,7 @@ public class MockGroovyBindingProvider
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
 		binding.setVariable("groupDelegationConfigGenerator", groupDelegationConfigGenerator);
+		binding.setVariable("sessionManagement", sessionManagement);
 		binding.setVariable("isColdStart", true);
 		binding.setVariable("event", event.getTrigger());
 		binding.setVariable("context", event.getContents());
