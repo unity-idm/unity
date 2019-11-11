@@ -588,6 +588,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	void removeIdentity(IdentityEntry entry)
 	{
+		Set<IdentityEntry> selected = getSelectedItems();	
 		for (ResolvedEntity cached : cachedEntitites)
 		{
 			if (cached.getEntity().getId() == entry.getSourceEntity().getEntity().getId())
@@ -596,12 +597,17 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 				break;
 			}
 		}
+		if (selected.contains(entry))
+		{
+			deselect(entry);
+		}
 		treeData.removeItem(entry);
 		dataProvider.refreshAll();
 	}
 
 	void removeEntity(EntityWithLabel removed)
 	{
+		Set<IdentityEntry> selected = getSelectedItems();
 		long removedId = removed.getEntity().getId();
 		for (int i = 0; i < cachedEntitites.size(); i++)
 			if (cachedEntitites.get(i).getEntity().getId() == removedId)
@@ -616,7 +622,13 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 					ie -> ie.getSourceEntity().getEntity().getId() == removedId, null);
 			List<IdentityEntry> fetched = dataProvider.fetch(query).collect(Collectors.toList());
 			for (IdentityEntry ie : fetched)
+			{
+				if (selected.contains(ie))
+				{
+					deselect(ie);
+				}
 				treeData.removeItem(ie);
+			}
 		} else
 		{
 			HierarchicalQuery<IdentityEntry, SerializablePredicate<IdentityEntry>> query = new HierarchicalQuery<>(
@@ -624,7 +636,14 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			List<IdentityEntry> fetched = dataProvider.fetch(query).collect(Collectors.toList());
 			// should be only one entry - parent node
 			for (IdentityEntry ie : fetched)
+			{
+				if (selected.contains(ie))
+				{
+					deselect(ie);
+				}
 				treeData.removeItem(ie);
+				
+			}
 		}
 		dataProvider.refreshAll();
 	}

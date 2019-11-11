@@ -227,13 +227,15 @@ $narrow-bar-size: 50px;
     		background-color : $content-bg-color;
 		}
 		
-		.u-denseTreeGrid .v-treegrid-row > td:first-child{	  
-	   		width: 0px !important;
+		.u-denseTreeGrid .v-treegrid-row > td:first-child{	  	
 	   		padding-left: 6px;
 		}
 		
+		.u-denseTreeGrid .v-treegrid-cell{
+			padding-left: 2px;
+		}
+		
 		.u-denseTreeGrid .v-treegrid-header th:first-child{	  
-	   		width: 0px !important;
 	   		padding-left: 6px;
 		}
            
