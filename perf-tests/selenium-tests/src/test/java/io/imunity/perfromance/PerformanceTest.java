@@ -18,27 +18,28 @@ public class PerformanceTest
 	public void loginLogoutTest() throws InterruptedException
 	{
 		PerformanceTestExecutor testExecutor = PerformanceTestExecutor.builder()
-				.withNumberOfThreads(1)
+				.withNumberOfThreads(10)
+				.withPerformanceTestConfig(PerformanceTestConfig.builder()
+					.withUnityURL("https://localhost:2443")
+					.withRestUserName("a")
+					.withRestUserPasswd("a")
+					.build())	
 				.withSingleOperationProvider(SingleLoginLogoutOperation::new)
 				.build();
 		
-		testExecutor.run(TimeUnit.SECONDS, 40);
+		testExecutor.run(TimeUnit.SECONDS, 20);
 	}
 	
 	@Test
 	public void runOnceSingleLoginLogoutOperation()
 	{
-		SingleLoginLogoutOperation oper = new SingleLoginLogoutOperation(1);
+		SingleLoginLogoutOperation oper = new SingleLoginLogoutOperation(1, PerformanceTestConfig.builder()
+				.withUnityURL("https://localhost:2443")
+				.withRestUserName("a")
+				.withRestUserPasswd("a")
+				.build());
 		oper.beforeRun();
 		oper.run();
 		oper.afterRun();
-	}
-	
-	@Test
-	public void testAdminClient()
-	{
-		RestAdminHttpClient cli = new RestAdminHttpClient("https://localhost:2443");
-		
-		cli.invalidateSession("per-user-1");
 	}
 }

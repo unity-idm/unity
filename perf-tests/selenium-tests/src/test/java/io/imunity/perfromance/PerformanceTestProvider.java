@@ -10,5 +10,5 @@ package io.imunity.perfromance;
 
 public interface PerformanceTestProvider
 {
-	PerformanceTestRunnable get(int idx);
+	PerformanceTestRunnable get(int idx, PerformanceTestConfig config);
 }

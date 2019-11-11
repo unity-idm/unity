@@ -11,14 +11,20 @@ package io.imunity.perfromance;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -30,20 +36,22 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 {
 	private static final Logger LOG = LoggerFactory.getLogger(SingleLoginLogoutOperation.class);
 	
-	private String baseUrl = "https://localhost:2443";
 	private static final int WAIT_TIME_S = Integer.parseInt(System.getProperty("unity.selenium.wait", "30"));
 	private static final int SLEEP_TIME_MS = 100;
-	private static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(System.getProperty("unity.selenium.delay", "1500"));
+	private static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(System.getProperty("unity.selenium.delay", "500"));
 	
-	private final int index;
 	private final RestAdminHttpClient adminClient;
+	private final String baseUrl;
+	private final String userName;
 
 	private WebDriver driver;
+
 	
-	public SingleLoginLogoutOperation(int index)
+	public SingleLoginLogoutOperation(int index, PerformanceTestConfig config)
 	{
-		this.index = index;
-		adminClient = new RestAdminHttpClient(baseUrl);
+		this.userName = "perf-user-" + index;
+		this.baseUrl = config.unityBaseURL;
+		adminClient = new RestAdminHttpClient(config);
 	}
 
 	@Override
@@ -75,7 +83,6 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		waitForPageLoad(By.xpath("//*[contains(text(), 'Cancel authentication')]"));
 		
 		driver.findElement(By.className("u-passwordUsernameField")).clear();
-		String userName = "perf-user-" + index;
 		driver.findElement(By.className("u-passwordUsernameField")).sendKeys(userName);
 		driver.findElement(By.className("u-passwordField")).clear();
 		driver.findElement(By.className("u-passwordField")).sendKeys("the!test12");
@@ -91,8 +98,6 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
 		waitForElement(By.id("MainHeader.logout")).click();
-		driver.manage().deleteAllCookies();
-		
 		adminClient.invalidateSession(userName);
 	}
 
@@ -157,4 +162,21 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 			//OK
 		}
 	}
+	
+	@Override
+	public String takeScreenshot(String suffix)
+	{
+		byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+		try
+		{
+			String screenshotName = "target/failshot-" + userName + "-iter-" + suffix + ".png";
+			OutputStream fos = new FileOutputStream(new File(screenshotName));
+			IOUtils.write(screenshot, fos);
+			return screenshotName;
+		} catch (Exception e1)
+		{
+			throw new RuntimeException("Can not take screenshot", e1);
+		}
+	}
+
 }

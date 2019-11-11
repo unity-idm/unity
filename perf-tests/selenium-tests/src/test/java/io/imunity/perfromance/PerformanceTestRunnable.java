@@ -13,4 +13,12 @@ public interface PerformanceTestRunnable extends Runnable
 	void beforeRun();
 	
 	void afterRun();
+	
+	default void reset()
+	{
+		afterRun();
+		beforeRun();
+	}
+	
+	String takeScreenshot(String suffix);
 }
