@@ -99,6 +99,7 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
 		waitForElement(By.id("MainHeader.logout")).click();
 		adminClient.invalidateSession(userName);
+		driver.manage().deleteAllCookies();
 	}
 
 	@Override
