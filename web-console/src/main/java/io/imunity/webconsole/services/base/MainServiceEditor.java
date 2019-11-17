@@ -126,7 +126,7 @@ public class MainServiceEditor extends CustomComponent
 		{
 			editor = editorsRegistry.getByName(type).getEditor(subViewSwitcher);
 			editorComponent = editor.getEditor(toEdit);
-			editorComponent.setActiveTab(initTab);
+			editorComponent.setActiveTab(initTab.toString());
 
 			mainLayout.addComponent(editorComponent);
 		} catch (Exception e)

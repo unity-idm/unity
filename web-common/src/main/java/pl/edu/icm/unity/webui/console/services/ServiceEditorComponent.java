@@ -20,5 +20,5 @@ public interface ServiceEditorComponent extends Component
 		GENERAL, AUTHENTICATION, CLIENTS, USERS
 	}
 
-	void setActiveTab(ServiceEditorTab tab);
+	void setActiveTab(String tab);
 }

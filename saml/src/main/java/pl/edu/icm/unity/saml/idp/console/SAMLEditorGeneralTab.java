@@ -81,10 +81,10 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private Button metaLinkButton;
 	private HorizontalLayout metaLinkButtonWrapper;
 	private Label metaOffInfo;
-	
-	public SAMLEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths, UnityServerConfiguration serverConfig,
-			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
-			List<String> usedEndpointsPaths,
+
+	public SAMLEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths,
+			UnityServerConfiguration serverConfig, SubViewSwitcher subViewSwitcher,
+			OutputTranslationProfileFieldFactory profileFieldFactory, List<String> usedEndpointsPaths,
 			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes)
 	{
 		this.msg = msg;
@@ -97,7 +97,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		this.idTypes = idTypes;
 		this.serverPrefix = serverPrefix;
 		this.serverContextPaths = serverContextPaths;
-		
+
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> samlServiceBinder,
@@ -106,7 +106,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		this.samlServiceBinder = samlServiceBinder;
 		this.configBinder = configBinder;
 		this.editMode = editMode;
-		
+
 		setCaption(msg.getMessage("ServiceEditorBase.general"));
 		setIcon(Images.cogs.getResource());
 		VerticalLayout main = new VerticalLayout();
@@ -131,7 +131,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		metaLinkButton = new Button();
 		metaOffInfo = new Label();
 		metaOffInfo.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataOff"));
-		
+
 		infoLayout = new HorizontalLayout();
 		infoLayout.setMargin(new MarginInfo(false, true, false, true));
 		infoLayout.setStyleName("u-marginLeftMinus30");
@@ -156,7 +156,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		});
 		main.addComponent(infoLayout);
 		refreshMetaButton(false);
-				
+
 		TextField name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
 		name.setReadOnly(editMode);
@@ -168,21 +168,21 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		contextPath.setRequiredIndicatorVisible(true);
 		contextPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.contextPath"));
 		contextPath.setReadOnly(editMode);
-		samlServiceBinder.forField(contextPath).withValidator((v, c) -> {			
+		samlServiceBinder.forField(contextPath).withValidator((v, c) -> {
 			ValidationResult r;
 			if (editMode)
 			{
 				r = validatePathForEdit(v);
-			}else
+			} else
 			{
 				r = validatePathForAdd(v);
 			}
-			
+
 			if (!r.isError())
 			{
 				metaLinkButton.setCaption(serverPrefix + v + "/metadata");
 			}
-			
+
 			return r;
 		}).bind("address");
 		mainGeneralLayout.addComponent(contextPath);
@@ -372,7 +372,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 
 		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.metadata"), metadataPublishing);
 	}
-	
+
 	private void refreshMetaButton(Boolean enabled)
 	{
 		metaLinkButton.setEnabled(enabled);
@@ -404,7 +404,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.idenityTypeMapping"),
 				idTypeMappingLayout);
 	}
-	
+
 	private ValidationResult validatePathForAdd(String path)
 	{
 		if (path == null || path.isEmpty())
@@ -428,7 +428,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 
 		return ValidationResult.ok();
 	}
-	
+
 	private ValidationResult validatePathForEdit(String path)
 	{
 		try
@@ -440,13 +440,13 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
 		}
 
-		return ValidationResult.ok();	
+		return ValidationResult.ok();
 	}
 
 	@Override
-	public ServiceEditorTab getType()
+	public String getType()
 	{
-		return ServiceEditorTab.GENERAL;
+		return ServiceEditorTab.GENERAL.toString();
 	}
 
 	@Override

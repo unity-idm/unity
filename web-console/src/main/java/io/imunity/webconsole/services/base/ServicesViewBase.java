@@ -113,7 +113,7 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 		}
 	}
 
-	void refresh()
+	private void refresh()
 	{
 		Collection<ServiceDefinition> services = getServices();
 		servicesGrid.setItems(services);

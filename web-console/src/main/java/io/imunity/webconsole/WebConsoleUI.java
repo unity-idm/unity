@@ -6,6 +6,8 @@
 package io.imunity.webconsole;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -19,6 +21,8 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webconsole.spi.WebConsoleExtNavigationInfoProvider;
+import io.imunity.webconsole.spi.WebConsoleExtRootNavigationInfoProvider;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -54,13 +58,13 @@ public class WebConsoleUI extends UnityEndpointUIBase
 	@Autowired
 	public WebConsoleUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor, AuthorizationController authzController,
-			Collection<WebConsoleNavigationInfoProvider> providers)
+			Collection<WebConsoleNavigationInfoProvider> providers, Collection<WebConsoleExtNavigationInfoProvider> extProviders)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
-		this.authzController = authzController;
-		
-		this.navigationMan = new NavigationHierarchyManager(providers);
+		this.authzController = authzController;	
+		this.navigationMan = new NavigationHierarchyManager(Stream.concat(providers.stream(), extProviders.stream())
+	                             .collect(Collectors.toList()));
 	}
 
 	private void buildTopRightMenu()
@@ -87,6 +91,7 @@ public class WebConsoleUI extends UnityEndpointUIBase
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 		leftMenu.addNavigationElements(WebConsoleRootNavigationInfoProvider.ID);
+		leftMenu.addNavigationElements(WebConsoleExtRootNavigationInfoProvider.ID);
 	}
 
 	@Override

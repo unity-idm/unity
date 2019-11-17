@@ -81,6 +81,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 		remote.addComponents();
 
 		tab = new TabSheet();
+		tab.addStyleName("u-logoFieldTabsheet");
 		localTab = tab.addTab(local, msg.getMessage("FileField.local"));
 		remoteTab = tab.addTab(remote, msg.getMessage("FileField.remote"));
 

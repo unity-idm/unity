@@ -142,7 +142,11 @@ public enum Images
 	text		(VaadinIcons.TEXT_LABEL),
 	header		(VaadinIcons.HEADER),
 	grid_v		(VaadinIcons.GRID_V),
-	combobox	(VaadinIcons.COMBOBOX);
+	combobox	(VaadinIcons.COMBOBOX),
+	money		(VaadinIcons.MONEY),
+	flag_final	(VaadinIcons.FLAG_CHECKERED),
+	cube		(VaadinIcons.CUBE),
+	cubes		(VaadinIcons.CUBES);
 
 	
 	private final Resource resource;
