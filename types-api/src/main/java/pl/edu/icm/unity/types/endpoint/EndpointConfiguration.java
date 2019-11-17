@@ -4,8 +4,13 @@
  */
 package pl.edu.icm.unity.types.endpoint;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -70,7 +75,24 @@ public class EndpointConfiguration
 			
 		}
 		if (json.has("tag"))
+		{
 			tag = json.get("tag").asText();
+		} else if (configuration != null)
+		{
+			try
+			{
+				tag = DatatypeConverter
+						.printHexBinary((MessageDigest.getInstance("MD5").digest(
+								configuration.getBytes(StandardCharsets.UTF_8))))
+						.toUpperCase();
+			} catch (NoSuchAlgorithmException e)
+			{
+				tag = configuration;
+			}
+		} else
+		{
+			tag = "";
+		}
 	}
 	
 	@JsonValue
