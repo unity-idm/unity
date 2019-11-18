@@ -30,6 +30,11 @@
 		<!-- compile -->
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-console-spi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-web-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>

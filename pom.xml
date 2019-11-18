@@ -53,6 +53,7 @@
 		<module>web-admin-common</module>
 		<module>web-console-utils</module>
 		<module>web-admin</module>
+		<module>web-console-spi</module>
 		<module>web-console</module>
 		<module>web-upman</module>
 		<module>rest</module>
