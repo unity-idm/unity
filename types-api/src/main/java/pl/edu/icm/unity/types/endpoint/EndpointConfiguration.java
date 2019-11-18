@@ -4,26 +4,25 @@
  */
 package pl.edu.icm.unity.types.endpoint;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.DatatypeConverter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Charsets;
+import com.google.common.hash.Hashing;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 
 /**
- * Base endpoint configuration. Useful when deploying a new endpoint and when updating it. 
+ * Base endpoint configuration. Useful when deploying a new endpoint and when
+ * updating it.
+ * 
  * @author Krzysztof Benedyczak
  */
 public class EndpointConfiguration
@@ -34,10 +33,9 @@ public class EndpointConfiguration
 	private String configuration;
 	private String realm;
 	private String tag;
-	
-	public EndpointConfiguration(I18nString displayedName, String description,
-			List<String> authnOptions, String configuration,
-			String realm)
+
+	public EndpointConfiguration(I18nString displayedName, String description, List<String> authnOptions,
+			String configuration, String realm)
 	{
 		super();
 		this.displayedName = displayedName;
@@ -46,10 +44,9 @@ public class EndpointConfiguration
 		this.configuration = configuration;
 		this.realm = realm;
 	}
-	
-	public EndpointConfiguration(I18nString displayedName, String description,
-			List<String> authnOptions, String configuration,
-			String realm, String tag)
+
+	public EndpointConfiguration(I18nString displayedName, String description, List<String> authnOptions,
+			String configuration, String realm, String tag)
 	{
 		this(displayedName, description, authnOptions, configuration, realm);
 		this.tag = tag;
@@ -70,31 +67,23 @@ public class EndpointConfiguration
 		{
 			authenticationOptions = new ArrayList<>();
 			ArrayNode aopts = (ArrayNode) json.get("authenticationOptions");
-			for (JsonNode node: aopts)
+			for (JsonNode node : aopts)
 				authenticationOptions.add(node.asText());
-			
+
 		}
 		if (json.has("tag"))
 		{
 			tag = json.get("tag").asText();
 		} else if (configuration != null)
 		{
-			try
-			{
-				tag = DatatypeConverter
-						.printHexBinary((MessageDigest.getInstance("MD5").digest(
-								configuration.getBytes(StandardCharsets.UTF_8))))
-						.toUpperCase();
-			} catch (NoSuchAlgorithmException e)
-			{
-				tag = configuration;
-			}
+			tag = Hashing.goodFastHash(1).hashString(configuration, Charsets.UTF_8).toString()
+					.toUpperCase();
 		} else
 		{
 			tag = "";
 		}
 	}
-	
+
 	@JsonValue
 	public ObjectNode toJson()
 	{
@@ -112,7 +101,7 @@ public class EndpointConfiguration
 			aopts.add(aod);
 		return root;
 	}
-	
+
 	public I18nString getDisplayedName()
 	{
 		return displayedName;
@@ -137,12 +126,12 @@ public class EndpointConfiguration
 	{
 		return realm;
 	}
-	
+
 	public String getTag()
 	{
 		return tag;
 	}
-	
+
 	public void setTag(String tag)
 	{
 		this.tag = tag;
@@ -151,9 +140,9 @@ public class EndpointConfiguration
 	@Override
 	public String toString()
 	{
-		return "EndpointConfiguration [displayedName=" + displayedName + ", description="
-				+ description + ", authnOptions=" + authenticationOptions
-				+ ", configuration=" + configuration + ", realm=" + realm + "]";
+		return "EndpointConfiguration [displayedName=" + displayedName + ", description=" + description
+				+ ", authnOptions=" + authenticationOptions + ", configuration=" + configuration
+				+ ", realm=" + realm + "]";
 	}
 
 	@Override
@@ -161,8 +150,7 @@ public class EndpointConfiguration
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((authenticationOptions == null) ? 0
-				: authenticationOptions.hashCode());
+		result = prime * result + ((authenticationOptions == null) ? 0 : authenticationOptions.hashCode());
 		result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
@@ -211,14 +199,14 @@ public class EndpointConfiguration
 				return false;
 		} else if (!realm.equals(other.realm))
 			return false;
-		
+
 		if (tag == null)
 		{
 			if (other.tag != null)
 				return false;
 		} else if (!tag.equals(other.tag))
 			return false;
-		
+
 		return true;
 	}
 }

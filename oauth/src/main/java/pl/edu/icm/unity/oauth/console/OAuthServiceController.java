@@ -188,7 +188,7 @@ class OAuthServiceController implements IdpServiceController
 	{
 		for (Endpoint endpoint : endpointMan.getEndpoints().stream()
 				.filter(e -> e.getTypeId().equals(OAuthTokenEndpoint.TYPE.getName())
-						&& e.getConfiguration().getTag() != null && e.getConfiguration().getTag().equals(tag))
+						&& e.getConfiguration().getTag().equals(tag))
 				.collect(Collectors.toList()))
 		{
 			DefaultServiceDefinition tokenService = getServiceDef(endpoint);
