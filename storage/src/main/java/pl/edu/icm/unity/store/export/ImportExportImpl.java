@@ -101,7 +101,14 @@ public class ImportExportImpl implements ImportExport
 				.collect(Collectors.toList()))
 		{
 			jg.writeFieldName(impl.getStoreKey());
-			impl.serialize(jg);
+			try
+			{
+				impl.serialize(jg);
+			} catch (Exception e)
+			{
+				log.error("Can not export " + impl.getStoreKey());
+				throw e;
+			}
 			jg.flush();
 		}
 

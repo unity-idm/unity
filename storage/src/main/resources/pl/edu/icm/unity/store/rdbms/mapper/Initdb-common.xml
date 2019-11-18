@@ -74,14 +74,18 @@ CREATE TABLE VAR_OBJECTS(
 		<include refid="tableOpts"/>		
 	</update>
 	
-	<update id="initdb-10">
-CREATE TABLE FILES(
-		<include refid="defaultColsBlob"/>,
+	<sql id="sql-files">
+CREATE TABLE IF NOT EXISTS FILES(
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.defaultColsBlob"/>,
 		OWNER_TYPE VARCHAR(100),
 		OWNER_ID VARCHAR(100),
-		LAST_UPDATE <include refid="dateTimeType"/> NOT NULL,
+		LAST_UPDATE <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.dateTimeType"/> NOT NULL,
 		UNIQUE(NAME)
-		<include refid="tableOpts"/>	
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+	</sql>
+	
+	<update id="initdb-10">
+		<include refid="sql-files"/>
 	</update>
 
 	<sql id="sql-initTokensTable">
