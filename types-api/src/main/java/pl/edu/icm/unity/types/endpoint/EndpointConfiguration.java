@@ -43,6 +43,7 @@ public class EndpointConfiguration
 		this.authenticationOptions = authnOptions;
 		this.configuration = configuration;
 		this.realm = realm;
+		this.tag = getTag(configuration);
 	}
 
 	public EndpointConfiguration(I18nString displayedName, String description, List<String> authnOptions,
@@ -74,16 +75,24 @@ public class EndpointConfiguration
 		if (json.has("tag"))
 		{
 			tag = json.get("tag").asText();
-		} else if (configuration != null)
+		} else 
 		{
-			tag = Hashing.goodFastHash(1).hashString(configuration, Charsets.UTF_8).toString()
-					.toUpperCase();
-		} else
-		{
-			tag = "";
+			tag = getTag(configuration);
 		}
 	}
 
+	private String getTag(String configuration)
+	{
+		if(configuration != null)
+		{
+			return Hashing.murmur3_128().hashString(configuration, Charsets.UTF_8).toString()
+					.toUpperCase();
+		} else
+		{
+			return "";
+		}
+	}
+	
 	@JsonValue
 	public ObjectNode toJson()
 	{
