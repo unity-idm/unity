@@ -43,7 +43,7 @@ public class EndpointConfiguration
 		this.authenticationOptions = authnOptions;
 		this.configuration = configuration;
 		this.realm = realm;
-		this.tag = getTag(configuration);
+		this.tag = generateTag(configuration);
 	}
 
 	public EndpointConfiguration(I18nString displayedName, String description, List<String> authnOptions,
@@ -77,11 +77,11 @@ public class EndpointConfiguration
 			tag = json.get("tag").asText();
 		} else 
 		{
-			tag = getTag(configuration);
+			tag = generateTag(configuration);
 		}
 	}
 
-	private String getTag(String configuration)
+	private String generateTag(String configuration)
 	{
 		if(configuration != null)
 		{

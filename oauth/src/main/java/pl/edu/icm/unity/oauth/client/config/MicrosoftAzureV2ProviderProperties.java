@@ -4,15 +4,12 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
-import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.TRANSLATION_PROFILE;
-
 import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for Microsoft Azure AD V2 OAuth provider.
@@ -34,8 +31,7 @@ public class MicrosoftAzureV2ProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + OPENID_DISCOVERY, "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration");
 		setIfUnset(properties, prefix + SCOPES, "openid email profile https://graph.microsoft.com/user.read");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/ms-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
-				prefix + TRANSLATION_PROFILE, "sys:microsoftAzure-v2");
+		setDefaultProfileIfUnset(properties, prefix, "sys:microsoftAzure-v2");
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://graph.microsoft.com/v1.0/me");
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, "secretBasic");
 		return properties;

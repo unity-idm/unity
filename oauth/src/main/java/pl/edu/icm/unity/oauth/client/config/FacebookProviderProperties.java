@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for Facebook OAuth provider.
@@ -35,8 +34,7 @@ public class FacebookProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + SCOPES, "email public_profile");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/FB-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
-				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:facebook");
+		setDefaultProfileIfUnset(properties, prefix, "sys:facebook");
 		return properties;
 	}
 

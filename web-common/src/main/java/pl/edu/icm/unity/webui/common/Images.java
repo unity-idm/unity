@@ -63,6 +63,7 @@ public enum Images
 	noAuthzGrp	(VaadinIcons.LOCK),
 	collapse	(VaadinIcons.FOLDER_O),
 	expand		(VaadinIcons.FOLDER_OPEN_O),
+	embed		(VaadinIcons.EXPAND_SQUARE),
 	addColumn	(VaadinIcons.PLUS_SQUARE_LEFT_O),
 	removeColumn	(VaadinIcons.MINUS_SQUARE_LEFT_O),
 	key		(VaadinIcons.KEY),

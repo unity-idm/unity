@@ -30,6 +30,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Responsible for creating {@link ActionParameterComponent}s.
@@ -106,6 +107,17 @@ public class ActionParameterComponentProvider
 				.collect(Collectors.toList());
 	}
 
+	TranslationProfile getInputProfile(String profile) throws EngineException
+	{
+		return profileMan.getInputProfile(profile);
+	}
+
+	TranslationProfile getOutputProfile(String profile) throws EngineException
+	{
+		return profileMan.getOutputProfile(profile);
+	}
+	
+	
 	public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)
 	{
 		switch (param.getType())
