@@ -950,5 +950,9 @@
 		margin-left: -1.5em;
 		background : $content-bg-color !important;
 	}
+	
+	.u-logoFieldTabsheet .v-tabsheet-tabcontainer:before {
+ 		border : none;
+ 	}
 }
 

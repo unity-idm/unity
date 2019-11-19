@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.webconsole;
+package io.imunity.webelements.navigation;
 
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.HorizontalLayout;

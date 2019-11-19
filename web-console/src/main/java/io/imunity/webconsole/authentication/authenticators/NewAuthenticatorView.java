@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.ViewWithSubViewBase;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.ViewWithSubViewBase;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;

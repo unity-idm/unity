@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole;
+package io.imunity.webelements.navigation;
 
 import java.util.LinkedList;
 

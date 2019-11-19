@@ -12,9 +12,11 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webelements.menu.MenuButton;
+import io.imunity.webelements.navigation.BreadcrumbsComponent;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
+import io.imunity.webelements.navigation.UnityViewWithSubViews;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
@@ -68,8 +70,6 @@ public class WebConsoleBreadCrumbs extends CustomComponent implements ViewChange
 					.withCaption(view.getDisplayedName()));
 		} else if (element.type == NavigationInfo.Type.ParameterizedViewWithSubviews)
 		{
-//			main.addButton(MenuButton.get(element.id)
-//					.withCaption(view.getDisplayedName()));
 			UnityViewWithSubViews viewWithSubViews = (UnityViewWithSubViews) view;
 			main.addSubBreadcrumbs(viewWithSubViews.getBreadcrumbsComponent());
 			

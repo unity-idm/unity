@@ -4,9 +4,7 @@
  */
 
 
-package io.imunity.webconsole;
-
-import io.imunity.webelements.navigation.UnityView;
+package io.imunity.webelements.navigation;
 
 /**
  * 
