@@ -101,7 +101,7 @@ public class DB implements StoreLoaderInternal
 			initDB.updateContents();
 		} catch (Exception e)
 		{
-			log.fatal("Update of database contents failded. You have to:\n1) Restore DB from backup\n"
+			log.fatal("Update of database contents failed. You have to:\n1) Restore DB from backup\n"
 					+ "2) Use the previous version of Unity\n"
 					+ "3) Report this problem with the exception following this "
 					+ "message to the Unity support mailing list"); 

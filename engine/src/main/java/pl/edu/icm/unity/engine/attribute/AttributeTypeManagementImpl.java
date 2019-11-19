@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
+import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.api.tx.TxManager;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -51,8 +53,9 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private InternalAuthorizationManager authz;
 	private AttributeTypeHelper atHelper;
 	private AttributesHelper aHelper;
+	private TxManager txMan;
+	private EventProcessor eventProcessor;
 	private InternalCapacityLimitVerificator capacityLimit;
-
 
 	@Autowired
 	public AttributeTypeManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
@@ -60,7 +63,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
-			AttributesHelper aHelper, InternalCapacityLimitVerificator capacityLimit)
+			AttributesHelper aHelper, TxManager txMan, EventProcessor eventProcessor,
+			InternalCapacityLimitVerificator capacityLimit)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -70,8 +74,9 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.authz = authz;
 		this.atHelper = atHelper;
 		this.aHelper = aHelper;
-		this.capacityLimit = capacityLimit;
-	}
+		this.txMan = txMan;
+		this.eventProcessor = eventProcessor;
+		this.capacityLimit = capacityLimit;	}
 
 	@Override
 	public String[] getSupportedAttributeValueTypes() throws EngineException
@@ -105,6 +110,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		
 		
 		attributeTypeDAO.create(toAdd);
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(null, toAdd)));
 	}
 
 	
@@ -134,6 +140,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
 				() -> Long.valueOf(atHelper.getSyntax(at).getMaxSize()));
 		attributeTypeDAO.update(at);
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(atExisting, at)));
 		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
 			clearAttributeExtractionFromIdentities(at.getName());
 	}
@@ -227,6 +234,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
 		
 		attributeTypeDAO.delete(id);
+		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(at, null)));
 		clearAttributeExtractionFromIdentities(id);
 	}
 

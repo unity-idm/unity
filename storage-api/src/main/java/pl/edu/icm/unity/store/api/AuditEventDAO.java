@@ -33,7 +33,25 @@ public interface AuditEventDAO extends BasicCRUDDAO<AuditEvent>
 	 * 		Until date or till the latest timestamp (if null)
 	 * @param limit
 	 * 		Maximum number of returned records
-	 * @return AuditEvent list sorted by timestamp.
+	 * @return AuditEvent list sorted by timestamp descending.
 	 */
-	List<AuditEvent> getLogs(final Date from, final Date until, final int limit);
+	default List<AuditEvent> getLogs(final Date from, final Date until, final int limit) {
+		return getOrderedLogs(from, until, limit, "timestamp", -1);
+	}
+
+	/**
+	 * Retrieve list of AuditEvents for given time period, sorted by order param (and secondly by timestamp descending) with given direction.
+	 * @param from
+	 * 		From date or from the earliest timestamp (if null)
+	 * @param until
+	 * 		Until date or till the latest timestamp (if null)
+	 * @param limit
+	 * 		Maximum number of returned records
+	 * @param order
+	 * 		AuditEvent field for sorting purposes - at this moment only "timestamp" value is supported
+	 * @param direction
+	 * 		Descending in case of negative value, ascending order in other cases.
+	 * @return AuditEvent list
+	 */
+	List<AuditEvent> getOrderedLogs(final Date from, final Date until, final int limit, final String order, final int direction);
 }
