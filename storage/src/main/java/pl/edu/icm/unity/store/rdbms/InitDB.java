@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -115,10 +114,9 @@ public class InitDB
 						+ "Please make sure you are updating Unity from the previous version"
 						+ " and check release notes.");
 			updateSchema(dbVersionAtServerStarup);
-		}else 
-		{
-			updateSchemaMinor(dbVersionOfSoftware);
 		}
+		
+		hotFix();
 	}
 	
 	private void assertMigrationsAreMatchingApp()
@@ -217,21 +215,30 @@ public class InitDB
 				Integer.parseInt(components[2]);
 	}
 	
+	private void hotFix()
+	{
+		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
+		try
+		{
+			for (String name : ops.stream().filter(n -> n.startsWith("hotfix"))
+					.collect(Collectors.toList()))
+			{
+
+				log.debug("Run hotfix update db schema script " + name);
+				session.update(name);
+
+			}
+			session.commit();
+		} finally
+		{
+			session.close();
+		}
+	}
+	
 	private void updateSchema(long currentVersion)
 	{
 		log.info("Updating DB schema to the actual version");
-		updateSchema(schemaVersion -> schemaVersion > currentVersion);
-		log.info("Updated DB schema to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
-	}
-	
-	private void updateSchemaMinor(long dbVersionOfSoftware)
-	{
-		log.debug("Run minor update scripts on actual db schema");
-		updateSchema(schemaVersion -> dbVersionOfSoftware + 1 <= schemaVersion &&  schemaVersion < dbVersionOfSoftware + 99);
-	}
-
-	private void updateSchema(Predicate<Long> checker)
-	{
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
 		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
 		try
@@ -243,7 +250,7 @@ public class InitDB
 				
 				String[] version = name.substring(UPDATE_SCHEMA_PFX.length()).split("-");
 				Long schemaVersion = Long.parseLong(version[0]);
-				if (checker.test(schemaVersion))
+				if (schemaVersion > currentVersion)
 				{
 					log.debug("Run update db schema script " + name);
 					session.update(name);
@@ -254,6 +261,7 @@ public class InitDB
 		{
 			session.close();
 		}
+		log.info("Updated DB schema to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
 	}
 	
 	public void updateContents() throws IOException, EngineException

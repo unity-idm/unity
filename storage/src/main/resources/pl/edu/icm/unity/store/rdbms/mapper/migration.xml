@@ -43,7 +43,7 @@
 		UPDATE UVOS_FLAG SET VAL = '2_8_0'
 	</update>
 	
-	<update id="updateSchema-20801-00">
+	<update id="hotfix-0">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-files"/>
 	</update>
 	
