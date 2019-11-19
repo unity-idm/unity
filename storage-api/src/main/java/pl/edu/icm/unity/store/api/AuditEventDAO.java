@@ -36,7 +36,7 @@ public interface AuditEventDAO extends BasicCRUDDAO<AuditEvent>
 	 * @return AuditEvent list sorted by timestamp descending.
 	 */
 	default List<AuditEvent> getLogs(final Date from, final Date until, final int limit) {
-		return getLogsWithOrder(from, until, limit, "timestamp", -1);
+		return getOrderedLogs(from, until, limit, "timestamp", -1);
 	}
 
 	/**
@@ -53,5 +53,5 @@ public interface AuditEventDAO extends BasicCRUDDAO<AuditEvent>
 	 * 		Descending in case of negative value, ascending order in other cases.
 	 * @return AuditEvent list
 	 */
-	List<AuditEvent> getLogsWithOrder(final Date from, final Date until, final int limit, final String order, final int direction);
+	List<AuditEvent> getOrderedLogs(final Date from, final Date until, final int limit, final String order, final int direction);
 }

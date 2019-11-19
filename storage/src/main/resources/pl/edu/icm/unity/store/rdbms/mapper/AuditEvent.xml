@@ -49,7 +49,7 @@
 		ORDER BY EVENT.TIMESTAMP DESC
 	</select>
 
-	<select id="getForPeriodWithOrder" resultMap="auditEventResult">
+	<select id="getOrderedLogs" resultMap="auditEventResult">
 		<include refid="getWithJoin"/>
 		<if test="from != null and until != null">
 			WHERE EVENT.TIMESTAMP &gt;= #{from} AND EVENT.TIMESTAMP &lt;= #{until}

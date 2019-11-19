@@ -30,7 +30,7 @@ import pl.edu.icm.unity.store.rdbms.InitDB;
  */
 public class AppDataSchemaVersion
 {
-	public static final DumpSchemaVersion CURRENT = DumpSchemaVersion.V_SINCE_2_10_1;
+	public static final DumpSchemaVersion CURRENT = DumpSchemaVersion.V_SINCE_2_11_0;
 	
 	/**
 	 * The oldest version of software which can be automatically updated to the current version 

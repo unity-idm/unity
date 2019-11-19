@@ -19,7 +19,7 @@ public enum DumpSchemaVersion
 	V_SINCE_2_8_0(7, "2_6_0", "2.8.0", "2.7.0"),
 	V_SINCE_2_9_0(8, "2_7_0", "2.9.0", "2.8.0"),
 	V_SINCE_2_10_0(9, "2_8_0", "2.10.0", "2.9.0"),
-	V_SINCE_2_10_1(9, "2_8_1", "2.10.1", "2.10.0");
+	V_SINCE_2_11_0(9, "2_9_0", "2.11.0", "2.10.0");
 	
 	private String name;
 	private String previousName;

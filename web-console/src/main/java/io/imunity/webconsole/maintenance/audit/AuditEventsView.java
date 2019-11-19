@@ -303,7 +303,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 						direction == SortDirection.ASCENDING ? 1 : -1).stream()
 					.map(ae -> new AuditEventEntry(msg, ae))
 					.collect(Collectors.toList());
-			log.info("AuditEvents retrieval time: {} ms" , System.currentTimeMillis() - now);
+			log.debug("AuditEvents retrieval time: {} ms" , System.currentTimeMillis() - now);
 			return list;
 		} catch (Exception e)
 		{

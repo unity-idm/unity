@@ -15,7 +15,6 @@ import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -386,7 +385,7 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 
 		tx.runInTransaction(() -> {
 			// when/than
-			assertEquals(Arrays.asList(list.get(0), list.get(1), list.get(2), list.get(3)), dao.getLogsWithOrder(null, null, 100, "timestamp", 1));
+			assertEquals(Arrays.asList(list.get(0), list.get(1), list.get(2), list.get(3)), dao.getOrderedLogs(null, null, 100, "timestamp", 1));
 		});
 	}
 
@@ -398,7 +397,7 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 
 		tx.runInTransaction(() -> {
 			// when/than
-			assertEquals(Arrays.asList(list.get(3), list.get(2), list.get(1), list.get(0)), dao.getLogsWithOrder(null, null, 100, "timestamp", -1));
+			assertEquals(Arrays.asList(list.get(3), list.get(2), list.get(1), list.get(0)), dao.getOrderedLogs(null, null, 100, "timestamp", -1));
 		});
 	}
 
@@ -407,7 +406,7 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 	{
 		tx.runInTransaction(() -> {
 			// when
-			dao.getLogsWithOrder(null, null, 100, "incorrectOrder", -1);
+			dao.getOrderedLogs(null, null, 100, "incorrectOrder", -1);
 		});
 	}
 
