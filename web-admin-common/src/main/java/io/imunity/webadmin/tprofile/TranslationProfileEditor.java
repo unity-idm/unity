@@ -13,8 +13,6 @@ import com.vaadin.data.Binder;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -30,6 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
@@ -37,6 +36,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -67,7 +67,6 @@ public class TranslationProfileEditor extends VerticalLayout
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type, 
 			ActionParameterComponentProvider actionComponentProvider)
 	{
-		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.type = type;
@@ -82,9 +81,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		name.setReadOnly(true);
 		rules.clear();
 		for (TranslationRule trule : toEdit.getRules())
-		{
-			addRuleComponent(trule);
-		}
+			addRuleComponentAt(trule, rules.size());
+		refreshRules();
 	}
 	
 	public TranslationProfile getProfile() throws FormValidationException
@@ -134,14 +132,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		addRule.setIcon(Images.add.getResource());
 		addRule.addStyleName(Styles.vButtonLink.toString());
 		addRule.addStyleName(Styles.toolbarButton.toString());
-		addRule.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				addRuleComponent(null);
-			}
-		});
+		addRule.addClickListener(event -> addRuleComponent(null));
 		
 		testProfileButton = new StartStopButton();
 		testProfileButton.setVisible(false);
@@ -186,33 +177,31 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected void testRules() 
 	{
 		for (RuleComponent rule : rules)
-		{
 			rule.test(remoteAuthnInput);
-		}
 	}
 
 	protected void clearTestResults() 
 	{
 		for (RuleComponent rule : rules)
-		{
 			rule.clearTestResult();
-		}		
 	}
 
 	private void addRuleComponent(TranslationRule trule)
 	{
-		RuleComponent r = new RuleComponent(msg, registry, 
-				trule, actionComponentProvider, new CallbackImplementation());
-		
-		rules.add(r);
+		RuleComponent r = addRuleComponentAt(trule, rules.size());
 		if (trule == null)
-		{			
 			r.setFocus();
-		}
-
 		refreshRules();
 	}
 
+	private RuleComponent addRuleComponentAt(TranslationRule trule, int index)
+	{
+		RuleComponent r = new RuleComponent(msg, registry, 
+				trule, actionComponentProvider, new CallbackImplementation());
+		rules.add(index, r);
+		return r;
+	}
+	
 	protected void refreshRules()
 	{
 		rulesLayout.removeAllComponents();
@@ -221,11 +210,11 @@ public class TranslationProfileEditor extends VerticalLayout
 		rulesLayout.addComponent(getDropElement(0));
 		for (RuleComponent r : rules)
 		{
-			if (rules.size() > 2)
+			if (rules.size() > 1)
 			{
 				r.setTopVisible(true);
 				r.setBottomVisible(true);
-			}else
+			} else
 			{
 				r.setTopVisible(false);
 				r.setBottomVisible(false);
@@ -332,6 +321,30 @@ public class TranslationProfileEditor extends VerticalLayout
 		{
 			rules.remove(rule);
 			rules.add(rule);
+			refreshRules();
+			return true;
+		}
+
+		@Override
+		public boolean embedProfile(RuleComponent rule, String profileName, ProfileType profileType)
+		{
+			int indexOf = rules.indexOf(rule);
+			
+			TranslationProfile profile;
+			try
+			{
+				profile = (profileType == ProfileType.INPUT) ? 
+						actionComponentProvider.getInputProfile(profileName) : 
+						actionComponentProvider.getOutputProfile(profileName);
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"), e);
+				return false;
+			}
+			
+			for (TranslationRule trule : profile.getRules())
+				addRuleComponentAt(trule, indexOf++);
+			rules.remove(rule);
 			refreshRules();
 			return true;
 		}

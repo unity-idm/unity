@@ -30,11 +30,6 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 {
 	private String type;
@@ -63,13 +58,9 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	{
 		String profile = source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		if (profile != null && !profile.isEmpty())
-		{
-
-			setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(
-					source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE)));
-
-		}
-		fromProperties(msg, uriAccessService,  source, orgId != null ? orgId : idFromTemplate);
+			setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(profile));
+		
+		fromProperties(msg, uriAccessService, source, orgId != null ? orgId : idFromTemplate);
 	}
 
 	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService,

@@ -273,10 +273,11 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 			properties.setProperty(property, value);
 	}
 	
-	public static void setIfUnset(Properties properties, String propertyToCheck, String property, String value)
+	public static void setDefaultProfileIfUnset(Properties properties, String prefix, String defaultProfile)
 	{
-		if (!properties.containsKey(propertyToCheck))
-			properties.setProperty(property, value);
+		if (!properties.containsKey(prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE) &&
+				!properties.containsKey(prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE))
+			properties.setProperty(prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, defaultProfile);
 	}
 	
 }

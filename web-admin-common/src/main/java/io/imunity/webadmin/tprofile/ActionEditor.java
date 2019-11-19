@@ -7,7 +7,8 @@ package io.imunity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.Logger;
 
@@ -41,11 +42,11 @@ public class ActionEditor extends LayoutEmbeddable
 	private Label actionParams;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
-	private Consumer<String> callback;
+	private BiConsumer<String, Optional<TranslationAction>> callback;
 	
 	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
-			Consumer<String> callback)
+			BiConsumer<String, Optional<TranslationAction>> callback)
 	{
 		this.msg = msg;
 		this.tc = tc;
@@ -74,10 +75,11 @@ public class ActionEditor extends LayoutEmbeddable
 		actions.setItems(items);
 		actions.setEmptySelectionAllowed(false);
 		actions.setRequiredIndicatorVisible(true);
-		actions.addSelectionListener(e -> {
+		actions.addSelectionListener(e -> 
+		{
 			setParams(actions.getValue(), null);
 			if (callback != null)
-				callback.accept(getStringRepresentation());
+				callback.accept(getStringRepresentation(), getActionIfValid());
 		});
 		
 		actionParams = new Label();
@@ -104,11 +106,22 @@ public class ActionEditor extends LayoutEmbeddable
 		setParams(actions.getValue().toString(), toEdit.getParameters());
 	}
 	
+	private Optional<TranslationAction> getActionIfValid()
+	{
+		try
+		{
+			return Optional.of(getAction());
+		} catch (FormValidationException e)
+		{
+			return Optional.empty();
+		}
+	}
+	
 	private void setParams(String action, String[] values)
 	{
 		Runnable paramCallback = () -> {
 			if (callback != null)
-				callback.accept(getStringRepresentation()); 
+				callback.accept(getStringRepresentation(), getActionIfValid()); 
 		};
 		removeComponents(paramComponents);
 		paramComponents.clear();

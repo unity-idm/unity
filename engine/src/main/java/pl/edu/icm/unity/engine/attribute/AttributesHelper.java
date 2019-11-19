@@ -29,9 +29,10 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
-import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -39,8 +40,6 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
-import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -116,12 +115,6 @@ public class AttributesHelper
 	/**
 	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
 	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
-	 * @param entityId
-	 * @param groupPath
-	 * @param attributeTypeName
-	 * @return
-	 * @throws EngineException 
-	 * @throws WrongArgumentException 
 	 */
 	public Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, String groupPath, 
 			boolean effective, String attributeTypeName) 
@@ -160,12 +153,7 @@ public class AttributesHelper
 	}
 
 	/**
-	 * @param entityId
-	 * @param atMapper
-	 * @param gMapper
 	 * @return map indexed with groups. Values are maps of all attributes in all groups, indexed with their names.
-	 * @throws IllegalTypeException
-	 * @throws IllegalGroupValueException
 	 */
 	private Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId) 
 			throws IllegalTypeException, IllegalGroupValueException
@@ -242,11 +230,6 @@ public class AttributesHelper
 	
 	/**
 	 * Sets ACs of a given entity. Pure business logic - no authZ and transaction management.
-	 * @param entityId
-	 * @param group
-	 * @param classes
-	 * @param sql
-	 * @throws EngineException
 	 */
 	public void setAttributeClasses(long entityId, String group, Collection<String> classes) 
 			throws EngineException
@@ -311,20 +294,17 @@ public class AttributesHelper
 	/**
 	 * Adds an attribute. This method performs engine level checks: whether the attribute type is not immutable,
 	 * and properly sets unverified state if attribute is added by ordinary user (not an admin).
-	 * <p>
 	 * 
-	 * @param entityId
-	 * @param update
-	 * @param at
 	 * @param honorInitialConfirmation if true then operation is run by privileged user, 
-	 * otherwise it is modification of self 
-	 * possessed attribute and verification status must be set to unverified.
-	 * @param attribute
-	 * @throws EngineException
+	 * otherwise it is modification of self possessed attribute and verification status must be set to unverified.
 	 */
 	public void addAttribute(long entityId, Attribute attribute, AttributeType at, boolean update,
 			boolean honorInitialConfirmation) throws EngineException
 	{
+		if (attribute == null)
+			throw new IllegalArgumentException("Trying to add null attribute for " + entityId);
+		if (at == null)
+			throw new IllegalArgumentException("Trying to add attribute " + attribute.getName() + " without type");
 		if (at.isInstanceImmutable())
 			throw new SchemaConsistencyException("The attribute with name " + at.getName() + 
 					" can not be manually modified");
@@ -344,12 +324,6 @@ public class AttributesHelper
 	
 	/**
 	 * Adds a system attribute. Use only internally.
-	 * 
-	 * @param entityId
-	 * @param update
-	 * @param at
-	 * @param attribute
-	 * @throws EngineException
 	 */
 	public void addSystemAttribute(long entityId, Attribute attribute, AttributeType at, boolean update) 
 			throws EngineException
@@ -460,8 +434,6 @@ public class AttributesHelper
 	 * <p>
 	 * What is more it is checked in case of attribute update, when there is no-admin mode if the attribute 
 	 * being updated had at least one confirmed value. If yes, also at least one confirmed value must be preserved. 
-	 * 
-	 * @throws EngineException 
 	 */
 	@SuppressWarnings("unchecked")
 	private void enforceCorrectConfirmationState(long entityId, boolean update,
@@ -560,7 +532,6 @@ public class AttributesHelper
 	
 	/**
 	 * Checks if the given set of attributes fulfills rules of ACs of a specified group 
-	 * @throws EngineException 
 	 */
 	public void checkGroupAttributeClassesConsistency(List<Attribute> attributes, String path) 
 			throws EngineException
@@ -576,12 +547,6 @@ public class AttributesHelper
 	 * Same as {@link #addAttribute(SqlSession, long, boolean, AttributeType, boolean, Attribute)}
 	 * but for a whole list of attributes. It is assumed that attributes are always created. 
 	 * Attribute type is automatically resolved.
-	 *   
-	 * @param attributes
-	 * @param entityId
-	 * @param honorInitialConfirmation
-	 * @param sqlMap
-	 * @throws EngineException
 	 */
 	public void addAttributesList(List<Attribute> attributes, long entityId, boolean honorInitialConfirmation) 
 			throws EngineException
@@ -593,8 +558,6 @@ public class AttributesHelper
 	
 	/**
 	 * Creates or updates an attribute. No schema checking is performed.
-	 * @param toCreate
-	 * @param entityId
 	 */
 	public void createOrUpdateAttribute(Attribute toCreate, long entityId)
 	{
@@ -631,8 +594,6 @@ public class AttributesHelper
 	
 	/**
 	 * Creates or updates an attribute. No schema checking is performed.
-	 * @param toCreate
-	 * @param entityId
 	 */
 	public void createAttribute(Attribute toCreate, long entityId)
 	{
@@ -648,10 +609,6 @@ public class AttributesHelper
 	
 	/**
 	 * Checks if the given {@link Attribute} is valid wrt the {@link AttributeType} constraints
-	 * @param attribute
-	 * @param at
-	 * @throws IllegalAttributeValueException
-	 * @throws IllegalAttributeTypeException
 	 */
 	public void validate(Attribute attribute, AttributeType at) 
 			throws IllegalAttributeValueException, IllegalAttributeTypeException
