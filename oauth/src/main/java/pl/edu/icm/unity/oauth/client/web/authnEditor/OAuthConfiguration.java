@@ -22,11 +22,6 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class OAuthConfiguration
 {
 	private boolean accountAssociation;
