@@ -6,7 +6,7 @@
 package io.imunity.webadmin.tprofile;
 
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
 
 import com.vaadin.data.Binder;
 import com.vaadin.server.UserError;
@@ -29,7 +29,11 @@ import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
+import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -64,6 +68,7 @@ public class RuleComponent extends CustomComponent
 	private Binder<TranslationRule> binder;
 	private Button dragImg;
 	private HamburgerMenu<String> menuBar;
+	private MenuItem embedProfileMenuItem;
 	
 	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
@@ -118,12 +123,15 @@ public class RuleComponent extends CustomComponent
 		menuBar = new HamburgerMenu<String>();			
 		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
 				Images.remove.getResource(), s -> callback.remove(RuleComponent.this));
+		embedProfileMenuItem = menuBar.addItem(msg.getMessage("TranslationProfileEditor.embedProfile"), 
+				Images.embed.getResource(), this::onEmbedProfileAction);
 		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
 				Images.topArrow.getResource(), 
 				s -> callback.moveTop(RuleComponent.this));	
 		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
 				Images.bottomArrow.getResource(), 
 				s -> callback.moveBottom(RuleComponent.this));
+		
 
 		header.addComponent(menuBar);
 		header.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
@@ -143,9 +151,8 @@ public class RuleComponent extends CustomComponent
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		condition.setStyleName(Styles.vTiny.toString());
 		condition.setWidth(100, Unit.PERCENTAGE);
-		Consumer<String> editorCallback = s -> info.setValue(s);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
-				actionComponentProvider, editorCallback);
+				actionComponentProvider, this::onActionChanged);
 		
 		mappingResultComponent = new MappingResultComponent(msg);	
 		
@@ -169,7 +176,38 @@ public class RuleComponent extends CustomComponent
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);		
 		binder.setBean(new TranslationRule(editMode? toEdit.getCondition() : "true", null));
-
+	}
+	
+	private void onEmbedProfileAction(MenuItem item)
+	{
+		TranslationAction action;
+		try
+		{
+			action = actionEditor.getAction();
+		} catch (FormValidationException e)
+		{
+			NotificationPopup.showFormError(msg);
+			return;
+		}
+		String profile = action.getParameters()[0];
+		ProfileType profileType = IncludeInputProfileActionFactory.NAME.equals(action.getName()) ? 
+				ProfileType.INPUT : ProfileType.OUTPUT;
+		callback.embedProfile(RuleComponent.this, profile, profileType);
+	}
+	
+	private void onActionChanged(String actionStr, Optional<TranslationAction> action)
+	{
+		info.setValue(actionStr);
+		if (action.isPresent())
+		{
+			String actionName = action.get().getName();
+			boolean enableEmbed = IncludeInputProfileActionFactory.NAME.equals(actionName)
+					|| IncludeOutputProfileActionFactory.NAME.equals(actionName);
+			embedProfileMenuItem.setVisible(enableEmbed);
+		} else
+		{
+			embedProfileMenuItem.setVisible(false);
+		}
 	}
 	
 	public void setReadOnlyMode(boolean readOnly)
@@ -268,13 +306,8 @@ public class RuleComponent extends CustomComponent
 	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
 	{
 		removeRuleComponentEvaluationStyle();
-		if (conditionResult)
-		{
-			setColorForInputComponents(Styles.trueConditionBackground.toString());
-		} else
-		{
-			setColorForInputComponents(Styles.falseConditionBackground.toString());
-		}
+		setColorForInputComponents((conditionResult ? 
+				Styles.trueConditionBackground : Styles.falseConditionBackground).toString());
 	}
 	
 	private void displayMappingResult(MappingResult mappingResult) 
@@ -336,5 +369,6 @@ public class RuleComponent extends CustomComponent
 		boolean remove(RuleComponent rule);
 		boolean moveTop(RuleComponent rule);
 		boolean moveBottom(RuleComponent rule);
+		boolean embedProfile(RuleComponent rule, String profile, ProfileType profileType);
 	}
 }
