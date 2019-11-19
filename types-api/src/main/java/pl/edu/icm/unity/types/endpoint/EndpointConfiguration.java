@@ -4,17 +4,19 @@
  */
 package pl.edu.icm.unity.types.endpoint;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
@@ -85,8 +87,16 @@ public class EndpointConfiguration
 	{
 		if(configuration != null)
 		{
-			return Hashing.murmur3_128().hashString(configuration, Charsets.UTF_8).toString()
-					.toUpperCase();
+			try
+			{
+				return DatatypeConverter
+						.printHexBinary((MessageDigest.getInstance("SHA-1").digest(
+								configuration.getBytes(StandardCharsets.UTF_8))))
+						.toUpperCase();
+			} catch (NoSuchAlgorithmException e)
+			{
+				return configuration;
+			}
 		} else
 		{
 			return "";
