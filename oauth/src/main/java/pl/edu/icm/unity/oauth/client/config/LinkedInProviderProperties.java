@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for LinkedIn OAuth provider.
@@ -37,8 +36,7 @@ public class LinkedInProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + SCOPES, "r_liteprofile r_basicprofile r_emailaddress");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/linkedin-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
-				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:linkedin");
+		setDefaultProfileIfUnset(properties, prefix, "sys:linkedin");
 		return properties;
 	}
 }
