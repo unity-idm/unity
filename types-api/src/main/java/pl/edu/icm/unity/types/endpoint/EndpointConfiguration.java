@@ -8,9 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-
-import javax.xml.bind.DatatypeConverter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -74,28 +73,23 @@ public class EndpointConfiguration
 				authenticationOptions.add(node.asText());
 
 		}
-		if (json.has("tag"))
-		{
-			tag = json.get("tag").asText();
-		} else 
-		{
-			tag = generateTag(configuration);
-		}
+		
+		tag = json.has("tag") ? json.get("tag").asText() : generateTag(configuration);
 	}
 
 	private String generateTag(String configuration)
 	{
-		if(configuration != null)
+		if (configuration != null)
 		{
 			try
 			{
-				return DatatypeConverter
-						.printHexBinary((MessageDigest.getInstance("SHA-1").digest(
-								configuration.getBytes(StandardCharsets.UTF_8))))
-						.toUpperCase();
+				byte[] digest = MessageDigest.getInstance("SHA-256").digest(
+						configuration.getBytes(StandardCharsets.UTF_8));
+				return Base64.getEncoder().encodeToString(digest);
 			} catch (NoSuchAlgorithmException e)
 			{
-				return configuration;
+				throw new IllegalStateException("Can not generate message fingerprint "
+						+ "with SHA 256, java platform problem?", e);
 			}
 		} else
 		{
