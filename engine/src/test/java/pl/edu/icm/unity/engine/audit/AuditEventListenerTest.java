@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.I18nString;
@@ -27,6 +28,9 @@ import static org.junit.Assert.assertNull;
 public class AuditEventListenerTest extends DBIntegrationTestBase
 {
 	@Autowired
+	private AuditEventManagement auditManager;
+
+	@Autowired
 	private AuditEventListener auditListener;
 
 	@Autowired
@@ -38,8 +42,13 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 	public void setup() throws Exception
 	{
 		typeWithEntityName = getType();
-		// make sure AuditEventListener is correctly initialized - on fresh DB
-		auditListener.init();
+		auditManager.enableAuditEvents();
+	}
+
+	@After
+	public void cleanup()
+	{
+		auditManager.disableAuditEvents();
 	}
 
 	@After

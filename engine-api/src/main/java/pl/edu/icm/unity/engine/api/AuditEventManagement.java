@@ -50,4 +50,14 @@ public interface AuditEventManagement
 	 * @return Audit Logs feature status
 	 */
 	boolean isPublisherEnabled();
+
+	/**
+	 * Enable Audit Logs feature (Audit Logs gathering) in the system.
+	 */
+	void enableAuditEvents();
+
+	/**
+	 * Disable Audit Logs feature (Audit Logs gathering) n the system.
+	 */
+	void disableAuditEvents();
 }

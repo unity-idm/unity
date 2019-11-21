@@ -8,10 +8,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
@@ -27,18 +30,26 @@ import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 @Transactional
 public class AuditManager implements AuditEventManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditManager.class);
+
 	private AuditEventDAO dao;
 	private InternalAuthorizationManager authz;
 	private AuditPublisher auditPublisher;
-
+	private AuditEventListener auditEventListener;
+	private volatile boolean publishingEnabled;
 
 	@Autowired
 	public AuditManager(AuditEventDAO dao, InternalAuthorizationManager authz,
-						AuditPublisher auditPublisher)
+						AuditPublisher auditPublisher, AuditEventListener auditEventListener, final UnityServerConfiguration mainConfig)
 	{
 		this.dao = dao;
 		this.authz = authz;
 		this.auditPublisher = auditPublisher;
+		this.auditEventListener = auditEventListener;
+		this.publishingEnabled = mainConfig.getBooleanValue(UnityServerConfiguration.AUDITEVENTLOGS_ENABLED);
+		this.auditPublisher.enabled = this.publishingEnabled;
+		this.auditEventListener.enabled = this.publishingEnabled;
+		log.info("AuditEvents are {}", (this.publishingEnabled ? "enabled" : "disabled"));
 	}
 
 	@Override
@@ -65,6 +76,25 @@ public class AuditManager implements AuditEventManagement
 	@Override
 	public boolean isPublisherEnabled()
 	{
-		return auditPublisher.isEnabled();
+		return publishingEnabled;
+	}
+
+	@Override
+	public void enableAuditEvents()
+	{
+		this.publishingEnabled = true;
+		auditPublisher.enabled = true;
+		auditEventListener.enabled = true;
+		auditEventListener.init();
+		log.info("AuditEvents are enabled");
+	}
+
+	@Override
+	public void disableAuditEvents()
+	{
+		this.publishingEnabled = false;
+		auditPublisher.enabled = false;
+		auditEventListener.enabled = false;
+		log.info("AuditEvents are disabled");
 	}
 }
