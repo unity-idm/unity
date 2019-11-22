@@ -9,9 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -47,12 +45,12 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		
 		InvocationContext invContext = InvocationContext.getCurrent();
 		invContext.setLoginSession(new LoginSession("1", null, null, 100, 1L, null, null, null, null));
-		ReflectionTestUtils.setField(auditPublisher, "enabled", true);
+		auditManager.enableAuditEvents();
 	}
 
 	@After
 	public void after() {
-		ReflectionTestUtils.setField(auditPublisher, "enabled", false);
+		auditManager.disableAuditEvents();
 	}
 
 	@Test

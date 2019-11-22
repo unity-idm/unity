@@ -4,23 +4,16 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
+import pl.edu.icm.unity.engine.audit.AuditEventListener;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -32,6 +25,13 @@ import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+
 public class TestIdentitiesAuditing extends DBIntegrationTestBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, TestIdentitiesAuditing.class);
@@ -41,7 +41,6 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 
 	@Autowired
 	private AuditPublisher auditPublisher;
-	
 
 	@Before
 	public void prepare() throws Exception
@@ -158,15 +157,14 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 	{
 		try 
 		{
-			ReflectionTestUtils.setField(auditPublisher, "enabled", true);
+			auditManager.enableAuditEvents();
 			operation.call();
+			Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS)
+					.until(() -> auditManager.getAllEvents().size() == expectedAuditEntries);
 		} finally
 		{
-			ReflectionTestUtils.setField(auditPublisher, "enabled", false);
+			auditManager.disableAuditEvents();
 		}
-
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS)
-			.until(() -> auditManager.getAllEvents().size() == expectedAuditEntries);
 		
 		List<AuditEvent> allEvents = auditManager.getAllEvents();
 		log.info("Logged audit: {}", allEvents.stream().map(el -> el.toString()).collect(Collectors.joining("\n")));

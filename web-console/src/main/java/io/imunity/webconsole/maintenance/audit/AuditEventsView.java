@@ -7,8 +7,6 @@ package io.imunity.webconsole.maintenance.audit;
 
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
-import com.vaadin.data.provider.SortOrder;
-import com.vaadin.event.SortEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.data.sort.SortDirection;

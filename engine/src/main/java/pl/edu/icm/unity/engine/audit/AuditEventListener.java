@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeChangedEvent;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
@@ -45,6 +46,7 @@ public class AuditEventListener implements EventListener
 	private AttributeSupport attributeSupport;
 	private AuditEventDAO dao;
 	private TransactionalRunner tx;
+	volatile boolean enabled;
 
 	@Autowired
 	public AuditEventListener(final AttributeDAO attributeDAO, final EmailFacility emailFacility,
@@ -60,6 +62,9 @@ public class AuditEventListener implements EventListener
 
 	@Override
 	public void init() {
+		if (!enabled) {
+			return;
+		}
 		initEntityNameAttribute();
 	}
 
@@ -101,6 +106,9 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean handleEvent(final Event abstractEvent)
 	{
+		if (!enabled) {
+			return true;
+		}
 		if (abstractEvent instanceof AttributeTypeChangedEvent) {
 			return handleAttributeTypeChangeEvent((AttributeTypeChangedEvent)abstractEvent);
 		}
