@@ -129,7 +129,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			verifyAuthenticators(endpointInstance.getAuthenticationFlows(), 
 					factory.getDescription().getSupportedBinding());
 			
-			Endpoint endpointExisting = getEndpoint(endpointName);
+			Endpoint endpointExisting = getEndpointInt(endpointName);
 			if (endpointExisting != null)
 			{
 				if (endpointExisting.getState().equals(EndpointState.DEPLOYED))
@@ -161,7 +161,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		return endpointInstance.getEndpointDescription();
 	}
 	
-	private Endpoint getEndpoint(String name)
+	private Endpoint getEndpointInt(String name)
 	{
 		try
 		{
@@ -195,6 +195,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return endpointDB.getAll();
+	}
+	
+	@Override
+	public Endpoint getEndpoint(String name) throws AuthorizationException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		return endpointDB.get(name);
 	}
 	
 	@Override

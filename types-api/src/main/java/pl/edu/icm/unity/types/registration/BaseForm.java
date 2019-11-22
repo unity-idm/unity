@@ -349,7 +349,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		return displayedName == null ? new I18nString(getName()) : displayedName;
 	}
 
-	void setDisplayedName(I18nString displayedName)
+	public void setDisplayedName(I18nString displayedName)
 	{
 		this.displayedName = displayedName;
 	}
