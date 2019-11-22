@@ -198,6 +198,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	}
 	
 	@Override
+	@Transactional
 	public Endpoint getEndpoint(String name) throws AuthorizationException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
