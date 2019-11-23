@@ -18,6 +18,8 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.LogoutResponse;
+import eu.unicore.samly2.slo.LogoutRequestParser;
+import eu.unicore.samly2.slo.ParsedLogoutRequest;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.LogoutRequestValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -39,15 +41,12 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
-import xmlbeans.org.oasis.saml2.protocol.LogoutRequestType;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 
 /**
  * Implements handling of logout requests received via SAML with any binding. Handling of async and sync bindings 
  * is naturally implemented differently. Its main co-worker is {@link InternalLogoutProcessor} which handles 
  * logout of additional session participants. 
- * 
- * 
  * @author K. Benedyczak
  */
 public class SAMLLogoutProcessor
@@ -72,19 +71,6 @@ public class SAMLLogoutProcessor
 
 	/**
 	 * Ouch ;-) Probably we should encapsulate non bean params into a config class. But we have a factory to help.
-	 * @param sessionManagement
-	 * @param idResolver
-	 * @param contextsStore
-	 * @param replayChecker
-	 * @param responseHandler
-	 * @param internalProcessor
-	 * @param identityTypeMapper
-	 * @param consumerEndpointUri
-	 * @param requestValidity
-	 * @param localSamlId
-	 * @param localSamlCredential
-	 * @param trustChecker
-	 * @param realm
 	 */
 	public SAMLLogoutProcessor(SessionManagement sessionManagement, SessionParticipantTypesRegistry registry,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
@@ -115,9 +101,6 @@ public class SAMLLogoutProcessor
 	/**
 	 * Handles logout request initiated by a synchronous (SOAP) binding. All logouts of session participants 
 	 * can happen only using the synchronous binding. After performing the logout a response is returned. 
-	 * @param request
-	 * @return
-	 * @throws SAMLServerException 
 	 */
 	public LogoutResponseDocument handleSynchronousLogoutFromSAML(LogoutRequestDocument request) 
 	{
@@ -150,11 +133,6 @@ public class SAMLLogoutProcessor
 	 * Handles logout request initiated by an asynchronous binding (HTTP POST or Redirect). The method either can 
 	 * return the response to the requester (by return redirect returned to the client's agent) or request 
 	 * by redirection to one of additional session participants.
-	 *  
-	 * @param request
-	 * @param response
-	 * @throws EopException 
-	 * @throws IOException 
 	 */
 	public void handleAsyncLogoutFromSAML(LogoutRequestDocument request, String relayState, 
 			HttpServletResponse response, Binding binding) throws IOException, EopException
@@ -208,13 +186,6 @@ public class SAMLLogoutProcessor
 	/**
 	 * Careful handling of early errors when handling the SAML request. This code does not assume request is valid 
 	 * nor trusted. If it is possible the error response is sent back. If not an error page is presented.
-	 * @param e
-	 * @param request
-	 * @param relayState
-	 * @param response
-	 * @param binding
-	 * @throws EopException 
-	 * @throws IOException 
 	 */
 	private void handleEarlyError(SAMLServerException error, LogoutRequestDocument request, String relayState, 
 			HttpServletResponse response, Binding binding) throws IOException, EopException
@@ -246,9 +217,6 @@ public class SAMLLogoutProcessor
 	 * Initializes the logout process when started by means of SAML protocol: 
 	 * request is validated, login session resolved, authorization is checked.
 	 *  Then the logout context is created, stored and persisted.  
-	 * @param request
-	 * @return
-	 * @throws SAMLServerException
 	 */
 	private SAMLExternalLogoutContext initFromSAML(LogoutRequestDocument request, String requesterRelayState, 
 			Binding binding, boolean persistContext) throws SAMLServerException
@@ -301,8 +269,6 @@ public class SAMLLogoutProcessor
 	
 	/**
 	 * Prepares the final response and sends it back via async binding
-	 * @throws EopException 
-	 * @throws IOException 
 	 */
 	private void finishAsyncLogoutFromSAML(SAMLExternalLogoutContext ctx, boolean partial, 
 			HttpServletResponse response, String externalContextKey) throws IOException, EopException
@@ -327,9 +293,6 @@ public class SAMLLogoutProcessor
 	/**
 	 * Prepares the final logout response, taking into account 
 	 * the overall logout state from the context.
-	 * @param ctx
-	 * @return
-	 * @throws SAMLResponderException 
 	 */
 	private LogoutResponseDocument prepareFinalLogoutResponse(SAMLExternalLogoutContext ctx, 
 			SAMLEndpointDefinition endpoint, boolean partial) 
@@ -353,18 +316,22 @@ public class SAMLLogoutProcessor
 	
 	/**
 	 * Validates the logout request and searches for an appropriate session which is returned.
-	 * @param request
-	 * @return
-	 * @throws SAMLServerException 
 	 */
-	private LoginSession resolveRequest(LogoutRequestDocument request) throws SAMLServerException
+	private LoginSession resolveRequest(LogoutRequestDocument request) throws SAMLRequesterException
 	{
 		LogoutRequestValidator validator = new LogoutRequestValidator(consumerEndpointUri, 
 				trustProvider.getTrustChecker(), requestValidity, replayChecker);
-		validator.validate(request);
+		LogoutRequestParser parser = new LogoutRequestParser(validator, localSamlCredential.getKey());
+		ParsedLogoutRequest parsedRequest;
+		try
+		{
+			parsedRequest = parser.parseRequest(request);
+		} catch (Exception e1)
+		{
+			throw new SAMLRequesterException("Can't parse SAML SLO request", e1);
+		}
 		
-		LogoutRequestType logoutRequest = request.getLogoutRequest();
-		NameIDType loggedOut = logoutRequest.getNameID();
+		NameIDType loggedOut = parsedRequest.getSubject();
 		String samlType = loggedOut.getFormat();
 		if (samlType == null)
 			samlType = SAMLConstants.NFORMAT_UNSPEC;
@@ -375,7 +342,7 @@ public class SAMLLogoutProcessor
 		try
 		{
 			localEntity = idResolver.resolveIdentity(identity, new String[] {unityType}, 
-					request.getLogoutRequest().getIssuer().getStringValue(), realm);
+					parsedRequest.getIssuer().getStringValue(), realm);
 		} catch (EngineException e)
 		{
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL,
@@ -400,7 +367,6 @@ public class SAMLLogoutProcessor
 	/**
 	 * Implementation provides access to saml trust checker. It is used as SAML trust settings may easily 
 	 * change at runtime.
-	 * @author K. Benedyczak
 	 */
 	public interface SamlTrustProvider
 	{
