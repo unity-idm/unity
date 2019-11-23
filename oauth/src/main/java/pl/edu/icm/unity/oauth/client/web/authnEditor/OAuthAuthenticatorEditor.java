@@ -5,10 +5,12 @@
 
 package pl.edu.icm.unity.oauth.client.web.authnEditor;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -19,24 +21,30 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.webelements.clipboard.CopyToClipboardButton;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
+import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -65,11 +73,12 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	private ProvidersComponent providersComponent;
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
+	private Supplier<URL> serverURLSupplier;
 
 	OAuthAuthenticatorEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
 			FileStorageService fileStorageService, URIAccessService uriAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
-			RegistrationsManagement registrationMan)
+			RegistrationsManagement registrationMan, Supplier<URL> serverURLSupplier)
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
@@ -78,6 +87,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
+		this.serverURLSupplier = serverURLSupplier;
 	}
 
 	@Override
@@ -97,6 +107,18 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		CheckBox accountAssociation = new CheckBox(
 				msg.getMessage("OAuthAuthenticatorEditor.accountAssociation"));
 		header.addComponent(accountAssociation);
+		
+		TextField returnURLInfo = new TextField();
+		returnURLInfo.setValue(buildReturnURL());
+		returnURLInfo.setReadOnly(true);
+		returnURLInfo.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
+				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		CopyToClipboardButton copy = new CopyToClipboardButton(msg, returnURLInfo);
+		HorizontalLayout hr = new HorizontalLayout(returnURLInfo, copy);
+		hr.setComponentAlignment(copy, Alignment.MIDDLE_LEFT);
+		hr.setCaption(msg.getMessage("OAuthAuthenticatorEditor.returnURLInfo"));
+		header.addComponent(hr);
+		
 		configBinder.forField(accountAssociation).bind("accountAssociation");
 
 		providersComponent = new ProvidersComponent();
@@ -119,6 +141,12 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		return mainView;
 	}
 
+	private String buildReturnURL()
+	{
+		URL serverURL = serverURLSupplier.get();
+		return serverURL.toExternalForm() + SharedEndpointManagement.CONTEXT_PATH + ResponseConsumerServlet.PATH;
+	}
+	
 	@Override
 	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{

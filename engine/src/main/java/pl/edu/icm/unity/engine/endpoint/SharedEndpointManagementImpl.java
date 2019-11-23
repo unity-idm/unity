@@ -34,7 +34,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 public class SharedEndpointManagementImpl implements SharedEndpointManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SharedEndpointManagementImpl.class);
-	public static final String CONTEXT_PATH = "/unitygw";
 	public static final String VAADIN_RESOURCE_PATH = "/VAADIN/*";
 	private ServletContextHandler sharedHandler;
 	private URL advertisedAddress;
