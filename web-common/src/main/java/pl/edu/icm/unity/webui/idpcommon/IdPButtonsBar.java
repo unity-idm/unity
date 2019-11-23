@@ -4,12 +4,15 @@
  */
 package pl.edu.icm.unity.webui.idpcommon;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Bar with buttons: Accept, Decline, Login as another user. The login as another user action is 
@@ -23,6 +26,7 @@ public class IdPButtonsBar extends CustomComponent
 	private UnityMessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private ActionListener listener;
+	private Button confirmB;
 	
 	public IdPButtonsBar(UnityMessageSource msg, StandardWebAuthenticationProcessor authnProcessor,
 			ActionListener listener)
@@ -38,9 +42,11 @@ public class IdPButtonsBar extends CustomComponent
 		setSizeUndefined();
 		HorizontalLayout buttons = new HorizontalLayout();
 		
-		Button confirmB = new Button(msg.getMessage("IdPButtonsBar.confirm"));
+		confirmB = new Button(msg.getMessage("IdPButtonsBar.confirm"));
 		confirmB.setId("IdpButtonsBar.confirmButton");
-		confirmB.addClickListener(event -> listener.buttonClicked(Action.ACCEPT));
+		confirmB.addClickListener(this::onAccept);
+		confirmB.addStyleName(Styles.vButtonPrimary.toString());
+		confirmB.setClickShortcut(KeyCode.ENTER);
 		
 		Button declineB = new Button(msg.getMessage("IdPButtonsBar.decline"));
 		declineB.addClickListener(event -> listener.buttonClicked(Action.DENY));
@@ -57,6 +63,11 @@ public class IdPButtonsBar extends CustomComponent
 		setCompositionRoot(buttons);
 	}
 
+	private void onAccept(ClickEvent event)
+	{
+		confirmB.removeClickShortcut();
+		listener.buttonClicked(Action.ACCEPT);
+	}
 
 	public static interface ActionListener
 	{

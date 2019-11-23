@@ -277,6 +277,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		{
 			enterButton.setClickShortcut(KeyCode.ENTER);
 			enterButton.addStyleName(Styles.vButtonPrimary.toString());
+			enterButton.addStyleName(SidebarStyles.buttonAction.toString());
 		}
 		escapeButton = getDefaultCancelButton();
 		if (escapeButton != null)
