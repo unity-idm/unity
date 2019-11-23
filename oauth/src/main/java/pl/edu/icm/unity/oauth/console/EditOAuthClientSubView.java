@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
-import com.vaadin.jsclipboard.JSClipboard;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -26,6 +26,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.clipboard.CopyToClipboardButton;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TextFieldWithChangeConfirmation;
@@ -262,39 +262,21 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		protected Component initContent()
 		{
 			HorizontalLayout main = new HorizontalLayout();
-			main.setSpacing(false);
 			main.addComponent(field);
 
-			Button copy = new Button();
-			copy.setDescription(msg.getMessage("EditOAuthClientSubView.copyToClipboard"));
-			copy.setIcon(Images.copy.getResource());
-			copy.setStyleName(Styles.vButtonLink.toString());
-			copy.addStyleName(Styles.vButtonBorderless.toString());
-			copy.addStyleName(Styles.link.toString());
-			JSClipboard clipboard = new JSClipboard();
-			clipboard.apply(copy, field);
-			clipboard.addSuccessListener(new JSClipboard.SuccessListener()
-			{
-				@Override
-				public void onSuccess()
-				{
-					NotificationTray.showSuccess(msg
-							.getMessage("EditOAuthClientSubView.successCopiedToClipboard"));
-				}
-			});
-
+			CopyToClipboardButton copy = new CopyToClipboardButton(msg, field);
 			main.addComponent(copy);
+			main.setComponentAlignment(copy, Alignment.MIDDLE_LEFT);
 
 			Button gen = new Button();
-			gen.addClickListener(e -> {
-				field.setValue(UUID.randomUUID().toString());
-			});
+			gen.addClickListener(e -> field.setValue(UUID.randomUUID().toString()));
 			gen.setDescription(msg.getMessage("EditOAuthClientSubView.generate"));
 			gen.setIcon(Images.cogs.getResource());
 			gen.setStyleName(Styles.vButtonLink.toString());
 			gen.addStyleName(Styles.vButtonBorderless.toString());
 			gen.addStyleName(Styles.link.toString());
 			main.addComponent(gen);
+			main.setComponentAlignment(gen, Alignment.MIDDLE_LEFT);
 
 			return main;
 

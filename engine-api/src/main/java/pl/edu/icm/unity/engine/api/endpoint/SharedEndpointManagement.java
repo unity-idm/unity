@@ -19,6 +19,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public interface SharedEndpointManagement
 {
+	public static final String CONTEXT_PATH = "/unitygw";
 	
 	/**
 	 * Deploys the given servlet in the internal, shared endpoint.

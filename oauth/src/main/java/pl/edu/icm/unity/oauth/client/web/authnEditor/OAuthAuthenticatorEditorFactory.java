@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
@@ -36,11 +37,14 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
+	private NetworkServer networkServer;
 
 	@Autowired
 	OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
 			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory,
-			FileStorageService fileStorageService, URIAccessService uriAccessService, UnityServerConfiguration serverConfig)
+			FileStorageService fileStorageService, URIAccessService uriAccessService, 
+			UnityServerConfiguration serverConfig,
+			NetworkServer networkServer)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
@@ -49,6 +53,7 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
+		this.networkServer = networkServer;
 	}
 
 	@Override
@@ -61,6 +66,6 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
 		return new OAuthAuthenticatorEditor(msg, serverConfig, pkiMan, fileStorageService, uriAccessService,
-				profileFieldFactory, registrationMan);
+				profileFieldFactory, registrationMan, networkServer::getAdvertisedAddress);
 	}
 }
