@@ -4,14 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.identity;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -69,17 +63,7 @@ public interface IdentityTypeDefinition
 
 	
 	/**
-	 * 
-	 * @return set of attribute types that can be extracted from the identity of this type.
-	 * It can be assumed that at least name, description and syntax are set. The attribute types from this 
-	 * set need not be defined in the system.
-	 */
-	Set<AttributeType> getAttributesSupportedForExtraction();
-	
-	/**
 	 * Checks if the value is valid
-	 * @param value
-	 * @throws IllegalIdentityValueException
 	 */
 	void validate(String value) throws IllegalIdentityValueException;
 	
@@ -96,24 +80,13 @@ public interface IdentityTypeDefinition
 	String getComparableValue(String from, String realm, String target) throws IllegalIdentityValueException;
 	
 	/**
-	 * Extract provided attributes.
-	 * @param toExtract map: the keys are attribute names as returned by the 
-	 * {@link #getAttributesSupportedForExtraction()}. Values are actual names of attribute names to be used
-	 * for each extracted.
-	 * @return
-	 */
-	List<Attribute> extractAttributes(String from, Map<String, String> toExtract);
-	
-	/**
 	 * Similar to {@link #toString()}, but allows for less verbose
 	 * and more user-friendly output.
-	 * @return
 	 */
 	String toPrettyString(IdentityParam from);
 
 	/**
 	 * Similar to {@link #toPrettyString()}, but doesn't return id type prefix.
-	 * @return
 	 */
 	String toPrettyStringNoPrefix(IdentityParam from);
 
@@ -123,21 +96,17 @@ public interface IdentityTypeDefinition
 	String toString(IdentityParam from);
 	
 	/**
-	 * @param msg
-	 * @param from
 	 * @return string representation which is most useful for end-user. Note that this representation may
 	 * even hide the actual value if it is considered cryptic.
 	 */
 	String toHumanFriendlyString(MessageSource msg, IdentityParam from);
 
 	/**
-	 * @param msg
 	 * @return Name of the type which can be presented to end user.
 	 */
 	String getHumanFriendlyName(MessageSource msg);
 
 	/**
-	 * @param msg
 	 * @return Description of the type which can be presented to end user.
 	 */
 	String getHumanFriendlyDescription(MessageSource msg);
@@ -158,10 +127,6 @@ public interface IdentityTypeDefinition
 	 * the {@link IdentityParam#getValue()}, remoteIdp and profile is set to the arguments 
 	 * and type to {@link #getId()}), but it can also perform additional parsing to set 
 	 * for instance the confirmation information. 
-	 * 
-	 * @param stringRepresentation
-	 * @return 
-	 * @throws IllegalIdentityValueException 
 	 */
 	IdentityParam convertFromString(String stringRepresentation, 
 			String remoteIdp, String translationProfile) throws IllegalIdentityValueException;

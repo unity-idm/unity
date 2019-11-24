@@ -167,7 +167,7 @@ public class LdapAuthnIntegrationTest extends DBIntegrationTestBase
 	private void createUser() throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(X500Identity.ID, DEMO_SERVER_DN), 
-				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid, false);
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid);
 		Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", Lists.newArrayList(InternalAuthorizationManagerImpl.USER_ROLE));
 		attrsMan.createAttribute(new EntityParam(added1), sa);

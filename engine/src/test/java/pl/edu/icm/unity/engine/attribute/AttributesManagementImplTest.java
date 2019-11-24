@@ -54,7 +54,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
-				EntityState.valid, false);
+				EntityState.valid);
 		entity = new EntityParam(id.getEntityId());
 		groupsMan.addGroup(new Group("/test"));
 		aTypeMan.addAttributeType(new AttributeType("tel", StringAttributeSyntax.ID));

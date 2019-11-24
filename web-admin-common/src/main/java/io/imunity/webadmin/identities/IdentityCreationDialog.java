@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
@@ -47,7 +46,6 @@ public class IdentityCreationDialog extends AbstractDialog
 	
 	protected ComboBox<String> identityType;
 	protected IdentityEditor identityEditor;
-	protected CheckBox extractAttributes;
 	
 	public IdentityCreationDialog(UnityMessageSource msg, long entityId, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
@@ -121,10 +119,8 @@ public class IdentityCreationDialog extends AbstractDialog
 		});
 		identityType.setSelectedItem(supportedTypes.iterator().next());
 
-		extractAttributes = new CheckBox(msg.getMessage("IdentityCreation.extractAttrs"), true);
-
 		FormLayout main = new CompactFormLayout();
-		main.addComponents(identityType, identityPanel, extractAttributes);
+		main.addComponents(identityType, identityPanel);
 		main.setSizeFull();
 		return main;
 	}
@@ -143,8 +139,7 @@ public class IdentityCreationDialog extends AbstractDialog
 		Identity added = null;
 		try
 		{
-			added = identitiesMan.addIdentity(toAdd, new EntityParam(entityId), 
-					extractAttributes.getValue());
+			added = identitiesMan.addIdentity(toAdd, new EntityParam(entityId));
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("IdentityCreation.entityCreateError"), e);

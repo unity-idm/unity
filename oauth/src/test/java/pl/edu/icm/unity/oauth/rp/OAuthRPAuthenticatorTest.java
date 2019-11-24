@@ -149,7 +149,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			authnMan.createAuthenticator("Apass", "password", null, "credential1");
 			
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
-					"cr-pass", EntityState.valid, false);
+					"cr-pass", EntityState.valid);
 			profilesMan.addProfile(new TranslationProfile(
 					JsonUtil.parse(FileUtils.readFileToString(
 							new File("src/test/resources/tr-local.json"), 

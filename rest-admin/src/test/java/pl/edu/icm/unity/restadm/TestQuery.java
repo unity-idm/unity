@@ -80,7 +80,7 @@ public class TestQuery extends TestRESTBase
 	public void resolveOfEmailWithTagsReturnsEntity() throws Exception
 	{
 		idsMan.addEntity(new IdentityParam(EmailIdentity.ID, "a+zzz@ex.com"), "cr-pass", 
-				EntityState.valid, false);
+				EntityState.valid);
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
@@ -213,7 +213,7 @@ public class TestQuery extends TestRESTBase
 		groupsMan.addGroup(example);
 		groupsMan.addGroup(new Group("/example/sub"));
 		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested"), "cr-pass", 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam e = new EntityParam(id);
 		groupsMan.addMemberFromParent("/example", e);
 		groupsMan.addMemberFromParent("/example/sub", e);

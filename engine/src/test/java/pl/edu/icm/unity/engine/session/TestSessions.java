@@ -52,7 +52,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		LoginSession s1 = sessionMan.createSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		LoginSession s2 = sessionMan.createSession(id.getEntityId(), realm, "u1", null, null, null, null);	
@@ -66,7 +66,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
@@ -92,7 +92,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
@@ -107,7 +107,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
@@ -123,7 +123,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, RememberMePolicy.disallow , 1, 100);
@@ -145,7 +145,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 1);
 		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
@@ -161,7 +161,7 @@ public class TestSessions extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 1);
 		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		

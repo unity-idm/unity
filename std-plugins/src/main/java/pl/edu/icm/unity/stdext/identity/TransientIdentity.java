@@ -4,10 +4,6 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -22,8 +18,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.SessionIdentityModel.PerSessionEntry;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -38,18 +32,12 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	public static final String ID = "transient";
 	private ObjectMapper mapper = Constants.MAPPER;
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getId()
 	{
 		return ID;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getDefaultDescriptionKey()
 	{
@@ -62,26 +50,11 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 		return false;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Set<AttributeType> getAttributesSupportedForExtraction()
-	{
-		return Collections.emptySet();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void validate(String value)
 	{
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getComparableValue(String from, String realm, String target)
 	{
@@ -107,18 +80,6 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 		return Escaper.encode(realm, target, ls.getId(), from);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<Attribute> extractAttributes(String from, Map<String, String> toExtract)
-	{
-		return EMPTY_ATTRS; 
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String toPrettyStringNoPrefix(IdentityParam from)
 	{

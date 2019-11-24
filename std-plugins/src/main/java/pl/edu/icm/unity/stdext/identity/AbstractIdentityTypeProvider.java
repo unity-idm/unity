@@ -4,14 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
@@ -21,20 +16,12 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefinition
 {
-	public static final List<Attribute> EMPTY_ATTRS = Collections.unmodifiableList(new ArrayList<>(0));
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String toPrettyString(IdentityParam from)
 	{
 		return "[" + getId() + "] " + toPrettyStringNoPrefix(from);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String toString(IdentityParam from)
 	{
@@ -43,9 +30,6 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 	
 	/**
 	 * Delegated to {@link #toPrettyStringNoPrefix(String)}
-	 * @param msg
-	 * @param from
-	 * @return
 	 */
 	@Override
 	public String toHumanFriendlyString(MessageSource msg, IdentityParam from)
@@ -69,9 +53,6 @@ public abstract class AbstractIdentityTypeProvider implements IdentityTypeDefini
 		return new IdentityParam(getId(), stringRepresentation, remoteIdp, translationProfile);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String toString()
 	{

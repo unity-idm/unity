@@ -127,7 +127,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	protected void createUser() throws Exception
 	{
 		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), "cr-pass",
-				EntityState.valid, false);
+				EntityState.valid);
 	}
 	
 	protected void setupMockAuthn() throws Exception

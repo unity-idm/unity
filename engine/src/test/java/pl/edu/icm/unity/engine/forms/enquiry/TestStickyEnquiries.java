@@ -125,7 +125,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 	public void byInvitationStickyEnquiryIsNotReturned() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		EntityParam entityParam = new EntityParam(identity);
 		groupsMan.addMemberFromParent("/A", entityParam);
 		EnquiryForm form = new EnquiryFormBuilder()
@@ -169,7 +169,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 			.build();
 		
 		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		
 		setupUserContext("tuser", null);
 
@@ -224,8 +224,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.withAddedAttribute(null)
 				.build();
 
-		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS, EntityState.valid,
-				false);
+		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS, EntityState.valid);
 		setupUserContext("tuser", null);
 		Throwable exception = catchThrowable(() -> enquiryManagement.submitEnquiryResponse(response,
 				new RegistrationContext(false, TriggeringMode.manualStandalone)));
@@ -252,7 +251,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		
 		
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 
 		groupsMan.addMemberFromParent("/B", new EntityParam(identity));
 		groupsMan.addMemberFromParent("/B/C", new EntityParam(identity));
@@ -291,7 +290,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 			.build();
 		
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+				EntityState.valid);
 
 		groupsMan.addMemberFromParent("/B", new EntityParam(identity));
 		groupsMan.addMemberFromParent("/B/C", new EntityParam(identity));
@@ -326,7 +325,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 			.build();
 
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+				EntityState.valid);
 
 		groupsMan.addMemberFromParent("/A", new EntityParam(identity));
 		groupsMan.addMemberFromParent("/B", new EntityParam(identity));
@@ -368,7 +367,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 			.build();
 
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+				EntityState.valid);
 
 		groupsMan.addMemberFromParent("/A", new EntityParam(identity));
 

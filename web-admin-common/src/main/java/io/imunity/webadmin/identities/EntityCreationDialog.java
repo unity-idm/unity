@@ -176,8 +176,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		try
 		{
 			created = identitiesMan.addEntity(toAdd, (String)credentialRequirement.getValue(), 
-					entityState.getValue(), extractAttributes.getValue(),
-					attributes);
+					entityState.getValue(), attributes);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("EntityCreation.entityCreateError"), e);

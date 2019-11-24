@@ -233,7 +233,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		log.debug("addEntity " + value + " type: " + type);
 		Identity identity = identitiesMan.addEntity(resolveIdentity(type, value), 
-				credReqIdId, EntityState.valid, false);
+				credReqIdId, EntityState.valid);
 		ObjectNode ret = mapper.createObjectNode();
 		ret.put("entityId", identity.getEntityId());
 		return mapper.writeValueAsString(ret);
@@ -247,7 +247,7 @@ public class RESTAdmin implements RESTAdminHandler
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
-		identitiesMan.addIdentity(resolveIdentity(type, value), getEP(entityId, idType), false);
+		identitiesMan.addIdentity(resolveIdentity(type, value), getEP(entityId, idType));
 	}
 
 	private IdentityParam resolveIdentity(String type, String value) throws EngineException

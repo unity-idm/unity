@@ -247,8 +247,8 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		EntityParam ep = new EntityParam(new IdentityTaV(IdentifierIdentity.ID, "id"));
 		idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "id"), 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
-		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id2", "test", "p1"), ep, false);
+				EntityState.valid);
+		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id2", "test", "p1"), ep);
 		groupsMan.addMemberFromParent("/A", ep, null, "test", "p1");
 		groupsMan.addMemberFromParent("/B", ep, null, "test", "p1");
 		Attribute attr = StringAttribute.of("o", "/", "v1");
@@ -360,7 +360,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		}
 		
 		idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "test"), 
-				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid, false);
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid);
 
 		
 		tx.runInTransactionThrowing(() -> {
@@ -577,7 +577,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	{
 		Identity toBeMappedOn = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "known"), 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
-				EntityState.valid, false);
+				EntityState.valid);
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {
 				IdentifierIdentity.ID, 
@@ -697,7 +697,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		
 		Identity identity = idsMan.addEntity(idParam, 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false, Lists.newArrayList(attr));
+				EntityState.valid, Lists.newArrayList(attr));
 		EntityParam ep = new EntityParam(identity);
 		
 		List<TranslationRule> rules = new ArrayList<>();
@@ -753,7 +753,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		
 		Identity identity = idsMan.addEntity(idParam, 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false, Lists.newArrayList(attr));
+				EntityState.valid, Lists.newArrayList(attr));
 		EntityParam ep = new EntityParam(identity);
 		
 		List<TranslationRule> rules = new ArrayList<>();
@@ -807,7 +807,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "id@example.com");
 		Identity identity = idsMan.addEntity(idParam, 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false, Lists.newArrayList());
+				EntityState.valid, Lists.newArrayList());
 		EntityParam ep = new EntityParam(identity);
 		
 		rules = new ArrayList<>();
@@ -866,7 +866,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "id@example.com");
 		Identity identity = idsMan.addEntity(idParam, 
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false, Lists.newArrayList());
+				EntityState.valid, Lists.newArrayList());
 		EntityParam ep = new EntityParam(identity);
 		
 		TranslationProfile tp1Cfg = new TranslationProfile("tp1", "",

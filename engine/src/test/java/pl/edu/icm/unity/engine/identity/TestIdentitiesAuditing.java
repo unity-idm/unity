@@ -13,7 +13,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
-import pl.edu.icm.unity.engine.audit.AuditEventListener;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -52,7 +51,7 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 	public void shouldAuditAddingEntityToGroup() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		groupsMan.addGroup(new Group("/test2"));
 		
 		List<AuditEvent> allEvents = runAuditedAndWaitForEvents(() -> {
@@ -72,7 +71,7 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 	{
 		List<AuditEvent> allEvents = runAuditedAndWaitForEvents(() -> {
 			IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-			return idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+			return idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		}, 3);
 
 		assertEquals(1, allEvents.stream()
@@ -94,7 +93,7 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 	public void shouldAuditDisablingEntity() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		groupsMan.addGroup(new Group("/test2"));
 		
 		List<AuditEvent> allEvents = runAuditedAndWaitForEvents(() -> {
@@ -113,7 +112,7 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 	public void shouldAuditEntityRemoval() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		groupsMan.addGroup(new Group("/test2"));
 		
 		List<AuditEvent> allEvents = runAuditedAndWaitForEvents(() -> {
@@ -137,7 +136,7 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 
 		List<AuditEvent> allEvents = runAuditedAndWaitForEvents(() -> {
 			return idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, id.toString()), 
-					"crMock", EntityState.valid, false);
+					"crMock", EntityState.valid);
 		}, 3);
 
 		assertEquals(1, allEvents.stream()

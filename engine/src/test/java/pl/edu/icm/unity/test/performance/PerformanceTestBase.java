@@ -154,7 +154,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < n; i++)
 		{
 			Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID,
-					"user" + i), CR_MOCK, EntityState.valid, false);
+					"user" + i), CR_MOCK, EntityState.valid);
 
 			eCredMan.setEntityCredential(new EntityParam(added1), "credential1",
 					new PasswordToken("PassWord8743#%$^&*").toJson());

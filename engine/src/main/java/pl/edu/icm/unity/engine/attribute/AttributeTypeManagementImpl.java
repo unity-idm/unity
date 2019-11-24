@@ -29,12 +29,10 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TxManager;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Implements attributes operations.
@@ -48,7 +46,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private AttributeSyntaxFactoriesRegistry attrValueTypesReg;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO attributeDAO;
-	private IdentityTypeDAO dbIdentities;
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private InternalAuthorizationManager authz;
 	private AttributeTypeHelper atHelper;
@@ -60,7 +57,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	@Autowired
 	public AttributeTypeManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
-			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
 			AttributesHelper aHelper, TxManager txMan, EventProcessor eventProcessor,
@@ -69,7 +65,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.attributeDAO = attributeDAO;
-		this.dbIdentities = dbIdentities;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.authz = authz;
 		this.atHelper = atHelper;
@@ -141,8 +136,6 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 				() -> Long.valueOf(atHelper.getSyntax(at).getMaxSize()));
 		attributeTypeDAO.update(at);
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(atExisting, at)));
-		if (!at.getValueSyntax().equals(atExisting.getValueSyntax()))
-			clearAttributeExtractionFromIdentities(at.getName());
 	}
 
 	private void verifyAttributesConsistencyWithUpdatedType(AttributeType at) throws IllegalAttributeTypeException
@@ -235,33 +228,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		
 		attributeTypeDAO.delete(id);
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(at, null)));
-		clearAttributeExtractionFromIdentities(id);
 	}
 
-	private void clearAttributeExtractionFromIdentities(String id)
-	{
-		Collection<IdentityType> identityTypes = dbIdentities.getAll();
-		for (IdentityType idType: identityTypes)
-		{
-			Map<String, String> extractedMap = idType.getExtractedAttributes();
-			Iterator<Map.Entry<String, String>> entries = extractedMap.entrySet().iterator();
-			boolean updateIdType = false;
-			while (entries.hasNext())
-			{
-				Map.Entry<String, String> extracted = entries.next();
-				if (extracted.getValue().equals(id))
-				{
-					entries.remove();
-					updateIdType = true;
-				}
-			}
-			if (updateIdType)
-			{
-				dbIdentities.update(idType);
-			}
-		}
-	}
-	
 	@Override
 	@Transactional
 	public Collection<AttributeType> getAttributeTypes() throws EngineException

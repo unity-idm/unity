@@ -157,7 +157,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 	protected void createUsers() throws Exception
 	{
 		Identity added2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, DEMO_SERVER_DN), 
-				"cr-cert", EntityState.valid, false);
+				"cr-cert", EntityState.valid);
 		EntityParam e2 = new EntityParam(added2);
 		eCredMan.setEntityCredential(e2, "credential2", "");
 		

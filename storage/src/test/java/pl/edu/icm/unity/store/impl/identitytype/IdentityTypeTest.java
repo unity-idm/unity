@@ -40,8 +40,6 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 		idType.setMaxInstances(10);
 		idType.setMinInstances(0);
 		idType.setSelfModificable(true);
-		idType.getExtractedAttributes().put("a", "b");
-		idType.getExtractedAttributes().put("aa", "bb");
 		return idType;
 	}
 
@@ -53,9 +51,6 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 		src.setMaxInstances(20);
 		src.setMinInstances(1);
 		src.setSelfModificable(false);
-		src.getExtractedAttributes().clear();
-		src.getExtractedAttributes().put("c", "g");
-		src.getExtractedAttributes().put("cc", "gg");
 		return src;
 	}
 

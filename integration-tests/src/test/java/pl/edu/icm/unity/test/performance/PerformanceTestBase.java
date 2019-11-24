@@ -93,7 +93,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < n; i++)
 		{
 			Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID,
-					"user" + i), "cr-pass", EntityState.valid, false);
+					"user" + i), "cr-pass", EntityState.valid);
 
 			eCredMan.setEntityCredential(new EntityParam(added1), "credential1",
 					new PasswordToken("PassWord8743#%$^&*").toJson());

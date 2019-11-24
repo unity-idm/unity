@@ -47,7 +47,7 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 			throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username),
-				"sys:all", EntityState.valid, false);
+				"sys:all", EntityState.valid);
 		eCredMan.setEntityCredential(new EntityParam(added1), credential,
 				new PasswordToken(password).toJson());
 		return added1;

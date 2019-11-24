@@ -500,7 +500,6 @@ public class EngineInitialization extends LifecycleBase
 					log.info("Adding identity type " + it.getId());
 					IdentityType idType = new IdentityType(it.getId(), it.getId());
 					idType.setDescription(msg.getMessage(it.getDefaultDescriptionKey()));
-					idType.setExtractedAttributes(idType.getExtractedAttributes());
 					dbIdentities.create(idType);
 				}
 			}
@@ -587,7 +586,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		try
 		{
-			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid);
 		} catch (SchemaConsistencyException e)
 		{
 			// most probably '/' group attribute class forbids to
@@ -599,7 +598,7 @@ public class EngineInitialization extends LifecycleBase
 			log.info("Removing ACs: " + root.getGroup().getAttributesClasses());
 			root.getGroup().setAttributesClasses(new HashSet<>());
 			groupManagement.updateGroup("/", root.getGroup(), "reset root group attributes", "");
-			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid);
 		}
 	}
 

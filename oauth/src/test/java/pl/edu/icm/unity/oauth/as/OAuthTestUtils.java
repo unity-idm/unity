@@ -169,7 +169,7 @@ public class OAuthTestUtils
 			GroupsManagement groupsMan, EntityCredentialManagement eCredMan, String username) throws Exception
 	{
 		Identity clientId1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
-				"cr-pass", EntityState.valid, false);
+				"cr-pass", EntityState.valid);
 		EntityParam e1 = new EntityParam(clientId1);
 		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
 

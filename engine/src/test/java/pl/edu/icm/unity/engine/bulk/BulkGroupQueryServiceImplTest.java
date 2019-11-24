@@ -53,7 +53,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		
 		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		
 		groupsMan.addMemberFromParent("/A", entity);
@@ -73,11 +73,11 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		
 		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		
 		Identity added2 = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "2"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity2 = new EntityParam(added2.getEntityId());
 		
 		groupsMan.addMemberFromParent("/A", entity);
@@ -116,7 +116,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addGroup(example);
 		
 		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		
 		groupsMan.addMemberFromParent("/example", entity);
@@ -183,7 +183,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 
 		
 		Identity added1 = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity1 = new EntityParam(added1.getEntityId());
 		
 		groupsMan.addMemberFromParent("/example1", entity1);
@@ -191,7 +191,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity1, saRoot);
 
 		Identity added2 = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "2"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity2 = new EntityParam(added2.getEntityId());
 		groupsMan.addMemberFromParent("/example2", entity2);
 		
@@ -236,7 +236,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addGroup(example1);
 
 		Identity added1 = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity1 = new EntityParam(added1.getEntityId());
 		
 		groupsMan.addMemberFromParent("/root", entity1);
@@ -272,7 +272,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addGroup(example2);
 
 		Identity added1 = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity1 = new EntityParam(added1.getEntityId());
 		groupsMan.addMemberFromParent("/example1", entity1);
 

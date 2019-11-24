@@ -91,7 +91,7 @@ public class OutputTranslationEngine
 			if (!skip)
 			{
 				log.debug("Adding identity: " + id);
-				idsMan.addIdentity(id, parent, false);
+				idsMan.addIdentity(id, parent);
 			} else
 			{
 				log.debug("Identity: " + id + " already exist, skip add");

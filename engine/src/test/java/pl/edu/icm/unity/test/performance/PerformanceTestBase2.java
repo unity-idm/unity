@@ -143,7 +143,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < entities; i++)
 		{
 			Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID,
-					"user" + i), CR_MOCK, EntityState.valid, false);
+					"user" + i), CR_MOCK, EntityState.valid);
 
 			eCredMan.setEntityCredential(new EntityParam(added1), "credential1",
 					new PasswordToken("PassWord8743#%$^&*").toJson());
@@ -152,7 +152,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 			{
 				IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, 
 						"user" + i + "_additional" + j);
-				idsMan.addIdentity(toAdd, new EntityParam(added1.getEntityId()), false);
+				idsMan.addIdentity(toAdd, new EntityParam(added1.getEntityId()));
 			}
 		}
 
