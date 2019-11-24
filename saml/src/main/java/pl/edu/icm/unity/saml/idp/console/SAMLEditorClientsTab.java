@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
@@ -139,6 +140,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 		{
 			VerticalLayout main = new VerticalLayout();
 			main.setMargin(false);
+			main.addStyleName(Styles.narrowTable.toString());
 
 			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
@@ -264,6 +266,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 		{
 			VerticalLayout main = new VerticalLayout();
 			main.setMargin(false);
+			main.addStyleName(Styles.narrowTable.toString());
 
 			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
