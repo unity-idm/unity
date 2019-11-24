@@ -46,12 +46,12 @@ import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleNotificationChannelsComboBox;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
  * Component to edit or add message template
@@ -65,7 +65,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private MessageTemplateConsumersRegistry registry;
 	private NotificationsManagement notChannelsMan;
 	private TextField name;
-	private TextArea description;
+	private DescriptionTextField description;
 	private I18nTextField subject;
 	private I18nTextArea body;
 	private ComboBox<String> consumer;
@@ -111,8 +111,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		name = new TextField(msg.getMessage("MessageTemplatesEditor.name"));
 		name.setWidth(20, Unit.EM);
 		
-		description = new DescriptionTextArea(
-				msg.getMessage("MessageTemplatesEditor.description"));
+		description = new DescriptionTextField(msg);
 
 		consumer = new ComboBox<>(msg.getMessage("MessageTemplatesEditor.consumer"));
 		consumer.setEmptySelectionAllowed(false);

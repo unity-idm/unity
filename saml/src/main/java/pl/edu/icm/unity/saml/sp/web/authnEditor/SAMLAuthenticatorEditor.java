@@ -168,8 +168,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		header.addComponent(credential);
 
 		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText(msg);
-		acceptedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
-				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		acceptedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
+				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		acceptedNameFormats.setCaption(msg.getMessage("SAMLAuthenticatorEditor.acceptedNameFormats"));
 		acceptedNameFormats.setItems(STANDART_NAME_FORMATS);
 		header.addComponent(acceptedNameFormats);
@@ -185,8 +185,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		header.addComponent(defSignRequest);
 
 		ChipsWithFreeText defaultRequestedNameFormat = new ChipsWithFreeText(msg);
-		defaultRequestedNameFormat.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
-				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		defaultRequestedNameFormat.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
+				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		defaultRequestedNameFormat
 				.setCaption(msg.getMessage("SAMLAuthenticatorEditor.defaultRequestedNameFormat"));
 		defaultRequestedNameFormat.setItems(STANDART_NAME_FORMATS);
@@ -332,7 +332,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		sloMappings.addTextColumn(s -> s.getSamlId(), (t, v) -> t.setSamlId(v),
 				msg.getMessage("SAMLAuthenticatorEditor.sloMappings.samlId"), 70, false);
 
-		sloMappings.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		sloMappings.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(sloMappings).bind("sloMappings");
 
 		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.singleLogout"), singleLogout);

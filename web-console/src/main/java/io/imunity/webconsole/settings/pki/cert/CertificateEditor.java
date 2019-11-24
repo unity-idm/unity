@@ -33,7 +33,6 @@ import com.vaadin.ui.VerticalLayout;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import io.imunity.webadmin.utils.FileUploder;
-import io.imunity.webconsole.WebConsoleConstans;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -92,8 +91,7 @@ class CertificateEditor extends CustomComponent
 
 		FormLayout editorLayout = new FormLayout();
 		editorLayout.addComponents(name, upload, progress, value);
-		editorLayout.setWidth(WebConsoleConstans.MEDIUM_EDITOR_WIDTH,
-				WebConsoleConstans.MEDIUM_EDITOR_WIDTH_UNIT);
+		editorLayout.setWidth(55, Unit.EM);
 		editorLayout.setMargin(new MarginInfo(false, true));
 
 		VerticalLayout main = new VerticalLayout();

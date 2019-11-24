@@ -49,6 +49,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.FileField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
@@ -192,8 +193,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		samlServiceBinder.forField(displayedName).bind("displayedName");
 		mainGeneralLayout.addComponent(displayedName);
 
-		TextField description = new TextField();
-		description.setCaption(msg.getMessage("ServiceEditorBase.description"));
+		TextField description = new DescriptionTextField(msg);
 		samlServiceBinder.forField(description).bind("description");
 		mainGeneralLayout.addComponent(description);
 
@@ -398,7 +398,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		idMappings.addTextColumn(s -> s.getSamlId(), (t, v) -> t.setSamlId(v),
 				msg.getMessage("SAMLEditorGeneralTab.idMappings.samlId"), 70, false);
 
-		idMappings.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		idMappings.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(idMappings).bind("identityMapping");
 
 		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.idenityTypeMapping"),

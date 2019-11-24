@@ -111,8 +111,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		TextField returnURLInfo = new TextField();
 		returnURLInfo.setValue(buildReturnURL());
 		returnURLInfo.setReadOnly(true);
-		returnURLInfo.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
-				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		returnURLInfo.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
+				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		CopyToClipboardButton copy = new CopyToClipboardButton(msg, returnURLInfo);
 		HorizontalLayout hr = new HorizontalLayout(returnURLInfo, copy);
 		hr.setComponentAlignment(copy, Alignment.MIDDLE_LEFT);

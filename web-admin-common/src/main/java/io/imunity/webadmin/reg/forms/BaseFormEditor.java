@@ -48,7 +48,6 @@ import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
@@ -59,6 +58,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
  * Base code for both registration and enquiry forms editing
@@ -77,7 +77,7 @@ public class BaseFormEditor extends VerticalLayout
 	protected boolean copyMode;
 	
 	protected TextField name;
-	protected DescriptionTextArea description;
+	protected DescriptionTextField description;
 	
 	protected I18nTextField displayedName;
 	protected I18nTextArea formInformation;
@@ -155,7 +155,7 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		name = new TextField(msg.getMessage("RegistrationFormEditor.name"));
 		name.setValue(defaultName);
-		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
+		description = new DescriptionTextField(msg);
 	}
 	
 	protected void initCommonDisplayedFields()

@@ -146,7 +146,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		header.addComponent(address);
 
 		ChipsWithFreeText requestedNameFormats = new ChipsWithFreeText(msg);
-		requestedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		requestedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		requestedNameFormats.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.requestedNameFormats"));
 		requestedNameFormats.setItems(SAMLAuthenticatorEditor.STANDART_NAME_FORMATS);
 		header.addComponent(requestedNameFormats);
