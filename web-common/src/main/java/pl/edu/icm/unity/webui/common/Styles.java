@@ -87,7 +87,7 @@ public enum Styles
 	showHideButton("u-showHideButton"),
 	imagePreview("u-imagePreview"),
 	disabledButton("u-button-disabled "),
-	
+	narrowTable("u-narrowTable"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
