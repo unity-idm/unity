@@ -16,7 +16,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
-import io.imunity.webconsole.WebConsoleConstans;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -79,7 +78,7 @@ class AuthenticationFlowEditor extends CustomComponent
 		}
 		
 		setCompositionRoot(mainLayout);
-		setWidth(WebConsoleConstans.SMALL_EDITOR_WIDTH, WebConsoleConstans.SMALL_EDITOR_WIDTH_UNIT);
+		setWidth(45, Unit.EM);
 	}
 
 	void editMode()

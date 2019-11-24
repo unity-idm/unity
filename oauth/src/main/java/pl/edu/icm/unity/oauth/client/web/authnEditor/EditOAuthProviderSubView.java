@@ -180,17 +180,17 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		header.addComponent(name);
 
 		TextField clientId = new TextField(msg.getMessage("EditOAuthProviderSubView.clientId"));
-		clientId.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		clientId.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
 		header.addComponent(clientId);
 
 		TextField clientSecret = new TextField(msg.getMessage("EditOAuthProviderSubView.clientSecret"));
-		clientSecret.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		clientSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
 
 		ChipsWithTextfield requestedScopes = new ChipsWithTextfield(msg);
-		requestedScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		requestedScopes.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		requestedScopes.setCaption(msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
 		header.addComponent(requestedScopes);
 		configBinder.forField(requestedScopes).bind("requestedScopes");
@@ -278,7 +278,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 		TextField extraAuthorizationParameters = new TextField(
 				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
-		extraAuthorizationParameters.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		extraAuthorizationParameters.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(extraAuthorizationParameters).bind("extraAuthorizationParameters");
 		advanced.addComponent(extraAuthorizationParameters);
 

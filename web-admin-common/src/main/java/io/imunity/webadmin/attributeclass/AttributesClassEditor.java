@@ -21,9 +21,9 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
  * Editing component of an {@link AttributesClass} instance.
@@ -36,7 +36,7 @@ public class AttributesClassEditor extends CompactFormLayout
 	private Map<String, AttributeType> types;
 
 	private TextField name;
-	private DescriptionTextArea typeDescription;
+	private DescriptionTextField typeDescription;
 	private TwinColSelect<String> parents;
 	private TwinColSelect<String> allowed;
 	private CheckBox allowArbitrary;
@@ -68,7 +68,7 @@ public class AttributesClassEditor extends CompactFormLayout
 	{
 		name = new TextField(msg.getMessage("AttributesClass.name"));
 		
-		typeDescription = new DescriptionTextArea(msg.getMessage("AttributesClass.description"));
+		typeDescription = new DescriptionTextField(msg);
 		
 		parents = new ACTwinColSelect(msg.getMessage("AttributesClass.parents"),
 				msg.getMessage("AttributesClass.availableACs"),

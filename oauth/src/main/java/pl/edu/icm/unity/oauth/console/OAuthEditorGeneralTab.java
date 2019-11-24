@@ -52,6 +52,7 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
@@ -251,8 +252,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		oauthWebAuthzBinder.forField(displayedName).bind("displayedName");
 		mainGeneralLayout.addComponent(displayedName);
 
-		TextField description = new TextField();
-		description.setCaption(msg.getMessage("ServiceEditorBase.description"));
+		TextField description = new DescriptionTextField(msg);
 		oauthWebAuthzBinder.forField(description).bind("description");
 		mainGeneralLayout.addComponent(description);
 

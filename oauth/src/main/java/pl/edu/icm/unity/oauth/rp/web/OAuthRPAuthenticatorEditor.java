@@ -105,17 +105,17 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		header.addComponent(name);
 
 		TextField clientId = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientId"));
-		clientId.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		clientId.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
 		header.addComponent(clientId);
 
 		TextField clientSecret = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientSecret"));
-		clientSecret.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		clientSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
 		
 		ChipsWithTextfield requiredScopes = new ChipsWithTextfield(msg);
-		requiredScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		requiredScopes.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		requiredScopes.setCaption(msg.getMessage("OAuthRPAuthenticatorEditor.requiredScopes"));
 		header.addComponent(requiredScopes);
 		configBinder.forField(requiredScopes).bind("requiredScopes");

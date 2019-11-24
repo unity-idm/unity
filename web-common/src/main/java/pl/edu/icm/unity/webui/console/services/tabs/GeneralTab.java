@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceTypeInfoHelper;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
@@ -101,8 +102,7 @@ public class GeneralTab extends CustomComponent implements EditorTab
 		binder.forField(displayedName).bind("displayedName");
 		mainGeneralLayout.addComponent(displayedName);
 
-		TextField description = new TextField();
-		description.setCaption(msg.getMessage("ServiceEditorBase.description"));
+		TextField description = new DescriptionTextField(msg);
 		binder.forField(description).bind("description");
 		mainGeneralLayout.addComponent(description);
 

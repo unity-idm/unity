@@ -16,7 +16,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DropTargetExtension;
@@ -33,11 +32,11 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
  * Generic component to edit or add translation profile of any type
@@ -51,7 +50,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected ProfileType type;
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	protected TextField name;
-	protected TextArea description;
+	protected DescriptionTextField description;
 	private HorizontalLayout rulesHeader;
 	protected VerticalLayout rulesLayout;
 	protected List<RuleComponent> rules;
@@ -122,8 +121,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		
 		name = new TextField(msg.getMessage("TranslationProfileEditor.name"));
 
-		description = new DescriptionTextArea(
-				msg.getMessage("TranslationProfileEditor.description"));
+		description = new DescriptionTextField(msg);
 
 		rulesHeader = new HorizontalLayout();
 		rulesHeader.setMargin(false);

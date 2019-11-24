@@ -172,12 +172,12 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		}
 
 		TextField systemDN = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemDN"));
-		systemDN.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		systemDN.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(systemDN).asRequired(getSystemBindRequiredValidator()).bind("systemDN");
 		header.addComponent(systemDN);
 
 		TextField systemPassword = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemPassword"));
-		systemPassword.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		systemPassword.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(systemPassword).asRequired(getSystemBindRequiredValidator())
 				.bind("systemPassword");
 		header.addComponent(systemPassword);
@@ -193,7 +193,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		});
 
 		TextField validUserFilter = new TextField(msg.getMessage("LdapAuthenticatorEditor.validUserFilter"));
-		validUserFilter.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		validUserFilter.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(validUserFilter).withValidator((v, c) -> {
 			try
 			{
@@ -257,7 +257,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		userDNtemplate.setPlaceholder("uid={USERNAME},dc=myorg,dc=global");
 		userDNtemplate.setDescription(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc"));
 		
-		userDNtemplate.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		userDNtemplate.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(userDNtemplate).withValidator((v, c) -> {
 
 			if (v != null && v.contains("{USERNAME}")
@@ -274,26 +274,26 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		userDNResolvingLayout.addComponent(userDNtemplate);
 
 		systemDN = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemDN"));
-		systemDN.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		systemDN.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(systemDN).asRequired(getLdapSearchRequiredValidator()).bind("systemDN");
 		userDNResolvingLayout.addComponent(systemDN);
 
 		systemPassword = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemPassword"));
-		systemPassword.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		systemPassword.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(systemPassword).asRequired(getLdapSearchRequiredValidator())
 				.bind("systemPassword");
 		userDNResolvingLayout.addComponent(systemPassword);
 
 		TextField ldapSearchBaseName = new TextField(
 				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.baseName"));
-		ldapSearchBaseName.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		ldapSearchBaseName.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(ldapSearchBaseName).asRequired(getLdapSearchRequiredValidator())
 				.bind("ldapSearchBaseName");
 		userDNResolvingLayout.addComponent(ldapSearchBaseName);
 
 		TextField ldapSearchFilter = new TextField(
 				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.filter"));
-		ldapSearchFilter.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		ldapSearchFilter.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(ldapSearchFilter).withValidator((v, c) -> {
 			if (userDNResolvingMode.getValue().equals(UserDNResolving.ldapSearch))
 			{
@@ -341,7 +341,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				msg.getMessage("LdapAuthenticatorEditor.port"), 10,
 				Optional.of(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, 65535)));
 
-		serverConfig.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		serverConfig.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(serverConfig).withValidator((v, c) -> {
 			if (v == null || v.isEmpty())
 			{
@@ -417,19 +417,19 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		groupRetSettingsLayout.addComponent(delegateGroupFiltering);
 
 		TextField groupsBaseName = new TextField(msg.getMessage("LdapAuthenticatorEditor.groupsBaseName"));
-		groupsBaseName.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		groupsBaseName.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(groupsBaseName).bind("groupsBaseName");
 		groupRetSettingsLayout.addComponent(groupsBaseName);
 
 		TextField memberOfAttribute = new TextField(
 				msg.getMessage("LdapAuthenticatorEditor.memberOfAttribute"));
-		memberOfAttribute.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		memberOfAttribute.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(memberOfAttribute).bind("memberOfAttribute");
 		groupRetSettingsLayout.addComponent(memberOfAttribute);
 
 		TextField memberOfGroupAttribute = new TextField(
 				msg.getMessage("LdapAuthenticatorEditor.memberOfGroupAttribute"));
-		memberOfGroupAttribute.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		memberOfGroupAttribute.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(memberOfGroupAttribute).bind("memberOfGroupAttribute");
 		groupRetSettingsLayout.addComponent(memberOfGroupAttribute);
 
@@ -488,7 +488,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		TextField usernameExtractorRegexp = new TextField(
 				msg.getMessage("LdapAuthenticatorEditor.usernameExtractorRegexp"));
-		usernameExtractorRegexp.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		usernameExtractorRegexp.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(usernameExtractorRegexp).bind("usernameExtractorRegexp");
 		advancedAttrSearchLayout.addComponent(usernameExtractorRegexp);
 

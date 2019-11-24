@@ -12,15 +12,13 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
-import io.imunity.webconsole.WebConsoleConstans;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
  * Authentication realm editor.
@@ -33,7 +31,7 @@ class AuthenticationRealmEditor extends CustomComponent
 
 	private Binder<AuthenticationRealm> binder;
 	private TextField name;
-	private TextArea description;
+	private DescriptionTextField description;
 	private IntStepper blockFor;
 	private IntStepper blockAfterUnsuccessfulLogins;
 	private IntStepper maxInactivity;
@@ -45,8 +43,8 @@ class AuthenticationRealmEditor extends CustomComponent
 		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
 		
-		description = new DescriptionTextArea(
-				msg.getMessage("AuthenticationRealm.description"));
+		description = new DescriptionTextField(
+				msg);
 
 		blockAfterUnsuccessfulLogins = new IntStepper(
 				msg.getMessage("AuthenticationRealm.blockAfterUnsuccessfulLogins"));
@@ -107,7 +105,7 @@ class AuthenticationRealmEditor extends CustomComponent
 			mainLayout.addComponent(endpoints);
 		}
 		setCompositionRoot(mainLayout);
-		setWidth(WebConsoleConstans.SMALL_EDITOR_WIDTH, WebConsoleConstans.SMALL_EDITOR_WIDTH_UNIT);
+		setWidth(45, Unit.EM);
 	}
 
 	void editMode()
