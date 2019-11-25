@@ -189,5 +189,37 @@ public interface EntityManagement
 	 * @return displayed name of the entity or null if undefined
 	 */
 	String getEntityLabel(EntityParam entity) throws EngineException;
+	
+	
+	
+	//the following methods are kept only for backwards compatibility of API (especially for Groovy scripts), 
+	//don't use them
+	@Deprecated
+	default Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
+			boolean extractAttributes, List<Attribute> attributes) throws EngineException
+	{
+		return addEntity(toAdd, credReqIdId, initialState, attributes);
+	}
+	
+	@Deprecated
+	default Identity addEntity(IdentityParam toAdd, EntityState initialState,
+			boolean extractAttributes, List<Attribute> attributes) throws EngineException
+	{
+		return addEntity(toAdd, initialState, attributes);
+	}
+	
+	@Deprecated
+	default Identity addEntity(IdentityParam toAdd, EntityState initialState,
+			boolean extractAttributes) throws EngineException
+	{
+		return addEntity(toAdd, initialState);
+	}
+	
+	@Deprecated
+	default Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes) 
+			throws EngineException
+	{
+		return addIdentity(toAdd, parentEntity);
+	}
 }
 

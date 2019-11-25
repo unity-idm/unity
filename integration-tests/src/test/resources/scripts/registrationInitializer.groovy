@@ -37,7 +37,7 @@ void initExtraUser()
 	try
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user2");
-		Identity base = entityManagement.addEntity(toAdd, EntityState.valid, false);
+		Identity base = entityManagement.addEntity(toAdd, EntityState.valid);
 		groupsManagement.addMemberFromParent("/A", new EntityParam(base.getEntityId()));
 		PasswordToken pToken = new PasswordToken("the!test2");
 		entityCredentialManagement.setEntityCredential(new EntityParam(base.getEntityId()), EngineInitialization.DEFAULT_CREDENTIAL,
