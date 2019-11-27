@@ -28,12 +28,12 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.ContextKey;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeClassActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;
@@ -320,14 +320,14 @@ public class TestFormProfileActions
 		assertThat(((List<String>)context.get("agrs")).size(), is(1));
 		assertThat(((List<String>)context.get("agrs")).get(0), is("true"));
 		
-		assertThat(((String)context.get(ContextKey.userLocale.name())), is("en"));
-		assertThat(((String)context.get(ContextKey.requestId.name())), is("requestId"));
-		assertThat(((Boolean)context.get(ContextKey.onIdpEndpoint.name())), is(false));
-		assertThat(((String)context.get(ContextKey.triggered.name())), 
+		assertThat(((String)context.get(RegistrationMVELContextKey.userLocale.name())), is("en"));
+		assertThat(((String)context.get(RegistrationMVELContextKey.requestId.name())), is("requestId"));
+		assertThat(((Boolean)context.get(RegistrationMVELContextKey.onIdpEndpoint.name())), is(false));
+		assertThat(((String)context.get(RegistrationMVELContextKey.triggered.name())), 
 				is(TriggeringMode.manualAtLogin.toString()));
-		assertThat(((String)context.get(ContextKey.status.name())), 
+		assertThat(((String)context.get(RegistrationMVELContextKey.status.name())), 
 				is(RequestSubmitStatus.submitted.toString()));
-		assertThat(((String)context.get(ContextKey.registrationForm.name())), is("form"));
+		assertThat(((String)context.get(RegistrationMVELContextKey.registrationForm.name())), is("form"));
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

@@ -23,11 +23,11 @@ import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.ContextKey;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -389,7 +389,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				new String[] { "\"" + group + "\"" });
 
 		List<TranslationRule> rules = Lists.newArrayList(
-				new TranslationRule(ContextKey.validCode.toString() + " == true", a1),
+				new TranslationRule(RegistrationMVELContextKey.validCode.toString() + " == true", a1),
 				new TranslationRule("true", a2));
 
 		TranslationProfile tp = new TranslationProfile("autoProfile" , "", ProfileType.REGISTRATION, rules);

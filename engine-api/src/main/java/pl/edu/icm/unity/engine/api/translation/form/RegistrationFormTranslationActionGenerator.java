@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package pl.edu.icm.unity.engine.api.translation.form;
+
+import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+
+/**
+ * Generator for registration translation action
+ * 
+ * @author P.Piernik
+ *
+ */
+public interface RegistrationFormTranslationActionGenerator
+{
+	TranslationAction getAddAttributeAction(String attributeName, String group, String attributeValue);
+
+	TranslationAction getAutoProcessAction(AutomaticRequestAction action);
+}
