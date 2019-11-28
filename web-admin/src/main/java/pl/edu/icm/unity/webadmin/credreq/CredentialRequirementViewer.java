@@ -41,7 +41,7 @@ public class CredentialRequirementViewer extends CompactFormLayout
 		addComponent(name);
 		
 		description = new Label();
-		description.setCaption(msg.getMessage("CredentialRequirements.description"));
+		description.setCaption(msg.getMessage("descriptionF"));
 		addComponent(description);
 		
 		credentials = new SmallGrid<>(msg.getMessage("CredentialRequirements.credentials"));

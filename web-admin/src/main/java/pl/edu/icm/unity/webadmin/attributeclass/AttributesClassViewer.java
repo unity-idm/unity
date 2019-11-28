@@ -47,7 +47,7 @@ public class AttributesClassViewer extends CompactFormLayout
 		name.setCaption(msg.getMessage("AttributesClass.name"));
 		
 		typeDescription = new Label();
-		typeDescription.setCaption(msg.getMessage("AttributesClass.description"));
+		typeDescription.setCaption(msg.getMessage("descriptionF"));
 		
 		allAllowed = new Label(msg.getMessage("AttributesClass.allAllowed"));
 		
