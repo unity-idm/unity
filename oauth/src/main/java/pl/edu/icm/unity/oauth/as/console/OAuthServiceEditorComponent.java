@@ -3,10 +3,10 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.console;
+package pl.edu.icm.unity.oauth.as.console;
 
-import static pl.edu.icm.unity.oauth.console.OAuthServiceController.IDP_CLIENT_MAIN_GROUP;
-import static pl.edu.icm.unity.oauth.console.OAuthServiceController.OAUTH_CLIENTS_SUBGROUP;
+import static pl.edu.icm.unity.oauth.as.console.OAuthServiceController.IDP_CLIENT_MAIN_GROUP;
+import static pl.edu.icm.unity.oauth.as.console.OAuthServiceController.OAUTH_CLIENTS_SUBGROUP;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +21,9 @@ import com.vaadin.data.Binder;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
-import pl.edu.icm.unity.oauth.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -123,7 +123,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 			if (webAuthzService != null && webAuthzService.getConfiguration() != null)
 			{
-				oauthConfig.fromProperties(webAuthzService.getConfiguration(), msg, allGroups);
+				oauthConfig.fromProperties(webAuthzService.getConfiguration(), allGroups);
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, uriAccessService);
 			}
 			clientsBean.setClients(cloneClients(systemClientsSupplier.apply(
@@ -185,7 +185,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		return clients.stream().map(OAuthClient::clone).collect(Collectors.toList()); 
 	}
 
-	public ServiceDefinition getServiceDefiniton() throws FormValidationException
+	ServiceDefinition getServiceDefiniton() throws FormValidationException
 	{
 		boolean hasErrors = oauthServiceWebAuthzBinder.validate().hasErrors();
 		hasErrors |= oauthConfigBinder.validate().hasErrors();

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.idp.console.common.SAMLIdentityMapping;
+import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;

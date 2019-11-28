@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.console;
+package pl.edu.icm.unity.oauth.as.console;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +47,6 @@ public class OAuthClient
 		this.id = id;
 		this.secret = secret;
 		this.flows = new ArrayList<>(Arrays.asList(GrantFlow.authorizationCode.toString()));
-
 	}
 
 	public String getName()
