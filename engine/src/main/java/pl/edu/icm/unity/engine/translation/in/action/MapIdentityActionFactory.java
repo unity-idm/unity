@@ -84,6 +84,9 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 			super(desc, params);
 			setParameters(params);
 			idTypeResolved = idsRegistry.getByName(unityType);
+			if (idTypeResolved.isDynamic() && mode.mayModifyIdentity())
+				throw new IllegalArgumentException("Dynamic identity type '" + idTypeResolved + 
+						"' can be only used with modes which are matching only.");
 		}
 		
 		@Override
