@@ -123,7 +123,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 			if (webAuthzService != null && webAuthzService.getConfiguration() != null)
 			{
-				oauthConfig.fromProperties(webAuthzService.getConfiguration(), msg, allGroups);
+				oauthConfig.fromProperties(webAuthzService.getConfiguration(), allGroups);
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, uriAccessService);
 			}
 			clientsBean.setClients(cloneClients(systemClientsSupplier.apply(

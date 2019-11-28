@@ -16,7 +16,6 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -54,7 +53,6 @@ public class OAuthServiceConfiguration
 
 	public OAuthServiceConfiguration()
 	{
-
 	}
 
 	public OAuthServiceConfiguration(List<Group> allGroups)
@@ -171,7 +169,7 @@ public class OAuthServiceConfiguration
 		return oauthProperties.getAsString();
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, List<Group> allGroups)
+	public void fromProperties(String properties, List<Group> allGroups)
 	{
 		Properties raw = new Properties();
 		try
