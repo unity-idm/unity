@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.console;
+package pl.edu.icm.unity.oauth.as.console;
 
 import java.util.List;
 

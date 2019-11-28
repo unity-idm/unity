@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console.common;
+package pl.edu.icm.unity.saml.console;
 
 /**
  * Stores information about SAML and internal Unity identity connection
