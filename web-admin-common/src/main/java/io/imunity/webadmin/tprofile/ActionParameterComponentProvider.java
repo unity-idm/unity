@@ -20,7 +20,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -90,11 +89,7 @@ public class ActionParameterComponentProvider
 		Collection<IdentityType> idTypesF = idTypeSupport.getIdentityTypes();
 		idTypes = new TreeSet<>();
 		for (IdentityType it: idTypesF)
-		{
-			IdentityTypeDefinition typeDef = idTypeSupport.getTypeDefinition(it.getName());
-			if (!typeDef.isDynamic())
-				idTypes.add(it.getIdentityTypeProvider());
-		}
+			idTypes.add(it.getIdentityTypeProvider());
 		inputProfiles = new ArrayList<>(profileMan.listInputProfiles().keySet());
 		Collections.sort(inputProfiles);
 		outputProfiles = new ArrayList<>(profileMan.listOutputProfiles().keySet());
