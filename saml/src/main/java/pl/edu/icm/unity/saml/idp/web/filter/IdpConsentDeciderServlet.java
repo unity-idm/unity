@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.IdpEngineProfileHelper;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
@@ -54,6 +55,7 @@ import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -288,8 +290,11 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			String binding) 
 			throws EngineException
 	{
-		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		TranslationProfile profile = IdpEngineProfileHelper.getTranslationProfile(samlProperties,
+				CommonIdPProperties.TRANSLATION_PROFILE,
+				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
+		
 		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
 				processor.getIdentityTarget(), Optional.empty(), "SAML2", binding,

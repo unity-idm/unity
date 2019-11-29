@@ -28,7 +28,7 @@ public class OAuthServiceConfigurationTest
 {
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.OUTPUT, 
 			Lists.newArrayList(new TranslationRule("true", 
-					new IncludeOutputProfileActionFactory().getInstance("sys:default"))));;
+					new IncludeOutputProfileActionFactory().getInstance("sys:default"))));
 
 	@Test
 	public void serializationIsIdempotentForMinimalConfig()

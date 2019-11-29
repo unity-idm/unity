@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client.web.authnEditor;
+package pl.edu.icm.unity.oauth.client.console;
 
 import java.util.Arrays;
 import java.util.List;

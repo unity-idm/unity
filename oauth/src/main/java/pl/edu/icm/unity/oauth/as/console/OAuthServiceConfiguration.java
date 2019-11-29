@@ -15,6 +15,7 @@ import java.util.Set;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
+import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
 
 /**
  * Represent full OAuth service configuration.
@@ -40,6 +42,7 @@ public class OAuthServiceConfiguration
 	private int codeTokenExpiration;
 	private int accessTokenExpiration;
 	private boolean openIDConnect;
+	private boolean skipConsentScreen;
 	private String credential;
 	private SigningAlgorithms signingAlg;
 	private String signingSecret;
@@ -50,6 +53,11 @@ public class OAuthServiceConfiguration
 	private GroupWithIndentIndicator clientGroup;
 	private GroupWithIndentIndicator usersGroup;
 	private List<ActiveValueConfig> activeValueSelections;
+	private List<UserImportConfig> userImports;
+	private boolean skipUserImport;
+	private boolean allowForWildcardsInAllowedURI;
+	private int maxExtendAccessTokenValidity;
+	private boolean supportExtendTokenValidity;
 
 	public OAuthServiceConfiguration()
 	{
@@ -62,6 +70,8 @@ public class OAuthServiceConfiguration
 		codeTokenExpiration = OAuthASProperties.DEFAULT_CODE_TOKEN_VALIDITY;
 		accessTokenExpiration = OAuthASProperties.DEFAULT_ACCESS_TOKEN_VALIDITY;
 		supportRefreshToken = false;
+		skipUserImport = false;
+		setAllowForWildcardsInAllowedURI(false);
 		setIdentityTypeForSubject(TargetedPersistentIdentity.ID);
 		scopes = new ArrayList<>();
 		translationProfile = TranslationProfileGenerator.generateEmptyOutputProfile();
@@ -69,6 +79,7 @@ public class OAuthServiceConfiguration
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
 		openIDConnect = false;
+		supportExtendTokenValidity = false;
 	}
 
 	public String toProperties()
@@ -81,7 +92,16 @@ public class OAuthServiceConfiguration
 				String.valueOf(codeTokenExpiration));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_VALIDITY,
 				String.valueOf(accessTokenExpiration));
-
+		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_CONSENT, String.valueOf(skipConsentScreen));
+		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_USERIMPORT, String.valueOf(skipUserImport));
+		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI,
+				String.valueOf(allowForWildcardsInAllowedURI));
+		if (supportExtendTokenValidity)
+		{
+			raw.put(OAuthASProperties.P + OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY,
+				String.valueOf(maxExtendAccessTokenValidity));
+		}
+		
 		if (supportRefreshToken)
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY,
@@ -94,6 +114,12 @@ public class OAuthServiceConfiguration
 		}
 
 		raw.put(OAuthASProperties.P + OAuthASProperties.SIGNING_ALGORITHM, String.valueOf(signingAlg));
+	
+		if (signingSecret != null)
+		{
+			raw.put(OAuthASProperties.P + OAuthASProperties.SIGNING_SECRET, signingSecret);
+		}
+		
 		raw.put(OAuthASProperties.P + OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT, identityTypeForSubject);
 
 		if (scopes != null)
@@ -152,6 +178,19 @@ public class OAuthServiceConfiguration
 
 			}
 		}
+		
+		if (userImports != null)
+		{
+			for (UserImportConfig impConfig : userImports)
+			{
+				String key = CommonIdPProperties.USERIMPORT_PFX
+						+ (userImports.indexOf(impConfig) + 1) + ".";
+				raw.put(OAuthASProperties.P + key + CommonIdPProperties.USERIMPORT_IMPORTER,
+						impConfig.getImporter());
+				raw.put(OAuthASProperties.P + key + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE,
+						impConfig.getIdentityType());
+			}
+		}
 
 		try
 		{
@@ -186,7 +225,19 @@ public class OAuthServiceConfiguration
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
-
+		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
+		skipUserImport = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+		allowForWildcardsInAllowedURI = oauthProperties
+				.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
+		if (oauthProperties.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY))
+		{
+			maxExtendAccessTokenValidity = oauthProperties.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY);
+			supportExtendTokenValidity = true;
+		}else
+		{
+			maxExtendAccessTokenValidity = 0;
+		}
+		
 		if (refreshTokenExpiration < 0)
 		{
 			refreshTokenExpiration = 0;
@@ -197,6 +248,7 @@ public class OAuthServiceConfiguration
 		}
 
 		signingAlg = SigningAlgorithms.valueOf(oauthProperties.getSigningAlgorithm());
+		signingSecret = oauthProperties.getValue(OAuthASProperties.SIGNING_SECRET);
 		credential = oauthProperties.getValue(OAuthASProperties.CREDENTIAL);
 		identityTypeForSubject = oauthProperties.getSubjectIdentityType();
 
@@ -225,10 +277,14 @@ public class OAuthServiceConfiguration
 			translationProfile = TranslationProfileGenerator.getProfileFromString(
 					oauthProperties.getValue(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE));
 
-		} else
+		} else if (oauthProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE) != null)
 		{
 			translationProfile = TranslationProfileGenerator.generateIncludeOutputProfile(
 					oauthProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
+		} else
+		{
+			translationProfile = TranslationProfileGenerator.generateIncludeOutputProfile(
+					TranslationProfileManagement.DEFAULT_OUTPUT_PROFILE);
 		}
 
 		String clientGroupPath = oauthProperties.getValue(OAuthASProperties.CLIENTS_GROUP);
@@ -265,7 +321,38 @@ public class OAuthServiceConfiguration
 			ativeValConfig.setMultiSelectableAttributes(mattrs);
 			activeValueSelections.add(ativeValConfig);
 		}
+		
+		userImports = new ArrayList<>();
+		Set<String> importKeys = oauthProperties.getStructuredListKeys(CommonIdPProperties.USERIMPORT_PFX);
 
+		for (String importKey : importKeys)
+		{
+			String importer = oauthProperties.getValue(importKey + CommonIdPProperties.USERIMPORT_IMPORTER);
+			String identityType = oauthProperties
+					.getValue(importKey + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE);
+
+			UserImportConfig userImportConfig = new UserImportConfig();
+			userImportConfig.setImporter(importer);
+			userImportConfig.setIdentityType(identityType);
+			userImports.add(userImportConfig);
+		}
+		
+
+	}
+
+	public List<UserImportConfig> getUserImports()
+	{
+		return userImports;
+	}
+
+	public void setUserImports(List<UserImportConfig> userImports)
+	{
+		this.userImports = userImports;
+	}
+
+	public void setMaxExtendAccessTokenValidity(int maxExtendAccessTokenValidity)
+	{
+		this.maxExtendAccessTokenValidity = maxExtendAccessTokenValidity;
 	}
 
 	public String getIssuerURI()
@@ -426,5 +513,55 @@ public class OAuthServiceConfiguration
 	public void setActiveValueSelections(List<ActiveValueConfig> activeValueSelections)
 	{
 		this.activeValueSelections = activeValueSelections;
+	}
+
+	public boolean isSkipConsentScreen()
+	{
+		return skipConsentScreen;
+	}
+
+	public void setSkipConsentScreen(boolean skipConsentScreen)
+	{
+		this.skipConsentScreen = skipConsentScreen;
+	}
+	
+	public boolean isSkipUserImport()
+	{
+		return skipUserImport;
+	}
+
+	public void setSkipUserImport(boolean skipUserImport)
+	{
+		this.skipUserImport = skipUserImport;
+	}
+
+	public boolean isAllowForWildcardsInAllowedURI()
+	{
+		return allowForWildcardsInAllowedURI;
+	}
+
+	public void setAllowForWildcardsInAllowedURI(boolean allowForWildcardsInAllowedURI)
+	{
+		this.allowForWildcardsInAllowedURI = allowForWildcardsInAllowedURI;
+	}
+
+	public int getMaxExtendAccessTokenValidity()
+	{
+		return maxExtendAccessTokenValidity;
+	}
+
+	public void setMaxExtendAccessTokenValidity(Integer maxExtendAccessTokenValidity)
+	{
+		this.maxExtendAccessTokenValidity = maxExtendAccessTokenValidity;
+	}
+
+	public boolean isSupportExtendTokenValidity()
+	{
+		return supportExtendTokenValidity;
+	}
+
+	public void setSupportExtendTokenValidity(boolean supportExtendTokenValidity)
+	{
+		this.supportExtendTokenValidity = supportExtendTokenValidity;
 	}
 }

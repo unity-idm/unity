@@ -99,7 +99,7 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 				+ "registration at the provider"));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client secret and id should be passed to the provider."));
-		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setDescription(
+		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setEnum(ClientAuthnMode.secretBasic).setDescription(
 				"Defines how the client secret and id should be passed to the provider's user's profile endpoint. If not set the "
 						+ CLIENT_AUTHN_MODE + " is used"));		
 		META.put(CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS, new PropertyMD(ClientHttpMethod.get)
@@ -129,7 +129,7 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		META.put(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setHidden().
 				setDescription("Translation profile in json which will be used to map received user "
 						+ "information to a local representation."));
-		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().setBoolean().
 				setDescription("If true then unknown remote user gets an option to associate "
 						+ "the remote identity with an another local "
 						+ "(already existing) account. Overrides the global setting."));
@@ -188,13 +188,13 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 			try
 			{
 				if (!pkiManagement.getValidatorNames().contains(validatorName))
-					throw new ConfigurationException("The validator " + 
+					throw new ConfigurationException("The http client truststore " + 
 							validatorName + 
 							" for the OAuth verification client does not exist");
 				validator = pkiManagement.getValidator(validatorName);
 			} catch (EngineException e)
 			{
-				throw new ConfigurationException("Can not establish the validator " + 
+				throw new ConfigurationException("Can not establish the http client truststore " + 
 						validatorName + " for the OAuth verification client", e);
 			}
 		}

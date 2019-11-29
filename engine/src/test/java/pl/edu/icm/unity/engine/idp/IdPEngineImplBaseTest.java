@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -55,10 +56,11 @@ public class IdPEngineImplBaseTest
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor);
 		
+		
 		tested.obtainUserInformationWithEarlyImport(
 				new IdentityTaV("idType", "id"), 
 				"/group", 
-				"profile", 
+				TranslationProfileGenerator.generateIncludeOutputProfile("profile"), 
 				"requester",
 				Optional.empty(),
 				"protocol", 
@@ -67,7 +69,7 @@ public class IdPEngineImplBaseTest
 				config);
 		
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
-		verify(outputProfileExecutor).execute(eq("profile"), captor.capture());
+		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
 		TranslationInput ti = captor.getValue();
 		assertThat(ti.getImportStatus().size(), is(1));
 		assertThat(ti.getImportStatus().get("imp1"), is(notNullValue()));
@@ -95,7 +97,7 @@ public class IdPEngineImplBaseTest
 		tested.obtainUserInformationWithEnrichingImport(
 				new EntityParam(1l), 
 				"/group", 
-				"profile", 
+				TranslationProfileGenerator.generateIncludeOutputProfile("profile"), 
 				"requester",
 				Optional.empty(),
 				"protocol", 
@@ -104,7 +106,7 @@ public class IdPEngineImplBaseTest
 				config);
 		
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
-		verify(outputProfileExecutor).execute(eq("profile"), captor.capture());
+		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
 		TranslationInput ti = captor.getValue();
 		assertThat(ti.getImportStatus().size(), is(1));
 		assertThat(ti.getImportStatus().get("imp1"), is(notNullValue()));
@@ -141,7 +143,7 @@ public class IdPEngineImplBaseTest
 		tested.obtainUserInformationWithEnrichingImport(
 				new EntityParam(1l), 
 				"/group", 
-				"profile", 
+				TranslationProfileGenerator.generateIncludeOutputProfile("profile"), 
 				"requester",
 				Optional.of(new EntityInGroup("/GROUP", clientEntity)),
 				"protocol", 
@@ -150,7 +152,7 @@ public class IdPEngineImplBaseTest
 				config);
 		
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
-		verify(outputProfileExecutor).execute(eq("profile"), captor.capture());
+		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
 		TranslationInput ti = captor.getValue();
 		assertThat(ti.getRequesterAttributes().size(), is(1));
 		assertThat(ti.getRequesterAttributes(), is(clientAttributes));

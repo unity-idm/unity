@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.idp;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
@@ -55,16 +54,16 @@ class OutputProfileExecutor
 		this.defaultProfile = createDefaultOutputProfile();
 	}
 
-	TranslationResult execute(String profile, TranslationInput input) throws EngineException
+	TranslationResult execute(TranslationProfile profile, TranslationInput input) throws EngineException
 	{
 		OutputTranslationProfile profileInstance;
 		if (profile != null)
 		{
-			TranslationProfile translationProfile = outputProfileRepo.listAllProfiles().get(profile);
-			if (translationProfile == null)
-				throw new ConfigurationException("The translation profile '" + profile + 
-					"' configured for the authenticator does not exist");
-			profileInstance = new OutputTranslationProfile(translationProfile, outputProfileRepo, 
+//			TranslationProfile translationProfile = outputProfileRepo.listAllProfiles().get(profile);
+//			if (translationProfile == null)
+//				throw new ConfigurationException("The translation profile '" + profile + 
+//					"' configured for the authenticator does not exist");
+			profileInstance = new OutputTranslationProfile(profile, outputProfileRepo, 
 					actionsRegistry, attrValueConverter);
 		} else
 		{

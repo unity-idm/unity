@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client.web.authnEditor;
+package pl.edu.icm.unity.oauth.client.console;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -59,7 +59,8 @@ public class OAuthConfiguration
 		}
 	}
 
-	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, String authName) throws ConfigurationException
+	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
+			String authName) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 

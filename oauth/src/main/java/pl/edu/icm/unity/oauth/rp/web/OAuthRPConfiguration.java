@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
-import pl.edu.icm.unity.oauth.client.web.authnEditor.OAuthBaseConfiguration;
+import pl.edu.icm.unity.oauth.client.console.OAuthBaseConfiguration;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,20 @@ public class ConfigurationComparator
 	public ConfigurationComparator(String pfx, Map<String, PropertyMD> propertiesMD)
 	{
 		this.pfx = pfx;
-		this.propertiesMD = propertiesMD;
+		this.propertiesMD = new HashMap<>(propertiesMD);
 	}
 
 	public static ConfigurationComparator createComparator(String pfx, Map<String, PropertyMD> propertiesMD)
 	{
 		return new ConfigurationComparator(pfx, propertiesMD);
 	}
+
+	public ConfigurationComparator addStructuredEntryMeta(String entryPfx, Map<String, PropertyMD> propertiesMD)
+	{
+		propertiesMD.forEach((key, val) -> this.propertiesMD.put(entryPfx + key, val));
+		return this;
+	}
+
 	
 	public ConfigurationComparator ignoringSuperflous(String... keys)
 	{

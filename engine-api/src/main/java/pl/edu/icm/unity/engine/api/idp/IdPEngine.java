@@ -14,6 +14,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public interface IdPEngine
 {
@@ -35,7 +36,7 @@ public interface IdPEngine
 	 * @return obtained data
 	 * @throws EngineException
 	 */
-	TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV entity, String group, String profile,
+	TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV entity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, 
 			String protocol, String protocolSubType,
 			boolean allowIdentityCreate, PropertiesHelper importsConfig) throws EngineException;
@@ -57,7 +58,7 @@ public interface IdPEngine
 	 * @return
 	 * @throws EngineException
 	 */
-	TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity, String group, String profile,
+	TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, String protocol, String protocolSubType,
 			boolean allowIdentityCreate, PropertiesHelper importsConfig) throws EngineException;
 	
@@ -72,4 +73,5 @@ public interface IdPEngine
 	 */
 	IdentityParam getIdentity(List<IdentityParam> validIdentities, String selectedIdentity) 
 			throws EngineException, SAMLRequesterException;
+	
 }

@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.oauth.client.web.authnEditor;
+package pl.edu.icm.unity.oauth.client.console;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
