@@ -137,6 +137,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(idForSub).bind("identityTypeForSubject");
 		advancedLayout.addComponent(idForSub);
 
+		CheckBox allowForWildcardsInAllowedURI = new CheckBox(
+				msg.getMessage("OAuthEditorGeneralTab.allowForWildcardsInAllowedURI"));
+		configBinder.forField(allowForWildcardsInAllowedURI).bind("allowForWildcardsInAllowedURI");
+		advancedLayout.addComponent(allowForWildcardsInAllowedURI);
+
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.advanced"), advancedLayout);
 	}
 
@@ -305,6 +310,30 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		refreshTokenExp.setEnabled(false);
 		mainGeneralLayout.addComponent(refreshTokenExp);
 
+		IntStepper extendAccessTokenValidity = new IntStepper();
+
+		CheckBox supportExtendAccessTokenValidity = new CheckBox(
+				msg.getMessage("OAuthEditorGeneralTab.supportExtendTokenValidity"));
+		configBinder.forField(supportExtendAccessTokenValidity).bind("supportExtendTokenValidity");
+		mainGeneralLayout.addComponent(supportExtendAccessTokenValidity);
+		supportExtendAccessTokenValidity.addValueChangeListener(e -> {
+			extendAccessTokenValidity.setEnabled(e.getValue());
+		});
+
+		extendAccessTokenValidity.setWidth(5, Unit.EM);
+		extendAccessTokenValidity.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
+		configBinder.forField(extendAccessTokenValidity).asRequired((v, c) -> {
+			if (supportExtendAccessTokenValidity.getValue())
+			{
+				return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v,
+						c);
+			}
+			return ValidationResult.ok();
+		}).bind("maxExtendAccessTokenValidity");
+
+		extendAccessTokenValidity.setEnabled(false);
+		mainGeneralLayout.addComponent(extendAccessTokenValidity);
+			
 		CheckBox skipConsentScreen = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.skipConsentScreen"));
 		configBinder.forField(skipConsentScreen).bind("skipConsentScreen");
 		mainGeneralLayout.addComponent(skipConsentScreen);
