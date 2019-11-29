@@ -305,10 +305,14 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		refreshTokenExp.setEnabled(false);
 		mainGeneralLayout.addComponent(refreshTokenExp);
 
+		CheckBox skipConsentScreen = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.skipConsentScreen"));
+		configBinder.forField(skipConsentScreen).bind("skipConsentScreen");
+		mainGeneralLayout.addComponent(skipConsentScreen);
+		
 		openIDConnect = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.openIDConnect"));
 		configBinder.forField(openIDConnect).bind("openIDConnect");
 		mainGeneralLayout.addComponent(openIDConnect);
-
+		
 		signingAlg = new ComboBox<>();
 		signingAlg.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingAlgorithm"));
 		signingAlg.setEmptySelectionAllowed(false);

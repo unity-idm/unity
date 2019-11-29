@@ -40,6 +40,7 @@ public class OAuthServiceConfiguration
 	private int codeTokenExpiration;
 	private int accessTokenExpiration;
 	private boolean openIDConnect;
+	private boolean skipConsentScreen;
 	private String credential;
 	private SigningAlgorithms signingAlg;
 	private String signingSecret;
@@ -81,7 +82,8 @@ public class OAuthServiceConfiguration
 				String.valueOf(codeTokenExpiration));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_VALIDITY,
 				String.valueOf(accessTokenExpiration));
-
+		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_CONSENT, String.valueOf(skipConsentScreen));
+		
 		if (supportRefreshToken)
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY,
@@ -186,7 +188,8 @@ public class OAuthServiceConfiguration
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
-
+		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
+		
 		if (refreshTokenExpiration < 0)
 		{
 			refreshTokenExpiration = 0;
@@ -426,5 +429,15 @@ public class OAuthServiceConfiguration
 	public void setActiveValueSelections(List<ActiveValueConfig> activeValueSelections)
 	{
 		this.activeValueSelections = activeValueSelections;
+	}
+
+	public boolean isSkipConsentScreen()
+	{
+		return skipConsentScreen;
+	}
+
+	public void setSkipConsentScreen(boolean skipConsentScreen)
+	{
+		this.skipConsentScreen = skipConsentScreen;
 	}
 }
