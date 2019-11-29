@@ -35,6 +35,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * IdP engine is responsible for performing common IdP-related functionality. It resolves the information
@@ -68,7 +69,7 @@ class IdPEngineImplBase implements IdPEngine
 
 	@Override
 	public TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity,
-			String group, String profile, String requester, 
+			String group, TranslationProfile profile, String requester, 
 			Optional<EntityInGroup> requesterEntity, String protocol,
 			String protocolSubType, boolean allowIdentityCreate,
 			PropertiesHelper importsConfig) throws EngineException
@@ -101,7 +102,7 @@ class IdPEngineImplBase implements IdPEngine
 	}
 	
 	@Override
-	public TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV identity, String group, String profile,
+	public TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV identity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, 
 			String protocol, String protocolSubType, boolean allowIdentityCreate,
 			PropertiesHelper config)
@@ -119,7 +120,7 @@ class IdPEngineImplBase implements IdPEngine
 	}
 	
 	private TranslationResult obtainUserInformationPostImport(EntityParam entity, Entity fullEntity,
-			String group, String profile,
+			String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, 
 			String protocol, String protocolSubType,
 			Map<String, Status> importStatus) throws EngineException

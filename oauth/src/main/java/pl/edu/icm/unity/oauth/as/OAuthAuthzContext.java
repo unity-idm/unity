@@ -17,6 +17,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Context stored in HTTP session maintaining authorization token.
@@ -35,7 +36,7 @@ public class OAuthAuthzContext
 	private String clientUsername;
 	private long clientEntityId;
 	private Attribute clientLogo;
-	private String translationProfile;
+	private TranslationProfile translationProfile;
 	private String usersGroup;
 	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<>();
 	private Set<String> requestedScopes = new HashSet<>();
@@ -117,12 +118,12 @@ public class OAuthAuthzContext
 		this.usersGroup = usersGroup;
 	}
 
-	public String getTranslationProfile()
+	public TranslationProfile getTranslationProfile()
 	{
 		return translationProfile;
 	}
 
-	public void setTranslationProfile(String translationProfile)
+	public void setTranslationProfile(TranslationProfile translationProfile)
 	{
 		this.translationProfile = translationProfile;
 	}

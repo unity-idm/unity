@@ -28,6 +28,7 @@ import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Wraps {@link IdPEngine} with code used by OAuth AS. In the first place provides standard error handling.
@@ -98,16 +99,15 @@ public class OAuthIdPEngine
 		EntityInGroup requesterEntity = new EntityInGroup(
 				ctx.getConfig().getValue(OAuthASProperties.CLIENTS_GROUP), 
 				new EntityParam(ctx.getClientEntityId()));
-		return getUserInfoUnsafe(ae.getEntityId(),
-				ctx.getRequest().getClientID().getValue(), 
-				Optional.of(requesterEntity), 
-				ctx.getUsersGroup(),
-				ctx.getTranslationProfile(), flow, ctx.getConfig());
+		return getUserInfoUnsafe(ae.getEntityId(), ctx.getRequest().getClientID().getValue(),
+				Optional.of(requesterEntity), ctx.getUsersGroup(),
+				ctx.getTranslationProfile() ,
+				flow, ctx.getConfig());
 	}
 
 	public TranslationResult getUserInfoUnsafe(long entityId, String clientId, 
 			Optional<EntityInGroup> requesterEntity, 
-			String userGroup, String translationProfile, String flow,
+			String userGroup, TranslationProfile translationProfile, String flow,
 			OAuthASProperties config) throws EngineException
 	{
 		return idpEngine.obtainUserInformationWithEnrichingImport(

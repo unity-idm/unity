@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.IdpEngineProfileHelper;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Process client credentials grant flow. 
@@ -138,10 +140,15 @@ public class ClientCredentialsProcessor
 		EntityParam clientEntity = new EntityParam(ae.getEntityId());
 		EntityInGroup clientWithGroup = new EntityInGroup(
 				config.getValue(OAuthASProperties.CLIENTS_GROUP), clientEntity);
+		
+		TranslationProfile profile = IdpEngineProfileHelper.getTranslationProfile(config,
+				CommonIdPProperties.TRANSLATION_PROFILE,
+				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
+
 		TranslationResult translationResult = idpEngine.obtainUserInformationWithEnrichingImport(
 				clientEntity, 
 				usersGroup, 
-				config.getValue(CommonIdPProperties.TRANSLATION_PROFILE), 
+				profile, 
 				client,
 				Optional.of(clientWithGroup),
 				"OAuth2", 
