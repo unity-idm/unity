@@ -115,8 +115,6 @@ public class InitDB
 						+ " and check release notes.");
 			updateSchema(dbVersionAtServerStarup);
 		}
-		
-		hotFix();
 	}
 	
 	private void assertMigrationsAreMatchingApp()
@@ -213,27 +211,6 @@ public class InitDB
 		String[] components = version.split("_");
 		return Integer.parseInt(components[0])*10000 + Integer.parseInt(components[1])*100 + 
 				Integer.parseInt(components[2]);
-	}
-	
-	private void hotFix()
-	{
-		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
-		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
-		try
-		{
-			for (String name : ops.stream().filter(n -> n.startsWith("hotfix"))
-					.collect(Collectors.toList()))
-			{
-
-				log.debug("Run hotfix update db schema script " + name);
-				session.update(name);
-
-			}
-			session.commit();
-		} finally
-		{
-			session.close();
-		}
 	}
 	
 	private void updateSchema(long currentVersion)

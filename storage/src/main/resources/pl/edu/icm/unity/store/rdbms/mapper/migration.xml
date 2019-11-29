@@ -46,12 +46,13 @@
 	<update id="updateSchema-20900-00">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsTimestampDescIdx"/>
 	</update>
+	
 	<update id="updateSchema-20900-01">
-		UPDATE UVOS_FLAG SET VAL = '2_9_0'
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-files"/>
 	</update>
 	
-	<update id="hotfix-0">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-files"/>
+	<update id="updateSchema-20900-02">
+		UPDATE UVOS_FLAG SET VAL = '2_9_0'
 	</update>
 	
 </mapper>
