@@ -342,10 +342,14 @@ public class SAMLServiceConfiguration
 			translationProfile = TranslationProfileGenerator.getProfileFromString(
 					samlIdpProperties.getValue(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE));
 
-		} else
+		} else if (samlIdpProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE) != null)
 		{
 			translationProfile = TranslationProfileGenerator.generateIncludeOutputProfile(
 					samlIdpProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
+		} else
+		{
+			translationProfile = TranslationProfileGenerator.generateIncludeOutputProfile(
+					SamlIdpProperties.DEFAULT_TRANSLATION_PROFILE);
 		}
 
 		String usersGroupPath = samlIdpProperties.getValue(SamlIdpProperties.DEFAULT_GROUP);

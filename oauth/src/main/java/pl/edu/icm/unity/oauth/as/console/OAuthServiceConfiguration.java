@@ -15,6 +15,7 @@ import java.util.Set;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -228,10 +229,14 @@ public class OAuthServiceConfiguration
 			translationProfile = TranslationProfileGenerator.getProfileFromString(
 					oauthProperties.getValue(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE));
 
-		} else
+		} else if (oauthProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE) != null)
 		{
 			translationProfile = TranslationProfileGenerator.generateIncludeOutputProfile(
 					oauthProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE));
+		} else
+		{
+			translationProfile = TranslationProfileGenerator.generateIncludeOutputProfile(
+					TranslationProfileManagement.DEFAULT_OUTPUT_PROFILE);
 		}
 
 		String clientGroupPath = oauthProperties.getValue(OAuthASProperties.CLIENTS_GROUP);

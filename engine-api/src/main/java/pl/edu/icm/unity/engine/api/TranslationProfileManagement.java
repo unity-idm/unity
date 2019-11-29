@@ -20,6 +20,8 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public interface TranslationProfileManagement
 {
+	public static final String DEFAULT_OUTPUT_PROFILE = "sys:default";
+	
 	void addProfile(TranslationProfile toAdd) throws EngineException;
 	
 	void removeProfile(ProfileType type, String name) throws EngineException;
