@@ -59,7 +59,8 @@ public class OAuthConfiguration
 		}
 	}
 
-	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, String authName) throws ConfigurationException
+	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
+			String authName) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
