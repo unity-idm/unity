@@ -44,13 +44,13 @@ public class OAuthConfigurationTest
 	public void serializationIsIdempotentForMinimalConfig() throws EngineException
 	{
 		when(pkiMan.getValidatorNames()).thenReturn(Sets.newHashSet("foo"));
-		Properties sourceProviderCfg = ConfigurationGenerator.generateMinimalDefault(
+		Properties sourceProviderCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("authEndpoint", "foo")
 				.update("accessTokenEndpoint", "foo")
 				.get();
-		Properties sourceCfg = ConfigurationGenerator.generateMinimalDefault(P, META).get();
+		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, META).get();
 		sourceCfg.putAll(sourceProviderCfg);
 		
 		OAuthConfiguration processor = new OAuthConfiguration();

@@ -44,7 +44,7 @@ public class SAMLServiceConfigurationTest
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
 		TranslationProfile tp = new TranslationProfile("name", "description", ProfileType.OUTPUT, Collections.emptyList());
-		Properties sourceCfg = ConfigurationGenerator.generateMinimalDefault(P, defaults)
+		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, defaults)
 				.update("embeddedTranslationProfile", tp.toJsonObject().toString())
 				.remove("acceptedSP.1.encryptAssertion")
 				.update("defaultGroup", "/foo1")

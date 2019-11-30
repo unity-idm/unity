@@ -33,7 +33,7 @@ public class OAuthServiceConfigurationTest
 	@Test
 	public void serializationIsIdempotentForMinimalConfig()
 	{
-		Properties sourceCfg = ConfigurationGenerator.generateMinimalDefault(P, defaults).get();
+		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, defaults).get();
 		
 		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(Collections.emptyList());
 		
