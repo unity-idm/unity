@@ -27,6 +27,7 @@ public class ConfigurationComparator
 	private Map<String, PropertyMD> propertiesMD;
 	private Set<String> ignoredSuperflous = new HashSet<>();
 	private Set<String> ignoredMissing = new HashSet<>();
+	private Map<String, String> aliases = new HashMap<>();
 	
 	public ConfigurationComparator(String pfx, Map<String, PropertyMD> propertiesMD)
 	{
@@ -45,6 +46,11 @@ public class ConfigurationComparator
 		return this;
 	}
 
+	public ConfigurationComparator withAlias(String originalKey, String renamedKey)
+	{
+		aliases.put(originalKey, renamedKey);
+		return this;
+	}
 	
 	public ConfigurationComparator ignoringSuperflous(String... keys)
 	{
@@ -62,8 +68,14 @@ public class ConfigurationComparator
 	
 	public void checkMatching(Properties actual, Properties expected)
 	{
-		List<Tuple> superflous = new ArrayList<>();
+		Map<String, String> actualAliased = new HashMap<>();
 		actual.entrySet().forEach(e -> 
+		{
+			String key = aliases.containsKey(e.getKey()) ? aliases.get(e.getKey()) : e.getKey().toString();
+			actualAliased.put(key, e.getValue().toString());
+		});
+		List<Tuple> superflous = new ArrayList<>();
+		actualAliased.entrySet().forEach(e -> 
 		{
 			if (ignoredSuperflous.contains(e.getKey()))
 				return;
@@ -75,15 +87,15 @@ public class ConfigurationComparator
 		{
 			if (ignoredMissing.contains(e.getKey()))
 				return;
-			if (!actual.containsKey(e.getKey())&& isNotDefault((String)e.getKey(), (String)e.getValue()))
+			if (!actualAliased.containsKey(e.getKey())&& isNotDefault((String)e.getKey(), (String)e.getValue()))
 				missing.add(new Tuple((String)e.getKey(), (String)e.getValue()));
 		});
 
 		List<Tuple> wrongValue = new ArrayList<>();
 		expected.entrySet().forEach(e -> 
 		{
-			if (actual.containsKey(e.getKey()) && ! actual.get(e.getKey()).equals(e.getValue()))
-				wrongValue.add(new Tuple((String)e.getKey(), actual.get(e.getKey()) + " should be " + (String)e.getValue()));
+			if (actualAliased.containsKey(e.getKey()) && ! actualAliased.get(e.getKey()).equals(e.getValue()))
+				wrongValue.add(new Tuple((String)e.getKey(), actualAliased.get(e.getKey()) + " should be " + (String)e.getValue()));
 		});
 		
 		if (!superflous.isEmpty() || !missing.isEmpty() || !wrongValue.isEmpty())

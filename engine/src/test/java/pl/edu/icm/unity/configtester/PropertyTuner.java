@@ -36,6 +36,12 @@ public class PropertyTuner
 		return this;
 	}
 	
+	public PropertyTuner remove(String key)
+	{
+		props.remove(pfx+key);
+		return this;
+	}
+	
 	public Properties get()
 	{
 		ConfigurationGenerator.log.info("Generated properties:\n{}", props.entrySet().stream()
