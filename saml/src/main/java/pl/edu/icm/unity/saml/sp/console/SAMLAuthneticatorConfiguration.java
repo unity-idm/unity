@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.sp.web.authnEditor;
+package pl.edu.icm.unity.saml.sp.console;
 
 import java.io.IOException;
 import java.io.StringReader;

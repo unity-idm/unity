@@ -20,7 +20,7 @@ public class ConfigurationGenerator
 {
 	static final Logger log = Log.getLogger(Log.U_SERVER, ConfigurationGenerator.class);
 	
-	public static PropertyTuner generateMinimalDefault(String pfx, Map<String, PropertyMD> propertiesMD)
+	public static PropertyTuner generateMinimalWithoutDefaults(String pfx, Map<String, PropertyMD> propertiesMD)
 	{
 		Predicate<PropertyMD> exclude = meta -> 
 			meta.isDeprecated() || meta.getDefault() != null || !meta.isMandatory() || meta.isHidden();

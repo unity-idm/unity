@@ -146,7 +146,7 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(CommonWebAuthnProperties.REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Name of a registration form to be shown for a remotely authenticated principal who " +
 				"has no local account. If unset such users will be denied."));	
-		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().setCategory(idp).
+		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().setBoolean().setCategory(idp).
 				setStructuredListEntry(IDP_PREFIX).setDescription(
 				"If true then unknown remote user gets an option to associate the remote identity "
 				+ "with an another local (already existing) account. Overrides the global setting."));	
