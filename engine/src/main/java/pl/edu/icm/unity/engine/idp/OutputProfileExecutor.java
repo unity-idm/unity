@@ -59,10 +59,6 @@ class OutputProfileExecutor
 		OutputTranslationProfile profileInstance;
 		if (profile != null)
 		{
-//			TranslationProfile translationProfile = outputProfileRepo.listAllProfiles().get(profile);
-//			if (translationProfile == null)
-//				throw new ConfigurationException("The translation profile '" + profile + 
-//					"' configured for the authenticator does not exist");
 			profileInstance = new OutputTranslationProfile(profile, outputProfileRepo, 
 					actionsRegistry, attrValueConverter);
 		} else

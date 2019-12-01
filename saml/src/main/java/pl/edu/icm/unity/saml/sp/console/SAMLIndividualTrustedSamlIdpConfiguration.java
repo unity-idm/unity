@@ -24,6 +24,7 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.binding.EnableDisable;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
@@ -45,7 +46,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 	private Binding binding;
 	private List<String> certificates;
 	private String registrationForm;
-	private boolean accountAssociation;
+	private EnableDisable accountAssociation;
 	private boolean signRequest;
 	private List<String> requestedNameFormats;
 	private String postLogoutEndpoint;
@@ -53,11 +54,13 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 	private String redirectLogoutEndpoint;
 	private String redirectLogoutResponseEndpoint;
 	private String soapLogoutEndpoint;
+	private String groupMembershipAttribute;
 
 	public SAMLIndividualTrustedSamlIdpConfiguration()
 	{
 		setBinding(SAMLSPProperties.DEFAULT_IDP_BINDING);
-		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
+		accountAssociation = EnableDisable.bydefault;
+		setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(SAMLSPProperties.DEFAULT_TRANSLATION_PROFILE));
 	}
 
 	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService, SAMLSPProperties source,
@@ -97,8 +100,9 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		setRegistrationForm(source.getValue(prefix + CommonWebAuthnProperties.REGISTRATION_FORM));
 		if (source.isSet(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION))
 		{
-			setAccountAssociation(
-					source.getBooleanValue(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION));
+			accountAssociation = source.getBooleanValue(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION)
+					? EnableDisable.enable
+					: EnableDisable.disable;
 		}
 		if (source.isSet(prefix + SAMLSPProperties.IDP_SIGN_REQUEST))
 		{
@@ -124,6 +128,8 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 			setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(
 					source.getValue(prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE)));
 		}
+		
+		groupMembershipAttribute = source.getValue(prefix + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
 
 	}
 
@@ -133,7 +139,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + getName() + ".";
 
 		raw.put(prefix + SAMLSPProperties.IDP_ID, getId());
-		if (getDisplayedName() != null)
+		if (getDisplayedName() != null && !getDisplayedName().isEmpty())
 		{
 			getDisplayedName().toProperties(raw, prefix + SAMLSPProperties.IDP_NAME, msg);
 		}
@@ -171,7 +177,17 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 			raw.put(prefix + CommonWebAuthnProperties.REGISTRATION_FORM, getRegistrationForm());
 		}
 
-		raw.put(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION, String.valueOf(isAccountAssociation()));
+		if (getAccountAssociation() != EnableDisable.bydefault)
+		{
+			raw.put(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION,
+					accountAssociation == EnableDisable.enable ? "true" : "false");
+		}	
+		
+		if (getGroupMembershipAttribute() != null)
+		{
+			raw.put(prefix + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE, getGroupMembershipAttribute());
+		}
+		
 		raw.put(prefix + SAMLSPProperties.IDP_SIGN_REQUEST, String.valueOf(isSignRequest()));
 		if (getPostLogoutEndpoint() != null)
 		{
@@ -193,13 +209,18 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		{
 			raw.put(prefix + SamlProperties.SOAP_LOGOUT_URL, getSoapLogoutEndpoint());
 		}
-		try
+		
+		if (getTranslationProfile() != null)
 		{
-			raw.put(prefix + SAMLSPProperties.IDPMETA_EMBEDDED_TRANSLATION_PROFILE,
-					Constants.MAPPER.writeValueAsString(getTranslationProfile().toJsonObject()));
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't serialize provider's translation profile to JSON", e);
+			try
+			{
+				raw.put(prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, Constants.MAPPER
+						.writeValueAsString(getTranslationProfile().toJsonObject()));
+			} catch (Exception e)
+			{
+				throw new InternalException("Can't serialize provider's translation profile to JSON",
+						e);
+			}
 		}
 
 	}
@@ -219,7 +240,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 				? this.getCertificates().stream().map(s -> new String(s)).collect(Collectors.toList())
 				: null);
 
-		clone.setAccountAssociation(new Boolean(this.isAccountAssociation()));
+		clone.setAccountAssociation(this.getAccountAssociation());
 		clone.setSignRequest(new Boolean(this.isSignRequest()));
 		clone.setRegistrationForm(
 				this.getRegistrationForm() != null ? new String(this.getRegistrationForm()) : null);
@@ -228,7 +249,6 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 						? this.getRequestedNameFormats().stream().map(f -> new String(f))
 								.collect(Collectors.toList())
 						: null);
-
 		clone.setPostLogoutEndpoint(
 				this.getPostLogoutEndpoint() != null ? new String(this.getPostLogoutEndpoint()) : null);
 		clone.setPostLogoutResponseEndpoint(this.getPostLogoutResponseEndpoint() != null
@@ -242,6 +262,8 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 				: null);
 		clone.setSoapLogoutEndpoint(
 				this.getSoapLogoutEndpoint() != null ? new String(this.getSoapLogoutEndpoint()) : null);
+		clone.setGroupMembershipAttribute(
+				this.getGroupMembershipAttribute() != null ? new String(this.getGroupMembershipAttribute()) : null);
 		return clone;
 
 	}
@@ -336,12 +358,12 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		this.registrationForm = registrationForm;
 	}
 
-	public boolean isAccountAssociation()
+	public EnableDisable getAccountAssociation()
 	{
 		return accountAssociation;
 	}
 
-	public void setAccountAssociation(boolean accountAssociation)
+	public void setAccountAssociation(EnableDisable accountAssociation)
 	{
 		this.accountAssociation = accountAssociation;
 	}
@@ -414,5 +436,15 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 	public void setSoapLogoutEndpoint(String soapLogoutEndpoint)
 	{
 		this.soapLogoutEndpoint = soapLogoutEndpoint;
+	}
+
+	public String getGroupMembershipAttribute()
+	{
+		return groupMembershipAttribute;
+	}
+
+	public void setGroupMembershipAttribute(String groupMemberShipAttribute)
+	{
+		this.groupMembershipAttribute = groupMemberShipAttribute;
 	}
 }

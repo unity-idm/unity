@@ -158,7 +158,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 
 		public PamConfiguration()
 		{
-			translationProfile = TranslationProfileGenerator.generateEmptyInputProfile();
+			translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyInputProfile();
 		}
 
 		public String toProperties(UnityMessageSource msg)

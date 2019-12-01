@@ -77,12 +77,12 @@ public class TranslationProfileGenerator
 	}
 
 
-	public static TranslationProfile generateEmptyInputProfile()
+	public static TranslationProfile generateEmbeddedEmptyInputProfile()
 	{
 		return new TranslationProfile(EMBEDDED_PROFILE, "", ProfileType.INPUT, new ArrayList<>());
 	}
 	
-	public static TranslationProfile generateEmptyOutputProfile()
+	public static TranslationProfile generateEmbeddedEmptyOutputProfile()
 	{
 		return new TranslationProfile(EMBEDDED_PROFILE, "", ProfileType.OUTPUT, new ArrayList<>());
 	}

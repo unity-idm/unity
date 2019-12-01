@@ -36,7 +36,6 @@ public class SAMLAuthnTrustedFederationConfiguration
 	{
 		setRefreshInterval(SamlProperties.DEFAULT_METADATA_REFRESH);
 		setIgnoreSignatureVerification(true);
-		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
 	}
 
 	public void fromProperties(SAMLSPProperties source, String name)
@@ -107,14 +106,17 @@ public class SAMLAuthnTrustedFederationConfiguration
 		{
 			raw.put(prefix + SAMLSPProperties.IDPMETA_REGISTRATION_FORM, getRegistrationForm());
 		}
-
-		try
+		if (getTranslationProfile() != null)
 		{
-			raw.put(prefix + SAMLSPProperties.IDPMETA_EMBEDDED_TRANSLATION_PROFILE,
-					Constants.MAPPER.writeValueAsString(getTranslationProfile().toJsonObject()));
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't serialize provider's translation profile to JSON", e);
+			try
+			{
+				raw.put(prefix + SAMLSPProperties.IDPMETA_EMBEDDED_TRANSLATION_PROFILE, Constants.MAPPER
+						.writeValueAsString(getTranslationProfile().toJsonObject()));
+			} catch (Exception e)
+			{
+				throw new InternalException("Can't serialize provider's translation profile to JSON",
+						e);
+			}
 		}
 	}
 

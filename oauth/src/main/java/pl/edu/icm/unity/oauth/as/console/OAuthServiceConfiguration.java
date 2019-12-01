@@ -73,7 +73,7 @@ public class OAuthServiceConfiguration
 		setAllowForWildcardsInAllowedURI(false);
 		setIdentityTypeForSubject(TargetedPersistentIdentity.ID);
 		scopes = new ArrayList<>();
-		translationProfile = TranslationProfileGenerator.generateEmptyOutputProfile();
+		translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyOutputProfile();
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
