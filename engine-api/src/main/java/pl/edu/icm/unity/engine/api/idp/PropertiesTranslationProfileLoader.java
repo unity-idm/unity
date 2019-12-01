@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author P.Piernik
  *
  */
-public class IdpProfileHelper
+public class PropertiesTranslationProfileLoader
 {
 	public static TranslationProfile getTranslationProfile(UnityPropertiesHelper props, String globalProfileNameKey,
 			String embeddedProfileKey) throws ConfigurationException

@@ -44,7 +44,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.IdpProfileHelper;
+import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -698,7 +698,7 @@ public class SamlIdpProperties extends SamlProperties
 
 	public TranslationProfile getOutputTranslationProfile()
 	{
-		return IdpProfileHelper.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
+		return PropertiesTranslationProfileLoader.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
 				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
 	}
 }

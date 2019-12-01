@@ -21,7 +21,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.IdpProfileHelper;
+import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -233,7 +233,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	
 	public TranslationProfile getOutputTranslationProfile()
 	{
-		return IdpProfileHelper.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
+		return PropertiesTranslationProfileLoader.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
 				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
 	}
 }
