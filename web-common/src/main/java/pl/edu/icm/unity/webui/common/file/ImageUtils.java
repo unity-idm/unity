@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
  */
 public class ImageUtils
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, FileFieldUtils.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImageUtils.class);
 
 	public static LocalOrRemoteResource getImageFromUriSave(String logoUri, URIAccessService uriService)
 	{

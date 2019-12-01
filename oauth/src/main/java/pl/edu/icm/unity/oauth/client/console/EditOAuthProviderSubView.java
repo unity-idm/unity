@@ -47,11 +47,14 @@ import pl.edu.icm.unity.oauth.client.config.OrcidProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.UnityProviderProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.EnableDisableCombo;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
@@ -271,17 +274,23 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		configBinder.forField(clientAuthenticationModeForProfile).bind("clientAuthenticationModeForProfile");
 		advanced.addComponent(clientAuthenticationModeForProfile);
 
-		CheckBox accountAssociation = new CheckBox(
-				msg.getMessage("EditOAuthProviderSubView.accountAssociation"));
+		EnableDisableCombo accountAssociation = new EnableDisableCombo(
+				msg.getMessage("EditOAuthProviderSubView.accountAssociation"), msg);
 		configBinder.forField(accountAssociation).bind("accountAssociation");
 		advanced.addComponent(accountAssociation);
+		
+		GridWithEditor<NameValuePairBinding> extraAuthorizationParameters = new GridWithEditor<>(msg, NameValuePairBinding.class);
+		extraAuthorizationParameters.setCaption(msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
+		advanced.addComponent(extraAuthorizationParameters);
+		extraAuthorizationParameters.addTextColumn(s -> s.getName(), (t, v) -> t.setName(v),
+				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.name"), 30, true);
 
-		TextField extraAuthorizationParameters = new TextField(
-				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
+		extraAuthorizationParameters.addTextColumn(s -> s.getValue(), (t, v) -> t.setValue(v),
+				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.value"), 30, true);
+
 		extraAuthorizationParameters.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		configBinder.forField(extraAuthorizationParameters).bind("extraAuthorizationParameters");
-		advanced.addComponent(extraAuthorizationParameters);
-
+		
 		ComboBox<ServerHostnameCheckingMode> clientHostnameChecking = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientHostnameChecking"));
 		clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());

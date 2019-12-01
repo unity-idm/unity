@@ -96,6 +96,8 @@ public class OAuthConfigurationTest
 		Properties sourceProviderCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
+				.update("extraAuthzParams.1", "foo=bar")
+				.update("iconUrl", "http:foo")
 				.get();
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META).get();
 		sourceCfg.putAll(sourceProviderCfg);
