@@ -39,7 +39,7 @@ public class SAMLAuthenticatorConfigurationTest
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.INPUT, 
 			Lists.newArrayList(new TranslationRule("true", 
-					new IncludeInputProfileActionFactory().getInstance("fooo"))));	
+					new IncludeInputProfileActionFactory().getInstance("sys:saml"))));	
 
 	
 	@Test
@@ -62,7 +62,8 @@ public class SAMLAuthenticatorConfigurationTest
 			.ignoringSuperflous("metadataSource.1.refreshInterval", 
 				"metadataSource.1.signaturVerification",
 				"remoteIdp.1.binding",
-				"remoteIdp.1.signRequest")
+				"remoteIdp.1.signRequest",
+				"remoteIdp.1.embeddedTranslationProfile")
 			.checkMatching(result, sourceCfg);
 	}
 	
@@ -84,6 +85,7 @@ public class SAMLAuthenticatorConfigurationTest
 		
 		createComparator(P, META)
 			.ignoringMissing("remoteIdp.1.translationProfile")
+			.ignoringSuperflous("remoteIdp.1.embeddedTranslationProfile")
 			.checkMatching(result, sourceCfg);
 	}
 	
@@ -97,6 +99,8 @@ public class SAMLAuthenticatorConfigurationTest
 				.update("remoteIdp.1.signRequest", "false")
 				.update("metadataSource.1.perMetadataEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("remoteIdp.1.embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
+				.update("metadataSource", "http:foo")
+				.update("remoteIdp.1.logoURI", "http:foo")
 				.get();
 		
 		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();

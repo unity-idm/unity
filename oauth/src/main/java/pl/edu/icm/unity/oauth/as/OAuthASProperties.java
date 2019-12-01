@@ -21,7 +21,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Configuration of the OAuth AS. Used for OpenID Connect mode too. Shared by web and rest endpoints (authz and token
@@ -227,5 +229,11 @@ public class OAuthASProperties extends UnityPropertiesHelper
 			}
 		}
 		return false;
+	}
+	
+	public TranslationProfile getOutputTranslationProfile()
+	{
+		return PropertiesTranslationProfileLoader.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
+				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
 	}
 }

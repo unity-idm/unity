@@ -70,16 +70,17 @@ public class OAuthServiceConfiguration
 		codeTokenExpiration = OAuthASProperties.DEFAULT_CODE_TOKEN_VALIDITY;
 		accessTokenExpiration = OAuthASProperties.DEFAULT_ACCESS_TOKEN_VALIDITY;
 		supportRefreshToken = false;
-		skipUserImport = false;
 		setAllowForWildcardsInAllowedURI(false);
 		setIdentityTypeForSubject(TargetedPersistentIdentity.ID);
 		scopes = new ArrayList<>();
-		translationProfile = TranslationProfileGenerator.generateEmptyOutputProfile();
+		translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyOutputProfile();
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
 		openIDConnect = false;
 		supportExtendTokenValidity = false;
+		skipUserImport = false;
+		userImports = new ArrayList<>();
 	}
 
 	public String toProperties()
@@ -93,7 +94,6 @@ public class OAuthServiceConfiguration
 		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_VALIDITY,
 				String.valueOf(accessTokenExpiration));
 		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_CONSENT, String.valueOf(skipConsentScreen));
-		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_USERIMPORT, String.valueOf(skipUserImport));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI,
 				String.valueOf(allowForWildcardsInAllowedURI));
 		if (supportExtendTokenValidity)
@@ -179,6 +179,8 @@ public class OAuthServiceConfiguration
 			}
 		}
 		
+		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_USERIMPORT, String.valueOf(skipUserImport));
+		
 		if (userImports != null)
 		{
 			for (UserImportConfig impConfig : userImports)
@@ -226,7 +228,6 @@ public class OAuthServiceConfiguration
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
-		skipUserImport = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
 		allowForWildcardsInAllowedURI = oauthProperties
 				.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
 		if (oauthProperties.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY))
@@ -322,9 +323,9 @@ public class OAuthServiceConfiguration
 			activeValueSelections.add(ativeValConfig);
 		}
 		
-		userImports = new ArrayList<>();
+		skipUserImport = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+		
 		Set<String> importKeys = oauthProperties.getStructuredListKeys(CommonIdPProperties.USERIMPORT_PFX);
-
 		for (String importKey : importKeys)
 		{
 			String importer = oauthProperties.getValue(importKey + CommonIdPProperties.USERIMPORT_IMPORTER);

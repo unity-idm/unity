@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
+import pl.edu.icm.unity.types.translation.ProfileType;
 
 /**
  * Factory for {@link TranslationProfileField}.
@@ -27,7 +28,7 @@ public class OutputTranslationProfileFieldFactory extends TranslationProfileFiel
 			ActionParameterComponentProvider actionComponentProvider)
 	{
 
-		super(msg.getMessage("OutputTranslationProfileSection.caption"), msg, inputActionsRegistry,
+		super(msg.getMessage("OutputTranslationProfileSection.caption"), msg, ProfileType.OUTPUT, inputActionsRegistry,
 				actionComponentProvider);
 	}
 }

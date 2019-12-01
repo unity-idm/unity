@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.EnableDisableCombo;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -188,14 +189,18 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		configBinder.forField(certificatesCombo).bind("certificates");
 		header.addComponent(certificatesCombo);
 
+		TextField groupAttribute = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.groupMembershipAttribute"));
+		configBinder.forField(groupAttribute).bind("groupMembershipAttribute");
+		header.addComponent(groupAttribute);
+		
 		ComboBox<String> registrationForm = new ComboBox<>(
 				msg.getMessage("EditIndividualTrustedIdpSubView.registrationForm"));
 		registrationForm.setItems(registrationForms);
 		header.addComponent(registrationForm);
 		configBinder.forField(registrationForm).bind("registrationForm");
 
-		CheckBox accountAssociation = new CheckBox(
-				msg.getMessage("EditIndividualTrustedIdpSubView.accountAssociation"));
+		EnableDisableCombo accountAssociation = new EnableDisableCombo(
+				msg.getMessage("EditIndividualTrustedIdpSubView.accountAssociation"), msg);
 		configBinder.forField(accountAssociation).bind("accountAssociation");
 		header.addComponent(accountAssociation);
 

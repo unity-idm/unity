@@ -24,12 +24,13 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 public class OAuthConfiguration
 {
-	private boolean accountAssociation;
+	private boolean defAccountAssociation;
 	private List<OAuthProviderConfiguration> providers;
 
 	public OAuthConfiguration()
 	{
 		providers = new ArrayList<>();
+		defAccountAssociation = true;
 	}
 
 	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, URIAccessService uriAccessService)
@@ -44,7 +45,7 @@ public class OAuthConfiguration
 		}
 
 		OAuthClientProperties oauthProp = new OAuthClientProperties(raw, pkiMan);
-		accountAssociation = oauthProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
+		defAccountAssociation = oauthProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
@@ -65,7 +66,7 @@ public class OAuthConfiguration
 		Properties raw = new Properties();
 
 		raw.put(OAuthClientProperties.P + CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION,
-				String.valueOf(accountAssociation));
+				String.valueOf(defAccountAssociation));
 
 		for (OAuthProviderConfiguration provider : providers)
 		{
@@ -87,13 +88,13 @@ public class OAuthConfiguration
 		return providers;
 	}
 
-	public boolean isAccountAssociation()
+	public boolean isDefAccountAssociation()
 	{
-		return accountAssociation;
+		return defAccountAssociation;
 	}
 
-	public void setAccountAssociation(boolean accountAssociation)
+	public void setDefAccountAssociation(boolean accountAssociation)
 	{
-		this.accountAssociation = accountAssociation;
+		this.defAccountAssociation = accountAssociation;
 	}
 }

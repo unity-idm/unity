@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
+import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
 
 /**
  * Related to {@link SamlIdpProperties}. Contains whole SAML service configuration
@@ -74,7 +75,9 @@ public class SAMLServiceConfiguration
 	private TranslationProfile translationProfile;
 	private List<SAMLServiceTrustedFederationConfiguration> trustedFederations;
 	private List<SAMLIndividualTrustedSPConfiguration> individualTrustedSPs;
-
+	private List<UserImportConfig> userImports;
+	private boolean skipUserImport;
+	
 	public SAMLServiceConfiguration(List<Group> allGroups)
 	{
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
@@ -96,6 +99,8 @@ public class SAMLServiceConfiguration
 		trustedFederations = new ArrayList<>();
 		publishMetadata = true;
 		autoGenerateMetadata = true;
+		userImports = new ArrayList<>();
+		skipUserImport = false;
 	}
 
 	public String toProperties(PKIManagement pkiManagement, UnityMessageSource msg, FileStorageService fileService,
@@ -106,7 +111,8 @@ public class SAMLServiceConfiguration
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.ISSUER_URI, issuerURI);
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.SIGN_RESPONSE, signResponcePolicy.toString());
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.SIGN_ASSERTION, signAssertionPolicy.toString());
-
+		raw.put(SamlIdpProperties.P + CommonIdPProperties.SKIP_USERIMPORT, String.valueOf(skipUserImport));
+		
 		if (signResponseCredential != null)
 		{
 			raw.put(SamlIdpProperties.P + SamlIdpProperties.CREDENTIAL, signResponseCredential);
@@ -227,6 +233,19 @@ public class SAMLServiceConfiguration
 						mapping.getClientId());
 				raw.put(SamlIdpProperties.P + key + SamlIdpProperties.GROUP,
 						mapping.getGroup().group.toString());
+			}
+		}
+		
+		if (userImports != null)
+		{
+			for (UserImportConfig impConfig : userImports)
+			{
+				String key = CommonIdPProperties.USERIMPORT_PFX
+						+ (userImports.indexOf(impConfig) + 1) + ".";
+				raw.put(SamlIdpProperties.P + key + CommonIdPProperties.USERIMPORT_IMPORTER,
+						impConfig.getImporter());
+				raw.put(SamlIdpProperties.P + key + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE,
+						impConfig.getIdentityType());
 			}
 		}
 
@@ -433,7 +452,22 @@ public class SAMLServiceConfiguration
 					}
 					groupMappings.add(mapping);
 				});
+		
+		skipUserImport = samlIdpProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
+		
+		Set<String> importKeys = samlIdpProperties.getStructuredListKeys(CommonIdPProperties.USERIMPORT_PFX);
 
+		for (String importKey : importKeys)
+		{
+			String importer = samlIdpProperties.getValue(importKey + CommonIdPProperties.USERIMPORT_IMPORTER);
+			String identityType = samlIdpProperties
+					.getValue(importKey + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE);
+
+			UserImportConfig userImportConfig = new UserImportConfig();
+			userImportConfig.setImporter(importer);
+			userImportConfig.setIdentityType(identityType);
+			userImports.add(userImportConfig);
+		}
 	}
 
 	public GroupWithIndentIndicator getUsersGroup()

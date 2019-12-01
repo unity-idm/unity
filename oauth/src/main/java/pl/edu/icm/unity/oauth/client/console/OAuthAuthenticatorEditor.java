@@ -119,7 +119,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		hr.setCaption(msg.getMessage("OAuthAuthenticatorEditor.returnURLInfo"));
 		header.addComponent(hr);
 		
-		configBinder.forField(accountAssociation).bind("accountAssociation");
+		configBinder.forField(accountAssociation).bind("defAccountAssociation");
 
 		providersComponent = new ProvidersComponent();
 		providersComponent.setCaption(msg.getMessage("OAuthAuthenticatorEditor.providers"));

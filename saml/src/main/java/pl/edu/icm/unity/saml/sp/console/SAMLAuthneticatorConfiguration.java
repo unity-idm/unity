@@ -68,6 +68,7 @@ public class SAMLAuthneticatorConfiguration
 		setPublishMetadata(true);
 		setAutoGenerateMetadata(true);
 		setMetadataPath("sp");
+		setDefAccountAssociation(true);
 	}
 
 	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, UnityMessageSource msg,
@@ -103,7 +104,7 @@ public class SAMLAuthneticatorConfiguration
 			raw.put(SAMLSPProperties.P + CommonWebAuthnProperties.REGISTRATION_FORM, getRegistrationForm());
 		}
 
-		raw.put(SAMLSPProperties.P + CommonWebAuthnProperties.ENABLE_ASSOCIATION,
+		raw.put(SAMLSPProperties.P + CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION,
 				String.valueOf(isDefAccountAssociation()));
 
 		if (getTrustedFederations() != null)

@@ -18,6 +18,7 @@ import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -40,14 +41,16 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	private ActionParameterComponentProvider actionComponentProvider;
+	private ProfileType type;
 	private SubViewSwitcher subViewSwitcher;
 	private TranslationProfile value;
 
-	TranslationProfileField(UnityMessageSource msg,
+	TranslationProfileField(UnityMessageSource msg, ProfileType type,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
 			ActionParameterComponentProvider actionComponentProvider, SubViewSwitcher subViewSwitcher)
 	{
 		this.msg = msg;
+		this.type = type;
 		this.registry = registry;
 		this.actionComponentProvider = actionComponentProvider;
 		this.subViewSwitcher = subViewSwitcher;
@@ -72,7 +75,7 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 		profileBar.addComponent(profile);
 		Button editProfile = new Button();
 
-		EditTranslationProfileSubView editProfileSubView = getEditInputTranslationSubViewInstance(p -> {
+		EditTranslationProfileSubView editProfileSubView = getEditTranslationProfileSubViewInstance(p -> {
 
 			subViewSwitcher.exitSubView();
 			editProfile.focus();
@@ -84,7 +87,12 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 		});
 
 		editProfile.addClickListener(e -> {
-			editProfileSubView.setInput(value.clone());
+			editProfileSubView.setInput(value != null ? value.clone()
+					: type.equals(ProfileType.INPUT)
+							? TranslationProfileGenerator
+									.generateEmbeddedEmptyInputProfile()
+							: TranslationProfileGenerator
+									.generateEmbeddedEmptyOutputProfile());
 			subViewSwitcher.goToSubView(editProfileSubView);
 
 		});
@@ -107,7 +115,7 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 
 	}
 
-	public EditTranslationProfileSubView getEditInputTranslationSubViewInstance(
+	public EditTranslationProfileSubView getEditTranslationProfileSubViewInstance(
 			Consumer<TranslationProfile> onConfirm, Runnable onCancel)
 	{
 		try
@@ -117,7 +125,7 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 		{
 			throw new InternalException("Can not init action provider");
 		}
-		return new EditTranslationProfileSubView(msg, registry, ProfileType.INPUT, actionComponentProvider,
+		return new EditTranslationProfileSubView(msg, registry, type, actionComponentProvider,
 				onConfirm, onCancel);
 	}
 }

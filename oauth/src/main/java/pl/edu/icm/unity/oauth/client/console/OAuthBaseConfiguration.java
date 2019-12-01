@@ -31,7 +31,7 @@ public class OAuthBaseConfiguration
 	
 	public OAuthBaseConfiguration()
 	{
-		translationProfile = TranslationProfileGenerator.generateEmptyInputProfile();
+		translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyInputProfile();
 		setClientHostnameChecking(ServerHostnameCheckingMode.FAIL);
 		setClientHttpMethodForProfileAccess(ClientHttpMethod.get);
 		setClientAuthenticationMode(ClientAuthnMode.secretBasic);

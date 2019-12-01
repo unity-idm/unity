@@ -5,16 +5,19 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.http.NameValuePair;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -26,7 +29,9 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.binding.EnableDisable;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
@@ -42,8 +47,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	private String accessTokenEndpoint;
 	private String registrationForm;
 	private AccessTokenFormat accessTokenFormat;
-	private boolean accountAssociation;
-	private String extraAuthorizationParameters;
+	private EnableDisable accountAssociation;
+	private List<NameValuePairBinding> extraAuthorizationParameters;
 	private List<String> requestedScopes;
 
 	public OAuthProviderConfiguration()
@@ -51,6 +56,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		super();
 		setType(Providers.custom.toString());
 		setAccessTokenFormat(AccessTokenFormat.standard);
+		extraAuthorizationParameters = new ArrayList<>();
+		accountAssociation = EnableDisable.bydefault;
 	}
 
 	public void fromTemplate(UnityMessageSource msg, URIAccessService uriAccessService,
@@ -115,13 +122,17 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 
 		if (source.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION))
 		{
-			setAccountAssociation(source.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION));
+			accountAssociation = source.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION)
+					? EnableDisable.enable
+					: EnableDisable.disable;
 		}
 
 		setClientHostnameChecking(source.getEnumValue(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING,
 				ServerHostnameCheckingMode.class));
 		setClientTrustStore(source.getValue(CustomProviderProperties.CLIENT_TRUSTSTORE));
-		setExtraAuthorizationParameters(source.getValue(CustomProviderProperties.ADDITIONAL_AUTHZ_PARAMS));
+		
+		List<NameValuePair> additionalAuthzParams = source.getAdditionalAuthzParams();
+		setExtraAuthorizationParameters(additionalAuthzParams.stream().map(p -> new NameValuePairBinding(p.getName(), p.getValue())).collect(Collectors.toList()));
 	}
 
 	public void toProperties(Properties raw, UnityMessageSource msg, FileStorageService fileStorageService, String authName)
@@ -200,8 +211,13 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 			raw.put(prefix + CommonWebAuthnProperties.REGISTRATION_FORM, getRegistrationForm());
 		}
 
-		raw.put(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION, String.valueOf(isAccountAssociation()));
-
+	
+		if (getAccountAssociation() != EnableDisable.bydefault)
+		{
+			raw.put(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION,
+					accountAssociation == EnableDisable.enable ? "true" : "false");
+		}	
+		
 		try
 		{
 			raw.put(prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
@@ -224,8 +240,11 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 
 		if (getExtraAuthorizationParameters() != null)
 		{
-			raw.put(prefix + CustomProviderProperties.ADDITIONAL_AUTHZ_PARAMS,
-					getExtraAuthorizationParameters());
+			for (NameValuePairBinding nvPair : getExtraAuthorizationParameters())
+			{
+				raw.put(prefix + CustomProviderProperties.ADDITIONAL_AUTHZ_PARAMS + (getExtraAuthorizationParameters().indexOf(nvPair) + 1),
+						nvPair.getName() + "=" + nvPair.getValue());
+			}
 		}
 	}
 
@@ -299,22 +318,22 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		this.registrationForm = registrationForm;
 	}
 
-	public boolean isAccountAssociation()
+	public EnableDisable getAccountAssociation()
 	{
 		return accountAssociation;
 	}
 
-	public void setAccountAssociation(boolean accountAssociation)
+	public void setAccountAssociation(EnableDisable accountAssociation)
 	{
 		this.accountAssociation = accountAssociation;
 	}
 
-	public String getExtraAuthorizationParameters()
+	public List<NameValuePairBinding> getExtraAuthorizationParameters()
 	{
 		return extraAuthorizationParameters;
 	}
 
-	public void setExtraAuthorizationParameters(String extraAuthorizationParameters)
+	public void setExtraAuthorizationParameters(List<NameValuePairBinding> extraAuthorizationParameters)
 	{
 		this.extraAuthorizationParameters = extraAuthorizationParameters;
 	}
@@ -389,15 +408,16 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 				this.getRegistrationForm() != null ? new String(this.getRegistrationForm()) : null);
 		clone.setTranslationProfile(
 				this.getTranslationProfile() != null ? this.getTranslationProfile().clone() : null);
-		clone.setAccountAssociation(new Boolean(this.isAccountAssociation()));
+		clone.setAccountAssociation(this.getAccountAssociation());
 		clone.setClientHostnameChecking(this.getClientHostnameChecking() != null
 				? ServerHostnameCheckingMode.valueOf(this.getClientHostnameChecking().toString())
 				: null);
 		clone.setClientTrustStore(
-				this.getClientTrustStore() != null ? new String(this.getClientTrustStore()) : null);
-		clone.setExtraAuthorizationParameters(this.getExtraAuthorizationParameters() != null
-				? new String(this.getExtraAuthorizationParameters())
-				: null);
+				this.getClientTrustStore() != null ? new String(this.getClientTrustStore()) : null);		
+		clone.setExtraAuthorizationParameters(
+				this.getExtraAuthorizationParameters() != null ? this.getExtraAuthorizationParameters()
+						.stream().map(s -> new NameValuePairBinding(s.getName(), s.getValue()))
+						.collect(Collectors.toList()) : null);
 		return clone;
 	}
 

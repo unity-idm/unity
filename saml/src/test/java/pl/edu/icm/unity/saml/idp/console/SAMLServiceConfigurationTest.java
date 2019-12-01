@@ -102,6 +102,8 @@ public class SAMLServiceConfigurationTest
 				.remove("acceptedSP.1.dn")
 				.update("defaultGroup", "/foo1")
 				.update("groupMapping.1.mappingGroup", "/foo2")
+				.update("acceptedSP.1.logoURI", "http:foo")
+				.update("metadataSource", "http:foo")
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
 		
