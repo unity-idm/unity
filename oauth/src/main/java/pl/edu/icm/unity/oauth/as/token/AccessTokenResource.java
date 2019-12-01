@@ -47,10 +47,8 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.idp.IdpEngineProfileHelper;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -73,7 +71,6 @@ import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * RESTful implementation of the access token resource.
@@ -485,16 +482,13 @@ public class AccessTokenResource extends BaseOAuthResource
 				config.getValue(OAuthASProperties.CLIENTS_GROUP), 
 				new EntityParam(clientId));
 		TranslationResult userInfoRes = null;
-		TranslationProfile profile = IdpEngineProfileHelper.getTranslationProfile(config,
-				CommonIdPProperties.TRANSLATION_PROFILE,
-				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
 		
 		try
 		{
 			userInfoRes = notAuthorizedOauthIdpEngine.getUserInfoUnsafe(ownerId,
 					String.valueOf(clientId), Optional.of(client),
 					config.getValue(OAuthASProperties.USERS_GROUP),
-					profile,
+					config.getOutputTranslationProfile(),
 					grant, config);
 		} catch (ExecutionFailException e)
 		{

@@ -27,8 +27,6 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.IdpEngineProfileHelper;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
@@ -149,9 +147,7 @@ class OAuthWebRequestValidator
 		else
 			context.setUsersGroup(oauthConfig.getValue(OAuthASProperties.USERS_GROUP));
 		
-		context.setTranslationProfile(IdpEngineProfileHelper.getTranslationProfile(oauthConfig,
-				CommonIdPProperties.TRANSLATION_PROFILE,
-				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE));
+		context.setTranslationProfile(oauthConfig.getOutputTranslationProfile());
 
 		validateAndRecordScopes(context, authzRequest);
 		

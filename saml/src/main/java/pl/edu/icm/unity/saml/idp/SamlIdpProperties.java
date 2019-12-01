@@ -44,11 +44,13 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdpProfileHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -694,4 +696,9 @@ public class SamlIdpProperties extends SamlProperties
 		return configProps;
 	}
 
+	public TranslationProfile getOutputTranslationProfile()
+	{
+		return IdpProfileHelper.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
+				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
+	}
 }

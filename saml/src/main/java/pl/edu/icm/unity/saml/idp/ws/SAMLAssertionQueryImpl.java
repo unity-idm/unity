@@ -18,9 +18,7 @@ import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.idp.IdpEngineProfileHelper;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
@@ -32,7 +30,6 @@ import pl.edu.icm.unity.saml.validator.UnityAttributeQueryValidator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AssertionIDRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
@@ -127,12 +124,8 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected Collection<Attribute> getAttributes(IdentityTaV subjectId,
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
-		
-		TranslationProfile profile = IdpEngineProfileHelper.getTranslationProfile(samlProperties,
-				CommonIdPProperties.TRANSLATION_PROFILE,
-				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
 		TranslationResult userInfo = idpEngine.obtainUserInformationWithEarlyImport(subjectId, 
-				processor.getChosenGroup(), profile, 
+				processor.getChosenGroup(), samlProperties.getOutputTranslationProfile(), 
 				processor.getIdentityTarget(), Optional.empty(), 
 				"SAML2", SAMLConstants.BINDING_SOAP, false,
 				samlProperties);
