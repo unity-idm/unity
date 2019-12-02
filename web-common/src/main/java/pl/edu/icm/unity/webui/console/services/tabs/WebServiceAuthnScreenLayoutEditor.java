@@ -314,10 +314,12 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 	@Override
 	protected void doSetValue(Properties value)
 	{
-		AuthenticationLayoutContent content = AuthnLayoutPropertiesHelper.loadFromProperties(new VaadinEndpointProperties(value), msg, removeListener, removeElementListener, dragStart, dragStop, valueChange, authenticatorSupportService, authnOptionSupplier);
+		AuthenticationLayoutContent content = AuthnLayoutPropertiesHelper.loadFromProperties(
+				new VaadinEndpointProperties(value), msg, removeListener, removeElementListener,
+				dragStart, dragStop, valueChange, authenticatorSupportService, authnOptionSupplier);
 		columns = content.columns;
-		separators = content.separators;	
-			
+		separators = content.separators;
+
 		refreshColumns();
 		refreshSeparators();
 	}

@@ -47,6 +47,10 @@ public class ServiceWebConfiguration
 	private Properties layoutForRetUserProperties;
 	private String defaultMainTheme;
 	private String defaultAuthnTheme;
+	private String webContentDir;
+	private boolean productionMode;
+	private String template;
+	private boolean compactCredentialReset;
 
 	public ServiceWebConfiguration(List<String> regForms)
 	{
@@ -70,6 +74,9 @@ public class ServiceWebConfiguration
 		
 		defaultMainTheme = ThemeConstans.sidebarTheme;
 		defaultAuthnTheme = ThemeConstans.unityTheme;	
+		productionMode = true;
+		template = VaadinEndpointProperties.DEFAULT_TEMPLATE;
+		compactCredentialReset = true;
 	}
 
 	public ServiceWebConfiguration(String defaultMainTheme)
@@ -99,7 +106,22 @@ public class ServiceWebConfiguration
 
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER,
 				String.valueOf(showRegistrationFormsInHeader));
+		
+		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.PRODUCTION_MODE,
+				String.valueOf(productionMode));
+		if (webContentDir != null)
+		{
+			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.WEB_CONTENT_PATH,
+					webContentDir);
+		}
+		
+		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.TEMPLATE,
+				template);
+			
 
+		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.CRED_RESET_COMPACT,
+				String.valueOf(compactCredentialReset));
+		
 		if (externalRegistrationURL != null)
 		{
 			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.EXTERNAL_REGISTRATION_URL,
@@ -156,6 +178,13 @@ public class ServiceWebConfiguration
 			URIAccessService uriAccessService)
 	{
 
+		if (vaadinProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
+		{
+			webContentDir = vaadinProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
+		}
+		productionMode = vaadinProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
+		template = vaadinProperties.getValue(VaadinEndpointProperties.TEMPLATE);
+		compactCredentialReset = vaadinProperties.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT);
 		showSearch = vaadinProperties.getBooleanValue(VaadinEndpointProperties.AUTHN_SHOW_SEARCH);
 		addAllAuthnOptions = vaadinProperties.getBooleanValue(VaadinEndpointProperties.AUTHN_ADD_ALL);
 		showCancel = vaadinProperties.getBooleanValue(VaadinEndpointProperties.AUTHN_SHOW_CANCEL);
@@ -394,5 +423,45 @@ public class ServiceWebConfiguration
 	public void setLayoutForRetUserProperties(Properties layoutForRetUserProperties)
 	{
 		this.layoutForRetUserProperties = layoutForRetUserProperties;
+	}
+
+	public String getWebContentDir()
+	{
+		return webContentDir;
+	}
+
+	public void setWebContentDir(String webContentDir)
+	{
+		this.webContentDir = webContentDir;
+	}
+
+	public boolean isProductionMode()
+	{
+		return productionMode;
+	}
+
+	public void setProductionMode(boolean productionMode)
+	{
+		this.productionMode = productionMode;
+	}
+	
+	public String getTemplate()
+	{
+		return template;
+	}
+
+	public void setTemplate(String template)
+	{
+		this.template = template;
+	}
+
+	public boolean isCompactCredentialReset()
+	{
+		return compactCredentialReset;
+	}
+
+	public void setCompactCredentialReset(boolean compactCredentialReset)
+	{
+		this.compactCredentialReset = compactCredentialReset;
 	}
 }

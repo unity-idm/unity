@@ -255,6 +255,11 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 		webConfigBinder.forField(title).bind("title");
 		main.addComponent(title);
 
+		CheckBox compactCredentialReset = new CheckBox();
+		compactCredentialReset.setCaption(msg.getMessage("WebServiceEditorBase.compactCredentialReset"));
+		webConfigBinder.forField(compactCredentialReset).bind("compactCredentialReset");
+		main.addComponent(compactCredentialReset);
+		
 		CollapsibleLayout presentationSection = new CollapsibleLayout(
 				msg.getMessage("WebServiceEditorBase.presentation"), main);
 		presentationSection.expand();
