@@ -31,6 +31,17 @@ public class TransactionsState<T extends TransactionState>
 			throw new IllegalStateException("There is no transaction in the context. This is a bug.");
 		return transactionsStack.peek();
 	}
+
+	/**
+	 * Gets the first transaction - transaction that is not subtransaction of any other.
+	 * @return The first transaction
+	 */
+	T getRootTransaction()
+	{
+		if (transactionsStack.isEmpty())
+			throw new IllegalStateException("There is no transaction in the context. This is a bug.");
+		return transactionsStack.getLast();
+	}
 	
 	public boolean isEmpty()
 	{

@@ -82,6 +82,35 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	}
 
 	@Test
+	public void shouldStoreAndRetrieveAuditEventInNestedTransaction()
+	{
+		// given
+
+		// when
+		tx.runInTransaction(() -> tx.runInTransaction(
+				() -> auditPublisher.log(AuditEventTrigger.builder()
+				.type(AuditEventType.ENTITY)
+				.action(AuditEventAction.UPDATE)
+				.emptyName()
+				.subject(13L)
+				.tags(USERS))
+				));
+
+		//than
+		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == 1));
+
+		List<AuditEvent> allEvents = auditManager.getAllEvents();
+		assertEquals(allEvents.size(), 1);
+		AuditEvent lastEvent = allEvents.get(allEvents.size() - 1);
+		assertEquals(AuditEventType.ENTITY, lastEvent.getType());
+		assertEquals(AuditEventAction.UPDATE, lastEvent.getAction());
+		assertEquals(1, (long) lastEvent.getInitiator().getEntityId());
+		assertEquals(13, (long) lastEvent.getSubject().getEntityId());
+		assertEquals(1, lastEvent.getTags().size());
+		assertTrue(lastEvent.getTags().contains("Users"));
+	}
+
+	@Test
 	public void shouldGetAllTags()
 	{
 		// given

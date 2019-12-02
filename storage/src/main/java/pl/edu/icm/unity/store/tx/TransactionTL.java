@@ -31,7 +31,7 @@ public class TransactionTL
 	 */
 	static void addPostCommitAction(Runnable action)
 	{
-		get().getCurrent().addPostCommitAction(action);
+		get().getRootTransaction().addPostCommitAction(action);
 	}
 
 	private static TransactionsState<? extends TransactionState> get()
