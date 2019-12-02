@@ -22,6 +22,12 @@ fi
 
 CP=.$(find -L "$LIB" -type d -exec printf ":{}/*" \;) 
 
+if [ -n "$LIB_LOCAL" ]
+then
+        CP_LOCAL=$(find -L "$LIB_LOCAL" -type d -exec printf ":{}/*" \;)
+        CP="$CP$CP_LOCAL"
+fi
+
 export CLASSPATH=$CP
 
 PWD="`pwd`"
