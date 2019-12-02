@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -84,12 +85,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private SubViewSwitcher subViewSwitcher;
 	private TextField name;
 	private boolean editMode;
-	
 
-	OAuthEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths, SubViewSwitcher subViewSwitcher,
-			OutputTranslationProfileFieldFactory profileFieldFactory,
-			boolean editMode, Set<String> credentials,
-			Collection<IdentityType> identityTypes, List<String> attrTypes, List<String> usedEndpointsPaths)
+	OAuthEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths,
+			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
+			boolean editMode, Set<String> credentials, Collection<IdentityType> identityTypes,
+			List<String> attrTypes, List<String> usedEndpointsPaths)
 	{
 		this.msg = msg;
 
@@ -170,14 +170,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		userAuthnEndpointPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.userAuthnEndpointPath"));
 		infoLayoutWrapper.addComponent(userAuthnEndpointPath);
 		main.addComponent(infoLayout);
-		
+
 		Label tokenEndpointPath = new Label();
 		tokenEndpointPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.tokenEndpointPath"));
 		infoLayoutWrapper.addComponent(tokenEndpointPath);
-		
-		
+
 		Button metaPath = new Button();
-		
+
 		if (editMode)
 		{
 			HorizontalLayout l = new HorizontalLayout();
@@ -186,18 +185,18 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			l.addComponent(metaPath);
 			infoLayoutWrapper.addComponent(l);
 			metaPath.addClickListener(e -> {
-				  Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
-			});		
+				Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
+			});
 		}
-		
+
 		name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
 		name.setReadOnly(editMode);
 		oauthWebAuthzBinder.forField(name).asRequired().bind("name");
 		mainGeneralLayout.addComponent(name);
-		
+
 		TextField tokenContextPath = new TextField();
-		
+
 		TextField webAuthzContextPath = new TextField();
 		webAuthzContextPath.setRequiredIndicatorVisible(true);
 		webAuthzContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.usersAuthnPath"));
@@ -209,17 +208,18 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			if (editMode)
 			{
 				r = validatePathForEdit(v);
-			}else
+			} else
 			{
 				r = validatePathForAdd(v, tokenContextPath.getValue());
 			}
-			
+
 			if (r.isError())
 			{
 				userAuthnEndpointPath.setValue("");
-			}else
+			} else
 			{
-				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
+				userAuthnEndpointPath.setValue(
+						serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
 			}
 			return r;
 
@@ -229,26 +229,26 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		tokenContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.clientTokenPath"));
 		tokenContextPath.setPlaceholder("/oauth-token");
 		tokenContextPath.setReadOnly(editMode);
-		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {			
+		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {
 			ValidationResult r;
 			if (editMode)
 			{
 				r = validatePathForEdit(v);
-			}else
+			} else
 			{
 				r = validatePathForAdd(v, webAuthzContextPath.getValue());
 			}
-			
+
 			if (r.isError())
 			{
 				tokenEndpointPath.setValue("");
-			}else
+			} else
 			{
 				tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
 				metaPath.setCaption(serverPrefix + v + "/.well-known/openid-configuration");
 			}
 			return r;
-		
+
 		}).bind("address");
 		mainGeneralLayout.addComponent(tokenContextPath);
 
@@ -321,7 +321,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		});
 
 		extendAccessTokenValidity.setWidth(5, Unit.EM);
-		extendAccessTokenValidity.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
+		extendAccessTokenValidity
+				.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
 		configBinder.forField(extendAccessTokenValidity).asRequired((v, c) -> {
 			if (supportExtendAccessTokenValidity.getValue())
 			{
@@ -333,21 +334,21 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		extendAccessTokenValidity.setEnabled(false);
 		mainGeneralLayout.addComponent(extendAccessTokenValidity);
-			
+
 		CheckBox skipConsentScreen = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.skipConsentScreen"));
 		configBinder.forField(skipConsentScreen).bind("skipConsentScreen");
 		mainGeneralLayout.addComponent(skipConsentScreen);
-		
+
 		openIDConnect = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.openIDConnect"));
 		configBinder.forField(openIDConnect).bind("openIDConnect");
 		mainGeneralLayout.addComponent(openIDConnect);
-		
+
 		signingAlg = new ComboBox<>();
 		signingAlg.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingAlgorithm"));
 		signingAlg.setEmptySelectionAllowed(false);
 		signingAlg.setItems(SigningAlgorithms.values());
 		configBinder.forField(signingAlg).bind("signingAlg");
-		//signingAlg.setEnabled(false);
+		// signingAlg.setEnabled(false);
 		mainGeneralLayout.addComponent(signingAlg);
 		signingAlg.addValueChangeListener(e -> {
 			refreshOpenIDControls();
@@ -357,26 +358,38 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		credential.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingCredential"));
 		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
-		configBinder.forField(credential).asRequired((v,c) -> {
-			if (credential.isEnabled() && (v == null || v.isEmpty()) && !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
+		configBinder.forField(credential).asRequired((v, c) -> {
+			if (credential.isEnabled() && (v == null || v.isEmpty()) && !Family.HMAC_SHA
+					.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
-			
+
 			return ValidationResult.ok();
-		
+
 		}).bind("credential");
-		
+
 		credential.setEnabled(false);
 		mainGeneralLayout.addComponent(credential);
 
 		signingSecret = new TextField();
+		signingSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		signingSecret.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
 		configBinder.forField(signingSecret).asRequired((v, c) -> {
-			if (signingSecret.isEnabled() && (v == null || v.isEmpty()) && Family.HMAC_SHA
-					.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
+			JWSAlgorithm alg = JWSAlgorithm.parse(signingAlg.getValue().toString());
+
+			if (signingSecret.isEnabled() && Family.HMAC_SHA.contains(alg))
 			{
-				return ValidationResult.error(msg.getMessage("fieldRequired"));
+				if (v == null || v.isEmpty())
+				{
+					return ValidationResult.error(msg.getMessage("fieldRequired"));
+				} else
+				{
+					if (v.getBytes(StandardCharsets.UTF_8).length * 8 < getBitsLenghtForAlg(alg))
+					{
+						return ValidationResult.error(msg.getMessage("toShortValue"));
+					}
+				}
 			}
 
 			return ValidationResult.ok();
@@ -412,7 +425,16 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		});
 
 		return main;
-	}	
+	}
+
+	private int getBitsLenghtForAlg(JWSAlgorithm alg)
+	{
+		if (alg.equals(JWSAlgorithm.HS256))
+			return 256;
+		else if (alg.equals(JWSAlgorithm.HS384))
+			return 384;
+		return 512;
+	}
 
 	private CollapsibleLayout buildScopesSection()
 	{
@@ -477,7 +499,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	{
 		return this;
 	}
-	
+
 	private ValidationResult validatePathForAdd(String path, String path2)
 	{
 		if (path == null || path.isEmpty())
@@ -501,7 +523,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		return ValidationResult.ok();
 	}
-	
+
 	private ValidationResult validatePathForEdit(String path)
 	{
 		try
@@ -513,7 +535,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
 		}
 
-		return ValidationResult.ok();	
+		return ValidationResult.ok();
 	}
 
 	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScope>
