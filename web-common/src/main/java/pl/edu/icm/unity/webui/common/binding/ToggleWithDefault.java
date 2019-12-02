@@ -10,7 +10,7 @@ package pl.edu.icm.unity.webui.common.binding;
  * @author P.Piernik
  *
  */
-public enum EnableDisable
+public enum ToggleWithDefault
 {
 	enable, disable, bydefault
 }

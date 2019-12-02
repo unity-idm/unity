@@ -29,7 +29,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.common.binding.EnableDisable;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
@@ -47,7 +47,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	private String accessTokenEndpoint;
 	private String registrationForm;
 	private AccessTokenFormat accessTokenFormat;
-	private EnableDisable accountAssociation;
+	private ToggleWithDefault accountAssociation;
 	private List<NameValuePairBinding> extraAuthorizationParameters;
 	private List<String> requestedScopes;
 
@@ -57,7 +57,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		setType(Providers.custom.toString());
 		setAccessTokenFormat(AccessTokenFormat.standard);
 		extraAuthorizationParameters = new ArrayList<>();
-		accountAssociation = EnableDisable.bydefault;
+		accountAssociation = ToggleWithDefault.bydefault;
 	}
 
 	public void fromTemplate(UnityMessageSource msg, URIAccessService uriAccessService,
@@ -123,8 +123,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		if (source.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION))
 		{
 			accountAssociation = source.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION)
-					? EnableDisable.enable
-					: EnableDisable.disable;
+					? ToggleWithDefault.enable
+					: ToggleWithDefault.disable;
 		}
 
 		setClientHostnameChecking(source.getEnumValue(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING,
@@ -212,10 +212,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		}
 
 	
-		if (getAccountAssociation() != EnableDisable.bydefault)
+		if (getAccountAssociation() != ToggleWithDefault.bydefault)
 		{
 			raw.put(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION,
-					accountAssociation == EnableDisable.enable ? "true" : "false");
+					accountAssociation == ToggleWithDefault.enable ? "true" : "false");
 		}	
 		
 		try
@@ -318,12 +318,12 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		this.registrationForm = registrationForm;
 	}
 
-	public EnableDisable getAccountAssociation()
+	public ToggleWithDefault getAccountAssociation()
 	{
 		return accountAssociation;
 	}
 
-	public void setAccountAssociation(EnableDisable accountAssociation)
+	public void setAccountAssociation(ToggleWithDefault accountAssociation)
 	{
 		this.accountAssociation = accountAssociation;
 	}
