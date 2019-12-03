@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +50,7 @@ public class AuthnLayoutColumn extends CustomComponent
 	private IntStepper columnWidthField;
 	private I18nTextField columnTitleField;
 	private Runnable valueChange;
+	private VerticalLayout header;
 
 	public AuthnLayoutColumn(UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
 			Consumer<ColumnElement> removeElementListener, Runnable valueChange)
@@ -127,10 +128,14 @@ public class AuthnLayoutColumn extends CustomComponent
 		center.setWidth(100, Unit.PERCENTAGE);
 		center.addComponent(wrapper);
 		center.setComponentAlignment(wrapper, Alignment.TOP_CENTER);
-				
-		main.addComponent(center);
-		main.addComponent(HtmlTag.horizontalLine());
-
+			
+		header = new VerticalLayout();
+		header.setMargin(false);
+		header.addComponent(center);
+		header.addComponent(HtmlTag.horizontalLine());
+		
+		main.addComponent(header);
+		
 		elementsLayout = new VerticalLayout();
 		elementsLayout.setMargin(true);
 		elementsLayout.setWidth(100, Unit.PERCENTAGE);
@@ -284,6 +289,12 @@ public class AuthnLayoutColumn extends CustomComponent
 				((ColumnElementWithValue<?>) e).validate();
 			}
 		}
+		
+	}
+
+	public void setHeaderVisible(boolean visible)
+	{
+		header.setVisible(visible);
 		
 	}
 

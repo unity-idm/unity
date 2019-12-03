@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.layout.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
 
 import java.util.function.Consumer;
 
@@ -16,24 +16,24 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.I18nStringBindingValue;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElementBase;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElementWithValue;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithValue;
 
 /**
  * 
  * @author P.Piernik
  *
  */
-public class HeaderColumnElement extends ColumnElementBase implements ColumnElementWithValue<I18nString>
+public class SeparatorColumnElement extends ColumnElementBase implements ColumnElementWithValue<I18nString>
 {
 	private I18nTextField valueField;
 	private Binder<I18nStringBindingValue> binder;
 
-	public HeaderColumnElement(UnityMessageSource msg, Consumer<ColumnElement> removeElementListener,
+	public SeparatorColumnElement(UnityMessageSource msg, Consumer<ColumnElement> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
-		super(msg, msg.getMessage("AuthnColumnLayoutElement.header"), Images.header, dragStart,
+		super(msg, msg.getMessage("AuthnColumnLayoutElement.separator"), Images.text, dragStart,
 				dragStop, removeElementListener);
 		addContent(getContent());
 		addValueChangeListener(valueChangeListener);
@@ -80,12 +80,15 @@ public class HeaderColumnElement extends ColumnElementBase implements ColumnElem
 		{
 			throw new FormValidationException();
 		}
-	}
 
+	}
+	
 	@Override
 	public void addValueChangeListener(Runnable valueChange)
 	{
-		valueField.addValueChangeListener(e -> valueChange.run());	
+		valueField.addValueChangeListener(e -> valueChange.run());
+		
 	}
+
 
 }

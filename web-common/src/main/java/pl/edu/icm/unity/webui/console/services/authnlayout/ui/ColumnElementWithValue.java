@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.webui.console.services.authnlayout;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui;
 
 import pl.edu.icm.unity.webui.common.FormValidationException;
 

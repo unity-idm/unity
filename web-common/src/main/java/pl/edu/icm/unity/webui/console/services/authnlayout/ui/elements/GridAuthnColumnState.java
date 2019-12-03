@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.layout.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
 
 /**
  * 

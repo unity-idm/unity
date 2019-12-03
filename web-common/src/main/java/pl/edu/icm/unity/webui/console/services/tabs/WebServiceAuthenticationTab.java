@@ -274,7 +274,7 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 		webScreenEditor = new WebServiceAuthnScreenLayoutEditor(msg, authenticatorSupportService,
 				() -> authAndFlows.getSelectedItems());
 		authAndFlows.addValueChangeListener(e -> webScreenEditor.refreshColumnsElements());
-		webScreenEditor.configureBinding(webConfigBinder, "authnScreenProperties");
+		webScreenEditor.configureBinding(webConfigBinder, "authenticationLayoutConfiguration");
 		main.addComponent(webScreenEditor);
 		CollapsibleLayout mainLayoutSection = new CollapsibleLayout(
 				msg.getMessage("WebServiceEditorBase.mainLayout"), main);
@@ -289,7 +289,7 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 
 		webRetUserScreenEditor = new WebServiceReturningLayoutEditor(msg);
 		main.addComponent(webRetUserScreenEditor);
-		webConfigBinder.forField(webRetUserScreenEditor).bind("layoutForRetUserProperties");
+		webConfigBinder.forField(webRetUserScreenEditor).bind("retUserLayoutConfiguration");
 
 		layoutForRetUserSection = new CollapsibleLayout(
 				msg.getMessage("WebServiceEditorBase.layoutForReturningUser"), main);

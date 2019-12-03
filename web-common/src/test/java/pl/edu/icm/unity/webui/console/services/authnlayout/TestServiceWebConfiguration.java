@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.console.services.authnlayout;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.META;
@@ -20,6 +19,9 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
 
 public class TestServiceWebConfiguration
 {
@@ -58,23 +60,49 @@ public class TestServiceWebConfiguration
 	@Test
 	public void serializationOfColumnContentsIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
-		//TODO prepare proper configuration for testing, created manually
 		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "1."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, "pwdSys _SEPARATOR_C1S1 _SEPARATOR _EXPAND");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "1."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR, "OR");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "1."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_TITLE, "title");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "1."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_WIDTH, "20");
 
-		//TODO this can not be unit-tested as mixes parsing, data and UI state objects in one bucket.
-		//needs to be refactored first.
-		//TODO the trailing 7 arguments AuthnLaoutPropertiesHelper should be removed, have nothing to do with properties parsing/serialization
-		//TODO AuthnLayoutPropertiesHelper should be renamed. Helper -> Parser? but depends on shape of classes after refactoring.
-//		AuthenticationLayoutContent layoutContentParsed = AuthnLayoutPropertiesHelper.loadFromProperties(
-//				new VaadinEndpointProperties(sourceCfg), msg, 
-//				null, null, null, null, null, null, null);
-//		Properties layoutContentProperties = AuthnLayoutPropertiesHelper.toProperties(msg, layoutContentParsed);
-		Properties result = new Properties();
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "2."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, "pwdSys2 _SEPARATOR _LAST_USED _REGISTRATION");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "2."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_TITLE, "title2");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "2."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_WIDTH, "25");
+
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "3."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, "_GRID_C3G1 _GRID_C3G2");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "3."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_TITLE, "title2");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "3."
+				+ VaadinEndpointProperties.AUTHN_COLUMN_WIDTH, "25");
+
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + "C3G1."
+				+ VaadinEndpointProperties.AUTHN_GRID_CONTENTS, "saml");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + "C3G1."
+				+ VaadinEndpointProperties.AUTHN_GRID_ROWS, "6");
 		
-		createComparator(PREFIX, META)
-			.checkMatching(result, sourceCfg);
-		
-		fail("Implement me");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + "C3G2."
+				+ VaadinEndpointProperties.AUTHN_GRID_CONTENTS, "oauth");
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + "C3G2."
+				+ VaadinEndpointProperties.AUTHN_GRID_ROWS, "7");
+
+		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX + "C1S1."
+				+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT, "Text");
+
+		AuthnLayoutConfiguration layoutContentParsed = AuthnLayoutPropertiesParser
+				.fromProperties(new VaadinEndpointProperties(sourceCfg), msg);
+		Properties layoutContentProperties = AuthnLayoutPropertiesParser.toProperties(msg, layoutContentParsed);
+
+		createComparator(PREFIX, META).checkMatching(layoutContentProperties, sourceCfg);
+
 	}
 
 }

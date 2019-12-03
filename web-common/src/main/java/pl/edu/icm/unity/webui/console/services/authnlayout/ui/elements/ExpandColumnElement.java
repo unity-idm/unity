@@ -3,14 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.layout.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
 
 import java.util.function.Consumer;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElementBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
 
 /**
  * 

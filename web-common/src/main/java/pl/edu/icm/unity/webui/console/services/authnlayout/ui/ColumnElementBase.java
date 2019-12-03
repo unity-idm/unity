@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui;
 
 import java.util.function.Consumer;
 

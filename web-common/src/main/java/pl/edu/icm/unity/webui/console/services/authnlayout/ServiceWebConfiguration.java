@@ -8,9 +8,11 @@ package pl.edu.icm.unity.webui.console.services.authnlayout;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
+import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
@@ -23,6 +25,13 @@ import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutColumnConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.ExpandConfig;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.LastUsedConfig;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.SeparatorConfig;
 
 /**
  * 
@@ -42,15 +51,15 @@ public class ServiceWebConfiguration
 	private List<String> registrationForms;
 	private LocalOrRemoteResource logo;
 	private I18nString title;
-
-	private Properties authnScreenProperties;
-	private Properties layoutForRetUserProperties;
 	private String defaultMainTheme;
 	private String defaultAuthnTheme;
 	private String webContentDir;
 	private boolean productionMode;
 	private String template;
 	private boolean compactCredentialReset;
+
+	private AuthnLayoutConfiguration authenticationLayoutConfiguration;
+	private List<AuthnElementConfiguration> retUserLayoutConfiguration;
 
 	public ServiceWebConfiguration(List<String> regForms)
 	{
@@ -61,19 +70,19 @@ public class ServiceWebConfiguration
 	public ServiceWebConfiguration()
 	{
 		registrationForms = new ArrayList<>();
-		authnScreenProperties = new Properties();
-		String columnKey = VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX + "1.";
-		authnScreenProperties.put(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_TITLE, "");
-		authnScreenProperties.put(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, "");
 
-		layoutForRetUserProperties = new Properties();
-		authnScreenProperties.put(
-				VaadinEndpointProperties.PREFIX
-						+ VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT,
-				VaadinEndpointProperties.DEFAULT_AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT_CONTENT);
-		
+		authenticationLayoutConfiguration = new AuthnLayoutConfiguration(
+				Arrays.asList(new AuthnLayoutColumnConfiguration(new I18nString(),
+						new Float(VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH).intValue(),
+						Lists.newArrayList())),
+				Lists.newArrayList());
+
+		retUserLayoutConfiguration = Arrays.asList(new LastUsedConfig(),
+				new SeparatorConfig(new I18nString()),
+				new ExpandConfig());
+
 		defaultMainTheme = ThemeConstans.sidebarTheme;
-		defaultAuthnTheme = ThemeConstans.unityTheme;	
+		defaultAuthnTheme = ThemeConstans.unityTheme;
 		productionMode = true;
 		template = VaadinEndpointProperties.DEFAULT_TEMPLATE;
 		compactCredentialReset = true;
@@ -84,7 +93,7 @@ public class ServiceWebConfiguration
 		this();
 		this.defaultMainTheme = defaultMainTheme;
 	}
-	
+
 	public Properties toProperties(UnityMessageSource msg, FileStorageService fileStorageService,
 			String serviceName)
 	{
@@ -106,7 +115,7 @@ public class ServiceWebConfiguration
 
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER,
 				String.valueOf(showRegistrationFormsInHeader));
-		
+
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.PRODUCTION_MODE,
 				String.valueOf(productionMode));
 		if (webContentDir != null)
@@ -114,14 +123,12 @@ public class ServiceWebConfiguration
 			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.WEB_CONTENT_PATH,
 					webContentDir);
 		}
-		
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.TEMPLATE,
-				template);
-			
+
+		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.TEMPLATE, template);
 
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.CRED_RESET_COMPACT,
 				String.valueOf(compactCredentialReset));
-		
+
 		if (externalRegistrationURL != null)
 		{
 			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.EXTERNAL_REGISTRATION_URL,
@@ -152,9 +159,10 @@ public class ServiceWebConfiguration
 
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
-		
-		raw.putAll(authnScreenProperties);
-		raw.putAll(layoutForRetUserProperties);
+
+		raw.putAll(AuthnLayoutPropertiesParser.toProperties(msg, authenticationLayoutConfiguration));
+		raw.putAll(AuthnLayoutPropertiesParser.returningUserColumnElementToProperties(msg,
+				retUserLayoutConfiguration));
 
 		return raw;
 	}
@@ -207,83 +215,10 @@ public class ServiceWebConfiguration
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);
 
-		authnScreenProperties = new Properties();
-		Iterator<String> columnKeys = vaadinProperties
-				.getStructuredListKeys(VaadinEndpointProperties.AUTHN_COLUMNS_PFX).iterator();
-		while (columnKeys.hasNext())
-		{
-			String columnKey = columnKeys.next();
-
-			if (vaadinProperties.isSet(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_TITLE))
-			{
-
-				authnScreenProperties.put(
-						VaadinEndpointProperties.PREFIX + columnKey
-								+ VaadinEndpointProperties.AUTHN_COLUMN_TITLE,
-						vaadinProperties.getValue(columnKey
-								+ VaadinEndpointProperties.AUTHN_COLUMN_TITLE));
-			}
-			if (vaadinProperties.isSet(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR))
-			{
-
-				I18nString sep = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
-						columnKey + VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR);
-				sep.toProperties(authnScreenProperties, VaadinEndpointProperties.PREFIX + columnKey
-						+ VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR, msg);
-			}
-			if (vaadinProperties.isSet(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS))
-			{
-				authnScreenProperties.put(
-						VaadinEndpointProperties.PREFIX + columnKey
-								+ VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS,
-						vaadinProperties.getValue(columnKey
-								+ VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS));
-
-			}
-
-			if (vaadinProperties.isSet(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_WIDTH))
-			{
-				authnScreenProperties.put(
-						VaadinEndpointProperties.PREFIX + columnKey
-								+ VaadinEndpointProperties.AUTHN_COLUMN_WIDTH,
-						vaadinProperties.getValue(columnKey
-								+ VaadinEndpointProperties.AUTHN_COLUMN_WIDTH));
-
-			}
-
-		}
-
-		layoutForRetUserProperties = new Properties();
-		if (vaadinProperties.isSet(VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT))
-		{
-			layoutForRetUserProperties.put(
-					VaadinEndpointProperties.PREFIX
-							+ VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT,
-					vaadinProperties.getValue(
-							VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT));
-		}
-
-		Iterator<String> separatorsKeys = vaadinProperties
-				.getStructuredListKeys(VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX).iterator();
-
-		Properties labels = new Properties();
-		while (separatorsKeys.hasNext())
-		{
-			String separatorKey = separatorsKeys.next();
-			labels.put(VaadinEndpointProperties.PREFIX + separatorKey
-					+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT,
-					vaadinProperties.getValue(separatorKey
-							+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT));
-
-			I18nString val = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
-					separatorKey + VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT);
-
-			val.toProperties(labels, VaadinEndpointProperties.PREFIX + separatorKey
-					+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT, msg);
-
-		}
-		layoutForRetUserProperties.putAll(labels);
-		authnScreenProperties.putAll(labels);
+		authenticationLayoutConfiguration = AuthnLayoutPropertiesParser.fromProperties(vaadinProperties,
+				msg);
+		retUserLayoutConfiguration = AuthnLayoutPropertiesParser.getReturingUserColumnElementsFromProperties(vaadinProperties,
+				msg);
 
 		if (vaadinProperties.isSet(VaadinEndpointProperties.THEME))
 		{
@@ -291,7 +226,7 @@ public class ServiceWebConfiguration
 		}
 		if (vaadinProperties.isSet(VaadinEndpointProperties.AUTHN_THEME))
 		{
-			defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);	
+			defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);
 		}
 	}
 
@@ -405,26 +340,6 @@ public class ServiceWebConfiguration
 		this.title = title;
 	}
 
-	public Properties getAuthnScreenProperties()
-	{
-		return authnScreenProperties;
-	}
-
-	public void setAuthnScreenProperties(Properties authnScreenProperties)
-	{
-		this.authnScreenProperties = authnScreenProperties;
-	}
-
-	public Properties getLayoutForRetUserProperties()
-	{
-		return layoutForRetUserProperties;
-	}
-
-	public void setLayoutForRetUserProperties(Properties layoutForRetUserProperties)
-	{
-		this.layoutForRetUserProperties = layoutForRetUserProperties;
-	}
-
 	public String getWebContentDir()
 	{
 		return webContentDir;
@@ -444,7 +359,7 @@ public class ServiceWebConfiguration
 	{
 		this.productionMode = productionMode;
 	}
-	
+
 	public String getTemplate()
 	{
 		return template;
@@ -463,5 +378,27 @@ public class ServiceWebConfiguration
 	public void setCompactCredentialReset(boolean compactCredentialReset)
 	{
 		this.compactCredentialReset = compactCredentialReset;
+	}
+
+	public AuthnLayoutConfiguration getAuthenticationLayoutConfiguration()
+	{
+		return authenticationLayoutConfiguration;
+	}
+
+	public void setAuthenticationLayoutConfiguration(
+			AuthnLayoutConfiguration authenticationLayoutConfiguration)
+	{
+		this.authenticationLayoutConfiguration = authenticationLayoutConfiguration;
+	}
+
+	public List<AuthnElementConfiguration> getRetUserLayoutConfiguration()
+	{
+		return retUserLayoutConfiguration;
+	}
+
+	public void setRetUserLayoutConfiguration(
+			List<AuthnElementConfiguration> retUserLayoutConfiguration)
+	{
+		this.retUserLayoutConfiguration = retUserLayoutConfiguration;
 	}
 }

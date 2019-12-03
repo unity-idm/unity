@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.layout.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +22,9 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElementBase;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElementWithValue;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithValue;
 
 /**
  * 
