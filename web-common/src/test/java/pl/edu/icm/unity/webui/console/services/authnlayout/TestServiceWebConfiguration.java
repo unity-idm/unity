@@ -97,9 +97,11 @@ public class TestServiceWebConfiguration
 		sourceCfg.put(PREFIX + VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX + "C1S1."
 				+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT, "Text");
 
-		AuthnLayoutConfiguration layoutContentParsed = AuthnLayoutPropertiesParser
-				.fromProperties(new VaadinEndpointProperties(sourceCfg), msg);
-		Properties layoutContentProperties = AuthnLayoutPropertiesParser.toProperties(msg, layoutContentParsed);
+		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
+		
+		AuthnLayoutConfiguration layoutContentParsed = parser
+				.fromProperties(new VaadinEndpointProperties(sourceCfg));
+		Properties layoutContentProperties = parser.toProperties(layoutContentParsed);
 
 		createComparator(PREFIX, META).checkMatching(layoutContentProperties, sourceCfg);
 

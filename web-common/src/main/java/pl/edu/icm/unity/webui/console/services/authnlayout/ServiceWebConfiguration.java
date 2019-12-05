@@ -160,8 +160,9 @@ public class ServiceWebConfiguration
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
 
-		raw.putAll(AuthnLayoutPropertiesParser.toProperties(msg, authenticationLayoutConfiguration));
-		raw.putAll(AuthnLayoutPropertiesParser.returningUserColumnElementToProperties(msg,
+		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
+		raw.putAll(parser.toProperties(authenticationLayoutConfiguration));
+		raw.putAll(parser.returningUserColumnElementToProperties(
 				retUserLayoutConfiguration));
 
 		return raw;
@@ -215,10 +216,9 @@ public class ServiceWebConfiguration
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);
 
-		authenticationLayoutConfiguration = AuthnLayoutPropertiesParser.fromProperties(vaadinProperties,
-				msg);
-		retUserLayoutConfiguration = AuthnLayoutPropertiesParser.getReturingUserColumnElementsFromProperties(vaadinProperties,
-				msg);
+		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
+		authenticationLayoutConfiguration = parser.fromProperties(vaadinProperties);
+		retUserLayoutConfiguration = parser.getReturingUserColumnElementsFromProperties(vaadinProperties);
 
 		if (vaadinProperties.isSet(VaadinEndpointProperties.THEME))
 		{

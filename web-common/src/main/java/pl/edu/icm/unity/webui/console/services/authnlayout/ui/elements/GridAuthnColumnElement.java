@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.GridConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithValue;
@@ -39,7 +40,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithV
  * @author P.Piernik
  *
  */
-public class GridAuthnColumnElement extends ColumnElementBase implements ColumnElementWithValue<GridAuthnColumnState>
+public class GridAuthnColumnElement extends ColumnElementBase implements ColumnElementWithValue<GridConfig>
 {
 	private AuthenticatorSupportService authenticatorSupport;
 	private Supplier<List<String>> authnOptionSupplier;
@@ -137,7 +138,7 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 	}
 
 	@Override
-	public void setValue(GridAuthnColumnState state)
+	public void setValue(GridConfig state)
 	{
 		if (state == null)
 			return;
@@ -160,11 +161,11 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 	}
 
 	@Override
-	public GridAuthnColumnState getValue()
+	public GridConfig getValue()
 	{
 		GridStateBindingValue value = binder.getBean();
 
-		return new GridAuthnColumnState(String.join(" ",
+		return new GridConfig(String.join(" ",
 				value.getValue().stream().map(i -> i.toGlobalKey()).collect(Collectors.toList())),
 				value.getRows());
 	}

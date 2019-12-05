@@ -86,25 +86,25 @@ public class AuthnLayoutConfigToUIConverter
 			{
 				HeaderConfig hed = (HeaderConfig) config;
 				HeaderColumnElement el = factory.getHeader();
-				el.setValue(hed.value);
+				el.setValue(hed.headerText);
 				elements.add(el);
 			} else if (config instanceof SeparatorConfig)
 			{
 				SeparatorConfig sep = (SeparatorConfig) config;
 				SeparatorColumnElement el = factory.getSeparator();
-				el.setValue(sep.value);
+				el.setValue(sep.separatorText);
 				elements.add(el);
 			} else if (config instanceof SingleAuthnConfig)
 			{
 				SingleAuthnConfig sig = (SingleAuthnConfig) config;
 				SingleAuthnColumnElement el = factory.getSingleAuthn();
-				el.setValue(sig.value);
+				el.setValue(sig.authnOption);
 				elements.add(el);
 			} else if (config instanceof GridConfig)
 			{
 				GridConfig he = (GridConfig) config;
 				GridAuthnColumnElement el = factory.getGrid();
-				el.setValue(he.value);
+				el.setValue(he);
 				elements.add(el);
 			} else if (config instanceof ExpandConfig)
 			{
@@ -177,7 +177,7 @@ public class AuthnLayoutConfigToUIConverter
 			{
 
 				GridAuthnColumnElement ge = (GridAuthnColumnElement) element;
-				elemetsC.add(new GridConfig(ge.getValue()));
+				elemetsC.add(ge.getValue());
 			} else if (element instanceof ExpandColumnElement)
 			{
 				elemetsC.add(new ExpandConfig());
