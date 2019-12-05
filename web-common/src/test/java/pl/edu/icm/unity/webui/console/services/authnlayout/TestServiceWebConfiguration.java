@@ -75,7 +75,7 @@ public class TestServiceWebConfiguration
 	}
 
 	@Test
-	public void serializationOfColumnSingleAuthnElementIsIdempotent() throws EngineException
+	public void serializationOfColumnWithSingleAuthnElementIsIdempotent() throws EngineException
 	{
 		Properties sourceCfg = new Properties();
 		sourceCfg.put(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_CONTENTS, "pwdSys _SEPARATOR");
@@ -186,7 +186,6 @@ public class TestServiceWebConfiguration
 				assertThat(layoutContentProperties
 						.get(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_CONTENTS))
 								.isEqualTo("_HEADER_" + newKey);
-
 				return;
 			}
 		}
@@ -195,7 +194,7 @@ public class TestServiceWebConfiguration
 	}
 
 	@Test
-	public void serializationOfColumnElementWithoutValueIsIdempotent() throws EngineException
+	public void serializationOfColumnWithElementsWithoutValuesIsIdempotent() throws EngineException
 	{
 		Properties sourceCfg = new Properties();
 		sourceCfg.put(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_CONTENTS,
