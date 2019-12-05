@@ -105,7 +105,7 @@ public class AuthnLayoutPropertiesParser
 			String columnKey = VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_COLUMNS_PFX
 					+ columnIt + ".";
 
-			if (c.title != null)
+			if (c.title != null && !c.title.isEmpty())
 			{
 				c.title.toProperties(raw, columnKey + VaadinEndpointProperties.AUTHN_COLUMN_TITLE, msg);
 			}
@@ -123,8 +123,12 @@ public class AuthnLayoutPropertiesParser
 				}
 			}
 
-			raw.put(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS,
-					getColumnContentAsPropertiesValue(c.contents, String.valueOf(columnIt), raw));
+			String columnContent = getColumnContentAsPropertiesValue(c.contents, String.valueOf(columnIt), raw);
+			if (!columnContent.isEmpty())
+			{
+				raw.put(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, columnContent);
+			}
+					
 
 			columnIt++;
 		}
