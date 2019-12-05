@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services.authnlayout.configuration;
 
+import java.util.Collections;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
@@ -22,7 +23,7 @@ public class AuthnLayoutConfiguration
 
 	public AuthnLayoutConfiguration(List<AuthnLayoutColumnConfiguration> columns, List<I18nString> separators)
 	{
-		this.columns = columns;
-		this.separators = separators;
+		this.columns = Collections.unmodifiableList(columns);
+		this.separators = Collections.unmodifiableList(separators);
 	}
 }

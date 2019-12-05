@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,16 +22,17 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithValue;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.SingleAuthnConfig;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBase;
 
 /**
  * 
  * @author P.Piernik
  *
  */
-public class SingleAuthnColumnElement extends ColumnElementBase implements ColumnElementWithValue<String>
+public class SingleAuthnColumnComponent extends ColumnComponentBase
 {
 	private AuthenticatorSupportService authenticatorSupport;
 	private Supplier<List<String>> authnOptionSupplier;
@@ -39,8 +40,8 @@ public class SingleAuthnColumnElement extends ColumnElementBase implements Colum
 	private ComboBox<AuthenticationOptionKey> valueComboField;
 	private Binder<AuthnOptionKeyBindingValue> binder;
 
-	public SingleAuthnColumnElement(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
-			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnElement> removeElementListener,
+	public SingleAuthnColumnComponent(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
+			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 
@@ -79,7 +80,7 @@ public class SingleAuthnColumnElement extends ColumnElementBase implements Colum
 		List<AuthenticationOptionKey> items = new ArrayList<>();
 		try
 		{
-			items.addAll(AuthnColumnElementHelper.getAvailableAuthnOptions(authenticatorSupport,
+			items.addAll(AuthnColumnComponentHelper.getAvailableAuthnOptions(authenticatorSupport,
 					authnOptionSupplier.get(), false));
 		} catch (EngineException e)
 		{
@@ -112,31 +113,27 @@ public class SingleAuthnColumnElement extends ColumnElementBase implements Colum
 	}
 
 	@Override
-	public void setValue(String state)
+	public void setConfigState(AuthnElementConfiguration state)
 	{
-		if (state == null || state.isEmpty())
+
+		String option = ((SingleAuthnConfig) state).authnOption;
+
+		if (option == null || option.isEmpty())
 			return;
 
-		if (!state.contains("."))
+		if (!option.contains("."))
 		{
-			state += "." + AuthenticationOptionKey.ALL_OPTS;
+			option += "." + AuthenticationOptionKey.ALL_OPTS;
 		}
 
-		AuthenticationOptionKey key = AuthenticationOptionKey.valueOf(state);
+		AuthenticationOptionKey key = AuthenticationOptionKey.valueOf(option);
 		valueComboField.setValue(key);
 	}
 
 	@Override
-	public String getValue()
+	public SingleAuthnConfig getConfigState()
 	{
-		if (valueComboField.getValue() != null)
-		{
-			return valueComboField.getValue().toGlobalKey();
-		}
-		else
-		{
-			return null;
-		}
+		return new SingleAuthnConfig(valueComboField.getValue() != null ? valueComboField.getValue().toGlobalKey() : null);
 	}
 
 	@Override

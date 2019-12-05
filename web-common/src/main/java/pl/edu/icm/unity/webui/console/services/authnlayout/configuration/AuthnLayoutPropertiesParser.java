@@ -29,10 +29,10 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.element
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.RegistrationConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.SeparatorConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.SingleAuthnConfig;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 
 /**
- * Maps {@link ColumnElement} to properties and revert
+ * Maps {@link ColumnComponent} to properties and revert
  * 
  * @author P.Piernik
  *

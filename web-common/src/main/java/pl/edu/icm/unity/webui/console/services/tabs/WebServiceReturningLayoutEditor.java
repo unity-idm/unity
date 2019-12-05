@@ -20,10 +20,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutConfigToUIConverter;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthnLayoutColumn;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.PalleteButton;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements.AuthnLayoutUIElementsFactory;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements.SeparatorColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.PaletteButton;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.AuthnLayoutComponentsFactory;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.SeparatorColumnComponent;
 
 /**
  * Editor for layout which is used when a single last used authN is presented
@@ -45,7 +45,7 @@ public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnEleme
 		column.dragOff();
 		valueChange.run();
 	};
-	private Consumer<ColumnElement> removeElementListener = e -> {
+	private Consumer<ColumnComponent> removeElementListener = e -> {
 		column.removeElement(e);
 		valueChange.run();
 	};
@@ -81,8 +81,8 @@ public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnEleme
 	private HorizontalLayout getPallete()
 	{
 		HorizontalLayout componentsPalette = new HorizontalLayout();
-		componentsPalette.addComponent(new PalleteButton(msg.getMessage("AuthnColumnLayoutElement.separator"),
-				Images.text.getResource(), dragStart, dragStop, () -> new SeparatorColumnElement(msg,
+		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.separator"),
+				Images.text.getResource(), dragStart, dragStop, () -> new SeparatorColumnComponent(msg,
 						removeElementListener, valueChange, dragStart, dragStop)));
 		return componentsPalette;
 	}
@@ -103,7 +103,7 @@ public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnEleme
 	protected void doSetValue(List<AuthnElementConfiguration> value)
 	{
 		column.setElements(AuthnLayoutConfigToUIConverter.getColumnElements(value,
-				new AuthnLayoutUIElementsFactory(msg, null, removeElementListener, dragStart, dragStop,
+				new AuthnLayoutComponentsFactory(msg, null, removeElementListener, dragStart, dragStop,
 						valueChange, null, null, true)));
 	}
 

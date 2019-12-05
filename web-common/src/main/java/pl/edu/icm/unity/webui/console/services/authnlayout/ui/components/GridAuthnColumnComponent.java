@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,17 +30,17 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.GridConfig;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithValue;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBase;
 
 /**
  * 
  * @author P.Piernik
  *
  */
-public class GridAuthnColumnElement extends ColumnElementBase implements ColumnElementWithValue<GridConfig>
+public class GridAuthnColumnComponent extends ColumnComponentBase
 {
 	private AuthenticatorSupportService authenticatorSupport;
 	private Supplier<List<String>> authnOptionSupplier;
@@ -48,8 +48,8 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 	private ChipsWithDropdown<AuthenticationOptionKey> valueComboField;
 	private Binder<GridStateBindingValue> binder;
 
-	public GridAuthnColumnElement(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
-			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnElement> removeElementListener,
+	public GridAuthnColumnComponent(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
+			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 
@@ -106,7 +106,7 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 		List<AuthenticationOptionKey> items = new ArrayList<>();
 		try
 		{
-			items.addAll(AuthnColumnElementHelper.getAvailableAuthnOptions(authenticatorSupport, authnOptionSupplier.get(), true));
+			items.addAll(AuthnColumnComponentHelper.getAvailableAuthnOptions(authenticatorSupport, authnOptionSupplier.get(), true));
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("GridAuthnColumnElement.cannotGetItems"), e);
@@ -138,13 +138,15 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 	}
 
 	@Override
-	public void setValue(GridConfig state)
+	public void setConfigState(AuthnElementConfiguration state)
 	{
 		if (state == null)
 			return;
 
+		GridConfig gstate = (GridConfig) state;
+		
 		List<AuthenticationOptionKey> vals = new ArrayList<>();
-		for (String s : state.content.split(" "))
+		for (String s : gstate.content.split(" "))
 		{
 			String avs = s;
 			if (!s.contains("."))
@@ -156,12 +158,12 @@ public class GridAuthnColumnElement extends ColumnElementBase implements ColumnE
 
 		}
 
-		GridStateBindingValue bean = new GridStateBindingValue(vals, state.rows);
+		GridStateBindingValue bean = new GridStateBindingValue(vals, gstate.rows);
 		binder.setBean(bean);
 	}
 
 	@Override
-	public GridConfig getValue()
+	public AuthnElementConfiguration getConfigState()
 	{
 		GridStateBindingValue value = binder.getBean();
 

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnProvidersMultiSelection;
  * @author P.Piernik
  *
  */
-public class AuthnColumnElementHelper
+public class AuthnColumnComponentHelper
 {
 	public static List<AuthenticationOptionKey> getAvailableAuthnOptions(AuthenticatorSupportService authenticatorSupport,
 			List<String> availableOptions, boolean onlyGrid) throws EngineException

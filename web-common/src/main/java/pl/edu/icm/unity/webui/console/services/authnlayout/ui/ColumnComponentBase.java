@@ -20,20 +20,22 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
- * Base layout for all {@link ColumnElement}s
+ * Base layout for all {@link ColumnComponent}s
+ * 
  * @author P.Piernik
  *
  */
-public class ColumnElementBase extends CustomComponent implements ColumnElement
+public abstract class ColumnComponentBase extends CustomComponent implements ColumnComponent
 {
 	protected UnityMessageSource msg;
 	private String title;
 	private Images icon;
-	private Consumer<ColumnElement> removeElementListener;
+	private Consumer<ColumnComponent> removeElementListener;
 	private Runnable dragStart;
 	private Runnable dragStop;
 	private VerticalLayout contentLayout;
@@ -41,8 +43,8 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 	private Button modeButton;
 	private HorizontalLayout header;
 
-	public ColumnElementBase(UnityMessageSource msg, String title, Images icon, Runnable dragStart,
-			Runnable dragStop, Consumer<ColumnElement> removeElementListener)
+	public ColumnComponentBase(UnityMessageSource msg, String title, Images icon, Runnable dragStart,
+			Runnable dragStop, Consumer<ColumnComponent> removeElementListener)
 	{
 		this.msg = msg;
 		this.title = title;
@@ -52,7 +54,7 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 		this.removeElementListener = removeElementListener;
 		initUI();
 	}
-	
+
 	public void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
@@ -64,28 +66,28 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 		header.setMargin(new MarginInfo(false, true, false, true));
 		header.setSpacing(false);
 		header.setWidth(100, Unit.PERCENTAGE);
-		
+
 		HorizontalLayout leftButtons = new HorizontalLayout();
 		leftButtons.setMargin(false);
 		leftButtons.setSpacing(false);
-		
+
 		modeButton = new Button();
 		modeButton.addStyleName(Styles.vButtonLink.toString());
 		modeButton.addClickListener(e -> changeMode());
 		modeButton.setVisible(false);
-		
+
 		leftButtons.addComponent(modeButton);
 		leftButtons.setComponentAlignment(modeButton, Alignment.MIDDLE_LEFT);
-			
-		Label ic =  new Label(icon.getHtml());
+
+		Label ic = new Label(icon.getHtml());
 		ic.setContentMode(ContentMode.HTML);
 		ic.addStyleName(Styles.mediumIcon.toString());
 		leftButtons.addComponent(ic);
 		leftButtons.setComponentAlignment(ic, Alignment.BOTTOM_LEFT);
-	
+
 		header.addComponent(leftButtons);
 		header.setComponentAlignment(leftButtons, Alignment.MIDDLE_LEFT);
-		
+
 		Label captionL = new Label();
 		captionL.addStyleName(Styles.bold.toString());
 		captionL.setValue(title);
@@ -94,7 +96,7 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 
 		HorizontalLayout rightButtons = new HorizontalLayout();
 		rightButtons.setMargin(false);
-		
+
 		Button remove = new Button();
 		remove.setDescription(msg.getMessage("ColumnElementBase.remove"));
 		remove.addStyleName(Styles.vButtonLink.toString());
@@ -105,7 +107,7 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 		});
 		remove.setVisible(removeElementListener != null);
 		rightButtons.addComponent(remove);
-		
+
 		header.addComponent(rightButtons);
 		header.setComponentAlignment(rightButtons, Alignment.MIDDLE_RIGHT);
 		header.addStyleName("u-columnHeader");
@@ -121,7 +123,7 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
 
-		DragSourceExtension<ColumnElementBase> dragSource = new DragSourceExtension<>(this);
+		DragSourceExtension<ColumnComponentBase> dragSource = new DragSourceExtension<>(this);
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);
 		dragSource.setDragData(this);
 
@@ -134,18 +136,18 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 		if (contentLayout.isVisible())
 		{
 			collapse();
-		}else
+		} else
 		{
 			expand();
 		}
 	}
-	
+
 	public void collapse()
 	{
 		contentLayout.setVisible(false);
 		modeButton.setIcon(Images.caret_right.getResource());
 	}
-	
+
 	public void expand()
 	{
 		contentLayout.setVisible(true);
@@ -167,10 +169,27 @@ public class ColumnElementBase extends CustomComponent implements ColumnElement
 		expand();
 	}
 
-	public void setRemoveListener(Consumer<ColumnElement> removeListener)
+	public void setRemoveListener(Consumer<ColumnComponent> removeListener)
 	{
 		this.removeElementListener = removeListener;
 		removeButton.setVisible(removeElementListener != null);
 	}
 
+	@Override
+	public void refresh()
+	{
+
+	}
+
+	@Override
+	public void validate() throws FormValidationException
+	{
+
+	}
+
+	@Override
+	public void addValueChangeListener(Runnable valueChange)
+	{
+
+	}
 }

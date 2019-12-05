@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services.authnlayout.configuration;
 
+import java.util.Collections;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
@@ -26,6 +27,6 @@ public class AuthnLayoutColumnConfiguration
 	{
 		this.title = title;
 		this.width = width;
-		this.contents = contents;
+		this.contents = Collections.unmodifiableList(contents);
 	}
 }

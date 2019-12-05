@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
+ * Presents single column with elements.
  * 
  * @author P.Piernik
  *
@@ -41,9 +42,9 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 public class AuthnLayoutColumn extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private List<ColumnElement> elements;
+	private List<ColumnComponent> elements;
 	private VerticalLayout elementsLayout;
-	private Consumer<ColumnElement> removeElementListener;
+	private Consumer<ColumnComponent> removeElementListener;
 	private Consumer<AuthnLayoutColumn> removeColumnListener;
 	private List<Component> dropElements;
 	private Button removeButton;
@@ -53,7 +54,7 @@ public class AuthnLayoutColumn extends CustomComponent
 	private VerticalLayout header;
 
 	public AuthnLayoutColumn(UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
-			Consumer<ColumnElement> removeElementListener, Runnable valueChange)
+			Consumer<ColumnComponent> removeElementListener, Runnable valueChange)
 	{
 		this.msg = msg;
 		this.elements = new ArrayList<>();
@@ -77,18 +78,18 @@ public class AuthnLayoutColumn extends CustomComponent
 		headerBar.setMargin(false);
 		headerBar.setWidth(100, Unit.PERCENTAGE);
 		headerBar.addStyleName("u-columnHeader");
-		
+
 		HorizontalLayout spacing = new HorizontalLayout();
 		spacing.setMargin(false);
 		headerBar.addComponent(spacing);
 		headerBar.setComponentAlignment(spacing, Alignment.MIDDLE_LEFT);
-		
+
 		Label captionL = new Label();
 		captionL.addStyleName(Styles.bold.toString());
 		captionL.setValue(msg.getMessage("LayoutColumn.column"));
 		headerBar.addComponent(captionL);
 		headerBar.setComponentAlignment(captionL, Alignment.MIDDLE_CENTER);
-		
+
 		HorizontalLayout removeWrapper = new HorizontalLayout();
 		removeWrapper.setMargin(new MarginInfo(false, true));
 		removeButton = new Button();
@@ -97,10 +98,10 @@ public class AuthnLayoutColumn extends CustomComponent
 		removeButton.setIcon(Images.close_small.getResource());
 		removeButton.addClickListener(e -> removeColumnListener.accept(this));
 		removeWrapper.addComponent(removeButton);
-		
+
 		headerBar.addComponent(removeWrapper);
-		headerBar.setComponentAlignment(removeWrapper, Alignment.MIDDLE_RIGHT);	
-	
+		headerBar.setComponentAlignment(removeWrapper, Alignment.MIDDLE_RIGHT);
+
 		main.addComponent(headerBar);
 
 		columnTitleField = new I18nTextField(msg);
@@ -121,35 +122,35 @@ public class AuthnLayoutColumn extends CustomComponent
 		wrapper.setMargin(true);
 		wrapper.addComponent(columnTitleField);
 		wrapper.addComponent(columnWidthField);
-		
+
 		HorizontalLayout center = new HorizontalLayout();
 		center.setMargin(false);
 		center.setSpacing(false);
 		center.setWidth(100, Unit.PERCENTAGE);
 		center.addComponent(wrapper);
 		center.setComponentAlignment(wrapper, Alignment.TOP_CENTER);
-			
+
 		header = new VerticalLayout();
 		header.setMargin(false);
 		header.addComponent(center);
 		header.addComponent(HtmlTag.horizontalLine());
-		
+
 		main.addComponent(header);
-		
+
 		elementsLayout = new VerticalLayout();
 		elementsLayout.setMargin(true);
 		elementsLayout.setWidth(100, Unit.PERCENTAGE);
 		elementsLayout.setStyleName(Styles.vDropLayout.toString());
 		main.addComponent(elementsLayout);
-		
+
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
-			
+
 		refreshElements();
 		dragOff();
 	}
-	
-	public void removeElement(ColumnElement e)
+
+	public void removeElement(ColumnComponent e)
 	{
 		elements.remove(e);
 		refreshElements();
@@ -178,12 +179,12 @@ public class AuthnLayoutColumn extends CustomComponent
 		}
 	}
 
-	public List<ColumnElement> getElements()
+	public List<ColumnComponent> getElements()
 	{
 		return elements;
 	}
 
-	public void setElements(List<ColumnElement> elements)
+	public void setElements(List<ColumnComponent> elements)
 	{
 		this.elements = elements;
 		refreshElements();
@@ -221,13 +222,9 @@ public class AuthnLayoutColumn extends CustomComponent
 			return;
 		}
 
-		for (ColumnElement r : elements)
+		for (ColumnComponent r : elements)
 		{
-			if (r instanceof ColumnElementWithValue<?>)
-			{
-				ColumnElementWithValue<?> rv = (ColumnElementWithValue<?>) r;
-				rv.refresh();
-			}
+			r.refresh();
 			elementsLayout.addComponent(r);
 			drop = getDropElement(elements.indexOf(r) + 1);
 			dropElements.add(drop);
@@ -248,18 +245,18 @@ public class AuthnLayoutColumn extends CustomComponent
 			Optional<AbstractComponent> dragSource = event.getDragSourceComponent();
 			if (dragSource.isPresent())
 			{
-				if (dragSource.get() instanceof PalleteElement)
+				if (dragSource.get() instanceof PaletteButton)
 				{
 					event.getDragData().ifPresent(data -> {
-						Supplier<?> sup =  (Supplier<?>) data;
-						elements.add(pos, (ColumnElement) sup.get());
+						Supplier<?> sup = (Supplier<?>) data;
+						elements.add(pos, (ColumnComponent) sup.get());
 						refreshElements();
 
 					});
-				} else if (dragSource.get() instanceof ColumnElement)
+				} else if (dragSource.get() instanceof ColumnComponent)
 				{
 					event.getDragData().ifPresent(data -> {
-						ColumnElement e = (ColumnElement) data;
+						ColumnComponent e = (ColumnComponent) data;
 
 						if (elements.contains(e))
 						{
@@ -282,20 +279,17 @@ public class AuthnLayoutColumn extends CustomComponent
 
 	public void validateConfiguration() throws FormValidationException
 	{
-		for (ColumnElement e : elements)
+		for (ColumnComponent e : elements)
 		{
-			if (e instanceof ColumnElementWithValue<?>)
-			{
-				((ColumnElementWithValue<?>) e).validate();
-			}
+			e.validate();
 		}
-		
+
 	}
 
 	public void setHeaderVisible(boolean visible)
 	{
 		header.setVisible(visible);
-		
+
 	}
 
 }

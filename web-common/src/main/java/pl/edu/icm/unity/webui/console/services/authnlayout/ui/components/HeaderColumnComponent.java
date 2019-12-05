@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout.ui.elements;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.function.Consumer;
 
@@ -16,39 +16,40 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.I18nStringBindingValue;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementBase;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnElementWithValue;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.HeaderConfig;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBase;
 
 /**
  * 
  * @author P.Piernik
  *
  */
-public class SeparatorColumnElement extends ColumnElementBase implements ColumnElementWithValue<I18nString>
+public class HeaderColumnComponent extends ColumnComponentBase
 {
 	private I18nTextField valueField;
 	private Binder<I18nStringBindingValue> binder;
 
-	public SeparatorColumnElement(UnityMessageSource msg, Consumer<ColumnElement> removeElementListener,
+	public HeaderColumnComponent(UnityMessageSource msg, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
-		super(msg, msg.getMessage("AuthnColumnLayoutElement.separator"), Images.text, dragStart,
+		super(msg, msg.getMessage("AuthnColumnLayoutElement.header"), Images.header, dragStart,
 				dragStop, removeElementListener);
 		addContent(getContent());
 		addValueChangeListener(valueChangeListener);
 	}
 
 	@Override
-	public void setValue(I18nString v)
+	public void setConfigState(AuthnElementConfiguration v)
 	{
-		binder.setBean(new I18nStringBindingValue(v));
+		binder.setBean(new I18nStringBindingValue(((HeaderConfig) v).headerText));
 	}
 
 	@Override
-	public I18nString getValue()
+	public AuthnElementConfiguration getConfigState()
 	{
-		return binder.getBean().getValue();
+		return new HeaderConfig(binder.getBean().getValue());
 	}
 
 	private Component getContent()
@@ -80,15 +81,12 @@ public class SeparatorColumnElement extends ColumnElementBase implements ColumnE
 		{
 			throw new FormValidationException();
 		}
-
 	}
-	
+
 	@Override
 	public void addValueChangeListener(Runnable valueChange)
 	{
-		valueField.addValueChangeListener(e -> valueChange.run());
-		
+		valueField.addValueChangeListener(e -> valueChange.run());	
 	}
-
 
 }

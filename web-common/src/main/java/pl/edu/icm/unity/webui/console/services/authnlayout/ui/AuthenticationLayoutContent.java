@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.webui.console.services.authnlayout.ui;
 
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.List;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
+ * Contains all ui elements associated with the login screen configuration
  * 
  * @author P.Piernik
  *

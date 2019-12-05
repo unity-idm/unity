@@ -3,22 +3,18 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.webui.console.services.authnlayout.ui;
 
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import com.vaadin.ui.Component;
 
-/**
- * {@link ColumnElement} which can have value
- * @author P.Piernik
- *
- * @param <T>
- */
-public interface ColumnElementWithValue<T> extends ColumnElement
-{	
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
+
+public interface ColumnComponent extends Component
+{
 	void refresh();
 	void validate() throws FormValidationException;
-	void setValue(T state);
+	void setConfigState(AuthnElementConfiguration state);
 	void addValueChangeListener(Runnable valueChange);
-	T getValue();
+	AuthnElementConfiguration getConfigState();
 }
