@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.ldap.client.web;
+package pl.edu.icm.unity.ldap.client.console;
 
 import java.util.Arrays;
 import java.util.List;
