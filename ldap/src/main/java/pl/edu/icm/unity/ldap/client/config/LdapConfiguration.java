@@ -102,6 +102,7 @@ public class LdapConfiguration
 				.generateIncludeInputProfile(LdapProperties.DEFAULT_TRANSLATION_PROFILE));
 		servers = new ArrayList<>();
 		searchSpecifications = new ArrayList<>();
+		groupSpecifications = new ArrayList<>();
 		setConnectionMode(LdapProperties.DEFAULT_CONNECTION_MODE);
 		setFollowReferrals(LdapProperties.DEFAULT_FOLLOW_REFERRALS);
 		setSearchTimeLimit(LdapProperties.DEFAULT_SEARCH_TIME_LIMIT);
@@ -182,7 +183,6 @@ public class LdapConfiguration
 		setMemberOfGroupAttribute(ldapProp.getValue(LdapProperties.MEMBER_OF_GROUP_ATTRIBUTE));
 
 		Set<String> keys = ldapProp.getStructuredListKeys(LdapProperties.GROUP_DEFINITION_PFX);
-		groupSpecifications = new ArrayList<>(keys.size());
 		for (String key : keys)
 		{
 			GroupSpecification gs = new GroupSpecification();
@@ -376,13 +376,22 @@ public class LdapConfiguration
 				groupSpecifications.stream().forEach(group -> {
 					String prefix = LdapProperties.PREFIX + LdapProperties.GROUP_DEFINITION_PFX
 							+ (groupSpecifications.indexOf(group) + 1) + ".";
-					raw.put(prefix + LdapProperties.GROUP_DEFINITION_NAME_ATTR,
-							group.getGroupNameAttribute());
+					if (group.getGroupNameAttribute() != null)
+					{
+						raw.put(prefix + LdapProperties.GROUP_DEFINITION_NAME_ATTR,
+								group.getGroupNameAttribute());
+					}
+
 					raw.put(prefix + LdapProperties.GROUP_DEFINITION_MEMBER_ATTR,
 							group.getMemberAttribute());
 					raw.put(prefix + LdapProperties.GROUP_DEFINITION_OC, group.getObjectClass());
-					raw.put(prefix + LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR,
-							group.getMatchByMemberAttribute());
+
+					if (group.getMatchByMemberAttribute() != null)
+					{
+						raw.put(prefix + LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR,
+								group.getMatchByMemberAttribute());
+					}
+
 				});
 			}
 
@@ -404,10 +413,12 @@ public class LdapConfiguration
 					raw.put(prefix + LdapProperties.ADV_SEARCH_BASE, search.getBaseDN());
 					raw.put(prefix + LdapProperties.ADV_SEARCH_FILTER, search.getFilter());
 					raw.put(prefix + LdapProperties.ADV_SEARCH_SCOPE, search.getScope().toString());
-					raw.put(prefix + LdapProperties.ADV_SEARCH_ATTRIBUTES,
-							search.getAttributes() != null
-									? String.join(" ", search.getAttributes())
-									: "");
+
+					if (search.getAttributes() != null)
+					{
+						raw.put(prefix + LdapProperties.ADV_SEARCH_ATTRIBUTES,
+								String.join(" ", search.getAttributes()));
+					}
 				});
 			}
 
@@ -459,7 +470,7 @@ public class LdapConfiguration
 	
 	private void toPasswordRetrievalProperties(Properties raw, UnityMessageSource msg)
 	{
-		if (getRetrievalName() != null)
+		if (getRetrievalName() != null && !getRetrievalName().isEmpty())
 		{
 			getRetrievalName().toProperties(raw,
 					PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME, msg);
@@ -477,7 +488,7 @@ public class LdapConfiguration
 	
 	private void toTLSRetrievalProperties(Properties raw, UnityMessageSource msg)
 	{
-		if (getRetrievalName() != null)
+		if (getRetrievalName() != null && !getRetrievalName().isEmpty())
 		{
 			getRetrievalName().toProperties(raw,
 					TLSRetrievalProperties.P + TLSRetrievalProperties.NAME, msg);
