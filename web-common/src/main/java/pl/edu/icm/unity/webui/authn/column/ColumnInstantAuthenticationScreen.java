@@ -259,6 +259,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		String configuredMainTitle = config.getLocalizedValue(VaadinEndpointProperties.AUTHN_TITLE, msg.getLocale());
 		String mainTitle = null;
 		String serviceName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName().getValue(msg);
+		if (serviceName == null)
+			serviceName = endpointDescription.getEndpoint().getName();
 
 		if (configuredMainTitle != null && !configuredMainTitle.isEmpty())
 		{

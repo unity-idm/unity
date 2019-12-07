@@ -7,31 +7,25 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elemen
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumns;
 
 public class RegistrationConfig implements AuthnElementConfiguration
 {
-	@Override
-	public PropertiesRepresentation toProperties(UnityMessageSource msg)
+	public static class Parser implements AuthnElementParser<RegistrationConfig>
 	{
-		return new PropertiesRepresentation(AuthnOptionsColumns.SPECIAL_ENTRY_REGISTER);
-	}
-
-	public static class RegistrationConfigFactory implements AuthnElementConfigurationFactory
-	{
-
 		@Override
-		public Optional<AuthnElementConfiguration> getConfigurationElement(UnityMessageSource msg,
+		public Optional<RegistrationConfig> getConfigurationElement(
 				VaadinEndpointProperties properties, String specEntry)
 		{
-			if (!specEntry.equals(AuthnOptionsColumns.SPECIAL_ENTRY_REGISTER))
-			{
-				return Optional.empty();
-			}
-
-			return Optional.of(new RegistrationConfig());
+			return !specEntry.equals(AuthnOptionsColumns.SPECIAL_ENTRY_REGISTER) ? 
+					Optional.empty() : Optional.of(new RegistrationConfig());
+		}
+		
+		@Override
+		public PropertiesRepresentation toProperties(RegistrationConfig element)
+		{
+			return new PropertiesRepresentation(AuthnOptionsColumns.SPECIAL_ENTRY_REGISTER);
 		}
 	}
 }

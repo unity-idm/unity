@@ -155,7 +155,6 @@ public abstract class ColumnComponentBase extends CustomComponent implements Col
 	}
 
 	protected void addContent(Component content)
-
 	{
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.setMargin(false);

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.console.services.WebServiceControllerBase;
 
 /**
@@ -37,7 +38,8 @@ class UpManServiceController extends WebServiceControllerBase
 			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer)
 	{
 		super(UpManEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
-				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService, networkServer);
+				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService, networkServer,
+				ThemeConstans.sidebarTheme);
 	}
 
 }

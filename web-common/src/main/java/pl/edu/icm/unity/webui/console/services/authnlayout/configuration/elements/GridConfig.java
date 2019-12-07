@@ -11,10 +11,8 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRID_ROWS;
 
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Supplier;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumns;
 
@@ -28,26 +26,18 @@ public class GridConfig implements AuthnElementConfiguration
 		this.content = content;
 		this.rows = rows;
 	}
-
-	@Override
-	public PropertiesRepresentation toProperties(UnityMessageSource msg)
-	{
-		String id = RandomStringUtils.randomAlphabetic(6).toUpperCase();
-		Properties raw = new Properties();
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + id + "."
-				+ VaadinEndpointProperties.AUTHN_GRID_CONTENTS, content);
-
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + id + "."
-				+ VaadinEndpointProperties.AUTHN_GRID_ROWS, String.valueOf(rows));
-		return new PropertiesRepresentation(AuthnOptionsColumns.SPECIAL_ENTRY_GRID + id, raw);	
-	}
 	
-	
-	public static class GridConfigFactory implements AuthnElementConfigurationFactory
+	public static class Parser implements AuthnElementParser<GridConfig>
 	{
+		private final Supplier<String> gridIdGenerator;
+		
+		public Parser(Supplier<String> gridIdGenerator)
+		{
+			this.gridIdGenerator = gridIdGenerator;
+		}
 
 		@Override
-		public Optional<AuthnElementConfiguration> getConfigurationElement(UnityMessageSource msg, VaadinEndpointProperties properties, String specEntry)
+		public Optional<GridConfig> getConfigurationElement(VaadinEndpointProperties properties, String specEntry)
 		{
 			if (!specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_GRID))
 			{
@@ -64,6 +54,19 @@ public class GridConfig implements AuthnElementConfiguration
 
 			
 			return Optional.of(new GridConfig(contents, height));
-		}	
+		}
+		
+		@Override
+		public PropertiesRepresentation toProperties(GridConfig config)
+		{
+			String id = gridIdGenerator.get();
+			Properties raw = new Properties();
+			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + id + "."
+					+ VaadinEndpointProperties.AUTHN_GRID_CONTENTS, config.content);
+
+			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_GRIDS_PFX + id + "."
+					+ VaadinEndpointProperties.AUTHN_GRID_ROWS, String.valueOf(config.rows));
+			return new PropertiesRepresentation(AuthnOptionsColumns.SPECIAL_ENTRY_GRID + id, raw);	
+		}
 	}
 }

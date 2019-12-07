@@ -38,7 +38,6 @@ public class EndpointConfiguration
 	public EndpointConfiguration(I18nString displayedName, String description, List<String> authnOptions,
 			String configuration, String realm)
 	{
-		super();
 		this.displayedName = displayedName;
 		this.description = description;
 		this.authenticationOptions = authnOptions;

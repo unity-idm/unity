@@ -8,19 +8,19 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Supplier;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
-import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfigurationFactory;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementParser;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.ExpandConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.GridConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.HeaderConfig;
@@ -32,30 +32,28 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.element
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 
 /**
- * Maps {@link ColumnComponent} to properties and revert
+ * Maps {@link ColumnComponent} to properties and vice versa
  * 
  * @author P.Piernik
  *
  */
-@Component
 public class AuthnLayoutPropertiesParser
 {
-
 	private UnityMessageSource msg;
-	private List<AuthnElementConfigurationFactory> configFactories;
+	private Map<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> configFactories;
 
-	@Autowired
 	public AuthnLayoutPropertiesParser(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.configFactories = new ArrayList<>();
-		configFactories.add(new HeaderConfig.HeaderConfigFactory());
-		configFactories.add(new SeparatorConfig.SeparatorConfigFactory());
-		configFactories.add(new GridConfig.GridConfigFactory());
-		configFactories.add(new ExpandConfig.ExpandConfigFactory());
-		configFactories.add(new RegistrationConfig.RegistrationConfigFactory());
-		configFactories.add(new LastUsedConfig.LastUsedConfigFactory());
-		configFactories.add(new SingleAuthnConfig.SingleAuthnFactory());
+		this.configFactories = ImmutableMap.<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>>builder()
+				.put(HeaderConfig.class, new HeaderConfig.Parser(msg, new SubsequentIdGenerator()))
+				.put(SeparatorConfig.class, new SeparatorConfig.Parser(msg, new SubsequentIdGenerator()))
+				.put(GridConfig.class, new GridConfig.Parser(new SubsequentIdGenerator()))
+				.put(ExpandConfig.class, new ExpandConfig.Parser())
+				.put(RegistrationConfig.class, new RegistrationConfig.Parser())
+				.put(LastUsedConfig.class, new LastUsedConfig.Parser())
+				.put(SingleAuthnConfig.class, new SingleAuthnConfig.Parser())
+				.build();
 	}
 
 	public AuthnLayoutConfiguration fromProperties(VaadinEndpointProperties properties)
@@ -123,12 +121,8 @@ public class AuthnLayoutPropertiesParser
 				}
 			}
 
-			String columnContent = getColumnContentAsPropertiesValue(c.contents, String.valueOf(columnIt), raw);
-			if (!columnContent.isEmpty())
-			{
-				raw.put(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, columnContent);
-			}
-					
+			String columnContent = getColumnContentAsPropertiesValue(c.contents, raw);
+			raw.put(columnKey + VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS, columnContent);
 
 			columnIt++;
 		}
@@ -150,7 +144,7 @@ public class AuthnLayoutPropertiesParser
 	{
 		Properties raw = new Properties();
 		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT,
-				getColumnContentAsPropertiesValue(retUserLayoutConfiguration, "1", raw));
+				getColumnContentAsPropertiesValue(retUserLayoutConfiguration, raw));
 		return raw;
 	}
 
@@ -181,10 +175,11 @@ public class AuthnLayoutPropertiesParser
 
 		for (String specEntry : specSplit)
 		{
-
-			for (AuthnElementConfigurationFactory factory : configFactories)
+			if (specEntry.isEmpty())
+				continue;
+			for (AuthnElementParser<?> factory : configFactories.values())
 			{
-				Optional<AuthnElementConfiguration> config = factory.getConfigurationElement(msg,
+				Optional<? extends AuthnElementConfiguration> config = factory.getConfigurationElement(
 						properties, specEntry);
 				if (config.isPresent())
 				{
@@ -192,21 +187,34 @@ public class AuthnLayoutPropertiesParser
 				}
 			}
 		}
-
 		return elements;
 	}
 
-	private String getColumnContentAsPropertiesValue(List<AuthnElementConfiguration> columnContent, String colIt, Properties raw)
+	private String getColumnContentAsPropertiesValue(List<AuthnElementConfiguration> columnContent, Properties raw)
 	{
 		List<String> elementsRep = new ArrayList<>();
 
 		for (AuthnElementConfiguration element : columnContent)
 		{
-			PropertiesRepresentation pr = element.toProperties(msg);
+			@SuppressWarnings("unchecked")
+			AuthnElementParser<AuthnElementConfiguration> authnElementParser = 
+					(AuthnElementParser<AuthnElementConfiguration>) configFactories.get(element.getClass());
+			PropertiesRepresentation pr = authnElementParser.toProperties(element);
 			elementsRep.add(pr.key);
 			raw.putAll(pr.propertiesValues);
 		}
 
 		return String.join(" ", elementsRep);
+	}
+	
+	private static class SubsequentIdGenerator implements Supplier<String>
+	{
+		private int value;
+		
+		@Override
+		public String get()
+		{
+			return String.valueOf(++value);
+		}
 	}
 }

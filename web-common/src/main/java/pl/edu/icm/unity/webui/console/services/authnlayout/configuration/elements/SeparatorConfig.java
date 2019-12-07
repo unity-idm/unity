@@ -10,8 +10,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL
 
 import java.util.Optional;
 import java.util.Properties;
-
-import org.apache.commons.lang3.RandomStringUtils;
+import java.util.function.Supplier;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -26,32 +25,20 @@ public class SeparatorConfig implements AuthnElementConfiguration
 	{
 		this.separatorText = separatorText;
 	}
-
-	@Override
-	public PropertiesRepresentation toProperties(UnityMessageSource msg)
-	{
-		String key = AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR;
-		Properties raw = new Properties();
-		if (separatorText != null && !separatorText.isEmpty())
-		{
-			String id = RandomStringUtils.randomAlphabetic(6).toUpperCase();
-			separatorText.toProperties(raw,
-
-					VaadinEndpointProperties.PREFIX
-							+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX + id + "."
-							+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT,
-					msg);
-			key += "_" + id;
-		}
-		return new PropertiesRepresentation(key, raw);
-
-	}
 	
-	public static class SeparatorConfigFactory implements AuthnElementConfigurationFactory
+	public static class Parser implements AuthnElementParser<SeparatorConfig>
 	{
+		private final UnityMessageSource msg;
+		private final Supplier<String> idGenerator;
+		
+		public Parser(UnityMessageSource msg, Supplier<String> idGenerator)
+		{
+			this.msg = msg;
+			this.idGenerator = idGenerator;
+		}
 
 		@Override
-		public Optional<AuthnElementConfiguration> getConfigurationElement(UnityMessageSource msg,
+		public Optional<SeparatorConfig> getConfigurationElement(
 				VaadinEndpointProperties properties, String specEntry)
 		{
 			if (!specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR))
@@ -64,7 +51,27 @@ public class SeparatorConfig implements AuthnElementConfiguration
 					: resolveSeparatorMessage(key.substring(1), properties, msg);
 			return Optional.of(new SeparatorConfig(message));
 		}
+		
+		@Override
+		public PropertiesRepresentation toProperties(SeparatorConfig element)
+		{
+			String key = AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR;
+			Properties raw = new Properties();
+			if (element.separatorText != null && !element.separatorText.isEmpty())
+			{
+				String id = idGenerator.get();
+				element.separatorText.toProperties(raw,
 
+						VaadinEndpointProperties.PREFIX
+								+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX + id + "."
+								+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT,
+						msg);
+				key += "_" + id;
+			}
+			return new PropertiesRepresentation(key, raw);
+
+		}
+		
 		public static I18nString resolveSeparatorMessage(String key, VaadinEndpointProperties properties,
 				UnityMessageSource msg)
 		{

@@ -6,11 +6,8 @@
 
 package pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-
 public interface AuthnElementConfiguration
 {
-	PropertiesRepresentation toProperties(UnityMessageSource msg);
 }
 
 

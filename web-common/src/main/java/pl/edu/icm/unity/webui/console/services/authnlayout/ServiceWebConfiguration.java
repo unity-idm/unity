@@ -21,7 +21,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
@@ -33,11 +32,6 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.element
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.LastUsedConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.SeparatorConfig;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class ServiceWebConfiguration
 {
 	private boolean showSearch;
@@ -61,13 +55,12 @@ public class ServiceWebConfiguration
 	private AuthnLayoutConfiguration authenticationLayoutConfiguration;
 	private List<AuthnElementConfiguration> retUserLayoutConfiguration;
 
-	public ServiceWebConfiguration(List<String> regForms)
-	{
-		this();
-		registrationForms.addAll(regForms);
-	}
-
 	public ServiceWebConfiguration()
+	{
+		this(null);
+	}
+	
+	public ServiceWebConfiguration(String overridenMainTheme)
 	{
 		registrationForms = new ArrayList<>();
 
@@ -81,17 +74,10 @@ public class ServiceWebConfiguration
 				new SeparatorConfig(new I18nString()),
 				new ExpandConfig());
 
-		defaultMainTheme = ThemeConstans.sidebarTheme;
-		defaultAuthnTheme = ThemeConstans.unityTheme;
+		defaultMainTheme = overridenMainTheme;
 		productionMode = true;
 		template = VaadinEndpointProperties.DEFAULT_TEMPLATE;
 		compactCredentialReset = true;
-	}
-
-	public ServiceWebConfiguration(String defaultMainTheme)
-	{
-		this();
-		this.defaultMainTheme = defaultMainTheme;
 	}
 
 	public Properties toProperties(UnityMessageSource msg, FileStorageService fileStorageService,
@@ -157,8 +143,10 @@ public class ServiceWebConfiguration
 			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
 		}
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
+		if (defaultMainTheme != null)
+			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
+		if (defaultAuthnTheme != null)
+			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
 
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		raw.putAll(parser.toProperties(authenticationLayoutConfiguration));
@@ -215,6 +203,8 @@ public class ServiceWebConfiguration
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);
+		if (title.isEmpty())
+			title = null;
 
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		authenticationLayoutConfiguration = parser.fromProperties(vaadinProperties);

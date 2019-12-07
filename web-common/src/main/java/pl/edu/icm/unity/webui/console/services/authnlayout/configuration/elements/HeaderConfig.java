@@ -7,8 +7,7 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elemen
 
 import java.util.Optional;
 import java.util.Properties;
-
-import org.apache.commons.lang3.RandomStringUtils;
+import java.util.function.Supplier;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -24,44 +23,49 @@ public class HeaderConfig implements AuthnElementConfiguration
 		this.headerText = headerText;
 	}
 
-	@Override
-	public PropertiesRepresentation toProperties(UnityMessageSource msg)
+	public static class Parser implements AuthnElementParser<HeaderConfig>
 	{
-		String key = AuthnOptionsColumns.SPECIAL_ENTRY_HEADER;
-		Properties raw = new Properties();
-		if (headerText != null && !headerText.isEmpty())
+		private final UnityMessageSource msg;
+		private final Supplier<String> idGenerator;
+		
+		public Parser(UnityMessageSource msg, Supplier<String> idGenerator)
 		{
-			String id = RandomStringUtils.randomAlphabetic(6).toUpperCase();
-			headerText.toProperties(raw,
-
-					VaadinEndpointProperties.PREFIX
-							+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX + id + "."
-							+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT,
-					msg);
-			
-			key += "_" + id;
+			this.msg = msg;
+			this.idGenerator = idGenerator;
 		}
-		return new PropertiesRepresentation(key, raw);
-
-	}
-
-	public static class HeaderConfigFactory implements AuthnElementConfigurationFactory
-	{
-
+		
 		@Override
-		public Optional<AuthnElementConfiguration> getConfigurationElement(UnityMessageSource msg,
+		public Optional<HeaderConfig> getConfigurationElement(
 				VaadinEndpointProperties properties, String specEntry)
 		{
 			if (!specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_HEADER))
-			{
 				return Optional.empty();
-			}
 
 			String key = specEntry.substring(AuthnOptionsColumns.SPECIAL_ENTRY_HEADER.length());
 			I18nString message = key.isEmpty() ? new I18nString()
-					: SeparatorConfig.SeparatorConfigFactory
+					: SeparatorConfig.Parser
 							.resolveSeparatorMessage(key.substring(1), properties, msg);
 			return Optional.of(new HeaderConfig(message));
+		}
+		
+		@Override
+		public PropertiesRepresentation toProperties(HeaderConfig element)
+		{
+			String key = AuthnOptionsColumns.SPECIAL_ENTRY_HEADER;
+			Properties raw = new Properties();
+			if (element.headerText != null && !element.headerText.isEmpty())
+			{
+				String id = idGenerator.get();
+				element.headerText.toProperties(raw,
+
+						VaadinEndpointProperties.PREFIX
+								+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX + id + "."
+								+ VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT,
+						msg);
+				
+				key += "_" + id;
+			}
+			return new PropertiesRepresentation(key, raw);
 		}
 	}
 }

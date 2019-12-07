@@ -7,11 +7,11 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elemen
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
-public interface AuthnElementConfigurationFactory
+public interface AuthnElementParser<T extends AuthnElementConfiguration>
 {
-	Optional<AuthnElementConfiguration> getConfigurationElement(UnityMessageSource msg,
-			VaadinEndpointProperties properties, String specEntry);
+	PropertiesRepresentation toProperties(T element);
+	
+	Optional<T> getConfigurationElement(VaadinEndpointProperties properties, String specEntry);
 }

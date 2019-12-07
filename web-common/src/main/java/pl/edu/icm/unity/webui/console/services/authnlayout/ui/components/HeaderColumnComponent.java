@@ -21,11 +21,6 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.element
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBase;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class HeaderColumnComponent extends ColumnComponentBase
 {
 	private I18nTextField valueField;

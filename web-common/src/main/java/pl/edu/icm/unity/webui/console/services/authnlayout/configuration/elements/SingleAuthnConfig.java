@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elemen
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumns;
 
@@ -20,17 +19,10 @@ public class SingleAuthnConfig implements AuthnElementConfiguration
 		this.authnOption = authnOption;
 	}
 
-	@Override
-	public PropertiesRepresentation toProperties(UnityMessageSource msg)
+	public static class Parser implements AuthnElementParser<SingleAuthnConfig>
 	{
-		return new PropertiesRepresentation(authnOption);
-	}
-
-	public static class SingleAuthnFactory implements AuthnElementConfigurationFactory
-	{
-
 		@Override
-		public Optional<AuthnElementConfiguration> getConfigurationElement(UnityMessageSource msg,
+		public Optional<SingleAuthnConfig> getConfigurationElement(
 				VaadinEndpointProperties properties, String specEntry)
 		{
 			if (specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR)
@@ -43,7 +35,16 @@ public class SingleAuthnConfig implements AuthnElementConfiguration
 				return Optional.empty();
 			}
 
+			if (specEntry.isEmpty())
+				return Optional.empty();
 			return Optional.of(new SingleAuthnConfig(specEntry));
+		}
+		
+
+		@Override
+		public PropertiesRepresentation toProperties(SingleAuthnConfig config)
+		{
+			return new PropertiesRepresentation(config.authnOption);
 		}
 	}
 }
