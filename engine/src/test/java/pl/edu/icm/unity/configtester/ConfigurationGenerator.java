@@ -10,16 +10,11 @@ import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.Type;
-import pl.edu.icm.unity.base.utils.Log;
 
 public class ConfigurationGenerator
-{
-	static final Logger log = Log.getLogger(Log.U_SERVER, ConfigurationGenerator.class);
-	
+{	
 	public static PropertyTuner generateMinimalWithoutDefaults(String pfx, Map<String, PropertyMD> propertiesMD)
 	{
 		Predicate<PropertyMD> exclude = meta -> 
