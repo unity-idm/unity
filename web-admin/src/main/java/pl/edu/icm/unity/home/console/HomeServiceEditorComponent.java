@@ -20,7 +20,6 @@ import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
@@ -61,7 +60,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		serviceBinder.setBean(editMode ? toEdit
 				: new DefaultServiceDefinition(UserHomeEndpointFactory.TYPE.getName()));
 		HomeServiceConfiguration config = new HomeServiceConfiguration();
-		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(ThemeConstans.unityTheme);
+		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg, extraTab, allGroups);

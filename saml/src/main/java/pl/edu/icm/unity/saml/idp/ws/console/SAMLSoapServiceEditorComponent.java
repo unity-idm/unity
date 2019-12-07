@@ -23,7 +23,6 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
@@ -66,7 +65,6 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 		registerTab(authTab);
 
 		DefaultServiceDefinition serviceBean = new DefaultServiceDefinition(type.getName());
-		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(allGroups);
 
 		if (editMode)
@@ -74,7 +72,6 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 			serviceBean = (DefaultServiceDefinition) toEdit;
 			if (serviceBean.getConfiguration() != null)
 			{
-				webConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService);
 				samlConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService, pkiMan,
 						allGroups);
 			}

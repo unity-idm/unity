@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.ldap.client.web;
+package pl.edu.icm.unity.ldap.client.console;
 
 import java.util.stream.Collectors;
 
@@ -15,26 +15,27 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
+import pl.edu.icm.unity.ldap.client.LdapCertVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
- * Factory for {@link LdapAuthenticatorEditor} - Ldap cert option
+ * Factory for {@link LdapAuthenticatorEditor}
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class LdapCertAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
+
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
 	private RegistrationsManagement regMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	@Autowired
-	public LdapAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan,
+	LdapCertAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan,
 			RegistrationsManagement regMan, InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
@@ -46,7 +47,7 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	@Override
 	public String getSupportedAuthenticatorType()
 	{
-		return LdapPasswordVerificator.NAME;
+		return LdapCertVerificator.NAME;
 	}
 
 	@Override
@@ -54,7 +55,7 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	{
 		return new LdapAuthenticatorEditor(msg, pkiMan, profileFieldFactory,
 				regMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
-				LdapPasswordVerificator.NAME);
+				LdapCertVerificator.NAME);
 	}
 
 }

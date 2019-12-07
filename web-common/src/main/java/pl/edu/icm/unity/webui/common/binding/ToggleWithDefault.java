@@ -3,16 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
-package pl.edu.icm.unity.webui.console.services.authnlayout;
-
-import com.vaadin.ui.Component;
+package pl.edu.icm.unity.webui.common.binding;
 
 /**
  * 
  * @author P.Piernik
  *
  */
-public interface ColumnElement extends Component
+public enum ToggleWithDefault
 {
+	enable, disable, bydefault
 }

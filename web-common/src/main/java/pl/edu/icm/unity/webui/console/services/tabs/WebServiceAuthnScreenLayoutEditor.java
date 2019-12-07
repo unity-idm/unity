@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.console.services.tabs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -24,31 +23,32 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.console.services.authnlayout.AuthenticationLayoutContent;
-import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutColumn;
-import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutPropertiesHelper;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.PalleteButton;
+import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutConfigToUIConverter;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
-import pl.edu.icm.unity.webui.console.services.layout.elements.GridAuthnColumnElement;
-import pl.edu.icm.unity.webui.console.services.layout.elements.HeaderColumnElement;
-import pl.edu.icm.unity.webui.console.services.layout.elements.LastUsedOptionColumnElement;
-import pl.edu.icm.unity.webui.console.services.layout.elements.RegistrationColumnElement;
-import pl.edu.icm.unity.webui.console.services.layout.elements.SeparatorColumnElement;
-import pl.edu.icm.unity.webui.console.services.layout.elements.SingleAuthnColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthenticationLayoutContent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthnLayoutColumn;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.PaletteButton;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.AuthnLayoutComponentsFactory;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.GridAuthnColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.HeaderColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.LastUsedOptionColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.RegistrationColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.SeparatorColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.SingleAuthnColumnComponent;
 
 /**
  * Authentication screen layout editor
  * @author P.Piernik
  *
  */
-public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
+public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutConfiguration>
 {
 	private UnityMessageSource msg;
 	private List<AuthnLayoutColumn> columns;
@@ -62,8 +62,8 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 	private Runnable dragStart = () -> dragElementStart();
 	private Runnable dragStop = () -> dragElementStop();
 	private Consumer<AuthnLayoutColumn> removeListener = c -> removeColumn(c);
-	private Consumer<ColumnElement> removeElementListener = e -> removeElementFromColumns(e);
-	private Runnable valueChange = () -> fireEvent(new ValueChangeEvent<Properties>(this, getValue(), true));
+	private Consumer<ColumnComponent> removeElementListener = e -> removeElementFromColumns(e);
+	private Runnable valueChange = () -> fireEvent(new ValueChangeEvent<AuthnLayoutConfiguration>(this, getValue(), true));
 	
 	private VerticalLayout main;
 	private Button addColumnButton;
@@ -131,32 +131,32 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 	private HorizontalLayout getPallete()
 	{
 		HorizontalLayout componentsPalette = new HorizontalLayout();
-		componentsPalette.addComponent(new PalleteButton(msg.getMessage("AuthnColumnLayoutElement.singleAuthn"),
+		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.singleAuthn"),
 				Images.sign_in.getResource(), dragStart, dragStop,
-				() -> new SingleAuthnColumnElement(msg, authenticatorSupportService,
+				() -> new SingleAuthnColumnComponent(msg, authenticatorSupportService,
 						authnOptionSupplier, removeElementListener, valueChange,  dragStart, dragStop)));
 
-		componentsPalette.addComponent(new PalleteButton(msg.getMessage("AuthnColumnLayoutElement.gridAuthn"),
+		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.gridAuthn"),
 				Images.grid_v.getResource(), dragStart, dragStop,
-				() -> new GridAuthnColumnElement(msg, authenticatorSupportService, authnOptionSupplier,
+				() -> new GridAuthnColumnComponent(msg, authenticatorSupportService, authnOptionSupplier,
 						removeElementListener,valueChange, dragStart, dragStop)));
 
-		componentsPalette.addComponent(new PalleteButton(msg.getMessage("AuthnColumnLayoutElement.separator"),
+		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.separator"),
 				Images.text.getResource(), dragStart, dragStop,
-				() -> new SeparatorColumnElement(msg, removeElementListener,valueChange, dragStart, dragStop)));
+				() -> new SeparatorColumnComponent(msg, removeElementListener,valueChange, dragStart, dragStop)));
 
-		componentsPalette.addComponent(new PalleteButton(msg.getMessage("AuthnColumnLayoutElement.header"),
+		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.header"),
 				Images.header.getResource(), dragStart, dragStop,
-				() -> new HeaderColumnElement(msg, removeElementListener,valueChange, dragStart, dragStop)));
+				() -> new HeaderColumnComponent(msg, removeElementListener,valueChange, dragStart, dragStop)));
 
-		componentsPalette.addComponent(new PalleteButton(
+		componentsPalette.addComponent(new PaletteButton(
 				msg.getMessage("AuthnColumnLayoutElement.registration"),
 				Images.addIdentity.getResource(), dragStart, dragStop,
-				() -> new RegistrationColumnElement(msg, removeElementListener, dragStart, dragStop)));
+				() -> new RegistrationColumnComponent(msg, removeElementListener, dragStart, dragStop)));
 
-		componentsPalette.addComponent(new PalleteButton(
+		componentsPalette.addComponent(new PaletteButton(
 				msg.getMessage("AuthnColumnLayoutElement.lastUsedOption"), Images.star.getResource(),
-				dragStart, dragStop, () -> new LastUsedOptionColumnElement(msg, removeElementListener,
+				dragStart, dragStop, () -> new LastUsedOptionColumnComponent(msg, removeElementListener,
 						dragStart, dragStop)));
 
 		return componentsPalette;
@@ -233,7 +233,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 
 	}
 
-	private void removeElementFromColumns(ColumnElement e)
+	private void removeElementFromColumns(ColumnComponent e)
 	{
 		for (AuthnLayoutColumn c : columns)
 		{
@@ -300,9 +300,12 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 	}
 
 	@Override
-	public Properties getValue()
+	public AuthnLayoutConfiguration getValue()
 	{
-		return AuthnLayoutPropertiesHelper.toProperties(msg, new AuthenticationLayoutContent(columns, separators));
+		
+		return AuthnLayoutConfigToUIConverter.convertFromUI(new AuthenticationLayoutContent(columns, separators));
+		
+		
 	}
 
 	@Override
@@ -312,12 +315,16 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<Properties>
 	}
 
 	@Override
-	protected void doSetValue(Properties value)
-	{
-		AuthenticationLayoutContent content = AuthnLayoutPropertiesHelper.loadFromProperties(new VaadinEndpointProperties(value), msg, removeListener, removeElementListener, dragStart, dragStop, valueChange, authenticatorSupportService, authnOptionSupplier);
+	protected void doSetValue(AuthnLayoutConfiguration value)
+	{		
+		AuthenticationLayoutContent content = AuthnLayoutConfigToUIConverter.convertToUI(value,
+				new AuthnLayoutComponentsFactory(msg, removeListener, removeElementListener, dragStart,
+						dragStop, valueChange, authenticatorSupportService,
+						authnOptionSupplier, false));
+
 		columns = content.columns;
-		separators = content.separators;	
-			
+		separators = content.separators;
+
 		refreshColumns();
 		refreshSeparators();
 	}

@@ -28,6 +28,8 @@ public class ConfigurationComparator
 	private Set<String> ignoredSuperflous = new HashSet<>();
 	private Set<String> ignoredMissing = new HashSet<>();
 	private Map<String, String> aliases = new HashMap<>();
+	private Map<String, String> extraExpectation = new HashMap<>();
+	private Map<String, String> changeExpectation = new HashMap<>();
 	
 	public ConfigurationComparator(String pfx, Map<String, PropertyMD> propertiesMD)
 	{
@@ -59,6 +61,19 @@ public class ConfigurationComparator
 		return this;
 	}
 
+	public ConfigurationComparator expectExtra(String key, String value)
+	{
+		ignoringSuperflous(key);
+		extraExpectation.put(key, value);
+		return this;
+	}
+	
+	public ConfigurationComparator withExpectedChange(String key, String value)
+	{
+		changeExpectation.put(pfx + key, value);
+		return this;
+	}
+	
 	public ConfigurationComparator ignoringMissing(String... keys)
 	{
 		for (String key: keys)
@@ -68,6 +83,7 @@ public class ConfigurationComparator
 	
 	public void checkMatching(Properties actual, Properties expected)
 	{
+		PropertyTuner.logProperties("Received properties:", actual);
 		Map<String, String> actualAliased = new HashMap<>();
 		actual.entrySet().forEach(e -> 
 		{
@@ -93,10 +109,24 @@ public class ConfigurationComparator
 
 		List<Tuple> wrongValue = new ArrayList<>();
 		expected.entrySet().forEach(e -> 
+		{	
+			if (actualAliased.containsKey(e.getKey()) && ! actualAliased.get(e.getKey()).equals(e.getValue()))
+			{
+				if (changeExpectation.containsKey(e.getKey()) && changeExpectation.get(e.getKey()).equals(actualAliased.get(e.getKey())))
+				{
+					return;
+				}
+				wrongValue.add(new Tuple((String)e.getKey(), actualAliased.get(e.getKey()) + " should be " + (String)e.getValue()));	
+			}
+				
+		});
+		
+		extraExpectation.entrySet().forEach(e -> 
 		{
 			if (actualAliased.containsKey(e.getKey()) && ! actualAliased.get(e.getKey()).equals(e.getValue()))
 				wrongValue.add(new Tuple((String)e.getKey(), actualAliased.get(e.getKey()) + " should be " + (String)e.getValue()));
 		});
+		
 		
 		if (!superflous.isEmpty() || !missing.isEmpty() || !wrongValue.isEmpty())
 			fail(getDiff(superflous, missing, wrongValue));
@@ -111,9 +141,14 @@ public class ConfigurationComparator
 
 	private static String getDiff(List<Tuple> superflous, List<Tuple> missing, List<Tuple> wrongValue)
 	{
-		return "\n******* Superflous:\n" + superflous.stream().map(t -> t.toString()).collect(Collectors.joining("\n")) +
-			"\n****** Missing:\n" + missing.stream().map(t -> t.toString()).collect(Collectors.joining("\n")) + 
-			"\n****** Wrong Value:\n" + wrongValue.stream().map(t -> t.toString()).collect(Collectors.joining("\n"));
+		StringBuilder sb = new StringBuilder();
+		if (!superflous.isEmpty())
+			sb.append("\n******* Superflous:\n" + superflous.stream().map(t -> t.toString()).collect(Collectors.joining("\n")));
+		if (!missing.isEmpty())
+			sb.append("\n****** Missing:\n" + missing.stream().map(t -> t.toString()).collect(Collectors.joining("\n")));
+		if (!wrongValue.isEmpty())
+			sb.append("\n****** Wrong Value:\n" + wrongValue.stream().map(t -> t.toString()).collect(Collectors.joining("\n")));
+		return  sb.toString();
 	}
 	
 	

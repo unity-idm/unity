@@ -35,7 +35,7 @@ import pl.edu.icm.unity.composite.password.CompositePasswordProperties.Verificat
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.ldap.client.web.LdapAuthenticatorEditorFactory;
+import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.types.I18nString;

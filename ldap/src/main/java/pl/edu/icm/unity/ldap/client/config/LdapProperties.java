@@ -202,7 +202,7 @@ public class LdapProperties extends UnityPropertiesHelper
 						"not with their full DNs. This property defines this attribute (should " +
 						"be present on the user's entry for which groups are searched)."));
 
-		META.put(VALID_USERS_FILTER, new PropertyMD().setCategory(main).setDescription("Standard LDAP filter of valid users." +
+		META.put(VALID_USERS_FILTER, new PropertyMD("objectclass=*").setCategory(main).setDescription("Standard LDAP filter of valid users." +
 				" Even the users who can authenticate but are not matching this filter will " +
 				"have access denied. IMPORTANT: if the '" + BIND_ONLY + "' mode is turned on, this" +
 				" setting is ignored."));

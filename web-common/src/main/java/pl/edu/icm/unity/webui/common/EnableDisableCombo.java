@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.webui.common;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.binding.EnableDisable;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 
 /**
  * Combo box allowing to choose Enable/Disable/Default value 
@@ -14,10 +14,10 @@ import pl.edu.icm.unity.webui.common.binding.EnableDisable;
  * @author P.Piernik
  *
  */
-public class EnableDisableCombo extends EnumComboBox<EnableDisable>
+public class EnableDisableCombo extends EnumComboBox<ToggleWithDefault>
 {
 	public EnableDisableCombo(String caption, UnityMessageSource msg)
 	{
-		super(caption, msg, "EnableDisableCombo.", EnableDisable.class, EnableDisable.bydefault);
+		super(caption, msg, "EnableDisableCombo.", ToggleWithDefault.class, ToggleWithDefault.bydefault);
 	}
 }

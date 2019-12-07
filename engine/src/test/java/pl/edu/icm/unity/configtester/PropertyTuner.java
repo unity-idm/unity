@@ -7,8 +7,14 @@ package pl.edu.icm.unity.configtester;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.utils.Log;
+
 public class PropertyTuner
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, PropertyTuner.class);
+	
 	private String pfx;
 	private Properties props;
 
@@ -44,10 +50,15 @@ public class PropertyTuner
 	
 	public Properties get()
 	{
-		ConfigurationGenerator.log.info("Generated properties:\n{}", props.entrySet().stream()
+		logProperties("Generated properties:", props);
+		return props;
+	}
+	
+	public static void logProperties(String pfx, Properties props)
+	{
+		log.info("{}\n{}", pfx, props.entrySet().stream()
 				.sorted((e1, e2) -> e1.getKey().toString().compareTo(e2.getKey().toString()))
 				.map(e -> e.toString())
 				.collect(Collectors.joining("\n")));
-		return props;
 	}
 }

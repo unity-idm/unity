@@ -46,6 +46,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	public static final String THEME = "mainTheme";
 	public static final String AUTHN_THEME = "authnTheme";
 	public static final String TEMPLATE = "template";
+	public static final String DEFAULT_TEMPLATE = "default.ftl";
 	public static final String AUTO_LOGIN = "autoLogin";
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
@@ -100,7 +101,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 				"Overrides the default theme name as used for rendering the endpoint's "
 				+ "authentication screen contents. If undefined the same setting as for the "
 				+ "main endpoint UI is used."));
-		META.put(TEMPLATE, new PropertyMD("default.ftl").setDescription(
+		META.put(TEMPLATE, new PropertyMD(DEFAULT_TEMPLATE).setDescription(
 				"The name of a Freemarker template, relative to templates directory, with a "
 				+ "template of the endpoint web interface. Custom template can be used to add "
 				+ "static header/footer etc."));

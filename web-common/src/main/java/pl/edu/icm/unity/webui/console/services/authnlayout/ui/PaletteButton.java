@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.authnlayout;
+package pl.edu.icm.unity.webui.console.services.authnlayout.ui;
 
 import java.util.function.Supplier;
 
@@ -13,15 +13,16 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.dnd.DragSourceExtension;
 
 /**
+ * Button which can be drag and drop on column component
  * 
  * @author P.Piernik
  *
  */
-public class PalleteButton extends Button implements PalleteElement
+public class PaletteButton extends Button
 {
 
-	public PalleteButton(String title, Resource icon, Runnable dragStart, Runnable dragStop,
-			Supplier<ColumnElement> layoutElementSupplier)
+	public PaletteButton(String title, Resource icon, Runnable dragStart, Runnable dragStop,
+			Supplier<ColumnComponent> layoutElementSupplier)
 	{
 		setCaption(title);
 		setIcon(icon);
@@ -30,7 +31,7 @@ public class PalleteButton extends Button implements PalleteElement
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);
 		dragSource.setDragData(layoutElementSupplier);
 		setStyleName("u-inactiveButton");
-		
+
 		dragSource.addDragStartListener(e -> dragStart.run());
 		dragSource.addDragEndListener(e -> dragStop.run());
 	}

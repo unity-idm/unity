@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp.console;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,6 +66,8 @@ public class SAMLAuthenticatorConfigurationTest
 				"remoteIdp.1.signRequest",
 				"remoteIdp.1.embeddedTranslationProfile")
 			.checkMatching(result, sourceCfg);
+		String defaultProfileJson = DEF_PROFILE.toJsonObject().toString();
+		assertThat(result.get(P + "remoteIdp.1.embeddedTranslationProfile")).isEqualTo(defaultProfileJson);
 	}
 	
 	@Test
@@ -87,6 +90,8 @@ public class SAMLAuthenticatorConfigurationTest
 			.ignoringMissing("remoteIdp.1.translationProfile")
 			.ignoringSuperflous("remoteIdp.1.embeddedTranslationProfile")
 			.checkMatching(result, sourceCfg);
+		String defaultProfileJson = DEF_PROFILE.toJsonObject().toString();
+		assertThat(result.get(P + "remoteIdp.1.embeddedTranslationProfile")).isEqualTo(defaultProfileJson);
 	}
 	
 	@Test
@@ -116,5 +121,6 @@ public class SAMLAuthenticatorConfigurationTest
 			.ignoringMissing("metadataSource.1.perMetadataTranslationProfile",
 					"remoteIdp.1.translationProfile")
 			.checkMatching(result, sourceCfg);
+		
 	}
 }

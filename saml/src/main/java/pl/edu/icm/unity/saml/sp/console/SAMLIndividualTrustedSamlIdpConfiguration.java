@@ -24,7 +24,7 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.common.binding.EnableDisable;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageUtils;
@@ -46,7 +46,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 	private Binding binding;
 	private List<String> certificates;
 	private String registrationForm;
-	private EnableDisable accountAssociation;
+	private ToggleWithDefault accountAssociation;
 	private boolean signRequest;
 	private List<String> requestedNameFormats;
 	private String postLogoutEndpoint;
@@ -59,7 +59,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 	public SAMLIndividualTrustedSamlIdpConfiguration()
 	{
 		setBinding(SAMLSPProperties.DEFAULT_IDP_BINDING);
-		accountAssociation = EnableDisable.bydefault;
+		accountAssociation = ToggleWithDefault.bydefault;
 		setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(SAMLSPProperties.DEFAULT_TRANSLATION_PROFILE));
 	}
 
@@ -101,8 +101,8 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		if (source.isSet(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION))
 		{
 			accountAssociation = source.getBooleanValue(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION)
-					? EnableDisable.enable
-					: EnableDisable.disable;
+					? ToggleWithDefault.enable
+					: ToggleWithDefault.disable;
 		}
 		if (source.isSet(prefix + SAMLSPProperties.IDP_SIGN_REQUEST))
 		{
@@ -177,10 +177,10 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 			raw.put(prefix + CommonWebAuthnProperties.REGISTRATION_FORM, getRegistrationForm());
 		}
 
-		if (getAccountAssociation() != EnableDisable.bydefault)
+		if (getAccountAssociation() != ToggleWithDefault.bydefault)
 		{
 			raw.put(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION,
-					accountAssociation == EnableDisable.enable ? "true" : "false");
+					accountAssociation == ToggleWithDefault.enable ? "true" : "false");
 		}	
 		
 		if (getGroupMembershipAttribute() != null)
@@ -358,12 +358,12 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		this.registrationForm = registrationForm;
 	}
 
-	public EnableDisable getAccountAssociation()
+	public ToggleWithDefault getAccountAssociation()
 	{
 		return accountAssociation;
 	}
 
-	public void setAccountAssociation(EnableDisable accountAssociation)
+	public void setAccountAssociation(ToggleWithDefault accountAssociation)
 	{
 		this.accountAssociation = accountAssociation;
 	}

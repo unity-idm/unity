@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.console.services.authnlayout;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.META;
@@ -20,61 +20,174 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
 
 public class TestServiceWebConfiguration
 {
 	private UnityMessageSource msg = mock(UnityMessageSource.class);
 	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
-	
-	//TODO add tests for default & minimal cases 
+
+	@Test
+	public void serializationIsIdempotentForMinimalWithoutDefaultConfig() throws EngineException
+	{
+		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(PREFIX, META)
+				//the default path won't be accessible in test and would be reset
+				.update("authnScreenLogo", "http://foo")
+				.update("authnScreenColumn.1.columnWidth", "15") //by default has '15.0'
+				.remove("authnGrid.1.gridRows").remove("authnGrid.1.gridContents") // as tested separately below
+				.get();
+
+		Properties result = parseAndBackAll(sourceCfg, null);
+
+		createComparator(PREFIX, META)
+				.checkMatching(result, sourceCfg);
+	}
+
+	@Test
+	public void serializationIsIdempotentForMinimalWithDefaultsSetConfig() throws EngineException
+	{
+		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(PREFIX, META)
+				.update("authnScreenLogo", "http://foo")
+				.update("authnScreenColumn.1.columnWidth", "15") //by default has '15.0'
+				.remove("authnGrid.1.gridRows").remove("authnGrid.1.gridContents") // as tested separately below
+				.get();
+
+		Properties result = parseAndBackAll(sourceCfg, "theme-foo");
+
+		createComparator(PREFIX, META)
+				.expectExtra("mainTheme", "theme-foo")
+				.checkMatching(result, sourceCfg);
+	}
 	
 	@Test
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(PREFIX, META)
 				.update("authnScreenLogo", "http://foo")
-				//as tested separately below
-				.remove("authnScreenColumn.1.columnContents")
-				.remove("authnScreenColumn.1.columnSeparator")
-				.remove("authnScreenColumn.1.columnTitle")
-				.remove("authnScreenColumn.1.columnWidth")
+				.update("authnScreenColumn.1.columnWidth", "16") //by default has '16.0' is generated
+				// as tested separately below
+				.remove("authnScreenColumn.1.columnSeparator").remove("authnScreenColumn.1.columnTitle")
 				.remove("authnGrid.1.gridContents")
-				.remove("authnGrid.1.gridRows")
-				//for internal use, auto set
-				.remove("defaultTheme")
-				.get();
+				.remove("authnGrid.1.gridRows").remove("authnScreenOptionsLabel.1.text")
+				// for internal use, auto set
+				.remove("defaultTheme").get();
 
-		ServiceWebConfiguration processor = new ServiceWebConfiguration();
-		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv);
-		Properties result = processor.toProperties(msg, fileStorageSrv, "authName");
-		
+		Properties result = parseAndBackAll(sourceCfg, "theme-foo");
+
 		createComparator(PREFIX, META)
-			.checkMatching(result, sourceCfg);
+				.checkMatching(result, sourceCfg);
 	}
 
+	@Test
+	public void serializationOfEmptyColumnIsIdempotent() throws EngineException
+	{
+		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "");
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnWidth", "20");
+
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
+
+		createComparator(PREFIX, META).checkMatching(layoutContentProperties, sourceCfg);
+	}
+	
+	@Test
+	public void serializationOfColumnIsIdempotent() throws EngineException
+	{
+		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "_SEPARATOR");
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnTitle", "title");
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnWidth", "20");
+
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
+
+		createComparator(PREFIX, META).checkMatching(layoutContentProperties, sourceCfg);
+	}
 
 	@Test
-	public void serializationOfColumnContentsIsIdempotentForCompleteNonDefaultConfig() throws EngineException
+	public void serializationOfColumnWithSingleAuthnElementIsIdempotent() throws EngineException
 	{
-		//TODO prepare proper configuration for testing, created manually
 		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "pwdSys _SEPARATOR");
 
-		//TODO this can not be unit-tested as mixes parsing, data and UI state objects in one bucket.
-		//needs to be refactored first.
-		//TODO the trailing 7 arguments AuthnLaoutPropertiesHelper should be removed, have nothing to do with properties parsing/serialization
-		//TODO AuthnLayoutPropertiesHelper should be renamed. Helper -> Parser? but depends on shape of classes after refactoring.
-//		AuthenticationLayoutContent layoutContentParsed = AuthnLayoutPropertiesHelper.loadFromProperties(
-//				new VaadinEndpointProperties(sourceCfg), msg, 
-//				null, null, null, null, null, null, null);
-//		Properties layoutContentProperties = AuthnLayoutPropertiesHelper.toProperties(msg, layoutContentParsed);
-		Properties result = new Properties();
-		
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
+
 		createComparator(PREFIX, META)
-			.checkMatching(result, sourceCfg);
+				.expectExtra("authnScreenColumn.1.columnWidth", "15")
+				.checkMatching(layoutContentProperties, sourceCfg);
+	}
+
+	@Test
+	public void serializationOfColumnWithGridAuthnElementIsIdempotent() throws EngineException
+	{
+		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "_SEPARATOR _GRID_G1");
+		sourceCfg.put(PREFIX + "authnGrid.G1.gridContents", "saml");
+		sourceCfg.put(PREFIX + "authnGrid.G1.gridRows", "6");
+
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
 		
-		fail("Implement me");
+		assertThat(layoutContentProperties.get(PREFIX + "authnGrid.1.gridContents")).isEqualTo("saml");
+		assertThat(layoutContentProperties.get(PREFIX + "authnGrid.1.gridRows")).isEqualTo("6");
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenColumn.1.columnContents"))
+				.isEqualTo("_SEPARATOR _GRID_1");
+	}
+
+	@Test
+	public void serializationOfColumnWithSeparatorElementIsIdempotent() throws EngineException
+	{
+		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "_SEPARATOR_S1");
+		sourceCfg.put(PREFIX + "authnScreenOptionsLabel.S1.text", "sep1");
+
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
+		
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenOptionsLabel.1.text")).isEqualTo("sep1");
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenColumn.1.columnContents")).isEqualTo("_SEPARATOR_1");
+	}
+
+	@Test
+	public void serializationOfColumnWithHeaderElementIsIdempotent() throws EngineException
+	{
+		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "_HEADER_S1");
+		sourceCfg.put(PREFIX + "authnScreenOptionsLabel.S1.text", "sep1");
+
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
+		
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenOptionsLabel.1.text")).isEqualTo("sep1");
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenColumn.1.columnContents")).isEqualTo("_HEADER_1");
+	}
+
+	@Test
+	public void serializationOfColumnWithElementsWithoutValuesIsIdempotent() throws EngineException
+	{
+		Properties sourceCfg = new Properties();
+		sourceCfg.put(PREFIX + "authnScreenColumn.1.columnContents", "_SEPARATOR _REGISTRATION _LAST_USED _EXPAND");
+
+		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
+
+		createComparator(PREFIX, META)
+				.expectExtra("authnScreenColumn.1.columnWidth", "15")
+				.checkMatching(layoutContentProperties, sourceCfg);
+	}
+	
+	private Properties parseAndBackAll(Properties sourceCfg, String defTheme)
+	{
+		ServiceWebConfiguration processor = new ServiceWebConfiguration(defTheme);
+
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv);
+		return processor.toProperties(msg, fileStorageSrv, "authName");
+	}
+	
+	private Properties parseAndBackLayout(Properties sourceCfg)
+	{
+		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
+		AuthnLayoutConfiguration layoutContentParsed = parser
+				.fromProperties(new VaadinEndpointProperties(sourceCfg));
+		return parser.toProperties(layoutContentParsed);
 	}
 
 }

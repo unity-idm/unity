@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services.tabs;
 
-import java.util.Properties;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.vaadin.ui.Component;
@@ -15,14 +15,15 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutColumn;
-import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutPropertiesHelper;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ColumnElement;
-import pl.edu.icm.unity.webui.console.services.authnlayout.PalleteButton;
-import pl.edu.icm.unity.webui.console.services.layout.elements.SeparatorColumnElement;
+import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutConfigToUIConverter;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthnLayoutColumn;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.PaletteButton;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.AuthnLayoutComponentsFactory;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.SeparatorColumnComponent;
 
 /**
  * Editor for layout which is used when a single last used authN is presented
@@ -30,17 +31,24 @@ import pl.edu.icm.unity.webui.console.services.layout.elements.SeparatorColumnEl
  * @author P.Piernik
  *
  */
-public class WebServiceReturningLayoutEditor extends CustomField<Properties>
+public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnElementConfiguration>>
 {
 	public static final String RET_COLUMN_ID = "RETUSER";
 
 	private UnityMessageSource msg;
 	private HorizontalLayout columnLayout;
 	private AuthnLayoutColumn column;
-	private Runnable valueChange = () -> fireEvent(new ValueChangeEvent<Properties>(this, getValue(), true));
+	private Runnable valueChange = () -> fireEvent(
+			new ValueChangeEvent<List<AuthnElementConfiguration>>(this, getValue(), true));
 	private Runnable dragStart = () -> column.dragOn();
-	private Runnable dragStop = () -> {column.dragOff(); valueChange.run();};
-	private Consumer<ColumnElement> removeElementListener = e -> {column.removeElement(e); valueChange.run();};
+	private Runnable dragStop = () -> {
+		column.dragOff();
+		valueChange.run();
+	};
+	private Consumer<ColumnComponent> removeElementListener = e -> {
+		column.removeElement(e);
+		valueChange.run();
+	};
 	private VerticalLayout main;
 
 	public WebServiceReturningLayoutEditor(UnityMessageSource msg)
@@ -64,6 +72,7 @@ public class WebServiceReturningLayoutEditor extends CustomField<Properties>
 		columnLayout.setWidth(50, Unit.PERCENTAGE);
 		column = new AuthnLayoutColumn(msg, null, e -> column.removeElement(e), valueChange);
 		column.setRemoveVisible(false);
+		column.setHeaderVisible(false);
 		columnLayout.addComponent(column);
 
 		main.addComponent(columnLayout);
@@ -72,20 +81,16 @@ public class WebServiceReturningLayoutEditor extends CustomField<Properties>
 	private HorizontalLayout getPallete()
 	{
 		HorizontalLayout componentsPalette = new HorizontalLayout();
-		componentsPalette.addComponent(new PalleteButton(msg.getMessage("AuthnColumnLayoutElement.separator"),
-				Images.text.getResource(), dragStart, dragStop,
-				() -> new SeparatorColumnElement(msg, removeElementListener, valueChange, dragStart, dragStop)));
+		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.separator"),
+				Images.text.getResource(), dragStart, dragStop, () -> new SeparatorColumnComponent(msg,
+						removeElementListener, valueChange, dragStart, dragStop)));
 		return componentsPalette;
 	}
 
 	@Override
-	public Properties getValue()
+	public List<AuthnElementConfiguration> getValue()
 	{
-		Properties raw = new Properties();
-		String content = AuthnLayoutPropertiesHelper.getColumnContent(msg, column, RET_COLUMN_ID, raw);
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT,
-				content);
-		return raw;
+		return AuthnLayoutConfigToUIConverter.getColumnElements(column.getElements());
 	}
 
 	@Override
@@ -95,10 +100,11 @@ public class WebServiceReturningLayoutEditor extends CustomField<Properties>
 	}
 
 	@Override
-	protected void doSetValue(Properties value)
+	protected void doSetValue(List<AuthnElementConfiguration> value)
 	{
-		column.setElements(AuthnLayoutPropertiesHelper.getReturingUserColumnElements(new VaadinEndpointProperties(value), msg,
-				removeElementListener, valueChange, dragStart, dragStop));
+		column.setElements(AuthnLayoutConfigToUIConverter.getColumnElements(value,
+				new AuthnLayoutComponentsFactory(msg, null, removeElementListener, dragStart, dragStop,
+						valueChange, null, null, true)));
 	}
 
 }
