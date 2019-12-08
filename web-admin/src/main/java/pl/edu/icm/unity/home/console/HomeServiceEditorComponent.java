@@ -80,11 +80,11 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 
 	public static List<String> getAvailableControls()
 	{
-		return new ArrayList<String>(
-				Arrays.asList(HomeEndpointProperties.Components.attributesManagement.toString(),
-						HomeEndpointProperties.Components.identitiesManagement.toString(),
-						HomeEndpointProperties.Components.accountRemoval.toString(),
-						HomeEndpointProperties.Components.accountLinking.toString()));
+		return new ArrayList<String>(Arrays.asList(HomeEndpointProperties.Components.userInfo.toString(),
+				HomeEndpointProperties.Components.attributesManagement.toString(),
+				HomeEndpointProperties.Components.identitiesManagement.toString(),
+				HomeEndpointProperties.Components.accountRemoval.toString(),
+				HomeEndpointProperties.Components.accountLinking.toString()));
 	}
 
 	public ServiceDefinition getServiceDefiniton() throws FormValidationException
