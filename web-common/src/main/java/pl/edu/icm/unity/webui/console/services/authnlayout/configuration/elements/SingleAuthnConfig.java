@@ -8,7 +8,6 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elemen
 import java.util.Optional;
 
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumns;
 
 public class SingleAuthnConfig implements AuthnElementConfiguration
 {
@@ -25,16 +24,6 @@ public class SingleAuthnConfig implements AuthnElementConfiguration
 		public Optional<SingleAuthnConfig> getConfigurationElement(
 				VaadinEndpointProperties properties, String specEntry)
 		{
-			if (specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_SEPARATOR)
-					|| specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_HEADER)
-					||  specEntry.equals(AuthnOptionsColumns.SPECIAL_ENTRY_REGISTER)
-					||  specEntry.equals(AuthnOptionsColumns.SPECIAL_ENTRY_LAST_USED)
-					||  specEntry.equals(AuthnOptionsColumns.SPECIAL_ENTRY_EXPAND)
-					||  specEntry.startsWith(AuthnOptionsColumns.SPECIAL_ENTRY_GRID))
-			{
-				return Optional.empty();
-			}
-
 			if (specEntry.isEmpty())
 				return Optional.empty();
 			return Optional.of(new SingleAuthnConfig(specEntry));
