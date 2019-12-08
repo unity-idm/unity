@@ -53,12 +53,7 @@ public class LDAPAuthenticatorConfigurationTest
 				.get();
 		sourceCfg.put("retrieval.password.enableAssociation", "false");
 		
-		LdapConfiguration processor = new LdapConfiguration();
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), LdapPasswordVerificator.NAME,
-				msg);
-		String converted = processor.toProperties(LdapPasswordVerificator.NAME, msg);
-
-		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
+		Properties result = parsePropertiesAndBack(sourceCfg, LdapPasswordVerificator.NAME);
 
 		createComparator(PREFIX, META)
 				.ignoringSuperflous("embeddedTranslationProfile", "additionalSearch.1.scope", "validUsersFilter")
@@ -74,11 +69,7 @@ public class LDAPAuthenticatorConfigurationTest
 				.update("userDNTemplate", "cn={USERNAME}").get();
 		sourceCfg.put("retrieval.tls.enableAssociation", "false");
 		
-		LdapConfiguration processor = new LdapConfiguration();
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), LdapCertVerificator.NAME,
-				msg);
-		String converted = processor.toProperties(LdapCertVerificator.NAME, msg);
-		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
+		Properties result = parsePropertiesAndBack(sourceCfg, LdapCertVerificator.NAME);
 
 		createComparator(PREFIX, META)
 				.ignoringSuperflous("embeddedTranslationProfile", "additionalSearch.1.scope")
@@ -93,11 +84,8 @@ public class LDAPAuthenticatorConfigurationTest
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(PREFIX, META)
 				.update("userDNTemplate", "cn={USERNAME}").get();
 		sourceCfg.put("retrieval.password.enableAssociation", "false");
-		LdapConfiguration processor = new LdapConfiguration();
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), LdapPasswordVerificator.NAME,
-				msg);
-		String converted = processor.toProperties(LdapPasswordVerificator.NAME, msg);
-		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
+		
+		Properties result = parsePropertiesAndBack(sourceCfg, LdapPasswordVerificator.NAME);
 
 		createComparator(PREFIX, META).ignoringMissing("translationProfile")
 				.ignoringSuperflous("embeddedTranslationProfile", "additionalSearch.1.scope")
@@ -119,11 +107,9 @@ public class LDAPAuthenticatorConfigurationTest
 		Properties sourceCfgRet = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				PasswordRetrievalProperties.P, PasswordRetrievalProperties.defaults).get();
 		sourceCfg.putAll(sourceCfgRet);
-		LdapConfiguration processor = new LdapConfiguration();
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), LdapPasswordVerificator.NAME,
-				msg);
-		String converted = processor.toProperties(LdapPasswordVerificator.NAME, msg);
-		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
+		
+		Properties result = parsePropertiesAndBack(sourceCfg, LdapPasswordVerificator.NAME);
+
 		createComparator(PREFIX, META)
 				.ignoringMissing("translationProfile").checkMatching(result, sourceCfg);
 	}
@@ -142,11 +128,8 @@ public class LDAPAuthenticatorConfigurationTest
 		Properties sourceCfgRet = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				PasswordRetrievalProperties.P, PasswordRetrievalProperties.defaults).get();
 		sourceCfg.putAll(sourceCfgRet);
-		LdapConfiguration processor = new LdapConfiguration();
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), LdapPasswordVerificator.NAME,
-				msg);
-		String converted = processor.toProperties(LdapPasswordVerificator.NAME, msg);
-		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
+		
+		Properties result = parsePropertiesAndBack(sourceCfg, LdapPasswordVerificator.NAME);
 		
 		createComparator(PREFIX, META)
 				.withAlias(PREFIX + "additionalSearch.searchUserDN.filter", PREFIX + "additionalSearch.1.filter")
@@ -155,5 +138,15 @@ public class LDAPAuthenticatorConfigurationTest
 				.ignoringMissing("translationProfile", "additionalSearch.1.selectedAttributes")
 				.withExpectedChange("userDNSearchKey", "searchUserDN")
 				.checkMatching(result, sourceCfg);
+	}
+	
+	private Properties parsePropertiesAndBack(Properties sourceCfg, String verificatorType)
+	{
+		LdapConfiguration processor = new LdapConfiguration();
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), verificatorType,
+				msg);
+		String converted = processor.toProperties(verificatorType, msg);
+
+		return ConfigurationComparator.fromString(converted, PREFIX).get();
 	}
 }
