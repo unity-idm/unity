@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -39,21 +40,23 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
  */
 public class AuthnLayoutPropertiesParser
 {
+	public static final Class<? extends AuthnElementConfiguration> DEFAULT_CONFIG_PARSER = SingleAuthnConfig.class;
 	private UnityMessageSource msg;
 	private Map<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> configFactories;
 
 	public AuthnLayoutPropertiesParser(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.configFactories = ImmutableMap.<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>>builder()
+		this.configFactories = ImmutableMap
+				.<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> builder()
 				.put(HeaderConfig.class, new HeaderConfig.Parser(msg, new SubsequentIdGenerator()))
-				.put(SeparatorConfig.class, new SeparatorConfig.Parser(msg, new SubsequentIdGenerator()))
+				.put(SeparatorConfig.class,
+						new SeparatorConfig.Parser(msg, new SubsequentIdGenerator()))
 				.put(GridConfig.class, new GridConfig.Parser(new SubsequentIdGenerator()))
 				.put(ExpandConfig.class, new ExpandConfig.Parser())
 				.put(RegistrationConfig.class, new RegistrationConfig.Parser())
 				.put(LastUsedConfig.class, new LastUsedConfig.Parser())
-				.put(SingleAuthnConfig.class, new SingleAuthnConfig.Parser())
-				.build();
+				.put(DEFAULT_CONFIG_PARSER, new SingleAuthnConfig.Parser()).build();
 	}
 
 	public AuthnLayoutConfiguration fromProperties(VaadinEndpointProperties properties)
@@ -172,15 +175,30 @@ public class AuthnLayoutPropertiesParser
 	{
 		List<AuthnElementConfiguration> elements = new ArrayList<>();
 		String[] specSplit = content.trim().split("[ ]+");
-
+		boolean parsed;
 		for (String specEntry : specSplit)
 		{
+			parsed = false;
 			if (specEntry.isEmpty())
 				continue;
-			for (AuthnElementParser<?> factory : configFactories.values())
+			Optional<? extends AuthnElementConfiguration> config;
+			for (AuthnElementParser<?> factory : configFactories.entrySet().stream()
+					.filter(p -> !p.getKey().equals(DEFAULT_CONFIG_PARSER)).map(e -> e.getValue())
+					.collect(Collectors.toList()))
 			{
-				Optional<? extends AuthnElementConfiguration> config = factory.getConfigurationElement(
-						properties, specEntry);
+				config = factory.getConfigurationElement(properties, specEntry);
+				if (config.isPresent())
+				{
+					elements.add(config.get());
+					parsed = true;
+					break;
+				}
+			}
+
+			if (!parsed)
+			{
+				config = configFactories.get(DEFAULT_CONFIG_PARSER).getConfigurationElement(properties,
+						specEntry);
 				if (config.isPresent())
 				{
 					elements.add(config.get());
@@ -197,20 +215,19 @@ public class AuthnLayoutPropertiesParser
 		for (AuthnElementConfiguration element : columnContent)
 		{
 			@SuppressWarnings("unchecked")
-			AuthnElementParser<AuthnElementConfiguration> authnElementParser = 
-					(AuthnElementParser<AuthnElementConfiguration>) configFactories.get(element.getClass());
+			AuthnElementParser<AuthnElementConfiguration> authnElementParser = (AuthnElementParser<AuthnElementConfiguration>) configFactories
+					.get(element.getClass());
 			PropertiesRepresentation pr = authnElementParser.toProperties(element);
 			elementsRep.add(pr.key);
 			raw.putAll(pr.propertiesValues);
 		}
-
 		return String.join(" ", elementsRep);
 	}
-	
+
 	private static class SubsequentIdGenerator implements Supplier<String>
 	{
 		private int value;
-		
+
 		@Override
 		public String get()
 		{
