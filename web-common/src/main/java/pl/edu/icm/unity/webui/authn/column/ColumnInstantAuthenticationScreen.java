@@ -8,6 +8,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -180,10 +181,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authenticationMainLayout.setMargin(false);
 		
 		String logoUri = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-		Resource logoRes = ImageUtils.getConfiguredImageResourceFromUri(logoUri, uriAccessService);
-		if (logoRes != null)
+		Optional<Resource> logoRes = ImageUtils.getConfiguredImageResourceFromNullableUri(logoUri, uriAccessService);
+		if (logoRes.isPresent())
 		{
-			Image image = new Image(null, logoRes);
+			Image image = new Image(null, logoRes.get());
 			image.addStyleName("u-authn-logo");
 			authenticationMainLayout.addComponent(image);
 			authenticationMainLayout.setComponentAlignment(image, Alignment.TOP_CENTER);

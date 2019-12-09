@@ -199,7 +199,7 @@ public class ServiceWebConfiguration
 				.getListOfValues(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS);
 
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-		logo = ImageUtils.getImageFromUriSave(logoUri, uriAccessService);
+		logo = ImageUtils.getImageFromUriOrNull(logoUri, uriAccessService);
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);

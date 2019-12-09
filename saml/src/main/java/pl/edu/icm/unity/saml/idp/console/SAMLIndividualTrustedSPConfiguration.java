@@ -71,7 +71,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_LOGO);
-			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));
+			setLogo(ImageUtils.getImageFromUriOrNull(logoUri, uriAccessService));
 		}
 
 		certificates = new ArrayList<>();

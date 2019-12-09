@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn.outdated;
 
+import java.util.Optional;
+
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
@@ -88,10 +90,10 @@ class CredentialChangePanel extends CustomComponent
 		wrapper.setWidthUndefined();
 		wrapper.setMargin(false);
 		
-		Resource logo = ImageUtils.getConfiguredImageResourceFromUri(uiConfig.logoURL, uriAccessService);
-		if (logo != null)
+		Optional<Resource> logo = ImageUtils.getConfiguredImageResourceFromNullableUri(uiConfig.logoURL, uriAccessService);
+		if (logo.isPresent())
 		{
-			Image image = new Image(null, logo);
+			Image image = new Image(null, logo.get());
 			image.addStyleName("u-authn-logo");
 			wrapper.addComponent(image);
 			wrapper.setComponentAlignment(image, Alignment.TOP_CENTER);	

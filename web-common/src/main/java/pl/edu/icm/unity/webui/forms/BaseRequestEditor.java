@@ -435,11 +435,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		String logoURL = form.getLayoutSettings().getLogoURL();
 			
-		Resource res = ImageUtils.getConfiguredImageResourceFromUriSave(logoURL, uriAccessService);
+		Optional<Resource> res = ImageUtils.getConfiguredImageResourceFromNullableUri(logoURL, uriAccessService);
 		
-		if (res != null)
+		if (res.isPresent())
 		{
-			Image image = new Image(null, res);
+			Image image = new Image(null, res.get());
 			image.addStyleName("u-signup-logo");
 			main.addComponent(image);
 			main.setComponentAlignment(image, Alignment.TOP_CENTER);

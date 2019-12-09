@@ -529,9 +529,8 @@ public class SamlIdpProperties extends SamlProperties
 			return Images.empty.getResource();
 
 		String logoURI = getLocalizedValue(spKey + ALLOWED_SP_LOGO, msg.getLocale());
-
-		return logoURI == null ? Images.empty.getResource()
-				: ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
+		return ImageUtils.getConfiguredImageResourceFromNullableUri(logoURI, uriService)
+				.orElse(Images.empty.getResource());
 	}
 	
 	/**

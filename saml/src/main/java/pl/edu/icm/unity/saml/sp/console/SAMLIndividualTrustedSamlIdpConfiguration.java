@@ -76,7 +76,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
-			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));
+			setLogo(ImageUtils.getImageFromUriOrNull(logoUri, uriAccessService));
 		}
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))

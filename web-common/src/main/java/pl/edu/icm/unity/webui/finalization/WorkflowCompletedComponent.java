@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.finalization;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.logging.log4j.util.Strings;
@@ -34,25 +35,25 @@ public class WorkflowCompletedComponent extends CustomComponent
 	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector,
 			URIAccessService uriAccessService)
 	{
-		Resource logoResource = ImageUtils.getConfiguredImageResourceFromUri(config.logoURL, uriAccessService);
+		Optional<Resource> logoResource = ImageUtils.getConfiguredImageResourceFromNullableUri(config.logoURL, uriAccessService);
 		createUI(config, logoResource, redirector);
 	}
 	
-	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Resource logo, 
+	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Optional<Resource> logo, 
 			Consumer<String> redirector)
 	{
 		createUI(config, logo, redirector);
 	}
 
-	private void createUI(WorkflowFinalizationConfiguration config, Resource logo, Consumer<String> redirector)
+	private void createUI(WorkflowFinalizationConfiguration config, Optional<Resource> logo, Consumer<String> redirector)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(true);
 		main.setSpacing(true);
 		
-		if (logo != null)
+		if (logo.isPresent())
 		{
-			Image image = new Image(null, logo);
+			Image image = new Image(null, logo.get());
 			image.addStyleName("u-final-logo");
 			main.addComponent(image);
 			main.setComponentAlignment(image, Alignment.MIDDLE_CENTER);

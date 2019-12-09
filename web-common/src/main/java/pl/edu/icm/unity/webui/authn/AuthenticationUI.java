@@ -289,15 +289,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		private Optional<Resource> getLogo()
 		{
 			String logoURL = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-			
-			if (!logoURL.isEmpty())
-			{
-				return Optional.of(ImageUtils.getConfiguredImageResourceFromUri(logoURL, uriAccessService));
-			} else
-			{
-				return Optional.empty();
-			}
-				
+			return ImageUtils.getConfiguredImageResourceFromNullableUri(logoURL, uriAccessService);
 		}
 	}
 }

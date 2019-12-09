@@ -70,7 +70,7 @@ public class ProjectController
 		return projects.stream().collect(Collectors.toMap(p -> p.path, p -> p.displayedName));
 	}
 
-	public Resource getProjectLogoSafe(String projectPath)
+	public Resource getProjectLogoOrNull(String projectPath)
 	{
 		Resource logo = Images.logoSmall.getResource();
 		DelegatedGroup group;
@@ -82,6 +82,6 @@ public class ProjectController
 			return logo;
 		}
 		GroupDelegationConfiguration config = group.delegationConfiguration;
-		return ImageUtils.getConfiguredImageResourceFromUriSave(config.logoUrl, uriAccessService);
+		return ImageUtils.getConfiguredImageResourceFromNullableUri(config.logoUrl, uriAccessService).orElse(null);
 	}
 }

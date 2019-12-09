@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -238,10 +239,10 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		setCompositionRoot(main);
 		
 		String logoUri = form.getLayoutSettings().getLogoURL();
-		Resource logoRes = ImageUtils.getConfiguredImageResourceFromUriSave(logoUri, uriAccessService);
-		if (logoRes != null)
+		Optional<Resource> logoRes = ImageUtils.getConfiguredImageResourceFromNullableUri(logoUri, uriAccessService);
+		if (logoRes.isPresent())
 		{
-			Image image = new Image(null, logoRes);
+			Image image = new Image(null, logoRes.get());
 			image.addStyleName("u-signup-logo");
 			main.addComponent(image);
 			main.setComponentAlignment(image, Alignment.TOP_CENTER);	

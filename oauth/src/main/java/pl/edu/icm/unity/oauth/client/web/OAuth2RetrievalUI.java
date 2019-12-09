@@ -120,8 +120,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
 
-		Resource logo = logoURI == null ? Images.empty.getResource()
-				: ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
+		Resource logo = ImageUtils.getConfiguredImageResourceFromNullableUri(logoURI, uriService)
+				.orElse(Images.empty.getResource());
 
 		String signInLabel;
 		if (context == Context.LOGIN)
@@ -158,7 +158,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
-		return ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
+		return ImageUtils.getConfiguredImageResourceFromNullableUri(logoURI, uriService).orElse(null);
 	}
 
 	@Override

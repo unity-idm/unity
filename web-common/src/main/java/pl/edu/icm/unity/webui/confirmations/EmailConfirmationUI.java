@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.confirmations;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,11 +80,10 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 		wrapper.setSizeFull();
 		setSizeFull();
 		
-		Resource logo = ImageUtils.getConfiguredImageResourceFromUri(status.logoURL, uriAccessService);
-		if (logo == null)
-			logo = status.success ? Images.ok.getResource() : Images.error.getResource();
+		Resource logo = ImageUtils.getConfiguredImageResourceFromNullableUri(status.logoURL, uriAccessService)
+				.orElse(status.success ? Images.ok.getResource() : Images.error.getResource());
 		WorkflowCompletedComponent contents = new WorkflowCompletedComponent(status, 
-				logo,
+				Optional.of(logo),
 				url -> Page.getCurrent().open(status.redirectURL, null));
 		wrapper.addComponent(contents);
 		wrapper.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
