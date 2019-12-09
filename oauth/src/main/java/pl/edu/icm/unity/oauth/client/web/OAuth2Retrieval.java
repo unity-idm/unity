@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -30,6 +29,7 @@ import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * OAuth2 authn retrieval. It is responsible for browser redirection to the OAuth provider with an authorization
@@ -44,20 +44,20 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
 	public static final String REMOTE_AUTHN_CONTEXT = OAuth2Retrieval.class.getName()+".authnContext";
 	private UnityMessageSource msg;
-	private URIAccessService uriService;
+	private ImageAccessService imageService;
 	private OAuthContextsManagement contextManagement;
 	private ExecutorsService executorsService;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 	
 	@Autowired
-	public OAuth2Retrieval(UnityMessageSource msg, URIAccessService fileStorageService, OAuthContextsManagement contextManagement, 
+	public OAuth2Retrieval(UnityMessageSource msg, ImageAccessService imageService, OAuthContextsManagement contextManagement, 
 			ExecutorsService executorsService)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.contextManagement = contextManagement;
 		this.executorsService = executorsService;
-		this.uriService = fileStorageService;
+		this.imageService = imageService;
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		{
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
 					key.length()-1);
-			ret.add(new OAuth2RetrievalUI(msg, uriService, credentialExchange, contextManagement, 
+			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange, contextManagement, 
 					executorsService, idpKey, key, getAuthenticatorId(), context));
 		}
 		return ret;

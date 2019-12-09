@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.confirmations;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +26,13 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 
 /**
@@ -48,16 +49,16 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailConfirmationUI.class);
 
 	private EmailConfirmationManager confirmationMan;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	private String defaultRedirect;
 
 	@Autowired
 	public EmailConfirmationUI(UnityMessageSource msg, EmailConfirmationManager confirmationMan,
-			TokensManagement tokensMan, UnityServerConfiguration serverConfig, URIAccessService uriAccessService)
+			TokensManagement tokensMan, UnityServerConfiguration serverConfig, ImageAccessService imageAccessService)
 	{
 		super(msg);
 		this.confirmationMan = confirmationMan;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.defaultRedirect = serverConfig.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
@@ -78,11 +79,10 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 		wrapper.setSizeFull();
 		setSizeFull();
 		
-		Resource logo = ImageUtils.getConfiguredImageResourceFromUri(status.logoURL, uriAccessService);
-		if (logo == null)
-			logo = status.success ? Images.ok.getResource() : Images.error.getResource();
+		Resource logo = imageAccessService.getConfiguredImageResourceFromNullableUri(status.logoURL)
+				.orElse(status.success ? Images.ok.getResource() : Images.error.getResource());
 		WorkflowCompletedComponent contents = new WorkflowCompletedComponent(status, 
-				logo,
+				Optional.of(logo),
 				url -> Page.getCurrent().open(status.redirectURL, null));
 		wrapper.addComponent(contents);
 		wrapper.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);

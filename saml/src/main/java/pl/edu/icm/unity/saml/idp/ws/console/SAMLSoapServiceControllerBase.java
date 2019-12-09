@@ -23,17 +23,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBase
 		implements IdpServiceController
 {
@@ -50,11 +46,13 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	private NetworkServer server;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
+	private ImageAccessService imageAccessService;
 
 	public SAMLSoapServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan,
 			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
+			AttributeTypeManagement atMan, ImageAccessService imageAccessService,
+			BulkGroupQueryService bulkService,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
 			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
@@ -65,6 +63,7 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
 		this.atMan = atMan;
+		this.imageAccessService = imageAccessService;
 		this.bulkService = bulkService;
 		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
@@ -87,7 +86,7 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	{
 		return new SAMLSoapServiceEditor(msg, getType(), pkiMan, subViewSwitcher,
 				outputTranslationProfileFieldFactory, server.getAdvertisedAddress().toString(),
-				server.getUsedContextPaths(), uriAccessService, fileStorageService, serverConfig,
+				server.getUsedContextPaths(), uriAccessService, imageAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),

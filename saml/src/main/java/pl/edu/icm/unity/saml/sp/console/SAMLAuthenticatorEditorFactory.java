@@ -21,6 +21,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.sp.SAMLVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * Factory for {@link SAMLAuthenticatorEditor}
@@ -40,12 +41,14 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
+	private ImageAccessService imageAccessService;
 
 	@Autowired
 	SAMLAuthenticatorEditorFactory(UnityMessageSource msg, UnityServerConfiguration serverConfig,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan, PKIManagement pkiMan,
 			IdentityTypesRegistry idTypesReg, InputTranslationProfileFieldFactory profileFieldFactory,
-			FileStorageService fileStorageService, URIAccessService uriAccessService)
+			FileStorageService fileStorageService, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
@@ -56,6 +59,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
+		this.imageAccessService = imageAccessService;
 
 	}
 
@@ -69,7 +73,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
 		return new SAMLAuthenticatorEditor(msg, serverConfig, pkiMan, profileFieldFactory, registrationMan,
-				realmMan, idTypesReg, fileStorageService, uriAccessService);
+				realmMan, idTypesReg, fileStorageService, uriAccessService, imageAccessService);
 	}
 
 }

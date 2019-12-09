@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -74,6 +76,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
@@ -93,6 +96,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class OAuthServiceController implements IdpServiceController
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthServiceController.class);
 	public static final String DEFAULT_CREDENTIAL = "sys:password";
 	public static final String IDP_CLIENT_MAIN_GROUP = "/IdPs";
 	public static final String OAUTH_CLIENTS_SUBGROUP = "oauth-clients";
@@ -119,6 +123,7 @@ class OAuthServiceController implements IdpServiceController
 	private GroupsManagement groupMan;
 	private EntityCredentialManagement entityCredentialManagement;
 	private IdpUsersHelper idpUsersHelper;
+	private ImageAccessService imageService;
 
 	@Autowired
 	OAuthServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
@@ -131,7 +136,7 @@ class OAuthServiceController implements IdpServiceController
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
 			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
-			IdpUsersHelper idpUsersHelper)
+			ImageAccessService imageService, IdpUsersHelper idpUsersHelper)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -154,6 +159,7 @@ class OAuthServiceController implements IdpServiceController
 		this.entityMan = entityMan;
 		this.groupMan = groupMan;
 		this.entityCredentialManagement = entityCredentialManagement;
+		this.imageService = imageService;
 		this.idpUsersHelper = idpUsersHelper;
 	}
 
@@ -186,16 +192,25 @@ class OAuthServiceController implements IdpServiceController
 
 	private DefaultServiceDefinition getTokenService(String tag) throws EngineException
 	{
-		for (Endpoint endpoint : endpointMan.getEndpoints().stream()
+		List<Endpoint> matchingTokenEndpoints = endpointMan.getEndpoints().stream()
 				.filter(e -> e.getTypeId().equals(OAuthTokenEndpoint.TYPE.getName())
 						&& e.getConfiguration().getTag().equals(tag))
-				.collect(Collectors.toList()))
+				.collect(Collectors.toList());
+		if (matchingTokenEndpoints.isEmpty())
 		{
-			DefaultServiceDefinition tokenService = getServiceDef(endpoint);
-			tokenService.setBinding(OAuthTokenEndpoint.TYPE.getSupportedBinding());
-			return tokenService;
+			log.warn("Can not find a corresponding token endpoint for OAuth AS endpoint with tag {}", tag);
+			return null;
 		}
-		return null;
+		if (matchingTokenEndpoints.size() > 1)
+		{
+			log.warn("Found {} token endpoints for OAuth AS endpoint with tag {}", 
+					matchingTokenEndpoints.size(), tag);
+			return null;
+		}
+
+		DefaultServiceDefinition tokenService = getServiceDef(matchingTokenEndpoints.get(0));
+		tokenService.setBinding(OAuthTokenEndpoint.TYPE.getSupportedBinding());
+		return tokenService;
 	}
 
 	private DefaultServiceDefinition getServiceDef(Endpoint endpoint)
@@ -627,7 +642,7 @@ class OAuthServiceController implements IdpServiceController
 
 		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
 				server.getAdvertisedAddress().toString(), server.getUsedContextPaths(),
-				uriAccessService, fileStorageService, serverConfig,
+				imageService, uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),

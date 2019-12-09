@@ -6,30 +6,40 @@ package pl.edu.icm.unity.webui.console.services.authnlayout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.META;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 
 import java.util.Properties;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
 
 public class TestServiceWebConfiguration
 {
 	private UnityMessageSource msg = mock(UnityMessageSource.class);
-	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
+	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 
+	@Before
+	public void init()
+	{
+		when(imageAccessSrv.getImageFromUriOrNull("http://foo")).thenReturn(new LocalOrRemoteResource("http://foo"));
+	}
+	
+	
 	@Test
 	public void serializationIsIdempotentForMinimalWithoutDefaultConfig() throws EngineException
 	{
@@ -178,7 +188,7 @@ public class TestServiceWebConfiguration
 	{
 		ServiceWebConfiguration processor = new ServiceWebConfiguration(defTheme);
 
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv);
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, imageAccessSrv);
 		return processor.toProperties(msg, fileStorageSrv, "authName");
 	}
 	

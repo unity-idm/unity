@@ -20,7 +20,6 @@ import com.vaadin.server.VaadinService;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * Vaadin UI of the sandbox application using all remote authenticators. Suitable for sandbox authn used in 
@@ -55,7 +55,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg, 
@@ -63,7 +63,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
-			AuthenticatorSupportService authenticatorSupport, URIAccessService uriAccessService)
+			AuthenticatorSupportService authenticatorSupport, ImageAccessService imageAccessService)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -71,7 +71,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		this.execService = execService;
 		this.idsMan = idsMan;
 		this.authenticatorSupport = authenticatorSupport;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		boolean validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
 		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg,
-				uriAccessService,
+				imageAccessService,
 				config, 
 				endpointDescription, 
 				cancelHandler, 

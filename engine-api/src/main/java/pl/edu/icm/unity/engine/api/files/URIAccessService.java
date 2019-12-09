@@ -10,11 +10,6 @@ import java.net.URI;
 
 import pl.edu.icm.unity.base.file.FileData;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public interface URIAccessService
 {
 	public static final String UNITY_FILE_URI_SCHEMA = "unity.internal";

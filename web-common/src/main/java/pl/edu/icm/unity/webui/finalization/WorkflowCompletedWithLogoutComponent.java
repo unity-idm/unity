@@ -12,9 +12,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 
 /**
@@ -25,14 +25,14 @@ public class WorkflowCompletedWithLogoutComponent extends CustomComponent
 {
 	private String logoutCaption;
 	private Runnable logoutProcessor;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 
 	public WorkflowCompletedWithLogoutComponent(WorkflowFinalizationConfiguration config, 
-			Consumer<String> redirector, String logoutCaption, Runnable logoutProcessor, URIAccessService uriAccessService)
+			Consumer<String> redirector, String logoutCaption, Runnable logoutProcessor, ImageAccessService imageAccessService)
 	{
 		this.logoutCaption = logoutCaption;
 		this.logoutProcessor = logoutProcessor;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		createUI(config, redirector);
 	}
 	
@@ -47,7 +47,7 @@ public class WorkflowCompletedWithLogoutComponent extends CustomComponent
 		main.addComponent(logout);
 		main.setComponentAlignment(logout, Alignment.TOP_RIGHT);
 		
-		Component base = new WorkflowCompletedComponent(config, redirector, uriAccessService);
+		Component base = new WorkflowCompletedComponent(config, redirector, imageAccessService);
 		main.addComponent(base);
 		main.setComponentAlignment(base, Alignment.MIDDLE_CENTER);
 		main.setExpandRatio(base, 10);

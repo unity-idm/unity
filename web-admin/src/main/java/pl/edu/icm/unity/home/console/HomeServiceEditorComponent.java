@@ -13,25 +13,19 @@ import com.vaadin.data.Binder;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
-/**
- * Home service editor component. 
- * 
- * @author P.Piernik
- *
- */
 class HomeServiceEditorComponent extends ServiceEditorBase
 {
 	private Binder<HomeServiceConfiguration> homeBinder;
@@ -41,7 +35,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 	private FileStorageService fileStorageService;
 
 	HomeServiceEditorComponent(UnityMessageSource msg, HomeServiceEditorGeneralTab generalTab, WebServiceAuthenticationTab authTab,
-			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			DefaultServiceDefinition toEdit, String extraTab, List<Group> allGroups)
 	{
@@ -64,7 +58,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg, extraTab, allGroups);
-			webConfig.fromProperties(toEdit.getConfiguration(), msg, uriAccessService);
+			webConfig.fromProperties(toEdit.getConfiguration(), msg, imageAccessService);
 		}
 		homeBinder.setBean(config);
 		webConfigBinder.setBean(webConfig);

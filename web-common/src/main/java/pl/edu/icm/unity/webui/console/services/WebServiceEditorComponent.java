@@ -8,11 +8,11 @@ package pl.edu.icm.unity.webui.console.services;
 import com.vaadin.data.Binder;
 
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
@@ -30,8 +30,10 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private FileStorageService fileStorageService;
 
-	public WebServiceEditorComponent(UnityMessageSource msg, GeneralTab generalTab, WebServiceAuthenticationTab authTab,  EndpointTypeDescription type,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,  DefaultServiceDefinition toEdit, String defaultMainTheme)
+	public WebServiceEditorComponent(UnityMessageSource msg, GeneralTab generalTab, 
+			WebServiceAuthenticationTab authTab,  EndpointTypeDescription type,
+			ImageAccessService imageAccessService, FileStorageService fileStorageService,  
+			DefaultServiceDefinition toEdit, String defaultMainTheme)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
@@ -50,7 +52,7 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 			service = (DefaultServiceDefinition) toEdit;
 			if (service.getConfiguration() != null)
 			{
-				webConfig.fromProperties(service.getConfiguration(), msg, uriAccessService);
+				webConfig.fromProperties(service.getConfiguration(), msg, imageAccessService);
 			}
 		}
 		serviceBinder.setBean(service);

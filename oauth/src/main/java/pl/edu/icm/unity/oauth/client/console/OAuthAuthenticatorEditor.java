@@ -54,14 +54,9 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
-/**
- * OAuth authenticator editor
- * 
- * @author P.Piernik
- *
- */
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	private PKIManagement pkiMan;
@@ -74,14 +69,17 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 	private Supplier<URL> serverURLSupplier;
+	private ImageAccessService imageAccessService;
 
 	OAuthAuthenticatorEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
 			FileStorageService fileStorageService, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, Supplier<URL> serverURLSupplier)
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
+		this.imageAccessService = imageAccessService;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
 		this.fileStorageService = fileStorageService;
@@ -133,7 +131,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg, pkiMan, uriAccessService);
+			config.fromProperties(toEdit.configuration, msg, pkiMan, imageAccessService);
 		}
 
 		configBinder.setBean(config);
@@ -292,7 +290,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			}
 
 			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, serverConfig, pkiMan,
-					uriAccessService, profileFieldFactory, edited, usedIds, subViewSwitcher, forms,
+					uriAccessService, imageAccessService, profileFieldFactory, edited, usedIds, subViewSwitcher, forms,
 					validators, r -> {
 						onConfirm.accept(r);
 						fireChange();

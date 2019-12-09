@@ -105,7 +105,7 @@ public class UpManUI extends UnityEndpointUIBase
 		projectCombo.setItemCaptionGenerator(i -> projects.get(i));
 		projectCombo.setEmptySelectionAllowed(false);
 		reloadProjectsCombo();
-		logo.setIcon(controller.getProjectLogoSafe(projectCombo.getValue()));
+		logo.setIcon(controller.getProjectLogoOrNull(projectCombo.getValue()));
 		projectCombo.addValueChangeListener(e -> {
 			if (e.getValue() == null || e.getValue().isEmpty())
 				return;
@@ -115,7 +115,7 @@ public class UpManUI extends UnityEndpointUIBase
 			{
 				NavigationHelper.goToView(((UnityView) view).getViewName());
 			}
-			logo.setIcon(controller.getProjectLogoSafe(e.getValue()));
+			logo.setIcon(controller.getProjectLogoOrNull(e.getValue()));
 		});
 
 		if (!(projects.size() == 1))

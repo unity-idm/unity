@@ -16,7 +16,6 @@ import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
@@ -52,7 +52,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private StandardWebAuthenticationProcessor authnProcessor;
 	@Autowired
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	/**
 	 * @implNote: due to changes in the enquiry links, below format was kept for
@@ -125,9 +125,9 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		};
 
 		return overwriteSticky
-				? new StandaloneStickyEnquiryView(editor, authnProcessor, uriAccessService, msg, callback,
+				? new StandaloneStickyEnquiryView(editor, authnProcessor, imageAccessService, msg, callback,
 						() -> removePendingRequestSafe(form.getName()) )
-				: new StandaloneEnquiryView(editor, authnProcessor, uriAccessService,  msg, callback);
+				: new StandaloneEnquiryView(editor, authnProcessor, imageAccessService,  msg, callback);
 	}
 	
 	private void removePendingRequestSafe(String formName)
@@ -198,7 +198,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 					.getFinalRegistrationConfigurationNonSubmit(false, null,
 							TriggeringState.NOT_APPLICABLE_ENQUIRY);
 			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, 
-					uriAccessService);
+					imageAccessService);
 			com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 			setSizeFull();
 			setCompositionRoot(wrapper);

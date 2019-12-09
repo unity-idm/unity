@@ -21,7 +21,6 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -37,6 +36,7 @@ import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.idpcommon.ExposedSelectableAttributesComponent;
@@ -62,7 +62,7 @@ public class SamlConsentScreen extends CustomComponent
 	protected final PreferencesManagement preferencesMan;
 	protected final StandardWebAuthenticationProcessor authnProcessor;
 	protected final AttributeTypeSupport aTypeSupport;
-	protected final URIAccessService uriAccessService;
+	protected final ImageAccessService imageAccessService;
 
 	protected final List<IdentityParam> validIdentities;
 	protected final Collection<DynamicAttribute> attributes;
@@ -76,7 +76,7 @@ public class SamlConsentScreen extends CustomComponent
 	protected SamlResponseHandler samlResponseHandler;
 	protected CheckBox rememberCB;
 
-	public SamlConsentScreen(UnityMessageSource msg, URIAccessService uriAccessService,  
+	public SamlConsentScreen(UnityMessageSource msg, ImageAccessService imageAccessService,  
 			AttributeHandlerRegistry handlersRegistry, 
 			PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, 
@@ -89,7 +89,7 @@ public class SamlConsentScreen extends CustomComponent
 			ConfirmationConsumer acceptHandler)
 	{
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
@@ -136,7 +136,7 @@ public class SamlConsentScreen extends CustomComponent
 		String returnAddress = samlCtx.getSamlConfiguration().getReturnAddressForRequester(request);
 		String displayedName = samlCtx.getSamlConfiguration().getDisplayedNameForRequester(request.getIssuer());
 		Resource logo = samlCtx.getSamlConfiguration().getLogoForRequester(request.getIssuer(), msg,
-				uriAccessService);
+				imageAccessService);
 
 		Label info1 = new Label100(msg.getMessage("SamlIdPWebUI.info1"));
 		info1.addStyleName(Styles.vLabelH1.toString());

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
@@ -39,7 +40,7 @@ public class WebServiceEditor implements ServiceEditor
 	private List<AuthenticatorInfo> authenticators;
 	private WebServiceEditorComponent editor;
 	private List<String> registrationForms;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
@@ -47,19 +48,23 @@ public class WebServiceEditor implements ServiceEditor
 	private Set<String> serverContextPaths;
 	private EndpointTypeDescription type;
 	private String defaultMainTheme;
+	private final URIAccessService uriAccessService;
 
-	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg, URIAccessService uriAccessService,
+	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg,
+			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		this.msg = msg;
+		this.uriAccessService = uriAccessService;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.registrationForms = registrationForms;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
@@ -79,7 +84,7 @@ public class WebServiceEditor implements ServiceEditor
 				allRealms, registrationForms, type.getSupportedBinding());
 
 		editor = new WebServiceEditorComponent(msg, generalTab, webServiceAuthenticationTab, type,
-				uriAccessService, fileStorageService, (DefaultServiceDefinition) endpoint, defaultMainTheme);
+				imageAccessService, fileStorageService, (DefaultServiceDefinition) endpoint, defaultMainTheme);
 
 		return editor;
 	}

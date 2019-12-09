@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -24,10 +23,10 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * SAML Individual trusted idp configuration
@@ -63,7 +62,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(SAMLSPProperties.DEFAULT_TRANSLATION_PROFILE));
 	}
 
-	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService, SAMLSPProperties source,
+	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService, SAMLSPProperties source,
 			String name)
 	{
 
@@ -76,7 +75,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
-			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));
+			setLogo(imageAccessService.getImageFromUriOrNull(logoUri));
 		}
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))

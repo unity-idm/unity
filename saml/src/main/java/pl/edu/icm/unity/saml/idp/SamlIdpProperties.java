@@ -42,7 +42,6 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -52,7 +51,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
@@ -522,16 +521,15 @@ public class SamlIdpProperties extends SamlProperties
 		return getValue(spKey + ALLOWED_SP_NAME);
 	}
 
-	public Resource getLogoForRequester(NameIDType id, UnityMessageSource msg, URIAccessService uriService)
+	public Resource getLogoForRequester(NameIDType id, UnityMessageSource msg, ImageAccessService imageAccessService)
 	{
 		String spKey = getSPConfigKey(id);
 		if (spKey == null)
 			return Images.empty.getResource();
 
 		String logoURI = getLocalizedValue(spKey + ALLOWED_SP_LOGO, msg.getLocale());
-
-		return logoURI == null ? Images.empty.getResource()
-				: ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
+		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI)
+				.orElse(Images.empty.getResource());
 	}
 	
 	/**

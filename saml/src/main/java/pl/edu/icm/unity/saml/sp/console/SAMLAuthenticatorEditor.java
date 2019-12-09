@@ -53,6 +53,7 @@ import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.file.FileField;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
@@ -87,12 +88,13 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private CheckBox defSignRequest;
 	private IndividualTrustedIdpComponent idps;
 	private CheckBox signMetadata;
+	private ImageAccessService imageAccessService;
 
 	SAMLAuthenticatorEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
 			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService,
-			URIAccessService uriAccessService) throws EngineException
+			URIAccessService uriAccessService, ImageAccessService imageAccessService) throws EngineException
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
@@ -101,6 +103,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
+		this.imageAccessService = imageAccessService;
 		this.credentials = pkiMan.getCredentialNames();
 		this.registrationForms = registrationMan.getForms().stream().map(f -> f.getName())
 				.collect(Collectors.toList());
@@ -138,7 +141,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		SAMLAuthneticatorConfiguration config = new SAMLAuthneticatorConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(pkiMan, uriAccessService, msg, toEdit.configuration);
+			config.fromProperties(pkiMan, uriAccessService, imageAccessService, msg, toEdit.configuration);
 		}
 
 		configBinder.setBean(config);

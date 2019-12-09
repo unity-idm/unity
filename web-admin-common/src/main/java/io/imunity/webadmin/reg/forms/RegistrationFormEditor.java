@@ -58,6 +58,7 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnProvidersMultiSelection;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
@@ -70,16 +71,17 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 public class RegistrationFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditor.class);
-	private UnityMessageSource msg;
-	private GroupsManagement groupsMan;
-	private NotificationsManagement notificationsMan;
-	private MessageTemplateManagement msgTempMan;
-	private CredentialRequirementManagement credReqMan;
-	private AuthenticatorSupportService authenticatorSupport;
-	private RealmsManagement realmsManagement;
-	private FileStorageService fileStorageService;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
+	private final UnityMessageSource msg;
+	private final GroupsManagement groupsMan;
+	private final NotificationsManagement notificationsMan;
+	private final MessageTemplateManagement msgTempMan;
+	private final CredentialRequirementManagement credReqMan;
+	private final AuthenticatorSupportService authenticatorSupport;
+	private final RealmsManagement realmsManagement;
+	private final FileStorageService fileStorageService;
+	private final ImageAccessService imageAccessService;
+	private final URIAccessService uriAccessService;
+	private final UnityServerConfiguration serverConfig;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequestsAndInvitation;
@@ -118,7 +120,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 			CredentialRequirementManagement credReqMan,
 			ActionParameterComponentProvider actionComponentFactory,
 			AuthenticatorSupportService authenticatorSupport,
-			RealmsManagement realmsManagement, FileStorageService fileStorageService, URIAccessService uriAccessService)
+			RealmsManagement realmsManagement, FileStorageService fileStorageService, 
+			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, credMan);
@@ -129,11 +133,12 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.msgTempMan = msgTempMan;
 		this.credReqMan = credReqMan;
 		this.actionComponentFactory = actionComponentFactory;
+		this.uriAccessService = uriAccessService;
 		this.actionComponentFactory.init();
 		this.authenticatorSupport = authenticatorSupport;
 		this.realmsManagement = realmsManagement;
 		this.fileStorageService = fileStorageService;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.serverConfig = serverConfig;
 	}
 	
@@ -338,7 +343,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addComponents(displayedName, title2ndStage, formInformation, pageTitle, 
 				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
 
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, uriAccessService);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, 
+				uriAccessService, imageAccessService);
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(false);

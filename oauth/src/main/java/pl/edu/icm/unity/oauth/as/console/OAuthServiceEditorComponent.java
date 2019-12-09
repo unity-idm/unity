@@ -19,7 +19,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import com.vaadin.data.Binder;
 
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
@@ -55,7 +55,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			IdpEditorUsersTab usersTab,
 			WebServiceAuthenticationTab webAuthTab,
 			FileStorageService fileStorageService,
-			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			ServiceDefinition toEdit, 
 			List<Group> allGroups, 
 			Function<String, List<OAuthClient>> systemClientsSupplier)
@@ -124,7 +124,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			if (webAuthzService != null && webAuthzService.getConfiguration() != null)
 			{
 				oauthConfig.fromProperties(webAuthzService.getConfiguration(), allGroups);
-				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, uriAccessService);
+				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService);
 			}
 			clientsBean.setClients(cloneClients(systemClientsSupplier.apply(
 					oauthConfig.getClientGroup().group.toString())));

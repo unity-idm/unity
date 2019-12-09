@@ -38,6 +38,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
 import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
@@ -254,6 +255,7 @@ public class SAMLServiceConfiguration
 	}
 
 	public void fromProperties(String properties, UnityMessageSource msg, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			PKIManagement pkiManagement, List<Group> allGroups) throws ConfigurationException
 	{
 		Properties raw = new Properties();
@@ -399,7 +401,7 @@ public class SAMLServiceConfiguration
 					SAMLIndividualTrustedSPConfiguration idp = new SAMLIndividualTrustedSPConfiguration();
 					key = key.substring(SamlIdpProperties.ALLOWED_SP_PREFIX.length(),
 							key.length() - 1);
-					idp.fromProperties(msg, uriAccessService, samlIdpProperties, key);
+					idp.fromProperties(msg, imageAccessService, samlIdpProperties, key);
 					individualTrustedSPs.add(idp);
 				});
 

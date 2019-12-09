@@ -14,7 +14,6 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -23,6 +22,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 public class RequestEditorCreator
 {
 	private UnityMessageSource msg;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	private RegistrationForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -53,7 +53,7 @@ public class RequestEditorCreator
 	private FormsInvitationHelper invitationHelper;
 
 	@Autowired
-	public RequestEditorCreator(UnityMessageSource msg, URIAccessService uriAccessService,
+	public RequestEditorCreator(UnityMessageSource msg, ImageAccessService imageAccessService,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -72,7 +72,7 @@ public class RequestEditorCreator
 		this.credMan = credMan;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.authnSupport = authnSupport;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 	
 
@@ -191,7 +191,7 @@ public class RequestEditorCreator
 		return new RegistrationRequestEditor(msg, form, 
 				remotelyAuthenticated, identityEditorRegistry, 
 				credentialEditorRegistry, attributeHandlerRegistry, 
-				aTypeMan, credMan, groupsMan, uriAccessService,
+				aTypeMan, credMan, groupsMan, imageAccessService,
 				registrationCode, invitation, authnSupport, signUpAuthNController);
 	}
 	

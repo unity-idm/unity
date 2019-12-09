@@ -31,12 +31,15 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 public class SAMLAuthenticatorConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private UnityMessageSource msg = mock(UnityMessageSource.class);
 	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
+	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.INPUT, 
 			Lists.newArrayList(new TranslationRule("true", 
@@ -54,7 +57,7 @@ public class SAMLAuthenticatorConfigurationTest
 		
 		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
 		
-		processor.fromProperties(pkiMan, uriAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
+		processor.fromProperties(pkiMan, uriAccessSrv, imageAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
 		String converted = processor.toProperties(pkiMan, fileStorageSrv, msg, "authName");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -81,7 +84,7 @@ public class SAMLAuthenticatorConfigurationTest
 		
 		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
 		
-		processor.fromProperties(pkiMan, uriAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
+		processor.fromProperties(pkiMan, uriAccessSrv, imageAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
 		String converted = processor.toProperties(pkiMan, fileStorageSrv, msg, "authName");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -99,6 +102,7 @@ public class SAMLAuthenticatorConfigurationTest
 	{
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
+		when(imageAccessSrv.getImageFromUriOrNull("http:foo")).thenReturn(new LocalOrRemoteResource("http:foo"));
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.remove("jwt.")
 				.update("remoteIdp.1.signRequest", "false")
@@ -110,7 +114,7 @@ public class SAMLAuthenticatorConfigurationTest
 		
 		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
 		
-		processor.fromProperties(pkiMan, uriAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
+		processor.fromProperties(pkiMan, uriAccessSrv, imageAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
 		String converted = processor.toProperties(pkiMan, fileStorageSrv, msg, "authName");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();

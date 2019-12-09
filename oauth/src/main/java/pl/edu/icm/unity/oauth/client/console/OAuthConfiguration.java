@@ -15,12 +15,12 @@ import java.util.Set;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 public class OAuthConfiguration
 {
@@ -33,7 +33,8 @@ public class OAuthConfiguration
 		defAccountAssociation = true;
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, URIAccessService uriAccessService)
+	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, 
+			ImageAccessService imageAccessService)
 	{
 		Properties raw = new Properties();
 		try
@@ -55,7 +56,7 @@ public class OAuthConfiguration
 
 			OAuthProviderConfiguration provider = new OAuthProviderConfiguration();
 			CustomProviderProperties providerProps = oauthProp.getProvider(key);
-			provider.fromProperties(msg, uriAccessService,  providerProps, idpKey);
+			provider.fromProperties(msg, imageAccessService,  providerProps, idpKey);
 			providers.add(provider);
 		}
 	}

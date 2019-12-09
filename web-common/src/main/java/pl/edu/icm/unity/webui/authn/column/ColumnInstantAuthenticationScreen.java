@@ -8,6 +8,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,7 +35,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
@@ -54,7 +54,7 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * Organizes authentication options in columns, making them instantly usable.
@@ -65,7 +65,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ColumnInstantAuthenticationScreen.class);
 	private final UnityMessageSource msg;
-	private final URIAccessService uriAccessService;
+	private final ImageAccessService imageAccessService;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
@@ -92,7 +92,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private Component cancelComponent;
 	private CredentialResetLauncher credentialResetLauncher;
 	
-	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, URIAccessService uriAccessService, VaadinEndpointProperties config,
+	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, ImageAccessService imageAccessService, 
+			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,
 			CredentialResetLauncher credentialResetLauncher,
@@ -118,7 +119,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
 		this.flows = flows;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		
 		init();
 	}
@@ -180,10 +181,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authenticationMainLayout.setMargin(false);
 		
 		String logoUri = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-		Resource logoRes = ImageUtils.getConfiguredImageResourceFromUri(logoUri, uriAccessService);
-		if (logoRes != null)
+		Optional<Resource> logoRes = imageAccessService.getConfiguredImageResourceFromNullableUri(logoUri);
+		if (logoRes.isPresent())
 		{
-			Image image = new Image(null, logoRes);
+			Image image = new Image(null, logoRes.get());
 			image.addStyleName("u-authn-logo");
 			authenticationMainLayout.addComponent(image);
 			authenticationMainLayout.setComponentAlignment(image, Alignment.TOP_CENTER);

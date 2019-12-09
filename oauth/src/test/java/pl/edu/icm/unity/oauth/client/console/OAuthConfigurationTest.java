@@ -21,7 +21,6 @@ import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -29,12 +28,14 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 public class OAuthConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private UnityMessageSource msg = mock(UnityMessageSource.class);
-	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
+	private ImageAccessService imageAccessService = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.INPUT, 
 			Lists.newArrayList(new TranslationRule("true", 
@@ -55,7 +56,7 @@ public class OAuthConfigurationTest
 		
 		OAuthConfiguration processor = new OAuthConfiguration();
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, uriAccessSrv);
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, imageAccessService);
 		String converted = processor.toProperties(msg, pkiMan, fileStorageSrv, "authName");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -80,7 +81,7 @@ public class OAuthConfigurationTest
 		
 		OAuthConfiguration processor = new OAuthConfiguration();
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, uriAccessSrv);
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, imageAccessService);
 		String converted = processor.toProperties(msg, pkiMan, fileStorageSrv, "authName");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -93,6 +94,7 @@ public class OAuthConfigurationTest
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		when(pkiMan.getValidatorNames()).thenReturn(Sets.newHashSet("foo"));
+		when(imageAccessService.getImageFromUriOrNull("http:foo")).thenReturn(new LocalOrRemoteResource("http:foo"));
 		Properties sourceProviderCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
@@ -104,7 +106,7 @@ public class OAuthConfigurationTest
 		
 		OAuthConfiguration processor = new OAuthConfiguration();
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, uriAccessSrv);
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, imageAccessService);
 		String converted = processor.toProperties(msg, pkiMan, fileStorageSrv, "authName");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();

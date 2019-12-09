@@ -18,12 +18,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedWithLogoutComponent;
 
 /**
@@ -38,17 +38,18 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	private Callback callback;
 	protected UnityMessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
-	protected URIAccessService uriAccessService;
+	protected ImageAccessService imageAccessService;
 	
 	protected VerticalLayout main;
 	
-	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, URIAccessService uriAccessService,
+	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, 
+			ImageAccessService imageAccessService,
 			UnityMessageSource msg,	Callback callback)
 	{
 		this.editor = editor;
 		this.authnProcessor = authnProcessor;
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.callback = callback;
 		main = new VerticalLayout();
 		main.setSpacing(true);
@@ -151,7 +152,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		setCompositionRoot(wrapper);
 
 		Component finalScreen = new WorkflowCompletedWithLogoutComponent(config, this::redirect, 
-				msg.getMessage("MainHeader.logout"), authnProcessor::logout, uriAccessService);
+				msg.getMessage("MainHeader.logout"), authnProcessor::logout, imageAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

@@ -26,18 +26,13 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.webadmin.utils.ProjectManagementHelper;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 
-/**
- * Home service controller.
- * 
- * @author P.Piernik
- *
- */
 @Component
 class HomeServiceController extends DefaultServicesControllerBase implements ServiceController
 {
@@ -55,6 +50,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
 	private NetworkServer server;
+	private ImageAccessService imageAccessService;
 
 	HomeServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
@@ -62,7 +58,8 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 			ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer server)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer server,
+			ImageAccessService imageAccessService)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -79,6 +76,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.server = server;
+		this.imageAccessService = imageAccessService;
 	}
 
 	@Override
@@ -91,7 +89,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 
-		return new HomeServiceEditor(msg, uriAccessService, fileStorageService, serverConfig,
+		return new HomeServiceEditor(msg, uriAccessService, imageAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
