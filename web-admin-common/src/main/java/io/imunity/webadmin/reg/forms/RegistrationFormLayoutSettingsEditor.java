@@ -110,7 +110,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
 			{
-				this.setLogo(ImageUtils.getImageFromUriSave(org.getLogoURL(), uriAccessService));
+				this.setLogo(ImageUtils.getImageFromUriOrNull(org.getLogoURL(), uriAccessService));
 			}
 		}
 
