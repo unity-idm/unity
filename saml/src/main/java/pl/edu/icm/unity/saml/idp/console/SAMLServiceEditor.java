@@ -22,6 +22,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
@@ -61,13 +62,15 @@ public class SAMLServiceEditor implements ServiceEditor
 	private SubViewSwitcher subViewSwitcher;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private List<String> usedPaths;
+	private ImageAccessService imageAccessService;
 
 	public SAMLServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			String serverPrefix,
 			Set<String> serverContextPaths,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
+			URIAccessService uriAccessService, 
+			ImageAccessService imageAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
@@ -77,6 +80,7 @@ public class SAMLServiceEditor implements ServiceEditor
 	{
 		this.msg = msg;
 		this.type = type;
+		this.imageAccessService = imageAccessService;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
@@ -117,7 +121,7 @@ public class SAMLServiceEditor implements ServiceEditor
 				type.getSupportedBinding(), msg.getMessage("IdpServiceEditorBase.authentication"));
 		
 		editor = new SAMLServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, webServiceAuthenticationTab,
-				type, pkiMan, uriAccessService, fileStorageService, endpoint, allGroups);
+				type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups);
 		return editor;
 	}
 

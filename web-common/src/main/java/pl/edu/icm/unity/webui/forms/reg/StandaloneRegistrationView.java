@@ -28,7 +28,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -46,6 +45,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
@@ -78,7 +78,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
 	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -87,7 +87,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			IdPLoginController idpLoginController,
 			RequestEditorCreator editorCreator,
 			AuthenticationProcessor authnProcessor,
-			AutoLoginAfterSignUpProcessor autoLogin, URIAccessService uriAccessService)
+			AutoLoginAfterSignUpProcessor autoLogin, ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
@@ -96,7 +96,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.editorCreator = editorCreator;
 		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
 		this.autoLoginProcessor = autoLogin;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 	
 	@Override
@@ -383,7 +383,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		setCompositionRoot(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController), uriAccessService);
+			url -> redirect(url, idpLoginController), imageAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

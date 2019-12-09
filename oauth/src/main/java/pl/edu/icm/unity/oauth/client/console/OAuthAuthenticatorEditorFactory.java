@@ -20,6 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * Factory for {@link OAuthAuthenticatorEditor}
@@ -38,12 +39,13 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
 	private NetworkServer networkServer;
+	private ImageAccessService imageAccessService;
 
 	@Autowired
 	OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
 			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory,
 			FileStorageService fileStorageService, URIAccessService uriAccessService, 
-			UnityServerConfiguration serverConfig,
+			ImageAccessService imageAccessService, UnityServerConfiguration serverConfig, 
 			NetworkServer networkServer)
 	{
 		this.msg = msg;
@@ -52,6 +54,7 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.registrationMan = registrationMan;
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.serverConfig = serverConfig;
 		this.networkServer = networkServer;
 	}
@@ -65,7 +68,8 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new OAuthAuthenticatorEditor(msg, serverConfig, pkiMan, fileStorageService, uriAccessService,
+		return new OAuthAuthenticatorEditor(msg, serverConfig, pkiMan, fileStorageService, uriAccessService, 
+				imageAccessService,
 				profileFieldFactory, registrationMan, networkServer::getAdvertisedAddress);
 	}
 }

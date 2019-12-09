@@ -9,6 +9,8 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.UI;
@@ -20,11 +22,20 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 
-public class ImageUtils
+@Component
+public class ImageAccessService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImageUtils.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImageAccessService.class);
 
-	public static LocalOrRemoteResource getImageFromUriOrNull(String logoUri, URIAccessService uriService)
+	private final URIAccessService uriAccessService;
+	
+	@Autowired
+	public ImageAccessService(URIAccessService uriAccessService)
+	{
+		this.uriAccessService = uriAccessService;
+	}
+
+	public LocalOrRemoteResource getImageFromUriOrNull(String logoUri)
 	{
 		if (logoUri == null || logoUri.isEmpty())
 			return null;
@@ -36,7 +47,7 @@ public class ImageUtils
 				return new LocalOrRemoteResource(uri.toString());
 			} else
 			{
-				FileData fileData = uriService.readImageURI(uri, UI.getCurrent().getTheme());
+				FileData fileData = uriAccessService.readImageURI(uri, UI.getCurrent().getTheme());
 				return new LocalOrRemoteResource(fileData.getContents(), uri.toString());
 			}
 		} catch (Exception e)
@@ -46,7 +57,7 @@ public class ImageUtils
 		return null;
 	}
 
-	public static Optional<Resource> getConfiguredImageResourceFromNullableUri(String logoUri, URIAccessService uriAccessService)
+	public Optional<Resource> getConfiguredImageResourceFromNullableUri(String logoUri)
 	{
 		if (logoUri == null || logoUri.isEmpty())
 			return Optional.empty();

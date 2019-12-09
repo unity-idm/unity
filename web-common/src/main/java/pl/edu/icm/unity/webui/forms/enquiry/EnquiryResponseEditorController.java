@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -55,6 +54,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
@@ -80,7 +80,7 @@ public class EnquiryResponseEditorController
 	private EntityManagement idMan;	
 	private AttributesManagement attrMan;
 	private IdPLoginController idpLoginController;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 
 	@Autowired
 	public EnquiryResponseEditorController(UnityMessageSource msg,
@@ -93,7 +93,7 @@ public class EnquiryResponseEditorController
 			@Qualifier("insecure") GroupsManagement groupsMan,
 			@Qualifier("insecure") EntityManagement idMan,
 			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController,
-			URIAccessService uriAccessService)
+			ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -106,7 +106,7 @@ public class EnquiryResponseEditorController
 		this.idMan = idMan;
 		this.attrMan = attrMan;
 		this.idpLoginController = idpLoginController;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
@@ -114,7 +114,7 @@ public class EnquiryResponseEditorController
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, uriAccessService, set);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, set);
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 

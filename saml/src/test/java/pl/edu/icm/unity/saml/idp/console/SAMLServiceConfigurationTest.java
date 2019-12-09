@@ -29,12 +29,15 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 public class SAMLServiceConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private UnityMessageSource msg = mock(UnityMessageSource.class);
 	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
+	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	
 	@Test
@@ -52,7 +55,7 @@ public class SAMLServiceConfigurationTest
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, pkiMan, Lists.newArrayList());
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, imageAccessSrv, pkiMan, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -79,7 +82,8 @@ public class SAMLServiceConfigurationTest
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, pkiMan, Lists.newArrayList());
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, 
+				imageAccessSrv, pkiMan, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -95,6 +99,7 @@ public class SAMLServiceConfigurationTest
 		when(pkiMan.getCredentialNames()).thenReturn(Sets.newHashSet("foo"));
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
+		when(imageAccessSrv.getImageFromUriOrNull("http:foo")).thenReturn(new LocalOrRemoteResource("http:foo"));
 		TranslationProfile tp = new TranslationProfile("name", "description", ProfileType.OUTPUT, Collections.emptyList());
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, defaults)
 				.update("embeddedTranslationProfile", tp.toJsonObject().toString())
@@ -107,7 +112,8 @@ public class SAMLServiceConfigurationTest
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, pkiMan, Lists.newArrayList());
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, 
+				imageAccessSrv, pkiMan, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();

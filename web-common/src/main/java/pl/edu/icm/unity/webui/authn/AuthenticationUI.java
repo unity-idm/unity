@@ -35,7 +35,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -53,7 +52,7 @@ import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 
@@ -70,7 +69,7 @@ import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	private LocaleChoiceComponent localeChoice;
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private RegistrationFormsLayoutController registrationFormController;
@@ -85,7 +84,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private boolean resetScheduled;
 	
 	@Autowired
-	public AuthenticationUI(UnityMessageSource msg, URIAccessService uriAccessService, LocaleChoiceComponent localeChoice,
+	public AuthenticationUI(UnityMessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
 			StandardWebAuthenticationProcessor authnProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,
@@ -102,7 +101,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.idsMan = idsMan;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 
 
@@ -124,7 +123,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		authenticationUI = new ColumnInstantAuthenticationScreen(msg, uriAccessService, config, endpointDescription,
+		authenticationUI = new ColumnInstantAuthenticationScreen(msg, imageAccessService, config, endpointDescription,
 				this::showOutdatedCredentialDialog, 
 				new CredentialResetLauncherImpl(),
 				this::showRegistration, 
@@ -289,7 +288,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		private Optional<Resource> getLogo()
 		{
 			String logoURL = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-			return ImageUtils.getConfiguredImageResourceFromNullableUri(logoURL, uriAccessService);
+			return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURL);
 		}
 	}
 }

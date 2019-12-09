@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageField;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * General registration layouts settings editor.
@@ -40,14 +40,17 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 	private UnityServerConfiguration serverConfig;
 
 	private Binder<FormLayoutSettingsWithLogo> binder;
+	private ImageAccessService imageAccessService;
 
 	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig,
-			FileStorageService fileStorageService, URIAccessService uriAccessService)
+			FileStorageService fileStorageService, URIAccessService uriAccessService, 
+			ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
+		this.imageAccessService = imageAccessService;
 		initUI();
 	}
 
@@ -80,7 +83,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 						Float.MAX_VALUE))
 				.bind("columnWidth");
 		binder.forField(columnWidthUnit).asRequired(msg.getMessage("fieldRequired")).bind("columnWidthUnit");
-		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, uriAccessService));
+		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, imageAccessService));
 	}
 
 	public FormLayoutSettings getSettings(String formName) throws FormValidationException
@@ -90,28 +93,25 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 
 	public void setSettings(FormLayoutSettings settings)
 	{
-		binder.setBean(new FormLayoutSettingsWithLogo(settings, uriAccessService));
+		binder.setBean(new FormLayoutSettingsWithLogo(settings, imageAccessService));
 	}
 
 	public static class FormLayoutSettingsWithLogo extends FormLayoutSettings
 	{
 		private LocalOrRemoteResource logo;
-
+		
 		public FormLayoutSettingsWithLogo()
 		{
-
 		}
 
-		public FormLayoutSettingsWithLogo(FormLayoutSettings org, URIAccessService uriAccessService)
+		public FormLayoutSettingsWithLogo(FormLayoutSettings org, ImageAccessService imageAccessService)
 		{
 			this.setColumnWidth(org.getColumnWidth());
 			this.setColumnWidthUnit(org.getColumnWidthUnit());
 			this.setShowCancel(org.isShowCancel());
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
-			{
-				this.setLogo(ImageUtils.getImageFromUriOrNull(org.getLogoURL(), uriAccessService));
-			}
+				this.setLogo(imageAccessService.getImageFromUriOrNull(org.getLogoURL()));
 		}
 
 		public FormLayoutSettings toFormLayoutSettings(FileStorageService fileStorageService, String formName)

@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**
@@ -84,6 +85,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private EnquiryFormLayoutEditorTab layoutEditor;
 	//binder is only for targetCondition validation
 	private Binder<EnquiryForm> binder;
+
+	private final ImageAccessService imageAccessService;
 	
 	
 	@Autowired
@@ -92,7 +95,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService, URIAccessService uriAccessService)
+			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService, 
+			URIAccessService uriAccessService, ImageAccessService imageAccessService)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, authenticationMan);
@@ -105,6 +109,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.uriAccessService = uriAccessService;
 		actionComponentProvider = actionComponentFactory;
 		this.serverConfig = serverConfig;
+		this.imageAccessService = imageAccessService;
 		this.actionComponentProvider.init();
 	}
 
@@ -269,7 +274,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		main.addComponents(displayedName, formInformation, pageTitle);
 		
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, uriAccessService);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, 
+				uriAccessService, imageAccessService);
 		
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);

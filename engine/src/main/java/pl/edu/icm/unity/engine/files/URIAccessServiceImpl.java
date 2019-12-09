@@ -35,17 +35,10 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @Component
 public class URIAccessServiceImpl implements URIAccessService
 {
-
 	private static final Logger log = Log.getLogger(Log.U_SERVER, URIAccessServiceImpl.class);
-	
 	
 	private FileDAO fileDao;
 	private boolean restrictFileSystemAccess;

@@ -56,6 +56,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
@@ -83,7 +84,8 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 	private boolean editMode = false;
 
-	EditOAuthProviderSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan, URIAccessService uriAccessService,
+	EditOAuthProviderSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan, 
+			URIAccessService uriAccessService, ImageAccessService imageAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			OAuthProviderConfiguration toEdit, Set<String> providersIds, SubViewSwitcher subViewSwitcher,
 			Set<String> registrationForms, Set<String> validators,
@@ -107,7 +109,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 		templateCombo.addValueChangeListener(e -> {
 			OAuthProviderConfiguration config = new OAuthProviderConfiguration();
-			config.fromTemplate(msg, uriAccessService, templates.get(e.getValue()), e.getValue(),
+			config.fromTemplate(msg, imageAccessService, templates.get(e.getValue()), e.getValue(),
 					editMode ? configBinder.getBean().getId() : null);
 			config.setType(e.getValue());
 			configBinder.setBean(config);

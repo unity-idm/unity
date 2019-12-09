@@ -8,7 +8,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -17,6 +16,7 @@ import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
@@ -38,10 +38,10 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, URIAccessService uriAccessService, PrefilledSet prefilled) throws Exception
+			GroupsManagement groupsMan, ImageAccessService imageAccessService, PrefilledSet prefilled) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, uriAccessService);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService);
 		this.enquiryForm = form;
 		this.prefilled = prefilled;
 		validateMandatoryRemoteInput();

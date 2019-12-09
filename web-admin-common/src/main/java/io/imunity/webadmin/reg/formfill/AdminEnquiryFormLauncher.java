@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -37,6 +36,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
@@ -67,7 +67,7 @@ public class AdminEnquiryFormLauncher
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public AdminEnquiryFormLauncher(UnityMessageSource msg,
@@ -77,9 +77,8 @@ public class AdminEnquiryFormLauncher
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
-			EnquiryResponseEditorController responseController, URIAccessService uriAccessService)
+			EnquiryResponseEditorController responseController, ImageAccessService imageAccessService)
 	{
-		super();
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -90,7 +89,7 @@ public class AdminEnquiryFormLauncher
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
 		this.responseController = responseController;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -175,7 +174,7 @@ public class AdminEnquiryFormLauncher
 		{
 			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
 					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
-					groupsMan, uriAccessService, responseController.getPrefilledForSticky(form));
+					groupsMan, imageAccessService, responseController.getPrefilledForSticky(form));
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

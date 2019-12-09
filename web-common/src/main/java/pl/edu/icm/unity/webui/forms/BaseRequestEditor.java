@@ -38,7 +38,6 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -90,7 +89,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
@@ -106,7 +105,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected UnityMessageSource msg;
-	protected URIAccessService uriAccessService;
+	protected ImageAccessService imageAccessService;
 	private BaseForm form;
 	protected RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -137,7 +136,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, URIAccessService uriAccessService)
+			GroupsManagement groupsMan, ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.form = form;
@@ -148,7 +147,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.aTypeMan = atMan;
 		this.credMan = credMan;
 		this.groupsMan = groupsMan;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
@@ -435,7 +434,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		String logoURL = form.getLayoutSettings().getLogoURL();
 			
-		Optional<Resource> res = ImageUtils.getConfiguredImageResourceFromNullableUri(logoURL, uriAccessService);
+		Optional<Resource> res = imageAccessService.getConfiguredImageResourceFromNullableUri(logoURL);
 		
 		if (res.isPresent())
 		{

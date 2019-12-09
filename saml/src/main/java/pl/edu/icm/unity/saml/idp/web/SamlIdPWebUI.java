@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
@@ -53,6 +52,7 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
@@ -80,7 +80,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected PreferencesManagement preferencesMan;
 	protected StandardWebAuthenticationProcessor authnProcessor;
 	protected SessionManagement sessionMan;
-	protected URIAccessService uriAccessService;
+	protected ImageAccessService imageAccessService;
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
@@ -90,8 +90,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected Map<String, AttributeType> attributeTypes;
 
 	@Autowired
-	public SamlIdPWebUI(UnityMessageSource msg, URIAccessService uriAccessService
-			,FreemarkerAppHandler freemarkerHandler,
+	public SamlIdPWebUI(UnityMessageSource msg, ImageAccessService imageAccessService,
+			FreemarkerAppHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan, 
@@ -101,7 +101,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.freemarkerHandler = freemarkerHandler;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
@@ -172,7 +172,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			return;
 		}
 		
-		SamlConsentScreen consentScreen = new SamlConsentScreen(msg, uriAccessService,
+		SamlConsentScreen consentScreen = new SamlConsentScreen(msg, imageAccessService,
 				handlersRegistry, 
 				preferencesMan, 
 				authnProcessor, 

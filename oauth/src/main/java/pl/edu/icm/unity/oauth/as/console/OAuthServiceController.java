@@ -76,6 +76,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
@@ -122,6 +123,7 @@ class OAuthServiceController implements IdpServiceController
 	private GroupsManagement groupMan;
 	private EntityCredentialManagement entityCredentialManagement;
 	private IdpUsersHelper idpUsersHelper;
+	private ImageAccessService imageService;
 
 	@Autowired
 	OAuthServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
@@ -134,7 +136,7 @@ class OAuthServiceController implements IdpServiceController
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
 			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
-			IdpUsersHelper idpUsersHelper)
+			ImageAccessService imageService, IdpUsersHelper idpUsersHelper)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -157,6 +159,7 @@ class OAuthServiceController implements IdpServiceController
 		this.entityMan = entityMan;
 		this.groupMan = groupMan;
 		this.entityCredentialManagement = entityCredentialManagement;
+		this.imageService = imageService;
 		this.idpUsersHelper = idpUsersHelper;
 	}
 
@@ -639,7 +642,7 @@ class OAuthServiceController implements IdpServiceController
 
 		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
 				server.getAdvertisedAddress().toString(), server.getUsedContextPaths(),
-				uriAccessService, fileStorageService, serverConfig,
+				imageService, uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),

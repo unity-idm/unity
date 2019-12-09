@@ -17,7 +17,6 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -29,11 +28,11 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 {
@@ -60,17 +59,17 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		accountAssociation = ToggleWithDefault.bydefault;
 	}
 
-	public void fromTemplate(UnityMessageSource msg, URIAccessService uriAccessService,
+	public void fromTemplate(UnityMessageSource msg,  ImageAccessService imageAccessService,
 			CustomProviderProperties source, String idFromTemplate, String orgId)
 	{
 		String profile = source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		if (profile != null && !profile.isEmpty())
 			setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(profile));
 		
-		fromProperties(msg, uriAccessService, source, orgId != null ? orgId : idFromTemplate);
+		fromProperties(msg, imageAccessService, source, orgId != null ? orgId : idFromTemplate);
 	}
 
-	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService,
+	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService,
 			CustomProviderProperties source, String id)
 	{
 		setId(id);
@@ -84,7 +83,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		{
 			String logoUri = source.getLocalizedString(msg, CustomProviderProperties.ICON_URL)
 					.getDefaultValue();
-			setLogo(ImageUtils.getImageFromUriOrNull(logoUri, uriAccessService));
+			setLogo(imageAccessService.getImageFromUriOrNull(logoUri));
 		}
 
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));

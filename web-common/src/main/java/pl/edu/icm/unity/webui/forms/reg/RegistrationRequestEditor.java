@@ -37,7 +37,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
@@ -67,7 +66,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -112,13 +111,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, URIAccessService uriAccessService,
+			GroupsManagement groupsMan, ImageAccessService imageAccessService,
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
 			SignUpAuthNController signUpAuthNController)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, uriAccessService);
+				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation2;
@@ -239,7 +238,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		setCompositionRoot(main);
 		
 		String logoUri = form.getLayoutSettings().getLogoURL();
-		Optional<Resource> logoRes = ImageUtils.getConfiguredImageResourceFromNullableUri(logoUri, uriAccessService);
+		Optional<Resource> logoRes = imageAccessService.getConfiguredImageResourceFromNullableUri(logoUri);
 		if (logoRes.isPresent())
 		{
 			Image image = new Image(null, logoRes.get());

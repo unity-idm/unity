@@ -12,14 +12,13 @@ import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * SAML Individual trusted sp configuration
@@ -49,7 +48,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		x500Name = false;
 	}
 
-	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService, SamlIdpProperties source,
+	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService, SamlIdpProperties source,
 			String name)
 	{
 		setName(name);
@@ -71,7 +70,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_LOGO);
-			setLogo(ImageUtils.getImageFromUriOrNull(logoUri, uriAccessService));
+			setLogo(imageAccessService.getImageFromUriOrNull(logoUri));
 		}
 
 		certificates = new ArrayList<>();

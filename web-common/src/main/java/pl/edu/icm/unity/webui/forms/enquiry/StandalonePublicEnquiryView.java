@@ -29,7 +29,6 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -48,6 +47,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
 import pl.edu.icm.unity.webui.forms.FormsUIHelper;
@@ -69,7 +69,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 	
 	private UnityMessageSource msg;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	private VerticalLayout main;
 	private String registrationCode;
@@ -83,12 +83,13 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, URIAccessService uriAccessService)
+			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, 
+			ImageAccessService imageAccessService)
 	{
 		this.editorController = editorController;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 
 	@Override
@@ -331,7 +332,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
 		log.debug("Enquiry is finalized, status: {}", config);
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect, uriAccessService);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect, imageAccessService);
 		Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 		setCompositionRoot(wrapper);
 		setSizeFull();

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 /**
@@ -43,6 +44,7 @@ public class SAMLServiceController extends SAMLServiceControllerBase
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService, 
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService, IdentityTypeSupport idTypeSupport,
 			PKIManagement pkiMan, NetworkServer server,
@@ -52,7 +54,7 @@ public class SAMLServiceController extends SAMLServiceControllerBase
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
 				registrationMan, uriAccessService, fileStorageService, serverConfig,
 				authenticatorSupportService, idTypeSupport, pkiMan, server,
-				outputTranslationProfileFieldFactory, idpUserHelper);
+				outputTranslationProfileFieldFactory, idpUserHelper, imageAccessService);
 	}
 
 	@Override

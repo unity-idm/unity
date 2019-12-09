@@ -19,7 +19,6 @@ import com.vaadin.server.VaadinRequest;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * Vaadin UI of the sandbox application. This UI is using the same authenticators as those configured for
@@ -47,10 +47,10 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	@Autowired
-	public AccountAssociationSandboxUI(UnityMessageSource msg, URIAccessService uriAccessService,
+	public AccountAssociationSandboxUI(UnityMessageSource msg, ImageAccessService imageAccessService,
 			LocaleChoiceComponent localeChoice,
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
@@ -62,7 +62,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 		this.authnProcessor = authnProcessor;
 		this.execService = execService;
 		this.idsMan = idsMan;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 	
 	@Override
@@ -81,7 +81,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 		String title = msg.getMessage("SandboxUI.authenticateToAssociateAccounts");
 		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg, 
-				uriAccessService,
+				imageAccessService,
 				config, 
 				endpointDescription, 
 				cancelHandler, 

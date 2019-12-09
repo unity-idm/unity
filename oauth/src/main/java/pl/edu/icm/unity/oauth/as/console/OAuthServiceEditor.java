@@ -23,6 +23,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
@@ -44,7 +45,7 @@ class OAuthServiceEditor implements ServiceEditor
 	private Function<String, List<OAuthClient>> systemClientsSupplier;
 	private List<String> registrationForms;
 	private Set<String> credentials;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageService;
 	private FileStorageService fileStorageService;
 	private UnityServerConfiguration serverConfig;
 	private AuthenticatorSupportService authenticatorSupportService;
@@ -55,13 +56,15 @@ class OAuthServiceEditor implements ServiceEditor
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private List<String> usedPaths;
 	private List<String> allUsernames;
+	private URIAccessService uriAccessService;
 
 	OAuthServiceEditor(UnityMessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, 
 			String serverPrefix,
 			Set<String> serverContextPaths,
-			URIAccessService uriAccessService, 
+			ImageAccessService imageService, 
+			URIAccessService uriAccessService,
 			FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, 
 			List<String> allRealms,
@@ -79,13 +82,14 @@ class OAuthServiceEditor implements ServiceEditor
 			List<String> usedPaths)
 	{
 		this.msg = msg;
+		this.uriAccessService = uriAccessService;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.allAttributes = allAttributes;
 		this.allGroups = allGroups;
 		this.registrationForms = registrationForms;
-		this.uriAccessService = uriAccessService;
+		this.imageService = imageService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
@@ -118,7 +122,7 @@ class OAuthServiceEditor implements ServiceEditor
 				allAttributes);
 		
 		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab,
-				fileStorageService, uriAccessService, endpoint, allGroups, systemClientsSupplier);
+				fileStorageService, imageService, endpoint, allGroups, systemClientsSupplier);
 		return editor;
 	}
 

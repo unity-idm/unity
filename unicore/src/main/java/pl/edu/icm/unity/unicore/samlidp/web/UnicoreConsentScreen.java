@@ -19,7 +19,6 @@ import eu.unicore.security.etd.DelegationRestrictions;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -37,6 +36,7 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETD
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.idpcommon.ExposedSelectableAttributesComponent;
@@ -58,7 +58,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 
 	private UnicoreConfirmationConsumer acceptHandler;
 
-	public UnicoreConsentScreen(UnityMessageSource msg, URIAccessService uriAccessService, 
+	public UnicoreConsentScreen(UnityMessageSource msg, ImageAccessService imageAccessService, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan, 
 			StandardWebAuthenticationProcessor authnProcessor,
@@ -70,7 +70,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 			Runnable declineHandler, 
 			UnicoreConfirmationConsumer acceptHandler)
 	{
-		super(msg, uriAccessService, handlersRegistry, preferencesMan, authnProcessor, identityTypeSupport, aTypeSupport, 
+		super(msg, imageAccessService, handlersRegistry, preferencesMan, authnProcessor, identityTypeSupport, aTypeSupport, 
 				validIdentities, attributes, attributeTypes, declineHandler, null);
 		this.acceptHandler = acceptHandler;
 	}

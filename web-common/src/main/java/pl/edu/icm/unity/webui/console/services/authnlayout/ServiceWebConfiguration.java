@@ -16,14 +16,13 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutColumnConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
@@ -156,7 +155,7 @@ public class ServiceWebConfiguration
 		return raw;
 	}
 
-	public void fromProperties(String vaadinProperties, UnityMessageSource msg, URIAccessService uriAccessService)
+	public void fromProperties(String vaadinProperties, UnityMessageSource msg, ImageAccessService imageAccessService)
 	{
 		Properties raw = new Properties();
 		try
@@ -168,11 +167,11 @@ public class ServiceWebConfiguration
 		}
 
 		VaadinEndpointProperties vProperties = new VaadinEndpointProperties(raw);
-		fromProperties(vProperties, msg, uriAccessService);
+		fromProperties(vProperties, msg, imageAccessService);
 	}
 
 	public void fromProperties(VaadinEndpointProperties vaadinProperties, UnityMessageSource msg,
-			URIAccessService uriAccessService)
+			ImageAccessService imageAccessService)
 	{
 
 		if (vaadinProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
@@ -199,7 +198,7 @@ public class ServiceWebConfiguration
 				.getListOfValues(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS);
 
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-		logo = ImageUtils.getImageFromUriOrNull(logoUri, uriAccessService);
+		logo = imageAccessService.getImageFromUriOrNull(logoUri);
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);

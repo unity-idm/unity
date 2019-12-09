@@ -15,7 +15,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -34,6 +33,7 @@ import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 
 
@@ -50,20 +50,20 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 	private IdPLoginController idpLoginController;
 	private EventsBus bus;
 	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
-	private URIAccessService uriAccessService;
+	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public InsecureRegistrationFormLauncher(UnityMessageSource msg, IdPLoginController idpLoginController,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory, 
 			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			AutoLoginAfterSignUpProcessor autoLoginProcessor, URIAccessService uriAccessService)
+			AutoLoginAfterSignUpProcessor autoLoginProcessor, ImageAccessService imageAccessService)
 	{
 		super(msg, requestEditorCreatorFatory);
 		this.idpLoginController = idpLoginController;
 		this.registrationsManagement = registrationsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.autoLoginProcessor = autoLoginProcessor;
-		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 	}
 
 	private WorkflowFinalizationConfiguration addRequest(RegistrationRequest request, 
@@ -141,7 +141,7 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 		RegistrationContext context = new RegistrationContext(
 				idpLoginController.isLoginInProgress(), mode);
 		boolean isSimplifiedFinalization = isRemoteLoginWhenUnknownUser(mode);
-		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, uriAccessService,
+		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, imageAccessService,
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 				editor, new RegistrationFormFillDialog.Callback()
 				{

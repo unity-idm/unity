@@ -20,6 +20,7 @@ import pl.edu.icm.unity.saml.idp.console.SAMLServiceConfiguration;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
@@ -44,6 +45,7 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
 			AuthenticationTab authTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
 			ServiceDefinition toEdit, List<Group> allGroups)
 	{
@@ -72,8 +74,8 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 			serviceBean = (DefaultServiceDefinition) toEdit;
 			if (serviceBean.getConfiguration() != null)
 			{
-				samlConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService, pkiMan,
-						allGroups);
+				samlConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService, 
+						imageAccessService, pkiMan, allGroups);
 			}
 		}
 

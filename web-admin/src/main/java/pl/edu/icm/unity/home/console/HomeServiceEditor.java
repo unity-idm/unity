@@ -18,18 +18,13 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
-/**
- * Home service editor
- * 
- * @author P.Piernik
- *
- */
 class HomeServiceEditor implements ServiceEditor
 {
 	private UnityMessageSource msg;
@@ -49,8 +44,10 @@ class HomeServiceEditor implements ServiceEditor
 	private AuthenticatorSupportService authenticatorSupportService;
 	private List<String> usedEndpointsPaths;
 	private Set<String> serverContextPaths;
+	private ImageAccessService imageAccessService;
 
 	HomeServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, String extraTab, List<String> allAttributes,
@@ -59,6 +56,7 @@ class HomeServiceEditor implements ServiceEditor
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
+		this.imageAccessService = imageAccessService;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
@@ -88,7 +86,7 @@ class HomeServiceEditor implements ServiceEditor
 				registrationForms, UserHomeEndpointFactory.TYPE.getSupportedBinding());
 
 		editor = new HomeServiceEditorComponent(msg, homeServiceEditorGeneralTab, authenticationTab,
-				uriAccessService, fileStorageService, serverConfig, (DefaultServiceDefinition) endpoint,
+				imageAccessService, fileStorageService, serverConfig, (DefaultServiceDefinition) endpoint,
 				extraTab, allGroups);
 		return editor;
 	}

@@ -19,10 +19,9 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 
@@ -33,9 +32,9 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 public class WorkflowCompletedComponent extends CustomComponent
 {
 	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector,
-			URIAccessService uriAccessService)
+			ImageAccessService imageAccessService)
 	{
-		Optional<Resource> logoResource = ImageUtils.getConfiguredImageResourceFromNullableUri(config.logoURL, uriAccessService);
+		Optional<Resource> logoResource = imageAccessService.getConfiguredImageResourceFromNullableUri(config.logoURL);
 		createUI(config, logoResource, redirector);
 	}
 	

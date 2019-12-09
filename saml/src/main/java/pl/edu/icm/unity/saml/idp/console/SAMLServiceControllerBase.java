@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
@@ -53,6 +54,7 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	private NetworkServer server;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
+	private ImageAccessService imageAccessService;
 
 	public SAMLServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan,
 			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
@@ -63,7 +65,7 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 			AuthenticatorSupportService authenticatorSupportService, IdentityTypeSupport idTypeSupport,
 			PKIManagement pkiMan, NetworkServer server,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			IdpUsersHelper idpUserHelper)
+			IdpUsersHelper idpUserHelper, ImageAccessService imageAccessService)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -81,6 +83,7 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 		this.server = server;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.idpUserHelper = idpUserHelper;
+		this.imageAccessService = imageAccessService;
 	}
 
 	@Override
@@ -94,7 +97,8 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	{
 		return new SAMLServiceEditor(msg, getType(), pkiMan, subViewSwitcher,
 				outputTranslationProfileFieldFactory, server.getAdvertisedAddress().toString(),
-				server.getUsedContextPaths(), uriAccessService, fileStorageService, serverConfig,
+				server.getUsedContextPaths(), uriAccessService, imageAccessService, 
+				fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),

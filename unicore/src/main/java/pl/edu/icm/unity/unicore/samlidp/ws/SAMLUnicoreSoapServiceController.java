@@ -24,13 +24,9 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.ws.console.SAMLSoapServiceControllerBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @Component
 class SAMLUnicoreSoapServiceController extends SAMLSoapServiceControllerBase
 {
@@ -42,9 +38,10 @@ class SAMLUnicoreSoapServiceController extends SAMLSoapServiceControllerBase
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
 			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			IdpUsersHelper idpUserHelper)
+			IdpUsersHelper idpUserHelper, ImageAccessService imageAccessService)
 	{
-		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
+		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, imageAccessService, 
+				bulkService,
 				uriAccessService, fileStorageService, serverConfig, idTypeSupport, pkiMan, server,
 				outputTranslationProfileFieldFactory, idpUserHelper);
 	}

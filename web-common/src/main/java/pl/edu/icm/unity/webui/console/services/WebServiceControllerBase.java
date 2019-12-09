@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
@@ -41,15 +42,17 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	private NetworkServer networkServer;
 	private EndpointTypeDescription type;
 	private String defaultMainTheme;
+	private ImageAccessService imageAccessService;
 
 	public WebServiceControllerBase(EndpointTypeDescription type, UnityMessageSource msg,
 			EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer)
 	{
-		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService,
+		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService, imageAccessService,
 				fileStorageService, serverConfig, authenticatorSupportService, networkServer,
 				null);
 	}
@@ -58,6 +61,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer, String defaultMainTheme)
 	{
@@ -67,6 +71,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 		this.authMan = authMan;
 		this.registrationMan = registrationMan;
 		this.uriAccessService = uriAccessService;
+		this.imageAccessService = imageAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
@@ -84,7 +89,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	@Override
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
-		return new WebServiceEditor(type, msg, uriAccessService, fileStorageService, serverConfig,
+		return new WebServiceEditor(type, msg, uriAccessService, imageAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),

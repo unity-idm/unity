@@ -26,7 +26,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -48,7 +47,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
@@ -59,7 +58,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	
 	private UnityMessageSource msg;
-	private URIAccessService uriService;
+	private ImageAccessService imageAccessService;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
 	private final String configKey;
@@ -77,12 +76,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private ExpectedIdentity expectedIdentity;
 
-	public OAuth2RetrievalUI(UnityMessageSource msg, URIAccessService fileStorageService, OAuthExchange credentialExchange,
+	public OAuth2RetrievalUI(UnityMessageSource msg, ImageAccessService imageAccessService, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
 			String idpKey, String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
-		this.uriService = fileStorageService;
+		this.imageAccessService = imageAccessService;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
@@ -120,7 +119,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
 
-		Resource logo = ImageUtils.getConfiguredImageResourceFromNullableUri(logoURI, uriService)
+		Resource logo = imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI)
 				.orElse(Images.empty.getResource());
 
 		String signInLabel;
@@ -158,7 +157,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
-		return ImageUtils.getConfiguredImageResourceFromNullableUri(logoURI, uriService).orElse(null);
+		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI).orElse(null);
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * Related to {@link SAMLSPProperties}. Contains whole SAML authenticator
@@ -163,8 +164,8 @@ public class SAMLAuthneticatorConfiguration
 
 	}
 
-	public void fromProperties(PKIManagement pkiMan, URIAccessService uriAccessService, UnityMessageSource msg,
-			String properties)
+	public void fromProperties(PKIManagement pkiMan, URIAccessService uriAccessService, 
+			ImageAccessService imageAccessService, UnityMessageSource msg, String properties)
 	{
 		Properties raw = new Properties();
 		try
@@ -211,7 +212,7 @@ public class SAMLAuthneticatorConfiguration
 				key -> {
 					SAMLIndividualTrustedSamlIdpConfiguration idp = new SAMLIndividualTrustedSamlIdpConfiguration();
 					key = key.substring(SAMLSPProperties.IDP_PREFIX.length(), key.length() - 1);
-					idp.fromProperties(msg, uriAccessService, samlSpProp, key);
+					idp.fromProperties(msg, imageAccessService, samlSpProp, key);
 					individualTrustedIdps.add(idp);
 				});
 
