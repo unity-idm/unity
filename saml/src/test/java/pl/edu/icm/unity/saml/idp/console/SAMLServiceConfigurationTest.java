@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.console;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
@@ -99,7 +100,7 @@ public class SAMLServiceConfigurationTest
 		when(pkiMan.getCredentialNames()).thenReturn(Sets.newHashSet("foo"));
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getImageFromUriOrNull("http:foo")).thenReturn(new LocalOrRemoteResource("http:foo"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource(null, "foo"));
 		TranslationProfile tp = new TranslationProfile("name", "description", ProfileType.OUTPUT, Collections.emptyList());
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, defaults)
 				.update("embeddedTranslationProfile", tp.toJsonObject().toString())
@@ -107,7 +108,6 @@ public class SAMLServiceConfigurationTest
 				.remove("acceptedSP.1.dn")
 				.update("defaultGroup", "/foo1")
 				.update("groupMapping.1.mappingGroup", "/foo2")
-				.update("acceptedSP.1.logoURI", "http:foo")
 				.update("metadataSource", "http:foo")
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());

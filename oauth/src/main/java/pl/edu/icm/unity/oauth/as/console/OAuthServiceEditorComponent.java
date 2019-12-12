@@ -49,15 +49,10 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	private Group generatedIdPGroup;
 	private boolean editMode;
 
-	OAuthServiceEditorComponent(UnityMessageSource msg, 
-			OAuthEditorGeneralTab generalTab,
-			OAuthEditorClientsTab clientsTab,
-			IdpEditorUsersTab usersTab,
-			WebServiceAuthenticationTab webAuthTab,
-			FileStorageService fileStorageService,
-			ImageAccessService imageAccessService,
-			ServiceDefinition toEdit, 
-			List<Group> allGroups, 
+	OAuthServiceEditorComponent(UnityMessageSource msg, OAuthEditorGeneralTab generalTab,
+			OAuthEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
+			WebServiceAuthenticationTab webAuthTab, FileStorageService fileStorageService,
+			ImageAccessService imageAccessService, ServiceDefinition toEdit, List<Group> allGroups,
 			Function<String, List<OAuthClient>> systemClientsSupplier)
 	{
 		super(msg);
@@ -77,8 +72,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		if (!editMode)
 		{
-			if (allGroups.stream().map(g -> g.toString())
-					.filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP)).count() == 0)
+			if (allGroups.stream().map(g -> g.toString()).filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP))
+					.count() == 0)
 			{
 				groupsWithAutoGen.add(new Group(IDP_CLIENT_MAIN_GROUP));
 			}
@@ -91,15 +86,14 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		clientsTab.initUI(groupsWithAutoGen, oauthServiceTokenBinder, oauthConfigBinder, clientsBinder);
 		usersTab.initUI(oauthConfigBinder);
 
-		generalTab.addNameValueChangeListener(e -> 
-		{
-			String displayedName = (e.getValue() != null && !e.getValue().isEmpty()) ?
-					e.getValue() : generatedIdPGroup.toString();
+		generalTab.addNameValueChangeListener(e -> {
+			String displayedName = (e.getValue() != null && !e.getValue().isEmpty()) ? e.getValue()
+					: generatedIdPGroup.toString();
 			generatedIdPGroup.setDisplayedName(new I18nString(displayedName));
 			clientsTab.refreshGroups();
 		});
 		webAuthTab.initUI(oauthServiceWebAuthzBinder, webConfigBinder);
-		
+
 		registerTab(generalTab);
 		registerTab(clientsTab);
 		registerTab(usersTab);
@@ -126,8 +120,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 				oauthConfig.fromProperties(webAuthzService.getConfiguration(), allGroups);
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService);
 			}
-			clientsBean.setClients(cloneClients(systemClientsSupplier.apply(
-					oauthConfig.getClientGroup().group.toString())));
+			clientsBean.setClients(cloneClients(
+					systemClientsSupplier.apply(oauthConfig.getClientGroup().group.toString())));
 		}
 
 		oauthConfigBinder.setBean(oauthConfig);
@@ -142,18 +136,17 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			oauthServiceTokenBinder.validate();
 		}
 
-		Runnable refreshClients = () -> usersTab.setAvailableClients(
-				clientsTab.getActiveClients().stream().collect(
-					Collectors.toMap(c -> c.getId(), 
-							c -> c.getName() == null || c.getName().isEmpty() ? 
-									c.getId() : c.getName())));
+		Runnable refreshClients = () -> usersTab.setAvailableClients(clientsTab.getActiveClients().stream()
+				.collect(Collectors.toMap(c -> c.getId(),
+						c -> c.getName() == null || c.getName().isEmpty() ? c.getId()
+								: c.getName())));
 		clientsBinder.addValueChangeListener(e -> refreshClients.run());
-		clientsTab.addGroupValueChangeListener(e -> 
-		{
+		clientsTab.addGroupValueChangeListener(e -> {
 			Group newGroup = e.getValue().group;
-			List<OAuthClient> newGroupClients = 
-					(newGroup.equals(generatedClientsGroup) || newGroup.equals(generatedIdPGroup)) ?
-					Collections.emptyList() : cloneClients(systemClientsSupplier.apply(newGroup.toString()));
+			List<OAuthClient> newGroupClients = (newGroup.equals(generatedClientsGroup)
+					|| newGroup.equals(generatedIdPGroup)) ? Collections.emptyList()
+							: cloneClients(systemClientsSupplier
+									.apply(newGroup.toString()));
 			clientsBean.setClients(newGroupClients);
 			clientsBinder.setBean(clientsBean);
 			refreshClients.run();
@@ -166,23 +159,21 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		String genPath = null;
 		do
 		{
-			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/" + 
-					RandomStringUtils.randomAlphabetic(6).toLowerCase();
+			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/"
+					+ RandomStringUtils.randomAlphabetic(6).toLowerCase();
 		} while (checkIfGroupExists(allGroups, genPath));
 
 		return new Group(genPath);
 	}
-	
+
 	private boolean checkIfGroupExists(List<Group> allGroups, String path)
 	{
-		return allGroups.stream()
-				.filter(group -> group.toString().equals(path))
-				.findAny().isPresent();
+		return allGroups.stream().filter(group -> group.toString().equals(path)).findAny().isPresent();
 	}
 
 	private List<OAuthClient> cloneClients(List<OAuthClient> clients)
 	{
-		return clients.stream().map(OAuthClient::clone).collect(Collectors.toList()); 
+		return clients.stream().map(OAuthClient::clone).collect(Collectors.toList());
 	}
 
 	ServiceDefinition getServiceDefiniton() throws FormValidationException

@@ -35,28 +35,24 @@ public class FileFieldUtils
 			String ownerType, String ownerId)
 	{
 		if (res != null)
-		{
-
-			if (res.getLocal() != null)
-			{
-				if (res.getLocalUri() != null)
-				{
-					return res.getLocalUri();
-				} else
-				{
-					try
-					{
-						URI uri = fileStorageService.storeFile(res.getLocal(), ownerType,
-								ownerId);
-						return uri.toString();
-					} catch (EngineException e)
-					{
-						throw new InternalException("Can't save file into DB", e);
-					}
-				}
-			} else if (res.getRemote() != null && !res.getRemote().isEmpty())
+		{	
+			if (res.getRemote() != null && !res.getRemote().isEmpty())
 			{
 				return res.getRemote();
+			} else if (res.getLocalUri() != null)
+			{
+				return res.getLocalUri();
+			}else if (res.getLocal() != null)
+			{
+				try
+				{
+					URI uri = fileStorageService.storeFile(res.getLocal(), ownerType,
+							ownerId);
+					return uri.toString();
+				} catch (EngineException e)
+				{
+					throw new InternalException("Can't save file into DB", e);
+				}
 			}
 		}
 

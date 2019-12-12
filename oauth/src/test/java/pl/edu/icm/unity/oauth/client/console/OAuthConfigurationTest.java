@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.client.console;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
@@ -94,12 +96,11 @@ public class OAuthConfigurationTest
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		when(pkiMan.getValidatorNames()).thenReturn(Sets.newHashSet("foo"));
-		when(imageAccessService.getImageFromUriOrNull("http:foo")).thenReturn(new LocalOrRemoteResource("http:foo"));
+		when(imageAccessService.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource(null, "foo"));
 		Properties sourceProviderCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("extraAuthzParams.1", "foo=bar")
-				.update("iconUrl", "http:foo")
 				.get();
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META).get();
 		sourceCfg.putAll(sourceProviderCfg);

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.console.services.authnlayout;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.META;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
@@ -36,7 +38,8 @@ public class TestServiceWebConfiguration
 	@Before
 	public void init()
 	{
-		when(imageAccessSrv.getImageFromUriOrNull("http://foo")).thenReturn(new LocalOrRemoteResource("http://foo"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.pngfoo"), any())).thenReturn(new LocalOrRemoteResource("file:../common/img/other/logo.pngfoo"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.png"), any())).thenReturn(new LocalOrRemoteResource("file:../common/img/other/logo.png"));
 	}
 	
 	
@@ -44,8 +47,6 @@ public class TestServiceWebConfiguration
 	public void serializationIsIdempotentForMinimalWithoutDefaultConfig() throws EngineException
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(PREFIX, META)
-				//the default path won't be accessible in test and would be reset
-				.update("authnScreenLogo", "http://foo")
 				.update("authnScreenColumn.1.columnWidth", "15") //by default has '15.0'
 				.remove("authnGrid.1.gridRows").remove("authnGrid.1.gridContents") // as tested separately below
 				.get();
@@ -60,7 +61,6 @@ public class TestServiceWebConfiguration
 	public void serializationIsIdempotentForMinimalWithDefaultsSetConfig() throws EngineException
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(PREFIX, META)
-				.update("authnScreenLogo", "http://foo")
 				.update("authnScreenColumn.1.columnWidth", "15") //by default has '15.0'
 				.remove("authnGrid.1.gridRows").remove("authnGrid.1.gridContents") // as tested separately below
 				.get();
@@ -76,7 +76,6 @@ public class TestServiceWebConfiguration
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(PREFIX, META)
-				.update("authnScreenLogo", "http://foo")
 				.update("authnScreenColumn.1.columnWidth", "16") //by default has '16.0' is generated
 				// as tested separately below
 				.remove("authnScreenColumn.1.columnSeparator").remove("authnScreenColumn.1.columnTitle")

@@ -4,6 +4,7 @@
  */
 package io.imunity.webadmin.reg.forms;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.vaadin.data.Binder;
@@ -111,7 +112,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			this.setShowCancel(org.isShowCancel());
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
-				this.setLogo(imageAccessService.getImageFromUriOrNull(org.getLogoURL()));
+				this.setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(org.getLogoURL(), Optional.empty()));
 		}
 
 		public FormLayoutSettings toFormLayoutSettings(FileStorageService fileStorageService, String formName)
