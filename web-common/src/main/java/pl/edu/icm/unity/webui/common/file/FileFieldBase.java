@@ -106,11 +106,19 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	{
 		binder.forField(this).withValidator((v, c) -> {
 
-			if (v != null && v.getRemote() != null && !v.getRemote().isEmpty()
-					&& (!URIHelper.isWebReady(v.getRemote())))
+			if (v != null)
 			{
-				return ValidationResult.error(msg.getMessage("FileField.notWebUri"));
+				if (v.getRemote() != null && !v.getRemote().isEmpty()
+						&& (!URIHelper.isWebReady(v.getRemote())))
+				{
+					return ValidationResult.error(msg.getMessage("FileField.notWebUri"));
+				}
+				if (v.getLocalUri() != null && (v.getLocal() == null || v.getLocal().length == 0))
+				{
+					return ValidationResult.error(msg.getMessage("FileField.invalidFile", v.getLocalUri()));
+				}
 			}
+			
 			return ValidationResult.ok();
 
 		}).withValidator(additionalValidator.orElse((v, c) -> ValidationResult.ok())).bind(fieldName);

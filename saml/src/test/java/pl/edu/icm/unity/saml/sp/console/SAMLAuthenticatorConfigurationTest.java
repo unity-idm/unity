@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.sp.console;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
@@ -102,7 +103,7 @@ public class SAMLAuthenticatorConfigurationTest
 	{
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getImageFromUriOrNull("http:foo")).thenReturn(new LocalOrRemoteResource("http:foo"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource("http:foo"));
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.remove("jwt.")
 				.update("remoteIdp.1.signRequest", "false")

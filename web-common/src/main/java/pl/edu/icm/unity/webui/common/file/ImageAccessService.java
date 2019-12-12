@@ -17,6 +17,7 @@ import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.files.IllegalURIException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
@@ -26,7 +27,8 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 public class ImageAccessService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImageAccessService.class);
-
+	private static final String UNKNOWN_THEME = "UNKNOWN_THEME";
+	
 	private final URIAccessService uriAccessService;
 	
 	@Autowired
@@ -35,26 +37,38 @@ public class ImageAccessService
 		this.uriAccessService = uriAccessService;
 	}
 
-	public LocalOrRemoteResource getImageFromUriOrNull(String logoUri)
+	public LocalOrRemoteResource getEditableImageResourceFromUriOrNull(String logoUri, Optional<String> theme)
 	{
 		if (logoUri == null || logoUri.isEmpty())
 			return null;
+
+		URI uri;
 		try
 		{
-			URI uri = URIHelper.parseURI(logoUri);
-			if (URIHelper.isWebReady(uri))
-			{
-				return new LocalOrRemoteResource(uri.toString());
-			} else
-			{
-				FileData fileData = uriAccessService.readImageURI(uri, UI.getCurrent().getTheme());
-				return new LocalOrRemoteResource(fileData.getContents(), uri.toString());
-			}
-		} catch (Exception e)
+			uri = URIHelper.parseURI(logoUri);
+		} catch (IllegalURIException e1)
 		{
-			log.error("Can not read image from uri: " + logoUri);
+			log.error("Can not parse image uri  " + logoUri);
+			return null;
 		}
-		return null;
+
+		if (URIHelper.isWebReady(uri))
+		{
+			return new LocalOrRemoteResource(uri.toString());
+		} else
+		{
+			String rTheme = theme.isPresent() ? theme.get() : UNKNOWN_THEME;
+			FileData fileData = null;
+			try
+			{
+				fileData = uriAccessService.readImageURI(uri, rTheme);
+			} catch (Exception e)
+			{
+				log.error("Can not read image from uri: " + logoUri);
+			}
+
+			return new LocalOrRemoteResource(fileData != null ?  fileData.getContents() : null, uri.toString());
+		}
 	}
 
 	public Optional<Resource> getConfiguredImageResourceFromNullableUri(String logoUri)

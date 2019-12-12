@@ -10,6 +10,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import com.google.common.collect.Lists;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
@@ -174,6 +176,8 @@ public class ServiceWebConfiguration
 			ImageAccessService imageAccessService)
 	{
 
+		
+		
 		if (vaadinProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
 		{
 			webContentDir = vaadinProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
@@ -198,7 +202,11 @@ public class ServiceWebConfiguration
 				.getListOfValues(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS);
 
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
-		logo = imageAccessService.getImageFromUriOrNull(logoUri);
+		logo = imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional
+				.of(vaadinProperties.getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME) != null
+						? vaadinProperties.getConfiguredTheme(
+								VaadinEndpointProperties.AUTHN_THEME)
+						: VaadinEndpoint.DEFAULT_THEME));
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);
@@ -208,7 +216,7 @@ public class ServiceWebConfiguration
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		authenticationLayoutConfiguration = parser.fromProperties(vaadinProperties);
 		retUserLayoutConfiguration = parser.getReturingUserColumnElementsFromProperties(vaadinProperties);
-
+		
 		if (vaadinProperties.isSet(VaadinEndpointProperties.THEME))
 		{
 			defaultMainTheme = vaadinProperties.getValue(VaadinEndpointProperties.THEME);

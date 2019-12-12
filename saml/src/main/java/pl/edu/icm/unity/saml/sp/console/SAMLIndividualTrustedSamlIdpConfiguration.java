@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.sp.console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
-			setLogo(imageAccessService.getImageFromUriOrNull(logoUri));
+			setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional.empty()));
 		}
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))

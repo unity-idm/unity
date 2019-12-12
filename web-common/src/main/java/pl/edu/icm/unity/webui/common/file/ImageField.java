@@ -61,7 +61,7 @@ public class ImageField extends FileFieldBase
 
 		main.addComponent(previewL);
 	}
-
+	
 	@Override
 	protected void setPreview()
 	{

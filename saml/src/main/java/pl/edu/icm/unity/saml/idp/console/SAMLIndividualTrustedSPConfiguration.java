@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.console;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,7 @@ public class SAMLIndividualTrustedSPConfiguration
 	}
 
 	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService, SamlIdpProperties source,
-			String name)
+			String name, String theme)
 	{
 		setName(name);
 		String prefix = SamlIdpProperties.ALLOWED_SP_PREFIX + name + ".";
@@ -70,7 +71,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_LOGO);
-			setLogo(imageAccessService.getImageFromUriOrNull(logoUri));
+			setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional.of(theme)));
 		}
 
 		certificates = new ArrayList<>();

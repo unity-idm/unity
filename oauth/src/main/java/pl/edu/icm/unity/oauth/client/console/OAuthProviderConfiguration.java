@@ -8,6 +8,7 @@ package pl.edu.icm.unity.oauth.client.console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -83,7 +84,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		{
 			String logoUri = source.getLocalizedString(msg, CustomProviderProperties.ICON_URL)
 					.getDefaultValue();
-			setLogo(imageAccessService.getImageFromUriOrNull(logoUri));
+			setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional.empty()));
 		}
 
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
