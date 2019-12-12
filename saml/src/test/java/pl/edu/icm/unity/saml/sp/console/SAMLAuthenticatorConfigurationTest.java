@@ -103,14 +103,13 @@ public class SAMLAuthenticatorConfigurationTest
 	{
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource("http:foo"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource("foo"));
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.remove("jwt.")
 				.update("remoteIdp.1.signRequest", "false")
 				.update("metadataSource.1.perMetadataEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("remoteIdp.1.embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("metadataSource", "http:foo")
-				.update("remoteIdp.1.logoURI", "http:foo")
 				.get();
 		
 		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
