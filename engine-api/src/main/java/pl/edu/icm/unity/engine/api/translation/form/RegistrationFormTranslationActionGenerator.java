@@ -19,4 +19,7 @@ public interface RegistrationFormTranslationActionGenerator
 	TranslationAction getAddAttributeAction(String attributeName, String group, String attributeValue);
 
 	TranslationAction getAutoProcessAction(AutomaticRequestAction action);
+	
+	TranslationAction getAddIdentifierIndentityAction(String identity);
+	
 }

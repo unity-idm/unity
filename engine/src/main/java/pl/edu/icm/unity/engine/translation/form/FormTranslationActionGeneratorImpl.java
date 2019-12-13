@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
+import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 
 /**
@@ -34,6 +36,12 @@ public class FormTranslationActionGeneratorImpl implements RegistrationFormTrans
 	public TranslationAction getAutoProcessAction(AutomaticRequestAction action)
 	{
 		return new TranslationAction(AutoProcessActionFactory.NAME, new String[] { action.toString() });
+	}
+
+	@Override
+	public TranslationAction getAddIdentifierIndentityAction(String identity)
+	{
+		return new TranslationAction(AddIdentityActionFactory.NAME, new String[] { IdentifierIdentity.ID, identity });
 	}
 
 }
