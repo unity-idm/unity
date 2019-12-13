@@ -36,7 +36,6 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.ResponseSigningPolicy;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
@@ -405,11 +404,7 @@ public class SAMLServiceConfiguration
 					key = key.substring(SamlIdpProperties.ALLOWED_SP_PREFIX.length(),
 							key.length() - 1);
 					idp.fromProperties(msg, imageAccessService, samlIdpProperties, key,
-							vProperties.getConfiguredTheme(
-									VaadinEndpointProperties.THEME) != null
-											? vProperties.getConfiguredTheme(
-													VaadinEndpointProperties.THEME)
-							: VaadinEndpoint.DEFAULT_THEME);
+							vProperties.getEffectiveMainTheme());
 					individualTrustedSPs.add(idp);
 				});
 

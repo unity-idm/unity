@@ -72,8 +72,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		if (!editMode)
 		{
-			if (allGroups.stream().map(g -> g.toString()).filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP))
-					.count() == 0)
+			if (!allGroups.stream().map(g -> g.toString()).filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP))
+					.findAny().isPresent())
 			{
 				groupsWithAutoGen.add(new Group(IDP_CLIENT_MAIN_GROUP));
 			}
