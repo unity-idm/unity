@@ -20,7 +20,6 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
@@ -203,10 +202,7 @@ public class ServiceWebConfiguration
 
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
 		logo = imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional
-				.of(vaadinProperties.getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME) != null
-						? vaadinProperties.getConfiguredTheme(
-								VaadinEndpointProperties.AUTHN_THEME)
-						: VaadinEndpoint.DEFAULT_THEME));
+				.of(vaadinProperties.getEffectiveAuthenticationTheme()));
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);

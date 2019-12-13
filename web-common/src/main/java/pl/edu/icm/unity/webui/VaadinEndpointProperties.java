@@ -236,6 +236,20 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 		return properties;
 	}
 	
+	public String getEffectiveMainTheme()
+	{
+		return getConfiguredTheme(VaadinEndpointProperties.THEME) != null
+				? getConfiguredTheme(VaadinEndpointProperties.THEME)
+				: VaadinEndpoint.DEFAULT_THEME;
+	}
+
+	public String getEffectiveAuthenticationTheme()
+	{
+		return getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME) != null
+				? getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME)
+				: VaadinEndpoint.DEFAULT_THEME;
+	}
+
 	public EndpointRegistrationConfiguration getRegistrationConfiguration()
 	{
 		String extURL = getValue(EXTERNAL_REGISTRATION_URL);
