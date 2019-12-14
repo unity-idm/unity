@@ -107,6 +107,11 @@
 		line-height: 2;
 	}
 	
+	.u-textInfoTooltip {
+		font-size: $v-font-size--tiny;
+		color: #424242;
+	}
+	
 	.u-textEndpointHeading {
 		font-family: $font;
 		letter-spacing: -1px;
@@ -889,6 +894,10 @@
 	
 	.u-fixedWidthCaptions .v-formlayout-captioncell .v-caption {
 		width: 21em;
+	}
+	
+	.u-fixedWidthCaptionsSmall .v-formlayout-captioncell .v-caption {
+		width: 12em;
 	}
 	
 	.u-marginLeftMinus7{

@@ -24,6 +24,7 @@ public enum Images
 	empty		(I.PB + "empty.png"),
 
 	info		(VaadinIcons.INFO),
+	info_circle	(VaadinIcons.INFO_CIRCLE_O),
 	key_o		(VaadinIcons.KEY_O),
 	settings	(VaadinIcons.COG_O),
 	handshake	(VaadinIcons.HANDSHAKE),

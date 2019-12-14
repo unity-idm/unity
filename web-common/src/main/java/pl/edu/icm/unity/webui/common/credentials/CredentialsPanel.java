@@ -68,14 +68,7 @@ public class CredentialsPanel extends VerticalLayout
 
 	
 	/**
-	 * 
-	 * @param msg
-	 * @param entityId
-	 * @param authnMan
-	 * @param ecredMan
-	 * @param credEditorReg
 	 * @param simpleMode if true then admin-only action buttons (credential reset/outdate) are not shown.
-	 * @throws Exception
 	 */
 	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, long entityId, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,

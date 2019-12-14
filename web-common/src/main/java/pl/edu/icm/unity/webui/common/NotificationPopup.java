@@ -98,6 +98,11 @@ public class NotificationPopup
 		showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 	}
 
+	public static void showFormError(UnityMessageSource msg, String detail)
+	{
+		showError(msg.getMessage("Generic.formError"), detail);
+	}
+	
 	public static Notification getNoticeNotification(String caption, String description)
 	{
 		return createGeneric(caption, description, Type.WARNING_MESSAGE, Images.warn.getResource(),

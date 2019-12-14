@@ -2,19 +2,23 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.identities;
+package io.imunity.webadmin.idcreate;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.identities.IdentityEntry;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,15 +27,14 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Identity creation dialog. Adds the identity to an existing entity.
@@ -44,7 +47,7 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected IdentityEditorRegistry identityEditorReg;
 	protected Consumer<Identity> callback;
 	
-	protected ComboBox<String> identityType;
+	protected ComboBox<String> identityTypeSelector;
 	protected IdentityEditor identityEditor;
 	
 	public IdentityCreationDialog(UnityMessageSource msg, long entityId, EntityManagement identitiesMan,
@@ -93,22 +96,26 @@ public class IdentityCreationDialog extends AbstractDialog
 
 	
 	@Override
-	protected FormLayout getContents() throws EngineException
+	protected AbstractOrderedLayout getContents() throws EngineException
 	{
-		setSize(50, 50);
-		identityType = new ComboBox<>(msg.getMessage("IdentityCreation.idType"));
-		Set<String> supportedTypes = identityEditorReg.getSupportedTypes();
-		identityType.setItems(supportedTypes);
-		identityType.setEmptySelectionAllowed(false);
-
-		Panel identityPanel = new SafePanel(msg.getMessage("IdentityCreation.idValue"));
-		final FormLayout idLayout = new CompactFormLayout();
-		idLayout.setMargin(true);
-		identityPanel.setContent(idLayout);
+		setSizeEm(50, 30);
 		
-		identityType.addValueChangeListener(event -> 
+		FormLayout typeSelectionLayout = FormLayoutWithFixedCaptionWidth.withShortCaptions();
+		typeSelectionLayout.setMargin(new MarginInfo(false));
+		identityTypeSelector = new ComboBox<>(msg.getMessage("IdentityCreation.idType"));
+		List<String> supportedTypes = new ArrayList<>(identityEditorReg.getSupportedTypes());
+		supportedTypes.sort(String::compareTo);
+		identityTypeSelector.setItems(supportedTypes);
+		identityTypeSelector.setEmptySelectionAllowed(false);
+		
+		typeSelectionLayout.addComponent(identityTypeSelector);
+
+		FormLayout idLayout = FormLayoutWithFixedCaptionWidth.withShortCaptions();
+		idLayout.setMargin(new MarginInfo(false));
+		
+		identityTypeSelector.addValueChangeListener(event -> 
 		{
-			String type = identityType.getValue();
+			String type = identityTypeSelector.getValue();
 			IdentityEditor editor = identityEditorReg.getEditor(type);
 			idLayout.removeAllComponents();
 			ComponentsContainer container = editor.getEditor(IdentityEditorContext.builder()
@@ -117,10 +124,10 @@ public class IdentityCreationDialog extends AbstractDialog
 			idLayout.addComponents(container.getComponents());
 			identityEditor = editor;
 		});
-		identityType.setSelectedItem(supportedTypes.iterator().next());
+		identityTypeSelector.setSelectedItem(supportedTypes.iterator().next());
 
-		FormLayout main = new CompactFormLayout();
-		main.addComponents(identityType, identityPanel);
+		VerticalLayout main = new VerticalLayout();
+		main.addComponents(typeSelectionLayout, idLayout);
 		main.setSizeFull();
 		return main;
 	}

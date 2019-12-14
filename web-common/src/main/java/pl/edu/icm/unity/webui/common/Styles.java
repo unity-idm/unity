@@ -36,6 +36,7 @@ public enum Styles
 	error("u-error"),
 	success("u-success"),
 	textTitle("u-textTitle"),
+	textInfoTooltip("u-textInfoTooltip"),
 	textLarge("u-textLarge"),
 	textXLarge("u-textXLarge"),
 	textEndpointName("u-textEndpointHeading"),
