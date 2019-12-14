@@ -43,7 +43,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		this.allCRs = allCRs;
 		this.removedCr = removedCr;
 		this.callback = callback;
-		setSizeMode(SizeMode.MEDIUM);
+		setSizeEm(40, 20);
 	}
 
 	public interface Callback 
@@ -62,19 +62,18 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		vl.addComponent(info);
 		
 		
-		List<String> crs = new ArrayList<String>();
+		List<String> crs = new ArrayList<>();
 		for (CredentialRequirements cr: allCRs)
 			if (!removedCr.contains(cr.getName()))
 				crs.add(cr.getName());
 		Collections.sort(crs);
-		if (crs.size() == 0)
+		if (crs.isEmpty())
 		{
 			NotificationPopup.showError(msg.getMessage("CredentialRequirements.removalError"), 
 					msg.getMessage("CredentialRequirements.cantRemoveLast"));
 			throw new WrongArgumentException("");
 		}
-		replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"),
-				crs);
+		replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"), crs);
 		replacementCR.setSelectedItem(crs.get(0));
 		replacementCR.setEmptySelectionAllowed(false);
 		vl.addComponent(replacementCR);

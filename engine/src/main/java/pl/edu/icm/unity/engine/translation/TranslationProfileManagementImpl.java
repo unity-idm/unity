@@ -160,6 +160,7 @@ public class TranslationProfileManagementImpl implements TranslationProfileManag
 	{
 		Set<String> systemProfiles = getSystemProfiles(type).keySet();
 		if (systemProfiles.contains(name))
-			throw new IllegalArgumentException("Translation profile '" + name + "' is the system profile and cannot be overwrite or remove");
+			throw new IllegalArgumentException("Translation profile '" + name + 
+					"' is the system profile and can not be overwriten or removed");
 	}	
 }

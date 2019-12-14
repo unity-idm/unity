@@ -44,13 +44,14 @@ public class ChangeCredentialRequirementDialog extends AbstractDialog
 		this.credReqMan = credReqMan;
 		this.callback = callback;
 		this.initialCR = initialCR;
-		setSizeMode(SizeMode.SMALL);
+		setSizeEm(38, 18);
 	}
 
 	@Override
 	protected FormLayout getContents()
 	{
 		Label info = new Label(msg.getMessage("CredentialRequirementDialog.changeFor", entity));
+		info.setWidth(100, Unit.PERCENTAGE);
 		credentialRequirement = new ComboBox<>(msg.getMessage("CredentialRequirementDialog.credReq"));
 		Collection<CredentialRequirements> credReqs;
 		try

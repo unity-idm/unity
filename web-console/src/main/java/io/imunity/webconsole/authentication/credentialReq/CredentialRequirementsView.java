@@ -70,7 +70,8 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 	public void enter(ViewChangeEvent event)
 	{
 		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(
-				StandardButtonsHelper.build4AddAction(msg, e -> NavigationHelper.goToView(NewCredentialRequirementsView.VIEW_NAME)));
+				StandardButtonsHelper.build4AddAction(msg, 
+						e -> NavigationHelper.goToView(NewCredentialRequirementsView.VIEW_NAME)));
 
 		credList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 		credList.addComponentColumn(c -> {
@@ -85,7 +86,7 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 		}, msg.getMessage("CredentialReqView.nameCaption"), 5).setSortable(true)
 		.setComparator((cr1, cr2) -> {
 			return cr1.getName().compareTo(cr2.getName());
-		}).setId("name");;
+		}).setId("name");
 
 		credList.addSortableColumn(c -> String.join(", ", c.getRequiredCredentials()),
 				msg.getMessage("CredentialReqView.credentialsCaption"), 10);
@@ -125,6 +126,7 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 
 		SingleActionHandler<CredentialRequirements> remove = SingleActionHandler
 				.builder4Delete(msg, CredentialRequirements.class)
+				.withDisabledPredicate(credReq -> credReq.isReadOnly())
 				.withHandler(r -> tryRemove(r.iterator().next())).build();
 
 		return Arrays.asList(edit, remove);
