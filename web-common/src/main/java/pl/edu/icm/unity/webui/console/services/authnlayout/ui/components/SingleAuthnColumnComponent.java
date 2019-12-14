@@ -94,13 +94,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	public void refresh()
 	{
 		refreshItems();
-		try
-		{
-			validate();
-		} catch (FormValidationException e)
-		{
-			// ok
-		}
+		binder.validate();
 	}
 
 	@Override

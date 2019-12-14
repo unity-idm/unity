@@ -112,7 +112,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			this.setShowCancel(org.isShowCancel());
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
-				this.setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(org.getLogoURL(), Optional.empty()));
+				this.setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(org.getLogoURL(), Optional.empty()).orElse(null));
 		}
 
 		public FormLayoutSettings toFormLayoutSettings(FileStorageService fileStorageService, String formName)

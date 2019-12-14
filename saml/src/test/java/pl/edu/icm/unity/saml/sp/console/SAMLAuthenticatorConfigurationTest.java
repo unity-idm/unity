@@ -14,6 +14,7 @@ import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.META;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.P;
 
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -103,7 +104,7 @@ public class SAMLAuthenticatorConfigurationTest
 	{
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource("foo"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("foo")));
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.remove("jwt.")
 				.update("remoteIdp.1.signRequest", "false")

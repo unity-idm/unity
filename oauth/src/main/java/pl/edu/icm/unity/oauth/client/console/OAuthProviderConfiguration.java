@@ -84,7 +84,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		{
 			String logoUri = source.getLocalizedString(msg, CustomProviderProperties.ICON_URL)
 					.getDefaultValue();
-			setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional.empty()));
+			setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional.empty()).orElse(null));
 		}
 
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
