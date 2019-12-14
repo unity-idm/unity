@@ -12,6 +12,7 @@ import static pl.edu.icm.unity.configtester.ConfigurationComparator.createCompar
 import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.META;
 import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.P;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -96,7 +97,7 @@ public class OAuthConfigurationTest
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		when(pkiMan.getValidatorNames()).thenReturn(Sets.newHashSet("foo"));
-		when(imageAccessService.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(new LocalOrRemoteResource(null, "foo"));
+		when(imageAccessService.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
 		Properties sourceProviderCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())

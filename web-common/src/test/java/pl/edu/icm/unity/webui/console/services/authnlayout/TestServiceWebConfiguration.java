@@ -13,6 +13,7 @@ import static pl.edu.icm.unity.configtester.ConfigurationComparator.createCompar
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.META;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -38,8 +39,8 @@ public class TestServiceWebConfiguration
 	@Before
 	public void init()
 	{
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.pngfoo"), any())).thenReturn(new LocalOrRemoteResource("file:../common/img/other/logo.pngfoo"));
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.png"), any())).thenReturn(new LocalOrRemoteResource("file:../common/img/other/logo.png"));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.pngfoo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.pngfoo")));
+		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.png"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.png")));
 	}
 	
 	

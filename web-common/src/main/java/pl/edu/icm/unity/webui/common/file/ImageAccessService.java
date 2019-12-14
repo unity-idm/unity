@@ -37,7 +37,8 @@ public class ImageAccessService
 		this.uriAccessService = uriAccessService;
 	}
 
-	public LocalOrRemoteResource getEditableImageResourceFromUriOrNull(String logoUri, Optional<String> theme)
+	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUriOrNull(String logoUri,
+			Optional<String> theme)
 	{
 		if (logoUri == null || logoUri.isEmpty())
 			return null;
@@ -49,12 +50,12 @@ public class ImageAccessService
 		} catch (IllegalURIException e1)
 		{
 			log.error("Can not parse image uri  " + logoUri);
-			return null;
+			return Optional.empty();
 		}
 
 		if (URIHelper.isWebReady(uri))
 		{
-			return new LocalOrRemoteResource(uri.toString());
+			return Optional.of(new LocalOrRemoteResource(uri.toString()));
 		} else
 		{
 			String rTheme = theme.isPresent() ? theme.get() : UNKNOWN_THEME;
@@ -67,7 +68,8 @@ public class ImageAccessService
 				log.error("Can not read image from uri: " + logoUri);
 			}
 
-			return new LocalOrRemoteResource(fileData != null ?  fileData.getContents() : null, uri.toString());
+			return Optional.of(new LocalOrRemoteResource(fileData != null ? fileData.getContents() : null,
+					uri.toString()));
 		}
 	}
 

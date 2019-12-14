@@ -60,13 +60,7 @@ public class HeaderColumnComponent extends ColumnComponentBase
 	@Override
 	public void refresh()
 	{
-		try
-		{
-			validate();
-		} catch (FormValidationException e)
-		{
-			// ok
-		}
+		binder.validate();
 	}
 
 	@Override
