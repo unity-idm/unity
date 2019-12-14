@@ -16,6 +16,8 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.tokens.TokenRDBMSStore;
 
 public class OAuthTokensHotfixTest
@@ -50,12 +52,49 @@ public class OAuthTokensHotfixTest
 		
 		invalid.setContents(INVALID.getBytes(StandardCharsets.UTF_8));
 		when(tokensDAO.getAll()).thenReturn(Lists.newArrayList(invalid));
-		OAuthTokensHotfix hotfix = new OAuthTokensHotfix(tokensDAO);
+		OAuthTokensHotfix hotfix = new OAuthTokensHotfix(tokensDAO, new TransactionalRunnerFake());
 		
 		hotfix.updateTokens();
 		
 		Token expectedToken = new Token("oauth2Access", "123", 1l);
 		expectedToken.setContents(VALID.getBytes(StandardCharsets.UTF_8));
 		verify(tokensDAO).update(expectedToken);
+	}
+	
+	class TransactionalRunnerFake implements TransactionalRunner
+	{
+		@Override
+		public void runInTransaction(TxRunnable code)
+		{
+			code.run();
+		}
+
+		@Override
+		public <T> T runInTransactionRet(TxRunnableRet<T> code)
+		{
+			return null;
+		}
+
+		@Override
+		public void runInTransactionNoAutoCommit(TxRunnable code)
+		{
+		}
+
+		@Override
+		public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code)
+		{
+			return null;
+		}
+
+		@Override
+		public void runInTransactionThrowing(TxRunnableThrowing code) throws EngineException
+		{
+		}
+
+		@Override
+		public <T> T runInTransactionRetThrowing(TxRunnableThrowingRet<T> code) throws EngineException
+		{
+			return null;
+		}
 	}
 }

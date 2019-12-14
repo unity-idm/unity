@@ -20,6 +20,8 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.tokens.TokenRDBMSStore;
 
 /**
@@ -36,14 +38,30 @@ public class OAuthTokensHotfix
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, OAuthTokensHotfix.class);
 	private final TokenRDBMSStore tokensDAO;
 	private final Set<String> oauthTokenTypes = Sets.newHashSet("oauth2Code", "oauth2Access", "oauth2Refresh");
+	private final TransactionalRunner txManager;
 
 	@Autowired
-	public OAuthTokensHotfix(TokenRDBMSStore tokensDAO)
+	public OAuthTokensHotfix(TokenRDBMSStore tokensDAO, TransactionalRunner txManager)
 	{
 		this.tokensDAO = tokensDAO;
+		this.txManager = txManager;
 	}
 
-	void updateTokens() throws IOException
+	void updateTokens()
+	{
+		txManager.runInTransaction(() -> 
+		{
+			try
+			{
+				updateTokensTx();
+			} catch (IOException e)
+			{
+				throw new InternalException("Migration failed", e);
+			}	
+		});
+	}
+	
+	private void updateTokensTx() throws IOException
 	{
 		List<Token> all = tokensDAO.getAll();
 		for (Token token : all)
