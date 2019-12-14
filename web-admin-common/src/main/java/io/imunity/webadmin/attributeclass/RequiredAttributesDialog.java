@@ -64,6 +64,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 		main.setMargin(false);
 		Label infoL = new Label(info);
 		infoL.setStyleName(Styles.bold.toString());
+		infoL.setWidth(100, Unit.PERCENTAGE);
 		Label spacer = new Label(" ");
 		main.addComponents(infoL, spacer);
 		

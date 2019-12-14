@@ -246,7 +246,8 @@ public class CredentialManagementImpl implements CredentialManagement
 	{
 		Set<String> systemProfiles = sysProvider.getSystemCredentials().stream().map(c -> c.getName()).collect(Collectors.toSet());
 		if (systemProfiles.contains(name))
-			throw new IllegalArgumentException("Credential '" + name + "' is the system credential and cannot be overwrite or remove");
+			throw new IllegalArgumentException("Credential '" + name + 
+					"' is the system credential and can not be overwritten or removed");
 	}
 	
 	private void assertIsNotReadOnly(CredentialDefinition cred) throws EngineException

@@ -115,7 +115,8 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	private void assertIsNotSystemCredReq(String name)
 	{
 		if (SystemAllCredentialRequirements.NAME.equals(name))
-			throw new IllegalArgumentException("Credential requirement '" + name + "' is the system credential requirement and cannot be overwrite or remove");
+			throw new IllegalArgumentException("Credential requirement '" + name + 
+					"' is the system credential requirement and can not be overwritten or removed");
 	}
 	
 	private void assertIsNotReadOnly(CredentialRequirements cred) throws EngineException
