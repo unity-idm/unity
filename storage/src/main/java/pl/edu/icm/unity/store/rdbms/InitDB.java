@@ -54,15 +54,13 @@ public class InitDB
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
 	private ContentsUpdater contentsUpdater;
-	private OAuthTokensHotfix oAuthTokensHotfix;
 
 	@Autowired
-	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater, OAuthTokensHotfix oAuthTokensHotfix) 
+	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater) 
 			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
 		this.contentsUpdater = contentsUpdater;
-		this.oAuthTokensHotfix = oAuthTokensHotfix;
 	}
 
 	/**
@@ -252,7 +250,6 @@ public class InitDB
 			contentsUpdater.update(dbVersionAtServerStarup);
 			log.info("Updated DB contents to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
 		}
-		oAuthTokensHotfix.updateTokens();
 	}
 
 	public void deletePreImport(SqlSession session, List<String> objectTypes)
