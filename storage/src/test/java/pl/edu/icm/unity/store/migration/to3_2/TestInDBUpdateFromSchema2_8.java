@@ -50,7 +50,7 @@ public class TestInDBUpdateFromSchema2_8
 		
 		invalid.setContents(INVALID.getBytes(StandardCharsets.UTF_8));
 		when(tokensDAO.getAll()).thenReturn(Lists.newArrayList(invalid));
-		InDBUpdateFromSchema2_8 hotfix = new InDBUpdateFromSchema2_8(tokensDAO);
+		InDBUpdateFromSchema8 hotfix = new InDBUpdateFromSchema8(tokensDAO);
 		
 		hotfix.updateTokens();
 		

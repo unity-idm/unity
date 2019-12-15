@@ -25,7 +25,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
+import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.eresp.EnquiryResponseHandler;
 import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  * Update db from 2.6.0 release version (DB schema version 2.4). See {@link UpdateHelperTo2_6}
  */
 @Component
-public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
+public class InDBUpdateFromSchema2_4 implements InDBContentsUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema2_4.class);
 	@Autowired
@@ -48,6 +48,12 @@ public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
 	private MembershipDAO membershipDAO;
 	@Autowired
 	private AttributeDAO attributeDAO;
+	
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 4;
+	}
 	
 	@Override
 	public void update() throws IOException

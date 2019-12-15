@@ -5,84 +5,65 @@
 package pl.edu.icm.unity.store.rdbms;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
-import pl.edu.icm.unity.store.migration.to2_5.InDBUpdateFromSchema2_2;
-import pl.edu.icm.unity.store.migration.to2_6.InDBUpdateFromSchema2_3;
-import pl.edu.icm.unity.store.migration.to2_7.InDBUpdateFromSchema2_4;
-import pl.edu.icm.unity.store.migration.to2_8.InDBUpdateFromSchema2_5;
-import pl.edu.icm.unity.store.migration.to3_2.InDBUpdateFromSchema2_8;
+import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).
- *  
- * @author K. Benedyczak
  */
 @Component
 public class ContentsUpdater
-{	/**
-	 * To which version we can migrate. In principle this should be always equal to 
-	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
-	 * when bumping it please make sure any required data migrations were implemented here.  
-	 */
-	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_9_0";
+{
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, ContentsUpdater.class);
+	private final TransactionalRunner txManager;
+	private final List<InDBContentsUpdater> updaters;
 	
 	@Autowired
-	private TransactionalRunner txManager;
-	@Autowired
-	private InDBUpdateFromSchema2_2 from2_2;
-	@Autowired
-	private InDBUpdateFromSchema2_3 from2_3;
-	@Autowired
-	private InDBUpdateFromSchema2_4 from2_4;
-	@Autowired
-	private InDBUpdateFromSchema2_5 from2_5;
-	@Autowired
-	private InDBUpdateFromSchema2_8 from2_8;
-	
-	public void update(long oldDbVersion) throws IOException, EngineException
+	public ContentsUpdater(List<InDBContentsUpdater> updaters, TransactionalRunner txManager)
 	{
-		assertMigrationsAreMatchingApp();
-		
-		if (oldDbVersion < 20300)
-			migrateFromSchemaVersion(from2_2);
-		
-		if (oldDbVersion < 20400)
-			migrateFromSchemaVersion(from2_3);
-
-		if (oldDbVersion < 20500)
-			migrateFromSchemaVersion(from2_4);
-
-		if (oldDbVersion < 20600)
-			migrateFromSchemaVersion(from2_5);
-
-		if (oldDbVersion < 20900)
-			migrateFromSchemaVersion(from2_8);
+		this.updaters = updaters;
+		this.txManager = txManager;
+		this.updaters.sort((a, b) -> Integer.compare(a.getUpdatedVersion(), b.getUpdatedVersion()));
+		int version = updaters.get(0).getUpdatedVersion();
+		for (InDBContentsUpdater update: updaters)
+		{
+			if (update.getUpdatedVersion() != version)
+				throw new IllegalStateException(
+						"DB content updaters chain is inconsistent: no updater from version " + version);
+			version++;
+		}
+		if (version != AppDataSchemaVersion.CURRENT.getAppSchemaVersion())
+			throw new IllegalStateException(
+					"DB content updaters chain is incomplete: no updater to current app version");
 	}
 	
-	private void assertMigrationsAreMatchingApp() throws IOException
+	public void update(int oldDbVersion) throws IOException, EngineException
 	{
-		if (!DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.equals(AppDataSchemaVersion.CURRENT.getDbVersion()))
+		for (InDBContentsUpdater update: updaters)
 		{
-			throw new InternalException("The data migration code was not updated "
-					+ "to the latest version of data schema. "
-					+ "This should be fixed by developers.");
+			int updateFrom = update.getUpdatedVersion();
+			if (oldDbVersion <= updateFrom)
+				migrateFromSchemaVersion(update);
+				
 		}
 	}
 	
-	private void migrateFromSchemaVersion(InDBSchemaUpdater updater) throws IOException, EngineException
+	private void migrateFromSchemaVersion(InDBContentsUpdater updater) throws IOException, EngineException
 	{
 		txManager.runInTransactionThrowing(() -> 
 		{
 			try
 			{
+				log.info("Updating DB contents from version {}", updater.getUpdatedVersion());
 				updater.update();
 			} catch (IOException e)
 			{

@@ -16,16 +16,22 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
+import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 
 /**
  * Update db from 2.7 release version (DB schema version 2.5). See {@link UpdateHelperTo2_8}
  */
 @Component
-public class InDBUpdateFromSchema2_5 implements InDBSchemaUpdater
+public class InDBUpdateFromSchema2_5 implements InDBContentsUpdater
 {
 	@Autowired
 	private ObjectStoreDAO genericObjectsDAO;
+	
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 5;
+	}
 	
 	@Override
 	public void update() throws IOException

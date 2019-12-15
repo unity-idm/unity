@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
+import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
 
@@ -25,11 +25,18 @@ import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
  * @author P.Piernik
  */
 @Component
-public class InDBUpdateFromSchema2_3 implements InDBSchemaUpdater
+public class InDBUpdateFromSchema2_3 implements InDBContentsUpdater
 {
 	@Autowired
 	private ObjectStoreDAO genericObjectsDAO;
 	
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 3;
+	}
+	
+	@Override
 	public void update() throws IOException
 	{
 		updateEndpointConfiguration();

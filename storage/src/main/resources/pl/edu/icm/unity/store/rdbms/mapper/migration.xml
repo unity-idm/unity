@@ -3,56 +3,58 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pl.edu.icm.unity.store.rdbms.mapper.Maintenance">
 
-	<update id="updateSchema-20300-00">
+	<update id="updateSchema-003-00">
 		UPDATE UVOS_FLAG SET VAL = '2_3_0'
 	</update>
 	
-	<update id="updateSchema-20400-00">
+	<update id="updateSchema-004-00">
 		UPDATE UVOS_FLAG SET VAL = '2_4_0'
 	</update>
 	
-	<update id="updateSchema-20500-00">
+	<update id="updateSchema-005-00">
 		UPDATE UVOS_FLAG SET VAL = '2_5_0'
 	</update>
 	
-	<update id="updateSchema-20600-00">
+	<update id="updateSchema-006-00">
 		UPDATE UVOS_FLAG SET VAL = '2_6_0'
 	</update>
 	
-	<update id="updateSchema-20700-00">
+	<update id="updateSchema-007-00">
 		UPDATE UVOS_FLAG SET VAL = '2_7_0'
 	</update>
 
-	<update id="updateSchema-20800-00">
+	<update id="updateSchema-008-00">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEntities"/>
 	</update>
-	<update id="updateSchema-20800-01">
+	<update id="updateSchema-008-01">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEvents"/>
 	</update>
-	<update id="updateSchema-20800-02">
+	<update id="updateSchema-008-02">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsIdx"/>
 	</update>
-	<update id="updateSchema-20800-03">
+	<update id="updateSchema-008-03">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditTags"/>
 	</update>
-	<update id="updateSchema-20800-04">
+	<update id="updateSchema-008-04">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsTags"/>
 	</update>
 		
-	<update id="updateSchema-20800-05">
+	<update id="updateSchema-008-05">
 		UPDATE UVOS_FLAG SET VAL = '2_8_0'
 	</update>
 
-	<update id="updateSchema-20900-00">
+	<!-- we intentionally skipped 009 to align numbering with JSON dump version -->
+	
+	<update id="updateSchema-010-00">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-auditEventsTimestampDescIdx"/>
 	</update>
 	
-	<update id="updateSchema-20900-01">
+	<update id="updateSchema-010-01">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-files"/>
 	</update>
 	
-	<update id="updateSchema-20900-02">
-		UPDATE UVOS_FLAG SET VAL = '2_9_0'
+	<update id="updateSchema-010-02">
+		UPDATE UVOS_FLAG SET VAL = '10'
 	</update>
 	
 </mapper>

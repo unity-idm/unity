@@ -28,7 +28,6 @@ public class DumpUpdater
 	private static final int MIN_SUPPORTED_MAJOR = 1;
 	private static final int MIN_SUPPORTED_MINOR = 5;
 	
-	@Autowired
 	private List<JsonDumpUpdate> updaters;
 	
 	@Autowired
@@ -44,7 +43,7 @@ public class DumpUpdater
 						"updaters chain is inconsistent: no updater from version " + version);
 			version++;
 		}
-		if (version != AppDataSchemaVersion.CURRENT.getJsonDumpVersion())
+		if (version != AppDataSchemaVersion.CURRENT.getAppSchemaVersion())
 			throw new IllegalStateException(
 					"updaters chain is incomplete: no updater to current app version");
 	}
@@ -59,7 +58,7 @@ public class DumpUpdater
 					+ "which were created with Unity versions older then 1.9.x. "
 					+ "Update from 1.8.0 can work, but is not officially supported.");
 
-		if (header.getVersionMajor() > AppDataSchemaVersion.CURRENT.getJsonDumpVersion())
+		if (header.getVersionMajor() > AppDataSchemaVersion.CURRENT.getAppSchemaVersion())
 				throw new IOException("Import of data can not be performed from dumps "
 						+ "which were created with Unity versions newer "
 						+ "then the current one.");

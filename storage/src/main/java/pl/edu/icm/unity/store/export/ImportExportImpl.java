@@ -74,7 +74,7 @@ public class ImportExportImpl implements ImportExport
 	@Override
 	public void store(OutputStream os, DBDumpContentElements content) throws IOException
 	{
-		storeWithVersion(os, content, AppDataSchemaVersion.CURRENT.getJsonDumpVersion());
+		storeWithVersion(os, content, AppDataSchemaVersion.CURRENT.getAppSchemaVersion());
 	}
 	
 	@Override

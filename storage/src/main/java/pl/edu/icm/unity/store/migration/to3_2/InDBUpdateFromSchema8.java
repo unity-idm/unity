@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypesMapper;
 import pl.edu.icm.unity.store.impl.tokens.TokenRDBMSStore;
-import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
+import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
@@ -34,18 +34,24 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
  * using old PKCS, there was no way to export tokens in JSON dump. This was added in 3.1, but back then schema was already fixed.
  */
 @Component
-public class InDBUpdateFromSchema2_8 implements InDBSchemaUpdater
+public class InDBUpdateFromSchema8 implements InDBContentsUpdater
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema2_8.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema8.class);
 	private final TokenRDBMSStore tokensDAO;
 	private final Set<String> oauthTokenTypes = Sets.newHashSet("oauth2Code", "oauth2Access", "oauth2Refresh");
 	
 	@Autowired
-	public InDBUpdateFromSchema2_8(TokenRDBMSStore tokensDAO)
+	public InDBUpdateFromSchema8(TokenRDBMSStore tokensDAO)
 	{
 		this.tokensDAO = tokensDAO;
 	}
 
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 8;
+	}
+	
 	@Override
 	public void update() throws IOException
 	{
