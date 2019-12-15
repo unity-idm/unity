@@ -63,7 +63,7 @@ public class DumpUpdater
 					+ "which were created with Unity versions older then 1.9.x. "
 					+ "Update from 1.8.0 can work, but is not officially supported.");
 
-		if (header.getVersionMajor() > DumpSchemaVersion.V_SINCE_2_10_0.getJsonDumpVersion())
+		if (header.getVersionMajor() > DumpSchemaVersion.V_SINCE_3_1_0.getJsonDumpVersion())
 				throw new IOException("Import of data can not be performed from dumps "
 						+ "which were created with Unity versions newer "
 						+ "then the current one.");
@@ -83,11 +83,11 @@ public class DumpUpdater
 		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_8_0.getJsonDumpVersion())
 			is = performUpdate(is, updateFrom2_7_x, DumpSchemaVersion.V_SINCE_2_8_0);
 		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_9_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_8_x, DumpSchemaVersion.V_SINCE_2_9_0);
+		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_3_0_0.getJsonDumpVersion())
+			is = performUpdate(is, updateFrom2_8_x, DumpSchemaVersion.V_SINCE_3_0_0);
 
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_10_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_9_x, DumpSchemaVersion.V_SINCE_2_10_0);
+		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_3_1_0.getJsonDumpVersion())
+			is = performUpdate(is, updateFrom2_9_x, DumpSchemaVersion.V_SINCE_3_1_0);
 		
 		return is;
 	}
