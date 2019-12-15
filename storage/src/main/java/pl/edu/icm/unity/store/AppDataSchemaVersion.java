@@ -13,7 +13,7 @@ import pl.edu.icm.unity.store.rdbms.InitDB;
 /**
  * Those constants control current data version and versions supported for migration
  * <p>
- * <h2>MIGRATION CREATION INSTRUCTION<h2>
+ * <h2>MIGRATION CREATION INSTRUCTION</h2>
  * <ol>
  * <li> Change CURRENT value here to newly created DumpSchemaVersion
  * <li> Change DB schema version in Initdb-common.xml

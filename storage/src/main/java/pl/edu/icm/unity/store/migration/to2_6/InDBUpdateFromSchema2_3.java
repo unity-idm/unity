@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_5;
+package pl.edu.icm.unity.store.migration.to2_6;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,7 +43,7 @@ public class InDBUpdateFromSchema2_3 implements InDBSchemaUpdater
 		for (GenericObjectBean realm : realms)
 		{
 			ObjectNode objContent = JsonUtil.parse(realm.getContents());
-			UpdateHelperFrom2_5.updateRealm(objContent);
+			UpdateHelperTo2_5.updateRealm(objContent);
 			realm.setContents(JsonUtil.serialize2Bytes(objContent));
 			genericObjectsDAO.updateByKey(realm.getId(), realm);
 		}
@@ -56,7 +56,7 @@ public class InDBUpdateFromSchema2_3 implements InDBSchemaUpdater
 		for (GenericObjectBean endpoint : endpoints)
 		{
 			ObjectNode objContent = JsonUtil.parse(endpoint.getContents());
-			if (UpdateHelperFrom2_5.updateEndpointConfiguration(objContent).isPresent())
+			if (UpdateHelperTo2_5.updateEndpointConfiguration(objContent).isPresent())
 			{		
 				endpoint.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(endpoint.getId(), endpoint);

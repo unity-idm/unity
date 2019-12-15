@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_4;
+package pl.edu.icm.unity.store.migration.to2_5;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class JsonDumpUpdateFromV3 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				CredentialHandler.CREDENTIAL_OBJECT_TYPE))
 		{
-			UpdateHelperFrom2_0.updateCredentialsDefinition(objContent);
+			UpdateHelperTo2_5.updateCredentialsDefinition(objContent);
 		}
 
 	}
@@ -80,7 +80,7 @@ public class JsonDumpUpdateFromV3 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID))
 		{
-			UpdateHelperFrom2_0.updateNotificationChannel(objContent);
+			UpdateHelperTo2_5.updateNotificationChannel(objContent);
 		}
 	}
 
@@ -189,7 +189,7 @@ public class JsonDumpUpdateFromV3 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				InvitationHandler.INVITATION_OBJECT_TYPE))
 		{
-			UpdateHelperFrom2_0.updateInvitationWithCode(objContent);
+			UpdateHelperTo2_5.updateInvitationWithCode(objContent);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class JsonDumpUpdateFromV3 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE))
 		{
-			UpdateHelperFrom2_0.updateMessageTemplates(objContent);
+			UpdateHelperTo2_5.updateMessageTemplates(objContent);
 		}
 	}
 
@@ -206,7 +206,7 @@ public class JsonDumpUpdateFromV3 implements Update
 	{
 		for (ObjectNode objContent : getGenericContent(contents, fromType))
 		{
-			UpdateHelperFrom2_0.dropChannelFromGenericForm(objContent, fromType);
+			UpdateHelperTo2_5.dropChannelFromGenericForm(objContent, fromType);
 		}
 	}
 

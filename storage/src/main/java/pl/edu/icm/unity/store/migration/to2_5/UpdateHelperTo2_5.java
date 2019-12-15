@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_4;
+package pl.edu.icm.unity.store.migration.to2_5;
 
 
 import java.io.IOException;
@@ -22,9 +22,9 @@ import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
  * @author P.Piernik
  *
  */
-public class UpdateHelperFrom2_0
+public class UpdateHelperTo2_5
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperFrom2_0.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperTo2_5.class);
 	
 	public static Optional<ObjectNode> dropChannelFromGenericForm(ObjectNode objContent, String type)
 	{

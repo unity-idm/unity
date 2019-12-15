@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_9;
+package pl.edu.icm.unity.store.migration.to3_0;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,14 +22,15 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Update JSON dump from V8 version.
- * @author R.Ledzinski
- *
+ * Update JSon dump adding an empty files and certificates arrays. Note: it should be also matched by schema migration
+ * with FILES table but that was forgotten and fixed as follows:
+ *  - hotfix was implemented in the 3.1.1 release, adding the FILES table in DB if it is missing, without regular migration path. 
+ *  - proper migration added in the update to the 3.2.0 unity version, and the hotfix was removed
  */
 @Component
-public class JsonDumpUpdateFromV8 implements Update
+public class JsonDumpUpdateFromV7 implements Update
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV8.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV7.class);
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -39,26 +40,33 @@ public class JsonDumpUpdateFromV8 implements Update
 	{
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 		ObjectNode contents = (ObjectNode) root.get("contents");
-
-		ObjectNode newContents = insertAuditEvents(contents);
+	
+		ObjectNode newContents = insertFiles(contents);
+		addCertificate(newContents);
 		root.set("contents", newContents);
-
+		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
-
+	
 	}
 
-	private ObjectNode insertAuditEvents(ObjectNode contents)
+	private ObjectNode insertFiles(ObjectNode contents)
 	{
 		ObjectNode newContents = new ObjectNode(JsonNodeFactory.instance);
 		Iterator<Map.Entry<String, JsonNode>> fields = contents.fields();
 		while(fields.hasNext()){
-			Map.Entry<String, JsonNode> entry = fields.next();
-			newContents.putPOJO(entry.getKey(), entry.getValue());
-			if("files".equals(entry.getKey())){
-				log.info("Add empty auditEvents array");
-				newContents.putArray("auditEvents");
-			}
+		    Map.Entry<String, JsonNode> entry = fields.next();
+		    newContents.putPOJO(entry.getKey(), entry.getValue());
+		    if("attributes".equals(entry.getKey())){
+			    log.info("Add empty files array");
+			    newContents.putArray("files");
+		    }
 		}
 		return newContents;
+	}
+	
+	private void addCertificate(ObjectNode contents)
+	{	
+		log.info("Add empty certificate array");
+		contents.putArray("certificate");
 	}
 }

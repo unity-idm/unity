@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.store.migration.from2_7;
+package pl.edu.icm.unity.store.migration.to2_8;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 

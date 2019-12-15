@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_7;
+package pl.edu.icm.unity.store.migration.to2_8;
 
 
 import org.apache.logging.log4j.Logger;
@@ -18,9 +18,9 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 /**
  * Shared code updating authenticators. 
  */
-class UpdateHelperFrom2_7
+class UpdateHelperTo2_8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperFrom2_7.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperTo2_8.class);
 	
 	private static final String TRIGGER_MODE_OLD_NAME = "afterRemoteLogin";
 	private static final String TRIGGER_MODE_NEW_NAME = "afterRemoteLoginWhenUnknownUser";

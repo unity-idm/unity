@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_5;
+package pl.edu.icm.unity.store.migration.to2_6;
 
 
 import java.util.ArrayList;
@@ -24,9 +24,9 @@ import pl.edu.icm.unity.types.authn.RememberMePolicy;
  * @author P.Piernik
  *
  */
-public class UpdateHelperFrom2_5
+public class UpdateHelperTo2_5
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperFrom2_5.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperTo2_5.class);
 	
 	
 	public static Optional<ObjectNode> updateEndpointConfiguration(ObjectNode objContent)

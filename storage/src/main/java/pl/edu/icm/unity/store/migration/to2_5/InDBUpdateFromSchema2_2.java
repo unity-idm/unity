@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_4;
+package pl.edu.icm.unity.store.migration.to2_5;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -74,7 +74,7 @@ public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 		for (GenericObjectBean form : forms)
 		{
 			ObjectNode objContent = JsonUtil.parse(form.getContents());
-			if (UpdateHelperFrom2_0.dropChannelFromGenericForm(objContent, objType).isPresent())
+			if (UpdateHelperTo2_5.dropChannelFromGenericForm(objContent, objType).isPresent())
 			{
 				form.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(form.getId(), form);
@@ -92,7 +92,7 @@ public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 			
 			ObjectNode objContent = JsonUtil.parse(channel.getContents());
 
-			if (UpdateHelperFrom2_0.updateNotificationChannel(objContent).isPresent())
+			if (UpdateHelperTo2_5.updateNotificationChannel(objContent).isPresent())
 			{	
 				channel.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(channel.getId(), channel);
@@ -199,7 +199,7 @@ public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 		{
 			ObjectNode objContent = JsonUtil.parse(msg.getContents());
 
-			if (UpdateHelperFrom2_0.updateMessageTemplates(objContent).isPresent())
+			if (UpdateHelperTo2_5.updateMessageTemplates(objContent).isPresent())
 			{
 				msg.setContents(JsonUtil.serialize2Bytes(objContent));
 				log.info("Updating message template {}", msg.getName());
@@ -219,7 +219,7 @@ public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 		{
 			ObjectNode objContent = JsonUtil.parse(cred.getContents());
 
-			if (UpdateHelperFrom2_0.updateCredentialsDefinition(objContent).isPresent())
+			if (UpdateHelperTo2_5.updateCredentialsDefinition(objContent).isPresent())
 			{
 				cred.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(cred.getId(), cred);
@@ -236,7 +236,7 @@ public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 		for (GenericObjectBean inv : invs)
 		{
 			ObjectNode objContent = JsonUtil.parse(inv.getContents());
-			if (UpdateHelperFrom2_0.updateInvitationWithCode(objContent).isPresent())
+			if (UpdateHelperTo2_5.updateInvitationWithCode(objContent).isPresent())
 			{
 				inv.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(inv.getId(), inv);

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_6;
+package pl.edu.icm.unity.store.migration.to2_7;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 
 /**
- * Update JSon dump from V6 version, see {@link UpdateHelperFrom2_6}
+ * Update JSon dump from V6 version, see {@link UpdateHelperTo2_6}
  */
 @Component
 public class JsonDumpUpdateFromV5 implements Update
@@ -113,7 +113,7 @@ public class JsonDumpUpdateFromV5 implements Update
 		{
 			JsonNode next = elements.next();
 			ObjectNode request = (ObjectNode)next.get("obj");
-			Optional<ObjectNode> updated = UpdateHelperFrom2_6.updateRegistrationRequest(request, formsMap);
+			Optional<ObjectNode> updated = UpdateHelperTo2_6.updateRegistrationRequest(request, formsMap);
 			if (!updated.isPresent())
 				elements.remove();
 		}
@@ -135,7 +135,7 @@ public class JsonDumpUpdateFromV5 implements Update
 		{
 			JsonNode next = elements.next();
 			ObjectNode invitation = (ObjectNode)next.get("obj");
-			Optional<ObjectNode> updated = UpdateHelperFrom2_6.updateInvitation(invitation, formsMap);
+			Optional<ObjectNode> updated = UpdateHelperTo2_6.updateInvitation(invitation, formsMap);
 			if (!updated.isPresent())
 				elements.remove();
 		}
@@ -159,7 +159,7 @@ public class JsonDumpUpdateFromV5 implements Update
 	{
 		for (ObjectNode registrationForm: getGenericContent(contents, RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE))
 		{
-			UpdateHelperFrom2_6.updateRegistrationFormLayout(registrationForm);
+			UpdateHelperTo2_6.updateRegistrationFormLayout(registrationForm);
 		}
 	}
 }

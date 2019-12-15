@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_6;
+package pl.edu.icm.unity.store.migration.to2_7;
 
 
 import java.util.Iterator;
@@ -26,9 +26,9 @@ import pl.edu.icm.unity.base.utils.Log;
  * group instead of boolean selection flag, and can hold a list of selections (although in effect of migration
  * at max one element can be in the list). Also invitations needs to updated accordingly.
  */
-class UpdateHelperFrom2_6
+class UpdateHelperTo2_6
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperFrom2_6.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperTo2_6.class);
 	
 	static Optional<ObjectNode> updateRegistrationRequest(ObjectNode request, Map<String, ObjectNode> formsMap)
 	{

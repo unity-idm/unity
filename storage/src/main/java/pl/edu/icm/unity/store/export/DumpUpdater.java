@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.migration.from1_9.UpdateFrom1_9_x;
-import pl.edu.icm.unity.store.migration.from2_4.JsonDumpUpdateFromV3;
-import pl.edu.icm.unity.store.migration.from2_5.JsonDumpUpdateFromV4;
-import pl.edu.icm.unity.store.migration.from2_6.JsonDumpUpdateFromV5;
-import pl.edu.icm.unity.store.migration.from2_7.JsonDumpUpdateFromV6;
-import pl.edu.icm.unity.store.migration.from2_8.JsonDumpUpdateFromV7;
-import pl.edu.icm.unity.store.migration.from2_9.JsonDumpUpdateFromV8;
+import pl.edu.icm.unity.store.migration.to2_5.JsonDumpUpdateFromV3;
+import pl.edu.icm.unity.store.migration.to2_6.JsonDumpUpdateFromV4;
+import pl.edu.icm.unity.store.migration.to2_7.JsonDumpUpdateFromV5;
+import pl.edu.icm.unity.store.migration.to2_8.JsonDumpUpdateFromV6;
+import pl.edu.icm.unity.store.migration.to3_0.JsonDumpUpdateFromV7;
+import pl.edu.icm.unity.store.migration.to3_1.JsonDumpUpdateFromV8;
 
 /**
  * Updates a JSON dump before it is actually imported.

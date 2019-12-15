@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_7;
+package pl.edu.icm.unity.store.migration.to2_8;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.store.export.Update;
 
 /**
- * Update JSon dump from V6 version, see {@link UpdateHelperFrom2_7}
+ * Update JSon dump from V6 version, see {@link UpdateHelperTo2_8}
  */
 @Component
 public class JsonDumpUpdateFromV6 implements Update
@@ -44,22 +44,22 @@ public class JsonDumpUpdateFromV6 implements Update
 	
 	private void updateInvitationWithCode(ObjectNode contents)
 	{
-		genericObjectUpdate("invitationWithCode", contents, UpdateHelperFrom2_7::updateInvitationWithCode);
+		genericObjectUpdate("invitationWithCode", contents, UpdateHelperTo2_8::updateInvitationWithCode);
 	}
 
 	private void updateAuthenticators(ObjectNode contents)
 	{
-		genericObjectUpdate("authenticator", contents, UpdateHelperFrom2_7::updateAuthenticator);
+		genericObjectUpdate("authenticator", contents, UpdateHelperTo2_8::updateAuthenticator);
 	}
 	
 	private void updateRegistrationRequest(ObjectNode contents)
 	{
-		genericObjectUpdate("registrationRequest", contents, UpdateHelperFrom2_7::updateRegistrationRequest);
+		genericObjectUpdate("registrationRequest", contents, UpdateHelperTo2_8::updateRegistrationRequest);
 	}
 
 	private void updateEnquiryResponse(ObjectNode contents)
 	{
-		genericObjectUpdate("enquiryResponse", contents, UpdateHelperFrom2_7::updateEnquiryResponse);
+		genericObjectUpdate("enquiryResponse", contents, UpdateHelperTo2_8::updateEnquiryResponse);
 	}
 	
 	private void genericObjectUpdate(String type, ObjectNode contents, GenericObjectDataUpdater updater)

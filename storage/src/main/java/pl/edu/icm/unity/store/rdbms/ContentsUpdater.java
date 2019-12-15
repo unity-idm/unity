@@ -14,10 +14,10 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
-import pl.edu.icm.unity.store.migration.from2_4.InDBUpdateFromSchema2_2;
-import pl.edu.icm.unity.store.migration.from2_5.InDBUpdateFromSchema2_3;
-import pl.edu.icm.unity.store.migration.from2_6.InDBUpdateFromSchema2_4;
-import pl.edu.icm.unity.store.migration.from2_7.InDBUpdateFromSchema2_5;
+import pl.edu.icm.unity.store.migration.to2_5.InDBUpdateFromSchema2_2;
+import pl.edu.icm.unity.store.migration.to2_6.InDBUpdateFromSchema2_3;
+import pl.edu.icm.unity.store.migration.to2_7.InDBUpdateFromSchema2_4;
+import pl.edu.icm.unity.store.migration.to2_8.InDBUpdateFromSchema2_5;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).

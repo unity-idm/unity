@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_5;
+package pl.edu.icm.unity.store.migration.to2_6;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				RealmHandler.REALM_OBJECT_TYPE))
 		{
-			UpdateHelperFrom2_5.updateRealm(objContent);
+			UpdateHelperTo2_5.updateRealm(objContent);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				EndpointHandler.ENDPOINT_OBJECT_TYPE))
 		{
-			UpdateHelperFrom2_5.updateEndpointConfiguration(objContent);
+			UpdateHelperTo2_5.updateEndpointConfiguration(objContent);
 		}
 
 	}

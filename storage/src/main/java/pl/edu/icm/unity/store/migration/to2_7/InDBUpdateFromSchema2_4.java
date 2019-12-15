@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_6;
+package pl.edu.icm.unity.store.migration.to2_7;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
- * Update db from 2.6.0 release version (DB schema version 2.4). See {@link UpdateHelperFrom2_6}
+ * Update db from 2.6.0 release version (DB schema version 2.4). See {@link UpdateHelperTo2_6}
  */
 @Component
 public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
@@ -104,7 +104,7 @@ public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
 		for (GenericObjectBean request : requests)
 		{
 			ObjectNode objContent = JsonUtil.parse(request.getContents());
-			Optional<ObjectNode> updated = UpdateHelperFrom2_6.updateRegistrationRequest(objContent, formsMap);
+			Optional<ObjectNode> updated = UpdateHelperTo2_6.updateRegistrationRequest(objContent, formsMap);
 			if (updated.isPresent())
 			{
 				request.setContents(JsonUtil.serialize2Bytes(updated.get()));
@@ -126,7 +126,7 @@ public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
 		for (GenericObjectBean invitation : invitations)
 		{
 			ObjectNode objContent = JsonUtil.parse(invitation.getContents());
-			Optional<ObjectNode> updated = UpdateHelperFrom2_6.updateInvitation(objContent, formsMap);
+			Optional<ObjectNode> updated = UpdateHelperTo2_6.updateInvitation(objContent, formsMap);
 			if (updated.isPresent())
 			{
 				invitation.setContents(JsonUtil.serialize2Bytes(updated.get()));

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.from2_7;
+package pl.edu.icm.unity.store.migration.to2_8;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
 
 /**
- * Update db from 2.7 release version (DB schema version 2.5). See {@link UpdateHelperFrom2_7}
+ * Update db from 2.7 release version (DB schema version 2.5). See {@link UpdateHelperTo2_8}
  */
 @Component
 public class InDBUpdateFromSchema2_5 implements InDBSchemaUpdater
@@ -38,23 +38,23 @@ public class InDBUpdateFromSchema2_5 implements InDBSchemaUpdater
 
 	private void updateInvitationWithCode()
 	{
-		updateGenericObjects("invitationWithCode", UpdateHelperFrom2_7::updateInvitationWithCode);
+		updateGenericObjects("invitationWithCode", UpdateHelperTo2_8::updateInvitationWithCode);
 	}
 	
 	
 	private void updateAuthenticators()
 	{
-		updateGenericObjects("authenticator", UpdateHelperFrom2_7::updateAuthenticator);
+		updateGenericObjects("authenticator", UpdateHelperTo2_8::updateAuthenticator);
 	}
 	
 	private void updateRegistrationRequest()
 	{
-		updateGenericObjects("registrationRequest", UpdateHelperFrom2_7::updateRegistrationRequest);
+		updateGenericObjects("registrationRequest", UpdateHelperTo2_8::updateRegistrationRequest);
 	}
 
 	private void updateEnquiryResponse()
 	{
-		updateGenericObjects("enquiryResponse", UpdateHelperFrom2_7::updateEnquiryResponse);
+		updateGenericObjects("enquiryResponse", UpdateHelperTo2_8::updateEnquiryResponse);
 	}
 	
 	
