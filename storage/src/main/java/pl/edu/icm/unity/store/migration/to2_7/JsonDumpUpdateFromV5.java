@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.eresp.EnquiryResponseHandler;
 import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
@@ -37,12 +37,19 @@ import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
  * Update JSon dump from V6 version, see {@link UpdateHelperTo2_6}
  */
 @Component
-public class JsonDumpUpdateFromV5 implements Update
+public class JsonDumpUpdateFromV5 implements JsonDumpUpdate
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV5.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 5;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{

@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,13 +25,20 @@ import java.util.Map;
  * Adds empty audit events array to dump. 
  */
 @Component
-public class JsonDumpUpdateFromV8 implements Update
+public class JsonDumpUpdateFromV8 implements JsonDumpUpdate
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV8.class);
 	
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 8;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{

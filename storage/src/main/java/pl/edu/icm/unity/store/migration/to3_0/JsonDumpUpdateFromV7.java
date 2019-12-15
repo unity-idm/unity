@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,13 +28,20 @@ import java.util.Map;
  *  - proper migration added in the update to the 3.2.0 unity version, and the hotfix was removed
  */
 @Component
-public class JsonDumpUpdateFromV7 implements Update
+public class JsonDumpUpdateFromV7 implements JsonDumpUpdate
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV7.class);
 	
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 7;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{

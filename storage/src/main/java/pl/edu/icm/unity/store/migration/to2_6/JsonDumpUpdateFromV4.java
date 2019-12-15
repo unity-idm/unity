@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
 
@@ -31,13 +31,20 @@ import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
  *
  */
 @Component
-public class JsonDumpUpdateFromV4 implements Update
+public class JsonDumpUpdateFromV4 implements JsonDumpUpdate
 
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV4.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 4;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{

@@ -18,17 +18,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 
 /**
  * Update JSon dump from V6 version, see {@link UpdateHelperTo2_8}
  */
 @Component
-public class JsonDumpUpdateFromV6 implements Update
+public class JsonDumpUpdateFromV6 implements JsonDumpUpdate
 {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 6;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{

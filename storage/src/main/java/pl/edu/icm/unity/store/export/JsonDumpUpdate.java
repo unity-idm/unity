@@ -9,15 +9,18 @@ import java.io.InputStream;
 
 /**
  * Implementation should perform update of JSON data between subsequent versions.
- * @author K. Benedyczak
  */
-public interface Update
+public interface JsonDumpUpdate
 {
 	/**
 	 * Performs update on the input stream of original JSON dump. 
-	 * @param is
 	 * @return a new Input stream with updated contents, or the argument stream if unchanged.
-	 * @throws IOException
 	 */
 	InputStream update(InputStream is) throws IOException;
+	
+	/**
+	 * @return version on which this updater should be executed. It is assumed that after update 
+	 * dump in be in the version +1.
+	 */
+	int getUpdatedVersion();
 }

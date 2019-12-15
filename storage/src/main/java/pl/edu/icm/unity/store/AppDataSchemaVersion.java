@@ -5,8 +5,7 @@
 package pl.edu.icm.unity.store;
 
 import pl.edu.icm.unity.store.export.DumpSchemaVersion;
-import pl.edu.icm.unity.store.export.DumpUpdater;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.rdbms.ContentsUpdater;
 import pl.edu.icm.unity.store.rdbms.InitDB;
 
@@ -21,10 +20,9 @@ import pl.edu.icm.unity.store.rdbms.InitDB;
  * Bump {@link InitDB} SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.
  * <li> Create in-place migration implementing InDBSchemaUpdater
  * (suggested separate package ...unity.store.migration.fromX_Y)
- * <li> Create JSON dump migration implementing {@link Update} in the above created package
+ * <li> Create JSON dump migration implementing {@link JsonDumpUpdate} in the above created package
  * <li> Bump {@link ContentsUpdater} DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION
  * <li> Wire up DB migration in {@link ContentsUpdater}
- * <li> Wire up JSON migration in {@link DumpUpdater}
  * </ol>
  * @author K. Benedyczak
  */

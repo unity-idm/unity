@@ -30,7 +30,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
  * @author K. Benedyczak
  */
 @Component
-public class UpdateFrom1_9_x implements Update
+public class UpdateFrom1_9_x implements JsonDumpUpdate
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateFrom1_9_x.class);
 	@Autowired
@@ -756,5 +756,12 @@ public class UpdateFrom1_9_x implements Update
 		private Map<Long, ObjectNode> attributeTypesById = new HashMap<>();
 		private Map<String, ObjectNode> attributeTypesByName = new HashMap<>();
 		private Map<Long, String> legacyGroupIds = new HashMap<>();
+	}
+
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 2;
 	}
 }

@@ -6,20 +6,14 @@ package pl.edu.icm.unity.store.export;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.migration.from1_9.UpdateFrom1_9_x;
-import pl.edu.icm.unity.store.migration.to2_5.JsonDumpUpdateFromV3;
-import pl.edu.icm.unity.store.migration.to2_6.JsonDumpUpdateFromV4;
-import pl.edu.icm.unity.store.migration.to2_7.JsonDumpUpdateFromV5;
-import pl.edu.icm.unity.store.migration.to2_8.JsonDumpUpdateFromV6;
-import pl.edu.icm.unity.store.migration.to3_0.JsonDumpUpdateFromV7;
-import pl.edu.icm.unity.store.migration.to3_1.JsonDumpUpdateFromV8;
-import pl.edu.icm.unity.store.migration.to3_2.JsonDumpUpdateFromV9;
+import pl.edu.icm.unity.store.AppDataSchemaVersion;
 
 /**
  * Updates a JSON dump before it is actually imported.
@@ -34,30 +28,28 @@ public class DumpUpdater
 	private static final int MIN_SUPPORTED_MAJOR = 1;
 	private static final int MIN_SUPPORTED_MINOR = 5;
 	
-	@Autowired 
-	private UpdateFrom1_9_x updateFrom1_9_x;
+	@Autowired
+	private List<JsonDumpUpdate> updaters;
 	
 	@Autowired
-	private JsonDumpUpdateFromV3 updateFrom2_4_x;
-	
-	@Autowired
-	private JsonDumpUpdateFromV4 updateFrom2_5_x;
+	public DumpUpdater(List<JsonDumpUpdate> updaters)
+	{
+		this.updaters = updaters;
+		this.updaters.sort((a, b) -> Integer.compare(a.getUpdatedVersion(), b.getUpdatedVersion()));
+		int version = updaters.get(0).getUpdatedVersion();
+		for (JsonDumpUpdate update: updaters)
+		{
+			if (update.getUpdatedVersion() != version)
+				throw new IllegalStateException(
+						"updaters chain is inconsistent: no updater from version " + version);
+			version++;
+		}
+		if (version != AppDataSchemaVersion.CURRENT.getJsonDumpVersion())
+			throw new IllegalStateException(
+					"updaters chain is incomplete: no updater to current app version");
+	}
 
-	@Autowired
-	private JsonDumpUpdateFromV5 updateFrom2_6_x;
 
-	@Autowired
-	private JsonDumpUpdateFromV6 updateFrom2_7_x;
-	
-	@Autowired
-	private JsonDumpUpdateFromV7 updateFrom2_8_x;
-
-	@Autowired
-	private JsonDumpUpdateFromV8 updateFrom3_0_x;
-
-	@Autowired
-	private JsonDumpUpdateFromV9 updateFrom3_1_x;
-	
 	public InputStream update(InputStream is, DumpHeader header) throws IOException
 	{
 		if (header.getVersionMajor() < MIN_SUPPORTED_MAJOR || 
@@ -67,44 +59,25 @@ public class DumpUpdater
 					+ "which were created with Unity versions older then 1.9.x. "
 					+ "Update from 1.8.0 can work, but is not officially supported.");
 
-		if (header.getVersionMajor() > DumpSchemaVersion.V_SINCE_3_2_0.getJsonDumpVersion())
+		if (header.getVersionMajor() > AppDataSchemaVersion.CURRENT.getJsonDumpVersion())
 				throw new IOException("Import of data can not be performed from dumps "
 						+ "which were created with Unity versions newer "
 						+ "then the current one.");
 		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL_2_0_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL_2_0_0);
-		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_5_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_4_x, DumpSchemaVersion.V_SINCE_2_5_0);
-		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_6_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_5_x, DumpSchemaVersion.V_SINCE_2_6_0);
-
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_7_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_6_x, DumpSchemaVersion.V_SINCE_2_7_0);
-
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_8_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_7_x, DumpSchemaVersion.V_SINCE_2_8_0);
-		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_3_0_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom2_8_x, DumpSchemaVersion.V_SINCE_3_0_0);
-
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_3_1_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom3_0_x, DumpSchemaVersion.V_SINCE_3_1_0);
-
-		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_3_2_0.getJsonDumpVersion())
-			is = performUpdate(is, updateFrom3_1_x, DumpSchemaVersion.V_SINCE_3_2_0);
-		
+		for (JsonDumpUpdate update: updaters)
+		{
+			int updateFrom = update.getUpdatedVersion();
+			if (header.getVersionMajor() <= updateFrom)
+				is = performUpdate(is, update, updateFrom, updateFrom+1);
+		}
 		return is;
 	}
 
 	
-	private InputStream performUpdate(InputStream is, Update updateImpl,
-			DumpSchemaVersion toVersion) throws IOException
+	private InputStream performUpdate(InputStream is, JsonDumpUpdate updateImpl,
+			int fromVersion, int toVersion) throws IOException
 	{
-		log.info("Updating database dump from " + toVersion.getPreviousName() + 
-				" --> " + toVersion.getName() + " [" + toVersion.getJsonDumpVersion() + "]");
+		log.info("Updating database dump from {} --> {}", fromVersion, toVersion);
 		return updateImpl.update(is);
 	}
 }

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
@@ -39,13 +39,19 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
  *
  */
 @Component
-public class JsonDumpUpdateFromV3 implements Update
+public class JsonDumpUpdateFromV3 implements JsonDumpUpdate
 
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV3.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 3;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{

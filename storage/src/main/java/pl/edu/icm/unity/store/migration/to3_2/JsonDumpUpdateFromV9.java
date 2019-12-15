@@ -17,17 +17,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 
 /**
  * Drops extracted attributes from identity types.
  */
 @Component
-public class JsonDumpUpdateFromV9 implements Update
+public class JsonDumpUpdateFromV9 implements JsonDumpUpdate
 {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+
+	@Override
+	public int getUpdatedVersion()
+	{
+		return 9;
+	}
+	
 	@Override
 	public InputStream update(InputStream is) throws IOException
 	{
