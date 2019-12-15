@@ -116,10 +116,6 @@ public interface PKIManagement
 	 */
 	void updateCertificate(NamedCertificate toUpdate) throws EngineException;
 	
-	/**
-	 * 
-	 * @param config
-	 */
 	void loadCertificatesFromConfigFile();
 	
 }
