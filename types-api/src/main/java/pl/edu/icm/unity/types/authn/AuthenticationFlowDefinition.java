@@ -38,7 +38,6 @@ public class AuthenticationFlowDefinition implements NamedObject
 
 	public AuthenticationFlowDefinition()
 	{
-		super();
 	}
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,

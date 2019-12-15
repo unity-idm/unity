@@ -16,13 +16,12 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 
 /**
  * Stores information about a authentication flow, as configured by administrator and selectable by 
- * a user or client. The flow contains a first factor authenticators, policy and optionally second factor authenticators. The policy decide how second factor
- * authenticator is enforced.
+ * a user or client. The flow contains a first factor authenticators, policy and optionally second factor authenticators. 
+ * The policy decide how second factor authenticator is enforced.
  * <p>
  * This class is a working instance of what can be described by the {@link AuthenticationFlowDefinition}.
  * <p>
- * Implementation note: as RBA is unimplemented yet. In future
- * it will be extended.
+ * Implementation note: RBA is unimplemented yet. In future it will be extended.
  *  
  * @author K. Benedyczak
  */
@@ -89,10 +88,6 @@ public class AuthenticationFlow
 		return revision;
 	}
 	
-	/**
-	 * @throws WrongArgumentException 
-	 * 
-	 */
 	public void checkIfAuthenticatorsAreAmongSupported(Set<String> supportedBindings) throws WrongArgumentException
 	{
 		checkIfAuthenticatorIsAmongSupported(firstFactorAuthenticators, supportedBindings);
