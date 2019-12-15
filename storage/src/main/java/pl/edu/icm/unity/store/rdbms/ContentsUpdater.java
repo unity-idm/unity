@@ -18,6 +18,7 @@ import pl.edu.icm.unity.store.migration.to2_5.InDBUpdateFromSchema2_2;
 import pl.edu.icm.unity.store.migration.to2_6.InDBUpdateFromSchema2_3;
 import pl.edu.icm.unity.store.migration.to2_7.InDBUpdateFromSchema2_4;
 import pl.edu.icm.unity.store.migration.to2_8.InDBUpdateFromSchema2_5;
+import pl.edu.icm.unity.store.migration.to3_2.InDBUpdateFromSchema2_8;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).
@@ -36,29 +37,34 @@ public class ContentsUpdater
 	@Autowired
 	private TransactionalRunner txManager;
 	@Autowired
-	private InDBUpdateFromSchema2_2 from2_4;
+	private InDBUpdateFromSchema2_2 from2_2;
 	@Autowired
-	private InDBUpdateFromSchema2_3 from2_5;
+	private InDBUpdateFromSchema2_3 from2_3;
 	@Autowired
-	private InDBUpdateFromSchema2_4 from2_6;
+	private InDBUpdateFromSchema2_4 from2_4;
 	@Autowired
-	private InDBUpdateFromSchema2_5 from2_7;
+	private InDBUpdateFromSchema2_5 from2_5;
+	@Autowired
+	private InDBUpdateFromSchema2_8 from2_8;
 	
 	public void update(long oldDbVersion) throws IOException, EngineException
 	{
 		assertMigrationsAreMatchingApp();
 		
 		if (oldDbVersion < 20300)
-			migrateFromSchemaVersion(from2_4);
+			migrateFromSchemaVersion(from2_2);
 		
 		if (oldDbVersion < 20400)
-			migrateFromSchemaVersion(from2_5);
+			migrateFromSchemaVersion(from2_3);
 
 		if (oldDbVersion < 20500)
-			migrateFromSchemaVersion(from2_6);
+			migrateFromSchemaVersion(from2_4);
 
 		if (oldDbVersion < 20600)
-			migrateFromSchemaVersion(from2_7);
+			migrateFromSchemaVersion(from2_5);
+
+		if (oldDbVersion < 20900)
+			migrateFromSchemaVersion(from2_8);
 	}
 	
 	private void assertMigrationsAreMatchingApp() throws IOException
