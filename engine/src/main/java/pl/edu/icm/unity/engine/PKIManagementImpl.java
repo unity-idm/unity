@@ -111,7 +111,6 @@ public class PKIManagementImpl implements PKIManagement
 	@Override
 	public void loadCertificatesFromConfigFile()
 	{
-
 		Set<String> allInDB = certDB.getAllNames();
 		Set<String> certNames = pkiConf.getStructuredListKeys(UnityPKIConfiguration.CERTIFICATES);
 		for (String cert : certNames)

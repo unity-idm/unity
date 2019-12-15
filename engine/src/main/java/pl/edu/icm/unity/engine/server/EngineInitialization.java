@@ -399,6 +399,7 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeSystemContentsFromDBOnly()
 	{
 		boolean isColdStart = false;
+		loadCertificatesFromFileAfterMigration();
 		initializeIdentityTypes();
 		initializeAdminUser();
 		notificationChannelLoader.initialize();
@@ -408,6 +409,25 @@ public class EngineInitialization extends LifecycleBase
 		deployPersistedEndpoints();
 	}
 
+	private void loadCertificatesFromFileAfterMigration()
+	{
+		try
+		{
+			//this condition is incorrect - we should check what was the DB version at server start, before migration was run.
+			//with this if, user who deletes all certificates will get certs from file after restart.
+			if (pkiManagement.getAllCertificateNames().isEmpty())
+			{
+				log.info("Loading certificates configured in files despite " 
+						+ USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY 
+						+ " as no certificates are present");
+				pkiManagement.loadCertificatesFromConfigFile();
+			}
+		} catch (EngineException e)
+		{
+			throw new InternalException("Initialization problem: can't populate DB with trusted certificates", e);
+		}		
+	}
+	
 	
 	private void deployPersistedEndpoints()
 	{
