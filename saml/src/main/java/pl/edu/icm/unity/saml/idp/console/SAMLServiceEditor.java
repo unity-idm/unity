@@ -121,7 +121,8 @@ public class SAMLServiceEditor implements ServiceEditor
 				type.getSupportedBinding(), msg.getMessage("IdpServiceEditorBase.authentication"));
 		
 		editor = new SAMLServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, webServiceAuthenticationTab,
-				type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups);
+				type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups, 
+				serverConfig.getValue(UnityServerConfiguration.THEME));
 		return editor;
 	}
 

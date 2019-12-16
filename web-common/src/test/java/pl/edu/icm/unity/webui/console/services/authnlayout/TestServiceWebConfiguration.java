@@ -188,7 +188,7 @@ public class TestServiceWebConfiguration
 	{
 		ServiceWebConfiguration processor = new ServiceWebConfiguration(defTheme);
 
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, imageAccessSrv);
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, imageAccessSrv, "systemTheme");
 		return processor.toProperties(msg, fileStorageSrv, "authName");
 	}
 	

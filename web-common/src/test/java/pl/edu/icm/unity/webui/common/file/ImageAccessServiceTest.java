@@ -44,7 +44,7 @@ public class ImageAccessServiceTest
 	}
 
 	@Test
-	public void shouldReturnRemoteResource()
+	public void shouldReturnRemoteResourceIntact()
 	{
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
 		assertThat(imageAccessService.getEditableImageResourceFromUriOrNull("http:ok", Optional.empty())

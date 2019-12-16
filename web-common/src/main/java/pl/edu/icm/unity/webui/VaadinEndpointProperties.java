@@ -238,16 +238,14 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	
 	public String getEffectiveMainTheme()
 	{
-		return getConfiguredTheme(VaadinEndpointProperties.THEME) != null
-				? getConfiguredTheme(VaadinEndpointProperties.THEME)
-				: VaadinEndpoint.DEFAULT_THEME;
+		String configuredTheme = getConfiguredTheme(VaadinEndpointProperties.THEME);
+		return configuredTheme != null ? configuredTheme : VaadinEndpoint.DEFAULT_THEME;
 	}
 
 	public String getEffectiveAuthenticationTheme()
 	{
-		return getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME) != null
-				? getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME)
-				: VaadinEndpoint.DEFAULT_THEME;
+		String configuredTheme = getConfiguredTheme(VaadinEndpointProperties.AUTHN_THEME);
+		return configuredTheme != null ? configuredTheme : VaadinEndpoint.DEFAULT_THEME;
 	}
 
 	public EndpointRegistrationConfiguration getRegistrationConfiguration()

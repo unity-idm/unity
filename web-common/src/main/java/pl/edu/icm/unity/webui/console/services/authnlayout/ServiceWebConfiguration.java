@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.webui.console.services.authnlayout;
 
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -85,78 +87,61 @@ public class ServiceWebConfiguration
 	{
 		Properties raw = new Properties();
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_SHOW_SEARCH,
-				String.valueOf(showSearch));
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_ADD_ALL,
-				String.valueOf(addAllAuthnOptions));
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_SHOW_CANCEL,
-				String.valueOf(showCancel));
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY,
-				String.valueOf(showLastUsedAuthnOption));
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTO_LOGIN,
-				String.valueOf(autoLogin));
+		raw.put(PREFIX + VaadinEndpointProperties.AUTHN_SHOW_SEARCH, String.valueOf(showSearch));
+		raw.put(PREFIX + VaadinEndpointProperties.AUTHN_ADD_ALL, String.valueOf(addAllAuthnOptions));
+		raw.put(PREFIX + VaadinEndpointProperties.AUTHN_SHOW_CANCEL, String.valueOf(showCancel));
+		raw.put(PREFIX + VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY, String.valueOf(showLastUsedAuthnOption));
+		raw.put(PREFIX + VaadinEndpointProperties.AUTO_LOGIN, String.valueOf(autoLogin));
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.ENABLE_REGISTRATION,
-				String.valueOf(enableRegistration));
+		raw.put(PREFIX + VaadinEndpointProperties.ENABLE_REGISTRATION, String.valueOf(enableRegistration));
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER,
+		raw.put(PREFIX + VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER,
 				String.valueOf(showRegistrationFormsInHeader));
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.PRODUCTION_MODE,
-				String.valueOf(productionMode));
+		raw.put(PREFIX + VaadinEndpointProperties.PRODUCTION_MODE, String.valueOf(productionMode));
 		if (webContentDir != null)
-		{
-			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.WEB_CONTENT_PATH,
-					webContentDir);
-		}
+			raw.put(PREFIX + VaadinEndpointProperties.WEB_CONTENT_PATH, webContentDir);
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.TEMPLATE, template);
+		raw.put(PREFIX + VaadinEndpointProperties.TEMPLATE, template);
 
-		raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.CRED_RESET_COMPACT,
-				String.valueOf(compactCredentialReset));
+		raw.put(PREFIX + VaadinEndpointProperties.CRED_RESET_COMPACT, String.valueOf(compactCredentialReset));
 
 		if (externalRegistrationURL != null)
-		{
-			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.EXTERNAL_REGISTRATION_URL,
-					externalRegistrationURL);
-		}
+			raw.put(PREFIX + VaadinEndpointProperties.EXTERNAL_REGISTRATION_URL, externalRegistrationURL);
+		
 		if (registrationForms != null && !registrationForms.isEmpty())
 		{
-			registrationForms.forEach(c -> raw.put(VaadinEndpointProperties.PREFIX
+			registrationForms.forEach(c -> raw.put(PREFIX
 					+ VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS
 					+ (registrationForms.indexOf(c) + 1), c));
 		}
 
 		if (title != null)
-		{
-			title.toProperties(raw, VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_TITLE,
-					msg);
-		}
+			title.toProperties(raw, PREFIX + VaadinEndpointProperties.AUTHN_TITLE, msg);
 
 		if (logo != null)
 		{
 			FileFieldUtils.saveInProperties(getLogo(),
-					VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_LOGO, raw,
+					PREFIX + VaadinEndpointProperties.AUTHN_LOGO, raw,
 					fileStorageService, StandardOwner.SERVICE.toString(), serviceName);
 		} else
 		{
-			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
+			raw.put(PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
 		}
 
 		if (defaultMainTheme != null)
-			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
+			raw.put(PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
 		if (defaultAuthnTheme != null)
-			raw.put(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
-
+			raw.put(PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		raw.putAll(parser.toProperties(authenticationLayoutConfiguration));
-		raw.putAll(parser.returningUserColumnElementToProperties(
-				retUserLayoutConfiguration));
+		raw.putAll(parser.returningUserColumnElementToProperties(retUserLayoutConfiguration));
 
 		return raw;
 	}
 
-	public void fromProperties(String vaadinProperties, UnityMessageSource msg, ImageAccessService imageAccessService)
+	public void fromProperties(String vaadinProperties, UnityMessageSource msg, ImageAccessService imageAccessService,
+			String systemDefaultTheme)
 	{
 		Properties raw = new Properties();
 		try
@@ -168,19 +153,20 @@ public class ServiceWebConfiguration
 		}
 
 		VaadinEndpointProperties vProperties = new VaadinEndpointProperties(raw);
-		fromProperties(vProperties, msg, imageAccessService);
+		fromProperties(vProperties, msg, imageAccessService, systemDefaultTheme);
 	}
 
-	public void fromProperties(VaadinEndpointProperties vaadinProperties, UnityMessageSource msg,
-			ImageAccessService imageAccessService)
+	private void fromProperties(VaadinEndpointProperties vaadinProperties, UnityMessageSource msg,
+			ImageAccessService imageAccessService, String systemDefaultTheme)
 	{
-
-		
+		//this is set for effective endpoint configuration at endpoint loading - we copy this here 
+		//to have consistent setup. However this property is not persisted.
+		if (systemDefaultTheme != null)
+			vaadinProperties.setProperty(VaadinEndpointProperties.DEF_THEME, systemDefaultTheme);
 		
 		if (vaadinProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
-		{
 			webContentDir = vaadinProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
-		}
+
 		productionMode = vaadinProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		template = vaadinProperties.getValue(VaadinEndpointProperties.TEMPLATE);
 		compactCredentialReset = vaadinProperties.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT);
@@ -201,6 +187,7 @@ public class ServiceWebConfiguration
 				.getListOfValues(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS);
 
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
+		
 		logo = imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, Optional
 				.of(vaadinProperties.getEffectiveAuthenticationTheme())).orElse(null);
 
@@ -214,13 +201,9 @@ public class ServiceWebConfiguration
 		retUserLayoutConfiguration = parser.getReturingUserColumnElementsFromProperties(vaadinProperties);
 		
 		if (vaadinProperties.isSet(VaadinEndpointProperties.THEME))
-		{
 			defaultMainTheme = vaadinProperties.getValue(VaadinEndpointProperties.THEME);
-		}
 		if (vaadinProperties.isSet(VaadinEndpointProperties.AUTHN_THEME))
-		{
 			defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);
-		}
 	}
 
 	public boolean isShowSearch()
