@@ -186,7 +186,7 @@ public class InitDB
 		SqlSession session = db.getSqlSession(false);
 		try
 		{
-			session.insert("initVersion");
+			session.insert("initVersion", Integer.toString(CURRENT.getAppSchemaVersion()));
 			createRootGroup(session);
 		} finally
 		{

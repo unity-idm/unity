@@ -202,7 +202,7 @@ CREATE TABLE UVOS_FLAG(
 		<include refid="tableOpts"/>
 	</update>
 
-	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_9_0');
+	<insert id="initVersion" parameterType="string">
+INSERT INTO UVOS_FLAG (VAL) VALUES (#{value});
 	</insert>
 </mapper>

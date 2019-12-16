@@ -13,7 +13,6 @@ import pl.edu.icm.unity.store.export.JsonDumpUpdate;
  * <h2>MIGRATION CREATION INSTRUCTION</h2>
  * <ol>
  * <li> Change CURRENT value here to newly created DumpSchemaVersion
- * <li> Change DB schema version in Initdb-common.xml
  * <li> in migration.xml add appropriate SQL schema migration. In minimal situation it must update VERSION in DB.
  * <li> Create in-place migration implementing InDBSchemaUpdater
  * (suggested separate package ...unity.store.migration.fromX_Y)
