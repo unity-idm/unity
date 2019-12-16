@@ -51,9 +51,7 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 		{
 			service = (DefaultServiceDefinition) toEdit;
 			if (service.getConfiguration() != null)
-			{
-				webConfig.fromProperties(service.getConfiguration(), msg, imageAccessService);
-			}
+				webConfig.fromProperties(service.getConfiguration(), msg, imageAccessService, null);
 		}
 		serviceBinder.setBean(service);
 		webConfigBinder.setBean(webConfig);

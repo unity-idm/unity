@@ -122,7 +122,8 @@ class OAuthServiceEditor implements ServiceEditor
 				allAttributes);
 		
 		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab,
-				fileStorageService, imageService, endpoint, allGroups, systemClientsSupplier);
+				fileStorageService, imageService, endpoint, allGroups, systemClientsSupplier, 
+				serverConfig.getValue(UnityServerConfiguration.THEME));
 		return editor;
 	}
 
