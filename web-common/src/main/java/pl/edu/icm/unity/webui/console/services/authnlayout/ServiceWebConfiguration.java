@@ -187,7 +187,7 @@ public class ServiceWebConfiguration
 
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
 		
-		logo = imageAccessService.getEditableImageResourceFromUriOrNull(logoUri, 
+		logo = imageAccessService.getEditableImageResourceFromUri(logoUri, 
 				vaadinProperties.getEffectiveAuthenticationTheme()).orElse(null);
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
