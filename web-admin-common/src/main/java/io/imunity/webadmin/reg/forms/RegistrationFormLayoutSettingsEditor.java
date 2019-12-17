@@ -4,7 +4,6 @@
  */
 package io.imunity.webadmin.reg.forms;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.vaadin.data.Binder;
@@ -25,8 +24,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.file.ImageField;
 
 /**
  * General registration layouts settings editor.
@@ -112,7 +111,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			this.setShowCancel(org.isShowCancel());
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
-				this.setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(org.getLogoURL(), Optional.empty()).orElse(null));
+				this.setLogo(imageAccessService.getEditableImageResourceFromUriOrNull(org.getLogoURL()).orElse(null));
 		}
 
 		public FormLayoutSettings toFormLayoutSettings(FileStorageService fileStorageService, String formName)
