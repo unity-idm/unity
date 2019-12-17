@@ -30,7 +30,7 @@ public class FormTranslationActionGeneratorImpl implements RegistrationFormTrans
 	public TranslationAction getAddAttributeAction(String attributeName, String group, String attributeValue)
 	{
 		return new TranslationAction(AddAttributeActionFactory.NAME,
-				new String[] { attributeName, "/", "\"" + attributeValue + "\"" });
+				new String[] { attributeName, "/", attributeValue });
 	}
 
 	@Override
@@ -43,13 +43,13 @@ public class FormTranslationActionGeneratorImpl implements RegistrationFormTrans
 	public TranslationAction getAddIdentifierIndentityAction(String identity)
 	{
 		return new TranslationAction(AddIdentityActionFactory.NAME,
-				new String[] { IdentifierIdentity.ID, "\"" + identity + "\"" });
+				new String[] { IdentifierIdentity.ID, identity });
 	}
 
 	@Override
 	public TranslationAction getAddToGroupAction(String group)
 	{
-		return new TranslationAction(AddToGroupActionFactory.NAME, new String[] { "\"" + group + "\"" });
+		return new TranslationAction(AddToGroupActionFactory.NAME, new String[] { group });
 	}
 
 }
