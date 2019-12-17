@@ -11,6 +11,7 @@ import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationA
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;
+import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.translation.TranslationAction;
@@ -29,7 +30,7 @@ public class FormTranslationActionGeneratorImpl implements RegistrationFormTrans
 	public TranslationAction getAddAttributeAction(String attributeName, String group, String attributeValue)
 	{
 		return new TranslationAction(AddAttributeActionFactory.NAME,
-				new String[] { attributeName, "/", attributeValue });
+				new String[] { attributeName, "/", "\"" + attributeValue + "\"" });
 	}
 
 	@Override
@@ -41,7 +42,14 @@ public class FormTranslationActionGeneratorImpl implements RegistrationFormTrans
 	@Override
 	public TranslationAction getAddIdentifierIndentityAction(String identity)
 	{
-		return new TranslationAction(AddIdentityActionFactory.NAME, new String[] { IdentifierIdentity.ID, identity });
+		return new TranslationAction(AddIdentityActionFactory.NAME,
+				new String[] { IdentifierIdentity.ID, "\"" + identity + "\"" });
+	}
+
+	@Override
+	public TranslationAction getAddToGroupAction(String group)
+	{
+		return new TranslationAction(AddToGroupActionFactory.NAME, new String[] { "\"" + group + "\"" });
 	}
 
 }

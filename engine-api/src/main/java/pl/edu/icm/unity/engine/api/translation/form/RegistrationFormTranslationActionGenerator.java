@@ -22,4 +22,5 @@ public interface RegistrationFormTranslationActionGenerator
 	
 	TranslationAction getAddIdentifierIndentityAction(String identity);
 	
+	TranslationAction getAddToGroupAction(String group);
 }
