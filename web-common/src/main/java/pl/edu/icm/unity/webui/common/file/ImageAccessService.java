@@ -37,7 +37,7 @@ public class ImageAccessService
 		this.uriAccessService = uriAccessService;
 	}
 
-	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUriOrNull(String logoUri,
+	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUri(String logoUri,
 			String theme)
 	{
 		if (logoUri == null || logoUri.isEmpty())
@@ -72,9 +72,9 @@ public class ImageAccessService
 		}
 	}
 	
-	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUriOrNull(String logoUri)
+	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUri(String logoUri)
 	{
-		return getEditableImageResourceFromUriOrNull(logoUri, UNKNOWN_THEME);
+		return getEditableImageResourceFromUri(logoUri, UNKNOWN_THEME);
 	}
 	
 	public Optional<Resource> getConfiguredImageResourceFromNullableUri(String logoUri)

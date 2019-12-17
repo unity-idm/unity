@@ -39,8 +39,8 @@ public class TestServiceWebConfiguration
 	@Before
 	public void init()
 	{
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.pngfoo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.pngfoo")));
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("file:../common/img/other/logo.png"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.png")));
+		when(imageAccessSrv.getEditableImageResourceFromUri(eq("file:../common/img/other/logo.pngfoo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.pngfoo")));
+		when(imageAccessSrv.getEditableImageResourceFromUri(eq("file:../common/img/other/logo.png"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.png")));
 	}
 	
 	

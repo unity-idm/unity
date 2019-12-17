@@ -101,7 +101,7 @@ public class SAMLServiceConfigurationTest
 		when(pkiMan.getCredentialNames()).thenReturn(Sets.newHashSet("foo"));
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
+		when(imageAccessSrv.getEditableImageResourceFromUri(eq("foo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
 		TranslationProfile tp = new TranslationProfile("name", "description", ProfileType.OUTPUT, Collections.emptyList());
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, defaults)
 				.update("embeddedTranslationProfile", tp.toJsonObject().toString())
