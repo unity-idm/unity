@@ -72,7 +72,7 @@ public class ImageAccessService
 		}
 	}
 	
-	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUri(String logoUri)
+	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUriWithUnknownTheme(String logoUri)
 	{
 		return getEditableImageResourceFromUri(logoUri, UNKNOWN_THEME);
 	}

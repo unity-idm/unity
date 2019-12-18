@@ -96,7 +96,7 @@ public class OAuthConfigurationTest
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		when(pkiMan.getValidatorNames()).thenReturn(Sets.newHashSet("foo"));
-		when(imageAccessService.getEditableImageResourceFromUri(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
+		when(imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
 		Properties sourceProviderCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
