@@ -30,7 +30,7 @@ public class FormTranslationActionGeneratorImpl implements RegistrationFormTrans
 	public TranslationAction getAddAttributeAction(String attributeName, String group, String attributeValue)
 	{
 		return new TranslationAction(AddAttributeActionFactory.NAME,
-				new String[] { attributeName, "/", attributeValue });
+				new String[] { attributeName, group , attributeValue });
 	}
 
 	@Override
