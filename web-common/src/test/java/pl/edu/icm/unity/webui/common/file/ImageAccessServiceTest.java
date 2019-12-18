@@ -39,14 +39,14 @@ public class ImageAccessServiceTest
 	public void shouldReturnNullWhenUriIsCorrupted()
 	{
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
-		assertThat(imageAccessService.getEditableImageResourceFromUri("xx:corrupted"), is(Optional.empty()));
+		assertThat(imageAccessService.getEditableImageResourceFromUriWithUnknownTheme("xx:corrupted"), is(Optional.empty()));
 	}
 
 	@Test
 	public void shouldReturnRemoteResourceIntact()
 	{
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
-		assertThat(imageAccessService.getEditableImageResourceFromUri("http:ok").get().getRemote(),
+		assertThat(imageAccessService.getEditableImageResourceFromUriWithUnknownTheme("http:ok").get().getRemote(),
 				is("http:ok"));
 	}
 
@@ -56,7 +56,7 @@ public class ImageAccessServiceTest
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
 		when(uriAccessService.readImageURI(any(URI.class), anyString())).thenThrow(new URIAccessException(""));
 		Optional<LocalOrRemoteResource> res = imageAccessService
-				.getEditableImageResourceFromUri("invalidFilePath");
+				.getEditableImageResourceFromUriWithUnknownTheme("invalidFilePath");
 		assertThat(res.get().getLocal(), nullValue());
 		assertThat(res.get().getLocalUri(), is("invalidFilePath"));
 	}
@@ -67,7 +67,7 @@ public class ImageAccessServiceTest
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
 		when(uriAccessService.readImageURI(any(URI.class), anyString()))
 				.thenReturn(new FileData("testUri", "test".getBytes(), new Date()));
-		Optional<LocalOrRemoteResource> res = imageAccessService.getEditableImageResourceFromUri("testUri");
+		Optional<LocalOrRemoteResource> res = imageAccessService.getEditableImageResourceFromUriWithUnknownTheme("testUri");
 		assertThat(new String(res.get().getLocal()), is("test"));
 		assertThat(res.get().getLocalUri(), is("testUri"));
 	}
@@ -76,7 +76,7 @@ public class ImageAccessServiceTest
 	public void shouldUseUnknownTheme() throws IllegalURIException
 	{
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
-		imageAccessService.getEditableImageResourceFromUri("testUri");
+		imageAccessService.getEditableImageResourceFromUriWithUnknownTheme("testUri");
 		verify(uriAccessService).readImageURI(any(URI.class), eq("UNKNOWN_THEME"));
 	}
 
@@ -84,7 +84,7 @@ public class ImageAccessServiceTest
 	public void shouldReturnEmptyForEmptyLogoUri() throws IllegalURIException
 	{
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
-		Optional<LocalOrRemoteResource> res = imageAccessService.getEditableImageResourceFromUri("");
+		Optional<LocalOrRemoteResource> res = imageAccessService.getEditableImageResourceFromUriWithUnknownTheme("");
 		assertThat(res.isPresent(), is(false));
 	}
 
@@ -92,7 +92,7 @@ public class ImageAccessServiceTest
 	public void shouldReturnEmptyForNulledLogoUri() throws IllegalURIException
 	{
 		ImageAccessService imageAccessService = new ImageAccessService(uriAccessService);
-		Optional<LocalOrRemoteResource> res = imageAccessService.getEditableImageResourceFromUri(null);
+		Optional<LocalOrRemoteResource> res = imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(null);
 		assertThat(res.isPresent(), is(false));
 	}
 }
