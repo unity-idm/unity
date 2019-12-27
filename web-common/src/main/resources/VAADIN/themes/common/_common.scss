@@ -618,6 +618,8 @@
 		width: 100%;
 		height: $v-unit-size;
 		text-align: left;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.u-externalSignInButton:hover {
