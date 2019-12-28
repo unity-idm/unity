@@ -46,6 +46,10 @@
   			<groupId>com.github.vaadin4qbanos</groupId>
    			<artifactId>jsclipboard</artifactId>
 		</dependency>
+		<dependency>
+		   <groupId>org.vaadin.addons</groupId>
+		   <artifactId>TooltipExtension</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

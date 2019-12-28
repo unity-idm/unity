@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.vaadin.addons.TooltipExtension.TooltipExtensionBuilder;
+import org.vaadin.addons.TooltipExtension.TooltipExtensionBuilder.TooltipPosition;
+
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
@@ -38,23 +41,30 @@ class AuthenticationFlowEditor extends CustomComponent
 	
 	AuthenticationFlowEditor(UnityMessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
 	{
+		TooltipExtensionBuilder builder = new TooltipExtensionBuilder();
+		builder.setPosition(TooltipPosition.RIGHT);
+		
 		name = new TextField(msg.getMessage("AuthenticationFlow.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
 		name.setValue(toEdit.flow.getName());
+		builder.createTooltip(name, msg.getMessage("AuthenticationFlow.name.tooltip"));
 		
 		firstFactorAuthenticators = new ChipsWithDropdown<>(s -> s, true);
 		firstFactorAuthenticators.setCaption(msg.getMessage("AuthenticationFlow.firstFactorAuthenticators"));
 		firstFactorAuthenticators.setItems(authenticators);
+		builder.createTooltip(firstFactorAuthenticators, msg.getMessage("AuthenticationFlow.firstFactorAuthenticators.tooltip"));
 		
 		secondFactorAuthenticators = new ChipsWithDropdown<>(s -> s, true);
 		secondFactorAuthenticators.setCaption(msg.getMessage("AuthenticationFlow.secondFactorAuthenticators"));
 		secondFactorAuthenticators.setItems(authenticators);
+		builder.createTooltip(secondFactorAuthenticators, msg.getMessage("AuthenticationFlow.secondFactorAuthenticators.tooltip"));
 		
 		policy = new ComboBox<>(
 				msg.getMessage("AuthenticationFlow.policy"));
 		policy.setItems(Policy.values());
 		policy.setValue(Policy.REQUIRE);
 		policy.setEmptySelectionAllowed(false);
+		builder.createTooltip(policy, msg.getMessage("AuthenticationFlow.policy.tooltip"));
 			
 		binder = new Binder<>(AuthenticationFlowDefinition.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
