@@ -45,7 +45,7 @@ public class TokenSigner
 		String signAlg = config.getSigningAlgorithm();
 		algorithm = JWSAlgorithm.parse(signAlg);
 
-		if (config.isOpenIdConnect())
+		if (config.isOpenIdConnect() || config.isJWTAccessTokenPossible())
 		{
 			if (Family.RSA.contains(algorithm))
 			{
@@ -64,7 +64,6 @@ public class TokenSigner
 				throw new ConfigurationException("Unsupported signing algorithm " + signAlg);
 			}
 		}
-
 	}
 
 	private void setupRSASigner()
