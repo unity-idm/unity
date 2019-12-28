@@ -35,6 +35,10 @@
    			<artifactId>simplefiledownloader</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.vaadin.marcus</groupId>
+			<artifactId>mouse-events</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-context-menu</artifactId>
 		</dependency>

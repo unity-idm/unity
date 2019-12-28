@@ -33,7 +33,10 @@
 			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-				
+		<dependency>
+			<groupId>org.vaadin.marcus</groupId>
+			<artifactId>mouse-events</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>

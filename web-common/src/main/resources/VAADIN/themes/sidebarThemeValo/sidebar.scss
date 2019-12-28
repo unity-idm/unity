@@ -62,10 +62,19 @@ $narrow-bar-size: 50px;
        	box-shadow: none;
        	border-color: $button-border-color;
     }
-
+    
     .v-button:hover {
        	background-color: $button-hover-bg-color;
        	color: $button-hover-color;
+    }
+    
+    .v-button-tooltipButton {
+    	background: none;
+    }
+    
+    .v-button-tooltipButton:hover {
+    	background: none;
+    	color: none;
     }
     
     .u-button-disabled {

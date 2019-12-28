@@ -13,7 +13,12 @@ public class DescriptionTextField extends TextField
 {
 	public DescriptionTextField(UnityMessageSource msg)
 	{
+		this();
 		setCaption(msg.getMessage("ServiceEditorBase.description"));
+	}
+	
+	public DescriptionTextField()
+	{
 		setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 	}
 }
