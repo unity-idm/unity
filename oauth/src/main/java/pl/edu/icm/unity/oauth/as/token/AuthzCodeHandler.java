@@ -29,7 +29,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenResource.OAuthErrorException;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -44,16 +43,19 @@ class AuthzCodeHandler
 	private TokensManagement tokensManagement;
 	private OAuthASProperties config;
 	private TransactionalRunner tx;
+	private AccessTokenFactory accessTokenFactory;
 	
-	AuthzCodeHandler(TokensManagement tokensManagement, OAuthASProperties config, TransactionalRunner tx)
+	AuthzCodeHandler(TokensManagement tokensManagement, OAuthASProperties config, TransactionalRunner tx, 
+			AccessTokenFactory accesstokenFactory)
 	{
 		this.tokensManagement = tokensManagement;
 		this.config = config;
 		this.tx = tx;
+		this.accessTokenFactory = accesstokenFactory;
 	}
 
 
-	Response handleAuthzCodeFlow(String code, String redirectUri, String codeVerifier)
+	Response handleAuthzCodeFlow(String code, String redirectUri, String codeVerifier, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		TokensPair tokensPair;
@@ -87,10 +89,10 @@ class AuthzCodeHandler
 		}
 
 		OAuthToken internalToken = new OAuthToken(parsedAuthzCodeToken);
-		AccessToken accessToken = OAuthProcessor.createAccessToken(internalToken);
+		Date now = new Date();
+		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
 
-		Date now = new Date();
 		RefreshToken refreshToken = TokenUtils.addRefreshToken(config, tokensManagement, 
 				now, internalToken, codeToken.getOwner());
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);

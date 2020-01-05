@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -100,6 +101,8 @@ public class AccessTokenResource extends BaseOAuthResource
 	private EntityManagement idMan;
 	private AuthzCodeHandler authzCodeHandler;
 
+	private AccessTokenFactory accessTokenFactory;
+
 	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
 			OAuthRequestValidator requestValidator, 
 			IdPEngine idpEngineInsecure,
@@ -112,7 +115,9 @@ public class AccessTokenResource extends BaseOAuthResource
 		this.notAuthorizedOauthIdpEngine = new OAuthIdPEngine(idpEngineInsecure);
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
-		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, config, tx);
+		accessTokenFactory = new AccessTokenFactory(config);
+		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, config, tx, accessTokenFactory);
+		
 	}
 
 	@Path("/")
@@ -126,7 +131,8 @@ public class AccessTokenResource extends BaseOAuthResource
 			@FormParam("requested_token_type") String requestedTokenType,
 			@FormParam("subject_token") String subjectToken,
 			@FormParam("subject_token_type") String subjectTokenType,
-			@FormParam("code_verifier") String codeVerifier)
+			@FormParam("code_verifier") String codeVerifier,
+			@HeaderParam("Accept") String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		if (grantType == null)
@@ -138,10 +144,10 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			if (code == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "code is required");
-			return authzCodeHandler.handleAuthzCodeFlow(code, redirectUri, codeVerifier);
+			return authzCodeHandler.handleAuthzCodeFlow(code, redirectUri, codeVerifier, acceptHeader);
 		} else if (grantType.equals(GrantType.CLIENT_CREDENTIALS.getValue()))
 		{
-			return handleClientCredentialFlow(scope);
+			return handleClientCredentialFlow(scope, acceptHeader);
 		} else if (grantType.equals(EXCHANGE_GRANT))
 		{
 			if (audience == null)
@@ -154,13 +160,13 @@ public class AccessTokenResource extends BaseOAuthResource
 				return makeError(OAuth2Error.INVALID_REQUEST,
 						"subject_token_type is required");
 			return handleExchangeToken(subjectToken, subjectTokenType,
-					requestedTokenType, audience, scope);
+					requestedTokenType, audience, scope, acceptHeader);
 		} else if (grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
 		{
 			if (refreshToken == null)
 				return makeError(OAuth2Error.INVALID_REQUEST,
 						"refresh_token is required");
-			return handleRefreshToken(refreshToken, scope);
+			return handleRefreshToken(refreshToken, scope, acceptHeader);
 		} else
 		{
 			return makeError(OAuth2Error.INVALID_GRANT,
@@ -218,7 +224,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	}
 
 	private Response handleExchangeToken(String subjectToken, String subjectTokenType,
-			String requestedTokenType, String audience, String scope)
+			String requestedTokenType, String audience, String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 
@@ -280,7 +286,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		Date now = new Date();
-		AccessToken accessToken = OAuthProcessor.createAccessToken(newToken);
+		AccessToken accessToken = accessTokenFactory.create(newToken, now, acceptHeader);
 		newToken.setAccessToken(accessToken.getValue());
 		
 		RefreshToken refreshToken = TokenUtils.addRefreshToken(config, tokensManagement, now, 
@@ -299,7 +305,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
 
-	private Response handleRefreshToken(String refToken, String scope)
+	private Response handleRefreshToken(String refToken, String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		Token refreshToken = null;
@@ -347,7 +353,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		Date now = new Date();
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
-		AccessToken accessToken = OAuthProcessor.createAccessToken(newToken);
+		AccessToken accessToken = accessTokenFactory.create(newToken, now, acceptHeader);
 		newToken.setAccessToken(accessToken.getValue());
 
 		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken,
@@ -362,7 +368,7 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	}
 
-	private Response handleClientCredentialFlow(String scope)
+	private Response handleClientCredentialFlow(String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		Date now = new Date();
@@ -375,7 +381,7 @@ public class AccessTokenResource extends BaseOAuthResource
 			return makeError(OAuth2Error.INVALID_REQUEST, e.getMessage());
 		}
 
-		AccessToken accessToken = OAuthProcessor.createAccessToken(internalToken);
+		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
 		
 		Date expiration = TokenUtils.getAccessTokenExpiration(config, now);
@@ -555,15 +561,5 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		return config.getTokenSigner().sign(newClaims).serialize();
-	}
-
-	public static class OAuthErrorException extends EngineException
-	{
-		Response response;
-
-		public OAuthErrorException(Response response)
-		{
-			this.response = response;
-		}
 	}
 }

@@ -59,7 +59,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null);
+				null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -82,7 +82,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null);
+				null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -104,7 +104,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				"WRONG-VERIFIER");
+				"WRONG-VERIFIER", null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
@@ -149,7 +149,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				verifier);
+				verifier, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
@@ -171,7 +171,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				verifier);
+				verifier, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 

@@ -26,7 +26,6 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenResource.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
 
 /**

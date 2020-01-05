@@ -21,12 +21,10 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
@@ -41,6 +39,7 @@ import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
+import pl.edu.icm.unity.oauth.as.token.AccessTokenFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -111,6 +110,7 @@ public class OAuthProcessor
 				config.getTokenSigner().getSigningAlgorithm() : null;
 		
 		AuthorizationSuccessResponse oauthResponse = null;
+		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		if (GrantFlow.authorizationCode == ctx.getFlow())
 		{
 			AuthorizationCode authzCode = new AuthorizationCode();
@@ -136,7 +136,7 @@ public class OAuthProcessor
 						ctx.getRequest().impliedResponseMode());
 			}
 
-			AccessToken accessToken = createAccessToken(ctx);
+			AccessToken accessToken = accessTokenFactory.create(internalToken, now);
 			internalToken.setAccessToken(accessToken.getValue());
 			
 			addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType);
@@ -167,7 +167,7 @@ public class OAuthProcessor
 			AccessToken accessToken = null;
 			if (responseType.contains(ResponseType.Value.TOKEN))
 			{
-				accessToken = createAccessToken(ctx);
+				accessToken = accessTokenFactory.create(internalToken, now);
 				internalToken.setAccessToken(accessToken.getValue());
 				Date accessExpiration = new Date(now.getTime() + config.getAccessTokenValidity() * 1000);
 				addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType);
@@ -195,9 +195,8 @@ public class OAuthProcessor
 			ResponseType responseType, OAuthToken internalToken, IdentityParam identity, 
 			UserInfo userInfo, Date now) throws ParseException, JOSEException
 	{
-		return Optional.ofNullable(
-				ctx.isOpenIdMode() ? prepareIdInfoClaimSet(identity.getValue(), 
-					internalToken.getAudience(), ctx, userInfo, now) 
+		return Optional.ofNullable(ctx.isOpenIdMode() ? 
+				prepareIdInfoClaimSet(identity.getValue(), internalToken.getAudience(), ctx, userInfo, now) 
 				: null);
 	}
 
@@ -309,25 +308,5 @@ public class OAuthProcessor
 		}
 		
 		return userInfo;
-	}
-	
-	/**
-	 * @return a properly set up access token. It contains the effective scopes if those
-	 * are different from requested.  
-	 */
-	public static AccessToken createAccessToken(OAuthAuthzContext ctx)
-	{
-		int tokenValidity = ctx.getConfig().getAccessTokenValidity();
-		return new BearerAccessToken(tokenValidity, new Scope(ctx.getEffectiveRequestedScopesList()));
-	}
-	
-	/**
-	 * @return a properly set up access token. It contains the effective scopes if those
-	 * are different from requested.  
-	 */
-	public static AccessToken createAccessToken(OAuthToken token)
-	{
-		int tokenValidity = token.getTokenValidity();
-		return new BearerAccessToken(tokenValidity, new Scope(token.getEffectiveScope()));
 	}
 }
