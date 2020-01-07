@@ -285,4 +285,9 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 		return grid.getEditor();
 	}
+	
+	public boolean isEditMode()
+	{
+		return grid.getEditor().isOpen();
+	}
 }
