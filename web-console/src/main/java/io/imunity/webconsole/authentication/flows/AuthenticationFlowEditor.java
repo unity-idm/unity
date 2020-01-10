@@ -61,7 +61,7 @@ class AuthenticationFlowEditor extends CustomComponent
 		binder.forField(firstFactorAuthenticators).withNullRepresentation(Collections.emptyList()).withConverter(
 				l -> l != null ? l.stream().collect(Collectors.toSet()) : null ,
 				s -> s != null ? s.stream().collect(Collectors.toList()) : null
-				).bind("firstFactorAuthenticators");
+				).asRequired().bind("firstFactorAuthenticators");
 		binder.forField(secondFactorAuthenticators).bind("secondFactorAuthenticators");
 		binder.forField(policy).bind("policy");
 		binder.setBean(toEdit.flow);
