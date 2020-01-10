@@ -57,6 +57,7 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 	{
 		AuthenticationFlowDefinition bean = new AuthenticationFlowDefinition();
 		bean.setName(msg.getMessage("AuthenticationFlow.defaultName"));
+		bean.setSecondFactorAuthenticators(Collections.emptyList());
 		bean.setPolicy(Policy.REQUIRE);
 		return new AuthenticationFlowEntry(bean, Collections.emptyList());
 	}
