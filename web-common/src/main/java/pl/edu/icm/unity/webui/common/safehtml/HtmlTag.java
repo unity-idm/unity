@@ -23,6 +23,13 @@ public class HtmlTag
 		return ret;
 	}
 
+	public static Label horizontalLineBold()
+	{
+		Label ret = new Label();
+		ret.setStyleName(Styles.horizontalBarBold.toString());
+		return ret;
+	}
+	
 	public static Label br()
 	{
 		return new Label("<br>", ContentMode.HTML);

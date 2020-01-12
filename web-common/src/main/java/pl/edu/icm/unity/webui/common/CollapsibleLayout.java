@@ -48,7 +48,7 @@ public class CollapsibleLayout extends CustomComponent
 		buttonWithCaption.setSpacing(false);
 		buttonWithCaption.addComponents(modeButton, captionLabel);
 	
-		Label line = HtmlTag.horizontalLine();
+		Label line = HtmlTag.horizontalLineBold();
 		
 		bar.addComponents(buttonWithCaption, line);
 		bar.setExpandRatio(buttonWithCaption, 0);

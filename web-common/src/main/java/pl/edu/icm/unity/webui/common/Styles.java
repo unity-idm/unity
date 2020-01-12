@@ -44,6 +44,7 @@ public enum Styles
 	toolbar("u-toolbar"),
 	verticalBar("u-verticalBar"),
 	horizontalBar("u-horizontalBar"),
+	horizontalBarBold("u-horizontalBarBold"),
 	header("u-header"),
 	selectedButton("u-selectedButton"),
 	minHeightAuthn("u-minHeightAuthenticator"),
