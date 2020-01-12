@@ -20,6 +20,12 @@ public class SAMLIdentityMapping
 	{
 
 	}
+	
+	public SAMLIdentityMapping(String samlId, String unityId)
+	{
+		this.unityId = unityId;
+		this.samlId = samlId;
+	}
 
 	public String getUnityId()
 	{

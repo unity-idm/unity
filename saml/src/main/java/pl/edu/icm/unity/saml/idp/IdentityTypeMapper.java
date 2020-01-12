@@ -27,7 +27,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 public class IdentityTypeMapper
 {
 	private Map<String, String> configuredMappings;
-	private static final Map<String, String> DEFAULTS;
+	public static final Map<String, String> DEFAULTS;
 	
 	static 
 	{
