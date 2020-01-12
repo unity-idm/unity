@@ -233,6 +233,20 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			refreshNode(rootItem);
 	}
 
+	private void refreshNode(TreeNode node)// throws ControllerException
+	{
+		treeData.removeItem(node);
+		try
+		{
+			loadNode(node.getPath(), node.getParentNode());
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+		}
+		getDataProvider().refreshAll();
+
+	}
+	
 	private void loadNode(String path, TreeNode parent) throws ControllerException
 	{
 		Map<String, List<Group>> groupTree;
@@ -248,20 +262,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			treeData.addItem(parent, rootNode);
 			addChilds(rootNode, groupTree);
 		}
-	}
-
-	public void refreshNode(TreeNode node)// throws ControllerException
-	{
-		treeData.removeItem(node);
-		try
-		{
-			loadNode(node.getPath(), node.getParentNode());
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
-		getDataProvider().refreshAll();
-
 	}
 
 	public List<TreeNode> getChildren(TreeNode node)
@@ -430,63 +430,42 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	{
 		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.expandAllGroupsAction")).dontRequireTarget()
-				.withIcon(Images.expand.getResource())
-				.withHandler(g -> expandItemsRecursively(getParentOnly(g))).build();
+				.withIcon(Images.expand.getResource()).withHandler(g -> {
+					expandRecursively(!g.isEmpty() ? g : treeData.getRootItems(),
+							Integer.MAX_VALUE);
+				}).build();
 	}
-	
+
 	private SingleActionHandler<TreeNode> getExpandAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.expandGroupAction")).dontRequireTarget()
-				.withIcon(Images.expand.getResource())
-				.withHandler(g -> expandItemsRecursively(g)).build();
-	}
-
-	private void expandItemsRecursively(Collection<TreeNode> items)
-	{
-		if (items.isEmpty())
-		{
-			expandItemsRecursively(treeData.getRootItems());
-		}
-		
-		for (TreeNode node : items)
-		{
-			expand(node);
-			for (TreeNode child : treeData.getChildren(node))
-				expandItemsRecursively(Arrays.asList(child));
-		}
+				.withIcon(Images.expand.getResource()).withHandler(g -> {
+					expandRecursively(g, Integer.MAX_VALUE);
+				}).build();
 	}
 
 	private SingleActionHandler<TreeNode> getCollapseAllAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.collapseAllGroupsAction")).dontRequireTarget()
-				.withIcon(Images.collapse.getResource())
-				.withHandler(g -> collapseItemsRecursively(getParentOnly(g))).build();
+				.withIcon(Images.collapse.getResource()).withHandler(g -> {
+					collapseRecursively(!g.isEmpty() ? g : treeData.getRootItems(),
+							Integer.MAX_VALUE);
+					if (g.isEmpty())
+					{
+						expandRecursively(treeData.getRootItems(), 0);
+					}
+				}).build();
 	}
-	
+
 	private SingleActionHandler<TreeNode> getCollapseAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.collapseGroupAction")).dontRequireTarget()
-				.withIcon(Images.collapse.getResource())
-				.withHandler(g -> collapseItemsRecursively(g)).build();
-	}
-
-	private void collapseItemsRecursively(Collection<TreeNode> items)
-	{
-		if (items.isEmpty())
-		{
-			collapseItemsRecursively(treeData.getRootItems());
-			expand(treeData.getRootItems());
-		}
-		
-		for (TreeNode node : items)
-		{
-			collapse(node);
-			for (TreeNode child : treeData.getChildren(node))
-				collapseItemsRecursively(Arrays.asList(child));
-		}
+				.withIcon(Images.collapse.getResource()).withHandler(g -> {
+					collapseRecursively(g, Integer.MAX_VALUE);
+				}).build();
 	}
 
 	public void addFilter(SerializablePredicate<TreeNode> filter)
@@ -530,7 +509,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		public void itemExpand(ExpandEvent<TreeNode> event)
 		{
 			event.getExpandedItem().setIcon(Images.folder_open.getHtml());
-
 		}
 
 	}
@@ -542,7 +520,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		public void itemCollapse(CollapseEvent<TreeNode> event)
 		{
 			event.getCollapsedItem().setIcon(Images.folder_close.getHtml());
-
 		}
 
 	}
