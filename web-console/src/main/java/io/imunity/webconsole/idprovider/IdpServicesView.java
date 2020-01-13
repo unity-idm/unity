@@ -52,21 +52,6 @@ class IdpServicesView extends ServicesViewBase
 
 	protected List<SingleActionHandler<ServiceDefinition>> getActionsHandlers()
 	{
-
-		List<SingleActionHandler<ServiceDefinition>> extraActions = new ArrayList<>();
-
-		for (IdpServiceAdditionalAction action : extraActionsRegistry.getAll())
-		{
-			SingleActionHandler<ServiceDefinition> actionHandler = SingleActionHandler
-					.builder(ServiceDefinition.class)
-					.withCaption(action.getActionRepresentation().caption)
-					.withIcon(action.getActionRepresentation().icon)
-					.withHandler(r -> gotoExtraAction(r.iterator().next(), action.getName()))
-					.withDisabledPredicate(r -> !r.getType().equals(action.getSupportedServiceType()))
-					.hideIfInactive().build();
-			extraActions.add(actionHandler);
-		}
-
 		SingleActionHandler<ServiceDefinition> editGeneral = SingleActionHandler
 				.builder(ServiceDefinition.class)
 				.withCaption(msg.getMessage("ServicesView.generalConfig"))
@@ -90,18 +75,36 @@ class IdpServicesView extends ServicesViewBase
 				.withIcon(Images.bullets.getResource())
 				.withHandler(r -> gotoEdit(r.iterator().next(), ServiceEditorTab.CLIENTS)).build();
 
-		return Stream.concat(extraActions.stream(),
+		return Stream.concat(getAdditionalActionsHandlers().stream(),
 				Arrays.asList(editGeneral, editClients, editUsers, editAuth).stream())
 				.collect(Collectors.toList());
 
 	}
 
-	protected void gotoExtraAction(ServiceDefinition next, String action)
+	private List<SingleActionHandler<ServiceDefinition>> getAdditionalActionsHandlers()
+	{
+		List<SingleActionHandler<ServiceDefinition>> additionalActions = new ArrayList<>();
+
+		for (IdpServiceAdditionalAction action : extraActionsRegistry.getAll())
+		{
+			SingleActionHandler<ServiceDefinition> actionHandler = SingleActionHandler
+					.builder(ServiceDefinition.class)
+					.withCaption(action.getActionRepresentation().caption)
+					.withIcon(action.getActionRepresentation().icon)
+					.withHandler(r -> gotoExtraAction(r.iterator().next(), action.getName()))
+					.withDisabledPredicate(r -> !r.getType().equals(action.getSupportedServiceType()))
+					.hideIfInactive().build();
+			additionalActions.add(actionHandler);
+		}
+		return additionalActions;
+	}
+	
+	private void gotoExtraAction(ServiceDefinition next, String action)
 	{
 		NavigationHelper.goToView(AdditionalActionView.VIEW_NAME + "/" + CommonViewParam.name.toString() + "="
 				+ next.getName() + "&" + CommonViewParam.action.toString() + "=" + action);
 	}
-
+	
 	@Override
 	public String getViewName()
 	{
