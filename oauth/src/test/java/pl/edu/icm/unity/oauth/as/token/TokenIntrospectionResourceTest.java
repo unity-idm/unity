@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
@@ -67,6 +68,32 @@ public class TokenIntrospectionResourceTest
 		assertThat(parsed.getAsString("iss")).isEqualTo(OAuthTestUtils.ISSUER);
 	}
 
+	@Test
+	public void shouldReturnInfoOnValidJWTAccessToken() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		config.setProperty(OAuthASProperties.ACCESS_TOKEN_FORMAT, AccessTokenFormat.JWT.toString());
+		TokenIntrospectionResource tested = new TokenIntrospectionResource(tokensManagement);
+		setupInvocationContext(111);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowHybrid(config, tokensManagement);
+		
+		Response r = tested.introspectToken(step1Resp.getAccessToken().getValue());
+		assertEquals(HTTPResponse.SC_OK, r.getStatus());
+		JSONObject parsed = (JSONObject) JSONValue.parse((r.getEntity().toString()));
+		log.info("{}", parsed);
+		assertThat(parsed.getAsString("active")).isEqualTo("true");
+		assertThat(parsed.getAsString("scope")).isEqualTo("sc1");
+		assertThat(parsed.getAsString("client_id")).isEqualTo("clientC");
+		assertThat(parsed.getAsString("token_type")).isEqualTo("bearer");
+		assertThat(parsed.getAsNumber("exp")).isEqualTo(
+				parsed.getAsNumber("iat").intValue() + OAuthTestUtils.DEFAULT_ACCESS_TOKEN_VALIDITY);
+		assertThat(parsed.getAsString("nbf")).isEqualTo(parsed.getAsString("iat"));
+		assertThat(parsed.getAsString("sub")).isEqualTo("userA");
+		assertThat(parsed.getAsString("aud")).isEqualTo("clientC");
+		assertThat(parsed.getAsString("iss")).isEqualTo(OAuthTestUtils.ISSUER);
+	}
+	
 	@Test
 	public void shouldReturnInfoOnValidRefreshToken() throws Exception
 	{
