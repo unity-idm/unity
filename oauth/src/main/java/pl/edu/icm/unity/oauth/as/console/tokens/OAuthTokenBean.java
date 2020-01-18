@@ -5,14 +5,18 @@
 
 package pl.edu.icm.unity.oauth.as.console.tokens;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.nimbusds.jwt.SignedJWT;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 class OAuthTokenBean implements FilterableEntry
@@ -53,12 +57,17 @@ class OAuthTokenBean implements FilterableEntry
 
 	public String getExpires()
 	{
-		return TimeUtil.formatStandardInstant(token.getExpires().toInstant());
+		return token.getExpires() == null ? "-" : TimeUtil.formatStandardInstant(token.getExpires().toInstant());
 	}
 
-	public String getValue()
+	public String getId()
 	{
 		return token.getValue();
+	}
+
+	public String getTokenValue()
+	{
+		return isRefreshToken() ? oauthToken.getRefreshToken() : oauthToken.getAccessToken();
 	}
 
 	public String getServerId()
@@ -66,13 +75,17 @@ class OAuthTokenBean implements FilterableEntry
 		return oauthToken.getIssuerUri();
 	}
 
-	public String getRefreshToken()
+	public String getAssociatedRefreshTokenForAccessToken()
 	{
 		// show refresh token only for access token
-		boolean isRefreshToken = token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN);
-		return oauthToken.getRefreshToken() != null && !isRefreshToken ? oauthToken.getRefreshToken() : "";
+		return oauthToken.getRefreshToken() != null && !isRefreshToken() ? oauthToken.getRefreshToken() : "";
 	}
 
+	public Optional<SignedJWT> getJWT()
+	{
+		return BearerJWTAccessToken.tryParseJWT(oauthToken.getAccessToken());
+	}
+	
 	public boolean getHasIdToken()
 	{
 		return oauthToken.getOpenidInfo() != null;
@@ -113,7 +126,7 @@ class OAuthTokenBean implements FilterableEntry
 		if (getType() != null && getType().toLowerCase().contains(textLower))
 			return true;
 
-		if (getValue() != null && getValue().toLowerCase().contains(textLower))
+		if (getId() != null && getId().toLowerCase().contains(textLower))
 			return true;
 
 		if (getOwner() != null && getOwner().toLowerCase().contains(textLower))
@@ -134,12 +147,17 @@ class OAuthTokenBean implements FilterableEntry
 		if (getServerId() != null && getServerId().toLowerCase().contains(textLower))
 			return true;
 
-		if (getRefreshToken() != null && getRefreshToken().toLowerCase().contains(textLower))
+		if (getAssociatedRefreshTokenForAccessToken() != null && getAssociatedRefreshTokenForAccessToken().toLowerCase().contains(textLower))
 			return true;
 
 		if (String.valueOf(getHasIdToken()).toLowerCase().contains(textLower))
 			return true;
 
 		return false;
+	}
+
+	public boolean isRefreshToken()
+	{
+		return token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN);
 	}
 }

@@ -52,7 +52,7 @@ class OAuthTokenGrid extends CustomComponent
 		tokensGrid = new GridWithActionColumn<>(msg, Collections.emptyList(), false, false);
 
 		tokensGrid.addSortableColumn(r -> r.getType(), msg.getMessage("OAuthToken.type"), 10);
-		tokensGrid.addSortableColumn(r -> r.getValue(), msg.getMessage("OAuthToken.value"), 10);
+		tokensGrid.addSortableColumn(r -> r.getId(), msg.getMessage("OAuthToken.id"), 10);
 		tokensGrid.addSortableColumn(r -> r.getOwner(), msg.getMessage("OAuthToken.owner"), 10).setHidable(true)
 				.setHidden(false);
 		tokensGrid.addSortableColumn(r -> r.getClientName(), msg.getMessage("OAuthToken.clientName"), 10)
@@ -63,7 +63,7 @@ class OAuthTokenGrid extends CustomComponent
 				.setHidable(true).setHidden(false);
 		tokensGrid.addSortableColumn(r -> r.getServerId(), msg.getMessage("OAuthToken.serverId"), 10)
 				.setHidable(true).setHidden(true);
-		tokensGrid.addSortableColumn(r -> r.getRefreshToken(), msg.getMessage("OAuthToken.refreshToken"), 10)
+		tokensGrid.addSortableColumn(r -> r.getAssociatedRefreshTokenForAccessToken(), msg.getMessage("OAuthToken.refreshToken"), 10)
 				.setHidable(true).setHidden(true);
 		tokensGrid.addSortableColumn(r -> r.getScopes(), msg.getMessage("OAuthToken.scopes"), 10)
 				.setHidable(true).setHidden(false);

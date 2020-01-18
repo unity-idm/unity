@@ -79,7 +79,7 @@ public class AccessTokenFactory
 				.build();
 		SignedJWT signedJWT = sign(claimsSet);
 		int tokenValidity = token.getTokenValidity();
-		return new BearerAccessToken(signedJWT.serialize(), tokenValidity, scope);
+		return new BearerJWTAccessToken(signedJWT.serialize(), tokenValidity, scope, claimsSet);
 	}
 	
 	private SignedJWT sign(JWTClaimsSet claimsSet) throws OAuthErrorException

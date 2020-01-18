@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -301,6 +303,64 @@ public class OAuthToken
 	}
 
 
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(effectiveScope);
+		result = prime * result + Arrays.hashCode(requestedScope);
+		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
+				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
+				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OAuthToken other = (OAuthToken) obj;
+		return Objects.equals(accessToken, other.accessToken) && Objects.equals(audience, other.audience)
+				&& Objects.equals(authzCode, other.authzCode) && clientEntityId == other.clientEntityId
+				&& Objects.equals(clientName, other.clientName) && clientType == other.clientType
+				&& Objects.equals(clientUsername, other.clientUsername)
+				&& Arrays.equals(effectiveScope, other.effectiveScope)
+				&& Objects.equals(issuerUri, other.issuerUri)
+				&& maxExtendedValidity == other.maxExtendedValidity
+				&& Objects.equals(openidInfo, other.openidInfo)
+				&& Objects.equals(pkcsInfo, other.pkcsInfo)
+				&& Objects.equals(redirectUri, other.redirectUri)
+				&& Objects.equals(refreshToken, other.refreshToken)
+				&& Arrays.equals(requestedScope, other.requestedScope)
+				&& Objects.equals(responseType, other.responseType)
+				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
+				&& Objects.equals(userInfo, other.userInfo);
+	}
+
+
+	@Override
+	public String toString()
+	{
+		return "OAuthToken [userInfo=" + userInfo + ", openidInfo=" + openidInfo + ", authzCode=" + authzCode
+				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
+				+ ", effectiveScope=" + Arrays.toString(effectiveScope) + ", requestedScope="
+				+ Arrays.toString(requestedScope) + ", clientEntityId=" + clientEntityId
+				+ ", redirectUri=" + redirectUri + ", subject=" + subject + ", clientName=" + clientName
+				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
+				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
+				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
+				+ pkcsInfo + "]";
+	}
+
+
+
+
 	public static class PKCSInfo
 	{
 		private String codeChallenge;
@@ -330,6 +390,33 @@ public class OAuthToken
 		public String getCodeChallengeMethod()
 		{
 			return codeChallengeMethod;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(codeChallenge, codeChallengeMethod);
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PKCSInfo other = (PKCSInfo) obj;
+			return Objects.equals(codeChallenge, other.codeChallenge)
+					&& Objects.equals(codeChallengeMethod, other.codeChallengeMethod);
+		}
+
+		@Override
+		public String toString()
+		{
+			return "PKCSInfo [codeChallenge=" + codeChallenge + ", codeChallengeMethod="
+					+ codeChallengeMethod + "]";
 		}
 	}
 }

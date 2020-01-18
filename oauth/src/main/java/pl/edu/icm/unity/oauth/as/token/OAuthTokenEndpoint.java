@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
@@ -72,6 +73,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	//insecure
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
+	private OAuthTokenRepository oauthTokenRepository;
 	
 	@Autowired
 	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
@@ -79,7 +81,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
 			AuthenticationProcessor authnProcessor, EntityManagement identitiesMan,
 			@Qualifier("insecure") AttributesManagement attributesMan, 
-			TransactionalRunner tx, @Qualifier("insecure") IdPEngine idPEngine)
+			TransactionalRunner tx, @Qualifier("insecure") IdPEngine idPEngine,
+			OAuthTokenRepository oauthTokenRepository)
 	{
 		super(msg, sessionMan, authnProcessor, server, PATH);
 		this.tokensManagement = tokensMan;
@@ -89,6 +92,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.attributesMan = attributesMan;
 		this.tx = tx;
 		this.insecureIdPEngine = idPEngine;
+		this.oauthTokenRepository = oauthTokenRepository;
 		
 	}
 	
@@ -117,15 +121,16 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(tokensManagement, config, 
+			ret.add(new AccessTokenResource(tokensManagement, oauthTokenRepository, config, 
 					new OAuthRequestValidator(config, identitiesMan, attributesMan), 
 					insecureIdPEngine, identitiesMan, tx));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
-			ret.add(new TokenInfoResource(tokensManagement));
-			ret.add(new TokenIntrospectionResource(tokensManagement));
-			ret.add(new UserInfoResource(tokensManagement));
-			ret.add(new RevocationResource(tokensManagement, sessionMan, getEndpointDescription().getRealm()));
+			ret.add(new TokenInfoResource(oauthTokenRepository));
+			ret.add(new TokenIntrospectionResource(tokensManagement, oauthTokenRepository));
+			ret.add(new UserInfoResource(oauthTokenRepository));
+			ret.add(new RevocationResource(tokensManagement, oauthTokenRepository,
+					sessionMan, getEndpointDescription().getRealm()));
 			RestEndpointHelper.installExceptionHandlers(ret);
 			return ret;
 		}

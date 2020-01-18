@@ -29,6 +29,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
@@ -44,11 +45,15 @@ class OAuthTokenController
 	private EndpointManagement endpointMan;
 	private UnityMessageSource msg;
 
+	private final OAuthTokenRepository oauthTokenRepository;
+
 	@Autowired
-	OAuthTokenController(UnityMessageSource msg, SecuredTokensManagement tokensManagement,
+	OAuthTokenController(UnityMessageSource msg, OAuthTokenRepository oauthTokenRepository,
+			SecuredTokensManagement tokensManagement,
 			EntityManagement entityManagement, EndpointManagement endpointMan)
 	{
 		this.msg = msg;
+		this.oauthTokenRepository = oauthTokenRepository;
 		this.tokenMan = tokensManagement;
 		this.entityManagement = entityManagement;
 		this.endpointMan = endpointMan;
@@ -128,7 +133,7 @@ class OAuthTokenController
 	private List<Token> getTokens() throws EngineException
 	{
 		List<Token> tokens = new ArrayList<>();
-		tokens.addAll(tokenMan.getAllTokens(OAuthProcessor.INTERNAL_ACCESS_TOKEN));
+		tokens.addAll(oauthTokenRepository.getAllAccessTokens());
 		tokens.addAll(tokenMan.getAllTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN));
 		return tokens;
 	}
@@ -137,10 +142,10 @@ class OAuthTokenController
 	{
 		try
 		{
-			tokenMan.removeToken(item.getRealType(), item.getValue());
+			tokenMan.removeToken(item.getRealType(), item.getId());
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage("OAuthTokenController.removeTokenError", item.getValue()), e);
+			throw new ControllerException(msg.getMessage("OAuthTokenController.removeTokenError", item.getId()), e);
 		}
 
 	}

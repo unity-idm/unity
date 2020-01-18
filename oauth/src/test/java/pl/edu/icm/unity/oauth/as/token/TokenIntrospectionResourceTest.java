@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Date;
@@ -27,6 +28,7 @@ import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -48,9 +51,10 @@ public class TokenIntrospectionResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		TokenIntrospectionResource tested = new TokenIntrospectionResource(tokensManagement);
+		TokenIntrospectionResource tested = createIntrospectionResource(tokensManagement);
 		setupInvocationContext(111);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowHybrid(config, tokensManagement);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowHybrid(config, 
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
 		Response r = tested.introspectToken(step1Resp.getAccessToken().getValue());
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
@@ -74,9 +78,10 @@ public class TokenIntrospectionResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.ACCESS_TOKEN_FORMAT, AccessTokenFormat.JWT.toString());
-		TokenIntrospectionResource tested = new TokenIntrospectionResource(tokensManagement);
+		TokenIntrospectionResource tested = createIntrospectionResource(tokensManagement);
 		setupInvocationContext(111);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowHybrid(config, tokensManagement);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowHybrid(config, 
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
 		Response r = tested.introspectToken(step1Resp.getAccessToken().getValue());
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
@@ -105,9 +110,12 @@ public class TokenIntrospectionResourceTest
 		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100, "nonce");
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		TransactionalRunner tx = new TestTxRunner();
-		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement, 
+				new OAuthTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class)), config, null, null, null, tx);
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
 				null, null, null, null, null, null, null);
@@ -118,7 +126,7 @@ public class TokenIntrospectionResourceTest
 		OIDCTokenResponse tokensResponse = OIDCTokenResponse.parse(httpResp);
 		
 		
-		TokenIntrospectionResource tested = new TokenIntrospectionResource(tokensManagement);
+		TokenIntrospectionResource tested = createIntrospectionResource(tokensManagement);
 		Response r = tested.introspectToken(tokensResponse.getTokens().getRefreshToken().getValue());
 		
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
@@ -141,7 +149,7 @@ public class TokenIntrospectionResourceTest
 	public void shouldReturnNotActiveOnUnknownToken() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		TokenIntrospectionResource tested = new TokenIntrospectionResource(tokensManagement);
+		TokenIntrospectionResource tested = createIntrospectionResource(tokensManagement);
 		setupInvocationContext(111);
 		
 		Response r = tested.introspectToken("UNKNOWN-TOKEN");
@@ -161,5 +169,11 @@ public class TokenIntrospectionResourceTest
 		virtualAdmin.setLoginSession(loginSession);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);
+	}
+	
+	private TokenIntrospectionResource createIntrospectionResource(TokensManagement tokensManagement)
+	{
+		return new TokenIntrospectionResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class)));
 	}
 }

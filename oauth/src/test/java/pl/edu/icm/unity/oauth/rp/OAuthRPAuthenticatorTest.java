@@ -35,8 +35,8 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
@@ -211,7 +211,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	private void performAuthentication(String endpoint) throws Exception
 	{
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
-				tokensMan);
+				OAuthTestUtils.getOAuthProcessor(tokensMan));
 		AccessToken ac = resp1.getAccessToken();
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(endpoint));
@@ -259,7 +259,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	{
 		//normal
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
-				tokensMan);
+				OAuthTestUtils.getOAuthProcessor(tokensMan));
 		AccessToken ac = resp1.getAccessToken();
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
@@ -270,7 +270,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		Assert.assertEquals(200, response.getStatusCode());
 		
 		//remove
-		tokensMan.removeToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, ac.getValue());
+		new OAuthTokenRepository(tokensMan, null).removeAccessToken(ac.getValue());
 		
 		//test cached
 		HTTPResponse response2 = httpReq.send();

@@ -12,6 +12,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
@@ -49,16 +52,28 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * Groups OAuth related logic for processing the request and preparing the response.  
  * @author K. Benedyczak
  */
+@Component
 public class OAuthProcessor
 {
 	public static final String INTERNAL_CODE_TOKEN = "oauth2Code";
-	public static final String INTERNAL_ACCESS_TOKEN = "oauth2Access";
+
 	public static final String INTERNAL_REFRESH_TOKEN = "oauth2Refresh";
 	
+	
+	private final TokensManagement tokensMan;
+	private final OAuthTokenRepository tokenDAO;
+	
+	@Autowired
+	public OAuthProcessor(TokensManagement tokensMan, OAuthTokenRepository tokenDAO)
+	{
+		this.tokensMan = tokensMan;
+		this.tokenDAO = tokenDAO;
+	}
+
 	/**
 	 * Returns only requested attributes for which we have mapping.
 	 */
-	public Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
+	public static Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
 			Set<String> requestedAttributes)
 	{
 		Set<DynamicAttribute> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
@@ -70,8 +85,9 @@ public class OAuthProcessor
 	 * the internal state token, which is needed to associate further use of the code and/or id tokens with
 	 * the authorization that currently takes place.
 	 */
-	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(Collection<DynamicAttribute> attributes, 
-			IdentityParam identity,	OAuthAuthzContext ctx, TokensManagement tokensMan) 
+	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(
+			Collection<DynamicAttribute> attributes, 
+			IdentityParam identity,	OAuthAuthzContext ctx) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
 		OAuthToken internalToken = new OAuthToken();
@@ -148,8 +164,7 @@ public class OAuthProcessor
 						ctx.getReturnURI(), null, idTokenSigned.orElse(null), 
 						accessToken, ctx.getRequest().getState(), null, 
 						ctx.getRequest().impliedResponseMode());
-			tokensMan.addToken(INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
-					new EntityParam(identity), internalToken.getSerialized(), now, expiration);
+			tokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(identity), now, expiration);
 		} else if (GrantFlow.openidHybrid == ctx.getFlow())
 		{
 			//in hybrid mode authz code is returned always
@@ -173,10 +188,8 @@ public class OAuthProcessor
 				addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType);
 				
 				signAndRecordIdToken(idToken, config.getTokenSigner(), responseType, internalToken);
-				tokensMan.addToken(INTERNAL_ACCESS_TOKEN, accessToken.getValue(), 
-						new EntityParam(identity), internalToken.getSerialized(), 
-						now, accessExpiration);
-				
+				tokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(identity), now, 
+						accessExpiration);
 			}
 			
 			Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, config.getTokenSigner(), 
@@ -218,7 +231,7 @@ public class OAuthProcessor
 	 * Returns a collection of attributes including only those attributes for which there is an OAuth 
 	 * representation.
 	 */
-	private Set<DynamicAttribute> filterUnsupportedAttributes(Set<DynamicAttribute> src)
+	private static Set<DynamicAttribute> filterUnsupportedAttributes(Set<DynamicAttribute> src)
 	{
 		Set<DynamicAttribute> ret = new HashSet<>();
 		OAuthAttributeMapper mapper = new DefaultOAuthAttributeMapper();
@@ -230,7 +243,7 @@ public class OAuthProcessor
 	}
 	
 	
-	private Set<DynamicAttribute> filterNotRequestedAttributes(TranslationResult translationResult, 
+	private static Set<DynamicAttribute> filterNotRequestedAttributes(TranslationResult translationResult, 
 			Set<String> requestedAttributes)
 	{
 		Collection<DynamicAttribute> allAttrs = translationResult.getAttributes();
@@ -290,7 +303,7 @@ public class OAuthProcessor
 			idToken.setCodeHash(CodeHash.compute(code, jwsAlgorithm));
 	}
 	
-	public UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<DynamicAttribute> attributes)
+	public static UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<DynamicAttribute> attributes)
 	{
 		UserInfo userInfo = new UserInfo(new Subject(userIdentity));
 		

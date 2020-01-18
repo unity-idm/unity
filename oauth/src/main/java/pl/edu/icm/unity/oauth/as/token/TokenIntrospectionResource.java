@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
 
 /**
@@ -40,10 +41,12 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenIntrospectionResource.class);
 	private final TokensManagement tokensManagement;
+	private final OAuthTokenRepository tokenDAO;
 	
-	public TokenIntrospectionResource(TokensManagement tokensManagement)
+	public TokenIntrospectionResource(TokensManagement tokensManagement, OAuthTokenRepository tokenDAO)
 	{
 		this.tokensManagement = tokensManagement;
+		this.tokenDAO = tokenDAO;
 	}
 
 	@Path("/")
@@ -74,7 +77,7 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 	{
 		try
 		{
-			Token rawToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, token);
+			Token rawToken = tokenDAO.readAccessToken(token);
 			OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 			return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 		} catch (IllegalArgumentException e)

@@ -5,6 +5,7 @@
 
 package io.imunity.webconsole.idprovider;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import io.imunity.webelements.navigation.BreadcrumbsComponent;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewWithSubViews;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -29,6 +31,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 @PrototypeComponent
 public class AdditionalActionView extends CustomComponent implements UnityViewWithSubViews
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalActionView.class);
 	public static final String VIEW_NAME = "AdditionalIdpServiceView";
 
 	private UnityMessageSource msg;
@@ -56,6 +59,7 @@ public class AdditionalActionView extends CustomComponent implements UnityViewWi
 			setCompositionRoot(actionsRegistry.getByName(actionName).getActionContent(serviceName));
 		} catch (Exception e)
 		{
+			log.error("Error entering additional action view", e);
 			NotificationPopup.showError(
 					msg.getMessage("AdditionalActionView.unsupportedActionType", actionName), "");
 		}

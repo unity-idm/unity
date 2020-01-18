@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.net.URI;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -48,12 +50,13 @@ public class PKCETest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(111);
 		OAuthAuthzContext ctx = createContextWithoutPKCE(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100);
 		ctx.setClientType(ClientType.PUBLIC);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
@@ -70,13 +73,14 @@ public class PKCETest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(111);
 		OAuthAuthzContext ctx = createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100,
 				"verifier__123456789012345678901234567890123", 
 				CodeChallengeMethod.S256);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
@@ -91,13 +95,14 @@ public class PKCETest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(111);
 		OAuthAuthzContext ctx = createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100,
 				"verifier__123456789012345678901234567890123", 
 				CodeChallengeMethod.S256);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
@@ -136,13 +141,14 @@ public class PKCETest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(111);
 		String verifier = "verifier__123456789012345678901234567890123";
 		OAuthAuthzContext ctx = createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100,
 				verifier, CodeChallengeMethod.PLAIN);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
@@ -158,13 +164,14 @@ public class PKCETest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
 		setupInvocationContext(111);
 		String verifier = "verifier__123456789012345678901234567890123";
 		OAuthAuthzContext ctx = createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100,
 				verifier, CodeChallengeMethod.S256);
-		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), 
@@ -175,6 +182,12 @@ public class PKCETest
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
+	private AccessTokenResource createAccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
+			TransactionalRunner tx)
+	{
+		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class)), config, null, null, null, tx);
+	}
 	
 	private void setupInvocationContext(long entityId)
 	{

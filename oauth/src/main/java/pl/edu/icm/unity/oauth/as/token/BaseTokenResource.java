@@ -14,25 +14,21 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 
 /**
  * Common code inherited by OAuth resources
- * 
- * @author K. Benedyczak
  */
 public class BaseTokenResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, BaseTokenResource.class);
 	
-	private TokensManagement tokensManagement;
+	private final OAuthTokenRepository tokensDAO;
 	
-	public BaseTokenResource(TokensManagement tokensManagement)
+	public BaseTokenResource(OAuthTokenRepository tokensDAO)
 	{
-		super();
-		this.tokensManagement = tokensManagement;
+		this.tokensDAO = tokensDAO;
 	}
 
 	protected TokensPair resolveBearerToken(String bearerToken) throws OAuthTokenException
@@ -54,9 +50,7 @@ public class BaseTokenResource extends BaseOAuthResource
 		
 		try
 		{
-			Token rawToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
-					accessToken.getValue());
-			
+			Token rawToken = tokensDAO.readAccessToken(accessToken.getValue()); 
 			OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 			return new TokensPair(rawToken, parsedAccessToken);
 		} catch (IllegalArgumentException e)
@@ -79,9 +73,7 @@ public class BaseTokenResource extends BaseOAuthResource
 				log.debug("Extending token {} expiration from {} to {}",
 						"..." + parsedAccessToken.getAccessToken().substring(6),
 						new Date(rawToken.getExpires().getTime()), newExpiryDate);
-				tokensManagement.updateToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, rawToken.getValue(), 
-						newExpiryDate, 
-						rawToken.getContents());
+				tokensDAO.updateAccessTokenExpiration(rawToken, newExpiryDate);
 			} catch (IllegalArgumentException e)
 			{
 				log.warn("Can't update access token validity, this shouldn't happen", e);

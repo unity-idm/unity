@@ -2,12 +2,11 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token.utils;
+package pl.edu.icm.unity.oauth.as;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
 /**
  * Map access token contents to JsonNode
@@ -15,10 +14,10 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
  *
  */
 @Component
-public class AccessTokenJsonSerializer extends TokenWithJsonContentsSerializer
+class AccessTokenJsonSerializer extends TokenWithJsonContentsSerializer
 {
-	public AccessTokenJsonSerializer()
+	AccessTokenJsonSerializer()
 	{
-		super(OAuthProcessor.INTERNAL_ACCESS_TOKEN, "Access token JSON formatter");
+		super(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN, "Access token JSON formatter");
 	}
 }

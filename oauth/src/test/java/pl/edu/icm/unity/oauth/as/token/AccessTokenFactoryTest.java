@@ -122,7 +122,7 @@ public class AccessTokenFactoryTest
 		return !isJWTToken(accessToken);
 	}
 	
-	private AccessTokenFactory getFactory(AccessTokenFormat format)
+	public static AccessTokenFactory getFactory(AccessTokenFormat format)
 	{
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
@@ -132,7 +132,7 @@ public class AccessTokenFactoryTest
 		return new AccessTokenFactory(format, signer);
 	}
 	
-	private OAuthToken getFakeToken()
+	public static OAuthToken getFakeToken()
 	{
 		OAuthToken ret = new OAuthToken();
 		ret.setSubject("subject");

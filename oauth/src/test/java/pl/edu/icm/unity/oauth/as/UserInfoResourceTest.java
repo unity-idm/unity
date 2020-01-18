@@ -7,7 +7,8 @@ package pl.edu.icm.unity.oauth.as;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static pl.edu.icm.unity.oauth.as.OAuthProcessor.INTERNAL_ACCESS_TOKEN;
+import static org.mockito.Mockito.mock;
+import static pl.edu.icm.unity.oauth.as.OAuthTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.util.Date;
 
@@ -23,6 +24,7 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.UserInfoResource;
@@ -34,7 +36,7 @@ public class UserInfoResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		
-		UserInfoResource tested = new UserInfoResource(tokensManagement);
+		UserInfoResource tested = createUserInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken("missing").toAuthorizationHeader();
 		Response resp = tested.getToken(token);
@@ -49,9 +51,9 @@ public class UserInfoResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
-				tokensManagement);
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
-		UserInfoResource tested = new UserInfoResource(tokensManagement);
+		UserInfoResource tested = createUserInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
 		Response resp = tested.getToken(token);
@@ -68,9 +70,9 @@ public class UserInfoResourceTest
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(
 				OAuthTestUtils.getConfig(100, 1000, false), 
-				tokensManagement);
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
-		UserInfoResource tested = new UserInfoResource(tokensManagement);
+		UserInfoResource tested = createUserInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
 		
@@ -90,9 +92,9 @@ public class UserInfoResourceTest
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(
 				OAuthTestUtils.getConfig(100, 101, false), 
-				tokensManagement);
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
-		UserInfoResource tested = new UserInfoResource(tokensManagement);
+		UserInfoResource tested = createUserInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
 		
@@ -112,9 +114,9 @@ public class UserInfoResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(100, 0, false), 
-				tokensManagement);
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
-		UserInfoResource tested = new UserInfoResource(tokensManagement);
+		UserInfoResource tested = createUserInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
 		
@@ -125,5 +127,11 @@ public class UserInfoResourceTest
 		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
 		
 		assertThat(initialExpiry.getTime(), is(tokenAfter.getExpires().getTime()));
+	}
+	
+	private UserInfoResource createUserInfoResource(TokensManagement tokensManagement)
+	{
+		return new UserInfoResource(new OAuthTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class)));
 	}
 }

@@ -69,7 +69,7 @@ public class BaseOAuthResource
 		}
 	}
 	
-	static OAuthToken parseInternalToken(Token token)
+	public static OAuthToken parseInternalToken(Token token)
 	{
 		try
 		{

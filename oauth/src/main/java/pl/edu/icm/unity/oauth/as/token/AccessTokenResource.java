@@ -63,6 +63,7 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -101,14 +102,17 @@ public class AccessTokenResource extends BaseOAuthResource
 	private EntityManagement idMan;
 	private AuthzCodeHandler authzCodeHandler;
 
-	private AccessTokenFactory accessTokenFactory;
+	private final AccessTokenFactory accessTokenFactory;
+	private final OAuthTokenRepository oauthTokensDAO;
 
-	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
+	public AccessTokenResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokensDAO,
+			OAuthASProperties config,
 			OAuthRequestValidator requestValidator, 
 			IdPEngine idpEngineInsecure,
 			EntityManagement idMan, TransactionalRunner tx)
 	{
 		this.tokensManagement = tokensManagement;
+		this.oauthTokensDAO = oauthTokensDAO;
 		this.config = config;
 		this.clientGrantProcessor = new ClientCredentialsProcessor(requestValidator,
 				idpEngineInsecure, config);
@@ -116,7 +120,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
 		accessTokenFactory = new AccessTokenFactory(config);
-		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, config, tx, accessTokenFactory);
+		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, oauthTokensDAO,
+				config, tx, accessTokenFactory);
 		
 	}
 
@@ -239,8 +244,7 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		try
 		{
-			subToken = tokensManagement.getTokenById(
-					OAuthProcessor.INTERNAL_ACCESS_TOKEN, subjectToken);
+			subToken = oauthTokensDAO.readAccessToken(subjectToken);
 			parsedSubjectToken = parseInternalToken(subToken);
 		} catch (Exception e)
 		{
@@ -298,10 +302,8 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken,
 				refreshToken, additionalParams);
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
-				accessToken.getValue(), new EntityParam(subToken.getOwner()),
-				newToken.getSerialized(), now, accessExpiration);
-
+		oauthTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(subToken.getOwner()), now, 
+				accessExpiration);
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
 
@@ -360,9 +362,8 @@ public class AccessTokenResource extends BaseOAuthResource
 				null, null);
 		log.debug("Refreshed access token {} of entity {}, valid until {}", 
 				tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
-				accessToken.getValue(), new EntityParam(refreshToken.getOwner()),
-				newToken.getSerialized(), now, accessExpiration);
+		oauthTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(refreshToken.getOwner()), now, 
+				accessExpiration);
 
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 
@@ -389,10 +390,8 @@ public class AccessTokenResource extends BaseOAuthResource
 				tokenToLog(accessToken.getValue()), expiration);
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(
 				new Tokens(accessToken, null));
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
-				accessToken.getValue(),
-				new EntityParam(internalToken.getClientId()),
-				internalToken.getSerialized(), now, expiration);
+		oauthTokensDAO.storeAccessToken(accessToken, internalToken, new EntityParam(internalToken.getClientId()), 
+				now, expiration);
 
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
@@ -522,11 +521,9 @@ public class AccessTokenResource extends BaseOAuthResource
 		for (ScopeInfo si : validScopes)
 			requestedAttributes.addAll(si.getAttributes());
 
-		OAuthProcessor processor = new OAuthProcessor();
-		Collection<DynamicAttribute> attributes = processor.filterAttributes(userInfoRes,
+		Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfoRes,
 				requestedAttributes);
-
-		return processor.prepareUserInfoClaimSet(userIdentity, attributes);
+		return OAuthProcessor.prepareUserInfoClaimSet(userIdentity, attributes);
 	}
 
 	private String createIdToken(Date now, OAuthToken token, List<Audience> audience,

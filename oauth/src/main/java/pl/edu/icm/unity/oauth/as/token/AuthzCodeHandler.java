@@ -29,6 +29,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -44,11 +45,14 @@ class AuthzCodeHandler
 	private OAuthASProperties config;
 	private TransactionalRunner tx;
 	private AccessTokenFactory accessTokenFactory;
+	private OAuthTokenRepository oauthTokenDAO;
 	
-	AuthzCodeHandler(TokensManagement tokensManagement, OAuthASProperties config, TransactionalRunner tx, 
+	AuthzCodeHandler(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenDAO,
+			OAuthASProperties config, TransactionalRunner tx, 
 			AccessTokenFactory accesstokenFactory)
 	{
 		this.tokensManagement = tokensManagement;
+		this.oauthTokenDAO = oauthTokenDAO;
 		this.config = config;
 		this.tx = tx;
 		this.accessTokenFactory = accesstokenFactory;
@@ -102,9 +106,8 @@ class AuthzCodeHandler
 		log.debug("Authz code grant: issuing new access token {}, valid until {}", 
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), 
 				accessExpiration);
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
-				accessToken.getValue(), new EntityParam(codeToken.getOwner()),
-				internalToken.getSerialized(), now, accessExpiration);
+		oauthTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 
+				now, accessExpiration);
 
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 	}
