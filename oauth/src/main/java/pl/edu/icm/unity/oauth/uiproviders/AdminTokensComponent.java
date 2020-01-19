@@ -59,7 +59,7 @@ class AdminTokensComponent extends VerticalLayout
 	protected Grid<TableTokensBean> tokensTable;
 	private OAuthTokenViewer viewer;
 	private boolean showViewer;
-	private final OAuthTokenRepository oauthTokenDAO;
+	protected final OAuthTokenRepository oauthTokenDAO;
 	
 	AdminTokensComponent(SecuredTokensManagement tokenMan, OAuthTokenRepository oauthTokenDAO, 
 			UnityMessageSource msg,
@@ -297,8 +297,8 @@ class AdminTokensComponent extends VerticalLayout
 		
 		public String getExpires()
 		{
-			return new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT)
-			.format(token.getExpires());
+			return token.getExpires() == null ? "" : 
+				new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(token.getExpires());
 		}
 		
 		public String getValue()

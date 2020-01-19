@@ -31,14 +31,12 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 {
 	private Button removeButton;
 	private Button refreshButton;
-	private OAuthTokenRepository tokensDAO;
 
 	public UserHomeTokensComponent(SecuredTokensManagement tokenMan, OAuthTokenRepository tokensDAO,
 			UnityMessageSource msg,
 			EntityManagement entityManagement)
 	{
 		super(tokenMan, tokensDAO, msg, entityManagement, false);
-		this.tokensDAO = tokensDAO;
 		setCaption("");
 		HorizontalLayout buttons = new HorizontalLayout();
 		removeButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.remove"));
@@ -82,7 +80,7 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	{
 		//Get only owned tokens	
 		List<Token> tokens = new ArrayList<>();	
-		tokens.addAll(tokensDAO.getOwnedAccessTokens());
+		tokens.addAll(oauthTokenDAO.getOwnedAccessTokens());
 		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN));
 		return tokens;
 	}

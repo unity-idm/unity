@@ -53,7 +53,7 @@ public class OAuthTokenViewer extends VerticalLayout
 	{
 		main = new CompactFormLayout();
 		value = new Label();
-		value.setCaption(msg.getMessage("OAuthTokenViewer.value"));
+		value.setCaption(msg.getMessage("OAuthTokenViewer.token"));
 				
 		idToken = new TextArea();
 		idToken.setCaption(msg.getMessage("OAuthTokenViewer.idtoken"));
