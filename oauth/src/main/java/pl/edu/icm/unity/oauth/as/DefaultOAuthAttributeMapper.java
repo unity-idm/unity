@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
@@ -112,8 +112,8 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		@Override
 		public String convertValueToJson(String value)
 		{
-			BufferedImage decoded = syntax.convertFromString(value);
-			byte[] octets = new JpegImageAttributeSyntax().serialize(decoded);
+			UnityImage decoded = syntax.convertFromString(value);
+			byte[] octets = decoded.getImage();
 			return Base64.encode(octets).toJSONString();
 		}
 

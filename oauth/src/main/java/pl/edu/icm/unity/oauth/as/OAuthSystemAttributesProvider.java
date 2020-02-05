@@ -101,9 +101,9 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		JpegImageAttributeSyntax syntax = new JpegImageAttributeSyntax();
 		try
 		{
-			syntax.setMaxHeight(200);
-			syntax.setMaxWidth(400);
-			syntax.setMaxSize(4000000);
+			syntax.getConfig().setMaxHeight(200);
+			syntax.getConfig().setMaxWidth(400);
+			syntax.getConfig().setMaxSize(4000000);
 		} catch (WrongArgumentException e)
 		{
 			throw new IllegalArgumentException(e);

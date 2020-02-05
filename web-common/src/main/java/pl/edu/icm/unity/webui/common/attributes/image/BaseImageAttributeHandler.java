@@ -7,10 +7,10 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
+import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.utils.UnityImageSpec;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -21,15 +21,15 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  *
  * @author R. Ledzinski
  */
-public class ImageAttributeHandler implements WebAttributeHandler
+class BaseImageAttributeHandler<T extends UnityImageSpec> implements WebAttributeHandler
 {
 	private UnityMessageSource msg;
-	private ImageAttributeSyntax syntax;
+	private BaseImageAttributeSyntax<T> syntax;
 
-	public ImageAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
+	BaseImageAttributeHandler(UnityMessageSource msg, BaseImageAttributeSyntax<T> syntax)
 	{
 		this.msg = msg;
-		this.syntax = (ImageAttributeSyntax) syntax;
+		this.syntax = syntax;
 	}
 
 	@Override
@@ -41,9 +41,9 @@ public class ImageAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
-		UnityImage value = syntax.convertFromString(valueRaw);
+		T value = syntax.convertFromString(valueRaw);
 		if (value == null)
-			return ImageValueEditor.getErrorImage();
+			return BaseImageValueEditor.getErrorImage();
 
 		if (context.isScaleImage())
 		{
@@ -51,7 +51,7 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			value.scaleDown(context.getImageScaleWidth(), context.getImageScaleHeight());
 		}
 
-		Resource resValue = new SimpleImageSource(value.getImage(), value.getType()).getResource();
+		Resource resValue = new SimpleImageSource(value).getResource();
 
 		if (resValue != null)
 		{
@@ -85,19 +85,19 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			return image;
 		} else
 		{
-			return ImageValueEditor.getErrorImage();
+			return BaseImageValueEditor.getErrorImage();
 		}
 	}
 
 	@Override
 	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
-		return new ImageValueEditor(initialValue, label, msg, syntax);
+		return new BaseImageValueEditor<>(initialValue, label, msg, syntax);
 	}
 
 	@Override
 	public Component getSyntaxViewer()
 	{
-		return new CompactFormLayout(ImageValueEditor.getHints(syntax, msg));
+		return new CompactFormLayout(BaseImageValueEditor.getHints(syntax, msg));
 	}
 }

@@ -76,9 +76,9 @@ public class InitializerCommon
 		
 		AttributeType userPicture = new AttributeType(JPEG_ATTR, JpegImageAttributeSyntax.ID, msg);
 		JpegImageAttributeSyntax jpegSyntax = new JpegImageAttributeSyntax();
-		jpegSyntax.setMaxSize(2000000);
-		jpegSyntax.setMaxWidth(120);
-		jpegSyntax.setMaxHeight(120);
+		jpegSyntax.getConfig().setMaxSize(2000000);
+		jpegSyntax.getConfig().setMaxWidth(120);
+		jpegSyntax.getConfig().setMaxHeight(120);
 		userPicture.setMinElements(1);
 		userPicture.setValueSyntaxConfiguration(jpegSyntax.getSerializedConfiguration());
 		

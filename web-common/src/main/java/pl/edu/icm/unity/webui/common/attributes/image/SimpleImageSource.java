@@ -4,29 +4,32 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
-import com.vaadin.server.Resource;
-import com.vaadin.server.StreamResource;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Random;
+
+import com.vaadin.server.Resource;
+import com.vaadin.server.StreamResource;
+
+import pl.edu.icm.unity.stdext.utils.UnityImageSpec;
+import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
 
 /**
  * Helper class providing image data as Resource
  *
  * @author R. Ledzinski
  */
-class SimpleImageSource implements StreamResource.StreamSource
+public class SimpleImageSource implements StreamResource.StreamSource
 {
 	private static final Random random = new Random();
+	
 	private final byte[] isData;
-	private final UnityImage.ImageType type;
+	private final ImageType type;
 
-	SimpleImageSource(byte[] value, UnityImage.ImageType type)
+	public SimpleImageSource(UnityImageSpec image)
 	{
-		this.isData = value;
-		this.type = type;
+		this.isData = image.getImage();
+		this.type = image.getType();
 	}
 
 	@Override

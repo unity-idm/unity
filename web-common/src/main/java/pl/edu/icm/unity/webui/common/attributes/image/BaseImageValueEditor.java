@@ -4,31 +4,46 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.*;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+
 import org.apache.logging.log4j.Logger;
+
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Upload;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-import pl.edu.icm.unity.webui.common.*;
+import pl.edu.icm.unity.stdext.utils.UnityImageSpec;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.LimitedOuputStream;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 
 /**
  * Editor for Image values.
  *
  * @author R. Ledzinski
  */
-class ImageValueEditor implements AttributeValueEditor
+class BaseImageValueEditor<T extends UnityImageSpec> implements AttributeValueEditor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImageValueEditor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseImageValueEditor.class);
 	private static final int PREVIEW_WIDTH = 256;
 	private static final int PREVIEW_HEIGHT = 128;
-	private UnityImage value;
+	private T value;
 	private String label;
 	private Image field;
 	private Upload upload;
@@ -37,9 +52,9 @@ class ImageValueEditor implements AttributeValueEditor
 	private Label error;
 	private boolean required;
 	private UnityMessageSource msg;
-	private ImageAttributeSyntax syntax;
+	private BaseImageAttributeSyntax<T> syntax;
 
-	ImageValueEditor(String valueRaw, String label, UnityMessageSource msg, ImageAttributeSyntax syntax)
+	BaseImageValueEditor(String valueRaw, String label, UnityMessageSource msg, BaseImageAttributeSyntax<T> syntax)
 	{
 		this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
 		this.label = label;
@@ -64,10 +79,9 @@ class ImageValueEditor implements AttributeValueEditor
 		{
 			try
 			{
-				field.setSource(new SimpleImageSource(
-						value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT),
-						value.getType())
-						.getResource());
+				byte[] scaledDownData = value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+				UnityImage scaledDown = new UnityImage(scaledDownData, value.getType());
+				field.setSource(new SimpleImageSource(scaledDown).getResource());
 				errorImage.setVisible(false);
 				field.setVisible(true);
 			} catch (Exception e)
@@ -136,10 +150,10 @@ class ImageValueEditor implements AttributeValueEditor
 	{
 		private Image image;
 		private LimitedOuputStream fos;
-		private ImageAttributeSyntax syntax;
+		private BaseImageAttributeSyntax<T> syntax;
 		private UnityImage.ImageType type;
 
-		public ImageUploader(Image image, ImageAttributeSyntax syntax, ProgressBar progress)
+		public ImageUploader(Image image, BaseImageAttributeSyntax<T> syntax, ProgressBar progress)
 		{
 			super(upload, progress);
 			this.image = image;
@@ -189,17 +203,14 @@ class ImageValueEditor implements AttributeValueEditor
 			try
 			{
 				image.setVisible(true);
-				value = new UnityImage(
-						((ByteArrayOutputStream) fos.getWrappedStream()).toByteArray(),
-						type);
+				value = syntax.newImage(value, ((ByteArrayOutputStream) fos.getWrappedStream()).toByteArray(), type);
 
 				if (scale.getValue())
-					value.scaleDown(syntax.getMaxWidth(), syntax.getMaxHeight());
+					value.scaleDown(syntax.getConfig().getMaxWidth(), syntax.getConfig().getMaxHeight());
 
-				image.setSource(new SimpleImageSource(
-						value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT),
-						value.getType()).
-						getResource());
+				byte[] scaledDownData = value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+				UnityImage scaledDown = new UnityImage(scaledDownData, value.getType());
+				image.setSource(new SimpleImageSource(scaledDown).getResource());
 			} catch (Exception e)
 			{
 				NotificationPopup.showError(msg.getMessage("ImageAttributeHandler.uploadInvalid"),
@@ -223,12 +234,12 @@ class ImageValueEditor implements AttributeValueEditor
 		return errorImage;
 	}
 
-	static Component getHints(ImageAttributeSyntax syntax, UnityMessageSource msg)
+	static Component getHints(BaseImageAttributeSyntax<?> syntax, UnityMessageSource msg)
 	{
 		Label ret = new Label(msg.getMessage("ImageAttributeHandler.maxSize", syntax.getMaxSize()/1024)
 				+ "  " +
-				msg.getMessage("ImageAttributeHandler.maxDim", syntax.getMaxWidth(),
-						syntax.getMaxHeight()));
+				msg.getMessage("ImageAttributeHandler.maxDim", syntax.getConfig().getMaxWidth(),
+						syntax.getConfig().getMaxHeight()));
 		ret.addStyleName(Styles.vLabelSmall.toString());
 		return ret;
 	}
@@ -238,13 +249,13 @@ class ImageValueEditor implements AttributeValueEditor
 	 */
 	private class ShowImageDialog extends AbstractDialog
 	{
-		private UnityImage image;
+		private UnityImageSpec image;
 
-		public ShowImageDialog(UnityImage image)
+		public ShowImageDialog(UnityImageSpec image)
 		{
-			super(ImageValueEditor.this.msg,
-					ImageValueEditor.this.msg.getMessage("ImageAttributeHandler.image"),
-					ImageValueEditor.this.msg.getMessage("close"));
+			super(BaseImageValueEditor.this.msg,
+					BaseImageValueEditor.this.msg.getMessage("ImageAttributeHandler.image"),
+					BaseImageValueEditor.this.msg.getMessage("close"));
 			this.image = image;
 			setSizeMode(SizeMode.LARGE);
 		}
@@ -253,7 +264,7 @@ class ImageValueEditor implements AttributeValueEditor
 		protected Component getContents() throws Exception
 		{
 			Image imageC = new Image();
-			imageC.setSource(new SimpleImageSource(image.getImage(), image.getType()).getResource());
+			imageC.setSource(new SimpleImageSource(image).getResource());
 			return imageC;
 		}
 

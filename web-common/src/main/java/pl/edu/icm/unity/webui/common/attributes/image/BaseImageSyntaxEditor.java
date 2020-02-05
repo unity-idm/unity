@@ -4,14 +4,16 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import java.util.function.Supplier;
+
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
+import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
@@ -21,17 +23,22 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
  *
  * @author R. Ledzinski
  */
-class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
+class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 {
-	private ImageAttributeSyntax initial;
+	private BaseImageAttributeSyntax<T> initial;
+	private Supplier<BaseImageAttributeSyntax<T>> ctor;
+	
 	private IntegerBoundEditor maxHeight, maxSize;
 	private IntegerBoundEditor maxWidth;
 	private UnityMessageSource msg;
 	private Binder<ImageSyntaxBindingValue> binder;
 
-	ImageSyntaxEditor(ImageAttributeSyntax initial, UnityMessageSource msg)
+	BaseImageSyntaxEditor(BaseImageAttributeSyntax<T> initial,
+			Supplier<BaseImageAttributeSyntax<T>> ctor,
+			UnityMessageSource msg)
 	{
 		this.initial = initial;
+		this.ctor = ctor;
 		this.msg = msg;
 	}
 
@@ -62,9 +69,9 @@ class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 		ImageSyntaxBindingValue value = new ImageSyntaxBindingValue();
 		if (initial != null)
 		{
-			value.setMaxWidth(initial.getMaxWidth());
-			value.setMaxHeight(initial.getMaxHeight());
-			value.setMaxSize(initial.getMaxSize());
+			value.setMaxWidth(initial.getConfig().getMaxWidth());
+			value.setMaxHeight(initial.getConfig().getMaxHeight());
+			value.setMaxSize(initial.getConfig().getMaxSize());
 		} else
 		{
 			value.setMaxWidth(200);
@@ -76,7 +83,7 @@ class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 	}
 
 	@Override
-	public AttributeValueSyntax<UnityImage> getCurrentValue()
+	public AttributeValueSyntax<T> getCurrentValue()
 			throws IllegalAttributeTypeException
 	{
 
@@ -89,10 +96,10 @@ class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 			}
 
 			ImageSyntaxBindingValue value = binder.getBean();
-			ImageAttributeSyntax ret = new ImageAttributeSyntax();
-			ret.setMaxHeight(value.getMaxHeight());
-			ret.setMaxWidth(value.getMaxWidth());
-			ret.setMaxSize(value.getMaxSize());
+			BaseImageAttributeSyntax<T> ret = ctor.get();
+			ret.getConfig().setMaxHeight(value.getMaxHeight());
+			ret.getConfig().setMaxWidth(value.getMaxWidth());
+			ret.getConfig().setMaxSize(value.getMaxSize());
 			return ret;
 		} catch (Exception e)
 		{

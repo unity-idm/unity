@@ -4,12 +4,10 @@
  */
 package pl.edu.icm.unity.stdext.utils;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +16,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Class providing Image related information and operations.
@@ -26,62 +30,13 @@ import java.util.stream.Collectors;
  *
  * @author R. Ledzinski
  */
-public class UnityImage
+public class UnityImage implements UnityImageSpec
 {
 	private static final String JSON_TYPE_NAME = "type";
 	private static final String JSON_VALUE_NAME = "value";
 
 	private byte[] image;
 	private ImageType type;
-
-	/**
-	 * Enumeration representing support image types.
-	 */
-	public enum ImageType
-	{
-		JPG("image/jpeg"),
-		PNG("image/png"),
-		GIF("image/gif");
-
-		private String mimeType;
-
-		private ImageType(String mimeType)
-		{
-			this.mimeType = mimeType;
-		}
-
-		public String getMimeType()
-		{
-			return mimeType;
-		}
-
-		public static String getSupportedMimeTypes(String delimiter)
-		{
-			return Arrays.asList(values()).stream().
-					map(ImageType::getMimeType).
-					collect(Collectors.joining(delimiter));
-		}
-
-		public String toExt()
-		{
-			return toString().toLowerCase();
-		}
-
-		public static ImageType fromExt(String ext)
-		{
-			return valueOf(ext.toUpperCase());
-		}
-
-		public static ImageType fromMimeType(String mimeType)
-		{
-			for (ImageType type : values())
-			{
-				if (type.mimeType.equals(mimeType))
-					return type;
-			}
-			throw new InternalException("Unsupported mimeType: " + mimeType);
-		}
-	}
 
 	public UnityImage(String serializedObject) throws IOException
 	{
@@ -125,6 +80,7 @@ public class UnityImage
 		this.type = ImageType.fromExt(path.toString().substring(dotIdx + 1));
 	}
 
+	@Override
 	public byte[] getImage()
 	{
 		return image;
@@ -139,6 +95,7 @@ public class UnityImage
 	 * @param maxWidth
 	 * @param maxHeight
 	 */
+	@Override
 	public byte[] getScaledDownImage(int maxWidth, int maxHeight)
 	{
 		BufferedImage bufferedImage = getBufferedImage();
@@ -193,9 +150,10 @@ public class UnityImage
 		{
 			throw new InternalException("Image can not be decoded", e);
 		}
-		return bi;
+		return convertType(bi);
 	}
 
+	@Override
 	public ImageType getType()
 	{
 		return type;
@@ -231,7 +189,7 @@ public class UnityImage
 	 * @param src
 	 * @return
 	 */
-	public static BufferedImage convertType(BufferedImage src)
+	private BufferedImage convertType(BufferedImage src)
 	{
 		int srcType = src.getType();
 		if (srcType != BufferedImage.TYPE_INT_ARGB
@@ -254,6 +212,7 @@ public class UnityImage
 	 * @param maxWidth
 	 * @param maxHeight
 	 */
+	@Override
 	public void scaleDown(int maxWidth, int maxHeight)
 	{
 		setImage(getScaledDownImage(maxWidth, maxHeight), type);

@@ -4,13 +4,16 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-
-import java.io.IOException;
+import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
 
 
 /**
@@ -18,7 +21,7 @@ import java.io.IOException;
  *
  * @author R. Ledzinski
  */
-public class ImageAttributeSyntax extends AbstractImageAttributeSyntax<UnityImage>
+public class ImageAttributeSyntax extends BaseImageAttributeSyntax<UnityImage>
 {
 	public static final String ID = "image";
 
@@ -31,7 +34,7 @@ public class ImageAttributeSyntax extends AbstractImageAttributeSyntax<UnityImag
 	@Override
 	public void validate(UnityImage value) throws IllegalAttributeValueException
 	{
-		super.validate(value.getBufferedImage(), value.getType().toExt());
+		ImageValidatorUtil.validate(getConfig(), value);
 	}
 
 	@Override
@@ -50,6 +53,12 @@ public class ImageAttributeSyntax extends AbstractImageAttributeSyntax<UnityImag
 	public String convertToString(UnityImage value)
 	{
 		return value.serialize();
+	}
+
+	@Override
+	public UnityImage newImage(UnityImage value, byte[] rawData, ImageType type)
+	{
+		return new UnityImage(rawData, type);
 	}
 
 	@Component
