@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 import pl.edu.icm.unity.stdext.utils.LinkableImage;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
@@ -34,8 +35,13 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	@Override
 	public void validate(LinkableImage value) throws IllegalAttributeValueException
 	{
-		if (value.getUnityImage() != null)
-			ImageValidatorUtil.validate(getConfig(), value.getUnityImage());
+		validateImage(getConfig(), value.getUnityImage());
+	}
+	
+	public static void validateImage(ImageConfiguration config, UnityImage value) throws IllegalAttributeValueException
+	{
+		if (value != null)
+			ImageValidatorUtil.validate(config, value);
 	}
 
 	@Override

@@ -7,24 +7,19 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
+import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
+import pl.edu.icm.unity.stdext.utils.LinkableImage;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 
-/**
- * Image attribute handler for the web
- *
- * @author R. Ledzinski
- */
-class UnityImageAttributeHandler implements WebAttributeHandler
+class PublicLinkableImageAttributeHandler implements WebAttributeHandler
 {
 	private UnityMessageSource msg;
-	private BaseImageAttributeSyntax<UnityImage> syntax;
+	private PublicLinkableImageSyntax syntax;
 
-	UnityImageAttributeHandler(UnityMessageSource msg, BaseImageAttributeSyntax<UnityImage> syntax)
+	PublicLinkableImageAttributeHandler(UnityMessageSource msg, PublicLinkableImageSyntax syntax)
 	{
 		this.msg = msg;
 		this.syntax = syntax;
@@ -33,20 +28,20 @@ class UnityImageAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return "Image";
+		return PublicLinkableImageSyntax.ID;
 	}
 
 	@Override
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
-		UnityImage value = syntax.convertFromString(valueRaw);
-		return new ImageRepresentationComponent(value, context);
+		LinkableImage value = syntax.convertFromString(valueRaw);
+		return new ImageRepresentationComponent(value.getUnityImage(), context);
 	}
 
 	@Override
 	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
-		return new UnityImageValueEditor(initialValue, label, msg, syntax);
+		return new PublicLinkableImageValueEditor(initialValue, label, msg, syntax);
 	}
 
 	@Override

@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
+import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
+import pl.edu.icm.unity.stdext.utils.LinkableImage;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
@@ -17,20 +17,20 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  *
  * @author R. Ledzinski
  */
-class UnityImageValueEditor implements AttributeValueEditor
+class PublicLinkableImageValueEditor implements AttributeValueEditor
 {
 	private boolean required;
-	private BaseImageAttributeSyntax<UnityImage> syntax;
-	private UnityImageValueComponent imageValueComponent;
+	private PublicLinkableImageSyntax syntax;
+	private PublicLinkableImageValueComponent valueComponent;
 
-	UnityImageValueEditor(String valueRaw,
+	PublicLinkableImageValueEditor(String valueRaw,
 			String label,
 			UnityMessageSource msg,
-			BaseImageAttributeSyntax<UnityImage> syntax)
+			PublicLinkableImageSyntax syntax)
 	{
-		UnityImage value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
-		imageValueComponent = new UnityImageValueComponent(value, syntax.getConfig(), msg);
-		imageValueComponent.setCaption(label);
+		LinkableImage value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
+		valueComponent = new PublicLinkableImageValueComponent(value, syntax.getConfig(), msg);
+		valueComponent.setCaption(label);
 		this.syntax = syntax;
 	}
 
@@ -38,19 +38,19 @@ class UnityImageValueEditor implements AttributeValueEditor
 	public ComponentsContainer getEditor(AttributeEditContext context)
 	{
 		required = context.isRequired();
-		return new ComponentsContainer(imageValueComponent);
+		return new ComponentsContainer(valueComponent);
 	}
-	
+
 	@Override
 	public String getCurrentValue() throws IllegalAttributeValueException
 	{
-		UnityImage value = imageValueComponent.getValue(required, syntax::validate);
+		LinkableImage value = valueComponent.getValue(required, syntax);
 		return syntax.convertToString(value);
 	}
 
 	@Override
 	public void setLabel(String label)
 	{
-		imageValueComponent.setCaption(label);
+		valueComponent.setCaption(label);
 	}
 }

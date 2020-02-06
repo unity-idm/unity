@@ -49,8 +49,7 @@ class UnityImageValueComponent extends CustomComponent
 	private UnityImage value;
 	private UnityMessageSource msg;
 	
-	UnityImageValueComponent(String label,
-			UnityImage initialValue,
+	UnityImageValueComponent(UnityImage initialValue,
 			ImageConfiguration imgConfig,
 			UnityMessageSource msg)
 	{
@@ -109,15 +108,15 @@ class UnityImageValueComponent extends CustomComponent
 				getHints(imgConfig, msg));
 		layout.setMargin(false);
 		setCompositionRoot(layout);
-		setCaption(label);
 	}
 	
 	private void setUnityImageValue(UnityImage value)
 	{
+		error.setVisible(false);
 		this.value = value;
 	}
 	
-	UnityImage getUnityImageValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
+	UnityImage getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
 	{
 		if (value == null && !required)
 			return null;
