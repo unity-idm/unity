@@ -13,7 +13,6 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
 
 
 /**
@@ -53,12 +52,6 @@ public class ImageAttributeSyntax extends BaseImageAttributeSyntax<UnityImage>
 	public String convertToString(UnityImage value)
 	{
 		return value.serialize();
-	}
-
-	@Override
-	public UnityImage newImage(UnityImage value, byte[] rawData, ImageType type)
-	{
-		return new UnityImage(rawData, type);
 	}
 
 	@Component

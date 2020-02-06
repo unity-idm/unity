@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 
-public class LinkableImage implements UnityImageSpec
+public class LinkableImage
 {
 	public static final LinkableImage EMPTY = new LinkableImage(null, null);
 	
@@ -93,29 +93,5 @@ public class LinkableImage implements UnityImageSpec
 			return Objects.equals(this.image, that.image) && Objects.equals(this.url, that.url);
 		}
 		return false;
-	}
-
-	@Override
-	public void scaleDown(int maxWidth, int maxHeight)
-	{
-		image.scaleDown(maxWidth, maxHeight);
-	}
-
-	@Override
-	public byte[] getImage()
-	{
-		return image.getImage();
-	}
-
-	@Override
-	public ImageType getType()
-	{
-		return image.getType();
-	}
-
-	@Override
-	public byte[] getScaledDownImage(int maxWidth, int maxHeight)
-	{
-		return image.getScaledDownImage(maxWidth, maxHeight);
 	}
 }

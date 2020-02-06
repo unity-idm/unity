@@ -45,6 +45,6 @@ class JpegImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 	@Override
 	public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
 	{
-		return new BaseImageAttributeHandler<>(msg, (JpegImageAttributeSyntax) syntax);
+		return new UnityImageAttributeHandler(msg, (JpegImageAttributeSyntax) syntax);
 	}
 }

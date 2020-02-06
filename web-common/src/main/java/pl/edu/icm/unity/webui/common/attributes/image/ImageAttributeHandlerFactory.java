@@ -21,12 +21,12 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
  * @author R. Ledzinski
  */
 @Component
-class UnityImageAttributeHandlerFactory implements WebAttributeHandlerFactory
+class ImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 {
 	private final UnityMessageSource msg;
 
 	@Autowired
-	UnityImageAttributeHandlerFactory(UnityMessageSource msg)
+	ImageAttributeHandlerFactory(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -46,6 +46,6 @@ class UnityImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 	@Override
 	public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
 	{
-		return new BaseImageAttributeHandler<>(msg, (ImageAttributeSyntax) syntax);
+		return new UnityImageAttributeHandler(msg, (ImageAttributeSyntax) syntax);
 	}
 }

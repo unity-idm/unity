@@ -10,7 +10,7 @@ import com.vaadin.ui.Image;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -21,12 +21,12 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  *
  * @author R. Ledzinski
  */
-class BaseImageAttributeHandler<T extends UnityImageSpec> implements WebAttributeHandler
+class UnityImageAttributeHandler implements WebAttributeHandler
 {
 	private UnityMessageSource msg;
-	private BaseImageAttributeSyntax<T> syntax;
+	private BaseImageAttributeSyntax<UnityImage> syntax;
 
-	BaseImageAttributeHandler(UnityMessageSource msg, BaseImageAttributeSyntax<T> syntax)
+	UnityImageAttributeHandler(UnityMessageSource msg, BaseImageAttributeSyntax<UnityImage> syntax)
 	{
 		this.msg = msg;
 		this.syntax = syntax;
@@ -41,13 +41,12 @@ class BaseImageAttributeHandler<T extends UnityImageSpec> implements WebAttribut
 	@Override
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
-		T value = syntax.convertFromString(valueRaw);
+		UnityImage value = syntax.convertFromString(valueRaw);
 		if (value == null)
-			return BaseImageValueEditor.getErrorImage();
+			return UnityImageValueComponent.getErrorImage();
 
 		if (context.isScaleImage())
 		{
-			
 			value.scaleDown(context.getImageScaleWidth(), context.getImageScaleHeight());
 		}
 
@@ -75,29 +74,27 @@ class BaseImageAttributeHandler<T extends UnityImageSpec> implements WebAttribut
 				{
 					image.setHeight(context.getCustomHeight(), context.getCustomHeightUnit());
 				}
-
 				else
 				{
 					image.setHeightUndefined();
 				}
 			}
-
 			return image;
 		} else
 		{
-			return BaseImageValueEditor.getErrorImage();
+			return UnityImageValueComponent.getErrorImage();
 		}
 	}
 
 	@Override
 	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
-		return new BaseImageValueEditor<>(initialValue, label, msg, syntax);
+		return new UnityImageValueEditor(initialValue, label, msg, syntax);
 	}
 
 	@Override
 	public Component getSyntaxViewer()
 	{
-		return new CompactFormLayout(BaseImageValueEditor.getHints(syntax, msg));
+		return new CompactFormLayout(UnityImageValueComponent.getHints(syntax.getConfig(), msg));
 	}
 }

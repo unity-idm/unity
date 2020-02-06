@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.stdext.utils.ImageType;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
 
 /**
  * Deprecated. Use ImageAttributeSyntax instead.
@@ -32,6 +32,8 @@ public class JpegImageAttributeSyntax extends BaseImageAttributeSyntax<UnityImag
 	@Override
 	public void validate(UnityImage value) throws IllegalAttributeValueException
 	{
+		if (value.getType() != ImageType.JPG)
+			throw new IllegalAttributeValueException("Invalid file format: " + value.getType().toExt());
 		ImageValidatorUtil.validate(getConfig(), value);
 	}
 
@@ -49,12 +51,6 @@ public class JpegImageAttributeSyntax extends BaseImageAttributeSyntax<UnityImag
 	public String convertToString(UnityImage value)
 	{
 		return Base64.getEncoder().encodeToString(value.getImage());
-	}
-
-	@Override
-	public UnityImage newImage(UnityImage value, byte[] byteArray, ImageType type)
-	{
-		return new UnityImage(byteArray, type);
 	}
 
 	@Component

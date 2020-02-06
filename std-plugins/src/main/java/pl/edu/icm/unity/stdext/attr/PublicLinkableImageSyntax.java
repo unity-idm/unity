@@ -20,7 +20,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 import pl.edu.icm.unity.stdext.utils.LinkableImage;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
 
 public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<LinkableImage>
 {
@@ -67,7 +66,7 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	@Override
 	public String serializeSimple(LinkableImage value)
 	{
-		if (value.getImage() != null)
+		if (value.getUnityImage().getImage() != null)
 			return "https://localhost:2443/wellKnownLinks/publicLinkableImage/484j3mndnjr9y4r";
 
 		if (value.getUrl() != null)
@@ -101,14 +100,6 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 			}
 		}
 		return new LinkableImage(image, url);
-	}
-	
-
-	@Override
-	public LinkableImage newImage(LinkableImage value, byte[] rawData, ImageType type)
-	{
-		URL url = value == null ? null : value.getUrl();
-		return new LinkableImage(new UnityImage(rawData, type), url);
 	}
 	
 	@Component

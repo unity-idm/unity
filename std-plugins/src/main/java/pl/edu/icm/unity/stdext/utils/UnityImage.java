@@ -30,7 +30,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
  *
  * @author R. Ledzinski
  */
-public class UnityImage implements UnityImageSpec
+public class UnityImage
 {
 	private static final String JSON_TYPE_NAME = "type";
 	private static final String JSON_VALUE_NAME = "value";
@@ -80,7 +80,6 @@ public class UnityImage implements UnityImageSpec
 		this.type = ImageType.fromExt(path.toString().substring(dotIdx + 1));
 	}
 
-	@Override
 	public byte[] getImage()
 	{
 		return image;
@@ -95,7 +94,6 @@ public class UnityImage implements UnityImageSpec
 	 * @param maxWidth
 	 * @param maxHeight
 	 */
-	@Override
 	public byte[] getScaledDownImage(int maxWidth, int maxHeight)
 	{
 		BufferedImage bufferedImage = getBufferedImage();
@@ -153,7 +151,6 @@ public class UnityImage implements UnityImageSpec
 		return convertType(bi);
 	}
 
-	@Override
 	public ImageType getType()
 	{
 		return type;
@@ -212,7 +209,6 @@ public class UnityImage implements UnityImageSpec
 	 * @param maxWidth
 	 * @param maxHeight
 	 */
-	@Override
 	public void scaleDown(int maxWidth, int maxHeight)
 	{
 		setImage(getScaledDownImage(maxWidth, maxHeight), type);

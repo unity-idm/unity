@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
 
 /**
  * Image attribute value syntax. Allows for specifying size and dimension
@@ -31,8 +30,6 @@ public abstract class BaseImageAttributeSyntax<T> implements AttributeValueSynta
 {
 	private final ImageConfiguration config = new ImageConfiguration();
 
-	public abstract T newImage(T value, byte[] byteArray, ImageType type);
-	
 	@Override
 	public JsonNode getSerializedConfiguration()
 	{

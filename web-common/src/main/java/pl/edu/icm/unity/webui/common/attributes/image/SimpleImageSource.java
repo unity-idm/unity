@@ -11,8 +11,8 @@ import java.util.Random;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec;
-import pl.edu.icm.unity.stdext.utils.UnityImageSpec.ImageType;
+import pl.edu.icm.unity.stdext.utils.ImageType;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 
 /**
  * Helper class providing image data as Resource
@@ -26,7 +26,7 @@ public class SimpleImageSource implements StreamResource.StreamSource
 	private final byte[] isData;
 	private final ImageType type;
 
-	public SimpleImageSource(UnityImageSpec image)
+	public SimpleImageSource(UnityImage image)
 	{
 		this.isData = image.getImage();
 		this.type = image.getType();
