@@ -25,12 +25,12 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
  */
 class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 {
-	private BaseImageAttributeSyntax<T> initial;
-	private Supplier<BaseImageAttributeSyntax<T>> ctor;
+	private final BaseImageAttributeSyntax<T> initial;
+	private final Supplier<BaseImageAttributeSyntax<T>> ctor;
+	private final UnityMessageSource msg;
 	
 	private IntegerBoundEditor maxHeight, maxSize;
 	private IntegerBoundEditor maxWidth;
-	private UnityMessageSource msg;
 	private Binder<ImageSyntaxBindingValue> binder;
 
 	BaseImageSyntaxEditor(BaseImageAttributeSyntax<T> initial,

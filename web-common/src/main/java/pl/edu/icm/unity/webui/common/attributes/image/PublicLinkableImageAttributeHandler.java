@@ -17,8 +17,8 @@ import pl.edu.icm.unity.webui.common.attributes.ext.AttributeHandlerHelper;
 
 class PublicLinkableImageAttributeHandler implements WebAttributeHandler
 {
-	private UnityMessageSource msg;
-	private PublicLinkableImageSyntax syntax;
+	private final UnityMessageSource msg;
+	private final PublicLinkableImageSyntax syntax;
 
 	PublicLinkableImageAttributeHandler(UnityMessageSource msg, PublicLinkableImageSyntax syntax)
 	{

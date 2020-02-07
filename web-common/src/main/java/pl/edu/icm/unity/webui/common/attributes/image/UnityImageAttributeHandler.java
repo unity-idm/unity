@@ -21,8 +21,8 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  */
 class UnityImageAttributeHandler implements WebAttributeHandler
 {
-	private UnityMessageSource msg;
-	private BaseImageAttributeSyntax<UnityImage> syntax;
+	private final UnityMessageSource msg;
+	private final BaseImageAttributeSyntax<UnityImage> syntax;
 
 	UnityImageAttributeHandler(UnityMessageSource msg, BaseImageAttributeSyntax<UnityImage> syntax)
 	{

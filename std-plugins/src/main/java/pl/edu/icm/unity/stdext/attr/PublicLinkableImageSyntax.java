@@ -18,10 +18,8 @@ import org.springframework.util.StringUtils;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 import pl.edu.icm.unity.stdext.utils.LinkableImage;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 
 public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<LinkableImage>
 {
@@ -36,15 +34,10 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	@Override
 	public void validate(LinkableImage value) throws IllegalAttributeValueException
 	{
-		validateImage(getConfig(), value.getUnityImage());
+		if (value.getUnityImage() != null)
+			ImageValidatorUtil.validate(getConfig(), value.getUnityImage());
 	}
 	
-	public static void validateImage(ImageConfiguration config, UnityImage value) throws IllegalAttributeValueException
-	{
-		if (value != null)
-			ImageValidatorUtil.validate(config, value);
-	}
-
 	@Override
 	public LinkableImage convertFromString(String stringRepresentation)
 	{
@@ -88,25 +81,14 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 		if (StringUtils.isEmpty(value))
 			return LinkableImage.EMPTY;
 		
-		URL url = null;
-		UnityImage image = null;
 		try
 		{
-			url = new URL(value);
+			URL url = new URL(value);
+			return new LinkableImage(url);
 		} catch (MalformedURLException e1)
 		{
-			try
-			{
-				image = new UnityImage(value);
-			} catch (IOException e2)
-			{
-				IllegalAttributeValueException ex = new IllegalAttributeValueException(
-						value + " can not be deserialized to " + getValueSyntaxId(), e2);
-				ex.addSuppressed(e1);
-				throw ex;
-			}
+			throw new IllegalAttributeValueException(value + " can not be deserialized to " + getValueSyntaxId());
 		}
-		return new LinkableImage(image, url);
 	}
 	
 	@Component

@@ -26,8 +26,18 @@ public class LinkableImage
 	
 	private final UnityImage image;
 	private final URL url;
+	
+	public LinkableImage(UnityImage image)
+	{
+		this(image, null);
+	}
 
-	public LinkableImage(UnityImage image, URL url)
+	public LinkableImage(URL url)
+	{
+		this(null, url);
+	}
+	
+	private LinkableImage(UnityImage image, URL url)
 	{
 		this.image = image;
 		this.url = url;

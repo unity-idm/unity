@@ -41,14 +41,14 @@ class UnityImageValueComponent extends CustomComponent
 	static final int PREVIEW_WIDTH = 256;
 	static final int PREVIEW_HEIGHT = 128;
 	
-	private Image field;
-	private Upload upload;
-	private ProgressBar progressIndicator;
-	private CheckBox scale;
-	private Label error;
+	private final Image field;
+	private final Upload upload;
+	private final ProgressBar progressIndicator;
+	private final CheckBox scale;
+	private final Label error;
+	private final UnityMessageSource msg;
+
 	private UnityImage value;
-	private UnityMessageSource msg;
-	private boolean required;
 	
 	UnityImageValueComponent(UnityImage initialValue,
 			ImageConfiguration imgConfig,
@@ -117,7 +117,7 @@ class UnityImageValueComponent extends CustomComponent
 		this.value = value;
 	}
 	
-	UnityImage getValue(ImageValidator validator) throws IllegalAttributeValueException
+	UnityImage getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
 	{
 		if (value == null && !required)
 			return null;
@@ -158,11 +158,6 @@ class UnityImageValueComponent extends CustomComponent
 				+ msg.getMessage("ImageAttributeHandler.maxDim", imgConfig.getMaxWidth(), imgConfig.getMaxHeight()));
 		ret.addStyleName(Styles.vLabelSmall.toString());
 		return ret;
-	}
-
-	void setValueRequired(boolean required)
-	{
-		this.required = required;
 	}
 	
 	/**

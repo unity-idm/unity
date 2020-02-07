@@ -65,7 +65,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		setCompositionRoot(layout);
 	}
 
-	LinkableImage getValue(PublicLinkableImageSyntax syntax) throws IllegalAttributeValueException
+	LinkableImage getValue(boolean required, PublicLinkableImageSyntax syntax) throws IllegalAttributeValueException
 	{
 		Option selected = selector.getSelectedItem().orElse(null);
 		if (selected == null)
@@ -73,18 +73,12 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		
 		if (selected == Option.EMBEDDED_IMAGE)
 		{
-			UnityImage image = imageValueComponent.getValue(new LinkableImageValidator(syntax));
-			return new LinkableImage(image, null);
+			UnityImage image = imageValueComponent.getValue(required, new LinkableImageValidator(syntax));
+			return new LinkableImage(image);
 		}
 		
-		URL url = urlValueComponent.getValue();
-		return new LinkableImage(null, url); 
-	}
-	
-	void setValueRequired(boolean required)
-	{
-		imageValueComponent.setValueRequired(required);
-		urlValueComponent.setValueRequired(required);
+		URL url = urlValueComponent.getValue(required);
+		return new LinkableImage(url); 
 	}
 	
 	private void valueChange(ValueChangeEvent<Option> event)
@@ -112,7 +106,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		@Override
 		public void validate(UnityImage value) throws IllegalAttributeValueException
 		{
-			PublicLinkableImageSyntax.validateImage(syntax.getConfig(), value);
+			syntax.validate(new LinkableImage(value));
 		}
 	}
 }

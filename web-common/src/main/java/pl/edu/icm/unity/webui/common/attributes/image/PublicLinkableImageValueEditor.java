@@ -19,8 +19,9 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  */
 class PublicLinkableImageValueEditor implements AttributeValueEditor
 {
-	private PublicLinkableImageSyntax syntax;
-	private PublicLinkableImageValueComponent valueComponent;
+	private final PublicLinkableImageSyntax syntax;
+	private final PublicLinkableImageValueComponent valueComponent;
+	private boolean required;
 
 	PublicLinkableImageValueEditor(String valueRaw,
 			String label,
@@ -36,14 +37,14 @@ class PublicLinkableImageValueEditor implements AttributeValueEditor
 	@Override
 	public ComponentsContainer getEditor(AttributeEditContext context)
 	{
-		valueComponent.setValueRequired(context.isRequired());
+		required = context.isRequired();
 		return new ComponentsContainer(valueComponent);
 	}
 
 	@Override
 	public String getCurrentValue() throws IllegalAttributeValueException
 	{
-		LinkableImage value = valueComponent.getValue(syntax);
+		LinkableImage value = valueComponent.getValue(required, syntax);
 		return syntax.convertToString(value);
 	}
 

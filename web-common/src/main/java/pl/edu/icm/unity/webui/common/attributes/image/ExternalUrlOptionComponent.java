@@ -30,7 +30,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 class ExternalUrlOptionComponent extends CustomComponent
 {
 	private final Binder<URLValue> binder;
-	private boolean required;
 	
 	ExternalUrlOptionComponent(URL initialValue, UnityMessageSource msg)
 	{
@@ -46,7 +45,7 @@ class ExternalUrlOptionComponent extends CustomComponent
 		setCompositionRoot(urlField);
 	}
 	
-	URL getValue() throws IllegalAttributeValueException
+	URL getValue(boolean required) throws IllegalAttributeValueException
 	{
 		URL value = binder.getBean().getValue();
 		if (value == null && !required)
@@ -62,11 +61,6 @@ class ExternalUrlOptionComponent extends CustomComponent
 		}
 		
 		return value;
-	}
-	
-	void setValueRequired(boolean required)
-	{
-		this.required = required;
 	}
 	
 	private static class URLValue
