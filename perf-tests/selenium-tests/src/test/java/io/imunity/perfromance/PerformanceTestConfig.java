@@ -1,11 +1,7 @@
-/**********************************************************************
- *                     Copyright (c) 2019, Jirav
- *                        All Rights Reserved
- *
- *         This is unpublished proprietary source code of Jirav.
- *    Reproduction or distribution, in whole or in part, is forbidden
- *          except by express written permission of Jirav, Inc.
- **********************************************************************/
+/*
+ * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package io.imunity.perfromance;
 
 public class PerformanceTestConfig
