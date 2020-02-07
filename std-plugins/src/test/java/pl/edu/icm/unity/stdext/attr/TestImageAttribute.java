@@ -13,8 +13,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 
 public class TestImageAttribute
 {

@@ -20,6 +20,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;

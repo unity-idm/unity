@@ -8,11 +8,11 @@ import java.util.Base64;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.stdext.utils.ImageType;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 
 /**
  * Deprecated. Use ImageAttributeSyntax instead.

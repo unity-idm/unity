@@ -15,11 +15,11 @@ import java.net.URL;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import pl.edu.icm.unity.attr.LinkableImage;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
-import pl.edu.icm.unity.stdext.utils.LinkableImage;
 
 public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<LinkableImage>
 {

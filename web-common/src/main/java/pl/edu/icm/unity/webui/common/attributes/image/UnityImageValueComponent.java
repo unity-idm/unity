@@ -20,12 +20,12 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
-import pl.edu.icm.unity.stdext.utils.ImageType;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;

@@ -14,6 +14,7 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
 public final class ImageValidatorUtil

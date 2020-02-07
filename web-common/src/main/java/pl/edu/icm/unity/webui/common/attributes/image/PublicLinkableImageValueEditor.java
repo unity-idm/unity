@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import pl.edu.icm.unity.attr.LinkableImage;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
-import pl.edu.icm.unity.stdext.utils.LinkableImage;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;

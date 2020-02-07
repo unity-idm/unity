@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;

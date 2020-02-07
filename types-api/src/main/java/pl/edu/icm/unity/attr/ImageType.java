@@ -6,7 +6,7 @@
  *    Reproduction or distribution, in whole or in part, is forbidden
  *          except by express written permission of Jirav, Inc.
  **********************************************************************/
-package pl.edu.icm.unity.stdext.utils;
+package pl.edu.icm.unity.attr;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

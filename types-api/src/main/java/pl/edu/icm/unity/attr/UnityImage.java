@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.stdext.utils;
+package pl.edu.icm.unity.attr;
 
 import java.awt.Color;
 import java.awt.Graphics;

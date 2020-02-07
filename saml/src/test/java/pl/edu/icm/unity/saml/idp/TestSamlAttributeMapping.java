@@ -16,12 +16,12 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.junit.Test;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
-import pl.edu.icm.unity.stdext.utils.ImageType;
 import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;

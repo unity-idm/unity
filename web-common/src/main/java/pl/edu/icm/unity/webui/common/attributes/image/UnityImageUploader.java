@@ -22,11 +22,11 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
-import pl.edu.icm.unity.stdext.utils.ImageType;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;

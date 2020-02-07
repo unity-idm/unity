@@ -25,7 +25,7 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 	public static final String NAME = "WellKnownLinksHandler";
 
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
-			"Provides access to public links which can be used to access parts of " + "Unity UIs directly",
+			"Provides access to public links which can be used to access parts of Unity UIs directly",
 			VaadinAuthentication.NAME,
 			Collections.singletonMap(SecuredWellKnownURLServlet.SERVLET_PATH, "Well known links endpoint"));
 	private ApplicationContext applicationContext;

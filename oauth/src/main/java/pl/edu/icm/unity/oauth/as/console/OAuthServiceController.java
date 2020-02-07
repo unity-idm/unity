@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -60,9 +62,7 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.ImageType;
 import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;

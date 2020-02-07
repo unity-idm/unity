@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 
