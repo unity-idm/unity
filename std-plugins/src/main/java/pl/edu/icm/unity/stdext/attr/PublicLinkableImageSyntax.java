@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -72,19 +73,19 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	@Override
 	public String serializeSimple(LinkableImage value)
 	{
-		if (value.getUnityImage().getImage() != null)
+		if (value.getUnityImage() != null)
 			return "https://localhost:2443/wellKnownLinks/publicLinkableImage/484j3mndnjr9y4r";
 
 		if (value.getUrl() != null)
 			return value.getUrl().toExternalForm();
 
-		return null;
+		return "";
 	}
 
 	@Override
 	public LinkableImage deserializeSimple(String value) throws IllegalAttributeValueException
 	{
-		if (value == null)
+		if (StringUtils.isEmpty(value))
 			return LinkableImage.EMPTY;
 		
 		URL url = null;

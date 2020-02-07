@@ -13,6 +13,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.attributes.ext.AttributeHandlerHelper;
 
 class PublicLinkableImageAttributeHandler implements WebAttributeHandler
 {
@@ -35,7 +36,11 @@ class PublicLinkableImageAttributeHandler implements WebAttributeHandler
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
 		LinkableImage value = syntax.convertFromString(valueRaw);
-		return new ImageRepresentationComponent(value.getUnityImage(), context);
+		if (value.getUnityImage() != null)
+			return new ImageRepresentationComponent(value.getUnityImage(), context);
+		if (value.getUrl() != null)
+			return AttributeHandlerHelper.getRepresentation(value.getUrl().toExternalForm(), context);
+		return AttributeHandlerHelper.getRepresentation("", context);
 	}
 
 	@Override

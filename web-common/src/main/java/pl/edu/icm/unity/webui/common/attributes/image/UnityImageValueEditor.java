@@ -19,7 +19,6 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  */
 class UnityImageValueEditor implements AttributeValueEditor
 {
-	private boolean required;
 	private BaseImageAttributeSyntax<UnityImage> syntax;
 	private UnityImageValueComponent imageValueComponent;
 
@@ -37,14 +36,14 @@ class UnityImageValueEditor implements AttributeValueEditor
 	@Override
 	public ComponentsContainer getEditor(AttributeEditContext context)
 	{
-		required = context.isRequired();
+		imageValueComponent.setValueRequired(context.isRequired());
 		return new ComponentsContainer(imageValueComponent);
 	}
 	
 	@Override
 	public String getCurrentValue() throws IllegalAttributeValueException
 	{
-		UnityImage value = imageValueComponent.getValue(required, syntax::validate);
+		UnityImage value = imageValueComponent.getValue(syntax::validate);
 		return syntax.convertToString(value);
 	}
 

@@ -48,6 +48,7 @@ class UnityImageValueComponent extends CustomComponent
 	private Label error;
 	private UnityImage value;
 	private UnityMessageSource msg;
+	private boolean required;
 	
 	UnityImageValueComponent(UnityImage initialValue,
 			ImageConfiguration imgConfig,
@@ -116,7 +117,7 @@ class UnityImageValueComponent extends CustomComponent
 		this.value = value;
 	}
 	
-	UnityImage getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
+	UnityImage getValue(ImageValidator validator) throws IllegalAttributeValueException
 	{
 		if (value == null && !required)
 			return null;
@@ -157,6 +158,11 @@ class UnityImageValueComponent extends CustomComponent
 				+ msg.getMessage("ImageAttributeHandler.maxDim", imgConfig.getMaxWidth(), imgConfig.getMaxHeight()));
 		ret.addStyleName(Styles.vLabelSmall.toString());
 		return ret;
+	}
+
+	void setValueRequired(boolean required)
+	{
+		this.required = required;
 	}
 	
 	/**

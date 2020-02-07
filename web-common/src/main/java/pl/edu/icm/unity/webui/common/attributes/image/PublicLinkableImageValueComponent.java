@@ -8,20 +8,14 @@
  **********************************************************************/
 package pl.edu.icm.unity.webui.common.attributes.image;
 
-import static java.util.stream.Collectors.joining;
-
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.annotation.Nullable;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.BinderValidationStatus;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -30,12 +24,18 @@ import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.stdext.utils.LinkableImage;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-import pl.edu.icm.unity.webui.common.Styles;
 
 class PublicLinkableImageValueComponent extends CustomComponent
 {
 	private final UnityImageValueComponent imageValueComponent;
-	private final Binder<URLValue> binder;
+	private final ExternalUrlOptionComponent urlValueComponent;
+	private final RadioButtonGroup<Option> selector;
+	
+	private enum Option
+	{
+		EMBEDDED_IMAGE,
+		EXTERNAL_IMAGE_URL
+	}
 
 	PublicLinkableImageValueComponent(@Nullable LinkableImage value,
 			ImageConfiguration imgConfig,
@@ -43,38 +43,61 @@ class PublicLinkableImageValueComponent extends CustomComponent
 	{
 		UnityImage unityImage = value == null ? null : value.getUnityImage();
 		URL url = value == null ? null : value.getUrl();
+		Option activeOption = unityImage != null ? Option.EMBEDDED_IMAGE : Option.EXTERNAL_IMAGE_URL;
 		
 		imageValueComponent = new UnityImageValueComponent(unityImage, imgConfig, msg);
-
-		TextField urlField = new TextField();
-		urlField.setStyleName(Styles.bottomMargin.toString());
-		urlField.setPlaceholder(msg.getMessage("PublicLinkableImage.imageUrl"));
-		binder = new Binder<>();
-		binder.forField(urlField)
-			.withValidator(new URLValidator())
-			.bind(URLValue::toString, URLValue::valueOf);
-		binder.setBean(new URLValue(url));
+		urlValueComponent = new ExternalUrlOptionComponent(url, msg);
+		
+		if (activeOption == Option.EMBEDDED_IMAGE)
+			urlValueComponent.setVisible(false);
+		else
+			imageValueComponent.setVisible(false);
+		
+		selector = new RadioButtonGroup<>(null, DataProvider.ofItems(Option.values()));
+		selector.setSelectedItem(activeOption);
+		selector.setItemCaptionGenerator(item -> msg.getMessage("PublicLinkableImage.option." + item.name()));
+		selector.addValueChangeListener(this::valueChange);
 		
 		VerticalLayout layout = new VerticalLayout();
-		layout.addComponents(imageValueComponent, urlField);
+		layout.addComponents(selector, imageValueComponent, urlValueComponent);
 		layout.setMargin(false);
 		layout.setSpacing(true);
 		setCompositionRoot(layout);
 	}
 
-	LinkableImage getValue(boolean required, PublicLinkableImageSyntax syntax) throws IllegalAttributeValueException
+	LinkableImage getValue(PublicLinkableImageSyntax syntax) throws IllegalAttributeValueException
 	{
-		BinderValidationStatus<URLValue> status = binder.validate();
-		if (!status.isOk())
+		Option selected = selector.getSelectedItem().orElse(null);
+		if (selected == null)
+			new IllegalAttributeValueException("BUG: Select and configure one of the options");
+		
+		if (selected == Option.EMBEDDED_IMAGE)
 		{
-			String msg = status.getValidationErrors().stream()
-					.map(ValidationResult::getErrorMessage)
-					.collect(joining());
-			throw new IllegalAttributeValueException(msg);
+			UnityImage image = imageValueComponent.getValue(new LinkableImageValidator(syntax));
+			return new LinkableImage(image, null);
 		}
-		URL url = binder.getBean().getValue();
-		UnityImage image = imageValueComponent.getValue(required, new LinkableImageValidator(syntax));
-		return new LinkableImage(image, url);
+		
+		URL url = urlValueComponent.getValue();
+		return new LinkableImage(null, url); 
+	}
+	
+	void setValueRequired(boolean required)
+	{
+		imageValueComponent.setValueRequired(required);
+		urlValueComponent.setValueRequired(required);
+	}
+	
+	private void valueChange(ValueChangeEvent<Option> event)
+	{
+		if (event.getValue() == Option.EMBEDDED_IMAGE)
+		{
+			imageValueComponent.setVisible(true);
+			urlValueComponent.setVisible(false);
+		} else
+		{
+			imageValueComponent.setVisible(false);
+			urlValueComponent.setVisible(true);
+		}
 	}
 	
 	private static class LinkableImageValidator implements ImageValidator
@@ -90,61 +113,6 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		public void validate(UnityImage value) throws IllegalAttributeValueException
 		{
 			PublicLinkableImageSyntax.validateImage(syntax.getConfig(), value);
-		}
-		
-	}
-	
-	private static class URLValue
-	{
-		private URL value;
-
-		URLValue(URL value)
-		{
-			super();
-			this.value = value;
-		}
-
-		URL getValue()
-		{
-			return value;
-		}
-
-		void valueOf(String value)
-		{
-			if (value == null)
-				return;
-			try
-			{
-				this.value = new URL(value);
-			} catch (MalformedURLException e)
-			{
-				throw new IllegalStateException("BUG: value should be validated by binder", e);
-			}
-		}
-
-		@Override
-		public String toString()
-		{
-			return value == null ? null : value.toExternalForm();
-		}
-	}
-
-	private static class URLValidator implements Validator<String>
-	{
-		@Override
-		public ValidationResult apply(String value, ValueContext context)
-		{
-			if (value != null && !value.isEmpty())
-			{
-				try
-				{
-					new URL(value);
-				} catch (MalformedURLException e)
-				{
-					return ValidationResult.error(e.getMessage());
-				}
-			}
-			return ValidationResult.ok();
 		}
 	}
 }
