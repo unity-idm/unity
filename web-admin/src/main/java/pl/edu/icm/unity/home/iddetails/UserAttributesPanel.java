@@ -29,13 +29,13 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter.ComposableComponents;
 import pl.edu.icm.unity.webui.common.composite.GroupOfGroups;
@@ -122,7 +122,7 @@ public class UserAttributesPanel
 		{
 			
 			AttributeEditContext editContext = AttributeEditContext.builder()
-					.withConfirmationMode(ConfirmationMode.USER)
+					.withConfirmationMode(ConfirmationEditMode.USER)
 					.withAttributeType(at)
 					.withAttributeGroup(group)
 					.withAttributeOwner(new EntityParam(entityId)).build();

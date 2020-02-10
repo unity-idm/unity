@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webui.common.identities;
 
 import com.vaadin.server.Sizeable.Unit;
 
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
+
 /**
  * Contains complete information necessary to build identity editor UI.
  *
@@ -13,6 +15,7 @@ import com.vaadin.server.Sizeable.Unit;
  */
 public class IdentityEditorContext
 {
+	private final ConfirmationEditMode confirmationEditMode;
 	private final boolean required;
 	private final boolean adminMode;
 	private final boolean showLabelInline;
@@ -20,13 +23,14 @@ public class IdentityEditorContext
 	private Unit customWidthUnit = null;
 
 	IdentityEditorContext(boolean required, boolean adminMode, boolean showLabelInline, Float customWidth,
-			Unit customWidthUnit)
+			Unit customWidthUnit, ConfirmationEditMode confirmationEditMode)
 	{
 		this.required = required;
 		this.adminMode = adminMode;
 		this.showLabelInline = showLabelInline;
 		this.customWidth = customWidth;
 		this.customWidthUnit = customWidthUnit;
+		this.confirmationEditMode = confirmationEditMode;
 	}
 
 	public boolean isRequired()
@@ -59,6 +63,11 @@ public class IdentityEditorContext
 		return customWidthUnit;
 	}
 
+	public ConfirmationEditMode getConfirmationEditMode()
+	{
+		return confirmationEditMode;
+	}
+
 	public static Builder builder()
 	{
 		return new Builder();
@@ -71,6 +80,7 @@ public class IdentityEditorContext
 		private boolean showLabelInline = false;
 		private Float customWidth = null;
 		private Unit customWidthUnit = null;
+		private ConfirmationEditMode confirmationEditMode = ConfirmationEditMode.USER;
 
 		public Builder withRequired(boolean required)
 		{
@@ -102,10 +112,17 @@ public class IdentityEditorContext
 			return this;
 		}
 
+		public Builder withConfirmationEditMode(ConfirmationEditMode confirmationMode)
+		{
+			this.confirmationEditMode = confirmationMode;
+			return this;
+		}
+
+		
 		public IdentityEditorContext build()
 		{
 			return new IdentityEditorContext(required, adminMode, showLabelInline, 
-					customWidth, customWidthUnit);
+					customWidth, customWidthUnit, confirmationEditMode);
 		}
 	}
 }

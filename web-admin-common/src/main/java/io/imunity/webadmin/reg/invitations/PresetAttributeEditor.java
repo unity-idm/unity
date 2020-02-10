@@ -16,11 +16,11 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -69,7 +69,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 		AttributeType at = attrTypes.get(selectedParam.getAttributeType());
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
-				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
 				.withAttributeType(at)
 				.withAttributeGroup(selectedParam.isUsingDynamicGroup() ? "/" : selectedParam.getGroup())
 				.build();

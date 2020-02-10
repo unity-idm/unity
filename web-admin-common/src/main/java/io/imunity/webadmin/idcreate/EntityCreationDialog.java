@@ -49,6 +49,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -56,7 +57,6 @@ import pl.edu.icm.unity.webui.common.FormValidationRTException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.widgets.InfoLabel;
@@ -174,7 +174,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 					.withAttributeGroup("/")
 					.withAttributeType(designatedAttrType)
 					.withRequired(false)
-					.withConfirmationMode(ConfirmationMode.ADMIN)
+					.withConfirmationMode(ConfirmationEditMode.ADMIN)
 					.build(), 
 					false, 
 					designatedAttrType.getDisplayedName().getValue(msg) + ":", 
