@@ -82,9 +82,9 @@ public class AuthenticationTab extends CustomComponent implements EditorTab
 	}
 
 	@Override
-	public ServiceEditorTab getType()
+	public String getType()
 	{
-		return ServiceEditorTab.AUTHENTICATION;
+		return ServiceEditorTab.AUTHENTICATION.toString();
 	}
 
 	@Override

@@ -15,8 +15,8 @@ import org.apache.http.HttpHeaders;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 
 /**
  * RESTful implementation of the user information token resource
@@ -27,9 +27,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Path(OAuthTokenEndpoint.USER_INFO_PATH)
 public class UserInfoResource extends BaseTokenResource
 {
-	public UserInfoResource(TokensManagement tokensManagement)
+	public UserInfoResource(OAuthTokenRepository tokensDAO)
 	{
-		super(tokensManagement);
+		super(tokensDAO);
 	}
 
 	@Path("/")

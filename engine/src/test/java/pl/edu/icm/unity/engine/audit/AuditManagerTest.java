@@ -9,7 +9,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -46,12 +45,12 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		
 		InvocationContext invContext = InvocationContext.getCurrent();
 		invContext.setLoginSession(new LoginSession("1", null, null, 100, 1L, null, null, null, null));
-		ReflectionTestUtils.setField(auditPublisher, "enabled", true);
+		auditManager.enableAuditEvents();
 	}
 
 	@After
 	public void after() {
-		ReflectionTestUtils.setField(auditPublisher, "enabled", false);
+		auditManager.disableAuditEvents();
 	}
 
 	@Test
@@ -165,13 +164,13 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		});
 
 		//than
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3).size() == 3));
-		assertTrue(auditManager.getAuditEvents(null, null, 10).size() == 3);
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10).size());
-		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10).size());
-		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10).size());
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, nowPlus2Days, 10).size());
-		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 3).size());
-		assertEquals(1, auditManager.getAuditEvents(nowPlusHour, null, 1).size());
+		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAuditEvents(nowPlusHour, null, 3, "timestamp", -1).size() == 3));
+		assertTrue(auditManager.getAuditEvents(null, null, 10, "timestamp", -1).size() == 3);
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 10, "timestamp", -1).size());
+		assertEquals(2, auditManager.getAuditEvents(nowPlusDay, null, 10, "timestamp", -1).size());
+		assertEquals(2, auditManager.getAuditEvents(nowPlusHour, nowPlusDay, 10, "timestamp", -1).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, nowPlus2Days, 10, "timestamp", -1).size());
+		assertEquals(3, auditManager.getAuditEvents(nowPlusHour, null, 3, "timestamp", -1).size());
+		assertEquals(1, auditManager.getAuditEvents(nowPlusHour, null, 1, "timestamp", -1).size());
 	}
 }

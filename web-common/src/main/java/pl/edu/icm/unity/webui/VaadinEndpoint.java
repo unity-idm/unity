@@ -165,7 +165,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				description, authenticationFlows, registrationConfiguration, properties,
 				handler4Main);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
-		context.addServlet(new ServletHolder(new ForwadSerlvet()), "/");
+		context.addServlet(new ServletHolder(new ForwadSerlvet()), "/*");
 		
 		return context;
 	}

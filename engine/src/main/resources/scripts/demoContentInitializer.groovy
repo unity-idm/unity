@@ -99,12 +99,12 @@ void createExampleAttributeTypes()
 void createExampleUser()
 {
 	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user");
-	Identity base = entityManagement.addEntity(toAdd, EntityState.valid, false);
+	Identity base = entityManagement.addEntity(toAdd, EntityState.valid);
 
 	IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user");
 	EntityParam entityP = new EntityParam(base.getEntityId());
 	
-	entityManagement.addIdentity(toAddDn, entityP, true);
+	entityManagement.addIdentity(toAddDn, entityP);
 
 	groupsManagement.addMemberFromParent("/A", entityP);
 

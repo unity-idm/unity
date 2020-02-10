@@ -20,18 +20,14 @@ import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
-import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
@@ -40,8 +36,6 @@ import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -69,7 +63,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void shouldUpdateIdentityConfirmation() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "test@example.com");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 
 		//verify
 		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
@@ -87,7 +81,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void shouldDisallowUpdatingIdentityComparableValue() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "test@example.com");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		Identity updated = id.clone();
 		updated.setValue("other@example.com");
@@ -101,7 +95,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void scheduledDisableWork() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		Date scheduledTime = new Date(System.currentTimeMillis()+100);
@@ -124,7 +118,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void scheduledRemovalWork() throws Exception
 	{
 		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
-		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
+		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid);
 		
 		EntityParam ep2 = new EntityParam(id2.getEntityId());
 		Date scheduledTime = new Date(System.currentTimeMillis()+100);
@@ -163,39 +157,6 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void addingUnknownAttributeExtractionIsNotAllowed() throws Exception
-	{
-		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
-		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
-		Map<String, String> extracted = new HashMap<String, String>();
-		extracted.put("cn", "cn");
-		toUpdate.setExtractedAttributes(extracted);
-		try
-		{
-			idTypeMan.updateIdentityType(toUpdate);
-			fail("managed to set attributes extraction with undefined attribute t");
-		} catch(IllegalAttributeTypeException e) {}
-	}
-	
-	@Test
-	public void addingOneUnknownAttributeExtractionIsNotAllowed() throws Exception
-	{
-		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
-		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
-
-		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
-		Map<String, String> extracted = new HashMap<String, String>();
-		extracted.put("cn", "cn");
-		extracted.put("unknown", "cn");
-		toUpdate.setExtractedAttributes(extracted);
-		try
-		{
-			idTypeMan.updateIdentityType(toUpdate);
-			fail("managed to set attributes extraction with unsupported attribute t");
-		} catch(IllegalAttributeTypeException e) {}
-	}
-	
-	@Test
 	public void updatedTypeIsReturned() throws Exception
 	{
 		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
@@ -206,10 +167,6 @@ public class TestIdentities extends DBIntegrationTestBase
 
 		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
 		toUpdate.setDescription("fiu fiu");
-		Map<String, String> extracted = new HashMap<String, String>();
-		extracted.put("cn", "cn");
-		extracted.put("c", "country");
-		toUpdate.setExtractedAttributes(extracted);
 		idTypeMan.updateIdentityType(toUpdate);
 		
 		idTypes = idTypeMan.getIdentityTypes();
@@ -218,64 +175,11 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void configuredAttribtuesAreExtractedFromAddedIdentity() throws Exception
-	{
-		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
-
-		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
-		AttributeType at = new AttributeType("country", StringAttributeSyntax.ID);
-		at.setMaxElements(0);
-		aTypeMan.addAttributeType(at);
-
-		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
-		Map<String, String> extracted = new HashMap<String, String>();
-		extracted.put("cn", "cn");
-		extracted.put("c", "country");
-		toUpdate.setExtractedAttributes(extracted);
-		idTypeMan.updateIdentityType(toUpdate);
-		
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi, dc=ddd, ou=org unit,C=pl");
-		Identity added = idsMan.addEntity(idParam, "crMock", EntityState.valid, true);
-		
-		Collection<AttributeExt> attributes = attrsMan.getAttributes(new EntityParam(added), "/", null);
-		assertEquals(1 + DEF_ATTRS, attributes.size());
-		Attribute cnAttr = getAttributeByName(attributes, "cn");
-		assertEquals(cnAttr.getValues().get(0), "golbi");
-	}
-	
-	@Test
-	public void removedAttributeIsRemovedFromExtractedAttributes() throws Exception
-	{
-		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
-		aTypeMan.addAttributeType(new AttributeType("country", StringAttributeSyntax.ID));
-
-		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
-		IdentityType toUpdate = getIdentityTypeByName(idTypes, X500Identity.ID);
-		Map<String, String> extracted = new HashMap<String, String>();
-		extracted.put("cn", "cn");
-		extracted.put("c", "country");
-		toUpdate.setExtractedAttributes(extracted);
-		idTypeMan.updateIdentityType(toUpdate);
-		
-		aTypeMan.removeAttributeType("cn", true);
-		idTypes = idTypeMan.getIdentityTypes();
-		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
-		assertEquals(1, updated.getExtractedAttributes().size());
-		assertEquals("c", updated.getExtractedAttributes().keySet().iterator().next());
-		assertEquals("country", updated.getExtractedAttributes().values().iterator().next());
-		
-		aTypeMan.updateAttributeType(new AttributeType("country", IntegerAttributeSyntax.ID));
-		idTypes = idTypeMan.getIdentityTypes();
-		updated = getIdentityTypeByName(idTypes, X500Identity.ID);
-		assertEquals(0, updated.getExtractedAttributes().size());
-	}
-
-	@Test
 	public void onlyPersistentAddedWhenAllowedWithoutTarget() throws Exception
 	{
 		setupAdmin();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		EntityParam entityParam = new EntityParam(id.getEntityId());
 		idsMan.resetIdentity(entityParam, PersistentIdentity.ID, null, null);
 		
@@ -291,7 +195,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	{
 		setupAdmin();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
 		Entity e2 = idsMan.getEntity(entityParam, null, false, "/");
@@ -307,7 +211,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	{
 		setupAdmin();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
 		Entity e3 = idsMan.getEntity(entityParam, "target1", true, "/");
@@ -324,7 +228,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	{
 		setupAdmin();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		EntityParam entityParam = new EntityParam(id.getEntityId());
 		
 		Entity e3 = idsMan.getEntity(entityParam, "target1", true, "/");
@@ -358,7 +262,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		setupAdmin();
 
 		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2");
-		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid, false);
+		Identity id2 = idsMan.addEntity(idParam2, "crMock", EntityState.valid);
 		EntityParam entityParam2 = new EntityParam(id2.getEntityId());
 
 		Entity e5 = idsMan.getEntity(entityParam2);
@@ -371,9 +275,9 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void identitiesWithSameTypeAndDifferentTypeAreDistinguished() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(UsernameIdentity.ID, "id");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		IdentityParam idParam2 = new IdentityParam(IdentifierIdentity.ID, "id");
-		idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
+		idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()));
 		
 		Entity ret = idsMan.getEntity(new EntityParam(id.getEntityId()), null, false, "/");
 		
@@ -386,7 +290,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void removingLastIdentityIsProhibited() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		idsMan.resetIdentity(new EntityParam(id.getEntityId()), PersistentIdentity.ID, null, null);
 		
 		catchException(idsMan).removeIdentity(id);
@@ -399,7 +303,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void entityAddedToTopGroupIsReturned() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		groupsMan.addGroup(new Group("/test"));
 		groupsMan.addMemberFromParent("/test", new EntityParam(id.getEntityId()));
 		
@@ -413,7 +317,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void addedEntityIsReturend() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		Entity entity = idsMan.getEntity(new EntityParam(id));
 
@@ -435,10 +339,10 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void identityAddedToEntityIsReturned() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", "remoteIdp", "prof1");
-		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
+		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()));
 
 		Entity entity = idsMan.getEntity(new EntityParam(id2));
 		
@@ -462,10 +366,10 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void removedIdentityIsNotReturned() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		IdentityParam idParam2 = new IdentityParam(X500Identity.ID, "CN=golbi2", "remoteIdp", "prof1");
-		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()), false);
+		Identity id2 = idsMan.addIdentity(idParam2, new EntityParam(id.getEntityId()));
 		
 		idsMan.removeIdentity(id);
 		
@@ -480,7 +384,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void removedEntityIsNotReturned() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		idsMan.removeEntity(new EntityParam(id));
 
@@ -493,7 +397,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void removedEntityIsRemovedFromRootGroup() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		idsMan.removeEntity(new EntityParam(id));
 
@@ -505,7 +409,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void disabledStatusIsReturned() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		idsMan.setEntityStatus(new EntityParam(id), EntityState.disabled);
 	
@@ -518,7 +422,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void shouldFailToAddToSubgoupWhenNotInParent() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		groupsMan.addGroup(new Group("/test2"));
 		groupsMan.addGroup(new Group("/test2/test"));
 		
@@ -531,7 +435,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void shouldNotRemoveFromRootGroup() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		Throwable error = catchThrowable(() -> groupsMan.removeMember("/", new EntityParam(id.getEntityId())));
 		
@@ -542,7 +446,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void shouldFailRemovalFromGroupWithoutMembership() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		groupsMan.addGroup(new Group("/test2"));
 
 		Throwable error = catchThrowable(() -> groupsMan.removeMember("/test2", new EntityParam(id.getEntityId())));
@@ -554,7 +458,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void addedEntityBecomesRootMember() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		GroupContents contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(2, contents.getMembers().size());
@@ -566,7 +470,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void entityRemovedFromParentGroupIsRemovedFromItAndSubgroup() throws Exception
 	{
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
 		
 		groupsMan.addGroup(new Group("/test2"));
 		groupsMan.addGroup(new Group("/test2/test"));

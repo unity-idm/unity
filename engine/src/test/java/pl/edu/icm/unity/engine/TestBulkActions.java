@@ -39,7 +39,7 @@ public class TestBulkActions extends DBIntegrationTestBase
 	{
 		IdentityParam testUser = new IdentityParam(UsernameIdentity.ID, "test-user");
 		idsMan.addEntity(testUser, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 
 		TranslationRule rule = new TranslationRule("idsByType['userName'] contains 'test-user' and "
 				+ "status == 'valid' and "
@@ -81,7 +81,7 @@ public class TestBulkActions extends DBIntegrationTestBase
 	{
 		IdentityParam testUser = new IdentityParam(UsernameIdentity.ID, "test-user");
 		idsMan.addEntity(testUser, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		
 		ScheduledProcessingRuleParam rule = new ScheduledProcessingRuleParam("idsByType['userName'] contains 'test-user' and "
 				+ "status == 'valid' and "

@@ -330,7 +330,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	{
 		for (MappedIdentity mi: toAdd)
 		{
-			idsMan.addIdentity(mi.getIdentity(), parentEntity, false);
+			idsMan.addIdentity(mi.getIdentity(), parentEntity);
 			result.addAuthenticatedWith(mi.getIdentity().getValue());
 		}
 	}
@@ -345,7 +345,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		List<Attribute> attributes = getAttributesInGroup("/", result);
 		log.info("Adding entity " + first.getIdentity() + " to the local DB");
 		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), 
-				EntityState.valid, false, attributes);
+				EntityState.valid, attributes);
 		result.addAuthenticatedWith(first.getIdentity().getValue());
 		processedAttributes.addAll(attributes);
 		

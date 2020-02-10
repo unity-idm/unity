@@ -154,7 +154,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		Identity initial = identityHelper.addEntity(identitiesIterator.next(),
 				translatedRequest.getCredentialRequirement(),
 				translatedRequest.getEntityState(), 
-				false, rootAttributes, true);
+				rootAttributes, true);
 
 		currentRequest.setCreatedEntityId(initial.getEntityId());
 		requestDB.update(currentRequest);

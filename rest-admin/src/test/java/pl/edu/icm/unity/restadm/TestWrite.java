@@ -73,7 +73,7 @@ public class TestWrite extends RESTAdminTestBase
 	public void setRemoveAttribute() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
-				"cr-pass", EntityState.valid, false);
+				"cr-pass", EntityState.valid);
 		long entityId = identity.getEntityId();
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
@@ -113,7 +113,7 @@ public class TestWrite extends RESTAdminTestBase
 	public void setAttributes() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
-				"cr-pass", EntityState.valid, false);
+				"cr-pass", EntityState.valid);
 		long entityId = identity.getEntityId();
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));

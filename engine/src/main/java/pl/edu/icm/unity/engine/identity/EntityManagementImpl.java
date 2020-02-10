@@ -166,23 +166,20 @@ public class EntityManagementImpl implements EntityManagement
 	}
 
 	@Override
-	public Identity addEntity(IdentityParam toAdd, String credReqId, EntityState initialState,
-			boolean extractAttributes) throws EngineException
+	public Identity addEntity(IdentityParam toAdd, String credReqId, EntityState initialState) throws EngineException
 	{
-		return addEntity(toAdd, credReqId, initialState, extractAttributes, null);
+		return addEntity(toAdd, credReqId, initialState, null);
 	}
 	
 	@Override
-	public Identity addEntity(IdentityParam toAdd, EntityState initialState,
-			boolean extractAttributes) throws EngineException
+	public Identity addEntity(IdentityParam toAdd, EntityState initialState) throws EngineException
 	{
-		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, null);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, null);
 	}
 
 	@Override
 	public Identity addEntity(IdentityParam toAdd, String credReqId,
-			EntityState initialState, boolean extractAttributes,
-			List<Attribute> attributesP) throws EngineException
+			EntityState initialState, List<Attribute> attributesP) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.identityModify);
 		
@@ -192,7 +189,7 @@ public class EntityManagementImpl implements EntityManagement
 			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EntitiesCount,
 					() -> entityDAO.getCount());
 			assertIdentityLimit();
-			return identityHelper.addEntity(toAdd, credReqId, initialState, extractAttributes, attributes,
+			return identityHelper.addEntity(toAdd, credReqId, initialState, attributes,
 					true);
 		});
 		return ret;
@@ -200,10 +197,9 @@ public class EntityManagementImpl implements EntityManagement
 	
 	@Override
 	public Identity addEntity(IdentityParam toAdd,
-			EntityState initialState, boolean extractAttributes,
-			List<Attribute> attributesP) throws EngineException
+			EntityState initialState, List<Attribute> attributesP) throws EngineException
 	{
-		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, attributesP);
 	}
 	
 	private static class IdentityWithAuthzInfo
@@ -219,8 +215,7 @@ public class EntityManagementImpl implements EntityManagement
 	}
 	
 	@Override
-	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes)
-			throws EngineException
+	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity) throws EngineException
 	{
 		IdentityWithAuthzInfo ret = tx.runInTransactionRetThrowing(() -> {
 			long entityId = idResolver.getEntityId(parentEntity);
@@ -244,8 +239,6 @@ public class EntityManagementImpl implements EntityManagement
 					.name(join(":", toCreate.getTypeId(), toCreate.getName()))
 					.subject(toCreate.getEntityId())
 					.tags(USERS));
-			if (extractAttributes && fullAuthz)
-				identityHelper.addExtractedAttributes(toCreate);
 			return new IdentityWithAuthzInfo(toCreate, fullAuthz);
 		});
 		

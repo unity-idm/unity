@@ -143,7 +143,6 @@ public class IdentityTypeEditor extends FormLayout
 			throw new FormValidationException();
 		IdentityType ret = binder.getBean();
 		ret.setIdentityTypeProvider(original.getIdentityTypeProvider());
-		ret.setExtractedAttributes(original.getExtractedAttributes());
 		if (typeDefinition.isEmailVerifiable())
 			ret.setEmailConfirmationConfiguration(confirmationEditor.getCurrentValue());
 		return ret;

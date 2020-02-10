@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionC
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -59,7 +58,6 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 
 	private final UnityMessageSource msg;
-	private final TokensManagement tokensMan;
 	private final OAuthIdPEngine idpEngine;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
@@ -67,13 +65,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport; 
 	private final SessionManagement sessionMan;
+	private final OAuthProcessor oauthProcessor; 
 
 	private OAuthResponseHandler oauthResponseHandler;
+	private IdentityParam identity;
 
-	private IdentityParam identity; 
 
 	@Autowired
-	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
+	public OAuthAuthzUI(UnityMessageSource msg, OAuthProcessor oauthProcessor,
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
@@ -83,12 +82,12 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
+		this.oauthProcessor = oauthProcessor;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
 		this.sessionMan = sessionMan;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
-		this.tokensMan = tokensMan;
 		this.idTypeSupport = idTypeSupport;
 		this.aTypeSupport = aTypeSupport;
 	}
@@ -110,8 +109,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		}
 		identity = idpEngine.getIdentity(translationResult, ctx.getConfig().getSubjectIdentityType());
 
-		OAuthProcessor oauthProcessor = new OAuthProcessor();
-		Set<DynamicAttribute> allAttributes = oauthProcessor.filterAttributes(translationResult, 
+		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult, 
 				ctx.getEffectiveRequestedAttrs());
 		
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = 
@@ -198,8 +196,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		try
 		{
-			AuthorizationSuccessResponse oauthResponse = new OAuthProcessor().
-					prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, tokensMan);
+			AuthorizationSuccessResponse oauthResponse = oauthProcessor.
+					prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
 			
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)

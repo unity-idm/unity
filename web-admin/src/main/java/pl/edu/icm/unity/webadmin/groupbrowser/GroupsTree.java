@@ -37,7 +37,7 @@ import io.imunity.webadmin.groupbrowser.GroupAttributesClassesDialog;
 import io.imunity.webadmin.groupbrowser.GroupDelegationEditConfigDialog;
 import io.imunity.webadmin.groupbrowser.GroupEditDialog;
 import io.imunity.webadmin.groupbrowser.TreeNode;
-import io.imunity.webadmin.identities.EntityCreationHandler;
+import io.imunity.webadmin.idcreate.EntityCreationHandler;
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
 import io.imunity.webadmin.utils.GroupManagementHelper;

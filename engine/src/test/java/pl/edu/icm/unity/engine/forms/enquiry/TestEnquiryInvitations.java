@@ -221,8 +221,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 
 	private  EnquiryResponse addCompleteInvitationAndGetResponse(int expirationTime) throws EngineException
 	{
-		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), EntityState.valid,
-				false);
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), EntityState.valid);
 
 		enquiryMan.addEnquiry(new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("form").withAddedIdentityParam()
@@ -250,8 +249,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 	public void testFullInvitationFlow() throws EngineException
 	{
 
-		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), EntityState.valid,
-				false);
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), EntityState.valid);
 		aTypeMan.addAttributeType(new AttributeType("email", VerifiableEmailAttributeSyntax.ID));
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addGroup(new Group("/A/B"));

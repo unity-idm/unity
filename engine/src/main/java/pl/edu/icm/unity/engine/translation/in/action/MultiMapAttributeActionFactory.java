@@ -17,11 +17,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -39,10 +39,10 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 {
 	public static final String NAME = "multiMapAttribute";
 	private AttributeTypeSupport attrsMan;
-	private AttributeValueConverter attrValueConverter;
+	private ExternalDataParser externalDataParser;
 	
 	@Autowired
-	public MultiMapAttributeActionFactory(AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter)
+	public MultiMapAttributeActionFactory(AttributeTypeSupport attrsMan, ExternalDataParser externalDataParser)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -54,13 +54,13 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 						"TranslationAction.mapAttribute.paramDesc.effect",
 						AttributeEffectMode.class, true)});
 		this.attrsMan = attrsMan;
-		this.attrValueConverter = attrValueConverter;
+		this.externalDataParser = externalDataParser;
 	}
 
 	@Override
 	public InputTranslationAction getInstance(String... parameters)
 	{
-		return new MultiMapAttributeAction(parameters, getActionType(), attrsMan, attrValueConverter);
+		return new MultiMapAttributeAction(parameters, getActionType(), attrsMan, externalDataParser);
 	}
 	
 	public static class MultiMapAttributeAction extends InputTranslationAction
@@ -71,13 +71,13 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 		private String mapping;
 		private AttributeEffectMode mode;
 		private List<Mapping> mappings;
-		private AttributeValueConverter attrValueConverter;
+		private ExternalDataParser externalDataParser;
 
 		public MultiMapAttributeAction(String[] params, TranslationActionType desc, 
-				AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter) 
+				AttributeTypeSupport attrsMan, ExternalDataParser externalDataParser) 
 		{
 			super(desc, params);
-			this.attrValueConverter = attrValueConverter;
+			this.externalDataParser = externalDataParser;
 			setParameters(params);
 			attrMan = attrsMan;
 			parseMapping();
@@ -103,21 +103,19 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 				String profile)
 		{
 			AttributeType at = mapping.local;
-			List<String> typedValues;
+			Attribute attribute;
 			try
 			{
-				typedValues = attrValueConverter.externalValuesToInternal(at.getName(), ra.getValues());
+				attribute = externalDataParser.parseAsAttribute(at, mapping.group, ra.getValues(), 
+						idp, profile);
 			} catch (IllegalAttributeValueException e)
 			{
 				log.debug("Can't convert attribute values returned by the action's expression "
 						+ "to the type of attribute " + at.getName() + " , skipping it", e);
 				return;
 			}
-			Attribute attribute = new Attribute(at.getName(), at.getValueSyntax(), mapping.group, 
-					typedValues, idp, profile);
-			MappedAttribute ma = new MappedAttribute(mode, attribute);
 			log.debug("Mapped attribute: " + attribute);
-			ret.addAttribute(ma);
+			ret.addAttribute(new MappedAttribute(mode, attribute));
 		}
 		
 		private void parseMapping()

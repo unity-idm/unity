@@ -147,7 +147,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		
 		Identity user = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1234"), 
-				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid, false);
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid);
 		Entity userE = idsMan.getEntity(new EntityParam(user));
 		
 		List<TranslationRule> rules = new ArrayList<>();

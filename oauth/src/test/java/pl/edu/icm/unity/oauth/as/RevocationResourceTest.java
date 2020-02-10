@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.token.RevocationResource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -36,7 +37,7 @@ public class RevocationResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
 		createAccessToken(tokensManagement);
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
 		
 		Response response = tested.revoke("ac", "clientIdOther", RevocationResource.TOKEN_TYPE_ACCESS, null);
@@ -51,7 +52,7 @@ public class RevocationResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
 		createAccessToken(tokensManagement);
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
 		
 		Response response = tested.revoke("wrong", "clientId", RevocationResource.TOKEN_TYPE_ACCESS, null);
@@ -66,7 +67,7 @@ public class RevocationResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
 		createAccessToken(tokensManagement);
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
 		
 		Response response = tested.revoke(null, "clientId", RevocationResource.TOKEN_TYPE_ACCESS, null);
@@ -81,7 +82,7 @@ public class RevocationResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
 		createAccessToken(tokensManagement);
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
 		
 		Response response = tested.revoke("ac", "clientId", RevocationResource.TOKEN_TYPE_ACCESS, null);
@@ -89,7 +90,7 @@ public class RevocationResourceTest
 		assertThat(response.getStatus(), is(HTTPResponse.SC_OK));
 		assertThat(response.hasEntity(), is(false));
 
-		assertThat(tokensManagement.getAllTokens(OAuthProcessor.INTERNAL_ACCESS_TOKEN).size(), is(0));
+		assertThat(tokensManagement.getAllTokens(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN).size(), is(0));
 	}
 
 	@Test
@@ -98,7 +99,7 @@ public class RevocationResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
 		createToken(tokensManagement, OAuthProcessor.INTERNAL_REFRESH_TOKEN, "x");
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
 		
 		Response response = tested.revoke("ref", "clientId", RevocationResource.TOKEN_TYPE_REFRESH, null);
@@ -122,7 +123,7 @@ public class RevocationResourceTest
 		AuthenticationRealm realm = mock(AuthenticationRealm.class);
 		when(realm.getName()).thenReturn("realm");
 		
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				realm);
 		
 		Response response = tested.revoke("ac", "clientId", RevocationResource.TOKEN_TYPE_ACCESS, "true");
@@ -144,7 +145,7 @@ public class RevocationResourceTest
 		AuthenticationRealm realm = mock(AuthenticationRealm.class);
 		when(realm.getName()).thenReturn("realm");
 		
-		RevocationResource tested = new RevocationResource(tokensManagement, sessionManagement, 
+		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				realm);
 		
 		Response response = tested.revoke("ac", "clientId", RevocationResource.TOKEN_TYPE_ACCESS, "true");
@@ -155,7 +156,7 @@ public class RevocationResourceTest
 	
 	private void createAccessToken(TokensManagement tokensManagement, String... scopes) throws Exception
 	{
-		createToken(tokensManagement, OAuthProcessor.INTERNAL_ACCESS_TOKEN, scopes);
+		createToken(tokensManagement, OAuthTokenRepository.INTERNAL_ACCESS_TOKEN, scopes);
 	}
 	
 	private void createToken(TokensManagement tokensManagement, String type, String... scopes) throws Exception
@@ -166,9 +167,16 @@ public class RevocationResourceTest
 		token.setClientUsername("clientId");
 		if (scopes.length > 0)
 			token.setEffectiveScope(scopes);
-		tokensManagement.addToken(type, type.equals(OAuthProcessor.INTERNAL_ACCESS_TOKEN) ? token.getAccessToken() : token.getRefreshToken(), 
+		tokensManagement.addToken(type, type.equals(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN) ? token.getAccessToken() : token.getRefreshToken(), 
 				new EntityParam(123l), token.getSerialized(), new Date(), new Date());
 		
 	}
 	
+	private RevocationResource createRevocationResource(TokensManagement tokensManagement, 
+			SessionManagement sessionManagement, 
+			AuthenticationRealm realm)
+	{
+		return new RevocationResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class)), sessionManagement, realm);
+	}
 }

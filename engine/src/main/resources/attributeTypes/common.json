@@ -220,8 +220,8 @@
 		"displayedName": {
 			"DefaultValue": "company",
 			"Map": {
-				"pl": "Firma",
-				"en": "Company"
+				"pl": "Nazwa firmy",
+				"en": "Company name"
 			}
 		},
 		"i18nDescription": {
@@ -743,6 +743,36 @@
 		},
 		"name": "pictureURL",
 		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"maxWidth": 1000,
+			"maxHeight": 1000,
+			"maxSize": 3000000
+		},
+		"displayedName": {
+			"DefaultValue": "logo",
+			"Map": {
+				"pl": "Logo",
+				"en": "Logo"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "logo",
+		"syntaxId": "image"
 	},
 	{
 		"flags": 0,

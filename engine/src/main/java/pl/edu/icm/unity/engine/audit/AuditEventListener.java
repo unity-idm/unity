@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeChangedEvent;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.UnknownIdentityException;
@@ -37,13 +38,14 @@ public class AuditEventListener implements EventListener
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventListener.class);
 	public static final String ID = AuditEventListener.class.getName();
 
-	private String entityNameAttribute;
+	String entityNameAttribute;
 
 	private AttributeDAO attributeDAO;
 	private EmailFacility emailFacility;
 	private AttributeSupport attributeSupport;
 	private AuditEventDAO dao;
 	private TransactionalRunner tx;
+	volatile boolean enabled;
 
 	@Autowired
 	public AuditEventListener(final AttributeDAO attributeDAO, final EmailFacility emailFacility,
@@ -58,7 +60,14 @@ public class AuditEventListener implements EventListener
 	}
 
 	@Override
-	public void init()
+	public void init() {
+		if (!enabled) {
+			return;
+		}
+		initEntityNameAttribute();
+	}
+
+	private void initEntityNameAttribute()
 	{
 		AttributeType attr = null;
 		try
@@ -69,15 +78,8 @@ public class AuditEventListener implements EventListener
 		{
 			log.error("Failed to get attributeType", e);
 		}
-		if (attr == null)
-		{
-			entityNameAttribute = "name";
-			log.warn("No attributeType for 'entityDisplayedName'. Using 'name' value as default.");
-		} else
-		{
-			entityNameAttribute = attr.getName();
-			log.debug("attributeType initialize to " + attr.getName());
-		}
+		entityNameAttribute = attr != null ? attr.getName() : null;
+		log.debug("Entity name attribute set to: '" + entityNameAttribute + "'");
 	}
 
 	@Override
@@ -89,7 +91,7 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean isWanted(Event event)
 	{
-		return (event instanceof AuditEventTrigger);
+		return (event instanceof AuditEventTrigger) || (event instanceof AttributeTypeChangedEvent);
 	}
 
 	@Override
@@ -103,8 +105,20 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean handleEvent(final Event abstractEvent)
 	{
-		AuditEventTrigger event = (AuditEventTrigger) abstractEvent;
+		if (!enabled) {
+			return true;
+		}
+		if (abstractEvent instanceof AttributeTypeChangedEvent) {
+			return handleAttributeTypeChangeEvent((AttributeTypeChangedEvent)abstractEvent);
+		}
+		if (abstractEvent instanceof AuditEventTrigger) {
+			return handleAuditEventTrigger((AuditEventTrigger)abstractEvent);
+		}
+		log.error("Unexpected event type, verify isWanted() method implementation");
+		return false;
+	}
 
+	private boolean handleAuditEventTrigger(AuditEventTrigger event) {
 		AuditEvent auditEvent = AuditEvent.builder()
 				.type(event.getType())
 				.action(event.getAction())
@@ -122,6 +136,26 @@ public class AuditEventListener implements EventListener
 		{
 			tx.runInTransaction(() -> dao.create(auditEvent));
 		}
+		return true;
+	}
+
+	private boolean handleAttributeTypeChangeEvent(AttributeTypeChangedEvent event) {
+		if (event.oldAT == null) {
+			// New attribute created
+			if (event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) {
+				initEntityNameAttribute();
+			}
+		} else if (event.newAT == null) {
+			// Attribute was removed
+			if (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) {
+				initEntityNameAttribute();
+			}
+		} else if ((!event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
+			|| (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && !event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))) {
+			// EntityNameMetadataProvider.NAME was added or removed from attribute
+			initEntityNameAttribute();
+		}
+
 		return true;
 	}
 
@@ -159,8 +193,11 @@ public class AuditEventListener implements EventListener
 				log.error("Error getting email for entityId=" + entityId + ", exception:", e);
 			}
 
-			List<StoredAttribute> attrs = attributeDAO.getAttributes(entityNameAttribute, entityId, null);
-			String name = attrs.size() > 0 ? attrs.get(0).getAttribute().getValues().get(0) : null;
+			String name = null;
+			if (entityNameAttribute != null) {
+				List<StoredAttribute> attrs = attributeDAO.getAttributes(entityNameAttribute, entityId, null);
+				name = attrs.size() > 0 ? attrs.get(0).getAttribute().getValues().get(0) : null;
+			}
 
 			return new AuditEntity(entityId, name, email);
 		});

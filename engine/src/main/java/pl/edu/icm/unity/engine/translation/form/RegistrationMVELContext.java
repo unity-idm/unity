@@ -12,6 +12,7 @@ import java.util.StringJoiner;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -32,28 +33,6 @@ import pl.edu.icm.unity.types.registration.Selection;
  */
 public class RegistrationMVELContext extends HashMap<String, Object>
 {
-	public enum ContextKey
-	{
-		idsByType,
-		ridsByType,
-		idsByTypeObj,
-		ridsByTypeObj,
-		attrs,
-		attr,
-		rattrs,
-		rattr,
-		groups,
-		rgroups,
-		status,
-		triggered,
-		onIdpEndpoint,
-		userLocale,
-		registrationForm,
-		requestId,
-		agrs,
-		validCode;
-	}
-	
 	/**
 	 * Setups a full context for {@link EnquiryResponse} or {@link RegistrationRequest} processing
 	 */
@@ -62,7 +41,7 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 			AttributeTypeHelper atHelper)
 	{
 		initCommon(form, response, status, triggered, idpEndpoint, requestId, atHelper);
-		put(ContextKey.validCode.name(), response.getRegistrationCode() != null);
+		put(RegistrationMVELContextKey.validCode.name(), response.getRegistrationCode() != null);
 	}
 	
 	private void initCommon(BaseForm form, BaseRegistrationInput request,
@@ -71,8 +50,8 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 	{
 		createBaseMvelContext(form, status, triggered, idpEndpoint);
 		
-		put(ContextKey.userLocale.name(), request.getUserLocale());
-		put(ContextKey.requestId.name(), requestId);
+		put(RegistrationMVELContextKey.userLocale.name(), request.getUserLocale());
+		put(RegistrationMVELContextKey.requestId.name(), requestId);
 		
 		setupAttributes(form, request, atHelper);
 		setupIdentities(form, request);
@@ -106,10 +85,10 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 				rattrs.put(attribute.getName(), values);				
 			}
 		}
-		put(ContextKey.attr.name(), attr);
-		put(ContextKey.attrs.name(), attrs);
-		put(ContextKey.rattr.name(), rattr);
-		put(ContextKey.rattrs.name(), rattrs);
+		put(RegistrationMVELContextKey.attr.name(), attr);
+		put(RegistrationMVELContextKey.attrs.name(), attrs);
+		put(RegistrationMVELContextKey.rattr.name(), rattr);
+		put(RegistrationMVELContextKey.rattrs.name(), rattrs);
 	}
 	
 	private List<Object> attributeValuesAsDomainObjects(String attributeName, List<String> values, 
@@ -171,10 +150,10 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 			}
 		}
 
-		put(ContextKey.idsByType.name(), idsByType);
-		put(ContextKey.ridsByType.name(), ridsByType);
-		put(ContextKey.idsByTypeObj.name(), idsByTypeObj);
-		put(ContextKey.ridsByTypeObj.name(), ridsByTypeObj);
+		put(RegistrationMVELContextKey.idsByType.name(), idsByType);
+		put(RegistrationMVELContextKey.ridsByType.name(), ridsByType);
+		put(RegistrationMVELContextKey.idsByTypeObj.name(), idsByTypeObj);
+		put(RegistrationMVELContextKey.ridsByTypeObj.name(), ridsByTypeObj);
 	}
 	
 	private void setupGroups(BaseForm form, BaseRegistrationInput request)
@@ -191,8 +170,8 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 			if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
 				rgroups.addAll(selection.getSelectedGroups());
 		}
-		put(ContextKey.groups.name(), groups);
-		put(ContextKey.rgroups.name(), rgroups);
+		put(RegistrationMVELContextKey.groups.name(), groups);
+		put(RegistrationMVELContextKey.rgroups.name(), rgroups);
 	}
 	
 	private void setupAgreements(BaseRegistrationInput request)
@@ -202,31 +181,31 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		{
 			agr.add(Boolean.toString(a.isSelected()));
 		}
-		put(ContextKey.agrs.name(), agr);
+		put(RegistrationMVELContextKey.agrs.name(), agr);
 	}
 	
 	private void createBaseMvelContext(BaseForm form,
 			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint)
 	{
-		put(ContextKey.onIdpEndpoint.name(), idpEndpoint);
-		put(ContextKey.triggered.name(), triggered.toString());
-		put(ContextKey.status.name(), status.toString());
-		put(ContextKey.registrationForm.name(), form.getName());
+		put(RegistrationMVELContextKey.onIdpEndpoint.name(), idpEndpoint);
+		put(RegistrationMVELContextKey.triggered.name(), triggered.toString());
+		put(RegistrationMVELContextKey.status.name(), status.toString());
+		put(RegistrationMVELContextKey.registrationForm.name(), form.getName());
 		
 		Map<String, List<String>> empty = new HashMap<>();
-		put(ContextKey.attr.name(), empty);
-		put(ContextKey.attrs.name(), empty);
-		put(ContextKey.rattr.name(), empty);
-		put(ContextKey.rattrs.name(), empty);
-		put(ContextKey.idsByType.name(), empty);
-		put(ContextKey.ridsByType.name(), empty);
-		put(ContextKey.idsByTypeObj.name(), empty);
-		put(ContextKey.ridsByTypeObj.name(), empty);
+		put(RegistrationMVELContextKey.attr.name(), empty);
+		put(RegistrationMVELContextKey.attrs.name(), empty);
+		put(RegistrationMVELContextKey.rattr.name(), empty);
+		put(RegistrationMVELContextKey.rattrs.name(), empty);
+		put(RegistrationMVELContextKey.idsByType.name(), empty);
+		put(RegistrationMVELContextKey.ridsByType.name(), empty);
+		put(RegistrationMVELContextKey.idsByTypeObj.name(), empty);
+		put(RegistrationMVELContextKey.ridsByTypeObj.name(), empty);
 		
 		List<String> emptyL = new ArrayList<>();
-		put(ContextKey.groups.name(), emptyL);
-		put(ContextKey.rgroups.name(), emptyL);
-		put(ContextKey.agrs.name(), emptyL);
+		put(RegistrationMVELContextKey.groups.name(), emptyL);
+		put(RegistrationMVELContextKey.rgroups.name(), emptyL);
+		put(RegistrationMVELContextKey.agrs.name(), emptyL);
 	}
 	
 	@Override

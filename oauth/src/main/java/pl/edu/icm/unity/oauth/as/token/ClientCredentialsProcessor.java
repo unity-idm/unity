@@ -95,7 +95,6 @@ public class ClientCredentialsProcessor
 				config.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;
 		internalToken.setMaxExtendedValidity(maxExtendedValidity);
 		
-		OAuthProcessor oauthProcessor = new OAuthProcessor();
 		String usersGroup = getUsersGroup(attributes);
 		TranslationResult translationResult;
 		try
@@ -106,9 +105,9 @@ public class ClientCredentialsProcessor
 			log.warn("Can not obtain user info for OAuth in client credentials flow", e);
 			throw new OAuthValidationException("Internal error");
 		}
-		Set<DynamicAttribute> filteredAttributes = oauthProcessor.filterAttributes(
+		Set<DynamicAttribute> filteredAttributes = OAuthProcessor.filterAttributes(
 				translationResult, requestedAttributes);
-		UserInfo userInfo = oauthProcessor.prepareUserInfoClaimSet(client, filteredAttributes);
+		UserInfo userInfo = OAuthProcessor.prepareUserInfoClaimSet(client, filteredAttributes);
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;
 	}

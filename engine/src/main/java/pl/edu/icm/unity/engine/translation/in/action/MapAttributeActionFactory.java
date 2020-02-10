@@ -17,11 +17,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -39,11 +39,11 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 {
 	public static final String NAME = "mapAttribute";
 	private AttributeTypeSupport attrsMan;
-	private AttributeValueConverter attrValueConverter;
+	private final ExternalDataParser externalDataParser;
 	
 	
 	@Autowired
-	public MapAttributeActionFactory(AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter)
+	public MapAttributeActionFactory(AttributeTypeSupport attrsMan, ExternalDataParser externalDataParser)
 	{
 		super(NAME, 
 			new ActionParameterDefinition(
@@ -64,13 +64,13 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 				AttributeEffectMode.class, true));
 		
 		this.attrsMan = attrsMan;
-		this.attrValueConverter = attrValueConverter;
+		this.externalDataParser = externalDataParser;
 	}
 
 	@Override
 	public InputTranslationAction getInstance(String... parameters)
 	{
-		return new MapAttributeAction(parameters, getActionType(), attrsMan, attrValueConverter);
+		return new MapAttributeAction(parameters, getActionType(), attrsMan, externalDataParser);
 	}
 	
 	
@@ -82,13 +82,13 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 		private Serializable expressionCompiled;
 		private AttributeEffectMode mode;
 		private AttributeType at;
-		private AttributeValueConverter attrValueConverter;
+		private ExternalDataParser externalDataParser;
 
 		public MapAttributeAction(String[] params, TranslationActionType desc, AttributeTypeSupport attrsMan,
-				AttributeValueConverter attrValueConverter) 
+				ExternalDataParser externalDataParser) 
 		{
 			super(desc, params);
-			this.attrValueConverter = attrValueConverter;
+			this.externalDataParser = externalDataParser;
 			setParameters(params);
 			at = attrsMan.getType(unityAttribute);
 		}
@@ -106,19 +106,17 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 			}
 			
 			List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
-			List<String> typedValues;
+			Attribute attribute;
 			try
 			{
-				typedValues = attrValueConverter.externalValuesToInternal(unityAttribute, aValues);
+				attribute = externalDataParser.parseAsAttribute(at, group, aValues, 
+						input.getIdpName(), currentProfile);
 			} catch (IllegalAttributeValueException e)
 			{
 				log.debug("Can't convert attribute values returned by the action's expression "
 						+ "to the type of attribute " + unityAttribute + " , skipping it", e);
 				return ret;
 			}
-			
-			Attribute attribute = new Attribute(unityAttribute, at.getValueSyntax(), group, 
-					typedValues, input.getIdpName(), currentProfile);
 			MappedAttribute ma = new MappedAttribute(mode, attribute);
 			log.debug("Mapped attribute: " + attribute);
 			ret.addAttribute(ma);

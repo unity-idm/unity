@@ -183,15 +183,15 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withLayouts(layouts);
 		builder.withAutoLoginToRealm(realmNames.getSelectedItem().orElse(null));
 		
-		RegistrationForm form = builder.build();
 		try
 		{
+			RegistrationForm form = builder.build();
 			form.validateLayouts();
+			return form;
 		} catch (Exception e)
 		{
-			throw new FormValidationException(e);
+			throw new FormValidationException(e.getMessage(), e);
 		}
-		return form;
 	}
 	
 	private RegistrationFormBuilder getFormBuilderBasic() throws FormValidationException

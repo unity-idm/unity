@@ -105,6 +105,16 @@ $narrow-bar-size: 50px;
 			color: $button-action-color;
 		}
 	}
+	
+	.u-plan-selector {
+		background-color: #00e673;
+		color: $button-action-color;
+
+		&:hover {
+			background-color: #00994d;
+			color: $button-action-color;
+		}
+	}
 
 	.u-button-form {
 		width: 9em;

@@ -53,6 +53,7 @@
 		<module>web-admin-common</module>
 		<module>web-console-utils</module>
 		<module>web-admin</module>
+		<module>web-console-spi</module>
 		<module>web-console</module>
 		<module>web-upman</module>
 		<module>rest</module>
@@ -623,6 +624,16 @@
 				<artifactId>groovy-all</artifactId>
 				<version>2.5.6</version>
 				<type>pom</type>
+				<exclusions>
+  					<exclusion>
+  						<groupId>org.testng</groupId>
+  						<artifactId>testng</artifactId>
+  					</exclusion>
+  					<exclusion>
+  						<groupId>org.codehaus.groovy</groupId>
+  						<artifactId>groovy-test-junit5</artifactId>
+  					</exclusion>
+  				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.nulab-inc</groupId>

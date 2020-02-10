@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.ACCESS_TOKEN_VALIDITY;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.CODE_TOKEN_VALIDITY;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.CREDENTIAL;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
@@ -68,6 +70,12 @@ public class OAuthTestUtils
 	public static OAuthASProperties getOIDCConfig()
 	{
 		return getConfig(DEFAULT_ACCESS_TOKEN_VALIDITY, 0, true);
+	}
+	
+	public static OAuthProcessor getOAuthProcessor(TokensManagement tokensMan)
+	{
+		return new OAuthProcessor(tokensMan, new OAuthTokenRepository(tokensMan, 
+				mock(SecuredTokensManagement.class)));
 	}
 	
 	public static OAuthASProperties getConfig(int accessTokenValidity, int maxValidity, boolean oidc)
@@ -131,9 +139,8 @@ public class OAuthTestUtils
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
-			TokensManagement tokensMan) throws Exception
+			OAuthProcessor processor) throws Exception
 	{
-		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
@@ -141,35 +148,34 @@ public class OAuthTestUtils
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid, 100);
 		
-		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, tokensMan);
+		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
 	}
 	
-	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 
+	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(OAuthProcessor processor, 
 			OAuthAuthzContext ctx) throws Exception
 	{
 	
 		IdentityParam identity = new IdentityParam("userName", "userA");
 
-		return initOAuthFlowAccessCode(tokensMan, ctx, identity);
+		return initOAuthFlowAccessCode(processor, ctx, identity);
 	}
 	
-	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(TokensManagement tokensMan, 
+	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(OAuthProcessor processor, 
 			OAuthAuthzContext ctx, IdentityParam identity) throws Exception
 	{
-		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, tokensMan);
+				attributes, identity, ctx);
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
 			GroupsManagement groupsMan, EntityCredentialManagement eCredMan, String username) throws Exception
 	{
 		Identity clientId1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
-				"cr-pass", EntityState.valid, false);
+				"cr-pass", EntityState.valid);
 		EntityParam e1 = new EntityParam(clientId1);
 		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("clientPass").toJson());
 

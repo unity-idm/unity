@@ -61,9 +61,8 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -84,7 +83,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -114,7 +112,6 @@ public class RESTAdmin implements RESTAdminHandler
 	private GroupsManagement groupsMan;
 	private AttributesManagement attributesMan;
 	private ObjectMapper mapper = Constants.MAPPER;
-	private IdentityTypesRegistry identityTypesRegistry;
 	private EmailConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
 	private RegistrationsManagement registrationManagement;
@@ -127,10 +124,11 @@ public class RESTAdmin implements RESTAdminHandler
 	private SecuredTokensManagement securedTokenMan;
 	private Token2JsonFormatter jsonFormatter;
 	private UserNotificationTriggerer userNotificationTriggerer;
+	private ExternalDataParser dataParser;
 
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
+			AttributesManagement attributesMan, 
 			EmailConfirmationManager confirmationManager, EndpointManagement endpointManagement,
 			RegistrationsManagement registrationManagement, 
 			BulkProcessingManagement bulkProcessingManagement, 
@@ -141,12 +139,12 @@ public class RESTAdmin implements RESTAdminHandler
 			EventPublisherWithAuthz eventPublisher,
 			SecuredTokensManagement securedTokenMan,
 			Token2JsonFormatter jsonFormatter,
-			UserNotificationTriggerer userNotificationTriggerer)
+			UserNotificationTriggerer userNotificationTriggerer,
+			ExternalDataParser dataParser)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attributesMan = attributesMan;
-		this.identityTypesRegistry = identityTypesRegistry;
 		this.confirmationManager = confirmationManager;
 		this.endpointManagement = endpointManagement;
 		this.registrationManagement = registrationManagement;
@@ -159,6 +157,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.securedTokenMan = securedTokenMan;
 		this.jsonFormatter = jsonFormatter;
 		this.userNotificationTriggerer = userNotificationTriggerer;
+		this.dataParser = dataParser;
 	}
 
 	
@@ -232,8 +231,8 @@ public class RESTAdmin implements RESTAdminHandler
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addEntity " + value + " type: " + type);
-		Identity identity = identitiesMan.addEntity(resolveIdentity(type, value), 
-				credReqIdId, EntityState.valid, false);
+		Identity identity = identitiesMan.addEntity(dataParser.parseAsIdentity(type, value), 
+				credReqIdId, EntityState.valid);
 		ObjectNode ret = mapper.createObjectNode();
 		ret.put("entityId", identity.getEntityId());
 		return mapper.writeValueAsString(ret);
@@ -247,15 +246,9 @@ public class RESTAdmin implements RESTAdminHandler
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
-		identitiesMan.addIdentity(resolveIdentity(type, value), getEP(entityId, idType), false);
+		identitiesMan.addIdentity(dataParser.parseAsIdentity(type, value), getEP(entityId, idType));
 	}
 
-	private IdentityParam resolveIdentity(String type, String value) throws EngineException
-	{
-		IdentityTypeDefinition idType = identityTypesRegistry.getByName(type);
-		return idType.convertFromString(value, null, null);
-	}
-	
 	@Path("/entity/identity/{type}/{value}")
 	@DELETE
 	public void removeIdentity(@PathParam("type") String type, @PathParam("value") String value,

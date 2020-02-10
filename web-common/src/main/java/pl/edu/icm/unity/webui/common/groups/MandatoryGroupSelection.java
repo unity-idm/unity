@@ -5,13 +5,14 @@
 package pl.edu.icm.unity.webui.common.groups;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -48,11 +49,11 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 	}
 
 	@Override
-	public List<String> getSelectedGroups()
+	public List<String> getSelectedGroupsWithParents()
 	{
 		Group selected = getValue().group;
 		if (selected == null)
-			return Lists.newArrayList();
+			return Collections.emptyList();
 
 		List<Group> realSelected = new ArrayList<>();
 		realSelected.add(selected);
@@ -66,6 +67,13 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		return realSelected.stream().map(group -> group.toString()).collect(Collectors.toList());
 	}
 
+	@Override
+	public List<String> getSelectedGroupsWithoutParents()
+	{
+		Group selected = getValue().group;
+		return selected == null ? Collections.emptyList() : ImmutableList.of(selected.toString());
+	}
+	
 	public String getSelectedGroup()
 	{
 		return this.getValue() == null ? null : this.getValue().group.toString();

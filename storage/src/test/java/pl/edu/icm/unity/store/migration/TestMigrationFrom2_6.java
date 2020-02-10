@@ -154,14 +154,14 @@ public class TestMigrationFrom2_6
 		List<RegistrationRequestState> all = regRequestDB.getAll();
 		assertThat(all.size(), is(2));
 		
-		RegistrationRequestState req1 = all.get(0);
+		RegistrationRequestState req1 = all.stream().filter(req -> req.getRequestId().equals("a6acb334-7072-49d2-8983-b995350bd74f")).findFirst().get();
 		assertThat(req1.getRequest().getGroupSelections().size(), is(2));
 		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(1));
 		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/A"));
 		assertThat(req1.getRequest().getGroupSelections().get(1).getSelectedGroups().size(), is(1));
 		assertThat(req1.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/A/B/C"));
 
-		RegistrationRequestState req2 = all.get(1);
+		RegistrationRequestState req2 = all.stream().filter(req -> req.getRequestId().equals("49cd3080-7b16-431b-8bd3-54f1620b53c1")).findFirst().get();
 		assertThat(req2.getRequest().getGroupSelections().size(), is(2));
 		assertThat(req2.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(0));
 		assertThat(req2.getRequest().getGroupSelections().get(1).getSelectedGroups().size(), is(1));

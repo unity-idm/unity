@@ -9,6 +9,7 @@ import com.vaadin.server.Sizeable.Unit;
 
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 
 /**
  * Contains complete information necessary to build attribute editor UI
@@ -17,12 +18,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  */
 public class AttributeEditContext
 {
-	public enum ConfirmationMode
-	{
-		ADMIN, USER, OFF, FORCE_CONFIRMED,
-	}
-	
-	private ConfirmationMode confirmationMode = ConfirmationMode.USER;
+	private ConfirmationEditMode confirmationMode = ConfirmationEditMode.USER;
 	private boolean required = false;
 	private AttributeType attributeType;
 	private EntityParam attributeOwner;
@@ -40,7 +36,7 @@ public class AttributeEditContext
 		return new Builder();
 	}
 
-	public ConfirmationMode getConfirmationMode()
+	public ConfirmationEditMode getConfirmationMode()
 	{
 		return confirmationMode;
 	}
@@ -95,7 +91,7 @@ public class AttributeEditContext
 			this.obj = new AttributeEditContext();
 		}
 
-		public Builder withConfirmationMode(ConfirmationMode mode)
+		public Builder withConfirmationMode(ConfirmationEditMode mode)
 		{
 			this.obj.confirmationMode = mode;
 			return this;

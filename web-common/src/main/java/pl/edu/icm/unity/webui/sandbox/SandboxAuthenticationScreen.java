@@ -20,8 +20,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -34,6 +37,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -45,6 +49,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
  */
 class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthenticationScreen.class);
 	private SandboxAuthnRouter sandboxRouter;
 
 	public SandboxAuthenticationScreen(UnityMessageSource msg, 
@@ -84,14 +89,39 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		sandboxConfig.setProperty(PREFIX + AUTHN_TITLE, title);
 		sandboxConfig.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
 		sandboxConfig.setProperty(PREFIX + AUTHN_ADD_ALL, "true");
-		String authnsSpec = authenticators.stream().map(flow -> flow.getId()).collect(Collectors.joining(" "));
-		sandboxConfig.setProperty(PREFIX + AUTHN_GRIDS_PFX + "G1." + AUTHN_GRID_CONTENTS, authnsSpec);
+		
+		String gridAuthnsSpec = getGridFlowsSpec(authenticators);
+		String nonGridAuthnsSpec = getNonGridFlowsSpec(authenticators);
+		
+		sandboxConfig.setProperty(PREFIX + AUTHN_GRIDS_PFX + "G1." + AUTHN_GRID_CONTENTS, gridAuthnsSpec);
 		sandboxConfig.setProperty(PREFIX + AUTHN_GRIDS_PFX + "G1." + AUTHN_GRID_ROWS, "15");
-		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_CONTENTS, "_GRID_G1");
+		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_CONTENTS, "_GRID_G1 " + nonGridAuthnsSpec);
 		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_WIDTH, "28");
+		
+		log.debug("Configuration for the sandbox screen with all options:\n{}", sandboxConfig);
 		return new VaadinEndpointProperties(sandboxConfig);
 	}
 
+	private static String getGridFlowsSpec(List<AuthenticationFlow> authenticators)
+	{
+		return authenticators.stream()
+			.filter(flow -> flow.getFirstFactorAuthenticators().stream()
+					.filter(authenticator -> ((VaadinAuthentication)authenticator.getRetrieval()).supportsGrid())
+					.findAny().isPresent())
+			.map(flow -> flow.getId())
+			.collect(Collectors.joining(" "));
+	}
+
+	private static String getNonGridFlowsSpec(List<AuthenticationFlow> authenticators)
+	{
+		return authenticators.stream()
+			.flatMap(flow -> flow.getFirstFactorAuthenticators().stream())
+			.filter(ai -> !((VaadinAuthentication)ai.getRetrieval()).supportsGrid())
+			.map(ai -> ai.getMetadata().getId())
+			.collect(Collectors.joining(" "));
+	}
+	
+	
 	private static VaadinEndpointProperties prepareConfigurationBasingOnEndpoint(Properties endpointProperties, String title)
 	{
 		Properties stripDown = new Properties();

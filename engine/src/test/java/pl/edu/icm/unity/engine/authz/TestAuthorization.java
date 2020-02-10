@@ -60,7 +60,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1");
 		Identity added = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", InternalAuthorizationManagerImpl.USER_ROLE));
@@ -151,7 +151,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "user1");
 		Identity added = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", AuthorizationManagerImpl.USER_ROLE));

@@ -38,7 +38,7 @@ public class TestBulkProcessing extends RESTAdminTestBase
 	public void submittedProcessingActionIsExecuted() throws Exception
 	{
 		IdentityParam identityParam = new IdentityParam(UsernameIdentity.ID, "user-to-remove");	
-		idsMan.addEntity(identityParam, CRED_REQ_PASS, EntityState.valid, false);
+		idsMan.addEntity(identityParam, CRED_REQ_PASS, EntityState.valid);
 		
 		HttpPost post = new HttpPost("/restadm/v1/bulkProcessing/instant?timeout=20");
 		TranslationRule param = new TranslationRule(

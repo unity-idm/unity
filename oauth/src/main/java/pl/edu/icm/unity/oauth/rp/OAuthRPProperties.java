@@ -21,9 +21,9 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
@@ -117,13 +117,13 @@ public class OAuthRPProperties extends UnityPropertiesHelper implements BaseRemo
 	}
 	
 	private X509CertChainValidator validator = null;
-	private TokensManagement tokensMan;
+	private OAuthTokenRepository tokensDAO;
 	
 	public OAuthRPProperties(Properties properties, PKIManagement pkiManagement,
-			TokensManagement tokensMan) throws ConfigurationException
+			OAuthTokenRepository tokensDAO) throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
-		this.tokensMan = tokensMan;
+		this.tokensDAO = tokensDAO;
 		String validatorName = getValue(CLIENT_TRUSTSTORE);
 		if (validatorName != null)
 		{
@@ -195,7 +195,7 @@ public class OAuthRPProperties extends UnityPropertiesHelper implements BaseRemo
 		case unity:
 			return new UnityTokenVerificator(this);
 		case internal:
-			return new InternalTokenVerificator(tokensMan);
+			return new InternalTokenVerificator(tokensDAO);
 		}
 		throw new IllegalStateException("Bug: unhandled protocol");
 	}

@@ -544,7 +544,7 @@ public class InvitationEditor extends CustomComponent
 		public GroupSelectionPair getValue() throws FormValidationException
 		{
 			return new GroupSelectionPair(memberEditor.getValue(),
-					new GroupSelection(allowedGroupSelection.getSelectedGroups()));
+					new GroupSelection(allowedGroupSelection.getSelectedGroupsWithParents()));
 		}
 	}
 

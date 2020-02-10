@@ -150,6 +150,13 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		field.setItems(items);
 		field.setEmptySelectionAllowed(emptyAllowed);
 
+		return addComboColumn(valueProvider, setter, caption, field, expandRatio, emptyAllowed);
+	}
+	
+	public Column<T, ?> addComboColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter,
+			String caption, ComboBox<String> field, int expandRatio, boolean emptyAllowed)
+	{
+		field.setEmptySelectionAllowed(emptyAllowed);
 		Binder<T> binder = grid.getEditor().getBinder();
 		Column<T, ?> column = grid.addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio)
 				.setResizable(false).setSortable(false)
@@ -222,6 +229,12 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		grid.addElement(el);
 		fireChange();
 	}
+	
+	public void removeElement(T el)
+	{
+		grid.removeElement(el);
+		fireChange();
+	}
 
 	@Override
 	public List<T> getValue()
@@ -271,5 +284,10 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	public Editor<T> getEditor()
 	{
 		return grid.getEditor();
+	}
+	
+	public boolean isEditMode()
+	{
+		return grid.getEditor().isOpen();
 	}
 }

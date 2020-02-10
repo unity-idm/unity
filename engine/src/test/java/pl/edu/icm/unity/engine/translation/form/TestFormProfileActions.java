@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.engine.translation.form;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,13 +29,13 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
-import pl.edu.icm.unity.engine.translation.form.RegistrationMVELContext.ContextKey;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeClassActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;
@@ -74,9 +76,11 @@ public class TestFormProfileActions
 		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
 		when(attrsMan.getType("stringA")).thenReturn(sA);
 		
-		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
-		when(converter.externalValuesToInternal(anyString(), anyList())).thenReturn(Lists.newArrayList("a1"));
-		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, converter);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		Attribute attr = new Attribute("stringA", StringAttributeSyntax.ID, "/A/B", Lists.newArrayList("a1"));
+		when(parser.parseAsAttribute(any(), any(), eq(Lists.newArrayList("a1")), any(), any())).
+			thenReturn(attr);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
 		
 		RegistrationTranslationAction action = factory.getInstance("stringA", "/A/B", 
 				"attr['attribute']");
@@ -172,7 +176,10 @@ public class TestFormProfileActions
 	{
 		IdentityTypeSupport idTypeSupport = mock(IdentityTypeSupport.class);
 		when(idTypeSupport.getTypeDefinition("identifier")).thenReturn(new IdentifierIdentity());
-		AddIdentityActionFactory factory = new AddIdentityActionFactory(idTypeSupport);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		IdentityParam id = new IdentityParam("identifier", "identity");
+		when(parser.parseAsIdentity(any(), eq(id.getValue()), any(), any())).thenReturn(id);
+		AddIdentityActionFactory factory = new AddIdentityActionFactory(idTypeSupport, parser);
 		
 		RegistrationTranslationAction action = factory.getInstance("identifier", "'identity'");
 				
@@ -181,9 +188,8 @@ public class TestFormProfileActions
 		action.invoke(state, createContext(), "testProf");
 		
 		assertThat(state.getIdentities().size(), is(1));
-		IdentityParam id = state.getIdentities().iterator().next();
-		assertThat(id.getValue(), is("identity"));
-		assertThat(id.getTypeId(), is("identifier"));
+		IdentityParam mappedId = state.getIdentities().iterator().next();
+		assertThat(mappedId).isEqualTo(id);
 	}
 
 	@Test
@@ -320,14 +326,14 @@ public class TestFormProfileActions
 		assertThat(((List<String>)context.get("agrs")).size(), is(1));
 		assertThat(((List<String>)context.get("agrs")).get(0), is("true"));
 		
-		assertThat(((String)context.get(ContextKey.userLocale.name())), is("en"));
-		assertThat(((String)context.get(ContextKey.requestId.name())), is("requestId"));
-		assertThat(((Boolean)context.get(ContextKey.onIdpEndpoint.name())), is(false));
-		assertThat(((String)context.get(ContextKey.triggered.name())), 
+		assertThat(((String)context.get(RegistrationMVELContextKey.userLocale.name())), is("en"));
+		assertThat(((String)context.get(RegistrationMVELContextKey.requestId.name())), is("requestId"));
+		assertThat(((Boolean)context.get(RegistrationMVELContextKey.onIdpEndpoint.name())), is(false));
+		assertThat(((String)context.get(RegistrationMVELContextKey.triggered.name())), 
 				is(TriggeringMode.manualAtLogin.toString()));
-		assertThat(((String)context.get(ContextKey.status.name())), 
+		assertThat(((String)context.get(RegistrationMVELContextKey.status.name())), 
 				is(RequestSubmitStatus.submitted.toString()));
-		assertThat(((String)context.get(ContextKey.registrationForm.name())), is("form"));
+		assertThat(((String)context.get(RegistrationMVELContextKey.registrationForm.name())), is("form"));
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
+import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
 /**
@@ -51,6 +52,7 @@ public class RequestEditorCreator
 	private AuthenticatorSupportService authnSupport;
 	private String registrationCode;
 	private FormsInvitationHelper invitationHelper;
+	private URLQueryPrefillCreator urlQueryPrefillCreator;
 
 	@Autowired
 	public RequestEditorCreator(UnityMessageSource msg, ImageAccessService imageAccessService,
@@ -61,7 +63,8 @@ public class RequestEditorCreator
 			@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure") CredentialManagement credMan,
 			@Qualifier("insecure") InvitationManagement invitationMan,
-			AuthenticatorSupportService authnSupport)
+			AuthenticatorSupportService authnSupport,
+			URLQueryPrefillCreator urlQueryPrefillCreator)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -70,6 +73,7 @@ public class RequestEditorCreator
 		this.aTypeMan = aTypeMan;
 		this.groupsMan = groupsMan;
 		this.credMan = credMan;
+		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.authnSupport = authnSupport;
 		this.imageAccessService = imageAccessService;
@@ -192,7 +196,8 @@ public class RequestEditorCreator
 				remotelyAuthenticated, identityEditorRegistry, 
 				credentialEditorRegistry, attributeHandlerRegistry, 
 				aTypeMan, credMan, groupsMan, imageAccessService,
-				registrationCode, invitation, authnSupport, signUpAuthNController);
+				registrationCode, invitation, authnSupport, signUpAuthNController, 
+				urlQueryPrefillCreator);
 	}
 	
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException

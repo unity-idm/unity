@@ -114,12 +114,12 @@ void setCredentialForFirst()
 void createExampleUser(int suffix)
 {
 	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "demo-user-" + suffix);
-	Identity base = entityManagement.addEntity(toAdd, EntityState.valid, false);
+	Identity base = entityManagement.addEntity(toAdd, EntityState.valid);
 
 //	IdentityParam toAddDn = new IdentityParam(X500Identity.ID, "CN=Demo user " + suffix);
 	EntityParam entityP = new EntityParam(base.getEntityId());
 //	
-//	entityManagement.addIdentity(toAddDn, entityP, true);
+//	entityManagement.addIdentity(toAddDn, entityP);
 
 	//Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
 	//attributesManagement.createAttribute(entityP, a);

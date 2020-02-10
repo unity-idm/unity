@@ -22,8 +22,8 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
@@ -48,14 +48,14 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 {
 	private static final int LINK_FIELD_WIDTH = 50;
 
-	private TokensManagement tokenMan;
+	private OAuthTokenRepository tokenMan;
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private Set<String> validators;
 	private Binder<OAuthRPConfiguration> configBinder;
 
-	OAuthRPAuthenticatorEditor(UnityMessageSource msg, TokensManagement tokenMan, PKIManagement pkiMan,
+	OAuthRPAuthenticatorEditor(UnityMessageSource msg, OAuthTokenRepository tokenMan, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory) throws EngineException
 	{
 		super(msg);
@@ -80,10 +80,10 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 				configBinder, "translationProfile");
 		CollapsibleLayout advanced = buildAdvancedSection();
 
-		OAuthRPConfiguration config = new OAuthRPConfiguration();
+		OAuthRPConfiguration config = new OAuthRPConfiguration(pkiMan, tokenMan);
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, pkiMan, tokenMan);
+			config.fromProperties(toEdit.configuration);
 		}
 
 		configBinder.setBean(config);
@@ -214,7 +214,7 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 			throw new FormValidationException();
 		try
 		{
-			return configBinder.getBean().toProperties(pkiMan, tokenMan);
+			return configBinder.getBean().toProperties();
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the oauth-rp verificator", e);

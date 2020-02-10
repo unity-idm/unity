@@ -100,7 +100,7 @@ public class TestPKICertificates extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+				EntityState.valid);
 		setupUserContext("tuser", null);
 		Throwable exception = catchThrowable(() ->  pkiMan.addPersistedCertificate(new NamedCertificate("cert1", getX509Cert())));
 		assertExceptionType(exception, AuthorizationException.class);

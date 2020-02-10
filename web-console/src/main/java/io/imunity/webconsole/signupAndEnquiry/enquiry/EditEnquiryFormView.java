@@ -97,6 +97,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 			ignoreRequestsAndInvitations = editor.isIgnoreRequestsAndInvitations();
 		} catch (FormValidationException e)
 		{
+			NotificationPopup.showFormError(msg, e.getMessage());
 			return;
 		}
 

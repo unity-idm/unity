@@ -76,7 +76,7 @@ public class TestMerge extends DBIntegrationTestBase
 		Identity merged = createUsernameUser("merged", InternalAuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 		Entity mergedFull = idsMan.getEntity(new EntityParam(merged), "tt", true, "/");
 		Entity targetFull = idsMan.getEntity(new EntityParam(target), null, true, "/");
-		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id"), new EntityParam(merged), false);
+		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id"), new EntityParam(merged));
 		
 
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);

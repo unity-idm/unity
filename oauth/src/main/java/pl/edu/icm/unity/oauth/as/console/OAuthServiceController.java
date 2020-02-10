@@ -396,7 +396,7 @@ class OAuthServiceController implements IdpServiceController
 	private long addOAuthClient(OAuthClient client) throws EngineException
 	{
 		IdentityParam id = new IdentityParam(UsernameIdentity.ID, client.getId());
-		Identity addEntity = entityMan.addEntity(id, EntityState.valid, false);
+		Identity addEntity = entityMan.addEntity(id, EntityState.valid);
 		Deque<String> notMember = Group.getMissingGroups(client.getGroup(), Arrays.asList("/"));
 		addToGroupRecursive(notMember, addEntity.getEntityId());
 		return addEntity.getEntityId();

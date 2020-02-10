@@ -8,6 +8,8 @@
 
 package pl.edu.icm.unity.store.rdbms;
 
+import static pl.edu.icm.unity.store.AppDataSchemaVersion.CURRENT;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
@@ -42,27 +44,16 @@ public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
-	
-	/**
-	 * To which version we can migrate. In principle this should be always equal to 
-	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
-	 * when bumping it please make sure any required SQL schema updates were implemented.  
-	 */
-	private static final String SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_8_0";
-
-	
-	private long dbVersionAtServerStarup;
+	private int dbVersionAtServerStarup;
 	private DBSessionManager db;
 	private ContentsUpdater contentsUpdater;
-	private OAuthTokensHotfix oAuthTokensHotfix;
 
 	@Autowired
-	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater, OAuthTokensHotfix oAuthTokensHotfix) 
+	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater) 
 			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
 		this.contentsUpdater = contentsUpdater;
-		this.oAuthTokensHotfix = oAuthTokensHotfix;
 	}
 
 	/**
@@ -89,7 +80,7 @@ public class InitDB
 		{
 			session.close();
 			initDB();
-			dbVersionAtServerStarup = dbVersion2Long(AppDataSchemaVersion.CURRENT.getDbVersion());
+			dbVersionAtServerStarup = CURRENT.getAppSchemaVersion();
 			return;
 		}
 		
@@ -100,8 +91,8 @@ public class InitDB
 					+ "way to fix this is to drop it and create a new, empty one.");
 		}
 
-		dbVersionAtServerStarup = dbVersion2Long(dbVersion);
-		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.CURRENT.getDbVersion());
+		dbVersionAtServerStarup = parseDBVersion(dbVersion);
+		int dbVersionOfSoftware = CURRENT.getAppSchemaVersion();
 		assertMigrationsAreMatchingApp();
 		if (dbVersionAtServerStarup > dbVersionOfSoftware)
 		{
@@ -110,20 +101,23 @@ public class InitDB
 					+ "Please upgrade the server software.");
 		} else if (dbVersionAtServerStarup < dbVersionOfSoftware)
 		{
-			if (dbVersionAtServerStarup < dbVersion2Long(AppDataSchemaVersion.OLDEST_SUPPORTED_DB_VERSION))
+			if (dbVersionAtServerStarup < parseDBVersion(AppDataSchemaVersion.OLDEST_SUPPORTED_DB_VERSION))
 				throw new InternalException("The database schema version " + dbVersion + 
 						" is older then the last supported version. "
 						+ "Please make sure you are updating Unity from the previous version"
 						+ " and check release notes.");
 			updateSchema(dbVersionAtServerStarup);
 		}
-		
-		hotFix();
 	}
 	
 	private void assertMigrationsAreMatchingApp()
 	{
-		if (!SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.equals(AppDataSchemaVersion.CURRENT.getDbVersion()))
+		int maxMigration = db.getMyBatisConfiguration().getMappedStatementNames().stream()
+			.filter(name -> name.startsWith(UPDATE_SCHEMA_PFX))
+			.map(name -> name.substring(UPDATE_SCHEMA_PFX.length()).split("-")[0])
+			.map(Integer::parseInt)
+			.max(Integer::compareTo).get();
+		if (maxMigration != CURRENT.getAppSchemaVersion())
 		{
 			throw new InternalException("The SQL migration code was not updated "
 					+ "to the latest version of data schema. "
@@ -162,7 +156,7 @@ public class InitDB
 	
 	private void performUpdate(DBSessionManager db, String operationPfx)
 	{
-		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		Collection<String> ops = new TreeSet<>(db.getMyBatisConfiguration().getMappedStatementNames());
 		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
 		try
 		{
@@ -192,7 +186,7 @@ public class InitDB
 		SqlSession session = db.getSqlSession(false);
 		try
 		{
-			session.insert("initVersion");
+			session.insert("initVersion", Integer.toString(CURRENT.getAppSchemaVersion()));
 			createRootGroup(session);
 		} finally
 		{
@@ -210,35 +204,19 @@ public class InitDB
 		groups.createRoot(root);
 	}
 	
-	public static long dbVersion2Long(String version)
+	public static int parseDBVersion(String version)
+	{
+		return version.contains("_") ? parseLegacyDBVersion(version) : Integer.parseInt(version);
+	}
+
+	private static int parseLegacyDBVersion(String version)
 	{
 		String[] components = version.split("_");
-		return Integer.parseInt(components[0])*10000 + Integer.parseInt(components[1])*100 + 
-				Integer.parseInt(components[2]);
+		return Integer.parseInt(components[1]);
 	}
-	
-	private void hotFix()
-	{
-		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
-		SqlSession session = db.getSqlSession(ExecutorType.BATCH, true);
-		try
-		{
-			for (String name : ops.stream().filter(n -> n.startsWith("hotfix"))
-					.collect(Collectors.toList()))
-			{
 
-				log.debug("Run hotfix update db schema script " + name);
-				session.update(name);
-
-			}
-			session.commit();
-		} finally
-		{
-			session.close();
-		}
-	}
 	
-	private void updateSchema(long currentVersion)
+	private void updateSchema(int initialDBVersion)
 	{
 		log.info("Updating DB schema to the actual version");
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
@@ -251,10 +229,10 @@ public class InitDB
 					continue;
 				
 				String[] version = name.substring(UPDATE_SCHEMA_PFX.length()).split("-");
-				Long schemaVersion = Long.parseLong(version[0]);
-				if (schemaVersion > currentVersion)
+				int updaterVersion = Integer.parseInt(version[0]);
+				if (updaterVersion > initialDBVersion)
 				{
-					log.debug("Run update db schema script " + name);
+					log.info("Run update db schema script " + name);
 					session.update(name);
 				}
 			}
@@ -263,19 +241,17 @@ public class InitDB
 		{
 			session.close();
 		}
-		log.info("Updated DB schema to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
+		log.info("Updated DB schema to the actual version " + CURRENT.getAppSchemaVersion());
 	}
 	
 	public void updateContents() throws IOException, EngineException
 	{
-		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.CURRENT.getDbVersion());
-		if (dbVersionAtServerStarup < dbVersionOfSoftware)
+		if (dbVersionAtServerStarup < CURRENT.getAppSchemaVersion())
 		{
 			log.info("Updating DB contents to the actual version");
 			contentsUpdater.update(dbVersionAtServerStarup);
-			log.info("Updated DB contents to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
+			log.info("Updated DB contents to the actual version {}", CURRENT.getAppSchemaVersion());
 		}
-		oAuthTokensHotfix.updateTokens();
 	}
 
 	public void deletePreImport(SqlSession session, List<String> objectTypes)
@@ -291,7 +267,8 @@ public class InitDB
 		
 		for (String eName : objectTypes)
 		{
-			List<String> sopts = ops.stream().filter(n -> n.startsWith("deletedb-" + eName)).collect(Collectors.toList());
+			List<String> sopts = ops.stream().filter(n -> n.startsWith("deletedb-" + eName))
+					.collect(Collectors.toList());
 			if (sopts.size() > 0)
 			{
 				for (String o : sopts)

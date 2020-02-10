@@ -39,7 +39,7 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	@Override
 	protected Optional<GroupSelection> getValueInternal() throws FormValidationException
 	{
-		return Optional.of(new GroupSelection(selection.getSelectedGroups()));
+		return Optional.of(new GroupSelection(selection.getSelectedGroupsWithParents()));
 	}
 	
 	@Override

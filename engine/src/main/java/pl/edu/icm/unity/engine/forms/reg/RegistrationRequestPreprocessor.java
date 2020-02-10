@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,7 +18,6 @@ import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
@@ -61,8 +59,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 	{
 		InvitationPrefillInfo invitationInfo = processInvitationAndValidateCode(form, request);
 		
-		super.validateSubmittedRequest(form, request, invitationInfo, 
-				doCredentialCheckAndUpdate, skipCredentialsValidation);
+		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, skipCredentialsValidation);
 		applyContextGroupsToAttributes(form, request);
 
 		if (invitationInfo.isByInvitation())
@@ -82,7 +79,8 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		validateFinalGroups(request.getGroups());
 	}
 
-	private void applyContextGroupsToAttributes(RegistrationForm form, RegistrationRequest request) throws IllegalFormContentsException
+	private void applyContextGroupsToAttributes(RegistrationForm form, RegistrationRequest request) 
+			throws IllegalFormContentsException
 	{
 		Map<String, Integer> wildcardToGroupParamIndex = new HashMap<>();
 		int j=0;
@@ -129,12 +127,6 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 	 * Code is validated, wrt to invitation or form fixed code. What is more the request attributes
 	 * groups and identities are set to those from invitation when necessary and errors are reported
 	 * if request tries to overwrite mandatory elements from invitation.
-	 * 
-	 * @param form
-	 * @param request
-	 * @param sql
-	 * @return true if the request is by invitation
-	 * @throws EngineException
 	 */
 	private InvitationPrefillInfo processInvitationAndValidateCode(RegistrationForm form, RegistrationRequest request) 
 			throws IllegalFormContentsException
@@ -161,14 +153,12 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 			throw new IllegalFormContentsException("The invitation has already expired");
 		
 		processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
-				invitation.getIdentities(), "identity", Comparator.comparing(IdentityParam::getValue),
-				invitationInfo::setPrefilledIdentity);
+				invitation.getIdentities(), "identity");
 		processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
-				invitation.getAttributes(), "attribute", null,
-				invitationInfo::setPrefilledAttribute);
+				invitation.getAttributes(), "attribute");
 		processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
-				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), "group", null,
-				i -> {});
+				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
+				"group");
 		return invitationInfo;
 	}
 

@@ -67,7 +67,7 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 		createRealmEndpointAndAuthenticator();
 		
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 
 		EntityParam entityP = new EntityParam(id);
 		eCredMan.setEntityCredential(entityP, "credential1", "wrongpassword");
@@ -86,7 +86,7 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 		createRealmEndpointAndAuthenticator();
 
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 		EntityParam entityP = new EntityParam(id);
 		MockEndpoint endpoint = (MockEndpoint) internalEndpointMan.getDeployedEndpoints().iterator().next();
 		eCredMan.setEntityCredential(entityP, "credential1", "bar");

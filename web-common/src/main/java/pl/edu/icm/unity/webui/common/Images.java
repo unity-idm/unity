@@ -24,6 +24,7 @@ public enum Images
 	empty		(I.PB + "empty.png"),
 
 	info		(VaadinIcons.INFO),
+	info_circle	(VaadinIcons.INFO_CIRCLE_O),
 	key_o		(VaadinIcons.KEY_O),
 	settings	(VaadinIcons.COG_O),
 	handshake	(VaadinIcons.HANDSHAKE),
@@ -143,8 +144,11 @@ public enum Images
 	text		(VaadinIcons.TEXT_LABEL),
 	header		(VaadinIcons.HEADER),
 	grid_v		(VaadinIcons.GRID_V),
-	combobox	(VaadinIcons.COMBOBOX);
-
+	combobox	(VaadinIcons.COMBOBOX), 
+	cubes		(VaadinIcons.CUBES),
+	cube		(VaadinIcons.CUBE),
+	money		(VaadinIcons.MONEY),
+	flag_final	(VaadinIcons.FLAG_CHECKERED);
 	
 	private final Resource resource;
 	private final String path;

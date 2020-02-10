@@ -418,7 +418,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	{
 		setupStateForConditions();
 		Identity id2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi2"), "crMock",
-				EntityState.disabled, false);
+				EntityState.disabled);
 		EntityParam entity2 = new EntityParam(id2);
 		groupsMan.addMemberFromParent("/A", entity2);
 
@@ -471,7 +471,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupsMan.addGroup(groupABC);
 		
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
-				EntityState.disabled, false);
+				EntityState.disabled);
 		entity = new EntityParam(id);
 		groupsMan.addMemberFromParent("/A", entity);
 		groupsMan.addMemberFromParent("/A/B", entity);

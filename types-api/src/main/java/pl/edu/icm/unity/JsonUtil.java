@@ -89,6 +89,17 @@ public class JsonUtil
 		}
 	}
 
+	public static String serializeHumanReadable(JsonNode node)
+	{
+		try
+		{
+			return Constants.MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't perform JSON serialization", e);
+		}
+	}
+	
 	public static byte[] serialize2Bytes(JsonNode node)
 	{
 		try

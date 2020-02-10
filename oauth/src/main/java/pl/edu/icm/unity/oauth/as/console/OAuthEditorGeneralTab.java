@@ -37,6 +37,7 @@ import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -79,6 +80,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private CheckBox openIDConnect;
 	private ComboBox<String> credential;
 	private ComboBox<SigningAlgorithms> signingAlg;
+	private ComboBox<AccessTokenFormat> accessTokenFormat;
 	private TextField signingSecret;
 	private GridWithEditorInDetails<OAuthScope> scopesGrid;
 	private OutputTranslationProfileFieldFactory profileFieldFactory;
@@ -339,6 +341,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(skipConsentScreen).bind("skipConsentScreen");
 		mainGeneralLayout.addComponent(skipConsentScreen);
 
+		accessTokenFormat = createAccessTokenFormatCombo();
+		mainGeneralLayout.addComponent(accessTokenFormat);
+		
 		openIDConnect = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.openIDConnect"));
 		configBinder.forField(openIDConnect).bind("openIDConnect");
 		mainGeneralLayout.addComponent(openIDConnect);
@@ -348,10 +353,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingAlg.setEmptySelectionAllowed(false);
 		signingAlg.setItems(SigningAlgorithms.values());
 		configBinder.forField(signingAlg).bind("signingAlg");
-		// signingAlg.setEnabled(false);
 		mainGeneralLayout.addComponent(signingAlg);
 		signingAlg.addValueChangeListener(e -> {
-			refreshOpenIDControls();
+			refreshSigningControls();
 		});
 
 		credential = new ComboBox<>();
@@ -399,7 +403,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		mainGeneralLayout.addComponent(signingSecret);
 
 		openIDConnect.addValueChangeListener(e -> {
-			refreshOpenIDControls();
+			refreshSigningControls();
 			if (e.getValue())
 			{
 				OAuthScope openidScope = configBinder.getBean().getScopes().stream()
@@ -427,6 +431,19 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return main;
 	}
 
+	private ComboBox<AccessTokenFormat> createAccessTokenFormatCombo()
+	{
+		ComboBox<AccessTokenFormat> combo = new ComboBox<>();
+		combo.setCaption(msg.getMessage("OAuthEditorGeneralTab.accessTokenFormat"));
+		combo.setEmptySelectionAllowed(false);
+		combo.setItems(AccessTokenFormat.values());
+		configBinder.forField(combo).bind("accessTokenFormat");
+		combo.addValueChangeListener(e -> {
+			refreshSigningControls();
+		});
+		return combo;
+	}
+	
 	private int getBitsLenghtForAlg(JWSAlgorithm alg)
 	{
 		if (alg.equals(JWSAlgorithm.HS256))
@@ -456,13 +473,15 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.scopes"), scopesLayout);
 	}
 
-	private void refreshOpenIDControls()
+	private void refreshSigningControls()
 	{
 		OAuthServiceConfiguration config = configBinder.getBean();
 		SigningAlgorithms alg = config.getSigningAlg();
 		boolean openid = config.isOpenIDConnect();
+		boolean jwtAT = config.getAccessTokenFormat() == AccessTokenFormat.JWT 
+				|| config.getAccessTokenFormat() == AccessTokenFormat.AS_REQUESTED;
 
-		if (openid)
+		if (openid || jwtAT)
 		{
 			signingAlg.setEnabled(true);
 			if (alg.toString().startsWith("HS"))
@@ -489,9 +508,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	}
 
 	@Override
-	public ServiceEditorTab getType()
+	public String getType()
 	{
-		return ServiceEditorTab.GENERAL;
+		return ServiceEditorTab.GENERAL.toString();
 	}
 
 	@Override

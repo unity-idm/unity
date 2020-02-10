@@ -27,6 +27,7 @@ import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -34,7 +35,6 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
@@ -185,7 +185,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{	
 			this.forceConfirmed = context
-					.getConfirmationMode() == ConfirmationMode.FORCE_CONFIRMED;
+					.getConfirmationMode() == ConfirmationEditMode.FORCE_CONFIRMED_IF_SYNC;
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
@@ -193,7 +193,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 					.getConfirmationConfigurationForAttribute(
 							context.getAttributeType().getName());
 			editor = new TextFieldWithVerifyButton(
-					context.getConfirmationMode() == ConfirmationMode.ADMIN,
+					context.getConfirmationMode() == ConfirmationEditMode.ADMIN,
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
@@ -210,7 +210,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			if (!confirmationConfig.isPresent())
 				editor.removeVerifyButton();
 			
-			if (context.getConfirmationMode() == ConfirmationMode.OFF)
+			if (context.getConfirmationMode() == ConfirmationEditMode.OFF)
 			{
 				editor.removeConfirmationStatusIcon();
 				editor.removeVerifyButton();

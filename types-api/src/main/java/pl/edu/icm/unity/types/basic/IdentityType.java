@@ -4,13 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
@@ -29,7 +24,6 @@ public class IdentityType implements NamedObject
 	private String identityTypeProvider;
 	private String identityTypeProviderSettings;
 	private String description = "";
-	private Map<String, String> extractedAttributes = new HashMap<String, String>();
 	private boolean selfModificable;
 	private int minInstances = 0;
 	private int maxInstances = Integer.MAX_VALUE;
@@ -47,12 +41,10 @@ public class IdentityType implements NamedObject
 		this.identityTypeProvider = identityTypeProvider;
 	}
 	
-	public IdentityType(String name, String identityTypeProvider, String description,
-			Map<String, String> extractedAttributes)
+	public IdentityType(String name, String identityTypeProvider, String description)
 	{
 		this(name, identityTypeProvider);
 		this.description = description;
-		setExtractedAttributes(extractedAttributes);
 	}
 
 	@JsonCreator
@@ -77,22 +69,11 @@ public class IdentityType implements NamedObject
 		return description;
 	}
 
-	public Map<String, String> getExtractedAttributes()
-	{
-		return extractedAttributes;
-	}
-
 	public void setDescription(String description)
 	{
 		this.description = description;
 	}
 
-	public void setExtractedAttributes(Map<String, String> extractedAttributes)
-	{
-		this.extractedAttributes = new HashMap<String, String>();
-		this.extractedAttributes.putAll(extractedAttributes);
-	}
-	
 	public boolean isSelfModificable()
 	{
 		return selfModificable;
@@ -180,14 +161,6 @@ public class IdentityType implements NamedObject
 		main.put("identityTypeProviderSettings", getIdentityTypeProviderSettings());
 		if (getEmailConfirmationConfiguration() != null)
 			main.set("emailConfirmationConfiguration", getEmailConfirmationConfiguration().toJson());
-		ArrayNode extractedA = main.putArray("extractedAttributes");
-		for (Map.Entry<String, String> a: getExtractedAttributes().entrySet())
-		{
-			ObjectNode entry = Constants.MAPPER.createObjectNode();
-			entry.put("key", a.getKey());
-			entry.put("value", a.getValue());
-			extractedA.add(entry);
-		}
 		return main;
 	}
 
@@ -201,13 +174,6 @@ public class IdentityType implements NamedObject
 	{
 		identityTypeProvider = main.get("identityTypeProvider").asText();
 		setDescription(main.get("description").asText());
-		ArrayNode attrs = main.withArray("extractedAttributes");
-		Map<String, String> attrs2 = new HashMap<String, String>();
-		for (JsonNode a: attrs)
-		{
-			attrs2.put(a.get("key").asText(), a.get("value").asText());
-		}
-		setExtractedAttributes(attrs2);
 		setSelfModificable(main.get("selfModificable").asBoolean());
 		setMinInstances(main.get("minInstances").asInt());
 		setMinVerifiedInstances(main.get("minVerifiedInstances").asInt());
@@ -235,8 +201,6 @@ public class IdentityType implements NamedObject
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((extractedAttributes == null) ? 0
-				: extractedAttributes.hashCode());
 		result = prime * result + ((identityTypeProvider == null) ? 0
 				: identityTypeProvider.hashCode());
 		result = prime * result + ((identityTypeProviderSettings == null) ? 0
@@ -264,12 +228,6 @@ public class IdentityType implements NamedObject
 			if (other.description != null)
 				return false;
 		} else if (!description.equals(other.description))
-			return false;
-		if (extractedAttributes == null)
-		{
-			if (other.extractedAttributes != null)
-				return false;
-		} else if (!extractedAttributes.equals(other.extractedAttributes))
 			return false;
 		if (identityTypeProvider == null)
 		{

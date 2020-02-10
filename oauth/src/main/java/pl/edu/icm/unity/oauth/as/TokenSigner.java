@@ -11,6 +11,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm.Family;
 import com.nimbusds.jose.JWSHeader;
@@ -19,6 +20,7 @@ import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
@@ -45,7 +47,7 @@ public class TokenSigner
 		String signAlg = config.getSigningAlgorithm();
 		algorithm = JWSAlgorithm.parse(signAlg);
 
-		if (config.isOpenIdConnect())
+		if (config.isOpenIdConnect() || config.isJWTAccessTokenPossible())
 		{
 			if (Family.RSA.contains(algorithm))
 			{
@@ -64,7 +66,6 @@ public class TokenSigner
 				throw new ConfigurationException("Unsupported signing algorithm " + signAlg);
 			}
 		}
-
 	}
 
 	private void setupRSASigner()
@@ -164,11 +165,17 @@ public class TokenSigner
 	
 	public SignedJWT sign(IDTokenClaimsSet idTokenClaims) throws JOSEException, ParseException
 	{
+		return sign(idTokenClaims.toJWTClaimsSet(), null);
+	}
+	
+	public SignedJWT sign(JWTClaimsSet claims, String type) throws JOSEException
+	{
 		if (!isPKIEnabled())
 			throw new InternalException("Token signer is not initialized");
-		
-		SignedJWT ret = new SignedJWT(new JWSHeader(algorithm),
-				idTokenClaims.toJWTClaimsSet());	
+		JWSHeader.Builder jwsHeaderBuilder = new JWSHeader.Builder(algorithm);
+		if (type != null)
+			jwsHeaderBuilder.type(new JOSEObjectType(type));
+		SignedJWT ret = new SignedJWT(jwsHeaderBuilder.build(), claims);	
 		ret.sign(internalSigner);
 		return ret;
 	}

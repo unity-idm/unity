@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
@@ -27,16 +27,16 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
-	private TokensManagement tokenMan;
+	private OAuthTokenRepository tokenDAO;
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;;
 
 	@Autowired
-	OAuthRPAuthenticatorEditorFactory(UnityMessageSource msg, TokensManagement tokenMan, PKIManagement pkiMan,
+	OAuthRPAuthenticatorEditorFactory(UnityMessageSource msg, OAuthTokenRepository tokenDAO, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
-		this.tokenMan = tokenMan;
+		this.tokenDAO = tokenDAO;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 	}
@@ -50,7 +50,7 @@ class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new OAuthRPAuthenticatorEditor(msg, tokenMan, pkiMan, profileFieldFactory);
+		return new OAuthRPAuthenticatorEditor(msg, tokenDAO, pkiMan, profileFieldFactory);
 	}
 
 }

@@ -31,10 +31,6 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
-/**
- * {@link EmailIdentity} editor
- * @author P. Piernik
- */
 public class EmailIdentityEditor implements IdentityEditor
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
@@ -109,6 +105,11 @@ public class EmailIdentityEditor implements IdentityEditor
 				updateConfirmationStatusIcon();
 			}
 		});
+		
+		if (!context.getConfirmationEditMode().isShowVerifyButton())
+			editor.removeVerifyButton();
+		if (!context.getConfirmationEditMode().isShowConfirmationStatus())
+			editor.removeConfirmationStatusIcon();
 		
 		if (context.isCustomWidth())
 			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());

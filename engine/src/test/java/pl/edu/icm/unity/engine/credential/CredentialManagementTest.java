@@ -206,7 +206,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		credReqMan.addCredentialRequirement(cr);
 		
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 		EntityParam entityP = new EntityParam(id);
 		Entity entity = idsMan.getEntity(entityP);
 		assertEquals(LocalCredentialState.notSet, entity.getCredentialInfo().
@@ -266,7 +266,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 				Collections.singleton(credDef.getName()));
 		credReqMan.addCredentialRequirement(cr);
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 		EntityParam entityP = new EntityParam(id);
 		
 		eCredMan.setEntityCredential(entityP, "credential1", "password");
@@ -338,7 +338,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		
@@ -358,7 +358,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
@@ -379,7 +379,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
@@ -400,7 +400,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
@@ -423,7 +423,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
@@ -446,7 +446,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
@@ -473,7 +473,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
@@ -503,7 +503,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createPassCredentialAndCR("credential1", passConfig);
 		
 		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
-				CRED_REQ_PASS, EntityState.valid, false));
+				CRED_REQ_PASS, EntityState.valid));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
 		

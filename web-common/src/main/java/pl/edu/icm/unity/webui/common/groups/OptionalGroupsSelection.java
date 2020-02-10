@@ -55,7 +55,13 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 	}
 	
 	@Override
-	public List<String> getSelectedGroups()
+	public List<String> getSelectedGroupsWithParents()
+	{
+		return getSelectedGroupsWithoutParents(); //at selection time parents are explicitely added
+	}
+
+	@Override
+	public List<String> getSelectedGroupsWithoutParents()
 	{
 		return getSelectedItems().stream().map(group -> group.toString()).collect(Collectors.toList());
 	}
