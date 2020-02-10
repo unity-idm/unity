@@ -16,17 +16,15 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -41,11 +39,11 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 {
 	public static final String NAME = "createPersistentAttribute";
 	private AttributeTypeSupport attrsMan;
-	private AttributeValueConverter attrValueConverter;
+	private ExternalDataParser externalDataParser;
 	
 	@Autowired
 	public CreatePersistentAttributeActionFactory(AttributeTypeSupport attrsMan, 
-			AttributeValueConverter attrValueConverter)
+			ExternalDataParser externalDataParser)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -66,13 +64,13 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 						Type.UNITY_GROUP, true)
 		});
 		this.attrsMan = attrsMan;
-		this.attrValueConverter = attrValueConverter;
+		this.externalDataParser = externalDataParser;
 	}
 
 	@Override
 	public CreatePersistentAttributeAction getInstance(String... parameters)
 	{
-		return new CreatePersistentAttributeAction(parameters, getActionType(), attrsMan, attrValueConverter);
+		return new CreatePersistentAttributeAction(parameters, getActionType(), attrsMan, externalDataParser);
 	}
 	
 	public static class CreatePersistentAttributeAction extends OutputTranslationAction
@@ -83,14 +81,14 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 		private AttributeType attributeType;
 		private Serializable valuesExpression;
 		private String group;
-		private AttributeValueConverter attrValueConverter;
+		private ExternalDataParser externalDataParser;
 		private boolean attrMandatory;
 
 		public CreatePersistentAttributeAction(String[] params, TranslationActionType desc, 
-				AttributeTypeSupport attrsMan, AttributeValueConverter attrValueConverter)
+				AttributeTypeSupport attrsMan, ExternalDataParser externalDataParser)
 		{
 			super(desc, params);
-			this.attrValueConverter = attrValueConverter;
+			this.externalDataParser = externalDataParser;
 			setParameters(params, attrsMan);
 		}
 
@@ -114,33 +112,23 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 			List<?> aValues = value instanceof List ? (List<?>) value
 					: Collections.singletonList(value);
 
-			List<String> typedValues;
+			Attribute attribute;
 			try
 			{
-				typedValues = attrValueConverter.externalValuesToInternal(
-						attributeType.getName(), aValues);
+				//for output profile we can't control confirmation status - so we set is always as confirmed
+				attribute = externalDataParser.parseAsConfirmedAttribute(attributeType, group, aValues, 
+						null, currentProfile);
 			} catch (IllegalAttributeValueException e)
 			{
 				log.debug("Can't convert attribute values returned by the action's expression "
-						+ "to the type of attribute " + attrNameString
-						+ " , skipping it", e);
+						+ "to the type of attribute " + attrNameString + " , skipping it", e);
 				return;
 			}
-			//for output profile we can't confirm - not yet implemented and rather not needed.
-			for (Object val: typedValues)
-			{
-				if (val instanceof VerifiableElement)
-				{
-					((VerifiableElement) val).setConfirmationInfo(new ConfirmationInfo(true));
-				}
-			}
 
-			Attribute newAttr = new Attribute(attrNameString, attributeType.getValueSyntax(), group, 
-					typedValues, null, currentProfile);
-			DynamicAttribute dat = new DynamicAttribute(newAttr);
+			DynamicAttribute dat = new DynamicAttribute(attribute);
 			dat.setMandatory(attrMandatory);
 			result.getAttributes().add(dat);
-			result.getAttributesToPersist().add(newAttr);
+			result.getAttributesToPersist().add(attribute);
 			log.debug("Created a new persisted attribute: " + dat);
 		}
 

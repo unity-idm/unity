@@ -94,6 +94,7 @@ class NewEnquiryFormView extends CustomComponent implements UnityView
 			form = editor.getForm();
 		} catch (FormValidationException e)
 		{
+			NotificationPopup.showFormError(msg, e.getMessage());
 			return;
 		}
 

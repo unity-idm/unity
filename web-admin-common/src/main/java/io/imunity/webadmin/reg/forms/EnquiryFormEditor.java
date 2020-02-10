@@ -157,13 +157,14 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withLayout(layoutEditor.getLayout());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
 		
-		EnquiryForm form = builder.build();
+		EnquiryForm form;
 		try
 		{
+			form = builder.build();
 			form.validateLayout();
 		} catch (Exception e)
 		{
-			throw new FormValidationException(e);
+			throw new FormValidationException(e.getMessage(), e);
 		}
 		
 		if (!binder.isValid())

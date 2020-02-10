@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.attribute;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,10 +28,6 @@ public class AttributeValueConverter
 	
 	/**
 	 * Converts a list of external values to the internal representation which is ready to be stored in database 
-	 * @param attributeName
-	 * @param externalValues
-	 * @return
-	 * @throws IllegalAttributeValueException 
 	 */
 	public List<String> externalValuesToInternal(String attributeName, List<?> externalValues) 
 			throws IllegalAttributeValueException
@@ -41,10 +38,6 @@ public class AttributeValueConverter
 
 	/**
 	 * As {@link #externalValuesToInternal(String, List)} but requires full syntax as argument
-	 * @param syntax
-	 * @param externalValues
-	 * @return
-	 * @throws IllegalAttributeValueException
 	 */
 	public <T> List<String> externalValuesToInternal(AttributeValueSyntax<T> syntax, List<?> externalValues) 
 			throws IllegalAttributeValueException
@@ -61,9 +54,6 @@ public class AttributeValueConverter
 	/**
 	 * Converts a list of internal values to the external representation which is ready to be exposed 
 	 * to outside world. 
-	 * @param attributeName
-	 * @param internalValues
-	 * @return
 	 */
 	public List<String> internalValuesToExternal(String attributeName, List<String> internalValues) 
 	{
@@ -73,9 +63,6 @@ public class AttributeValueConverter
 
 	/**
 	 * As {@link #internalValuesToExternal(AttributeValueSyntax, List)} but requires full syntax object as argument
-	 * @param syntax
-	 * @param internalValues
-	 * @return
 	 */
 	public <T> List<String> internalValuesToExternal(AttributeValueSyntax<T> syntax,
 			List<String> internalValues)
@@ -91,10 +78,6 @@ public class AttributeValueConverter
 	
 	/**
 	* Converts a list of internal values to the object value
-	 * @param attributeName
-	 * @param internalValue
-	 * @return
-	 * @throws IllegalAttributeValueException
 	 */
 	public <T> List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues) 
 			throws IllegalAttributeValueException
@@ -103,13 +86,7 @@ public class AttributeValueConverter
 		return internalValuesToObjectValues(syntax, internalValues);
 	}
 	
-	/**
-	 * As {@link #internalValuesToObjectValues(AttributeValueSyntax, List)} but requires full syntax object as argument
-	 * @param syntax
-	 * @param internalValues
-	 * @return
-	 */
-	public <T> List<?> internalValuesToObjectValues(AttributeValueSyntax<T> syntax, List<String> internalValues) 
+	public <T> List<T> internalValuesToObjectValues(AttributeValueSyntax<T> syntax, List<String> internalValues) 
 			throws IllegalAttributeValueException
 	{
 		List<T> ret = new ArrayList<>(internalValues.size());
@@ -119,5 +96,13 @@ public class AttributeValueConverter
 			ret.add(deserialized);
 		}
 		return ret;
-	}	
+	}
+	
+	public <T> List<String> objectValuesToInternalValues(AttributeValueSyntax<T> syntax, List<T> typedValues) 
+			throws IllegalAttributeValueException
+	{
+		return typedValues.stream()
+				.map(internal -> syntax.convertToString(internal))
+				.collect(Collectors.toList());
+	}
 }

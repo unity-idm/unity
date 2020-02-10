@@ -28,17 +28,19 @@ public interface RegistrationFormDialogProvider
 	 */
 	public static String getCodeFromURL()
 	{
-		VaadinRequest currentRequest = VaadinService.getCurrentRequest();
-		if (currentRequest == null)
-			return null;
-		return currentRequest.getParameter(PublicRegistrationURLSupport.CODE_PARAM);
+		return getParamOrNullFromURL(PublicRegistrationURLSupport.CODE_PARAM);
 	}
 	
 	public static String getFormFromURL()
 	{
+		return getParamOrNullFromURL(PublicRegistrationURLSupport.FORM_PARAM);
+	}
+	
+	public static String getParamOrNullFromURL(String param)
+	{
 		VaadinRequest currentRequest = VaadinService.getCurrentRequest();
 		if (currentRequest == null)
 			return null;
-		return currentRequest.getParameter(PublicRegistrationURLSupport.FORM_PARAM);
+		return currentRequest.getParameter(param);
 	}
 }

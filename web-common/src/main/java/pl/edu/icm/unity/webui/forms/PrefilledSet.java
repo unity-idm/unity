@@ -44,9 +44,47 @@ public class PrefilledSet
 	{
 		this(null, null, null, null);
 	}
-
-	public boolean isEmpty()
+	
+	/**
+	 * @return a new object which has union of pre-filled settings of this and argument object. In case of conflicts 
+	 * this object's values stay intact.
+	 */
+	public PrefilledSet mergeWith(PrefilledSet other)
 	{
-		return identities.isEmpty() &&  groupSelections.isEmpty() && attributes.isEmpty();
+		return new PrefilledSet(mergeIdentities(other.identities), 
+				mergeGroups(other.groupSelections), 
+				mergeAttributes(other.attributes), 
+				mergeAllowedGroups(other.allowedGroups));
+	}
+	
+	private Map<Integer, GroupSelection> mergeAllowedGroups(Map<Integer, GroupSelection> otherAllowedGroups)
+	{
+		Map<Integer, GroupSelection> ret = new HashMap<>(otherAllowedGroups);
+		ret.putAll(allowedGroups);
+		return ret;
+	}
+
+	private Map<Integer, PrefilledEntry<Attribute>> mergeAttributes(
+			Map<Integer, PrefilledEntry<Attribute>> otherAttributes)
+	{
+		Map<Integer, PrefilledEntry<Attribute>> ret = new HashMap<>(otherAttributes);
+		ret.putAll(attributes);
+		return ret;
+	}
+
+	private Map<Integer, PrefilledEntry<GroupSelection>> mergeGroups(
+			Map<Integer, PrefilledEntry<GroupSelection>> otherGroupSelections)
+	{
+		Map<Integer, PrefilledEntry<GroupSelection>> ret = new HashMap<>(otherGroupSelections);
+		ret.putAll(groupSelections);
+		return ret;
+	}
+
+	private Map<Integer, PrefilledEntry<IdentityParam>> mergeIdentities(
+			Map<Integer, PrefilledEntry<IdentityParam>> otherIdentities)
+	{
+		Map<Integer, PrefilledEntry<IdentityParam>> ret = new HashMap<>(otherIdentities);
+		ret.putAll(identities);
+		return ret;
 	}
 }

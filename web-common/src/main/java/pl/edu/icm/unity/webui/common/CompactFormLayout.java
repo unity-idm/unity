@@ -14,10 +14,8 @@ import com.vaadin.ui.FormLayout;
  */
 public class CompactFormLayout extends FormLayout
 {
-
 	public CompactFormLayout()
 	{
-		super();
 		setup();
 	}
 

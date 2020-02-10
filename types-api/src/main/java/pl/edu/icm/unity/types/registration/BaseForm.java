@@ -5,8 +5,10 @@
 package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -78,8 +80,35 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		if (formInformation == null)
 			throw new IllegalStateException("Form information must be not-null "
 					+ "in a form (but it contents can be empty)");
+		
+		assertAllQueryParamsAreUnique();
 	}
 	
+	private void assertAllQueryParamsAreUnique()
+	{
+		Set<String> params = new HashSet<>();
+		for (IdentityRegistrationParam identityParam : identityParams)
+		{
+			if (identityParam.getUrlQueryPrefill() != null)
+			{
+				if (!params.add(identityParam.getUrlQueryPrefill().paramName))
+					throw new IllegalStateException("URL prefill parameter >" 
+							+ identityParam.getUrlQueryPrefill().paramName 
+							+ "< is used twice in the form");
+			}
+		}
+		for (AttributeRegistrationParam attributeParam : attributeParams)
+		{
+			if (attributeParam.getUrlQueryPrefill() != null)
+			{
+				if (!params.add(attributeParam.getUrlQueryPrefill().paramName))
+					throw new IllegalStateException("URL prefill parameter >" 
+							+ attributeParam.getUrlQueryPrefill().paramName 
+							+ "< is used twice in the form");
+			}
+		}
+	}
+
 	@Override
 	@JsonValue
 	public ObjectNode toJson()

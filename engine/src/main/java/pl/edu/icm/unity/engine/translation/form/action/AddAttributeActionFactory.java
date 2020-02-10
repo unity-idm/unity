@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -37,10 +37,10 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 {
 	public static final String NAME = "addAttribute";
 	private AttributeTypeSupport attrsSupport;
-	private AttributeValueConverter attrValueConverter;
+	private ExternalDataParser externalDataParser;
 	
 	@Autowired
-	public AddAttributeActionFactory(AttributeTypeSupport attrsSupport, AttributeValueConverter attrValueConverter)
+	public AddAttributeActionFactory(AttributeTypeSupport attrsSupport, ExternalDataParser externalDataParser)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -57,13 +57,13 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 						Type.EXPRESSION, true)
 		});
 		this.attrsSupport = attrsSupport;
-		this.attrValueConverter = attrValueConverter;
+		this.externalDataParser = externalDataParser;
 	}
 
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddAttributeAction(getActionType(), parameters, attrsSupport, attrValueConverter);
+		return new AddAttributeAction(getActionType(), parameters, attrsSupport, externalDataParser);
 	}
 	
 	public static class AddAttributeAction extends RegistrationTranslationAction
@@ -74,13 +74,13 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 		private String group;
 		private Serializable expressionCompiled;
 		private AttributeType at;
-		private AttributeValueConverter attrValueConverter;
+		private ExternalDataParser externalDataParser;
 		
 		public AddAttributeAction(TranslationActionType description, String[] parameters, 
-				AttributeTypeSupport attrsSupport, AttributeValueConverter attrValueConverter)
+				AttributeTypeSupport attrsSupport, ExternalDataParser externalDataParser)
 		{
 			super(description, parameters);
-			this.attrValueConverter = attrValueConverter;
+			this.externalDataParser = externalDataParser;
 			setParameters(parameters);
 			at = attrsSupport.getType(unityAttribute);
 			if (at == null)
@@ -100,19 +100,18 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			}
 			
 			List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
-			List<String> typedValues;
+			
+			Attribute attribute;
 			try
 			{
-				typedValues = attrValueConverter.externalValuesToInternal(unityAttribute, aValues);
+				attribute = externalDataParser.parseAsAttribute(at, group, aValues, 
+						null, currentProfile);
 			} catch (IllegalAttributeValueException e)
 			{
 				log.debug("Can't convert attribute values returned by the action's expression "
 						+ "to the type of attribute " + unityAttribute + " , skipping it", e);
 				return;
 			}
-			
-			Attribute attribute = new Attribute(unityAttribute, at.getValueSyntax(), group, 
-					typedValues, null, currentProfile);
 			log.debug("Mapped attribute: " + attribute);
 			state.addAttribute(attribute);
 		}

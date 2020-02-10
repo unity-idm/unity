@@ -125,6 +125,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private TextArea comment;
 	private Map<String, AttributeType> atTypes;
 	private Map<String, CredentialDefinition> credentials;
+	private PrefilledSet prefilled;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -234,9 +235,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (regParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 			{
 				IdentityEditor editor = identityParamEditors.get(i);
-				if (editor == null) //OK - invitation parameter
+				if (editor == null) //was pre-filled in a way we don't have editor
 				{
-					ip = null;
+					ip = prefilled.identities.get(i).getEntry();
 				} else
 				{
 					try
@@ -310,9 +311,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				if (aparam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				{
 					FixedAttributeEditor ae = attributeEditor.get(i);
-					if (ae == null)	//ok, attribute specified by invitation
+					if (ae == null)	//was pre-filled in a way we don't have editor
 					{
-						attr = null;
+						attr = prefilled.attributes.get(i).getEntry();
 					} else
 					{
 						try
@@ -447,6 +448,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, PrefilledSet prefilled) 
 	{
+		this.prefilled = prefilled;
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
 		atTypes = getAttributeTypesMap();

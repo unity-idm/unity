@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.forms.enquiry;
 
 import java.util.Collection;
-import java.util.Comparator;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -39,7 +38,7 @@ public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 	{	
 		InvitationPrefillInfo invitationInfo = getInvitationPrefillInfo(form, response);
 
-		super.validateSubmittedRequest(form, response, invitationInfo, doCredentialCheckAndUpdate);
+		super.validateSubmittedRequest(form, response, doCredentialCheckAndUpdate);
 
 		if (invitationInfo.isByInvitation())
 		{
@@ -105,14 +104,12 @@ public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 		
 		InvitationParam invitation = getInvitation(codeFromRequest).getInvitation();
 		processInvitationElements(form.getIdentityParams(), response.getIdentities(), 
-				invitation.getIdentities(), "identity", Comparator.comparing(IdentityParam::getValue),
-				invitationInfo::setPrefilledIdentity);
+				invitation.getIdentities(), "identity");
 		processInvitationElements(form.getAttributeParams(), response.getAttributes(), 
-				invitation.getAttributes(), "attribute", null,
-				invitationInfo::setPrefilledAttribute);
+				invitation.getAttributes(), "attribute");
 		processInvitationElements(form.getGroupParams(), response.getGroupSelections(), 
-				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), "group", null,
-				i -> {});
+				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
+				"group");
 		return invitationInfo;
 	}
 }

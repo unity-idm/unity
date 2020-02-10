@@ -73,6 +73,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
+import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -100,6 +101,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private FormLayout effectiveLayout;
 	private Stage stage;
 	private RegistrationLayoutsContainer layoutContainer;
+	private URLQueryPrefillCreator urlQueryPrefillCreator;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -114,7 +116,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
-			SignUpAuthNController signUpAuthNController)
+			SignUpAuthNController signUpAuthNController,
+			URLQueryPrefillCreator urlQueryPrefillCreator)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService);
@@ -123,6 +126,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.invitation = invitation2;
 		this.signUpAuthNController = signUpAuthNController;
 		this.authnSupport = authnSupport;
+		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 	}
 	
 	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
@@ -225,6 +229,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					invitation.getAttributes(),
 					invitation.getAllowedGroups());
 		}
+		prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 		createControls(layoutContainer, effectiveLayout, prefilled);
 	}
 	

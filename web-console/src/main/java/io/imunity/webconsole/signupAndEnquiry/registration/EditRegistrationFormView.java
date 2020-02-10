@@ -98,6 +98,7 @@ public class EditRegistrationFormView extends CustomComponent implements UnityVi
 			ignoreRequestsAndInvitations = editor.isIgnoreRequestsAndInvitations();
 		} catch (FormValidationException e)
 		{
+			NotificationPopup.showFormError(msg, e.getMessage());
 			return;
 		}
 

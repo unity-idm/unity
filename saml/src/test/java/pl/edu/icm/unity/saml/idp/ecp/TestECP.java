@@ -50,6 +50,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationRule;
@@ -88,6 +89,8 @@ public class TestECP extends AbstractTestIdpBase
 	private PKIManagement pkiMan;
 	@Autowired
 	private IdentityTypesRegistry idTypesReg;
+	@Autowired
+	private ExternalDataParser parser;
 	
 	@Before
 	@Override
@@ -104,7 +107,7 @@ public class TestECP extends AbstractTestIdpBase
 		log.info("Deployed endpoints: {}", endpoints);
 		
 		List<InputTranslationRule> rules = new ArrayList<>();
-		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
+		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg, parser);
 			
 		InputTranslationRule mapId = new InputTranslationRule(
 				factory.getInstance("userName", "attr['unity:identity:userName']", 

@@ -5,12 +5,10 @@
 package pl.edu.icm.unity.engine.forms;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -90,18 +88,16 @@ public class BaseRequestPreprocessor
 	private InvitationDB invitationDB;
 	
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
-			InvitationPrefillInfo prefillInfo,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{
-		validateSubmittedRequest(form, request, prefillInfo, doCredentialCheckAndUpdate, false);
+		validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, false);
 	}
 	
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
-			InvitationPrefillInfo prefillInfo,
 			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws IllegalFormContentsException
 	{
 		validateRequestAgreements(form, request);
-		validateRequestedAttributes(form, request, prefillInfo);
+		validateRequestedAttributes(form, request);
 		if (!skipCredentialsValidation)
 			validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
 		validateRequestedIdentities(form, request);
@@ -240,8 +236,7 @@ public class BaseRequestPreprocessor
 			credentialRepository.get(credentialParam.getCredentialId());
 	}
 	
-	private void validateRequestedAttributes(BaseForm form, BaseRegistrationInput request, 
-			InvitationPrefillInfo prefillInfo) 
+	private void validateRequestedAttributes(BaseForm form, BaseRegistrationInput request) 
 			throws IllegalFormContentsException
 	{
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), 
@@ -262,13 +257,11 @@ public class BaseRequestPreprocessor
 						+ " in group " + attr.getGroupPath()
 						+ " is not allowed for this form",
 						i, Category.ATTRIBUTE);
-
-			forceConfirmationStateOfAttribute(regParam, i, attr, prefillInfo);
+			forceConfirmationStateOfAttribute(regParam, i, attr);
 		}
 	}
 	
-	private void forceConfirmationStateOfAttribute(AttributeRegistrationParam regParam, int i, 
-			Attribute attr, InvitationPrefillInfo prefillInfo)
+	private void forceConfirmationStateOfAttribute(AttributeRegistrationParam regParam, int i, Attribute attr)
 	{
 		AttributeValueSyntax<?> syntax = attributeTypesHelper
 				.getUnconfiguredSyntaxForAttributeName(attr.getName());
@@ -409,9 +402,7 @@ public class BaseRequestPreprocessor
 	}
 	
 	protected <T> void processInvitationElements(List<? extends RegistrationParam> paramDef,
-			List<T> requested, Map<Integer, PrefilledEntry<T>> fromInvitation, String elementName,
-			Comparator<T> entryComparator,
-			Consumer<Integer> prefilledRecorder) 
+			List<T> requested, Map<Integer, PrefilledEntry<T>> fromInvitation, String elementName) 
 					throws IllegalFormContentsException
 	{
 		validateParamsCount(paramDef, requested, elementName);
@@ -431,18 +422,7 @@ public class BaseRequestPreprocessor
 					requested.set(invitationPrefilledEntry.getKey(), invitationEntity);
 			} else
 			{
-				T requestedEntity = requested.get(invitationPrefilledEntry.getKey());
-				if (requestedEntity != null)
-				{
-					if (entryComparator != null && entryComparator.compare(invitationEntity, requestedEntity) == 0)
-						continue;
-					
-					throw new IllegalFormContentsException("Registration request can not override " 
-							+ elementName +	" " + invitationPrefilledEntry.getKey() + 
-							" specified in invitation");
-				}
 				requested.set(invitationPrefilledEntry.getKey(), invitationEntity);
-				prefilledRecorder.accept(invitationPrefilledEntry.getKey());
 			}
 		}
 	}

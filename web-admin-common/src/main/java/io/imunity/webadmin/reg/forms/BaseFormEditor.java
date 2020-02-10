@@ -317,6 +317,7 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		private ComboBox<String> identityType;
 		private EnumComboBox<ConfirmationMode> confirmationMode;
+		private URLPrefillConfigEditor urlPrefillEditor;
 		
 		@Override
 		public Editor<IdentityRegistrationParam> getEditor()
@@ -348,13 +349,16 @@ public class BaseFormEditor extends VerticalLayout
 					ConfirmationMode.ON_SUBMIT);
 			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
 			confirmationMode.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			urlPrefillEditor = new URLPrefillConfigEditor(msg);
 			main.add(identityType, confirmationMode);
 			if (value != null)
 			{
 				identityType.setValue(value.getIdentityType());
 				confirmationMode.setValue(value.getConfirmationMode());
+				urlPrefillEditor.setValue(value.getUrlQueryPrefill());
 			}
 			initEditorComponent(value);
+			main.add(urlPrefillEditor);
 			return main;
 		}
 
@@ -364,6 +368,7 @@ public class BaseFormEditor extends VerticalLayout
 			IdentityRegistrationParam ret = new IdentityRegistrationParam();
 			ret.setIdentityType(identityType.getValue());
 			ret.setConfirmationMode(confirmationMode.getValue());
+			ret.setUrlQueryPrefill(urlPrefillEditor.getValue());
 			fill(ret);
 			return ret;
 		}
@@ -379,6 +384,7 @@ public class BaseFormEditor extends VerticalLayout
 		private FormAttributeGroupComboBox group;
 		private CheckBox showGroups;
 		private EnumComboBox<ConfirmationMode> confirmationMode;
+		private URLPrefillConfigEditor urlPrefillEditor;
 
 		@Override
 		public Editor<AttributeRegistrationParam> getEditor()
@@ -407,6 +413,7 @@ public class BaseFormEditor extends VerticalLayout
 					ConfirmationMode.ON_SUBMIT);
 			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
 			confirmationMode.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			urlPrefillEditor = new URLPrefillConfigEditor(msg);
 			main.add(attributeType, group, showGroups, confirmationMode);
 			
 			if (value != null)
@@ -415,8 +422,10 @@ public class BaseFormEditor extends VerticalLayout
 				group.setValue(value.getGroup());
 				showGroups.setValue(value.isShowGroups());
 				confirmationMode.setValue(value.getConfirmationMode());
+				urlPrefillEditor.setValue(value.getUrlQueryPrefill());
 			}
 			initEditorComponent(value);
+			main.add(urlPrefillEditor);
 			return main;
 		}
 
@@ -428,6 +437,7 @@ public class BaseFormEditor extends VerticalLayout
 			ret.setGroup(group.getValue());
 			ret.setShowGroups(showGroups.getValue());
 			ret.setConfirmationMode(confirmationMode.getValue());
+			ret.setUrlQueryPrefill(urlPrefillEditor.getValue());
 			fill(ret);
 			return ret;
 		}
