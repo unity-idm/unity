@@ -367,7 +367,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					if (selector == null)	//ok, group specified by invitation
 						g.add(null);
 					else
-						g.add(new GroupSelection(selector.getSelectedGroups()));
+						g.add(new GroupSelection(selector.getSelectedGroupsWithoutParents()));
 				} else
 				{
 					List<String> remotelySelectedPaths = remotelySelected.stream()

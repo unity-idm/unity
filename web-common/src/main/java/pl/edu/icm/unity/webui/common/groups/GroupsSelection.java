@@ -25,7 +25,9 @@ public interface GroupsSelection extends Component
 			new OptionalGroupsSelection(msg, multiSelectable);
 	}
 	
-	List<String> getSelectedGroups();
+	List<String> getSelectedGroupsWithParents();
+
+	List<String> getSelectedGroupsWithoutParents();
 
 	void setSelectedItems(List<Group> items);
 	
