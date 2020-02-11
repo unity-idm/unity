@@ -106,7 +106,7 @@ public class ImportExportImpl implements ImportExport
 				impl.serialize(jg);
 			} catch (Exception e)
 			{
-				log.error("Can not export " + impl.getStoreKey());
+				log.error("Can not export " + impl.getStoreKey(), e);
 				throw e;
 			}
 			jg.flush();

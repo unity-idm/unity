@@ -53,6 +53,9 @@
 	<update id="cleardb-15">
 		DROP TABLE IF EXISTS AUDIT_TAGS;
 	</update>
+	<update id="cleardb-16">
+		DROP TABLE IF EXISTS ATTRIBUTES_LOOKUP;
+	</update>
 	<update id="cleardb-99">
 		DROP TABLE IF EXISTS UVOS_FLAG;
 	</update>
@@ -106,6 +109,9 @@
 	</delete>
 	<delete id="deletedb-auditEvents-03">
 		DELETE FROM AUDIT_TAGS;
+	</delete>
+	<delete id="deletedb-attributesLookup">
+		DELETE FROM ATTRIBUTES_LOOKUP;
 	</delete>
 	<delete id="deletedb-capacityLimit">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = 'capacityLimit'

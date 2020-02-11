@@ -51,4 +51,12 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	 * @return
 	 */
 	long getCountWithoutType(List<String> types);
+	
+	List<Long> getAllIds();
+
+	void linkKeywordToAttribute(String keyword, long attributeId);
+
+	List<StoredAttribute> getLinkedWithKeyword(String keyword);
+
+	List<String> getAllKeywords(Long attributeId);
 }

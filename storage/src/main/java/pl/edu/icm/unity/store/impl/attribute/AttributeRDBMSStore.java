@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +35,8 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	private final Integer attributeSizeLimit;
 	
 	@Autowired
-	AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer, GroupDAO groupDAO, 
+	AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer,
+			GroupDAO groupDAO,
 			StorageConfiguration storageConfiguration)
 	{
 		super(AttributesMapper.class, dbSerializer, NAME);
@@ -128,5 +131,39 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	{
 		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
 		return mapper.getCountWithoutType(types);
+	}
+
+	@Override
+	public void linkKeywordToAttribute(String keyword, long attributeId)
+	{
+		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+		lookupMapper.create(new AttributeLookupBean(null, keyword, attributeId));
+	}
+
+	@Override
+	public List<StoredAttribute> getLinkedWithKeyword(String keyword)
+	{
+		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+		List<AttributeLookupBean> lookupResult = lookupMapper.getByKeyword(keyword);
+		return lookupResult.stream()
+				.map(AttributeLookupBean::getAttributeId)
+				.map(this::getByKey)
+				.collect(toList());
+	}
+
+	@Override
+	public List<Long> getAllIds()
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		return mapper.getAll().stream()
+				.map(AttributeBean::getId)
+				.collect(toList());
+	}
+
+	@Override
+	public List<String> getAllKeywords(Long attributeId)
+	{
+		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+		return lookupMapper.getAllKeywords(attributeId);
 	}
 }

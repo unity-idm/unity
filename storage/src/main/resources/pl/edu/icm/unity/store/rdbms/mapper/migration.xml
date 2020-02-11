@@ -54,7 +54,16 @@
 	</update>
 	
 	<update id="updateSchema-010-02">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initAttributesLookupTable"/>
+	</update>
+	<update id="updateSchema-010-03">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initAttributesLookupTableIdx"/>
+	</update>
+	
+	<update id="updateSchema-010-04">
 		UPDATE UVOS_FLAG SET VAL = '10'
 	</update>
+	
+	
 	
 </mapper>

@@ -188,7 +188,7 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 			ret.add(sa.getAttribute());
 		return ret;
 	}
-	
+
 	private PredicateBuilder getAttributePredicate(String attribute, Long entityId, String group)
 	{
 		EntryObject e = new PredicateBuilder().getEntryObject();
@@ -225,5 +225,28 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 		TransactionalMap<Long, StoredAttribute> hMap = getMap();
 		return hMap.values().stream().filter(a -> !types.contains(a.getAttribute().getName())).count();
 	}
+	
+	@Override
+	public void linkKeywordToAttribute(String keyword, long attributeId)
+	{
+		throw new IllegalStateException("operation not supported");
+	}
 
+	@Override
+	public List<StoredAttribute> getLinkedWithKeyword(String keyword)
+	{
+		throw new IllegalStateException("operation not supported");
+	}
+
+	@Override
+	public List<Long> getAllIds()
+	{
+		throw new IllegalStateException("operation not supported");
+	}
+
+	@Override
+	public List<String> getAllKeywords(Long attributeId)
+	{
+		throw new IllegalStateException("operation not supported");
+	}
 }
