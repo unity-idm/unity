@@ -37,7 +37,10 @@ class PublicLinkableImageAttributeHandler implements WebAttributeHandler
 	{
 		LinkableImage value = syntax.convertFromString(valueRaw);
 		if (value.getUnityImage() != null)
-			return new ImageRepresentationComponent(value.getUnityImage(), context);
+		{
+			String linkURL = syntax.getImageUrl(value);
+			return new ImageRepresentationComponent(value.getUnityImage(), context, linkURL);
+		}
 		if (value.getUrl() != null)
 			return AttributeHandlerHelper.getRepresentation(value.getUrl().toExternalForm(), context);
 		return AttributeHandlerHelper.getRepresentation("", context);

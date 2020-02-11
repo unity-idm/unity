@@ -64,6 +64,7 @@ import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.XFrameOptions;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -92,14 +93,17 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
 	private final UnityHttpServerConfiguration serverSettings;
+	private final AdvertisedAddressProvider advertisedAddressProvider;
 
 	private Server theServer;
 	
 	@Autowired
-	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
+	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement,
+			ListeningUrlsProvider listenUrlsProvider)
 	{
 		this.securityConfiguration = pkiManagement.getMainAuthnAndTrust();
-		this.listenUrls = createURLs(cfg.getJettyProperties());
+		this.listenUrls = listenUrlsProvider.getListenUrls();
+		this.advertisedAddressProvider = listenUrlsProvider;
 		this.serverSettings = cfg.getJettyProperties();
 		this.cfg = cfg;
 		initServer();
@@ -423,21 +427,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 		theServer.setErrorHandler(new JettyErrorHandler(webContentsDir));
 	}
 	
-	private static URL[] createURLs(UnityHttpServerConfiguration conf)
-	{
-		try
-		{
-			String scheme = conf.getBooleanValue(UnityHttpServerConfiguration.DISABLE_TLS) ? 
-					"http" : "https";
-			return new URL[] {new URL(scheme + "://" + conf.getValue(UnityHttpServerConfiguration.HTTP_HOST) + 
-					":" + conf.getValue(UnityHttpServerConfiguration.HTTP_PORT))};
-		} catch (MalformedURLException e)
-		{
-			throw new ConfigurationException("Can not create server url from host and port parameters: " 
-					+ e.getMessage(), e);
-		}
-	}
-
 	@Override
 	public boolean isRunning()
 	{
@@ -577,18 +566,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	@Override
 	public URL getAdvertisedAddress()
 	{
-		String advertisedHost = serverSettings.getValue(UnityHttpServerConfiguration.ADVERTISED_HOST);
-		if (advertisedHost == null)
-			return getUrls()[0];
-		
-		try 
-		{
-			return new URL("https://" + advertisedHost);
-		} catch (MalformedURLException e) 
-		{
-			throw new IllegalStateException("Ups, URL can not " +
-					"be reconstructed, while it should", e);
-		}
+		return advertisedAddressProvider.get();
 	}
 	
 	@Override

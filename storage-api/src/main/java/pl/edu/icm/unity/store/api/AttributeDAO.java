@@ -56,7 +56,7 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 
 	void linkKeywordToAttribute(String keyword, long attributeId);
 
-	List<StoredAttribute> getLinkedWithKeyword(String keyword);
+	List<StoredAttribute> getAllWithKeyword(String keyword);
 
-	List<String> getAllKeywords(Long attributeId);
+	List<String> getAllKeywordsFor(Long attributeId);
 }

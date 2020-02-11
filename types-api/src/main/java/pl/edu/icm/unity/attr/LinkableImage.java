@@ -7,6 +7,9 @@ package pl.edu.icm.unity.attr;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -15,28 +18,31 @@ import pl.edu.icm.unity.JsonUtil;
 
 public class LinkableImage
 {
-	public static final LinkableImage EMPTY = new LinkableImage(null, null);
+	public static final LinkableImage EMPTY = new LinkableImage(null, null, null);
 	
 	private static final String JSON_IMAGE_PROPERTY_NAME = "image";
 	private static final String JSON_URL_PROPERTY_NAME = "url";
+	private static final String JSON_EXTERNAL_ID_PROPERTY_NAME = "externalId";
 	
 	private final UnityImage image;
 	private final URL url;
+	private final UUID externalId;
 	
-	public LinkableImage(UnityImage image)
+	public LinkableImage(UnityImage image, UUID externalId)
 	{
-		this(image, null);
+		this(image, null, externalId);
 	}
 
-	public LinkableImage(URL url)
+	public LinkableImage(URL url, UUID externalId)
 	{
-		this(null, url);
+		this(null, url, externalId);
 	}
 	
-	private LinkableImage(UnityImage image, URL url)
+	private LinkableImage(UnityImage image, URL url, UUID externalId)
 	{
 		this.image = image;
 		this.url = url;
+		this.externalId = externalId == null ? UUID.randomUUID() : externalId;
 	}
 
 	public UnityImage getUnityImage()
@@ -49,11 +55,17 @@ public class LinkableImage
 		return url;
 	}
 	
+	public UUID getExternalId()
+	{
+		return externalId;
+	}
+
 	public String toJsonString()
 	{
 		ObjectNode node = Constants.MAPPER.createObjectNode();
 		node.put(JSON_IMAGE_PROPERTY_NAME, image == null ? null : image.serialize());
 		node.put(JSON_URL_PROPERTY_NAME, url == null ? null : url.toExternalForm());
+		node.put(JSON_EXTERNAL_ID_PROPERTY_NAME, externalId == null ? null : externalId.toString());
 		return node.toString();
 	}
 
@@ -63,14 +75,14 @@ public class LinkableImage
 		
 		String serializedImage = JsonUtil.getNullable(node, JSON_IMAGE_PROPERTY_NAME);
 		UnityImage image = null;
-		if (serializedImage != null)
+		if (!StringUtils.isEmpty(serializedImage))
 		{
 			image = new UnityImage(serializedImage);
 		}
 		
 		String serializedURL = JsonUtil.getNullable(node, JSON_URL_PROPERTY_NAME);
 		URL url = null;
-		if (serializedURL != null)
+		if (!StringUtils.isEmpty(serializedURL))
 		{
 			url = new URL(serializedURL);
 			String protocol = url.getProtocol();
@@ -81,13 +93,20 @@ public class LinkableImage
 			}
 		}
 		
-		return new LinkableImage(image, url);
+		String externalIdStr = JsonUtil.getNullable(node, JSON_EXTERNAL_ID_PROPERTY_NAME);
+		UUID externalId = null;
+		if (!StringUtils.isEmpty(externalIdStr))
+		{
+			externalId = UUID.fromString(externalIdStr);
+		}
+		
+		return new LinkableImage(image, url, externalId);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(image, url);
+		return Objects.hash(image, url, externalId);
 	}
 
 	@Override
@@ -96,8 +115,23 @@ public class LinkableImage
 		if (object instanceof LinkableImage)
 		{
 			LinkableImage that = (LinkableImage) object;
-			return Objects.equals(this.image, that.image) && Objects.equals(this.url, that.url);
+			return Objects.equals(this.image, that.image) && Objects.equals(this.url, that.url)
+					&& Objects.equals(this.externalId, that.externalId);
 		}
 		return false;
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("LinkableImage [image=");
+		builder.append(image);
+		builder.append(", url=");
+		builder.append(url);
+		builder.append(", externalId=");
+		builder.append(externalId);
+		builder.append("]");
+		return builder.toString();
 	}
 }

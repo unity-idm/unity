@@ -141,7 +141,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	}
 
 	@Override
-	public List<StoredAttribute> getLinkedWithKeyword(String keyword)
+	public List<StoredAttribute> getAllWithKeyword(String keyword)
 	{
 		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
 		List<AttributeLookupBean> lookupResult = lookupMapper.getByKeyword(keyword);
@@ -161,7 +161,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	}
 
 	@Override
-	public List<String> getAllKeywords(Long attributeId)
+	public List<String> getAllKeywordsFor(Long attributeId)
 	{
 		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
 		return lookupMapper.getAllKeywords(attributeId);

@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.engine.attribute;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.attributes.SharedAttributeInfo;
+import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.types.basic.Attribute;
+
+/**
+ * For a given attribute, which syntax indicates that is sharable, link the
+ * external id keyword with an attribute. The purpose is to have reliable and
+ * fast way of searching attributes by external id.
+ */
+class SharedAttributeRegistry
+{
+	private final AttributeDAO attributeDAO;
+	private final AttributeTypeHelper atHelper;
+
+	@Autowired
+	SharedAttributeRegistry(AttributeDAO attributeDAO, AttributeTypeHelper atHelper)
+	{
+		this.attributeDAO = attributeDAO;
+		this.atHelper = atHelper;
+	}
+
+	void registerAttributeInfo(Attribute attr, long createdAttrId)
+	{
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
+		syntax.shareSpec().ifPresent(spec ->
+		{
+			attr.getValues().forEach(stringRepresentation ->
+			{
+				SharedAttributeInfo info = spec.getInfo(stringRepresentation);
+				attributeDAO.linkKeywordToAttribute(info.externalId, createdAttrId);
+			});
+		});
+	}
+}

@@ -66,6 +66,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.wellknown.AttributesContentServletProvider;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventListener;
@@ -236,6 +237,8 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private AuthenticationFlowManagement authnFlowManagement;
+	@Autowired
+	private AttributesContentServletProvider attributesContentServletFactory;
 	
 	@Autowired
 	@Qualifier("insecure")
@@ -259,6 +262,7 @@ public class EngineInitialization extends LifecycleBase
 			startLogConfigurationMonitoring();
 			initializeBackgroundTasks();
 			deployConfirmationServlet();
+			deployAttributeContentServlet();
 			deployPublicWellKnownURLServlet();
 			super.start();
 		} catch (Exception e)
@@ -505,6 +509,23 @@ public class EngineInitialization extends LifecycleBase
 		} catch (EngineException e)
 		{
 			throw new InternalException("Cannot deploy internal confirmation servlet", e);
+		}
+	}
+
+	private void deployAttributeContentServlet()
+	{
+		log.info("Deploing attribute content servlet");
+		ServletHolder holder = attributesContentServletFactory.getServiceServlet();
+		FilterHolder filterHolder = new FilterHolder(attributesContentServletFactory.getServiceFilter());
+		try
+		{
+			sharedEndpointManagement.deployInternalEndpointServlet(
+					AttributesContentServletProvider.SERVLET_PATH, holder, true);
+			sharedEndpointManagement.deployInternalEndpointFilter(
+					AttributesContentServletProvider.SERVLET_PATH, filterHolder);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Cannot deploy internal linkable attribute content servlet", e);
 		}
 	}
 

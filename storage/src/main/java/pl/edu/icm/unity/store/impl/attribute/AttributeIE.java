@@ -53,7 +53,7 @@ public class AttributeIE extends AbstractIEBase<StoredAttributeWithKeywords>
 	private StoredAttributeWithKeywords toStoredAttrWithKeywords(Long attributeId)
 	{
 		StoredAttribute storedAttribute = dao.getByKey(attributeId);
-		List<String> keywords = dao.getAllKeywords(attributeId);
+		List<String> keywords = dao.getAllKeywordsFor(attributeId);
 		return new StoredAttributeWithKeywords(storedAttribute, keywords);
 	}
 

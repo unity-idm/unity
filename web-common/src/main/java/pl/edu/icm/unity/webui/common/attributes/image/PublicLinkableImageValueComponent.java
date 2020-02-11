@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common.attributes.image;
 
 import java.net.URL;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +27,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 	private final UnityImageValueComponent imageValueComponent;
 	private final ExternalUrlOptionComponent urlValueComponent;
 	private final RadioButtonGroup<Option> selector;
+	private final UUID externalId;
 	
 	private enum Option
 	{
@@ -39,7 +41,8 @@ class PublicLinkableImageValueComponent extends CustomComponent
 	{
 		UnityImage unityImage = value == null ? null : value.getUnityImage();
 		URL url = value == null ? null : value.getUrl();
-		Option activeOption = unityImage != null ? Option.EMBEDDED_IMAGE : Option.EXTERNAL_IMAGE_URL;
+		externalId = value == null ? null : value.getExternalId();
+		Option activeOption = unityImage != null || value == null ? Option.EMBEDDED_IMAGE : Option.EXTERNAL_IMAGE_URL;
 		
 		imageValueComponent = new UnityImageValueComponent(unityImage, imgConfig, msg);
 		urlValueComponent = new ExternalUrlOptionComponent(url, msg);
@@ -70,11 +73,11 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		if (selected == Option.EMBEDDED_IMAGE)
 		{
 			UnityImage image = imageValueComponent.getValue(required, new LinkableImageValidator(syntax));
-			return new LinkableImage(image);
+			return new LinkableImage(image, externalId);
 		}
 		
 		URL url = urlValueComponent.getValue(required);
-		return new LinkableImage(url); 
+		return new LinkableImage(url, externalId); 
 	}
 	
 	private void valueChange(ValueChangeEvent<Option> event)
@@ -90,7 +93,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		}
 	}
 	
-	private static class LinkableImageValidator implements ImageValidator
+	private class LinkableImageValidator implements ImageValidator
 	{
 		private final PublicLinkableImageSyntax syntax;
 		
@@ -102,7 +105,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		@Override
 		public void validate(UnityImage value) throws IllegalAttributeValueException
 		{
-			syntax.validate(new LinkableImage(value));
+			syntax.validate(new LinkableImage(value, externalId));
 		}
 	}
 }

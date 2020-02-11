@@ -71,20 +71,21 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 @Component
 public class AttributesHelper
 {
-	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
-	private AttributeClassDB acDB;
-	private AttributeClassUtil acUtil;
-	private IdentityDAO identityDAO;
-	private EntityDAO entityDAO;
-	private EntityResolver idResolver;
-	private AttributeTypeDAO attributeTypeDAO;
-	private AttributeDAO attributeDAO;
-	private MembershipDAO membershipDAO;
-	private AttributeStatementProcessor statementsHelper;
-	private AttributeTypeHelper atHelper;
-	private GroupDAO groupDAO;
-	private AuditPublisher audit;
-	private InternalCapacityLimitVerificator capacityLimitVerificator;
+	private final AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
+	private final AttributeClassDB acDB;
+	private final AttributeClassUtil acUtil;
+	private final IdentityDAO identityDAO;
+	private final EntityDAO entityDAO;
+	private final EntityResolver idResolver;
+	private final AttributeTypeDAO attributeTypeDAO;
+	private final AttributeDAO attributeDAO;
+	private final MembershipDAO membershipDAO;
+	private final AttributeStatementProcessor statementsHelper;
+	private final AttributeTypeHelper atHelper;
+	private final GroupDAO groupDAO;
+	private final AuditPublisher audit;
+	private final InternalCapacityLimitVerificator capacityLimitVerificator;
+	private final SharedAttributeRegistry sharedAttrRegistry;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -110,6 +111,7 @@ public class AttributesHelper
 		this.groupDAO = groupDAO;
 		this.audit = audit;
 		this.capacityLimitVerificator = capacityLimitVerificator;
+		this.sharedAttrRegistry = new SharedAttributeRegistry(attributeDAO, atHelper);
 	}
 
 	/**
@@ -350,7 +352,8 @@ public class AttributesHelper
 				throw new IllegalGroupValueException("The entity is not a member "
 						+ "of the group specified in the attribute");
 			checkAttributeCapacityLimit(at, aExt);	
-			attributeDAO.create(param);
+			long createdAttrId = attributeDAO.create(param);
+			sharedAttrRegistry.registerAttributeInfo(attribute, createdAttrId);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.ADD));
 		} else
 		{
@@ -363,7 +366,7 @@ public class AttributesHelper
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.UPDATE));
 		}
 	}
-	
+
 	private void checkAttributeCapacityLimit(AttributeType at, Attribute attr) throws CapacityLimitReachedException
 	{
 

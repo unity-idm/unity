@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.attr.UnityImage;
@@ -17,19 +19,24 @@ class ImageRepresentationComponent extends CustomComponent
 {
 	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context)
 	{
-		setCompositionRoot(getRootComponent(value, context));
+		this(value, context, null);
 	}
 
-	private Component getRootComponent(UnityImage value, AttributeViewerContext context)
+	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context, String linkURL)
+	{
+		setCompositionRoot(getRootComponent(value, context,linkURL));
+	}
+
+	private Component getRootComponent(UnityImage value, AttributeViewerContext context, String linkURL)
 	{
 		VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(false);
 		layout.setSpacing(false);
-		layout.addComponent(getRepresentation(value, context));
+		layout.addComponent(getRepresentation(value, context, linkURL));
 		return layout;
 	}
 
-	private Component getRepresentation(UnityImage value, AttributeViewerContext context)
+	private Component getRepresentation(UnityImage value, AttributeViewerContext context, String linkURL)
 	{
 		if (value == null)
 			return UnityImageValueComponent.getErrorImage();
@@ -67,6 +74,16 @@ class ImageRepresentationComponent extends CustomComponent
 					image.setHeightUndefined();
 				}
 			}
+			
+			if (linkURL != null && context.isScaleImage())
+			{
+				Link link = new Link();
+				link.setTargetName("_blank");
+				link.setIcon(image.getSource());
+				link.setResource(new ExternalResource(linkURL));
+				return link;
+			}
+			
 			return image;
 		} else
 		{

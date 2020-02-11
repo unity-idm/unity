@@ -160,4 +160,12 @@ public interface AttributeValueSyntax<T>
 		return Optional.empty();
 	}
 	
+	/**
+	 * When non empty it means that the attribute's content can be accessed
+	 * publicly.
+	 */
+	default Optional<SharedAttributeSpec> shareSpec()
+	{
+		return Optional.empty();
+	}
 }

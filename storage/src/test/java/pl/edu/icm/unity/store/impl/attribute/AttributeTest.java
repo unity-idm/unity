@@ -572,7 +572,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			lookupMapper.create(new AttributeLookupBean(null, "keyword", id));
 			
 			// when
-			List<StoredAttribute> linked = dao.getLinkedWithKeyword("keyword");
+			List<StoredAttribute> linked = dao.getAllWithKeyword("keyword");
 			
 			// then
 			Assertions.assertThat(linked)
@@ -595,7 +595,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			lookupMapper.create(new AttributeLookupBean(null, "keyword2", id));
 
 			// when
-			List<String> keywords = dao.getAllKeywords(id);
+			List<String> keywords = dao.getAllKeywordsFor(id);
 
 			// then
 			Assertions.assertThat(keywords)
@@ -626,7 +626,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			lookupMapper.create(new AttributeLookupBean(null, "keyword", id3));
 
 			// when
-			List<StoredAttribute> linked = dao.getLinkedWithKeyword("keyword");
+			List<StoredAttribute> linked = dao.getAllWithKeyword("keyword");
 
 			// then
 			Assertions.assertThat(linked)
@@ -698,7 +698,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 		});
 		
 		tx.runInTransaction(() -> {
-			List<StoredAttribute> attrs = getDAO().getLinkedWithKeyword("keyword");
+			List<StoredAttribute> attrs = getDAO().getAllWithKeyword("keyword");
 			Assertions.assertThat(attrs)
 				.hasSize(1)
 				.contains(imported);

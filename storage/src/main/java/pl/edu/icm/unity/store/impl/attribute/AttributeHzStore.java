@@ -233,7 +233,7 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 	}
 
 	@Override
-	public List<StoredAttribute> getLinkedWithKeyword(String keyword)
+	public List<StoredAttribute> getAllWithKeyword(String keyword)
 	{
 		throw new IllegalStateException("operation not supported");
 	}
@@ -245,7 +245,7 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 	}
 
 	@Override
-	public List<String> getAllKeywords(Long attributeId)
+	public List<String> getAllKeywordsFor(Long attributeId)
 	{
 		throw new IllegalStateException("operation not supported");
 	}
