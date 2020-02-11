@@ -16,9 +16,7 @@ import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 
 /**
- * Contains confirmation vaadin servlet implementation
- * @author K. Benedyczak
- *
+ * Shared Vaadin servlet providing access to various views, which are publicly available under well known links.
  */
 @Component
 public class PublicWellKnownUrlServletFactory extends SimpleVaadinServletFactory implements PublicWellKnownURLServletProvider

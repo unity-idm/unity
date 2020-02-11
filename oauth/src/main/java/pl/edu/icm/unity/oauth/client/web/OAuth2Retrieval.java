@@ -122,4 +122,11 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	{
 		return true;
 	}
+
+	@Override
+	public void triggerAutomatedUIAuthentication(VaadinAuthenticationUI authenticatorUI)
+	{
+		OAuth2RetrievalUI oauthUI = (OAuth2RetrievalUI) authenticatorUI;
+		oauthUI.startLogin();
+	}
 }

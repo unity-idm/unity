@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.util.Optional;
+
 import javax.servlet.http.Cookie;
 
 import com.vaadin.server.VaadinRequest;
@@ -30,13 +32,15 @@ public class PreferredAuthenticationHelper
 	}
 	
 	
-	public static Cookie createLastIdpCookie(String endpointPath, String idpKey)
+	public static Optional<Cookie> createLastIdpCookie(String endpointPath, String idpKey)
 	{
+		if (endpointPath == null || idpKey == null)
+			return Optional.empty();
 		Cookie selectedIdp = new Cookie(LAST_AUTHN_COOKIE, idpKey);
 		selectedIdp.setMaxAge(3600*24*30);
 		selectedIdp.setPath(endpointPath);
 		selectedIdp.setHttpOnly(true);
-		return selectedIdp;
+		return Optional.of(selectedIdp);
 	}
 	
 	private static String getIdpFromRequestParam()

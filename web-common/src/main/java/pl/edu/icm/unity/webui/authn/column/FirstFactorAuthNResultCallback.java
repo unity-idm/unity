@@ -7,9 +7,10 @@ package pl.edu.icm.unity.webui.authn.column;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -171,10 +172,8 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	
 	private void setLastIdpCookie(String idpKey)
 	{
-		if (endpointPath == null)
-			return;
-		VaadinResponse resp = VaadinService.getCurrentResponse();
-		resp.addCookie(PreferredAuthenticationHelper.createLastIdpCookie(endpointPath, idpKey));
+		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(endpointPath, idpKey);
+		lastIdpCookie.ifPresent(cookie -> VaadinService.getCurrentResponse().addCookie(cookie));
 	}
 	
 	/**

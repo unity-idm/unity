@@ -46,7 +46,7 @@ public class ProxyAuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			ProxyAuthenticationFilter.class);
-	private static final String TRIGGERING_PARAM = "uy_auto_login";
+	public static final String TRIGGERING_PARAM = "uy_auto_login";
 	
 	/**
 	 * Presence of this attribute in session signals that automated login was triggered for the session 
@@ -85,8 +85,6 @@ public class ProxyAuthenticationFilter implements Filter
 	/**
 	 * Removes the automated authentication triggering param and idp selection and 
 	 * dumps the rest of params to query string.
-	 * @param httpRequest
-	 * @return
 	 */
 	private static String filteredQuery(HttpServletRequest httpRequest)
 	{

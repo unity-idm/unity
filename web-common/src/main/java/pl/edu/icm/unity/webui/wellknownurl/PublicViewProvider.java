@@ -11,9 +11,6 @@ import com.vaadin.server.VaadinRequest;
 
 /**
  * Implementations provide {@link View}s for registration in {@link PublicNavigationUI}.
- * Marker interface.
- * 
- * @author K. Benedyczak
  */
 public interface PublicViewProvider extends ViewProvider
 {
