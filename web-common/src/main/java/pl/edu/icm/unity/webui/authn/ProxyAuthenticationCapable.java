@@ -18,8 +18,8 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  * <p>
  * There are two variants: one triggers authentication before loading any of the UI. It is used by sign-in flows.
  * The other variant triggers authentication after loading UI. This variant is used in sign-up flows. It would be great 
- * to use the first variant instead of this one, but this would require refactoring of public endpoint on which registration
- * forms are accessible (so that form id is not URL fragment).
+ * to use the first variant in both cases, but this would require refactoring of public endpoint on which registration
+ * forms are accessible (so that it is specific to registration forms only).
  * <p>
  * This feature is possible with external authenticators, which are redirect based and so 
  * does not require any user input on Unity.
