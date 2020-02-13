@@ -104,7 +104,7 @@ public class SAMLAuthenticatorConfigurationTest
 	{
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getEditableImageResourceFromUriOrNull(eq("foo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("foo")));
+		when(imageAccessSrv.getEditableImageResourceFromUriWithUnknownTheme(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource("foo")));
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.remove("jwt.")
 				.update("remoteIdp.1.signRequest", "false")

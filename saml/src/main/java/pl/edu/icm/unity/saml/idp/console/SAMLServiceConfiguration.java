@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
+import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
@@ -97,6 +98,10 @@ public class SAMLServiceConfiguration
 		attrAssertionValidity = SamlIdpProperties.DEFAULT_ATTR_ASSERTION_VALIDITY;
 		returnSingleAssertion = true;
 		identityMapping = new ArrayList<>();
+		IdentityTypeMapper.DEFAULTS.entrySet().forEach(e -> {
+			identityMapping.add(new SAMLIdentityMapping(e.getKey(), e.getValue()));
+		});
+		
 		individualTrustedSPs = new ArrayList<>();
 		trustedFederations = new ArrayList<>();
 		publishMetadata = true;

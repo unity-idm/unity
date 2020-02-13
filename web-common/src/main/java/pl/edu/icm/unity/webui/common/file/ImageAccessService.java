@@ -37,11 +37,11 @@ public class ImageAccessService
 		this.uriAccessService = uriAccessService;
 	}
 
-	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUriOrNull(String logoUri,
-			Optional<String> theme)
+	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUri(String logoUri,
+			String theme)
 	{
 		if (logoUri == null || logoUri.isEmpty())
-			return null;
+			return Optional.empty();
 
 		URI uri;
 		try
@@ -58,11 +58,10 @@ public class ImageAccessService
 			return Optional.of(new LocalOrRemoteResource(uri.toString()));
 		} else
 		{
-			String rTheme = theme.isPresent() ? theme.get() : UNKNOWN_THEME;
 			FileData fileData = null;
 			try
 			{
-				fileData = uriAccessService.readImageURI(uri, rTheme);
+				fileData = uriAccessService.readImageURI(uri, theme);
 			} catch (Exception e)
 			{
 				log.error("Can not read image from uri: " + logoUri);
@@ -72,7 +71,12 @@ public class ImageAccessService
 					uri.toString()));
 		}
 	}
-
+	
+	public Optional<LocalOrRemoteResource> getEditableImageResourceFromUriWithUnknownTheme(String logoUri)
+	{
+		return getEditableImageResourceFromUri(logoUri, UNKNOWN_THEME);
+	}
+	
 	public Optional<Resource> getConfiguredImageResourceFromNullableUri(String logoUri)
 	{
 		if (logoUri == null || logoUri.isEmpty())

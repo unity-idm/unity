@@ -95,6 +95,11 @@ public class URIAccessServiceImpl implements URIAccessService
 	@Override
 	public FileData readImageURI(URI uri, String themeName)
 	{
+		if (themeName == null)
+		{
+			throw new IllegalArgumentException("Theme name can not be null");
+		}
+		
 		try
 		{
 			URIHelper.validateURI(uri);
