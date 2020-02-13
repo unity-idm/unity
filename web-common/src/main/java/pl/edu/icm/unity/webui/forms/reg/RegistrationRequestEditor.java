@@ -18,6 +18,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -53,6 +55,9 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -233,6 +238,51 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		createControls(layoutContainer, effectiveLayout, prefilled);
 	}
 	
+	void performAutomaticRemoteSignupIfNeeded()
+	{
+		if (isAutomatedAuthenticationDesired())
+		{
+			VaadinServletRequest httpRequest = (VaadinServletRequest) VaadinRequest.getCurrent();
+			String requestedAuthnOption = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
+			if (signupOptions.size() > 1 && requestedAuthnOption == null)
+			{
+				log.warn("There are more multiple remote signup options are installed, "
+						+ "and automated signup was requested without specifying (with " 
+						+  "{}) which one should be used. Automatic signup is skipped.", 
+						PreferredAuthenticationHelper.IDP_SELECT_PARAM);
+				return;
+			}
+			AuthNOption authnOption = requestedAuthnOption != null ? 
+					signupOptions.get(AuthenticationOptionKey.valueOf(requestedAuthnOption)) : 
+					signupOptions.values().iterator().next();
+			if (authnOption == null)
+			{
+				log.warn("Remote signup option {} specified for auto signup is invalid. "
+						+ "Automatic signup is skipped.", requestedAuthnOption);
+				return;
+			}
+			if (authnOption.authenticator instanceof ProxyAuthenticationCapable)
+			{
+				ProxyAuthenticationCapable proxyAuthn = (ProxyAuthenticationCapable) authnOption.authenticator;
+				proxyAuthn.triggerAutomatedUIAuthentication(authnOption.authenticatorUI);
+			} else
+			{
+				log.warn("Automatic signup was requested but the selected remote authenticator "
+						+ "is not capable of automatic triggering");
+				return;
+			}
+		}
+	}
+	
+	private boolean isAutomatedAuthenticationDesired()
+	{
+		VaadinServletRequest httpRequest = (VaadinServletRequest) VaadinRequest.getCurrent();
+		String autoLogin = httpRequest.getParameter(ProxyAuthenticationFilter.TRIGGERING_PARAM);
+		if (autoLogin != null && Boolean.parseBoolean(autoLogin))
+			return true;
+		return false;
+	}
+
 	@Override
 	protected RegistrationLayoutsContainer createLayouts()
 	{

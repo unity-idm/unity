@@ -118,6 +118,13 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	}
 
 	@Override
+	public void triggerAutomatedUIAuthentication(VaadinAuthenticationUI authenticatorUI)
+	{
+		SAMLRetrievalUI ui = (SAMLRetrievalUI) authenticatorUI;
+		ui.startLogin();
+	}
+	
+	@Override
 	public void destroy()
 	{
 		credentialExchange.destroy();

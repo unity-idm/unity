@@ -173,7 +173,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}
 	}
 
-	private void startLogin()
+	void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session

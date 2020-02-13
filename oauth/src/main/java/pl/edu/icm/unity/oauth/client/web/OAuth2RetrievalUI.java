@@ -196,7 +196,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		}
 	}
 	
-	private void startLogin()
+	void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		OAuthContext context = (OAuthContext) session.getAttribute(

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.Cookie;
@@ -116,8 +117,8 @@ class SAMLProxyAuthnHandler
 	{
 		String optionId = idpConfigKey.substring(SAMLSPProperties.IDP_PREFIX.length(), idpConfigKey.length()-1);
 		String selectedAuthn = AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
-		Cookie lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
+		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
 				endpointPath, selectedAuthn);
-		httpResponse.addCookie(lastIdpCookie);
+		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 }

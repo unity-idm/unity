@@ -124,8 +124,8 @@ class OAuthProxyAuthnHandler
 	{
 		String optionId = idpConfigKey.substring(OAuthClientProperties.PROVIDERS.length(), idpConfigKey.length()-1);
 		String selectedAuthn = AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
-		Cookie lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
+		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
 				endpointPath, selectedAuthn);
-		httpResponse.addCookie(lastIdpCookie);
+		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 }
