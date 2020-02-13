@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH;
-import static pl.edu.icm.unity.engine.api.wellknown.AttributesContentServletProvider.SERVLET_PATH;
+import static pl.edu.icm.unity.engine.api.wellknown.AttributesContentPublicServletProvider.SERVLET_PATH;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -82,9 +82,7 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	public String serializeSimple(LinkableImage value)
 	{
 		if (value.getUnityImage() != null)
-		{
 			return getImageUrl(value);
-		}
 
 		if (value.getUrl() != null)
 			return value.getUrl().toExternalForm();

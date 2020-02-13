@@ -85,7 +85,7 @@ public class AttributesHelper
 	private final GroupDAO groupDAO;
 	private final AuditPublisher audit;
 	private final InternalCapacityLimitVerificator capacityLimitVerificator;
-	private final SharedAttributeRegistry sharedAttrRegistry;
+	private final AttributeRegistry attrRegistry;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -111,7 +111,7 @@ public class AttributesHelper
 		this.groupDAO = groupDAO;
 		this.audit = audit;
 		this.capacityLimitVerificator = capacityLimitVerificator;
-		this.sharedAttrRegistry = new SharedAttributeRegistry(attributeDAO, atHelper);
+		this.attrRegistry = new AttributeRegistry(attributeDAO, atHelper);
 	}
 
 	/**
@@ -353,7 +353,7 @@ public class AttributesHelper
 						+ "of the group specified in the attribute");
 			checkAttributeCapacityLimit(at, aExt);	
 			long createdAttrId = attributeDAO.create(param);
-			sharedAttrRegistry.registerAttributeInfo(attribute, createdAttrId);
+			attrRegistry.registerAttributeInfo(attribute, createdAttrId);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.ADD));
 		} else
 		{

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -212,7 +213,7 @@ public class AttributeStatementProcessor
 				if (at != null)
 					collectedAttributes.put(queriedAttribute, new AttributeExt(at));
 			}
-			acAttribute = (AttributeExt) regularAttributesInGroup.get(
+			acAttribute = regularAttributesInGroup.get(
 					AttributeClassUtil.ATTRIBUTE_CLASSES_ATTRIBUTE);
 		}
 

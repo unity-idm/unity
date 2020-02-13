@@ -50,7 +50,6 @@ import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -73,6 +72,7 @@ import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeExtWithSimple;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -110,7 +110,7 @@ public class RESTAdmin implements RESTAdminHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTAdmin.class);
 	private EntityManagement identitiesMan;
 	private GroupsManagement groupsMan;
-	private AttributesManagement attributesMan;
+	private AttributesManagementRESTService attributesService;
 	private ObjectMapper mapper = Constants.MAPPER;
 	private EmailConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
@@ -127,11 +127,13 @@ public class RESTAdmin implements RESTAdminHandler
 	private ExternalDataParser dataParser;
 
 	@Autowired
-	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attributesMan, 
-			EmailConfirmationManager confirmationManager, EndpointManagement endpointManagement,
-			RegistrationsManagement registrationManagement, 
-			BulkProcessingManagement bulkProcessingManagement, 
+	public RESTAdmin(EntityManagement identitiesMan,
+			GroupsManagement groupsMan,
+			AttributesManagementRESTService attributesService,
+			EmailConfirmationManager confirmationManager,
+			EndpointManagement endpointManagement,
+			RegistrationsManagement registrationManagement,
+			BulkProcessingManagement bulkProcessingManagement,
 			UserImportManagement userImportManagement,
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
@@ -144,7 +146,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
-		this.attributesMan = attributesMan;
+		this.attributesService = attributesService;
 		this.confirmationManager = confirmationManager;
 		this.endpointManagement = endpointManagement;
 		this.registrationManagement = registrationManagement;
@@ -272,18 +274,20 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/attributes")
 	@GET
 	public String getAttributes(@PathParam("entityId") String entityId,
-			@QueryParam("group") String group, @QueryParam("effective") Boolean effective, 
-			@QueryParam("identityType") String idType) 
-					throws EngineException, JsonProcessingException
+			@QueryParam("group") String group,
+			@QueryParam("effective") Boolean effective,
+			@QueryParam("identityType") String idType,
+			@QueryParam("includeSimpleValues") Boolean includeSimpleValues)
+			throws EngineException, JsonProcessingException
 	{
 		if (group == null)
 			group = "/";
 		if (effective == null)
 			effective = true;
-		log.debug("getAttributes query for " + entityId + " in " + group);
-		Collection<AttributeExt> attributes = attributesMan.getAllAttributes(
-				getEP(entityId, idType), effective, group, null, true);
+		includeSimpleValues = includeSimpleValues == null ? false : includeSimpleValues;
 		
+		List<AttributeExtWithSimple> attributes = attributesService.getAttributes(
+				getEP(entityId, idType), group, effective, idType, includeSimpleValues);
 		return mapper.writeValueAsString(attributes);
 	}
 
@@ -297,8 +301,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (group == null)
 			group = "/";
-		log.debug("removeAttribute " + attribute + " of " + entityId + " in " + group);
-		attributesMan.removeAttribute(getEP(entityId, idType), group, attribute);
+		attributesService.removeAttribute(getEP(entityId, idType), group, attribute);
 	}
 	
 	@Path("/entity/{entityId}/attribute")
@@ -317,7 +320,7 @@ public class RESTAdmin implements RESTAdminHandler
 		{
 			throw new JSONParsingException("Can't parse the attribute input", e);
 		}
-		setAttribute(attributeParam, getEP(entityId, idType));
+		attributesService.setAttribute(attributeParam, getEP(entityId, idType));
 	}
 
 	@Path("/entity/{entityId}/attributes")
@@ -347,16 +350,9 @@ public class RESTAdmin implements RESTAdminHandler
 		}
 		EntityParam ep = getEP(entityId, idType);
 		for (Attribute ap: parsedParams)
-			setAttribute(ap, ep);
+			attributesService.setAttribute(ap, ep);
 	}
 
-	private void setAttribute(Attribute attributeParam, EntityParam entityParam) 
-			throws EngineException
-	{
-		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
-		attributesMan.setAttributeSuppressingConfirmation(entityParam, attributeParam);
-	}
-	
 	//TODO - those two endpoints are duplicating functionality. Should be unified into a single one.
 	//remaining after old method of providing used credential
 	@Path("/entity/{entityId}/credential-adm/{credential}")
@@ -569,7 +565,7 @@ public class RESTAdmin implements RESTAdminHandler
 			group = "/";
 		log.debug("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
 		EntityParam entityParam = getEP(entityId, idType);
-		Collection<AttributeExt> attributes = attributesMan.getAttributes(entityParam, group, attribute);
+		Collection<AttributeExt> attributes = attributesService.getAttributes(entityParam, group, attribute);
 		
 		if (attributes.isEmpty())
 			throw new WrongArgumentException("Attribute is undefined");

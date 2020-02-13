@@ -16,13 +16,13 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * external id keyword with an attribute. The purpose is to have reliable and
  * fast way of searching attributes by external id.
  */
-class SharedAttributeRegistry
+class AttributeRegistry
 {
 	private final AttributeDAO attributeDAO;
 	private final AttributeTypeHelper atHelper;
 
 	@Autowired
-	SharedAttributeRegistry(AttributeDAO attributeDAO, AttributeTypeHelper atHelper)
+	AttributeRegistry(AttributeDAO attributeDAO, AttributeTypeHelper atHelper)
 	{
 		this.attributeDAO = attributeDAO;
 		this.atHelper = atHelper;

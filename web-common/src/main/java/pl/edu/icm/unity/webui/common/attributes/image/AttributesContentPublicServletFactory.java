@@ -13,32 +13,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.wellknown.AttributesContentServletProvider;
+import pl.edu.icm.unity.engine.api.wellknown.AttributesContentPublicServletProvider;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 @Component
-class AttributesContentServletFactory implements AttributesContentServletProvider
+class AttributesContentPublicServletFactory implements AttributesContentPublicServletProvider
 {
 	private final UnityServerConfiguration config;
 	private final AttributesManagement attributesManagement;
-	private final AttributeSyntaxFactoriesRegistry atSyntaxRegistry;
+	private final AttributeTypeSupport attributeTypeSupport;
 
 	@Autowired
-	AttributesContentServletFactory(UnityServerConfiguration config,
+	AttributesContentPublicServletFactory(UnityServerConfiguration config,
 			AttributesManagement attributesManagement,
-			AttributeSyntaxFactoriesRegistry atSyntaxRegistry)
+			AttributeTypeSupport attributeTypeSupport)
 	{
 		this.config = config;
 		this.attributesManagement = attributesManagement;
-		this.atSyntaxRegistry = atSyntaxRegistry;
+		this.attributeTypeSupport = attributeTypeSupport;
 	}
 
 	@Override
 	public ServletHolder getServiceServlet()
 	{
-		AttributesContentServlet servlet = new AttributesContentServlet(attributesManagement, atSyntaxRegistry);
+		AttributesContentPublicServlet servlet = new AttributesContentPublicServlet(attributesManagement, attributeTypeSupport);
 		return new ServletHolder(servlet);
 	}
 

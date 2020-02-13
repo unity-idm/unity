@@ -66,7 +66,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.api.wellknown.AttributesContentServletProvider;
+import pl.edu.icm.unity.engine.api.wellknown.AttributesContentPublicServletProvider;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventListener;
@@ -238,7 +238,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AuthenticationFlowManagement authnFlowManagement;
 	@Autowired
-	private AttributesContentServletProvider attributesContentServletFactory;
+	private AttributesContentPublicServletProvider attributesContentServletFactory;
 	
 	@Autowired
 	@Qualifier("insecure")
@@ -520,9 +520,9 @@ public class EngineInitialization extends LifecycleBase
 		try
 		{
 			sharedEndpointManagement.deployInternalEndpointServlet(
-					AttributesContentServletProvider.SERVLET_PATH, holder, true);
+					AttributesContentPublicServletProvider.SERVLET_PATH, holder, true);
 			sharedEndpointManagement.deployInternalEndpointFilter(
-					AttributesContentServletProvider.SERVLET_PATH, filterHolder);
+					AttributesContentPublicServletProvider.SERVLET_PATH, filterHolder);
 		} catch (EngineException e)
 		{
 			throw new InternalException("Cannot deploy internal linkable attribute content servlet", e);

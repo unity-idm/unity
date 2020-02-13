@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeValueConverter
+public class AttributeValueConverterImpl implements AttributeValueConverter
 {
 	@Autowired
 	private AttributeTypeHelper atHelper;
@@ -29,6 +30,7 @@ public class AttributeValueConverter
 	/**
 	 * Converts a list of external values to the internal representation which is ready to be stored in database 
 	 */
+	@Override
 	public List<String> externalValuesToInternal(String attributeName, List<?> externalValues) 
 			throws IllegalAttributeValueException
 	{
@@ -39,6 +41,7 @@ public class AttributeValueConverter
 	/**
 	 * As {@link #externalValuesToInternal(String, List)} but requires full syntax as argument
 	 */
+	@Override
 	public <T> List<String> externalValuesToInternal(AttributeValueSyntax<T> syntax, List<?> externalValues) 
 			throws IllegalAttributeValueException
 	{
@@ -55,6 +58,7 @@ public class AttributeValueConverter
 	 * Converts a list of internal values to the external representation which is ready to be exposed 
 	 * to outside world. 
 	 */
+	@Override
 	public List<String> internalValuesToExternal(String attributeName, List<String> internalValues) 
 	{
 		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);
@@ -64,6 +68,7 @@ public class AttributeValueConverter
 	/**
 	 * As {@link #internalValuesToExternal(AttributeValueSyntax, List)} but requires full syntax object as argument
 	 */
+	@Override
 	public <T> List<String> internalValuesToExternal(AttributeValueSyntax<T> syntax,
 			List<String> internalValues)
 	{
@@ -79,6 +84,7 @@ public class AttributeValueConverter
 	/**
 	* Converts a list of internal values to the object value
 	 */
+	@Override
 	public <T> List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues) 
 			throws IllegalAttributeValueException
 	{
@@ -86,6 +92,7 @@ public class AttributeValueConverter
 		return internalValuesToObjectValues(syntax, internalValues);
 	}
 	
+	@Override
 	public <T> List<T> internalValuesToObjectValues(AttributeValueSyntax<T> syntax, List<String> internalValues) 
 			throws IllegalAttributeValueException
 	{
@@ -98,6 +105,7 @@ public class AttributeValueConverter
 		return ret;
 	}
 	
+	@Override
 	public <T> List<String> objectValuesToInternalValues(AttributeValueSyntax<T> syntax, List<T> typedValues) 
 			throws IllegalAttributeValueException
 	{

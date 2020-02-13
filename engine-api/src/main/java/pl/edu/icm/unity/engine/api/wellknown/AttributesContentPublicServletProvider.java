@@ -11,11 +11,11 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 
 /**
- * Provides servlet with access to user's content in attributes of those
- * syntaxes that provides {@link AttributeValueSyntax#shareSpec()}
+ * Provides servlet with public access to user's content stored in attributes,
+ * of those syntaxes that provides {@link AttributeValueSyntax#shareSpec()}
  * implementation.
  */
-public interface AttributesContentServletProvider
+public interface AttributesContentPublicServletProvider
 {
 	public static final String SERVLET_PATH = "/content";
 

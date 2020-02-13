@@ -18,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.common.base.CharMatcher;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.SharedAttributeContent;
 import pl.edu.icm.unity.engine.api.attributes.SharedAttributeInfo;
@@ -29,16 +29,16 @@ import pl.edu.icm.unity.types.basic.Attribute;
 /**
  * Exposes attribute's value associated with extenral id.
  */
-class AttributesContentServlet extends HttpServlet
+class AttributesContentPublicServlet extends HttpServlet
 {
 	private final AttributesManagement attributesManagement;
-	private final AttributeSyntaxFactoriesRegistry atSyntaxRegistry;
+	private final AttributeTypeSupport attributeTypeSupport;
 
-	AttributesContentServlet(AttributesManagement attributesManagement,
-			AttributeSyntaxFactoriesRegistry atSyntaxRegistry)
+	AttributesContentPublicServlet(AttributesManagement attributesManagement,
+			AttributeTypeSupport attributeTypeSupport)
 	{
 		this.attributesManagement = attributesManagement;
-		this.atSyntaxRegistry = atSyntaxRegistry;
+		this.attributeTypeSupport = attributeTypeSupport;
 	}
 
 	@Override
@@ -70,7 +70,7 @@ class AttributesContentServlet extends HttpServlet
 	{
 		for (Attribute attribute : attributesManagement.getAllAttributesByKeyword(externalId))
 		{
-			AttributeValueSyntax<?> syntax = atSyntaxRegistry.getByName(attribute.getValueSyntax()).createInstance();
+			AttributeValueSyntax<?> syntax = attributeTypeSupport.getSyntax(attribute);
 			SharedAttributeSpec spec = syntax.shareSpec().orElse(null);
 			if (spec != null)
 			{
