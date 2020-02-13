@@ -22,11 +22,11 @@ public class TestImageAttribute
 	public void test() throws Exception
 	{
 		JpegImageAttributeSyntax ias = new JpegImageAttributeSyntax();
-		ias.getConfig().setMaxHeight(16);
-		ias.getConfig().setMaxWidth(16);
+		ias.getConfig().setMaxHeight(100);
+		ias.getConfig().setMaxWidth(100);
 		ias.getConfig().setMaxSize(20000);
 		
-		UnityImage bi = new UnityImage(Paths.get("src/test/resources/img/add.png"));
+		UnityImage bi = new UnityImage(Paths.get("src/test/resources/img/test-image_100x100.jpg"));
 		ias.validate(bi);
 
 		ias.getConfig().setMaxSize(100);

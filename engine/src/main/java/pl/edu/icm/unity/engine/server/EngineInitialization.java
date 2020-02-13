@@ -237,7 +237,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private AuthenticationFlowManagement authnFlowManagement;
-	@Autowired
+	@Autowired(required = false)
 	private AttributesContentPublicServletProvider attributesContentServletFactory;
 	
 	@Autowired
@@ -514,6 +514,12 @@ public class EngineInitialization extends LifecycleBase
 
 	private void deployAttributeContentServlet()
 	{
+		if (attributesContentServletFactory == null)
+		{
+			log.info("Attribute content servlet factory is not available, skipping its deploymnet");
+			return;
+		}
+		
 		log.info("Deploing attribute content servlet");
 		ServletHolder holder = attributesContentServletFactory.getServiceServlet();
 		FilterHolder filterHolder = new FilterHolder(attributesContentServletFactory.getServiceFilter());
