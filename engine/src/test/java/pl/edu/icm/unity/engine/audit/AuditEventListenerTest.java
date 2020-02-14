@@ -4,11 +4,21 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
@@ -17,16 +27,9 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 public class AuditEventListenerTest extends DBIntegrationTestBase
 {
+	private static final Duration DEFAULT_WAIT_TIME = new Duration(20, TimeUnit.SECONDS);
 	@Autowired
 	private AuditEventManagement auditManager;
 
@@ -72,7 +75,7 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.addAttributeType(typeWithEntityName);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
 	@Test
@@ -85,7 +88,7 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.removeAttributeType(typeWithEntityName.getName(), false);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditListener.entityNameAttribute == null));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> (auditListener.entityNameAttribute == null));
 	}
 
 	@Test
@@ -99,7 +102,7 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.updateAttributeType(typeWithEntityName);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> (auditListener.entityNameAttribute == null));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> (auditListener.entityNameAttribute == null));
 	}
 
 	@Test
@@ -118,7 +121,7 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.updateAttributeType(type);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
 	@Test
@@ -141,12 +144,12 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.updateAttributeType(type);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
 	private void initializeAttributeTypeWithEntityName() throws EngineException {
 		attributeTypeMan.addAttributeType(typeWithEntityName);
-		Awaitility.with().pollInSameThread().await().atMost(10, TimeUnit.SECONDS).until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
 	private AttributeType getType() {
