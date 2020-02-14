@@ -17,7 +17,10 @@
 	<update id="cleardb-03">
 		DROP TABLE IF EXISTS GROUP_ENTITIES;
 	</update>
-	<update id="cleardb-04">
+	<update id="cleardb-04-1">
+		DROP TABLE IF EXISTS ATTRIBUTES_LOOKUP;
+	</update>
+	<update id="cleardb-04-2">
 		DROP TABLE IF EXISTS ATTRIBUTES;
 	</update>
 	<update id="cleardb-05">
@@ -52,9 +55,6 @@
 	</update>
 	<update id="cleardb-15">
 		DROP TABLE IF EXISTS AUDIT_TAGS;
-	</update>
-	<update id="cleardb-16">
-		DROP TABLE IF EXISTS ATTRIBUTES_LOOKUP;
 	</update>
 	<update id="cleardb-99">
 		DROP TABLE IF EXISTS UVOS_FLAG;
