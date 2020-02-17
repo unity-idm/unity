@@ -36,7 +36,6 @@ public class AttributeExt extends Attribute
 	
 	/**
 	 * Cloning constructor. Deep cloning is performed.
-	 * @param source
 	 */
 	public AttributeExt(AttributeExt source, Date creationTs, Date updateTs)
 	{
@@ -45,8 +44,6 @@ public class AttributeExt extends Attribute
 
 	/**
 	 * Upcasts {@link Attribute} to AttributeExt, creation and update dates are set to current time. 
-	 * @param baseAttribute
-	 * @param isDirect
 	 */
 	public AttributeExt(Attribute baseAttribute, boolean isDirect)
 	{
@@ -55,7 +52,6 @@ public class AttributeExt extends Attribute
 	
 	/**
 	 * Cloning constructor. Deep cloning is performed.
-	 * @param source
 	 */
 	public AttributeExt(AttributeExt source)
 	{

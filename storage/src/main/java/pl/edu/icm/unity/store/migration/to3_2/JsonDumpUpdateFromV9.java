@@ -41,7 +41,15 @@ public class JsonDumpUpdateFromV9 implements JsonDumpUpdate
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		dropAttributesExtractionFlag(contents);
+		addGlobalFlag(contents);
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
+	}
+
+	private void addGlobalFlag(ObjectNode contents)
+	{
+		ArrayNode attributeTypes = contents.withArray("attributeTypes");
+		for (JsonNode attributeType: attributeTypes)
+			((ObjectNode)attributeType).put("global", false);
 	}
 
 	private void dropAttributesExtractionFlag(ObjectNode contents)

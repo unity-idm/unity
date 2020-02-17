@@ -21,6 +21,8 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypesMapper;
 import pl.edu.icm.unity.store.impl.tokens.TokenRDBMSStore;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
@@ -57,6 +59,20 @@ public class InDBUpdateFromSchema8 implements InDBContentsUpdater
 	{
 		dropExtractedAttributes();
 		updateTokens();
+		addGlobalFlag();
+	}
+
+	private void addGlobalFlag()
+	{
+		AttributeTypesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributeTypesMapper.class);
+		List<AttributeTypeBean> all = mapper.getAll();
+		for (AttributeTypeBean attributeTypeBean : all)
+		{
+			ObjectNode atType = JsonUtil.parse(attributeTypeBean.getContents());
+			atType.put("global", false);
+			attributeTypeBean.setContents(JsonUtil.serialize2Bytes(atType));
+			mapper.updateByKey(attributeTypeBean);
+		}
 	}
 
 	private void dropExtractedAttributes()
