@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.wellknown;
 
-import javax.servlet.Filter;
-
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -20,6 +18,4 @@ public interface AttributesContentPublicServletProvider
 	public static final String SERVLET_PATH = "/content";
 
 	ServletHolder getServiceServlet();
-
-	Filter getServiceFilter();
 }

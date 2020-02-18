@@ -522,13 +522,10 @@ public class EngineInitialization extends LifecycleBase
 		
 		log.info("Deploing attribute content servlet");
 		ServletHolder holder = attributesContentServletFactory.getServiceServlet();
-		FilterHolder filterHolder = new FilterHolder(attributesContentServletFactory.getServiceFilter());
 		try
 		{
 			sharedEndpointManagement.deployInternalEndpointServlet(
-					AttributesContentPublicServletProvider.SERVLET_PATH, holder, true);
-			sharedEndpointManagement.deployInternalEndpointFilter(
-					AttributesContentPublicServletProvider.SERVLET_PATH, filterHolder);
+					AttributesContentPublicServletProvider.SERVLET_PATH, holder, false);
 		} catch (EngineException e)
 		{
 			throw new InternalException("Cannot deploy internal public attribute exposure servlet", e);
