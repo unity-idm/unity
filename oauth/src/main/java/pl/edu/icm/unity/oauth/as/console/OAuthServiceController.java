@@ -51,6 +51,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
@@ -114,7 +115,7 @@ class OAuthServiceController implements IdpServiceController
 	private AuthenticatorSupportService authenticatorSupportService;
 	private IdentityTypeSupport idTypeSupport;
 	private PKIManagement pkiMan;
-	private NetworkServer server;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private AttributeTypeSupport attrTypeSupport;
 	private AttributesManagement attrMan;
@@ -123,19 +124,33 @@ class OAuthServiceController implements IdpServiceController
 	private EntityCredentialManagement entityCredentialManagement;
 	private IdpUsersHelper idpUsersHelper;
 	private ImageAccessService imageService;
+	private NetworkServer server;
 
 	@Autowired
-	OAuthServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, PKIManagement pkiMan,
-			NetworkServer server, IdentityTypeSupport idTypeSupport,
+	OAuthServiceController(UnityMessageSource msg,
+			EndpointManagement endpointMan,
+			RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan,
+			AttributeTypeManagement atMan,
+			BulkGroupQueryService bulkService,
+			RegistrationsManagement registrationMan,
+			URIAccessService uriAccessService,
+			FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService,
+			PKIManagement pkiMan,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			IdentityTypeSupport idTypeSupport,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
-			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
-			ImageAccessService imageService, IdpUsersHelper idpUsersHelper)
+			AttributeTypeSupport attrTypeSupport,
+			AttributesManagement attrMan,
+			EntityManagement entityMan,
+			GroupsManagement groupMan,
+			EntityCredentialManagement entityCredentialManagement,
+			ImageAccessService imageService,
+			IdpUsersHelper idpUsersHelper)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -150,7 +165,7 @@ class OAuthServiceController implements IdpServiceController
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.pkiMan = pkiMan;
-		this.server = server;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.idTypeSupport = idTypeSupport;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.attrTypeSupport = attrTypeSupport;
@@ -160,6 +175,7 @@ class OAuthServiceController implements IdpServiceController
 		this.entityCredentialManagement = entityCredentialManagement;
 		this.imageService = imageService;
 		this.idpUsersHelper = idpUsersHelper;
+		this.server = server;
 	}
 
 	@Override
@@ -640,7 +656,7 @@ class OAuthServiceController implements IdpServiceController
 	{
 
 		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
-				server.getAdvertisedAddress().toString(), server.getUsedContextPaths(),
+				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(),
 				imageService, uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),

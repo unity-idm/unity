@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.net.URL;
 
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -15,11 +16,13 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public abstract class AbstractWebEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
 {
-	protected NetworkServer httpServer;
+	protected final NetworkServer httpServer;
+	protected final AdvertisedAddressProvider advertisedAddrProvider;
 	
-	public AbstractWebEndpoint(NetworkServer httpServer)
+	public AbstractWebEndpoint(NetworkServer httpServer, AdvertisedAddressProvider advertisedAddrProvider)
 	{
 		this.httpServer = httpServer;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 
 	/**
@@ -27,7 +30,7 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint implements We
 	 */
 	public URL getBaseUrl()
 	{
-		return httpServer.getAdvertisedAddress();
+		return advertisedAddrProvider.get();
 	}
 	
 	/**

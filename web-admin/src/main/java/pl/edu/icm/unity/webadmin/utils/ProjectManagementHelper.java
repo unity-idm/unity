@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectManagementConstants;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -41,15 +41,16 @@ public class ProjectManagementHelper
 	
 	private DelegatedGroupManagement delGroupMan;
 	private EndpointManagement endpointMan;
-	private NetworkServer networkServer;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 	
 	@Autowired
-	public ProjectManagementHelper(DelegatedGroupManagement delGroupMan, @Qualifier("insecure") EndpointManagement endpointMan,
-			NetworkServer networkServer)
+	public ProjectManagementHelper(DelegatedGroupManagement delGroupMan,
+			@Qualifier("insecure") EndpointManagement endpointMan,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
 		this.delGroupMan = delGroupMan;
 		this.endpointMan = endpointMan;
-		this.networkServer = networkServer;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 	
 	public Optional<String> getProjectManLinkIfAvailable(HomeEndpointProperties config)
@@ -119,7 +120,7 @@ public class ProjectManagementHelper
 	{
 		if (endpoint == null)
 			return null;
-		return networkServer.getAdvertisedAddress() + endpoint.getEndpoint().getContextAddress();
+		return advertisedAddrProvider.get() + endpoint.getEndpoint().getContextAddress();
 	}
 
 	public Set<ResolvedEndpoint> getAllProjectManEndpoints()

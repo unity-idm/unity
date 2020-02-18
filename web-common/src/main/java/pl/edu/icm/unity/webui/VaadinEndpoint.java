@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -84,10 +85,14 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected UnityServerConfiguration serverConfig;
 	protected UnityMessageSource msg;
 	
-	public VaadinEndpoint(NetworkServer server, UnityMessageSource msg, ApplicationContext applicationContext,
-			String uiBeanName, String servletPath)
+	public VaadinEndpoint(NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider, 
+			UnityMessageSource msg,
+			ApplicationContext applicationContext,
+			String uiBeanName,
+			String servletPath)
 	{
-		super(server);
+		super(server, advertisedAddrProvider);
 		this.msg = msg;
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;

@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -76,15 +77,21 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthTokenRepository oauthTokenRepository;
 	
 	@Autowired
-	public OAuthTokenEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
-			NetworkServer server, TokensManagement tokensMan,
-			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, 
-			AuthenticationProcessor authnProcessor, EntityManagement identitiesMan,
-			@Qualifier("insecure") AttributesManagement attributesMan, 
-			TransactionalRunner tx, @Qualifier("insecure") IdPEngine idPEngine,
-			OAuthTokenRepository oauthTokenRepository)
+	public OAuthTokenEndpoint(UnityMessageSource msg,
+			SessionManagement sessionMan,
+			NetworkServer server,
+			TokensManagement tokensMan,
+			PKIManagement pkiManagement,
+			OAuthEndpointsCoordinator coordinator,
+			AuthenticationProcessor authnProcessor,
+			EntityManagement identitiesMan,
+			@Qualifier("insecure") AttributesManagement attributesMan,
+			TransactionalRunner tx,
+			@Qualifier("insecure") IdPEngine idPEngine,
+			OAuthTokenRepository oauthTokenRepository,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(msg, sessionMan, authnProcessor, server, PATH);
+		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH);
 		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;

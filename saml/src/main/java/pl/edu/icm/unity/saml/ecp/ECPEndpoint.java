@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -72,21 +73,26 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private URIAccessService uriAccessService;
 	
 	@Autowired
-	public ECPEndpoint(NetworkServer server, 
-			@Qualifier("insecure") PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
-			ReplayAttackChecker replayAttackChecker, 
+	public ECPEndpoint(NetworkServer server,
+			@Qualifier("insecure") PKIManagement pkiManagement,
+			ECPContextManagement samlContextManagement,
+			ReplayAttackChecker replayAttackChecker,
 			RemoteAuthnResultProcessor remoteAuthnProcessor,
 			TokensManagement tokensMan,
-			EntityManagement identitiesMan, SessionManagement sessionMan,
-			ExecutorsService executorsService, 
-			UnityMessageSource msg, SharedEndpointManagement sharedEndpointManagement,
-			RemoteMetadataService metadataService, URIAccessService uriAccessService)
+			EntityManagement identitiesMan,
+			SessionManagement sessionMan,
+			ExecutorsService executorsService,
+			UnityMessageSource msg,
+			SharedEndpointManagement sharedEndpointManagement,
+			RemoteMetadataService metadataService,
+			URIAccessService uriAccessService,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(server);
+		super(server, advertisedAddrProvider);
 		this.pkiManagement = pkiManagement;
 		this.samlContextManagement = samlContextManagement;
 		this.metadataService = metadataService;
-		this.baseAddress = server.getAdvertisedAddress();
+		this.baseAddress = advertisedAddrProvider.get();
 		this.replayAttackChecker = replayAttackChecker;
 		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.tokensMan = tokensMan;

@@ -8,5 +8,9 @@ import java.net.URL;
 
 public interface AdvertisedAddressProvider
 {
+	/**
+	 * @return base address of the server which should be used as its
+	 *         externally accessible address.
+	 */
 	URL get();
 }

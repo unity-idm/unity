@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
@@ -34,14 +35,18 @@ public class WebAdminEndpointFactory implements EndpointFactory
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
 	private UnityMessageSource msg;
-	
+	private AdvertisedAddressProvider advertisedAddrProvider;
+
 	@Autowired
-	public WebAdminEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
+	public WebAdminEndpointFactory(ApplicationContext applicationContext,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
 			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 	
 	@Override
@@ -53,7 +58,7 @@ public class WebAdminEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new VaadinEndpoint(server, msg, applicationContext, 
+		return new VaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext, 
 				WebAdminUI.class.getSimpleName(), SERVLET_PATH);
 	}
 }

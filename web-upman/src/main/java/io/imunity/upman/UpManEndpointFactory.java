@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectManagementConstants;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
@@ -38,9 +39,12 @@ public class UpManEndpointFactory implements EndpointFactory
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
 	private UnityMessageSource msg;
-	
+	private AdvertisedAddressProvider advertisedAddrProvider;
+
 	@Autowired
-	public UpManEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
+	public UpManEndpointFactory(ApplicationContext applicationContext,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
 			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
@@ -57,7 +61,7 @@ public class UpManEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new VaadinEndpoint(server, msg, applicationContext, 
+		return new VaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext, 
 			UpManUI.class.getSimpleName(), SERVLET_PATH);
 	}
 }

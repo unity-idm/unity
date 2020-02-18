@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -41,11 +42,13 @@ public class MockRESTEndpoint extends RESTEndpoint
 			Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
 
 	@Autowired
-	public MockRESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+	public MockRESTEndpoint(UnityMessageSource msg,
+			SessionManagement sessionMan,
 			AuthenticationProcessor authnProcessor,
-			NetworkServer server)
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(msg, sessionMan, authnProcessor, server, SERVLET_PATH);
+		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH);
 	}
 
 

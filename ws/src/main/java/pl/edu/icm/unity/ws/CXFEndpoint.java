@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
@@ -43,10 +44,14 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 	protected SessionManagement sessionMan;
 	private AuthenticationProcessor authnProcessor;
 	
-	public CXFEndpoint(UnityMessageSource msg, SessionManagement sessionMan, AuthenticationProcessor authnProcessor,
-			NetworkServer server, String servletPath)
+	public CXFEndpoint(UnityMessageSource msg,
+			SessionManagement sessionMan,
+			AuthenticationProcessor authnProcessor,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			String servletPath)
 	{
-		super(server);
+		super(server, advertisedAddrProvider);
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.servletPath = servletPath;

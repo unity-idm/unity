@@ -23,37 +23,42 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @Component
 public class SAMLServiceController extends SAMLServiceControllerBase
 {
-
 	@Autowired
-	public SAMLServiceController(UnityMessageSource msg, EndpointManagement endpointMan, UnityMessageSource msg2,
-			EndpointManagement endpointMan2, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			ImageAccessService imageAccessService, 
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, IdentityTypeSupport idTypeSupport,
-			PKIManagement pkiMan, NetworkServer server,
+	public SAMLServiceController(UnityMessageSource msg,
+			EndpointManagement endpointMan,
+			UnityMessageSource msg2,
+			EndpointManagement endpointMan2,
+			RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan,
+			AttributeTypeManagement atMan,
+			BulkGroupQueryService bulkService,
+			RegistrationsManagement registrationMan,
+			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
+			FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService,
+			IdentityTypeSupport idTypeSupport,
+			PKIManagement pkiMan,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
 				registrationMan, uriAccessService, fileStorageService, serverConfig,
-				authenticatorSupportService, idTypeSupport, pkiMan, server,
+				authenticatorSupportService, idTypeSupport, pkiMan, advertisedAddrProvider, server,
 				outputTranslationProfileFieldFactory, idpUserHelper, imageAccessService);
 	}
 

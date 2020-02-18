@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
@@ -63,11 +64,14 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
-	public RESTEndpoint(UnityMessageSource msg, SessionManagement sessionMan, 
+	public RESTEndpoint(UnityMessageSource msg,
+			SessionManagement sessionMan,
 			AuthenticationProcessor authenticationProcessor,
-			NetworkServer server, String servletPath)
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			String servletPath)
 	{
-		super(server);
+		super(server, advertisedAddrProvider);
 		this.authenticationProcessor = authenticationProcessor;
 		this.servletPath = servletPath;
 		this.msg = msg;

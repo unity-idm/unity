@@ -47,7 +47,7 @@ import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -92,12 +92,17 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 
 	@Autowired
 	public EmailConfirmationManagerImpl(IdentityTypeHelper idTypeHelper,
-			AttributeTypeHelper atTypeHelper, TokensManagement tokensMan,
+			AttributeTypeHelper atTypeHelper,
+			TokensManagement tokensMan,
 			NotificationProducer notificationProducer,
 			EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
-			MessageTemplateDB mtDB, NetworkServer server, 
-			UnityMessageSource msg, EntityResolver idResolver,
-			TransactionalRunner tx, CacheProvider cacheProvider, UnityServerConfiguration mainConf)
+			MessageTemplateDB mtDB,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			UnityMessageSource msg,
+			EntityResolver idResolver,
+			TransactionalRunner tx,
+			CacheProvider cacheProvider,
+			UnityServerConfiguration mainConf)
 	{
 		this.idTypeHelper = idTypeHelper;
 		this.atTypeHelper = atTypeHelper;
@@ -105,7 +110,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		this.notificationProducer = notificationProducer;
 		this.confirmationFacilitiesRegistry = confirmationFacilitiesRegistry;
 		this.mtDB = mtDB;
-		this.advertisedAddress = server.getAdvertisedAddress();
+		this.advertisedAddress = advertisedAddrProvider.get();
 		this.msg = msg;
 		this.idResolver = idResolver;
 		this.tx = tx;

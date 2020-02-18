@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -35,9 +36,9 @@ public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointI
 	public static final String WRONG_CONFIG = "wrong";
 	
 	@Autowired
-	public MockEndpoint(NetworkServer httpServer)
+	public MockEndpoint(NetworkServer httpServer, AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(httpServer);
+		super(httpServer, advertisedAddrProvider);
 	}
 
 	@Override

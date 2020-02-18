@@ -64,7 +64,6 @@ import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.XFrameOptions;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -93,7 +92,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
 	private final UnityHttpServerConfiguration serverSettings;
-	private final AdvertisedAddressProvider advertisedAddressProvider;
 
 	private Server theServer;
 	
@@ -103,7 +101,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		this.securityConfiguration = pkiManagement.getMainAuthnAndTrust();
 		this.listenUrls = listenUrlsProvider.getListenUrls();
-		this.advertisedAddressProvider = listenUrlsProvider;
 		this.serverSettings = cfg.getJettyProperties();
 		this.cfg = cfg;
 		initServer();
@@ -561,12 +558,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(handler.getContextPath());
 		deployedEndpoints.remove(endpoint);
-	}
-	
-	@Override
-	public URL getAdvertisedAddress()
-	{
-		return advertisedAddressProvider.get();
 	}
 	
 	@Override

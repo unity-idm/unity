@@ -68,7 +68,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -99,19 +99,20 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
 	
 	private OAuthClientProperties config;
-	private String responseConsumerAddress;
-	private OAuthContextsManagement contextManagement;
+	private final String responseConsumerAddress;
+	private final OAuthContextsManagement contextManagement;
+	private final PKIManagement pkiManagement;
 	private OpenIdProviderMetadataManager metadataManager;
-	private PKIManagement pkiManagement;
 	
 	@Autowired
-	public OAuth2Verificator(NetworkServer jettyServer,
+	public OAuth2Verificator(AdvertisedAddressProvider advertisedAddrProvider,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
-			PKIManagement pkiManagement, RemoteAuthnResultProcessor processor)
+			PKIManagement pkiManagement,
+			RemoteAuthnResultProcessor processor)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
-		URL baseAddress = jettyServer.getAdvertisedAddress();
+		URL baseAddress = advertisedAddrProvider.get();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;

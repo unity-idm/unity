@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -43,19 +43,21 @@ public class EndpointComponent extends DeployableComponentViewBase
 			EndpointComponent.class);
 
 	private EndpointManagement endpointMan;
-	private NetworkServer networkServer;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 	
 	private ResolvedEndpoint endpoint;
 	private String name;
 
 	@Autowired
-	public EndpointComponent(EndpointManagement endpointMan, ServerManagement serverMan, 
-			NetworkServer networkServer,
-			UnityServerConfiguration config, UnityMessageSource msg)
+	public EndpointComponent(EndpointManagement endpointMan,
+			ServerManagement serverMan,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			UnityServerConfiguration config,
+			UnityMessageSource msg)
 	{
 		super(config, serverMan, msg);
 		this.endpointMan = endpointMan;
-		this.networkServer = networkServer;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 
 	public EndpointComponent init(ResolvedEndpoint endpoint)
@@ -261,7 +263,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		for (Map.Entry<String, String> entry : endpoint.getType().getPaths().entrySet())
 		{
 			i++;
-			addField(pa, String.valueOf(i), networkServer.getAdvertisedAddress()
+			addField(pa, String.valueOf(i), advertisedAddrProvider.get()
 					+ endpoint.getEndpoint().getContextAddress() + entry.getKey());
 			addField(pad, msg.getMessage("Endpoints.pathDescription"), entry.getValue());
 

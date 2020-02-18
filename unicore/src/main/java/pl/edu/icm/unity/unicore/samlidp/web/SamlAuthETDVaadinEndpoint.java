@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
@@ -38,26 +39,24 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2unicoreIdp-web";
 	
 	@Autowired
-	public SamlAuthETDVaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
+	public SamlAuthETDVaadinEndpoint(NetworkServer server,
+			ApplicationContext applicationContext,
 			FreemarkerAppHandler freemarkerHandler,
-			@Qualifier("insecure")  PKIManagement pkiManagement, ExecutorsService executorsService,
-			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
-			SLOReplyInstaller sloReplyInstaller, 
+			@Qualifier("insecure") PKIManagement pkiManagement,
+			ExecutorsService executorsService,
+			UnityServerConfiguration mainConfig,
+			SAMLLogoutProcessorFactory logoutProcessorFactory,
+			SLOReplyInstaller sloReplyInstaller,
 			UnicoreIdpConsentDeciderServlet.Factory dispatcherServletFactory,
 			UnityMessageSource msg,
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
-			URIAccessService uriAccessService)
+			URIAccessService uriAccessService,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(SAML_CONSUMER_SERVLET_PATH, 
-				server, applicationContext, freemarkerHandler, 
-				SamlUnicoreIdPWebUI.class, pkiManagement, 
-				executorsService,
-				dispatcherServletFactory, 
-				logoutProcessorFactory, 
-				sloReplyInstaller, msg,
-				aTypeSupport,
-				metadataService, uriAccessService);
+		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
+				SamlUnicoreIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory,
+				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService);
 	}
 
 	@Override

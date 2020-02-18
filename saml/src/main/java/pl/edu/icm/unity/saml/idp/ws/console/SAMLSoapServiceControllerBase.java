@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -47,16 +48,27 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
 	private ImageAccessService imageAccessService;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 
-	public SAMLSoapServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan,
-			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, ImageAccessService imageAccessService,
+	public SAMLSoapServiceControllerBase(UnityMessageSource msg,
+			EndpointManagement endpointMan,
+			UnityMessageSource msg2,
+			EndpointManagement endpointMan2,
+			RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan,
+			AttributeTypeManagement atMan,
+			ImageAccessService imageAccessService,
 			BulkGroupQueryService bulkService,
-			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
-			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			IdpUsersHelper idpUserHelper)
+			URIAccessService uriAccessService,
+			FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig,
+			IdentityTypeSupport idTypeSupport,
+			PKIManagement pkiMan,
+			NetworkServer server,
+			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			IdpUsersHelper idpUserHelper,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -73,6 +85,7 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 		this.server = server;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.idpUserHelper = idpUserHelper;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 
 	@Override
@@ -85,7 +98,7 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 		return new SAMLSoapServiceEditor(msg, getType(), pkiMan, subViewSwitcher,
-				outputTranslationProfileFieldFactory, server.getAdvertisedAddress().toString(),
+				outputTranslationProfileFieldFactory, advertisedAddrProvider.get().toString(),
 				server.getUsedContextPaths(), uriAccessService, imageAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),

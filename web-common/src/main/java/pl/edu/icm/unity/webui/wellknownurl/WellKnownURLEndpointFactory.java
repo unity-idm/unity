@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -31,13 +32,17 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
 	private UnityMessageSource msg;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 
 	@Autowired
-	public WellKnownURLEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
+	public WellKnownURLEndpointFactory(ApplicationContext applicationContext,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
 			UnityMessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.msg = msg;
 	}
 
@@ -50,8 +55,8 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new VaadinEndpoint(server, msg, applicationContext, SecuredNavigationUI.class.getSimpleName(),
-				SecuredWellKnownURLServlet.SERVLET_PATH);
+		return new VaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext,
+				SecuredNavigationUI.class.getSimpleName(), SecuredWellKnownURLServlet.SERVLET_PATH);
 	}
 
 }

@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -107,30 +108,41 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
-			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
+			ApplicationContext applicationContext,
+			FreemarkerAppHandler freemarkerHandler,
 			@Qualifier("insecure") PKIManagement pkiManagement,
-			ExecutorsService executorsService, 
+			ExecutorsService executorsService,
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg, AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService, URIAccessService uriAccessService)
+			SAMLLogoutProcessorFactory logoutProcessorFactory,
+			SLOReplyInstaller sloReplyInstaller,
+			UnityMessageSource msg,
+			AttributeTypeSupport aTypeSupport,
+			RemoteMetadataService metadataService,
+			URIAccessService uriAccessService,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		this(SAML_CONSUMER_SERVLET_PATH, server, applicationContext, freemarkerHandler, SamlIdPWebUI.class, 
-				pkiManagement, executorsService, dispatcherServletFactory, 
-				logoutProcessorFactory, sloReplyInstaller, msg, 
-				aTypeSupport, metadataService, uriAccessService);
+		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
+				SamlIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
+				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService);
 	}
-	
-	protected SamlAuthVaadinEndpoint(String publicEntryServletPath, NetworkServer server,
-			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
-			Class<?> uiClass, PKIManagement pkiManagement,
-			ExecutorsService executorsService, 
+
+	protected SamlAuthVaadinEndpoint(String publicEntryServletPath,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			ApplicationContext applicationContext,
+			FreemarkerAppHandler freemarkerHandler,
+			Class<?> uiClass,
+			PKIManagement pkiManagement,
+			ExecutorsService executorsService,
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg, AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService, URIAccessService uriAccessService)
+			SAMLLogoutProcessorFactory logoutProcessorFactory,
+			SLOReplyInstaller sloReplyInstaller,
+			UnityMessageSource msg,
+			AttributeTypeSupport aTypeSupport,
+			RemoteMetadataService metadataService,
+			URIAccessService uriAccessService)
 	{
-		super(server, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
+		super(server, advertisedAddrProvider, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
 		this.dispatcherServletFactory = dispatcherServletFactory;
