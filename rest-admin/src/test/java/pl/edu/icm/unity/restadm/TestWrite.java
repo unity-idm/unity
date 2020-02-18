@@ -52,7 +52,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -100,7 +100,7 @@ public class TestWrite extends RESTAdminTestBase
 				new VerifiableEmail("some2@example.com", new ConfirmationInfo(true))));
 		
 		BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-		setSingleAttribute(entityId, JpegImageAttributeUtil.of(
+		setSingleAttribute(entityId, JpegImageAttributeCreator.of(
 				"jpegA", "/", image));
 
 		HttpDelete removeAttribute = new HttpDelete("/restadm/v1/entity/" + entityId + "/attribute/stringA");

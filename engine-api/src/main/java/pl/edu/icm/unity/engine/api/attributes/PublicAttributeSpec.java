@@ -6,19 +6,19 @@ package pl.edu.icm.unity.engine.api.attributes;
 
 /**
  * Used in conjunction with attribute syntax
- * {@link AttributeValueSyntax#shareSpec()} implementation.
+ * {@link AttributeValueSyntax#publicExposureSpec()} implementation.
  * 
  * Provides information consumed by unity on what is the attribute's value
  * unique id, and how it translates to "binary" content.
  */
-public interface SharedAttributeSpec
+public interface PublicAttributeSpec
 {
-	SharedAttributeInfo getInfo(String stringRepresentation);
+	PublicAttributeInfo getInfo(String stringRepresentation);
 
-	SharedAttributeContentProvider getContentProvider();
+	PublicAttributeContentProvider getContentProvider();
 
-	interface SharedAttributeContentProvider
+	interface PublicAttributeContentProvider
 	{
-		SharedAttributeContent getContent(String stringRepresentation);
+		PublicAttributeContent getContent(String stringRepresentation);
 	}
 }

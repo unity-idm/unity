@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -27,14 +31,16 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class AttributeSupportImpl implements AttributeSupport
 {
-	private AttributeTypeDAO aTypeDAO;
-	private AttributesHelper attributesHelper;
+	private final AttributeTypeDAO aTypeDAO;
+	private final AttributesHelper attributesHelper;
+	private final AttributeDAO attributeDAO;
 	
 	@Autowired
-	public AttributeSupportImpl(AttributesHelper attributesHelper, AttributeTypeDAO aTypeDAO)
+	public AttributeSupportImpl(AttributesHelper attributesHelper, AttributeTypeDAO aTypeDAO, AttributeDAO attributeDAO)
 	{
 		this.attributesHelper = attributesHelper;
 		this.aTypeDAO = aTypeDAO;
+		this.attributeDAO = attributeDAO;
 	}
 
 	@Transactional
@@ -67,10 +73,20 @@ public class AttributeSupportImpl implements AttributeSupport
 		return attributesHelper.getAttributeByMetadata(entity, group, metadataId);
 	}
 
+	@Override
 	@Transactional
 	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException
 	{
 		return aTypeDAO.getAllAsMap();
 	}
 
+	
+	@Override
+	@Transactional
+	public Collection<Attribute> getAttributesByKeyword(String keyword)
+	{
+		return attributeDAO.getAllWithKeyword(keyword).stream()
+				.map(StoredAttribute::getAttribute)
+				.collect(Collectors.toList());
+	}
 }

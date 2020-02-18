@@ -8,11 +8,11 @@ import java.util.Objects;
 
 import com.google.common.base.MoreObjects;
 
-public class SharedAttributeInfo
+public class PublicAttributeInfo
 {
 	public final String externalId;
 
-	public SharedAttributeInfo(String externalId)
+	public PublicAttributeInfo(String externalId)
 	{
 		this.externalId = externalId;
 	}
@@ -26,9 +26,9 @@ public class SharedAttributeInfo
 	@Override
 	public boolean equals(Object object)
 	{
-		if (object instanceof SharedAttributeInfo)
+		if (object instanceof PublicAttributeInfo)
 		{
-			SharedAttributeInfo that = (SharedAttributeInfo) object;
+			PublicAttributeInfo that = (PublicAttributeInfo) object;
 			return Objects.equals(this.externalId, that.externalId);
 		}
 		return false;

@@ -32,7 +32,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -364,7 +364,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
 			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = JpegImageAttributeUtil.of(typeName, enInGroup.get(i%NU), im);
+			Attribute a = JpegImageAttributeCreator.of(typeName, enInGroup.get(i%NU), im);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a);
 			op++;

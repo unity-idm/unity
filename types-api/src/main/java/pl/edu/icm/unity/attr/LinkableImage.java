@@ -21,15 +21,11 @@ public class LinkableImage
 	public static final LinkableImage EMPTY = new LinkableImage(null, null, null);
 	
 	private static final String JSON_IMAGE_PROPERTY_NAME = "image";
+	private static final String JSON_URL_PROPERTY_NAME = "url";
 	private static final String JSON_EXTERNAL_ID_PROPERTY_NAME = "externalId";
 	
 	private final UnityImage image;
 	private final UUID externalId;
-	/**
-	 * @implNote: This field is not persisted, it is used only as the image
-	 *            representation when converting attribute's value to simple
-	 *            view, which is an url to stored picture.
-	 */
 	private final URL url;
 	
 	public LinkableImage(UnityImage image, UUID externalId)
@@ -68,6 +64,7 @@ public class LinkableImage
 	{
 		ObjectNode node = Constants.MAPPER.createObjectNode();
 		node.put(JSON_IMAGE_PROPERTY_NAME, image == null ? null : image.serialize());
+		node.put(JSON_URL_PROPERTY_NAME, url == null ? null : url.toExternalForm());
 		node.put(JSON_EXTERNAL_ID_PROPERTY_NAME, externalId == null ? null : externalId.toString());
 		return node.toString();
 	}
@@ -83,6 +80,19 @@ public class LinkableImage
 			image = new UnityImage(serializedImage);
 		}
 		
+		String serializedURL = JsonUtil.getNullable(node, JSON_URL_PROPERTY_NAME);
+		URL url = null;
+		if (!StringUtils.isEmpty(serializedURL))
+		{
+			url = new URL(serializedURL);
+			String protocol = url.getProtocol();
+			if (!"http".equals(protocol) && !"https".equals(protocol))
+			{
+				throw new IllegalArgumentException("Only the http and https protocols are "
+						+ "supported, provided: " + protocol);
+			}
+		}
+		
 		String externalIdStr = JsonUtil.getNullable(node, JSON_EXTERNAL_ID_PROPERTY_NAME);
 		UUID externalId = null;
 		if (!StringUtils.isEmpty(externalIdStr))
@@ -90,7 +100,7 @@ public class LinkableImage
 			externalId = UUID.fromString(externalIdStr);
 		}
 		
-		return new LinkableImage(image, externalId);
+		return new LinkableImage(image, url, externalId);
 	}
 
 	private static UUID randomIfNull(UUID externalId)

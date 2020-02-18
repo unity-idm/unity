@@ -46,7 +46,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -224,7 +224,7 @@ public class TestQuery extends TestRESTBase
 				12));
 		attrsMan.createAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
 				12.9));
-		attrsMan.createAttribute(e, JpegImageAttributeUtil.of("jpegA", "/example", 
+		attrsMan.createAttribute(e, JpegImageAttributeCreator.of("jpegA", "/example", 
 				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)));
 		attrsMan.createAttribute(e, EnumAttribute.of("enumA", "/example", 
 				"V1"));

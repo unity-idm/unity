@@ -262,7 +262,7 @@ public class EngineInitialization extends LifecycleBase
 			startLogConfigurationMonitoring();
 			initializeBackgroundTasks();
 			deployConfirmationServlet();
-			deployAttributeContentServlet();
+			deployAttributeContentPublicServlet();
 			deployPublicWellKnownURLServlet();
 			super.start();
 		} catch (Exception e)
@@ -512,11 +512,11 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 
-	private void deployAttributeContentServlet()
+	private void deployAttributeContentPublicServlet()
 	{
 		if (attributesContentServletFactory == null)
 		{
-			log.info("Attribute content servlet factory is not available, skipping its deploymnet");
+			log.info("Public attribute exposure servlet factory is not available, skipping its deploymnet");
 			return;
 		}
 		
@@ -531,7 +531,7 @@ public class EngineInitialization extends LifecycleBase
 					AttributesContentPublicServletProvider.SERVLET_PATH, filterHolder);
 		} catch (EngineException e)
 		{
-			throw new InternalException("Cannot deploy internal linkable attribute content servlet", e);
+			throw new InternalException("Cannot deploy internal public attribute exposure servlet", e);
 		}
 	}
 

@@ -17,13 +17,13 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.CharMatcher;
 
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeContent;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeInfo;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeSpec;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeSpec.SharedAttributeContentProvider;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeContent;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec.PublicAttributeContentProvider;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -31,13 +31,12 @@ import pl.edu.icm.unity.types.basic.Attribute;
  */
 class AttributesContentPublicServlet extends HttpServlet
 {
-	private final AttributesManagement attributesManagement;
+	private final AttributeSupport attributesSupport;
 	private final AttributeTypeSupport attributeTypeSupport;
 
-	AttributesContentPublicServlet(AttributesManagement attributesManagement,
-			AttributeTypeSupport attributeTypeSupport)
+	AttributesContentPublicServlet(AttributeSupport attributesSupport, AttributeTypeSupport attributeTypeSupport)
 	{
-		this.attributesManagement = attributesManagement;
+		this.attributesSupport = attributesSupport;
 		this.attributeTypeSupport = attributeTypeSupport;
 	}
 
@@ -51,35 +50,35 @@ class AttributesContentPublicServlet extends HttpServlet
 			return;
 		}
 
-		SharedAttributeContent sharedContent = getAttributeContentToShare(externalId);
-		if (sharedContent == null)
+		PublicAttributeContent content = getAttributeContentToExpose(externalId);
+		if (content == null)
 		{
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		resp.setContentType(sharedContent.type.getMimeType());
-		try (ByteArrayInputStream in = new ByteArrayInputStream(sharedContent.content);
+		resp.setContentType(content.mimeType);
+		try (ByteArrayInputStream in = new ByteArrayInputStream(content.content);
 				ServletOutputStream out = resp.getOutputStream())
 		{
 			IOUtils.copy(in, out);
 		}
 	}
 
-	private SharedAttributeContent getAttributeContentToShare(String externalId)
+	private PublicAttributeContent getAttributeContentToExpose(String externalId)
 	{
-		for (Attribute attribute : attributesManagement.getAllAttributesByKeyword(externalId))
+		for (Attribute attribute : attributesSupport.getAttributesByKeyword(externalId))
 		{
 			AttributeValueSyntax<?> syntax = attributeTypeSupport.getSyntax(attribute);
-			SharedAttributeSpec spec = syntax.shareSpec().orElse(null);
+			PublicAttributeSpec spec = syntax.publicExposureSpec().orElse(null);
 			if (spec != null)
 			{
 				for (String stringRepresentation : attribute.getValues())
 				{
-					SharedAttributeInfo info = spec.getInfo(stringRepresentation);
+					PublicAttributeInfo info = spec.getInfo(stringRepresentation);
 					if (externalId.equals(info.externalId))
 					{
-						SharedAttributeContentProvider contentProvider = spec.getContentProvider();
+						PublicAttributeContentProvider contentProvider = spec.getContentProvider();
 						return contentProvider.getContent(stringRepresentation);
 					}
 				}

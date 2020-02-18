@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 
 /**
  * Provides servlet with public access to user's content stored in attributes,
- * of those syntaxes that provides {@link AttributeValueSyntax#shareSpec()}
+ * of those syntaxes that provides {@link AttributeValueSyntax#publicExposureSpec()}
  * implementation.
  */
 public interface AttributesContentPublicServletProvider

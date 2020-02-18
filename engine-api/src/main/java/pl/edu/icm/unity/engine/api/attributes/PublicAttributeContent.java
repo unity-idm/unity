@@ -4,16 +4,14 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
-import org.apache.http.entity.ContentType;
-
-public class SharedAttributeContent
+public class PublicAttributeContent
 {
 	public final byte[] content;
-	public final ContentType type;
+	public final String mimeType;
 
-	public SharedAttributeContent(byte[] content, ContentType type)
+	public PublicAttributeContent(byte[] content, String mimeType)
 	{
 		this.content = content;
-		this.type = type;
+		this.mimeType = mimeType;
 	}
 }

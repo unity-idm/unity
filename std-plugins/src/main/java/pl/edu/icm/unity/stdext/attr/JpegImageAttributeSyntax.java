@@ -32,8 +32,6 @@ public class JpegImageAttributeSyntax extends BaseImageAttributeSyntax<UnityImag
 	@Override
 	public void validate(UnityImage value) throws IllegalAttributeValueException
 	{
-		if (value.getType() != ImageType.JPG)
-			throw new IllegalAttributeValueException("Invalid file format: " + value.getType().toExt());
 		ImageValidatorUtil.validate(getConfig(), value);
 	}
 

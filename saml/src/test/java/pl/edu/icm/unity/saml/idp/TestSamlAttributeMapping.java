@@ -21,7 +21,7 @@ import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -61,7 +61,7 @@ public class TestSamlAttributeMapping
 		SamlAttributeMapper mapper = new DefaultSamlAttributesMapper();
 		BufferedImage bi = new BufferedImage(10, 20, BufferedImage.TYPE_INT_ARGB);
 		UnityImage image = new UnityImage(bi, ImageType.JPG);
-		Attribute unityA = JpegImageAttributeUtil.of("attr1", "/", bi);
+		Attribute unityA = JpegImageAttributeCreator.of("attr1", "/", bi);
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());

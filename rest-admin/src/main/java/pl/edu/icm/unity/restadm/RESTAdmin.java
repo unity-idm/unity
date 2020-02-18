@@ -72,7 +72,7 @@ import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeExtWithSimple;
+import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -286,7 +286,7 @@ public class RESTAdmin implements RESTAdminHandler
 			effective = true;
 		includeSimpleValues = includeSimpleValues == null ? false : includeSimpleValues;
 		
-		List<AttributeExtWithSimple> attributes = attributesService.getAttributes(
+		List<ExternalizedAttribute> attributes = attributesService.getAttributes(
 				getEP(entityId, idType), group, effective, idType, includeSimpleValues);
 		return mapper.writeValueAsString(attributes);
 	}

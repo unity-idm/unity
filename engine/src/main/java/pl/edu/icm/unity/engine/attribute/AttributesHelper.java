@@ -85,7 +85,7 @@ public class AttributesHelper
 	private final GroupDAO groupDAO;
 	private final AuditPublisher audit;
 	private final InternalCapacityLimitVerificator capacityLimitVerificator;
-	private final AttributeRegistry attrRegistry;
+	private final PublicAttributeRegistry attrRegistry;
 	
 	@Autowired
 	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
@@ -111,7 +111,7 @@ public class AttributesHelper
 		this.groupDAO = groupDAO;
 		this.audit = audit;
 		this.capacityLimitVerificator = capacityLimitVerificator;
-		this.attrRegistry = new AttributeRegistry(attributeDAO, atHelper);
+		this.attrRegistry = new PublicAttributeRegistry(attributeDAO, atHelper);
 	}
 
 	/**

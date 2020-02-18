@@ -161,10 +161,10 @@ public interface AttributeValueSyntax<T>
 	}
 	
 	/**
-	 * When non empty it means that the attribute's content can be accessed
-	 * publicly.
+	 * When non empty all attributes values with this syntax ban can be
+	 * accessed publicly.
 	 */
-	default Optional<SharedAttributeSpec> shareSpec()
+	default Optional<PublicAttributeSpec> publicExposureSpec()
 	{
 		return Optional.empty();
 	}

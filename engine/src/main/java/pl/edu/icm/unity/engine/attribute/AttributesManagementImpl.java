@@ -38,7 +38,6 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -270,16 +269,6 @@ public class AttributesManagementImpl implements AttributesManagement
 			} else
 				throw e;
 		}
-	}
-	
-	@Override
-	@Transactional
-	public Collection<Attribute> getAllAttributesByKeyword(String keyword)
-	{
-		// no authZ, this can be accessed via public endpoint
-		return dbAttributes.getAllWithKeyword(keyword).stream()
-				.map(StoredAttribute::getAttribute)
-				.collect(Collectors.toList());
 	}
 
 	private Collection<AttributeExt> getAllAttributesInternal(EntityParam entity, boolean effective, 

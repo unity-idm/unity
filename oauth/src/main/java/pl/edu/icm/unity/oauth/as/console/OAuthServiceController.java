@@ -62,7 +62,7 @@ import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeUtil;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -482,7 +482,7 @@ class OAuthServiceController implements IdpServiceController
 		UnityImage image = new UnityImage(value, ImageType.JPG);
 		image.scaleDown(syntax.getConfig().getMaxWidth(), syntax.getConfig().getMaxHeight());
 
-		Attribute logoAttr = JpegImageAttributeUtil.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group,
+		Attribute logoAttr = JpegImageAttributeCreator.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group,
 				image.getBufferedImage());
 		attrMan.setAttribute(entity, logoAttr);
 	}

@@ -13,16 +13,15 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.http.entity.ContentType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import pl.edu.icm.unity.attr.LinkableImage;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeContent;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeInfo;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeSpec;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeContent;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -35,17 +34,17 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	
 	private final URL serverAdvertisedAddress;
 
+	public PublicLinkableImageSyntax(URL serverAdvertisedAddress) 
+	{
+		this.serverAdvertisedAddress = serverAdvertisedAddress;
+	}
+
 	@Override
 	public String getValueSyntaxId()
 	{
 		return ID;
 	}
 	
-	public PublicLinkableImageSyntax(URL serverAdvertisedAddress) 
-	{
-		this.serverAdvertisedAddress = serverAdvertisedAddress;
-	}
-
 	@Override
 	public void validate(LinkableImage value) throws IllegalAttributeValueException
 	{
@@ -92,7 +91,12 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	
 	public String getImageUrl(LinkableImage value)
 	{
-		return serverAdvertisedAddress.toExternalForm() + PUBLIC_IMAGE_PATH + value.getExternalId();
+		return getServletUrl() + value.getExternalId();
+	}
+	
+	private String getServletUrl()
+	{
+		return serverAdvertisedAddress.toExternalForm() + PUBLIC_IMAGE_PATH;
 	}
 
 	@Override
@@ -105,7 +109,7 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 		{
 			URL url = new URL(value);
 			UUID externalId = null;
-			if (url.getPath().startsWith(PUBLIC_IMAGE_PATH))
+			if (value.startsWith(getServletUrl()))
 			{
 				String externalIdString = url.getPath().replace(PUBLIC_IMAGE_PATH, "");
 				externalId = UUID.fromString(externalIdString);
@@ -118,35 +122,30 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	}
 	
 	@Override
-	public Optional<SharedAttributeSpec> shareSpec()
+	public Optional<PublicAttributeSpec> publicExposureSpec()
 	{
 		return Optional.of(new PublicLinkableImageSharingSpec());
 	}
 	
-	private class PublicLinkableImageSharingSpec implements SharedAttributeSpec
+	private class PublicLinkableImageSharingSpec implements PublicAttributeSpec
 	{
 		@Override
-		public SharedAttributeInfo getInfo(String stringRepresentation)
+		public PublicAttributeInfo getInfo(String stringRepresentation)
 		{
 			LinkableImage value = convertFromString(stringRepresentation);
 			String externalId = value.getExternalId() == null ? null : value.getExternalId().toString();
-			return new SharedAttributeInfo(externalId);
+			return new PublicAttributeInfo(externalId);
 		}
 
 		@Override
-		public SharedAttributeContentProvider getContentProvider()
+		public PublicAttributeContentProvider getContentProvider()
 		{
 			return stringRepresentation -> 
 			{
 				LinkableImage value = convertFromString(stringRepresentation);
 				UnityImage image = value.getUnityImage();
-				return new SharedAttributeContent(image.getImage(), getContentType(image));
+				return new PublicAttributeContent(image.getImage(), image.getType().getMimeType());
 			};
-		}
-		
-		private ContentType getContentType(UnityImage image)
-		{
-			return ContentType.getByMimeType(image.getType().getMimeType());
 		}
 	}
 	

@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * 
  * @author K. Benedyczak
  */
-public final class JpegImageAttributeUtil
+public final class JpegImageAttributeCreator
 {
 	public static Attribute of(String name,
 			String groupPath,

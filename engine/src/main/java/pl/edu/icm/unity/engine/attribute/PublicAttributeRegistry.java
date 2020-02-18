@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.attributes.SharedAttributeInfo;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 
@@ -16,13 +16,13 @@ import pl.edu.icm.unity.types.basic.Attribute;
  * external id keyword with an attribute. The purpose is to have reliable and
  * fast way of searching attributes by external id.
  */
-class AttributeRegistry
+class PublicAttributeRegistry
 {
 	private final AttributeDAO attributeDAO;
 	private final AttributeTypeHelper atHelper;
 
 	@Autowired
-	AttributeRegistry(AttributeDAO attributeDAO, AttributeTypeHelper atHelper)
+	PublicAttributeRegistry(AttributeDAO attributeDAO, AttributeTypeHelper atHelper)
 	{
 		this.attributeDAO = attributeDAO;
 		this.atHelper = atHelper;
@@ -31,11 +31,11 @@ class AttributeRegistry
 	void registerAttributeInfo(Attribute attr, long createdAttrId)
 	{
 		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
-		syntax.shareSpec().ifPresent(spec ->
+		syntax.publicExposureSpec().ifPresent(spec ->
 		{
 			attr.getValues().forEach(stringRepresentation ->
 			{
-				SharedAttributeInfo info = spec.getInfo(stringRepresentation);
+				PublicAttributeInfo info = spec.getInfo(stringRepresentation);
 				attributeDAO.linkKeywordToAttribute(info.externalId, createdAttrId);
 			});
 		});

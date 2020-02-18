@@ -19,16 +19,16 @@ import pl.edu.icm.unity.JsonUtil;
 /**
  * Used on REST endpoint, available in types module for rest clients.
  */
-public class AttributeExtWithSimple extends AttributeExt
+public class ExternalizedAttribute extends AttributeExt
 {
 	private List<String> simpleValues;
 
-	public AttributeExtWithSimple(AttributeExt source)
+	public ExternalizedAttribute(AttributeExt source)
 	{
 		this(source, null);
 	}
 
-	public AttributeExtWithSimple(AttributeExt source, List<String> simpleValues)
+	public ExternalizedAttribute(AttributeExt source, List<String> simpleValues)
 	{
 		super(source);
 		this.simpleValues = simpleValues;
@@ -40,7 +40,7 @@ public class AttributeExtWithSimple extends AttributeExt
 	}
 
 	@JsonCreator
-	public AttributeExtWithSimple(ObjectNode src)
+	public ExternalizedAttribute(ObjectNode src)
 	{
 		super(src);
 		if (JsonUtil.notNull(src, "simpleValues"))

@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeExtWithSimple;
+import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 @Component
@@ -37,7 +37,7 @@ class AttributesManagementRESTService
 		this.valueConverter = valueConverter;
 	}
 
-	List<AttributeExtWithSimple> getAttributes(EntityParam entity,
+	List<ExternalizedAttribute> getAttributes(EntityParam entity,
 			String group,
 			boolean effective,
 			String idType,
@@ -55,14 +55,14 @@ class AttributesManagementRESTService
 		}
 
 		return attributes.stream()
-				.map(AttributeExtWithSimple::new)
+				.map(ExternalizedAttribute::new)
 				.collect(Collectors.toList());
 	}
 
-	private AttributeExtWithSimple createWithSimpleValues(AttributeExt attribute)
+	private ExternalizedAttribute createWithSimpleValues(AttributeExt attribute)
 	{
 		List<String> simpleValues = valueConverter.internalValuesToExternal(attribute.getName(), attribute.getValues());
-		return new AttributeExtWithSimple(attribute, simpleValues);
+		return new ExternalizedAttribute(attribute, simpleValues);
 	}
 
 	Collection<AttributeExt> getAttributes(EntityParam entityParam, String group, String attribute)
