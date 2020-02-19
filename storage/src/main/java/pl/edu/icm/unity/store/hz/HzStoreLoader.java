@@ -27,6 +27,7 @@ import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSEventSink;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionalRunner;
 import pl.edu.icm.unity.store.impl.attribute.AttributeHzStore;
+import pl.edu.icm.unity.store.impl.attribute.AttributesLookupHzStore;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.store.impl.events.EventHzStore;
@@ -77,6 +78,9 @@ public class HzStoreLoader implements StoreLoaderInternal
 	
 	@Autowired
 	private EventHzStore eventDAO;
+	
+	@Autowired
+	private AttributesLookupHzStore attrLookupDAO;
 
 	@Autowired
 	private GenericObjectHzStore genericObjDAO;
@@ -123,6 +127,7 @@ public class HzStoreLoader implements StoreLoaderInternal
 		tokenDAO.populateFromRDBMS(hzInstance);
 		eventDAO.populateFromRDBMS(hzInstance);
 		genericObjDAO.populateFromRDBMS(hzInstance);
+		attrLookupDAO.populateFromRDBMS(hzInstance);
 		sink.start();
 		log.info("Population of the in-memory data store completed");
 	}

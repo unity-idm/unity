@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.collect.Lists;
 import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.PredicateBuilder;
@@ -41,14 +42,20 @@ import pl.edu.icm.unity.types.basic.Group;
 public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implements AttributeDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
-	private MembershipHzStore membershipDAO;
+	private final MembershipHzStore membershipDAO;
+	private final AttributesLookupHzStore attrsLookupDAO;
 
 	@Autowired
-	public AttributeHzStore(AttributeRDBMSStore rdbmsDAO, AttributeTypeHzStore atDAO, EntityHzStore entityDAO,
-			GroupHzStore groupDAO, MembershipHzStore membershipDAO)
+	public AttributeHzStore(AttributeRDBMSStore rdbmsDAO,
+			AttributeTypeHzStore atDAO,
+			EntityHzStore entityDAO,
+			GroupHzStore groupDAO,
+			MembershipHzStore membershipDAO,
+			AttributesLookupHzStore attrsLookupDAO)
 	{
 		super(STORE_ID, NAME, AttributeRDBMSStore.BEAN, rdbmsDAO);
 		this.membershipDAO = membershipDAO;
+		this.attrsLookupDAO = attrsLookupDAO;
 		atDAO.addRemovalHandler(this::cascadeAttributeTypeRemoval);
 		atDAO.addUpdateHandler(this::cascadeAttributeTypeUpdate);
 		entityDAO.addRemovalHandler(this::cascadeEntityRemoval);
@@ -229,24 +236,27 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 	@Override
 	public void linkKeywordToAttribute(String keyword, long attributeId)
 	{
-		throw new IllegalStateException("operation not supported");
+		attrsLookupDAO.linkKeywordToAttribute(keyword, attributeId);
 	}
 
 	@Override
 	public List<StoredAttribute> getAllWithKeyword(String keyword)
 	{
-		throw new IllegalStateException("operation not supported");
+		Set<Long> attrIds = attrsLookupDAO.getAllWithKeyword(keyword);
+		Collection<StoredAttribute> values = getMap().values(entry -> attrIds.contains(entry.getKey()));
+		return Lists.newArrayList(values);
 	}
 
 	@Override
 	public List<Long> getAllIds()
 	{
-		throw new IllegalStateException("operation not supported");
+		Set<Long> keys = getMap().keySet();
+		return Lists.newArrayList(keys);
 	}
 
 	@Override
 	public List<String> getAllKeywordsFor(Long attributeId)
 	{
-		throw new IllegalStateException("operation not supported");
+		return attrsLookupDAO.getAllKeywordsFor(attributeId);
 	}
 }

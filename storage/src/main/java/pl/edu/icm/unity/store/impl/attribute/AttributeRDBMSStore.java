@@ -33,14 +33,17 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	public static final String BEAN = DAO_ID + "rdbms";
 	private final GroupDAO groupDAO;
 	private final Integer attributeSizeLimit;
+	private final AttributesLookupRDBMSDAO attrLookupDAO;
 	
 	@Autowired
 	AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer,
 			GroupDAO groupDAO,
-			StorageConfiguration storageConfiguration)
+			StorageConfiguration storageConfiguration,
+			AttributesLookupRDBMSDAO attrLookupDAO)
 	{
 		super(AttributesMapper.class, dbSerializer, NAME);
 		this.groupDAO = groupDAO;
+		this.attrLookupDAO = attrLookupDAO;
 		attributeSizeLimit = storageConfiguration.getIntValue(StorageConfiguration.MAX_ATTRIBUTE_SIZE);
 	}
 
@@ -143,8 +146,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	@Override
 	public List<StoredAttribute> getAllWithKeyword(String keyword)
 	{
-		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
-		List<AttributeLookupBean> lookupResult = lookupMapper.getByKeyword(keyword);
+		List<AttributeLookupBean> lookupResult = attrLookupDAO.getByKeyword(keyword);
 		return lookupResult.stream()
 				.map(AttributeLookupBean::getAttributeId)
 				.map(this::getByKey)
@@ -163,7 +165,6 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	@Override
 	public List<String> getAllKeywordsFor(Long attributeId)
 	{
-		AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
-		return lookupMapper.getAllKeywords(attributeId);
+		return attrLookupDAO.getAllKeywords(attributeId);
 	}
 }
