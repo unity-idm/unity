@@ -50,6 +50,7 @@ public class UpManEndpointFactory implements EndpointFactory
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 	
 	@Override
