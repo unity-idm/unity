@@ -40,7 +40,10 @@
 	<update id="shutdown">
 		SHUTDOWN;
 	</update>
-	
+
+	<sql id="sql-auditEventsTimestampDescIdx">
+		CREATE INDEX AUDIT_EVENTS_TIMESTAMP_DESC_IDX ON AUDIT_EVENTS(TIMESTAMP DESC);
+	</sql>
 	
 	<update id="resetIndex-00">
 		ALTER TABLE TOKENS ALTER COLUMN ID RESTART WITH 1;

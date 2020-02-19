@@ -34,51 +34,38 @@ public interface EntityManagement
 	 * @param toAdd new identity
 	 * @param credReqId Local {@link CredentialRequirements} id
 	 * @param initialState the initial state of the newly created entity
-	 * @param extractAttributes whether automatic attributes extraction should be performed
 	 * @param attributes initial attributes to be added for the entity. This is especially useful 
 	 * when the root group (to which the entity is automatically added) has some {@link AttributesClass}es assigned
 	 * with mandatory attributes. 
 	 * @return newly created identity
-	 * @throws EngineException
 	 */
 	Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
-			boolean extractAttributes, List<Attribute> attributes) throws EngineException;	
+			List<Attribute> attributes) throws EngineException;	
 	
 	/**
-	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attributes.
+	 * As {@link #addEntity(IdentityParam, String, EntityState, List)} with the empty list of attributes.
 	 */
-	Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
-			boolean extractAttributes) throws EngineException;
+	Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState) throws EngineException;
 	
 	/**
-	 * As {@link #addEntity(IdentityParam, String, EntityState, boolean, List)} with the empty list of attributes and default credential requirements.
-	 */
-	Identity addEntity(IdentityParam toAdd, EntityState initialState,
-			boolean extractAttributes, List<Attribute> attributes) throws EngineException;
-	
-	/**
-	 * As {@link #addEntity(IdentityParam, EntityState, boolean, List)} with the empty list of attributes and default credential requirements.
+	 * As {@link #addEntity(IdentityParam, String, EntityState, List)} with the empty list of attributes and default credential requirements.
 	 */
 	Identity addEntity(IdentityParam toAdd, EntityState initialState,
-			boolean extractAttributes) throws EngineException;
+			List<Attribute> attributes) throws EngineException;
+	
+	/**
+	 * As {@link #addEntity(IdentityParam, EntityState, List)} with the empty list of attributes and default credential requirements.
+	 */
+	Identity addEntity(IdentityParam toAdd, EntityState initialState) throws EngineException;
 	
 	/**
 	 * Adds a new identity under existing entity.
-	 * @param toAdd
-	 * @param equivalentIdentity
-	 * @param extractAttributes whether automatic attributes extraction should be performed
-	 * @return newly created identity
-	 * @throws EngineException
 	 */
-	Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes) 
-			throws EngineException;
+	Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity) throws EngineException;
 	
 	/**
 	 * Deletes identity. It must not be the last identity of the entity.
 	 * Certain system Identities can not be removed.
-	 * <p>
-	 * @param toRemove
-	 * @throws EngineException
 	 */
 	void removeIdentity(IdentityTaV toRemove) throws EngineException;
 
@@ -118,20 +105,8 @@ public interface EntityManagement
 	void resetIdentity(EntityParam entity, String typeIdToReset, 
 			String realm, String target) throws EngineException;
 
-	/**
-	 * Deletes entity.
-	 * <p>
-	 * @param toRemove
-	 * @throws EngineException
-	 */
 	void removeEntity(EntityParam toRemove) throws EngineException;
 
-	/**
-	 * Sets entity status
-	 * @param toChange
-	 * @param state
-	 * @throws EngineException
-	 */
 	void setEntityStatus(EntityParam toChange, EntityState state) 
 			throws EngineException;
 
@@ -139,11 +114,6 @@ public interface EntityManagement
 	/**
 	 * Schedules an operation to be invoked at a given time on an entity. 
 	 * Requires regular identityModify capability (not assigned for self access).
-	 * 
-	 * @param toChange
-	 * @param changeTime
-	 * @param operation
-	 * @throws EngineException
 	 */
 	void scheduleEntityChange(EntityParam toChange, Date changeTime, EntityScheduledOperation operation) 
 			throws EngineException;
@@ -152,18 +122,11 @@ public interface EntityManagement
 	 * Sets the entity in the {@link EntityState#onlyLoginPermitted} and schedules the entity removal at given 
 	 * time unless the user logs in before this time. 
 	 * Requires only the attributeModify capability (allowed for selfAccess).
-	 * 
-	 * @param toChange
-	 * @param changeTime
-	 * @throws EngineException
 	 */
 	void scheduleRemovalByUser(EntityParam toChange, Date changeTime) throws EngineException;	
 	
 	/**
 	 * Returns information about an entity along with its all identities with authorization in '/'.
-	 * @param entity
-	 * @return
-	 * @throws EngineException
 	 */
 	Entity getEntity(EntityParam entity) throws EngineException;
 
@@ -184,9 +147,6 @@ public interface EntityManagement
 	 * Returns information about an entity along with its identities.
 	 * This version requires higher privileges and returns all identities, also those targeted 
 	 * for anybody in any realm.
-	 * @param entity
-	 * @return
-	 * @throws EngineException
 	 */
 	Entity getEntityNoContext(EntityParam entity, String group) throws EngineException;
 
@@ -204,10 +164,6 @@ public interface EntityManagement
 	 * Returns a collection with all groups where the entity is a member. This method 
 	 * returns resolved groups with description and displayed name, however without information 
 	 * on attribute statements and other data which might be secret.
-	 * 
-	 * @param entity
-	 * @return
-	 * @throws EngineException
 	 */
 	Collection<Group> getGroupsForPresentation(EntityParam entity) throws EngineException;
 
@@ -226,10 +182,6 @@ public interface EntityManagement
 	 * </ol>
 	 * If the safe mode is activated then the operation will throw exception (without making any changes) 
 	 * if any of attributes, credentials or dynamic removable identity was not copied due to conflicts.  
-	 * 
-	 * @param target
-	 * @param merged
-	 * @throws EngineException
 	 */
 	void mergeEntities(EntityParam target, EntityParam merged, boolean safeMode) throws EngineException;
 
@@ -237,5 +189,37 @@ public interface EntityManagement
 	 * @return displayed name of the entity or null if undefined
 	 */
 	String getEntityLabel(EntityParam entity) throws EngineException;
+	
+	
+	
+	//the following methods are kept only for backwards compatibility of API (especially for Groovy scripts), 
+	//don't use them
+	@Deprecated
+	default Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
+			boolean extractAttributes, List<Attribute> attributes) throws EngineException
+	{
+		return addEntity(toAdd, credReqIdId, initialState, attributes);
+	}
+	
+	@Deprecated
+	default Identity addEntity(IdentityParam toAdd, EntityState initialState,
+			boolean extractAttributes, List<Attribute> attributes) throws EngineException
+	{
+		return addEntity(toAdd, initialState, attributes);
+	}
+	
+	@Deprecated
+	default Identity addEntity(IdentityParam toAdd, EntityState initialState,
+			boolean extractAttributes) throws EngineException
+	{
+		return addEntity(toAdd, initialState);
+	}
+	
+	@Deprecated
+	default Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes) 
+			throws EngineException
+	{
+		return addIdentity(toAdd, parentEntity);
+	}
 }
 

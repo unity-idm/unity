@@ -25,10 +25,11 @@ import com.vaadin.ui.Upload.SucceededListener;
 public abstract class AbstractUploadReceiver implements Receiver, SucceededListener, StartedListener, ProgressListener,
 	FinishedListener
 {
-	private Upload upload;
-	private ProgressBar progressIndicator;
-	private long lastReadBytes = 0;
 	private static final long UPDATE_THRESHOLD = 50000;
+	
+	protected final Upload upload;
+	private final ProgressBar progressIndicator;
+	private long lastReadBytes = 0;
 
 	public AbstractUploadReceiver(Upload upload, ProgressBar progress)
 	{

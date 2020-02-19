@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.nimbusds.jose.util.Base64;
 
 import net.minidev.json.JSONArray;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
@@ -112,8 +112,8 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		@Override
 		public String convertValueToJson(String value)
 		{
-			BufferedImage decoded = syntax.convertFromString(value);
-			byte[] octets = new JpegImageAttributeSyntax().serialize(decoded);
+			UnityImage decoded = syntax.convertFromString(value);
+			byte[] octets = decoded.getImage();
 			return Base64.encode(octets).toJSONString();
 		}
 

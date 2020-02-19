@@ -198,7 +198,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.withAddedGroupSelection(null)
 			.build();
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		
 		setupUserContext("tuser", null);
 		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(false, 
@@ -270,7 +270,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void byInvitationEnquiryIsNotReturned() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		EntityParam entityParam = new EntityParam(identity);
 		groupsMan.addMemberFromParent("/A", entityParam);
 		EnquiryForm form = new EnquiryFormBuilder()
@@ -299,7 +299,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void enquiryForDifferentGroupIsNotPending() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		EntityParam entityParam = new EntityParam(identity);
 		EnquiryForm form = new EnquiryFormBuilder()
 			.withTargetGroups(new String[] {"/A"})
@@ -317,7 +317,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void submittedEnquiryIsNotPendingAnymore() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		EntityParam entityParam = new EntityParam(identity);
 		EnquiryForm form = new EnquiryFormBuilder()
 			.withTargetGroups(new String[] {"/"})
@@ -343,7 +343,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void ignoredEnquiryIsNotPendingAnymore() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		EntityParam entityParam = new EntityParam(identity);
 		EnquiryForm form = new EnquiryFormBuilder()
 			.withName("e1")
@@ -362,7 +362,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void mandatoryEnquiryCanNotBeIgnored() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		EntityParam entityParam = new EntityParam(identity);
 		EnquiryForm form = new EnquiryFormBuilder()
 			.withName("e1")
@@ -397,7 +397,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 						"/", "some"))
 				.build();
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+				CRED_REQ_PASS, EntityState.valid);
 		
 		setupUserContext("tuser", null);
 		

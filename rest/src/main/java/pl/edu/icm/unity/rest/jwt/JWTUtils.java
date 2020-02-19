@@ -60,7 +60,7 @@ public class JWTUtils
 		return signedJWT.serialize();
 	}
 	
-	public static String generate(X509Credential signingCred,JWTClaimsSet claimsSet) throws JOSEException
+	public static String generate(X509Credential signingCred, JWTClaimsSet claimsSet) throws JOSEException
 	{
 		PrivateKey pk = signingCred.getKey();
 		JWSSigner signer;

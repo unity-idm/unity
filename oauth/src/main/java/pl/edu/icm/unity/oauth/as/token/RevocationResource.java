@@ -26,6 +26,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -68,11 +69,14 @@ public class RevocationResource extends BaseOAuthResource
 	private TokensManagement tokensManagement;
 	private SessionManagement sessionManagement;
 	private AuthenticationRealm realm;
+	private final OAuthTokenRepository oauthTokenRepository;
 	
-	public RevocationResource(TokensManagement tokensManagement, SessionManagement sessionManagement, 
+	public RevocationResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenRepository,
+			SessionManagement sessionManagement, 
 			AuthenticationRealm realm)
 	{
 		this.tokensManagement = tokensManagement;
+		this.oauthTokenRepository = oauthTokenRepository;
 		this.sessionManagement = sessionManagement;
 		this.realm = realm;
 	}
@@ -100,12 +104,11 @@ public class RevocationResource extends BaseOAuthResource
 					"Token type '" + tokenHint + "' is not supported");
 		
 		Token internalToken;
-		String internalTokenType = TOKEN_TYPE_ACCESS.equals(tokenHint)
-				? OAuthProcessor.INTERNAL_ACCESS_TOKEN
-				: OAuthProcessor.INTERNAL_REFRESH_TOKEN;
 		try
 		{
-			internalToken = tokensManagement.getTokenById(internalTokenType, token);
+			internalToken = TOKEN_TYPE_ACCESS.equals(tokenHint) ?
+					oauthTokenRepository.readAccessToken(token) : 
+					tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
 		} catch (IllegalArgumentException e)
 		{
 			return toResponse(Response.ok());
@@ -125,7 +128,7 @@ public class RevocationResource extends BaseOAuthResource
 		
 		try
 		{
-			tokensManagement.removeToken(internalTokenType, token);
+			tokensManagement.removeToken(internalToken.getType(), token);
 		} catch (IllegalArgumentException e)
 		{
 			//ok

@@ -10,8 +10,6 @@ package pl.edu.icm.unity.exceptions;
  */
 public class IllegalAttributeValueException extends EngineException
 {
-	private static final long serialVersionUID = 1L;
-
 	public IllegalAttributeValueException(String msg, Throwable cause)
 	{
 		super(msg, cause);

@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -38,6 +37,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
@@ -68,14 +68,18 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	private ProvidersComponent providersComponent;
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
-	private Supplier<URL> serverURLSupplier;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 	private ImageAccessService imageAccessService;
 
-	OAuthAuthenticatorEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
-			FileStorageService fileStorageService, URIAccessService uriAccessService,
+	OAuthAuthenticatorEditor(UnityMessageSource msg,
+			UnityServerConfiguration serverConfig,
+			PKIManagement pkiMan,
+			FileStorageService fileStorageService,
+			URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
-			RegistrationsManagement registrationMan, Supplier<URL> serverURLSupplier)
+			RegistrationsManagement registrationMan,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
@@ -85,7 +89,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
-		this.serverURLSupplier = serverURLSupplier;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 
 	@Override
@@ -141,7 +145,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 	private String buildReturnURL()
 	{
-		URL serverURL = serverURLSupplier.get();
+		URL serverURL = advertisedAddrProvider.get();
 		return serverURL.toExternalForm() + SharedEndpointManagement.CONTEXT_PATH + ResponseConsumerServlet.PATH;
 	}
 	

@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
@@ -31,22 +31,26 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 @Component
 class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private UnityMessageSource msg;
-	private InputTranslationProfileFieldFactory profileFieldFactory;
-	private RegistrationsManagement registrationMan;
-	private PKIManagement pkiMan;
-	private FileStorageService fileStorageService;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
-	private NetworkServer networkServer;
-	private ImageAccessService imageAccessService;
+	private final UnityMessageSource msg;
+	private final InputTranslationProfileFieldFactory profileFieldFactory;
+	private final RegistrationsManagement registrationMan;
+	private final PKIManagement pkiMan;
+	private final FileStorageService fileStorageService;
+	private final URIAccessService uriAccessService;
+	private final UnityServerConfiguration serverConfig;
+	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private final ImageAccessService imageAccessService;
 
 	@Autowired
-	OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
-			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory,
-			FileStorageService fileStorageService, URIAccessService uriAccessService, 
-			ImageAccessService imageAccessService, UnityServerConfiguration serverConfig, 
-			NetworkServer networkServer)
+	OAuthAuthenticatorEditorFactory(UnityMessageSource msg,
+			RegistrationsManagement registrationMan,
+			PKIManagement pkiMan,
+			InputTranslationProfileFieldFactory profileFieldFactory,
+			FileStorageService fileStorageService,
+			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
+			UnityServerConfiguration serverConfig,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
@@ -56,7 +60,7 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.uriAccessService = uriAccessService;
 		this.imageAccessService = imageAccessService;
 		this.serverConfig = serverConfig;
-		this.networkServer = networkServer;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 
 	@Override
@@ -70,6 +74,6 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	{
 		return new OAuthAuthenticatorEditor(msg, serverConfig, pkiMan, fileStorageService, uriAccessService, 
 				imageAccessService,
-				profileFieldFactory, registrationMan, networkServer::getAdvertisedAddress);
+				profileFieldFactory, registrationMan, advertisedAddrProvider);
 	}
 }

@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -74,13 +75,18 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	
 	@Autowired
 	public OAuthAuthzWebEndpoint(NetworkServer server,
-			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
-			@Qualifier("insecure") EntityManagement identitiesManagement, 
+			ApplicationContext applicationContext,
+			FreemarkerAppHandler freemarkerHandler,
+			@Qualifier("insecure") EntityManagement identitiesManagement,
 			@Qualifier("insecure") AttributesManagement attributesManagement,
-			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator,
-			ASConsentDeciderServletFactory dispatcherServletFactory, UnityMessageSource msg)
+			PKIManagement pkiManagement,
+			OAuthEndpointsCoordinator coordinator,
+			ASConsentDeciderServletFactory dispatcherServletFactory,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			UnityMessageSource msg)
 	{
-		super(server, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(), OAUTH_UI_SERVLET_PATH);
+		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
+				OAUTH_UI_SERVLET_PATH);
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;

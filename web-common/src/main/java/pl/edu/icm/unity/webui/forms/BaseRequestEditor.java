@@ -56,6 +56,7 @@ import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -73,6 +74,7 @@ import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
@@ -81,7 +83,6 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
@@ -125,6 +126,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private TextArea comment;
 	private Map<String, AttributeType> atTypes;
 	private Map<String, CredentialDefinition> credentials;
+	private PrefilledSet prefilled;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -234,9 +236,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (regParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 			{
 				IdentityEditor editor = identityParamEditors.get(i);
-				if (editor == null) //OK - invitation parameter
+				if (editor == null) //was pre-filled in a way we don't have editor
 				{
-					ip = null;
+					ip = prefilled.identities.get(i).getEntry();
 				} else
 				{
 					try
@@ -310,9 +312,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				if (aparam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				{
 					FixedAttributeEditor ae = attributeEditor.get(i);
-					if (ae == null)	//ok, attribute specified by invitation
+					if (ae == null)	//was pre-filled in a way we don't have editor
 					{
-						attr = null;
+						attr = prefilled.attributes.get(i).getEntry();
 					} else
 					{
 						try
@@ -365,7 +367,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					if (selector == null)	//ok, group specified by invitation
 						g.add(null);
 					else
-						g.add(new GroupSelection(selector.getSelectedGroups()));
+						g.add(new GroupSelection(selector.getSelectedGroupsWithoutParents()));
 				} else
 				{
 					List<String> remotelySelectedPaths = remotelySelected.stream()
@@ -447,6 +449,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, PrefilledSet prefilled) 
 	{
+		this.prefilled = prefilled;
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
 		atTypes = getAttributeTypesMap();
@@ -653,6 +656,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withLabelInLine(form.getLayoutSettings().isCompactInputs())
 					.withCustomWidth(formWidth())
 					.withCustomWidthUnit(formWidthUnit())
+					.withConfirmationEditMode(registrationConfirmModeToConfirmationEditMode(idParam.getConfirmationMode()))
 					.build());
 			layout.addComponents(editorUI.getComponents());
 			
@@ -711,16 +715,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			
 			
-			ConfirmationMode confirmationMode = ConfirmationMode.OFF;
-			if (aParam.getConfirmationMode().equals(
-					pl.edu.icm.unity.types.registration.ConfirmationMode.ON_SUBMIT))
-				confirmationMode = ConfirmationMode.FORCE_CONFIRMED;
-			else if (aParam.getConfirmationMode().equals(
-					pl.edu.icm.unity.types.registration.ConfirmationMode.ON_ACCEPT))
-				confirmationMode = ConfirmationMode.USER;
+			ConfirmationEditMode confirmationMode = 
+					registrationConfirmModeToConfirmationEditMode(aParam.getConfirmationMode());
 			
 			AttributeEditContext editContext = AttributeEditContext.builder()
-					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
+					.withConfirmationMode(confirmationMode)
+					.withRequired(!aParam.isOptional())
 					.withAttributeType(aType)
 					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
 					.withLabelInline(form.getLayoutSettings().isCompactInputs())
@@ -743,6 +743,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		return true;
 	}	
+	
+	private ConfirmationEditMode registrationConfirmModeToConfirmationEditMode(ConfirmationMode registrationMode)
+	{
+		if (registrationMode == ConfirmationMode.ON_SUBMIT)
+			return ConfirmationEditMode.FORCE_CONFIRMED_IF_SYNC;
+		return ConfirmationEditMode.OFF;
+	}
 	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<GroupSelection>> prefillFromInvitation, Map<Integer, GroupSelection> allowedFromInvitation)

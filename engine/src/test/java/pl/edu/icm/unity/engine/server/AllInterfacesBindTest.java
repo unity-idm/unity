@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -23,6 +24,8 @@ public class AllInterfacesBindTest
 {
 	@Autowired
 	protected JettyServer httpServer;
+	@Autowired
+	protected AdvertisedAddressProvider advertisedAddrProvider;
 	
 	@After
 	public void clear() throws EngineException
@@ -34,7 +37,7 @@ public class AllInterfacesBindTest
 	public void testAllInterfaces()
 	{
 		httpServer.start();
-		URL url = httpServer.getAdvertisedAddress();
+		URL url = advertisedAddrProvider.get();
 		assertNotEquals("0.0.0.0", url.getHost());
 		assertNotEquals("0", url.getPort());
 	}

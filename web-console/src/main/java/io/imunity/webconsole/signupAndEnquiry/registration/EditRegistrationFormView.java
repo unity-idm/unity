@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-class EditRegistrationFormView extends CustomComponent implements UnityView
+public class EditRegistrationFormView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "EditRegistrationForm";
 
@@ -98,6 +98,7 @@ class EditRegistrationFormView extends CustomComponent implements UnityView
 			ignoreRequestsAndInvitations = editor.isIgnoreRequestsAndInvitations();
 		} catch (FormValidationException e)
 		{
+			NotificationPopup.showFormError(msg, e.getMessage());
 			return;
 		}
 

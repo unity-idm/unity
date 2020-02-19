@@ -19,11 +19,11 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -55,7 +55,7 @@ public class AttributeEditor extends CustomComponent
 		
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
-				.withConfirmationMode(ConfirmationMode.ADMIN).withRequired(required)
+				.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
 				.withAttributeType(initial)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner).build();
@@ -72,7 +72,7 @@ public class AttributeEditor extends CustomComponent
 				
 				attrValuesContainer.removeAllComponents();
 				AttributeEditContext newEditContext = AttributeEditContext.builder()
-						.withConfirmationMode(ConfirmationMode.ADMIN).withRequired(required)
+						.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
 						.withAttributeType(newType)
 						.withAttributeGroup(AttributeEditor.this.groupPath)
 						.withAttributeOwner(owner).build();
@@ -111,7 +111,7 @@ public class AttributeEditor extends CustomComponent
 		attrValuesContainer = new CompactFormLayout();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
-				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner).build();
@@ -137,7 +137,7 @@ public class AttributeEditor extends CustomComponent
 		attrValuesContainer = new CompactFormLayout();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
-				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner).build();

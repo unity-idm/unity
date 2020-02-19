@@ -21,7 +21,6 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
  * @author R. Ledzinski
  */
 @Component
-//@DependsOn({InitializerCommon.class})
 public class AuditPublisher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditPublisher.class);
@@ -29,7 +28,7 @@ public class AuditPublisher
 
 	private EventProcessor eventProcessor;
 	private TxManager txMan;
-	private volatile boolean enabled;
+	volatile boolean enabled;
 
 	@Autowired
 	public AuditPublisher(final EventProcessor eventProcessor, final TxManager txMan,
@@ -37,13 +36,6 @@ public class AuditPublisher
 	{
 		this.eventProcessor = eventProcessor;
 		this.txMan = txMan;
-		this.enabled = mainConfig.getBooleanValue(UnityServerConfiguration.AUDITEVENTLOGS_ENABLED);
-		log.info("AuditPublisher is " + (enabled ? "enabled" : "disabled"));
-	}
-
-	public boolean isEnabled()
-	{
-		return enabled;
 	}
 
 	public void log(final AuditEventTrigger.AuditEventTriggerBuilder triggerBuilder) 

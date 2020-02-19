@@ -5,10 +5,12 @@
 package pl.edu.icm.unity.webui.common.attributes.image;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
@@ -18,17 +20,16 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
  *
  * @author R. Ledzinski
  */
-@org.springframework.stereotype.Component
-public class ImageAttributeHandlerFactory implements WebAttributeHandlerFactory
+@Component
+class ImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 {
-	private UnityMessageSource msg;
+	private final UnityMessageSource msg;
 
 	@Autowired
-	public ImageAttributeHandlerFactory(UnityMessageSource msg)
+	ImageAttributeHandlerFactory(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
-
 
 	@Override
 	public String getSupportedSyntaxId()
@@ -37,15 +38,14 @@ public class ImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 	}
 
 	@Override
-	public AttributeSyntaxEditor<UnityImage> getSyntaxEditorComponent(
-			AttributeValueSyntax<?> initialValue)
+	public AttributeSyntaxEditor<UnityImage> getSyntaxEditorComponent(AttributeValueSyntax<?> initialValue)
 	{
-		return new ImageSyntaxEditor((ImageAttributeSyntax) initialValue, msg);
+		return new BaseImageSyntaxEditor<>((ImageAttributeSyntax) initialValue, ImageAttributeSyntax::new, msg);
 	}
 
 	@Override
 	public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
 	{
-		return new ImageAttributeHandler(msg, syntax);
+		return new UnityImageAttributeHandler(msg, (ImageAttributeSyntax) syntax);
 	}
 }

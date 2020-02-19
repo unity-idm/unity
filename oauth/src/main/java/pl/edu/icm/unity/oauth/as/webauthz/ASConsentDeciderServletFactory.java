@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
 /**
  * Creates {@link ASConsentDeciderServlet}s.
@@ -24,20 +24,21 @@ public class ASConsentDeciderServletFactory
 {
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
-	protected TokensManagement tokensMan;
 	private SessionManagement sessionMan;
 	private EnquiryManagement enquiryManagement;
+	private OAuthProcessor processor;
 
 	@Autowired
 	public ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, 
-			TokensManagement tokensMan, SessionManagement sessionMan,
+			SessionManagement sessionMan,
+			OAuthProcessor processor,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
-		this.tokensMan = tokensMan;
 		this.sessionMan = sessionMan;
+		this.processor = processor;
 		this.enquiryManagement = enquiryManagement;
 	}
 
@@ -45,7 +46,7 @@ public class ASConsentDeciderServletFactory
 	public ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath)
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
-				tokensMan, sessionMan, oauthUiServletPath, authenticationUIServletPath, 
+				processor, sessionMan, oauthUiServletPath, authenticationUIServletPath, 
 				enquiryManagement);
 	}
 }

@@ -54,6 +54,7 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private IntegerBoundEditor max;
 	private CheckBox uniqueVals;
 	private CheckBox selfModificable;
+	private CheckBox global;
 	private ComboBox<String> syntax;
 	private VerticalLayout syntaxPanel;
 	private AttributeSyntaxEditor<?> editor;
@@ -105,6 +106,9 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		
 		selfModificable = new CheckBox(msg.getMessage("AttributeType.selfModificableCheck"));
 		addComponent(selfModificable);
+
+		global = new CheckBox(msg.getMessage("AttributeType.global"));
+		addComponent(global);
 		
 		syntax = new ComboBox<>(msg.getMessage("AttributeType.type"));
 		syntax.setEmptySelectionAllowed(false);
@@ -147,6 +151,7 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		max.configureBinding(binder, "maxElements");
 		binder.bind(uniqueVals, "uniqueValues");
 		binder.bind(selfModificable, "selfModificable");
+		binder.bind(global, "global");
 		binder.bind(syntax, "valueSyntax");
 		//note syntax editor and metadata are not bound.
 		

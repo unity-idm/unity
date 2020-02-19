@@ -40,13 +40,6 @@ public class Attribute implements NamedObject
 	private String translationProfile;
 	private String remoteIdp;
 
-	/**
-	 * Simplified, without remoteIdp and translationProfile info
-	 * @param name
-	 * @param valueSyntax
-	 * @param groupPath
-	 * @param values
-	 */
 	public Attribute(String name, String valueSyntax, String groupPath, List<String> values)
 	{
 		this.name = name;
@@ -57,12 +50,6 @@ public class Attribute implements NamedObject
 
 	/**
 	 * Full constructor
-	 * @param name
-	 * @param valueSyntax
-	 * @param groupPath
-	 * @param values
-	 * @param remoteIdp
-	 * @param translationProfile
 	 */
 	public Attribute(String name, String valueSyntax, String groupPath, List<String> values,
 			String remoteIdp, String translationProfile)
@@ -72,9 +59,14 @@ public class Attribute implements NamedObject
 		this.translationProfile = translationProfile;
 	}
 
+	public Attribute(Attribute toClone)
+	{
+		this(toClone.name, toClone.valueSyntax, toClone.groupPath, toClone.values, toClone.remoteIdp, 
+				toClone.translationProfile);
+	}
+	
 	/**
 	 * Full deserialization from JSON
-	 * @param src
 	 */
 	@JsonCreator
 	public Attribute(ObjectNode src)
@@ -84,10 +76,6 @@ public class Attribute implements NamedObject
 
 	/**
 	 * Partial deserialization from JSON
-	 * @param name
-	 * @param valueSyntax
-	 * @param groupPath
-	 * @param src
 	 */
 	public Attribute(String name, String valueSyntax, String groupPath, ObjectNode src)
 	{

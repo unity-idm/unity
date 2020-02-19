@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -44,4 +46,10 @@ public interface AttributeSupport
 	 * @return all attribute types as map. Not authorized anyhow 
 	 */
 	Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
+	
+	/**
+	 * Returns all attributes linked with given keyword.
+	 * No authorization.
+	 */
+	Collection<Attribute> getAttributesByKeyword(String keyword);
 }

@@ -36,6 +36,7 @@ public enum Styles
 	error("u-error"),
 	success("u-success"),
 	textTitle("u-textTitle"),
+	textInfoTooltip("u-textInfoTooltip"),
 	textLarge("u-textLarge"),
 	textXLarge("u-textXLarge"),
 	textEndpointName("u-textEndpointHeading"),
@@ -89,6 +90,8 @@ public enum Styles
 	imagePreview("u-imagePreview"),
 	disabledButton("u-button-disabled "),
 	narrowTable("u-narrowTable"),
+	borderBold("u-border-bold"),
+	borderBoldGreen("u-border-bold-green"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

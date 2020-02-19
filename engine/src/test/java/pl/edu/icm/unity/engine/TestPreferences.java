@@ -22,7 +22,7 @@ public class TestPreferences extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 		EntityParam entity = new EntityParam(id.getEntityId());
 
 		assertNull(preferencesMan.getPreference(entity, "foo"));
@@ -34,7 +34,7 @@ public class TestPreferences extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
 		preferencesMan.setPreference(entity, "foo", "val1");
@@ -49,7 +49,7 @@ public class TestPreferences extends DBIntegrationTestBase
 	{
 		setupMockAuthn();
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), 
-				"crMock", EntityState.valid, false);
+				"crMock", EntityState.valid);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		
 		preferencesMan.setPreference(entity, "foo", "val1");

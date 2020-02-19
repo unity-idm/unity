@@ -16,6 +16,8 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
  */
 public interface CredentialRequirementManagement
 {
+	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = "sys:all";
+	
 	/**
 	 * Defines a new credential requirements instance
 	 * @param name

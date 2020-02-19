@@ -33,10 +33,10 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
@@ -64,17 +64,17 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private OAuthRPProperties verificatorProperties;
 	private TokenVerificatorProtocol tokenChecker;
 	private PKIManagement pkiMan;
-	private TokensManagement tokensMan;
+	private OAuthTokenRepository tokensDAO;
 	private TranslationProfile translationProfile;
 	private ResultsCache cache;
 	
 	@Autowired
-	public BearerTokenVerificator(PKIManagement pkiMan, TokensManagement tokensMan, 
+	public BearerTokenVerificator(PKIManagement pkiMan, OAuthTokenRepository tokensDAO, 
 			RemoteAuthnResultProcessor processor)
 	{
 		super(NAME, DESC, AccessTokenExchange.ID, processor);
 		this.pkiMan = pkiMan;
-		this.tokensMan = tokensMan;
+		this.tokensDAO = tokensDAO;
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			verificatorProperties = new OAuthRPProperties(properties, pkiMan, tokensMan);
+			verificatorProperties = new OAuthRPProperties(properties, pkiMan, tokensDAO);
 			tokenChecker = verificatorProperties.getTokenChecker();
 			translationProfile = getTranslationProfile(verificatorProperties, CommonWebAuthnProperties.TRANSLATION_PROFILE,
 					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);			

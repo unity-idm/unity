@@ -50,11 +50,11 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 
 		Identity id = idsMan.addEntity(toAdd,
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
-				EntityState.valid, false);
+				EntityState.valid);
 		toAdd.setValue("u2");
 		Identity id2 = idsMan.addEntity(toAdd,
 				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
-				EntityState.valid, false);
+				EntityState.valid);
 		attrsMan.createAttribute(new EntityParam(id),
 				EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "/",
 						InternalAuthorizationManagerImpl.USER_ROLE));

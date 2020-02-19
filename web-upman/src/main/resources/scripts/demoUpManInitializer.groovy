@@ -120,7 +120,7 @@ void setGroupDelegationConfig(String path, String logo, String registrationForm,
 void createExampleUser(int suffix)
 {
 	IdentityParam toAdd = new IdentityParam(EmailIdentity.ID, "demo-user-" + suffix + "@example.com");
-	Identity base = entityManagement.addEntity(toAdd, EntityState.valid, false);
+	Identity base = entityManagement.addEntity(toAdd, EntityState.valid);
 	EntityParam entityP = new EntityParam(base.getEntityId());
 	
 	groupsManagement.addMemberFromParent("/projects", entityP);

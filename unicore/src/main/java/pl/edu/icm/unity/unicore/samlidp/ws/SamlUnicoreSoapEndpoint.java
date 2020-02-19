@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -52,21 +53,23 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public static final String SERVLET_PATH = "/saml2unicoreidp-soap";
 	
 	@Autowired
-	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, NetworkServer server,
+	public SamlUnicoreSoapEndpoint(UnityMessageSource msg,
+			NetworkServer server,
 			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
-			@Qualifier("insecure") PKIManagement pkiManagement, 
-			ExecutorsService executorsService, 
+			@Qualifier("insecure") PKIManagement pkiManagement,
+			ExecutorsService executorsService,
 			SessionManagement sessionMan,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, 
+			SAMLLogoutProcessorFactory logoutProcessorFactory,
 			AuthenticationProcessor authnProcessor,
 			AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService, URIAccessService uriAccessService)
+			RemoteMetadataService metadataService,
+			URIAccessService uriAccessService,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(msg, server, idpEngine, preferencesMan,
-				pkiManagement, executorsService, sessionMan, 
-				logoutProcessorFactory, authnProcessor, 
-				aTypeSupport, metadataService, uriAccessService);
+		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
+				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
+				advertisedAddrProvider);
 		this.servletPath = SERVLET_PATH;
 	}
 

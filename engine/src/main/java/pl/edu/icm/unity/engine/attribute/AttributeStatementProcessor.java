@@ -20,13 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -82,16 +79,11 @@ public class AttributeStatementProcessor
 	 *  <li> statements for this group are processed. For conditions evaluation data from the above steps 
 	 *  and method arguments is used.
 	 * </ol>
-	 * @param entityId
-	 * @param group
 	 * @param queriedAttribute the only interesting attribute or null if all should be collected
 	 * @param allGroups set with all groups where the entity is the member
 	 * @param directAttributesByGroup map with group as keys with all regular attributes of the user. Values
 	 * are maps of attributes by name.
-	 * @param atMapper
-	 * @param gMapper
 	 * @return collected attributes in a map form. Map keys are attribute names.
-	 * @throws WrongArgumentException 
 	 */
 	public Map<String, AttributeExt> getEffectiveAttributes(List<Identity> identities, String group, 
 			String queriedAttribute, 
@@ -110,18 +102,36 @@ public class AttributeStatementProcessor
 
 		AttributeStatement[] statements = getGroupStatements(group, groupInfoProvider);
 		
-		return processAttributeStatements(Direction.undirected, directAttributesByGroup, 
+		Map<String, AttributeExt> fromStatemants = processAttributeStatements(Direction.undirected, directAttributesByGroup, 
 				upwardsAttributes, downwardsAttributes, group, 
 				queriedAttribute, identities, statements, allGroups, knownClasses, attrTypeProvider);
+		
+		return "/".equals(group) ? fromStatemants 
+				: addGlobal(fromStatemants, directAttributesByGroup, attrTypeProvider, queriedAttribute);
+	}
+
+	private Map<String, AttributeExt> addGlobal(Map<String, AttributeExt> fromStatemants,
+			Map<String, Map<String, AttributeExt>> directAttributesByGroup,
+			Function<String, AttributeType> attrTypeProvider, String queriedAttribute)
+	{
+		Map<String, AttributeExt> rootDirectAttributes = directAttributesByGroup.getOrDefault("/", Collections.emptyMap());
+		if (queriedAttribute != null && !rootDirectAttributes.containsKey(queriedAttribute))
+			return fromStatemants;
+		Set<String> interestingRootAttributes = queriedAttribute == null ? 
+				rootDirectAttributes.keySet() : Collections.singleton(queriedAttribute);
+		interestingRootAttributes.stream()
+				.filter(attribute -> attrTypeProvider.apply(attribute).isGlobal())
+				.filter(globalA -> !fromStatemants.keySet().contains(globalA))
+				.forEach(globalToAdd -> {
+					AttributeExt cloned = new AttributeExt(rootDirectAttributes.get(globalToAdd));
+					cloned.setDirect(false);
+					fromStatemants.put(globalToAdd, cloned);
+				});
+		return fromStatemants;
 	}
 
 	/**
 	 * Resolves group path and returns group's attribute statements
-	 * @param groupPath
-	 * @param mapper
-	 * @param gMapper
-	 * @return 
-	 * @throws IllegalGroupValueException 
 	 */
 	private AttributeStatement[] getGroupStatements(String groupPath, Function<String, Group> groupInfoProvider) 
 	{
@@ -212,7 +222,7 @@ public class AttributeStatementProcessor
 				if (at != null)
 					collectedAttributes.put(queriedAttribute, new AttributeExt(at));
 			}
-			acAttribute = (AttributeExt) regularAttributesInGroup.get(
+			acAttribute = regularAttributesInGroup.get(
 					AttributeClassUtil.ATTRIBUTE_CLASSES_ATTRIBUTE);
 		}
 
@@ -256,11 +266,6 @@ public class AttributeStatementProcessor
 	 * Checks all conditions. If all are true, then the attribute of the statement is added to the map.
 	 * In case when the attribute is already in the map, conflict resolution of the statement is taken into 
 	 * account.
-	 * @param collectedAttributes
-	 * @param statement
-	 * @param mapper
-	 * @throws IllegalTypeException 
-	 * @throws IllegalAttributeTypeException 
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void processAttributeStatement(Direction direction, String group, AttributeStatement statement, 

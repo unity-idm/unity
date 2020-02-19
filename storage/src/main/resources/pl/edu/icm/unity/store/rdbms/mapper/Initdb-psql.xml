@@ -37,6 +37,11 @@
 		);
 	</sql>
 
+	<!-- Empty query - descending index is not needed in Postgres DB-->
+	<sql id="sql-auditEventsTimestampDescIdx">
+		select 1
+	</sql>
+
 	<update id="initdb-04-01">
 		CREATE INDEX IDENTITIES_ENTITY_ID_IDX ON IDENTITIES (ENTITY_ID);
 	</update>

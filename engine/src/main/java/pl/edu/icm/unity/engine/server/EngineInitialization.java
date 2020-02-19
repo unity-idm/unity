@@ -66,6 +66,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.wellknown.AttributesContentPublicServletProvider;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventListener;
@@ -137,8 +138,9 @@ public class EngineInitialization extends LifecycleBase
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
-	public static final String DEFAULT_CREDENTIAL = "sys:password";
+	public static final String DEFAULT_CREDENTIAL = CredentialManagement.DEFAULT_CREDENTIAL;
 	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemAllCredentialRequirements.NAME;
+
 
 	@Autowired
 	private UnityMessageSource msg;
@@ -235,6 +237,8 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private AuthenticationFlowManagement authnFlowManagement;
+	@Autowired(required = false)
+	private AttributesContentPublicServletProvider attributesContentServletFactory;
 	
 	@Autowired
 	@Qualifier("insecure")
@@ -258,6 +262,7 @@ public class EngineInitialization extends LifecycleBase
 			startLogConfigurationMonitoring();
 			initializeBackgroundTasks();
 			deployConfirmationServlet();
+			deployAttributeContentPublicServlet();
 			deployPublicWellKnownURLServlet();
 			super.start();
 		} catch (Exception e)
@@ -507,6 +512,26 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 
+	private void deployAttributeContentPublicServlet()
+	{
+		if (attributesContentServletFactory == null)
+		{
+			log.info("Public attribute exposure servlet factory is not available, skipping its deploymnet");
+			return;
+		}
+		
+		log.info("Deploing attribute content servlet");
+		ServletHolder holder = attributesContentServletFactory.getServiceServlet();
+		try
+		{
+			sharedEndpointManagement.deployInternalEndpointServlet(
+					AttributesContentPublicServletProvider.SERVLET_PATH, holder, false);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Cannot deploy internal public attribute exposure servlet", e);
+		}
+	}
+
 	private void initializeIdentityTypes()
 	{
 		log.info("Checking if all identity types are defined");
@@ -520,7 +545,6 @@ public class EngineInitialization extends LifecycleBase
 					log.info("Adding identity type " + it.getId());
 					IdentityType idType = new IdentityType(it.getId(), it.getId());
 					idType.setDescription(msg.getMessage(it.getDefaultDescriptionKey()));
-					idType.setExtractedAttributes(idType.getExtractedAttributes());
 					dbIdentities.create(idType);
 				}
 			}
@@ -607,7 +631,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		try
 		{
-			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid);
 		} catch (SchemaConsistencyException e)
 		{
 			// most probably '/' group attribute class forbids to
@@ -619,7 +643,7 @@ public class EngineInitialization extends LifecycleBase
 			log.info("Removing ACs: " + root.getGroup().getAttributesClasses());
 			root.getGroup().setAttributesClasses(new HashSet<>());
 			groupManagement.updateGroup("/", root.getGroup(), "reset root group attributes", "");
-			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid);
 		}
 	}
 

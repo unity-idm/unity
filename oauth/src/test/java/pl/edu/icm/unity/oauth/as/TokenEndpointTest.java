@@ -68,7 +68,7 @@ public class TokenEndpointTest extends TokenTestBase
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
-				.initOAuthFlowAccessCode(tokensMan, ctx);
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
@@ -97,7 +97,7 @@ public class TokenEndpointTest extends TokenTestBase
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
-				.initOAuthFlowAccessCode(tokensMan, ctx);
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
@@ -136,7 +136,7 @@ public class TokenEndpointTest extends TokenTestBase
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId(), "nonce-VAL");
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
-				.initOAuthFlowAccessCode(tokensMan, ctx);
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(

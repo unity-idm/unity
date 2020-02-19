@@ -17,11 +17,18 @@ public class FormLayoutWithFixedCaptionWidth extends FormLayout
 {
 	public FormLayoutWithFixedCaptionWidth()
 	{
-		super();
-		addStyleName(SidebarStyles.fixedWidthCaptions.toString());
+		this(SidebarStyles.fixedWidthCaptions);
+	}
+
+	private  FormLayoutWithFixedCaptionWidth(SidebarStyles style)
+	{
+		addStyleName(style.toString());
 		setMargin(true);
 	}
 	
-
+	public static FormLayoutWithFixedCaptionWidth withShortCaptions()
+	{
+		return new FormLayoutWithFixedCaptionWidth(SidebarStyles.fixedWidthShortCaptions);
+	}
 
 }

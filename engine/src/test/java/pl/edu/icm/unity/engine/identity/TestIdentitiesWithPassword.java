@@ -131,9 +131,9 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 	{
 		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		IdentityParam dnId = new IdentityParam(X500Identity.ID,  "CN=someCN");
-		idsMan.addIdentity(dnId, new EntityParam(id), false);
+		idsMan.addIdentity(dnId, new EntityParam(id));
 		IdentityParam emailId = new IdentityParam(EmailIdentity.ID,  "email@example.org");
-		idsMan.addIdentity(emailId, new EntityParam(id), false);
+		idsMan.addIdentity(emailId, new EntityParam(id));
 		
 		
 		IdentityParam newUser = new IdentityParam(UsernameIdentity.ID, "user-new");
@@ -177,7 +177,7 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 		IdentityParam emailId3 = new IdentityParam(EmailIdentity.ID,  "email3@example.org");
 		emailId3.setConfirmationInfo(new ConfirmationInfo(true));
 
-		idsMan.addIdentity(emailId, entityParam, false);
+		idsMan.addIdentity(emailId, entityParam);
 
 		setupUserContext(DEF_USER, null);
 		
@@ -249,11 +249,11 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 		IdentityParam emailId5 = new IdentityParam(EmailIdentity.ID,  "email5@example.org");
 		emailId5.setConfirmationInfo(new ConfirmationInfo(false));
 
-		idsMan.addIdentity(emailId, entityParam, false);
-		idsMan.addIdentity(emailId2, entityParam, false);
-		idsMan.addIdentity(emailId3, entityParam, false);
-		idsMan.addIdentity(emailId4, entityParam, false);
-		idsMan.addIdentity(emailId5, entityParam, false);
+		idsMan.addIdentity(emailId, entityParam);
+		idsMan.addIdentity(emailId2, entityParam);
+		idsMan.addIdentity(emailId3, entityParam);
+		idsMan.addIdentity(emailId4, entityParam);
+		idsMan.addIdentity(emailId5, entityParam);
 
 		setupUserContext(DEF_USER, null);
 
@@ -321,11 +321,11 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 		
 		setupUserContext(DEF_USER, null);
 		
-		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
-		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1);
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1);
 		try
 		{
-			idsMan.addIdentity(new IdentityParam(UsernameIdentity.ID, "dummy"), ep1, false);
+			idsMan.addIdentity(new IdentityParam(UsernameIdentity.ID, "dummy"), ep1);
 			fail("Managed to add non self modifiable identity");
 		} catch (AuthorizationException e)
 		{
@@ -360,15 +360,15 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 				assertFalse(idTypeI.isSelfModificable());
 		IdentityParam identityParam = new IdentityParam(EmailIdentity.ID, "emailV@custom.net");
 		identityParam.setConfirmationInfo(new ConfirmationInfo(true));
-		idsMan.addIdentity(identityParam, ep1, false);
+		idsMan.addIdentity(identityParam, ep1);
 		
 		setupUserContext(DEF_USER, null);
 		
-		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
-		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1);
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1);
 		try
 		{
-			idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email3@custom.com"), ep1, false);
+			idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email3@custom.com"), ep1);
 			fail("Managed to add too many emails");
 		} catch (SchemaConsistencyException e)
 		{
@@ -402,7 +402,7 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 			id.append(i%10);
 		
 		Identity added = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, id.toString()), 
-				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid, false);
+				DBIntegrationTestBase.CRED_REQ_PASS, EntityState.valid);
 		
 		Entity full = idsMan.getEntity(new EntityParam(added), null, true, null);
 		assertEquals(2, full.getIdentities().size());

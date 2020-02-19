@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.engine.translation.in;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,7 +17,6 @@ import java.util.Date;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mockito.AdditionalAnswers;
 
 import com.google.common.collect.Lists;
 
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
@@ -33,7 +35,6 @@ import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
 import pl.edu.icm.unity.engine.translation.in.action.EntityChangeActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.MapAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.in.action.MapGroupActionFactory;
@@ -45,6 +46,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 public class TestInputMapActions
 {
@@ -55,13 +57,12 @@ public class TestInputMapActions
 		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
 		when(attrsMan.getType("stringA")).thenReturn(sA);
 		
-		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
-		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
-			then(AdditionalAnswers.returnsSecondArg());
-		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
-			then(AdditionalAnswers.returnsSecondArg());
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		Attribute attr = new Attribute("stringA", StringAttributeSyntax.ID, "/A/B", Lists.newArrayList("a1-a2-idd"));
+		when(parser.parseAsAttribute(any(), any(), eq(Lists.newArrayList("a1-a2-idd")), any(), any())).
+			thenReturn(attr);
 
-		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan, converter);
+		MapAttributeActionFactory factory = new MapAttributeActionFactory(attrsMan, parser);
 		
 		InputTranslationAction mapAction = factory.getInstance("stringA", "/A/B", 
 				"attr['attribute'] + '-' + attr['other'] + '-' + id", 
@@ -76,8 +77,7 @@ public class TestInputMapActions
 		MappingResult result = mapAction.invoke(input, ctx, "testProf");
 		
 		Attribute a = result.getAttributes().get(0).getAttribute();
-		assertEquals("stringA", a.getName());
-		assertEquals("a1-a2-idd", a.getValues().get(0));
+		assertThat(a).isEqualTo(attr);
 	}
 
 	@Test
@@ -87,13 +87,17 @@ public class TestInputMapActions
 		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
 		when(attrsMan.getAttributeTypes()).thenReturn(Lists.newArrayList(sA));
 		
-		AttributeValueConverter converter = mock(AttributeValueConverter.class); 
-		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
-			then(AdditionalAnswers.returnsSecondArg());
-		when(converter.externalValuesToInternal(eq("stringA"), anyList())).
-			then(AdditionalAnswers.returnsSecondArg());
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		Attribute attr1 = new Attribute("stringA", StringAttributeSyntax.ID, "/A/B", 
+				newArrayList("a1", "a2"));
+		Attribute attr2 = new Attribute("stringA", StringAttributeSyntax.ID, "/A/B", 
+				newArrayList("a3"));
+		when(parser.parseAsAttribute(any(), any(), eq(attr1.getValues()), any(), any())).
+			thenReturn(attr1);
+		when(parser.parseAsAttribute(any(), any(), eq(attr2.getValues()), any(), any())).
+			thenReturn(attr2);
 		
-		MultiMapAttributeActionFactory factory = new MultiMapAttributeActionFactory(attrsMan, converter);
+		MultiMapAttributeActionFactory factory = new MultiMapAttributeActionFactory(attrsMan, parser);
 		
 		InputTranslationAction mapAction = factory.getInstance("attribute stringA /A/B\n"
 				+ "other stringA /A\n"
@@ -103,19 +107,16 @@ public class TestInputMapActions
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addIdentity(new RemoteIdentity("idd", "i1"));
 		input.addAttribute(new RemoteAttribute("attribute", "a1", "a2"));
-		input.addAttribute(new RemoteAttribute("other", "a2"));
+		input.addAttribute(new RemoteAttribute("other", "a3"));
 		
 		MappingResult result = mapAction.invoke(input, 
 				InputTranslationContextFactory.createMvelContext(input), "testProf");
 		
 		Attribute a = result.getAttributes().get(0).getAttribute();
-		assertEquals("stringA", a.getName());
-		assertEquals("a1", a.getValues().get(0));
-		assertEquals("a2", a.getValues().get(1));
+		assertThat(a).isEqualTo(attr1);
 
 		Attribute b = result.getAttributes().get(1).getAttribute();
-		assertEquals("stringA", b.getName());
-		assertEquals("a2", b.getValues().get(0));
+		assertThat(b).isEqualTo(attr2);
 	}
 
 
@@ -143,7 +144,11 @@ public class TestInputMapActions
 		IdentityTypesRegistry idTypesReg = mock(IdentityTypesRegistry.class);
 		when(idTypesReg.getByName("userName")).thenReturn(new UsernameIdentity());
 		
-		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		IdentityParam id = new IdentityParam("userName", "a1-a2-idvalue");
+		when(parser.parseAsIdentity(any(), eq(id.getValue()), any(), any())).thenReturn(id);
+		
+		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg, parser);
 		InputTranslationAction mapAction = factory.getInstance("userName", 
 				"attr['attribute:colon'] + '-' + attr['other'] + '-' + id", 
 				"CR", IdentityEffectMode.REQUIRE_MATCH.toString());
@@ -158,8 +163,7 @@ public class TestInputMapActions
 		MappedIdentity mi = result.getIdentities().get(0);
 		assertEquals("CR", mi.getCredentialRequirement());
 		assertEquals(IdentityEffectMode.REQUIRE_MATCH, mi.getMode());
-		assertEquals("userName", mi.getIdentity().getTypeId());
-		assertEquals("a1-a2-idvalue", mi.getIdentity().getValue());
+		assertThat(mi.getIdentity()).isEqualTo(id);
 	}
 	
 	@Test

@@ -148,6 +148,9 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		
 		editorCreator.init(form, signUpAuthNController, context);
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
+		
+		currentRegistrationFormEditor.performAutomaticRemoteSignupIfNeeded();
+		
 	}
 
 	private void showSecondStage(RemotelyAuthenticatedContext context, TriggeringMode mode, 

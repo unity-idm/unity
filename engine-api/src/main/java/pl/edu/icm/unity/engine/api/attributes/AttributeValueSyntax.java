@@ -160,4 +160,12 @@ public interface AttributeValueSyntax<T>
 		return Optional.empty();
 	}
 	
+	/**
+	 * When non empty all attributes values with this syntax ban can be
+	 * accessed publicly.
+	 */
+	default Optional<PublicAttributeSpec> publicExposureSpec()
+	{
+		return Optional.empty();
+	}
 }

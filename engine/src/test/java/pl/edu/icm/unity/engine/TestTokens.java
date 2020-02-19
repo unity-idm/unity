@@ -39,7 +39,7 @@ public class TestTokens extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam ep = new EntityParam(id);
 		byte[] c = new byte[] {'a'};
 		Date exp = new Date(System.currentTimeMillis()+500000);
@@ -60,7 +60,7 @@ public class TestTokens extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam ep = new EntityParam(id);
 		byte[] c = new byte[] {'a'};
 		tokensMan.addToken("t", "123", ep, c, new Date(), new Date(System.currentTimeMillis()+1000));
@@ -76,7 +76,7 @@ public class TestTokens extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam ep = new EntityParam(id);
 		byte[] c = new byte[] {'a'};
 		tokensMan.addToken("t", "123", ep, c, new Date(), new Date(System.currentTimeMillis()+1));
@@ -95,7 +95,7 @@ public class TestTokens extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam ep = new EntityParam(id);
 		byte[] c = new byte[] {'a'};
 		Date exp = new Date(System.currentTimeMillis()+500000);
@@ -117,7 +117,7 @@ public class TestTokens extends DBIntegrationTestBase
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam ep = new EntityParam(id);
 		byte[] c = new byte[] {'a'};
 		Date exp = new Date(System.currentTimeMillis()+500000);

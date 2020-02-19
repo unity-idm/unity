@@ -40,7 +40,7 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 	private Label confirmationStatusIcon;
 	private boolean showLabelInline;
 	
-	public TextFieldWithVerifyButton(boolean adminMode, 
+	public TextFieldWithVerifyButton(boolean addConfirmCheckbox, 
 			String verifyButtonDesc, Resource verifyButtonIcon,
 			String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
@@ -67,7 +67,7 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(fieldLayout);
-		if (adminMode) 
+		if (addConfirmCheckbox) 
 		{
 			main.addComponent(adminConfirmCheckBox);
 		}

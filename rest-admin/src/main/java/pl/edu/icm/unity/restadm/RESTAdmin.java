@@ -50,7 +50,6 @@ import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -61,9 +60,8 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -74,6 +72,7 @@ import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -84,7 +83,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -112,9 +110,8 @@ public class RESTAdmin implements RESTAdminHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTAdmin.class);
 	private EntityManagement identitiesMan;
 	private GroupsManagement groupsMan;
-	private AttributesManagement attributesMan;
+	private AttributesManagementRESTService attributesService;
 	private ObjectMapper mapper = Constants.MAPPER;
-	private IdentityTypesRegistry identityTypesRegistry;
 	private EmailConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
 	private RegistrationsManagement registrationManagement;
@@ -127,13 +124,16 @@ public class RESTAdmin implements RESTAdminHandler
 	private SecuredTokensManagement securedTokenMan;
 	private Token2JsonFormatter jsonFormatter;
 	private UserNotificationTriggerer userNotificationTriggerer;
+	private ExternalDataParser dataParser;
 
 	@Autowired
-	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
-			EmailConfirmationManager confirmationManager, EndpointManagement endpointManagement,
-			RegistrationsManagement registrationManagement, 
-			BulkProcessingManagement bulkProcessingManagement, 
+	public RESTAdmin(EntityManagement identitiesMan,
+			GroupsManagement groupsMan,
+			AttributesManagementRESTService attributesService,
+			EmailConfirmationManager confirmationManager,
+			EndpointManagement endpointManagement,
+			RegistrationsManagement registrationManagement,
+			BulkProcessingManagement bulkProcessingManagement,
 			UserImportManagement userImportManagement,
 			EntityCredentialManagement entityCredMan,
 			AttributeTypeManagement attributeTypeMan,
@@ -141,12 +141,12 @@ public class RESTAdmin implements RESTAdminHandler
 			EventPublisherWithAuthz eventPublisher,
 			SecuredTokensManagement securedTokenMan,
 			Token2JsonFormatter jsonFormatter,
-			UserNotificationTriggerer userNotificationTriggerer)
+			UserNotificationTriggerer userNotificationTriggerer,
+			ExternalDataParser dataParser)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
-		this.attributesMan = attributesMan;
-		this.identityTypesRegistry = identityTypesRegistry;
+		this.attributesService = attributesService;
 		this.confirmationManager = confirmationManager;
 		this.endpointManagement = endpointManagement;
 		this.registrationManagement = registrationManagement;
@@ -159,6 +159,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.securedTokenMan = securedTokenMan;
 		this.jsonFormatter = jsonFormatter;
 		this.userNotificationTriggerer = userNotificationTriggerer;
+		this.dataParser = dataParser;
 	}
 
 	
@@ -232,8 +233,8 @@ public class RESTAdmin implements RESTAdminHandler
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addEntity " + value + " type: " + type);
-		Identity identity = identitiesMan.addEntity(resolveIdentity(type, value), 
-				credReqIdId, EntityState.valid, false);
+		Identity identity = identitiesMan.addEntity(dataParser.parseAsIdentity(type, value), 
+				credReqIdId, EntityState.valid);
 		ObjectNode ret = mapper.createObjectNode();
 		ret.put("entityId", identity.getEntityId());
 		return mapper.writeValueAsString(ret);
@@ -247,15 +248,9 @@ public class RESTAdmin implements RESTAdminHandler
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
-		identitiesMan.addIdentity(resolveIdentity(type, value), getEP(entityId, idType), false);
+		identitiesMan.addIdentity(dataParser.parseAsIdentity(type, value), getEP(entityId, idType));
 	}
 
-	private IdentityParam resolveIdentity(String type, String value) throws EngineException
-	{
-		IdentityTypeDefinition idType = identityTypesRegistry.getByName(type);
-		return idType.convertFromString(value, null, null);
-	}
-	
 	@Path("/entity/identity/{type}/{value}")
 	@DELETE
 	public void removeIdentity(@PathParam("type") String type, @PathParam("value") String value,
@@ -279,18 +274,20 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/attributes")
 	@GET
 	public String getAttributes(@PathParam("entityId") String entityId,
-			@QueryParam("group") String group, @QueryParam("effective") Boolean effective, 
-			@QueryParam("identityType") String idType) 
-					throws EngineException, JsonProcessingException
+			@QueryParam("group") String group,
+			@QueryParam("effective") Boolean effective,
+			@QueryParam("identityType") String idType,
+			@QueryParam("includeSimpleValues") Boolean includeSimpleValues)
+			throws EngineException, JsonProcessingException
 	{
 		if (group == null)
 			group = "/";
 		if (effective == null)
 			effective = true;
-		log.debug("getAttributes query for " + entityId + " in " + group);
-		Collection<AttributeExt> attributes = attributesMan.getAllAttributes(
-				getEP(entityId, idType), effective, group, null, true);
+		includeSimpleValues = includeSimpleValues == null ? false : includeSimpleValues;
 		
+		List<ExternalizedAttribute> attributes = attributesService.getAttributes(
+				getEP(entityId, idType), group, effective, idType, includeSimpleValues);
 		return mapper.writeValueAsString(attributes);
 	}
 
@@ -304,8 +301,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (group == null)
 			group = "/";
-		log.debug("removeAttribute " + attribute + " of " + entityId + " in " + group);
-		attributesMan.removeAttribute(getEP(entityId, idType), group, attribute);
+		attributesService.removeAttribute(getEP(entityId, idType), group, attribute);
 	}
 	
 	@Path("/entity/{entityId}/attribute")
@@ -324,7 +320,7 @@ public class RESTAdmin implements RESTAdminHandler
 		{
 			throw new JSONParsingException("Can't parse the attribute input", e);
 		}
-		setAttribute(attributeParam, getEP(entityId, idType));
+		attributesService.setAttribute(attributeParam, getEP(entityId, idType));
 	}
 
 	@Path("/entity/{entityId}/attributes")
@@ -354,16 +350,9 @@ public class RESTAdmin implements RESTAdminHandler
 		}
 		EntityParam ep = getEP(entityId, idType);
 		for (Attribute ap: parsedParams)
-			setAttribute(ap, ep);
+			attributesService.setAttribute(ap, ep);
 	}
 
-	private void setAttribute(Attribute attributeParam, EntityParam entityParam) 
-			throws EngineException
-	{
-		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
-		attributesMan.setAttributeSuppressingConfirmation(entityParam, attributeParam);
-	}
-	
 	//TODO - those two endpoints are duplicating functionality. Should be unified into a single one.
 	//remaining after old method of providing used credential
 	@Path("/entity/{entityId}/credential-adm/{credential}")
@@ -576,7 +565,7 @@ public class RESTAdmin implements RESTAdminHandler
 			group = "/";
 		log.debug("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
 		EntityParam entityParam = getEP(entityId, idType);
-		Collection<AttributeExt> attributes = attributesMan.getAttributes(entityParam, group, attribute);
+		Collection<AttributeExt> attributes = attributesService.getAttributes(entityParam, group, attribute);
 		
 		if (attributes.isEmpty())
 			throw new WrongArgumentException("Attribute is undefined");

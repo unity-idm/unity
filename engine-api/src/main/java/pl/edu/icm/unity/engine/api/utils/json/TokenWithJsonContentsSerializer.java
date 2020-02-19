@@ -43,14 +43,12 @@ public abstract class TokenWithJsonContentsSerializer implements TokenContentsJs
 	
 	public JsonNode toJson(byte[] rawValue) throws EngineException
 	{
-		JsonNode node = null;
 		try
 		{
-			node = Constants.MAPPER.readTree(rawValue);
+			return Constants.MAPPER.readTree(rawValue);
 		} catch (IOException e)
 		{
 			throw new EngineException("Cannot parse to json", e);
 		}
-		return node;
 	}
 }

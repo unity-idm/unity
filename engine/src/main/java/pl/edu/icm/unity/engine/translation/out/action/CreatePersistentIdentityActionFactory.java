@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -37,8 +37,10 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 	
 	private IdentityTypesRegistry idTypesReg;
 
+	private ExternalDataParser dataParser;
+
 	@Autowired
-	public CreatePersistentIdentityActionFactory(IdentityTypesRegistry idTypesReg)
+	public CreatePersistentIdentityActionFactory(IdentityTypesRegistry idTypesReg, ExternalDataParser dataParser)
 	{
 		super(NAME, new ActionParameterDefinition(
 				"identityType",
@@ -49,12 +51,13 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 				"TranslationAction.createPersistedIdentity.paramDesc.idValueExpression",
 				Type.EXPRESSION, true));
 		this.idTypesReg = idTypesReg;
+		this.dataParser = dataParser;
 	}
 
 	@Override
 	public CreatePersistentIdentityAction getInstance(String... parameters)
 	{
-		return new CreatePersistentIdentityAction(parameters, getActionType(), idTypesReg);
+		return new CreatePersistentIdentityAction(parameters, getActionType(), idTypesReg, dataParser);
 	}
 
 	public static class CreatePersistentIdentityAction extends OutputTranslationAction
@@ -62,11 +65,13 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, CreatePersistentIdentityAction.class);
 		private IdentityTypeDefinition idType;
 		private Serializable idValueExpression;
+		private ExternalDataParser dataParser;
 
 		public CreatePersistentIdentityAction(String[] params, TranslationActionType desc,
-				IdentityTypesRegistry idTypesReg)
+				IdentityTypesRegistry idTypesReg, ExternalDataParser dataParser)
 		{
 			super(desc, params);
+			this.dataParser = dataParser;
 			setParameters(params, idTypesReg);
 		}
 
@@ -82,10 +87,8 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 			}
 			String value = valueO.toString();
 			
-			IdentityParam newId = idType.convertFromString(value, null, currentProfile);
 			//for output profile we can't confirm - not yet implemented and rather not needed.
-			if (idType.isEmailVerifiable())
-				newId.setConfirmationInfo(new ConfirmationInfo(true));
+			IdentityParam newId = dataParser.parseAsConfirmedIdentity(idType, value, null, currentProfile);
 			
 			if (result.removeIdentityToPersistByType(idType.getId()))
 			{
@@ -109,5 +112,4 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 						" is dynamic so it can not be persisted");
 		}
 	}
-
 }

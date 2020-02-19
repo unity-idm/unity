@@ -127,7 +127,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	protected void createUser() throws Exception
 	{
 		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), "cr-pass",
-				EntityState.valid, false);
+				EntityState.valid);
 	}
 	
 	protected void setupMockAuthn() throws Exception
@@ -203,7 +203,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			ctx.addEffectiveScopeInfo(new ScopeInfo(scope, scope, Lists.newArrayList(scope + " attr")));
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
-				.initOAuthFlowAccessCode(tokensMan, ctx, identity);
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
 
 		TokenRequest request = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca,

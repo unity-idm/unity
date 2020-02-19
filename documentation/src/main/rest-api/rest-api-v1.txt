@@ -115,6 +115,7 @@ Example output:
 +@QueryParam("group")+ +
 +@QueryParam("effective")+ +
 +@QueryParam("identityType")+ +
++@QueryParam("includeSimpleValues")+ +
 +@GET+ +
 
 Returns attributes of a given entity in a selected group. Values are encoded in syntax type dependent way.
@@ -173,6 +174,26 @@ Example output:
 ]
 ----
 
+The optional includeSimpleValues query parameter (by default false) can be used to add to the output additional
+property with a attributes' values parsed to simple output.
+
+Example output: 
+----
+    {
+        "values": [
+            "{\"image\":\"{\\\"type\\\":\\\"PNG\\\",\\\"value\\\":\\\"iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAIAAAAiOjnJAAAzEklEQVR42u1dB1gVxxa\\\"}\",\"externalId\":\"b4118506-3194-4f59-94a7-56c2d3babf00\"}"
+        ],
+        "creationTs": 1581616749295,
+        "updateTs": 1581616749295,
+        "direct": true,
+        "name": "publicImage",
+        "groupPath": "/",
+        "valueSyntax": "publicLinkableImage",
+        "simpleValues": [
+            "https://localhost:2443/unitygw/content/b4118506-3194-4f59-94a7-56c2d3babf00"
+        ]
+    }
+----
 
 === Get group contents
 

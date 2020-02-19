@@ -37,6 +37,11 @@
 		)  engine=InnoDB, character set utf8
 	</sql>
 
+	<!-- Empty query - descending index is not needed in MySQL DB-->
+	<sql id="sql-auditEventsTimestampDescIdx">
+		select 1
+	</sql>
+
 	<update id="resetIndex-00">
 		ALTER TABLE TOKENS AUTO_INCREMENT=1;
 	</update>

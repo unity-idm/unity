@@ -17,7 +17,10 @@
 	<update id="cleardb-03">
 		DROP TABLE IF EXISTS GROUP_ENTITIES;
 	</update>
-	<update id="cleardb-04">
+	<update id="cleardb-04-1">
+		DROP TABLE IF EXISTS ATTRIBUTES_LOOKUP;
+	</update>
+	<update id="cleardb-04-2">
 		DROP TABLE IF EXISTS ATTRIBUTES;
 	</update>
 	<update id="cleardb-05">
@@ -106,6 +109,9 @@
 	</delete>
 	<delete id="deletedb-auditEvents-03">
 		DELETE FROM AUDIT_TAGS;
+	</delete>
+	<delete id="deletedb-attributesLookup">
+		DELETE FROM ATTRIBUTES_LOOKUP;
 	</delete>
 	<delete id="deletedb-capacityLimit">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = 'capacityLimit'

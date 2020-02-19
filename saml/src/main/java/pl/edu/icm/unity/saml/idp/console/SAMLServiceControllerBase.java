@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -32,11 +33,6 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase implements IdpServiceController
 {
 	private RealmsManagement realmsMan;
@@ -51,21 +47,33 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	private AuthenticatorSupportService authenticatorSupportService;
 	private IdentityTypeSupport idTypeSupport;
 	private PKIManagement pkiMan;
-	private NetworkServer server;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
 	private ImageAccessService imageAccessService;
+	private NetworkServer server;
 
-	public SAMLServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan,
-			UnityMessageSource msg2, EndpointManagement endpointMan2, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, IdentityTypeSupport idTypeSupport,
-			PKIManagement pkiMan, NetworkServer server,
+	public SAMLServiceControllerBase(UnityMessageSource msg,
+			EndpointManagement endpointMan,
+			UnityMessageSource msg2,
+			EndpointManagement endpointMan2,
+			RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan,
+			AttributeTypeManagement atMan,
+			BulkGroupQueryService bulkService,
+			RegistrationsManagement registrationMan,
+			URIAccessService uriAccessService,
+			FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService,
+			IdentityTypeSupport idTypeSupport,
+			PKIManagement pkiMan,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			NetworkServer server,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			IdpUsersHelper idpUserHelper, ImageAccessService imageAccessService)
+			IdpUsersHelper idpUserHelper,
+			ImageAccessService imageAccessService)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -80,6 +88,7 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.idTypeSupport = idTypeSupport;
 		this.pkiMan = pkiMan;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.server = server;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.idpUserHelper = idpUserHelper;
@@ -96,7 +105,7 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 		return new SAMLServiceEditor(msg, getType(), pkiMan, subViewSwitcher,
-				outputTranslationProfileFieldFactory, server.getAdvertisedAddress().toString(),
+				outputTranslationProfileFieldFactory, advertisedAddrProvider.get().toString(),
 				server.getUsedContextPaths(), uriAccessService, imageAccessService, 
 				fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),

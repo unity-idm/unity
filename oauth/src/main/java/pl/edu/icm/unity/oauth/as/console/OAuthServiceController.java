@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -28,6 +27,8 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -50,6 +51,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
@@ -57,13 +59,11 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
-import pl.edu.icm.unity.stdext.utils.UnityImage.ImageType;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -115,7 +115,7 @@ class OAuthServiceController implements IdpServiceController
 	private AuthenticatorSupportService authenticatorSupportService;
 	private IdentityTypeSupport idTypeSupport;
 	private PKIManagement pkiMan;
-	private NetworkServer server;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private AttributeTypeSupport attrTypeSupport;
 	private AttributesManagement attrMan;
@@ -124,19 +124,33 @@ class OAuthServiceController implements IdpServiceController
 	private EntityCredentialManagement entityCredentialManagement;
 	private IdpUsersHelper idpUsersHelper;
 	private ImageAccessService imageService;
+	private NetworkServer server;
 
 	@Autowired
-	OAuthServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, PKIManagement pkiMan,
-			NetworkServer server, IdentityTypeSupport idTypeSupport,
+	OAuthServiceController(UnityMessageSource msg,
+			EndpointManagement endpointMan,
+			RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan,
+			AttributeTypeManagement atMan,
+			BulkGroupQueryService bulkService,
+			RegistrationsManagement registrationMan,
+			URIAccessService uriAccessService,
+			FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig,
+			AuthenticatorSupportService authenticatorSupportService,
+			PKIManagement pkiMan,
+			NetworkServer server,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			IdentityTypeSupport idTypeSupport,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
-			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
-			ImageAccessService imageService, IdpUsersHelper idpUsersHelper)
+			AttributeTypeSupport attrTypeSupport,
+			AttributesManagement attrMan,
+			EntityManagement entityMan,
+			GroupsManagement groupMan,
+			EntityCredentialManagement entityCredentialManagement,
+			ImageAccessService imageService,
+			IdpUsersHelper idpUsersHelper)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -151,7 +165,7 @@ class OAuthServiceController implements IdpServiceController
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.pkiMan = pkiMan;
-		this.server = server;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.idTypeSupport = idTypeSupport;
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.attrTypeSupport = attrTypeSupport;
@@ -161,6 +175,7 @@ class OAuthServiceController implements IdpServiceController
 		this.entityCredentialManagement = entityCredentialManagement;
 		this.imageService = imageService;
 		this.idpUsersHelper = idpUsersHelper;
+		this.server = server;
 	}
 
 	@Override
@@ -397,7 +412,7 @@ class OAuthServiceController implements IdpServiceController
 	private long addOAuthClient(OAuthClient client) throws EngineException
 	{
 		IdentityParam id = new IdentityParam(UsernameIdentity.ID, client.getId());
-		Identity addEntity = entityMan.addEntity(id, EntityState.valid, false);
+		Identity addEntity = entityMan.addEntity(id, EntityState.valid);
 		Deque<String> notMember = Group.getMissingGroups(client.getGroup(), Arrays.asList("/"));
 		addToGroupRecursive(notMember, addEntity.getEntityId());
 		return addEntity.getEntityId();
@@ -481,9 +496,9 @@ class OAuthServiceController implements IdpServiceController
 		JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) attrTypeSupport
 				.getSyntax(attrTypeSupport.getType(OAuthSystemAttributesProvider.CLIENT_LOGO));
 		UnityImage image = new UnityImage(value, ImageType.JPG);
-		image.scaleDown(syntax.getMaxWidth(), syntax.getMaxHeight());
+		image.scaleDown(syntax.getConfig().getMaxWidth(), syntax.getConfig().getMaxHeight());
 
-		Attribute logoAttr = JpegImageAttribute.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group,
+		Attribute logoAttr = JpegImageAttributeCreator.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group,
 				image.getBufferedImage());
 		attrMan.setAttribute(entity, logoAttr);
 	}
@@ -587,13 +602,13 @@ class OAuthServiceController implements IdpServiceController
 
 			Attribute logo = attrs.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
 			JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) attrTypeSupport.getSyntax(logo);
-			BufferedImage image = syntax.convertFromString(logo.getValues().get(0));
+			UnityImage image = syntax.convertFromString(logo.getValues().get(0));
 
 			LocalOrRemoteResource lrLogo = new LocalOrRemoteResource();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				ImageIO.write(image, "jpg", baos);
+				ImageIO.write(image.getBufferedImage(), image.getType().toExt(), baos);
 				lrLogo.setLocal(baos.toByteArray());
 				baos.close();
 				c.setLogo(lrLogo);
@@ -641,7 +656,7 @@ class OAuthServiceController implements IdpServiceController
 	{
 
 		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
-				server.getAdvertisedAddress().toString(), server.getUsedContextPaths(),
+				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(),
 				imageService, uriAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),

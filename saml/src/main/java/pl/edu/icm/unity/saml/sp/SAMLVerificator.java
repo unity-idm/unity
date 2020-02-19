@@ -40,7 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -96,12 +96,15 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Autowired
 	public SAMLVerificator(RemoteAuthnResultProcessor processor,
 			@Qualifier("insecure") PKIManagement pkiMan,
-			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
+			ReplayAttackChecker replayAttackChecker,
+			ExecutorsService executorsService,
 			RemoteMetadataService metadataService,
-			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
+			SLOSPManager sloManager,
+			SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg,
-			SharedEndpointManagement sharedEndpointManagement, 
-			NetworkServer jettyServer, URIAccessService uriAccessService)
+			SharedEndpointManagement sharedEndpointManagement,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			URIAccessService uriAccessService)
 	{
 		super(NAME, DESC, SAMLExchange.ID, processor);
 		this.metadataService = metadataService;
@@ -113,7 +116,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		this.sloReplyInstaller = sloReplyInstaller;
 		this.uriAccessService = uriAccessService;
 
-		URL baseAddress = jettyServer.getAdvertisedAddress();
+		URL baseAddress = advertisedAddrProvider.get();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
 	}

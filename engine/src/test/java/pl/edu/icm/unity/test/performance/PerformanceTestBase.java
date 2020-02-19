@@ -40,12 +40,12 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -154,7 +154,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < n; i++)
 		{
 			Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID,
-					"user" + i), CR_MOCK, EntityState.valid, false);
+					"user" + i), CR_MOCK, EntityState.valid);
 
 			eCredMan.setEntityCredential(new EntityParam(added1), "credential1",
 					new PasswordToken("PassWord8743#%$^&*").toJson());
@@ -425,7 +425,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
 			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = JpegImageAttribute.of(typeName, enInGroup.get(i%NU),
+			Attribute a = JpegImageAttributeCreator.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(im));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a);

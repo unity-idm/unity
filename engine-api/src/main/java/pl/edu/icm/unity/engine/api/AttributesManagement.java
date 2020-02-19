@@ -98,4 +98,5 @@ public interface AttributesManagement
 	 */
 	Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, 
 			String groupPath, String attributeTypeId, boolean allowDegrade) throws EngineException;
+
 }

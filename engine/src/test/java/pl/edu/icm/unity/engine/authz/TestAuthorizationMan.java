@@ -40,7 +40,7 @@ public class TestAuthorizationMan extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+				EntityState.valid);
 		setupUserContext("tuser", null);
 		assertThat(authzMan.hasAdminAccess(), is(false));
 	}

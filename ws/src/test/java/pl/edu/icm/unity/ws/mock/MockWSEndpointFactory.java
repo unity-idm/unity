@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -40,6 +41,9 @@ public class MockWSEndpointFactory implements EndpointFactory
 	@Autowired
 	private NetworkServer server;
 	
+	@Autowired
+	private AdvertisedAddressProvider advertisedAddrProvider;
+	
 	@Override
 	public EndpointTypeDescription getDescription()
 	{
@@ -49,7 +53,7 @@ public class MockWSEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new CXFEndpoint(msg, sessionMan, authnProcessor, server, SERVLET_PATH)
+		return new CXFEndpoint(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH)
 		{
 			@Override
 			protected void configureServices()

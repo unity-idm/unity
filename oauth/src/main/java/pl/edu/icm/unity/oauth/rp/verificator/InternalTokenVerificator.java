@@ -8,10 +8,9 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 
 /**
  * Verifies the token against internal Unity's token storage, i.e. the token is checked if was 
@@ -21,11 +20,11 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
  */
 public class InternalTokenVerificator implements TokenVerificatorProtocol
 {
-	private TokensManagement tokensManagement;
+	private OAuthTokenRepository tokensDAO;
 	
-	public InternalTokenVerificator(TokensManagement tokensMan)
+	public InternalTokenVerificator(OAuthTokenRepository tokensDAO)
 	{
-		this.tokensManagement = tokensMan;
+		this.tokensDAO = tokensDAO;
 	}
 
 
@@ -35,8 +34,7 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 		Token internalAccessToken;
 		try
 		{
-			internalAccessToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
-					token.getValue());
+			internalAccessToken = tokensDAO.readAccessToken(token.getValue());
 		} catch (IllegalArgumentException e)
 		{
 			return new TokenStatus();

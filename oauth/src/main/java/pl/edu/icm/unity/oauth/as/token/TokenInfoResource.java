@@ -21,8 +21,8 @@ import com.nimbusds.jwt.util.DateUtils;
 
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 
 /**
  * Non standard functionality: allows for validation of a given access token.
@@ -56,9 +56,9 @@ public class TokenInfoResource extends BaseTokenResource
 	public static final String CLIENT = "client_id";
 	public static final String AUDIENCE = "aud";
 	
-	public TokenInfoResource(TokensManagement tokensManagement)
+	public TokenInfoResource(OAuthTokenRepository tokensDAO)
 	{
-		super(tokensManagement);
+		super(tokensDAO);
 	}
 
 	@Path("/")

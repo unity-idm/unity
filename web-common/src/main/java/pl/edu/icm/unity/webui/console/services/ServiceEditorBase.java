@@ -31,7 +31,7 @@ public abstract class ServiceEditorBase extends CustomComponent implements Servi
 {
 	protected UnityMessageSource msg;
 
-	private Map<ServiceEditorComponent.ServiceEditorTab, Tab> defTabs;
+	private Map<String, Tab> defTabs;
 	private TabSheet tabs;
 
 	public ServiceEditorBase(UnityMessageSource msg)
@@ -99,7 +99,7 @@ public abstract class ServiceEditorBase extends CustomComponent implements Servi
 	}
 
 	@Override
-	public void setActiveTab(ServiceEditorTab tab)
+	public void setActiveTab(String tab)
 	{
 		tabs.setSelectedTab(defTabs.get(tab));
 	}
@@ -107,7 +107,7 @@ public abstract class ServiceEditorBase extends CustomComponent implements Servi
 	public interface EditorTab
 	{
 		Resource getIcon();
-		ServiceEditorTab getType();
+		String getType();
 		CustomComponent getComponent();
 		String getCaption();	
 	}

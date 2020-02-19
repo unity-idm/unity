@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Group;
@@ -58,6 +59,7 @@ public class OAuthServiceConfiguration
 	private boolean allowForWildcardsInAllowedURI;
 	private int maxExtendAccessTokenValidity;
 	private boolean supportExtendTokenValidity;
+	private AccessTokenFormat accessTokenFormat;
 
 	public OAuthServiceConfiguration()
 	{
@@ -81,6 +83,7 @@ public class OAuthServiceConfiguration
 		supportExtendTokenValidity = false;
 		skipUserImport = false;
 		userImports = new ArrayList<>();
+		accessTokenFormat = AccessTokenFormat.PLAIN;
 	}
 
 	public String toProperties()
@@ -96,6 +99,7 @@ public class OAuthServiceConfiguration
 		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_CONSENT, String.valueOf(skipConsentScreen));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI,
 				String.valueOf(allowForWildcardsInAllowedURI));
+		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_FORMAT, accessTokenFormat.toString());
 		if (supportExtendTokenValidity)
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY,
@@ -230,6 +234,7 @@ public class OAuthServiceConfiguration
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
 		allowForWildcardsInAllowedURI = oauthProperties
 				.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
+		accessTokenFormat = oauthProperties.getAccessTokenFormat();
 		if (oauthProperties.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY))
 		{
 			maxExtendAccessTokenValidity = oauthProperties.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY);
@@ -564,5 +569,15 @@ public class OAuthServiceConfiguration
 	public void setSupportExtendTokenValidity(boolean supportExtendTokenValidity)
 	{
 		this.supportExtendTokenValidity = supportExtendTokenValidity;
+	}
+
+	public AccessTokenFormat getAccessTokenFormat()
+	{
+		return accessTokenFormat;
+	}
+
+	public void setAccessTokenFormat(AccessTokenFormat accessTokenFormat)
+	{
+		this.accessTokenFormat = accessTokenFormat;
 	}
 }

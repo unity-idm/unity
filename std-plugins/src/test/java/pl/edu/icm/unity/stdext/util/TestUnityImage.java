@@ -4,13 +4,15 @@
  */
 package pl.edu.icm.unity.stdext.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 
 public class TestUnityImage
 {
@@ -33,12 +35,12 @@ public class TestUnityImage
 
 	@Test
 	public void conversionShouldNotImpactQualityPng() throws IOException {
-		conversionShouldNotImpactQuality(PNG_SRC, UnityImage.ImageType.PNG);
+		conversionShouldNotImpactQuality(PNG_SRC, ImageType.PNG);
 	}
 
 	@Test
 	public void conversionShouldNotImpactQualityGif() throws IOException {
-		conversionShouldNotImpactQuality(GIF_SRC, UnityImage.ImageType.GIF);
+		conversionShouldNotImpactQuality(GIF_SRC, ImageType.GIF);
 	}
 
 	// This is not true for jpg - something that require further investigation.
@@ -48,7 +50,7 @@ public class TestUnityImage
 	// 	testNoQualityImpact("src/test/resources/img/test-image.jpg", UnityImage.ImageType.JPG);
 	// }
 
-	public void conversionShouldNotImpactQuality(String fileName, UnityImage.ImageType type) throws IOException {
+	public void conversionShouldNotImpactQuality(String fileName, ImageType type) throws IOException {
 		UnityImage original = new UnityImage(Paths.get(fileName));
 
 		// Creating image based on BufferedImage
@@ -65,7 +67,7 @@ public class TestUnityImage
 	@Test
 	public void shouldNotScaleDownIfMatchingSize() throws IOException {
 		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
-		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.JPG);
+		UnityImage image = new UnityImage(bytes, ImageType.JPG);
 		Assert.assertEquals(100, image.getWidth());
 		Assert.assertEquals(100, image.getHeight());
 
@@ -80,13 +82,13 @@ public class TestUnityImage
 	public void shouldNotScaleDownWithConversionIfMatchingSize() throws IOException
 	{
 		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
-		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.JPG);
+		UnityImage image = new UnityImage(bytes, ImageType.JPG);
 		Assert.assertEquals(100, image.getWidth());
 		Assert.assertEquals(100, image.getHeight());
 
 		// no action expected
 		byte[] ba = image.getScaledDownImage(100, 100);
-		UnityImage image2 = new UnityImage(ba, UnityImage.ImageType.JPG);
+		UnityImage image2 = new UnityImage(ba, ImageType.JPG);
 		Assert.assertEquals(100, image2.getHeight());
 		Assert.assertEquals(100, image2.getWidth());
 		Assert.assertArrayEquals(bytes, image2.getImage());
@@ -96,7 +98,7 @@ public class TestUnityImage
 	public void shouldScaleDown() throws IOException
 	{
 		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
-		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.JPG);
+		UnityImage image = new UnityImage(bytes, ImageType.JPG);
 		Assert.assertEquals(100, image.getWidth());
 		Assert.assertEquals(100, image.getHeight());
 
@@ -118,7 +120,7 @@ public class TestUnityImage
 		Assert.assertEquals(100, image.getHeight());
 
 		byte[] ba = image.getScaledDownImage(50, 50);
-		UnityImage image2 = new UnityImage(ba, UnityImage.ImageType.JPG);
+		UnityImage image2 = new UnityImage(ba, ImageType.JPG);
 		Assert.assertEquals(50, image2.getWidth());
 		Assert.assertEquals(50, image2.getHeight());
 		Assert.assertEquals(100, image.getWidth());

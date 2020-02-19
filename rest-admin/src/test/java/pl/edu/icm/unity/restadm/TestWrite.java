@@ -44,7 +44,6 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -53,6 +52,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -73,7 +73,7 @@ public class TestWrite extends RESTAdminTestBase
 	public void setRemoveAttribute() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
-				"cr-pass", EntityState.valid, false);
+				"cr-pass", EntityState.valid);
 		long entityId = identity.getEntityId();
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
@@ -100,7 +100,7 @@ public class TestWrite extends RESTAdminTestBase
 				new VerifiableEmail("some2@example.com", new ConfirmationInfo(true))));
 		
 		BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-		setSingleAttribute(entityId, JpegImageAttribute.of(
+		setSingleAttribute(entityId, JpegImageAttributeCreator.of(
 				"jpegA", "/", image));
 
 		HttpDelete removeAttribute = new HttpDelete("/restadm/v1/entity/" + entityId + "/attribute/stringA");
@@ -113,7 +113,7 @@ public class TestWrite extends RESTAdminTestBase
 	public void setAttributes() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
-				"cr-pass", EntityState.valid, false);
+				"cr-pass", EntityState.valid);
 		long entityId = identity.getEntityId();
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));

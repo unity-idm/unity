@@ -38,7 +38,6 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttribute;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -47,6 +46,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -80,7 +80,7 @@ public class TestQuery extends TestRESTBase
 	public void resolveOfEmailWithTagsReturnsEntity() throws Exception
 	{
 		idsMan.addEntity(new IdentityParam(EmailIdentity.ID, "a+zzz@ex.com"), "cr-pass", 
-				EntityState.valid, false);
+				EntityState.valid);
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
@@ -213,7 +213,7 @@ public class TestQuery extends TestRESTBase
 		groupsMan.addGroup(example);
 		groupsMan.addGroup(new Group("/example/sub"));
 		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested"), "cr-pass", 
-				EntityState.valid, false);
+				EntityState.valid);
 		EntityParam e = new EntityParam(id);
 		groupsMan.addMemberFromParent("/example", e);
 		groupsMan.addMemberFromParent("/example/sub", e);
@@ -224,7 +224,7 @@ public class TestQuery extends TestRESTBase
 				12));
 		attrsMan.createAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
 				12.9));
-		attrsMan.createAttribute(e, JpegImageAttribute.of("jpegA", "/example", 
+		attrsMan.createAttribute(e, JpegImageAttributeCreator.of("jpegA", "/example", 
 				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)));
 		attrsMan.createAttribute(e, EnumAttribute.of("enumA", "/example", 
 				"V1"));

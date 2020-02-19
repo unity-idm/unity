@@ -171,9 +171,9 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 	}
 
 	@Override
-	public ServiceEditorTab getType()
+	public String getType()
 	{
-		return ServiceEditorTab.USERS;
+		return ServiceEditorTab.USERS.toString();
 	}
 
 	@Override

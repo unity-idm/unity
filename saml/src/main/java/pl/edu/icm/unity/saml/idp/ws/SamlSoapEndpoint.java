@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -78,16 +79,21 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private URIAccessService uriAccessService;
 	
 	@Autowired
-	public SamlSoapEndpoint(UnityMessageSource msg, NetworkServer server,
+	public SamlSoapEndpoint(UnityMessageSource msg,
+			NetworkServer server,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, @Qualifier("insecure") PKIManagement pkiManagement,
-			ExecutorsService executorsService, SessionManagement sessionMan,
-			SAMLLogoutProcessorFactory logoutProcessorFactory, 
+			PreferencesManagement preferencesMan,
+			@Qualifier("insecure") PKIManagement pkiManagement,
+			ExecutorsService executorsService,
+			SessionManagement sessionMan,
+			SAMLLogoutProcessorFactory logoutProcessorFactory,
 			AuthenticationProcessor authnProcessor,
 			AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService, URIAccessService uriAccessService)
+			RemoteMetadataService metadataService,
+			URIAccessService uriAccessService,
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(msg, sessionMan, authnProcessor, server, SERVLET_PATH);
+		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH);
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;

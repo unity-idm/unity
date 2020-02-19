@@ -35,7 +35,7 @@ try
 	groupsManagement.addGroup(new Group("/oauth-clients"));
 	IdentityParam oauthClient = new IdentityParam(UsernameIdentity.ID, "oauth-client");
 	Identity oauthClientA = entityManagement.addEntity(oauthClient,
-			EntityState.valid, false);
+			EntityState.valid);
 	PasswordToken pToken2 = new PasswordToken("oauth-pass1");
 	
 	EntityParam entityP = new EntityParam(oauthClientA.getEntityId());

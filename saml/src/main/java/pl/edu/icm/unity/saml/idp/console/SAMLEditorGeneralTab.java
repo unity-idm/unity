@@ -444,9 +444,9 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	}
 
 	@Override
-	public ServiceEditorTab getType()
+	public String getType()
 	{
-		return ServiceEditorTab.GENERAL;
+		return ServiceEditorTab.GENERAL.toString();
 	}
 
 	@Override

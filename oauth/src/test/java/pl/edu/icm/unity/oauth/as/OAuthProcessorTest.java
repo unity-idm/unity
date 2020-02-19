@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static pl.edu.icm.unity.oauth.as.OAuthTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -36,16 +37,11 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
-/**
- * Tests of the authz endpoint logic.
- * @author K. Benedyczak
- */
 public class OAuthProcessorTest
 {
 	@Test
 	public void checkCodeFlowResponse() throws Exception
 	{
-		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
@@ -55,8 +51,9 @@ public class OAuthProcessorTest
 				GrantFlow.authorizationCode, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
+		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, tokensMan);
+				attributes, identity, ctx);
 		long end = System.currentTimeMillis();
 		
 		assertNull(resp.getAccessToken());
@@ -70,7 +67,6 @@ public class OAuthProcessorTest
 	@Test
 	public void checkImplicitFlowResponse() throws Exception
 	{
-		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
@@ -80,8 +76,9 @@ public class OAuthProcessorTest
 				GrantFlow.implicit, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
+		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, tokensMan);
+				attributes, identity, ctx);
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());
@@ -89,7 +86,7 @@ public class OAuthProcessorTest
 		assertHasATHash((AuthenticationSuccessResponse) resp);
 		
 		AccessToken accessToken = resp.getAccessToken();
-		Token internalAccessToken = tokensMan.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
+		Token internalAccessToken = tokensMan.getTokenById(INTERNAL_ACCESS_TOKEN, 
 				accessToken.getValue());
 		verifyToken(internalAccessToken, start, end, 100);		
 		assertHasATHash(internalAccessToken);
@@ -98,7 +95,6 @@ public class OAuthProcessorTest
 	@Test
 	public void checkHybridFlowResponse() throws Exception
 	{
-		OAuthProcessor processor = new OAuthProcessor();
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam("username", "userA");
@@ -108,8 +104,9 @@ public class OAuthProcessorTest
 				GrantFlow.openidHybrid, 100, "nonce");
 		
 		long start = System.currentTimeMillis();
+		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, tokensMan);
+				attributes, identity, ctx);
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());
@@ -118,7 +115,7 @@ public class OAuthProcessorTest
 		assertHasCHash((AuthenticationSuccessResponse) resp);
 		
 		AccessToken accessToken = resp.getAccessToken();
-		Token internalAccessToken = tokensMan.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
+		Token internalAccessToken = tokensMan.getTokenById(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN, 
 				accessToken.getValue());
 		verifyToken(internalAccessToken, start, end, 100);
 		assertHasCHash(internalAccessToken);
@@ -198,5 +195,4 @@ public class OAuthProcessorTest
 		assertThat(idTokenClaimsSet.getCodeHash(), is(notNullValue()));
 		assertThat(idTokenClaimsSet.getCodeHash().getValue(), is(notNullValue()));
 	}
-
 }

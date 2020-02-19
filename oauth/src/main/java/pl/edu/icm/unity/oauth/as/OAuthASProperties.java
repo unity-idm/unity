@@ -44,7 +44,12 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	{
 		RS256, RS384, RS512, HS256, HS384, HS512, ES256, ES384, ES512;
 	};
-	
+
+	public enum AccessTokenFormat
+	{
+		PLAIN, JWT, AS_REQUESTED;
+	};
+
 	public static final String ISSUER_URI = "issuerUri";
 	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";
 	public static final String MAX_EXTEND_ACCESS_TOKEN_VALIDITY = "extendAccessTokenValidityUpTo";
@@ -65,6 +70,9 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm"; 
 	public static final String SIGNING_SECRET = "signingSecret"; 
+	
+	public static final String ACCESS_TOKEN_FORMAT = "tokenFormat"; 
+
 	
 	public static final int DEFAULT_CODE_TOKEN_VALIDITY = 600;
 	public static final int DEFAULT_ID_TOKEN_VALIDITY = 3600;
@@ -91,9 +99,13 @@ public class OAuthASProperties extends UnityPropertiesHelper
 						"). Lifetime will be extended on each successful check of the token, and each time"
 						+ "the enhancement will be for the standard validity time. "
 						+ "However the token won't be ever valid after the time specified in this property."));
+		defaults.put(ACCESS_TOKEN_FORMAT, new PropertyMD(AccessTokenFormat.PLAIN).setDescription(
+				"Controls whether JWT or plain access tokens are issued. If set to AS_REQUESTED, "
+				+ "client by default will receive plain token unless JWT is requested by accepted MIME type header set to 'application/at+jwt'."));
 		defaults.put(CREDENTIAL, new PropertyMD().setDescription(
 				"Name of a credential which is used to sign tokens. "
-						+ "Used only for the OpenId Connect mode and when one of RS* or ES* algorithms is set for token signing"));
+						+ "Used for signing Id tokens (in OpenId Connect mode) and for signing access tokens in JWT format. "
+						+ "Only useful when one of RS* or ES* algorithms is set for token signing."));
 		defaults.put(IDENTITY_TYPE_FOR_SUBJECT,
 				new PropertyMD(TargetedPersistentIdentity.ID).setDescription(
 						"Allows for selecting the identity type which is used to create a mandatory "
@@ -127,9 +139,10 @@ public class OAuthASProperties extends UnityPropertiesHelper
 						+ "requested. Note that those attribtues are merely an input to the "
 						+ "configured output translation profile."));
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
-				.setDescription("An algorithm used for token signing"));
+				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));
 		defaults.put(SIGNING_SECRET, new PropertyMD().setDescription(
-				"Secret key used when one of HS* algorithms is set for token signing"));
+				"Secret key used when one of HS* algorithms is set for token signing "
+				+ "(both access token in JWT form and OpenId Connect id token)."));
 		
 		defaults.putAll(CommonIdPProperties.getDefaults("Name of an output translation profile "
 				+ "which can be used to dynamically modify the "
@@ -181,6 +194,17 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		return getBooleanValue(CommonIdPProperties.SKIP_CONSENT);
 	}
 
+	public AccessTokenFormat getAccessTokenFormat()
+	{
+		return getEnumValue(ACCESS_TOKEN_FORMAT, AccessTokenFormat.class);
+	}
+	
+	public boolean isJWTAccessTokenPossible()
+	{
+		AccessTokenFormat format = getAccessTokenFormat();
+		return format == AccessTokenFormat.JWT || format == AccessTokenFormat.AS_REQUESTED;
+	}
+	
 	public int getCodeTokenValidity()
 	{
 		return getIntValue(OAuthASProperties.CODE_TOKEN_VALIDITY);

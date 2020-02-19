@@ -104,7 +104,7 @@ public class AttributesGrid extends CustomComponent
 		attributesGrid.addSortableColumn(a -> {
 			if (a.getTranslationProfile() != null)
 			{
-				return a.getTranslationProfile() + " " + a.getRemoteIdp();
+				return a.getTranslationProfile() + a.getRemoteIdp() != null ? " " + a.getRemoteIdp() : "";
 			} else if (a.isDirect())
 			{
 				return msg.getMessage("Attribute.direct");

@@ -289,9 +289,14 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		HorizontalLayout actions = new HorizontalLayout();
 		actions.setMargin(false);
 		actions.setSpacing(false);
-		actions.setWidth(100, Unit.PERCENTAGE);
 		actions.addStyleName(Styles.smallSpacing.toString());
 
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.addComponent(actions);
+		wrapper.setComponentAlignment(actions, Alignment.MIDDLE_RIGHT);
+		wrapper.setWidth(100, Unit.PERCENTAGE);
+		
+		
 		for (SingleActionHandler<T> handler : actionHandlers)
 		{
 			Button actionButton = new Button();
@@ -302,7 +307,6 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actionButton.setEnabled(handler.isEnabled(target));
 			actionButton.setVisible(handler.isVisible(target));
 			actions.addComponent(actionButton);
-			actions.setComponentAlignment(actionButton, Alignment.TOP_CENTER);
 		}
 		if (hamburgerActionHandlers != null && !hamburgerActionHandlers.isEmpty())
 		{
@@ -311,10 +315,9 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			menu.addActionHandlers(hamburgerActionHandlers);
 			menu.addStyleName(SidebarStyles.sidebar.toString());
 			actions.addComponent(menu);
-			actions.setComponentAlignment(menu, Alignment.TOP_CENTER);
 		}
 
-		return actions;
+		return wrapper;
 	}
 	
 	@Override
@@ -355,5 +358,4 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		hideActionColumn = hidden;
 		refreshActionColumn();
 	}
-
 }

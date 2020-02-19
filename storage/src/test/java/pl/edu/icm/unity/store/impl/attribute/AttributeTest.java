@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.impl.StorageLimits.SizeLimitExceededException;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -53,6 +55,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	private long entityId;
 	private long entityId2;
 
+	@Override
 	@Before
 	public void cleanDB()
 	{
@@ -556,6 +559,121 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 		});
 	}
 
+	@Test
+	public void shouldRetrieveAttributeLinkedWithKeyword()
+	{
+		tx.runInTransaction(() -> {
+			// given
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			long id = dao.create(obj);
+			
+			AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+			lookupMapper.create(new AttributeLookupBean(null, "keyword", id));
+			
+			// when
+			List<StoredAttribute> linked = dao.getAllWithKeyword("keyword");
+			
+			// then
+			Assertions.assertThat(linked)
+				.hasSize(1)
+				.isEqualTo(Lists.newArrayList(obj));
+		});
+	}
+	
+	@Test
+	public void shouldReturnAllKeywordsForGivenAttribute()
+	{
+		tx.runInTransaction(() -> {
+			// given
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			long id = dao.create(obj);
+			
+			AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+			lookupMapper.create(new AttributeLookupBean(null, "keyword1", id));
+			lookupMapper.create(new AttributeLookupBean(null, "keyword2", id));
+
+			// when
+			List<String> keywords = dao.getAllKeywordsFor(id);
+
+			// then
+			Assertions.assertThat(keywords)
+				.hasSize(2)
+				.isEqualTo(Lists.newArrayList("keyword1", "keyword2"));
+		});
+	}
+	
+	@Test
+	public void shouldRetrieveMultipleAttributesLinkedWithKeyword()
+	{
+		tx.runInTransaction(() -> {
+			// given
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			long id = dao.create(obj);
+			
+			StoredAttribute obj2 = getObject("");
+			obj2.getAttribute().setName("attr2");
+			dao.create(obj2);
+
+			StoredAttribute obj3 = getObject("");
+			obj3.getAttribute().setGroupPath("/C");
+			long id3 = dao.create(obj3);
+			
+			AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+			lookupMapper.create(new AttributeLookupBean(null, "keyword", id));
+			lookupMapper.create(new AttributeLookupBean(null, "keyword", id3));
+
+			// when
+			List<StoredAttribute> linked = dao.getAllWithKeyword("keyword");
+
+			// then
+			Assertions.assertThat(linked)
+				.hasSize(2)
+				.isEqualTo(Lists.newArrayList(obj, obj3));
+		});
+	}
+	
+	@Test
+	public void shouldLinkAttributeWithKeyword()
+	{
+		tx.runInTransaction(() -> {
+			// given
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			long id = dao.create(obj);
+			
+			// when
+			dao.linkKeywordToAttribute("keyword", id);
+			
+			// then
+			AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+			Assertions.assertThat(lookupMapper.getByKeyword("keyword"))
+				.hasSize(1)
+				.extracting(AttributeLookupBean::getAttributeId)
+				.contains(id);
+		});
+	}
+	
+	@Test
+	public void shouldRemoveLinkWhenAttributeRemoved()
+	{
+		tx.runInTransaction(() -> {
+			// given
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			long id = dao.create(obj);
+			dao.linkKeywordToAttribute("keyword", id);
+			
+			// when
+			dao.deleteByKey(id);
+			
+			// then
+			AttributesLookupMapper lookupMapper = SQLTransactionTL.getSql().getMapper(AttributesLookupMapper.class);
+			Assertions.assertThat(lookupMapper.getAll()).isEmpty();
+		});
+	}
 	
 	private StoredAttribute getSizedAttr(int size)
 	{
@@ -569,6 +687,22 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 				"translationProfile");
 		AttributeExt a = new AttributeExt(attr, true, new Date(100), new Date(1000));
 		return new StoredAttribute(a, entityId);
+	}
+	
+	@Test
+	public void importExportWithKeywords()
+	{
+		StoredAttribute imported = importExportIsIdempotent(attributeId -> 
+		{ 
+			getDAO().linkKeywordToAttribute("keyword", attributeId);
+		});
+		
+		tx.runInTransaction(() -> {
+			List<StoredAttribute> attrs = getDAO().getAllWithKeyword("keyword");
+			Assertions.assertThat(attrs)
+				.hasSize(1)
+				.contains(imported);
+		});
 	}
 
 	@Override
@@ -593,7 +727,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	@Override
 	protected StoredAttribute mutateObject(StoredAttribute src)
 	{
-		AttributeExt a = (AttributeExt) src.getAttribute();
+		AttributeExt a = src.getAttribute();
 		a.setRemoteIdp("remoteIdp2");
 		a.setTranslationProfile("translationProfile2");
 		a.setValues(Lists.newArrayList("w1"));

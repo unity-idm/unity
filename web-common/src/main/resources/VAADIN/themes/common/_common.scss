@@ -107,6 +107,11 @@
 		line-height: 2;
 	}
 	
+	.u-textInfoTooltip {
+		font-size: $v-font-size--tiny;
+		color: #424242;
+	}
+	
 	.u-textEndpointHeading {
 		font-family: $font;
 		letter-spacing: -1px;
@@ -906,6 +911,10 @@
 		width: 21em;
 	}
 	
+	.u-fixedWidthCaptionsSmall .v-formlayout-captioncell .v-caption {
+		width: 12em;
+	}
+	
 	.u-marginLeftMinus7{
 		margin-left: -7em;
 	}
@@ -929,6 +938,16 @@
 	
 	.u-border {
 		border: 1px solid #d4d4d4;
+	}
+	
+	.u-border-bold {
+		border: 3px solid #d4d4d4;
+		border-radius: 5px;
+	}
+	
+	.u-border-bold-green {
+		border: 3px solid #2c9020;
+		border-radius: 5px;
 	}
 	
 	.u-columnHeader {
@@ -969,5 +988,9 @@
 		margin-left: -1.5em;
 		background : $content-bg-color !important;
 	}
+	
+	.u-logoFieldTabsheet .v-tabsheet-tabcontainer:before {
+ 		border : none;
+ 	}
 }
 

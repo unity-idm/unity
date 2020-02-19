@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 import javax.ws.rs.core.Response;
 
@@ -20,6 +21,7 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
@@ -31,7 +33,7 @@ public class TokenInfoResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		
-		TokenInfoResource tested = new TokenInfoResource(tokensManagement);
+		TokenInfoResource tested = createTokenInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken("missing").toAuthorizationHeader();
 		Response resp = tested.getToken(token);
@@ -46,9 +48,9 @@ public class TokenInfoResourceTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		
 		AuthorizationSuccessResponse respInit = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(), 
-				tokensManagement);
+				OAuthTestUtils.getOAuthProcessor(tokensManagement));
 		
-		TokenInfoResource tested = new TokenInfoResource(tokensManagement);
+		TokenInfoResource tested = createTokenInfoResource(tokensManagement);
 		
 		String token = new BearerAccessToken(respInit.getAccessToken().getValue()).toAuthorizationHeader();
 		Response resp = tested.getToken(token);
@@ -60,5 +62,11 @@ public class TokenInfoResourceTest
 		assertEquals("clientC", parsed.get("aud"));
 		assertEquals("sc1", ((JSONArray)parsed.get("scope")).get(0));
 		assertNotNull(parsed.get("exp"));
-	}	
+	}
+	
+	private TokenInfoResource createTokenInfoResource(TokensManagement tokensManagement)
+	{
+		return new TokenInfoResource(new OAuthTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class)));
+	}
 }

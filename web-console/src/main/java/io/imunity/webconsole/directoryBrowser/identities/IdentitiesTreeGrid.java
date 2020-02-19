@@ -31,6 +31,7 @@ import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webadmin.idcreate.IdentityCreationDialog.IdentityCreationDialogHandler;
 import io.imunity.webadmin.identities.AddToGroupHandler;
 import io.imunity.webadmin.identities.BaseColumn;
 import io.imunity.webadmin.identities.ChangeCredentialRequirementHandler;
@@ -46,7 +47,6 @@ import io.imunity.webadmin.identities.IdentitiesGridColumnConstans;
 import io.imunity.webadmin.identities.IdentitiesTablePreferences;
 import io.imunity.webadmin.identities.IdentityConfirmHandler;
 import io.imunity.webadmin.identities.IdentityConfirmationResendHandler;
-import io.imunity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
 import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import io.imunity.webadmin.identities.ResolvedEntity;

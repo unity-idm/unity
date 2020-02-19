@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 
@@ -27,12 +28,15 @@ public class OAuthTokenHomeUIProvider implements HomeUITabProvider
 	private SecuredTokensManagement tokenMan;
 	private UnityMessageSource msg;
 	private EntityManagement entityManagement;
+	private OAuthTokenRepository tokenDAO;
 	
 	@Autowired
-	public OAuthTokenHomeUIProvider(SecuredTokensManagement tokenMan, UnityMessageSource msg,
+	public OAuthTokenHomeUIProvider(SecuredTokensManagement tokenMan, OAuthTokenRepository tokenDAO,
+			UnityMessageSource msg,
 			EntityManagement entityManagement)
 	{
 		this.tokenMan = tokenMan;
+		this.tokenDAO = tokenDAO;
 		this.msg = msg;
 		this.entityManagement = entityManagement;
 	}
@@ -40,7 +44,7 @@ public class OAuthTokenHomeUIProvider implements HomeUITabProvider
 	@Override
 	public Component getUI()
 	{
-		return new UserHomeTokensComponent(tokenMan, msg, entityManagement);
+		return new UserHomeTokensComponent(tokenMan, tokenDAO, msg, entityManagement);
 	}
 
 	@Override

@@ -198,8 +198,6 @@ public class HzRDBMSFlushTest
 		idType.setMaxInstances(10);
 		idType.setMinInstances(0);
 		idType.setSelfModificable(true);
-		idType.getExtractedAttributes().put("a", "b");
-		idType.getExtractedAttributes().put("aa", "bb");
 		return idType;
 	}
 }

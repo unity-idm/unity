@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.Objects;
+
 /**
  * Identity registration option.
  * @author K. Benedyczak
@@ -12,6 +14,7 @@ public class IdentityRegistrationParam extends OptionalRegistrationParam
 {
 	private String identityType;
 	private ConfirmationMode confirmationMode = ConfirmationMode.ON_SUBMIT;
+	private URLQueryPrefillConfig urlQueryPrefill;
 	
 	public String getIdentityType()
 	{
@@ -33,14 +36,22 @@ public class IdentityRegistrationParam extends OptionalRegistrationParam
 		this.confirmationMode = confirmationMode;
 	}
 
+	public URLQueryPrefillConfig getUrlQueryPrefill()
+	{
+		return urlQueryPrefill;
+	}
+
+	public void setUrlQueryPrefill(URLQueryPrefillConfig urlQueryPrefill)
+	{
+		this.urlQueryPrefill = urlQueryPrefill;
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-				+ ((confirmationMode == null) ? 0 : confirmationMode.hashCode());
-		result = prime * result + ((identityType == null) ? 0 : identityType.hashCode());
+		result = prime * result + Objects.hash(confirmationMode, identityType, urlQueryPrefill);
 		return result;
 	}
 
@@ -54,14 +65,7 @@ public class IdentityRegistrationParam extends OptionalRegistrationParam
 		if (getClass() != obj.getClass())
 			return false;
 		IdentityRegistrationParam other = (IdentityRegistrationParam) obj;
-		if (confirmationMode != other.confirmationMode)
-			return false;
-		if (identityType == null)
-		{
-			if (other.identityType != null)
-				return false;
-		} else if (!identityType.equals(other.identityType))
-			return false;
-		return true;
+		return confirmationMode == other.confirmationMode && Objects.equals(identityType, other.identityType)
+				&& Objects.equals(urlQueryPrefill, other.urlQueryPrefill);
 	}
 }

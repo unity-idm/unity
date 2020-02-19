@@ -31,7 +31,8 @@ public enum SidebarStyles
 	indentSmall("u-indentSmall"),
 	viewHeader("u-viewHeader"),
 	buttonAction("u-button-action"),
-	fixedWidthCaptions("u-fixedWidthCaptions");
+	fixedWidthCaptions("u-fixedWidthCaptions"),
+	fixedWidthShortCaptions("u-fixedWidthCaptionsSmall");
 	
 	private String value;
 

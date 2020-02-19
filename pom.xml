@@ -53,6 +53,7 @@
 		<module>web-admin-common</module>
 		<module>web-console-utils</module>
 		<module>web-admin</module>
+		<module>web-console-spi</module>
 		<module>web-console</module>
 		<module>web-upman</module>
 		<module>rest</module>
@@ -164,10 +165,9 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.5.1</version>
+					<version>3.8.0</version>
 					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
+						<release>8</release>
 						<maxmem>256M</maxmem>
 						<encoding>UTF-8</encoding>
 						<fork>${compiler.fork}</fork>
@@ -623,6 +623,16 @@
 				<artifactId>groovy-all</artifactId>
 				<version>2.5.6</version>
 				<type>pom</type>
+				<exclusions>
+  					<exclusion>
+  						<groupId>org.testng</groupId>
+  						<artifactId>testng</artifactId>
+  					</exclusion>
+  					<exclusion>
+  						<groupId>org.codehaus.groovy</groupId>
+  						<artifactId>groovy-test-junit5</artifactId>
+  					</exclusion>
+  				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.nulab-inc</groupId>

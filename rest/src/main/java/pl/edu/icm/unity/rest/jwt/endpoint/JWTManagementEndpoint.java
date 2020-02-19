@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -53,12 +54,16 @@ public class JWTManagementEndpoint extends RESTEndpoint
 	private JWTAuthenticationProperties config;
 	
 	@Autowired
-	public JWTManagementEndpoint(UnityMessageSource msg, SessionManagement sessionMan,
+	public JWTManagementEndpoint(UnityMessageSource msg,
+			SessionManagement sessionMan,
 			AuthenticationProcessor authenticationProcessor,
 			TokensManagement tokensMan,
-			PKIManagement pkiManagement, NetworkServer networkServer, EntityManagement identitiesMan)
+			PKIManagement pkiManagement,
+			NetworkServer networkServer,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			EntityManagement identitiesMan)
 	{
-		super(msg, sessionMan, authenticationProcessor, networkServer, "");
+		super(msg, sessionMan, authenticationProcessor, networkServer, advertisedAddrProvider, "");
 		this.tokensMan = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.identitiesMan = identitiesMan;
@@ -81,7 +86,7 @@ public class JWTManagementEndpoint extends RESTEndpoint
 	@Override
 	protected Application getApplication()
 	{
-		String addr = httpServer.getAdvertisedAddress().toString();
+		String addr = advertisedAddrProvider.get().toString();
 		String realm = description.getRealm().getName();
 		JWTManagement jwtMan = new JWTManagement(tokensMan, pkiManagement, identitiesMan,
 				realm, addr, config);

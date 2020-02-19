@@ -55,6 +55,7 @@ import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.webui.forms.StandalonePublicView;
+import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
@@ -79,14 +80,17 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
+
+	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
 			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, 
-			ImageAccessService imageAccessService)
+			ImageAccessService imageAccessService, URLQueryPrefillCreator urlQueryPrefillCreator)
 	{
 		this.editorController = editorController;
+		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
@@ -137,12 +141,13 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			handleError(e, e.cause);
 			return;
 		}
-		PrefilledSet prefilled;
 		try
 		{
-			prefilled = mergePrefilledSets(invitation, editorController.getPrefilledForSticky(form,
-					new EntityParam(invitation.getEntity())), form);
-
+			PrefilledSet currentUserData = editorController.getPrefilledForSticky(form, 
+					new EntityParam(invitation.getEntity()));
+			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(invitation, currentUserData, form);
+			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
+			
 			editor = editorController.getEditorInstance(form,
 					RemotelyAuthenticatedContext.getLocalContext(), prefilled);
 
@@ -156,7 +161,8 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		showEditorContent(editor);
 	}
 
-	private PrefilledSet mergePrefilledSets(InvitationParam invitation, PrefilledSet fromUser, EnquiryForm form)
+	private PrefilledSet mergeInvitationAndCurrentUserData(InvitationParam invitation, PrefilledSet fromUser, 
+			EnquiryForm form)
 	{
 
 		return new PrefilledSet(invitation.getIdentities(),

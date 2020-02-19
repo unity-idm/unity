@@ -28,10 +28,10 @@ import pl.edu.icm.unity.engine.mock.MockNotificationFacility;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility.Message;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
@@ -53,10 +53,6 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
-/**
- *
- * @author Krzysztof Benedyczak
- */
 public class TestInvitations  extends DBIntegrationTestBase
 {
 	public static final String TEST_FORM = "form-1";
@@ -171,58 +167,55 @@ public class TestInvitations  extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void overridingMandatoryInvitationAttributeIsProhibited() throws Exception
+	public void mandatoryInvitationAttributeOverwritesRequestedAttribute() throws Exception
 	{
 		initAndCreateForm(true);
 		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
-		invitation.getAttributes().put(0, new PrefilledEntry<>(
-				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
-						"enforced@example.com"), PrefilledEntryMode.HIDDEN));
+		Attribute enforcedAttribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
+				"enforced@example.com");
+		invitation.getAttributes().put(0, new PrefilledEntry<>(enforcedAttribute, PrefilledEntryMode.HIDDEN));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
-		catchException(registrationsMan)
-			.submitRegistrationRequest(request, REG_CONTEXT);
+		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
-		assertThat(caughtException(), allOf(
-				isA(IllegalFormContentsException.class),
-				hasMessageThat(containsString("invitation"))));
+		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
+		assertThat(storedReq.getRequest().getAttributes().size(), is(1));
+		assertThat(storedReq.getRequest().getAttributes().get(0), is(enforcedAttribute));
 	}
 
 	@Test
-	public void overridingMandatoryInvitationIdentityIsProhibited() throws Exception
+	public void mandatoryInvitationIdentityOverwritesRequestedIdentity() throws Exception
 	{
 		initAndCreateForm(true);
 		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
-		invitation.getIdentities().put(0, new PrefilledEntry<>(
-				new IdentityParam(UsernameIdentity.ID, "some-user"), PrefilledEntryMode.READ_ONLY));
+		IdentityParam enforced = new IdentityParam(UsernameIdentity.ID, "some-user");
+		invitation.getIdentities().put(0, new PrefilledEntry<>(enforced, PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
-		catchException(registrationsMan)
-			.submitRegistrationRequest(request, REG_CONTEXT);
+		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
-		assertThat(caughtException(), allOf(
-				isA(WrongArgumentException.class),
-				hasMessageThat(containsString("invitation"))));
+		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
+		assertThat(storedReq.getRequest().getIdentities().size(), is(1));
+		assertThat(storedReq.getRequest().getIdentities().get(0), is(enforced));
 	}
 	
 	@Test
-	public void overridingMandatoryInvitationGroupIsProhibited() throws Exception
+	public void mandatoryInvitationGroupOverridesRequested() throws Exception
 	{
 		initAndCreateForm(true);
 		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
-		invitation.getGroupSelections().put(0, new PrefilledEntry<>(
-				new GroupSelection("/A"), PrefilledEntryMode.READ_ONLY));
+		GroupSelection enforced = new GroupSelection("/A");
+		invitation.getGroupSelections().put(0, new PrefilledEntry<>(enforced, PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
-		catchException(registrationsMan)
-			.submitRegistrationRequest(request, REG_CONTEXT);
+		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
-		assertThat(caughtException(), allOf(
-				isA(WrongArgumentException.class),
-				hasMessageThat(containsString("invitation"))));
+		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
+		assertThat(storedReq.getRequest().getGroupSelections().size(), is(1));
+		assertThat(storedReq.getRequest().getGroupSelections().get(0), is(enforced));
 	}
 
 	@Test

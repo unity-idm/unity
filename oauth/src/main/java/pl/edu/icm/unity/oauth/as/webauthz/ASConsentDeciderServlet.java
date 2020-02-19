@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -57,20 +56,20 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ASConsentDeciderServlet.class);
 	
 	private PreferencesManagement preferencesMan;
-	private TokensManagement tokensMan;
 	private OAuthIdPEngine idpEngine;
 	private SessionManagement sessionMan;
 	private String oauthUiServletPath;
 	private String authenticationUIServletPath;
 	private EnquiryManagement enquiryManagement;
+	private final OAuthProcessor oauthProcessor;
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
-			TokensManagement tokensMan, SessionManagement sessionMan,
+			OAuthProcessor oauthProcessor, SessionManagement sessionMan,
 			String oauthUiServletPath, String authenticationUIServletPath,
 			EnquiryManagement enquiryManagement)
 	{
-		this.tokensMan = tokensMan;
+		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
 		this.sessionMan = sessionMan;
 		this.authenticationUIServletPath = authenticationUIServletPath;
@@ -205,7 +204,6 @@ public class ASConsentDeciderServlet extends HttpServlet
 			sendReturnRedirect(oauthResponse, request, response, false);
 		}
 		
-		OAuthProcessor processor = new OAuthProcessor();
 		AuthorizationSuccessResponse respDoc;
 		try
 		{
@@ -214,10 +212,10 @@ public class ASConsentDeciderServlet extends HttpServlet
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
-			Collection<DynamicAttribute> attributes = processor.filterAttributes(userInfo, 
+			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo, 
 					oauthCtx.getEffectiveRequestedAttrs());
-			respDoc = processor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
-					oauthCtx, tokensMan);
+			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
+					oauthCtx);
 		} catch (OAuthErrorResponseException e)
 		{
 			sendReturnRedirect(e.getOauthResponse(), request, response, e.isInvalidateSession());

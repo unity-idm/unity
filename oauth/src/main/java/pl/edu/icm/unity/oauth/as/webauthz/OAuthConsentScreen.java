@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 
@@ -21,6 +20,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -40,7 +40,7 @@ import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler;
+import pl.edu.icm.unity.webui.common.attributes.image.SimpleImageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.idpcommon.ExposedAttributesComponent;
@@ -140,10 +140,8 @@ class OAuthConsentScreen extends CustomComponent
 		if (logoAttr != null && JpegImageAttributeSyntax.ID.equals(logoAttr.getValueSyntax()))
 		{
 			JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
-			BufferedImage image = syntax.convertFromString(logoAttr.getValues().get(0));
-			clientLogo = new JpegImageAttributeHandler.SimpleImageSource(
-					image, 
-					syntax, "jpg").getResource();
+			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
+			clientLogo = new SimpleImageSource(image).getResource();
 		}
 		Label info1 = new Label100(msg.getMessage("OAuthAuthzUI.info1"));
 		info1.addStyleName(Styles.vLabelH1.toString());

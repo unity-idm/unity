@@ -5,7 +5,11 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -15,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Sets;
@@ -180,7 +185,32 @@ public class OAuthParseServlet extends HttpServlet
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
-		response.sendRedirect(oauthUiServletPath);
+		
+		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest));
+	}
+	
+	/**
+	 * We are passing all unknown to OAuth query parameters to downstream servlet. This may help to build 
+	 * extended UIs, which can interpret those parameters. 
+	 */
+	private String getQueryToAppend(AuthorizationRequest authzRequest)
+	{
+		Map<String, List<String>> customParameters = authzRequest.getCustomParameters();
+		URIBuilder b = new URIBuilder();
+		for (Entry<String, List<String>> entry : customParameters.entrySet())
+		{
+			for (String value: entry.getValue())
+				b.addParameter(entry.getKey(), value);
+		}
+		String query = null;
+		try
+		{
+			query = b.build().getRawQuery();
+		} catch (URISyntaxException e)
+		{
+			log.error("Can't re-encode URL query params, shouldn't happen", e);
+		}
+		return query == null ? "" : "?" + query;
 	}
 }
 

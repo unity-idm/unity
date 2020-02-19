@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.webui.providers.AdminUITabProvider;
 
 /**
@@ -25,12 +26,15 @@ public class OAuthTokenAdminUIProvider implements AdminUITabProvider
 	private SecuredTokensManagement tokenMan;
 	private UnityMessageSource msg;
 	private EntityManagement entityManagement;
+	private OAuthTokenRepository tokenDAO;
 	
 	@Autowired
-	public OAuthTokenAdminUIProvider(SecuredTokensManagement tokenMan, UnityMessageSource msg,
+	public OAuthTokenAdminUIProvider(SecuredTokensManagement tokenMan, OAuthTokenRepository tokenDAO,
+			UnityMessageSource msg,
 			EntityManagement entityManagement)
 	{
 		this.tokenMan = tokenMan;
+		this.tokenDAO = tokenDAO;
 		this.msg = msg;
 		this.entityManagement = entityManagement;
 	}
@@ -38,7 +42,7 @@ public class OAuthTokenAdminUIProvider implements AdminUITabProvider
 	@Override
 	public Component getUI()
 	{
-		return new AdminTokensComponent(tokenMan, msg, entityManagement, true);
+		return new AdminTokensComponent(tokenMan, tokenDAO, msg, entityManagement, true);
 	}
 
 	@Override

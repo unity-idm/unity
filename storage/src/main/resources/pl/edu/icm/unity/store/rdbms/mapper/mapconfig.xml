@@ -19,6 +19,7 @@
 		<typeAlias alias="FileB" type="pl.edu.icm.unity.store.impl.files.FileBean" />
 		<typeAlias alias="AuditEventB" type="pl.edu.icm.unity.store.impl.audit.AuditEventBean" />
 		<typeAlias alias="AuditEntityB" type="pl.edu.icm.unity.store.impl.audit.AuditEntityBean" />
+		<typeAlias alias="AttributeLookupB" type="pl.edu.icm.unity.store.impl.attribute.AttributeLookupBean" />
 	</typeAliases>
 	
 	<environments default="def">
@@ -50,7 +51,8 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Initdb-common.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Maintenance.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/migration.xml" />
-		
+
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Custom-${dialect}.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/IdentityTypes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributeTypes.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Entities.xml" />
@@ -63,5 +65,6 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Events.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Files.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AuditEvent.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributesLookup.xml" />
 	</mappers>
 </configuration>

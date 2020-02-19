@@ -69,4 +69,12 @@ public interface EndpointManagement
 	 * @throws EngineException
 	 */
 	void removeEndpoint(String id) throws EngineException;
+	
+	/**
+	 * 
+	 * @param name endpoint name
+	 * @return 
+	 * @throws AuthorizationException
+	 */
+	Endpoint getEndpoint(String name) throws AuthorizationException;
 }

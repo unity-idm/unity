@@ -7,15 +7,13 @@ package pl.edu.icm.unity.stdext.attr;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-
-import javax.imageio.ImageIO;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
 public class TestImageAttribute
@@ -24,28 +22,28 @@ public class TestImageAttribute
 	public void test() throws Exception
 	{
 		JpegImageAttributeSyntax ias = new JpegImageAttributeSyntax();
-		ias.setMaxHeight(16);
-		ias.setMaxWidth(16);
-		ias.setMaxSize(20000);
+		ias.getConfig().setMaxHeight(100);
+		ias.getConfig().setMaxWidth(100);
+		ias.getConfig().setMaxSize(20000);
 		
-		BufferedImage bi = ImageIO.read(new FileInputStream("src/test/resources/img/add.png"));
+		UnityImage bi = new UnityImage(Paths.get("src/test/resources/img/test-image_100x100.jpg"));
 		ias.validate(bi);
 
-		ias.setMaxSize(100);
+		ias.getConfig().setMaxSize(100);
 		try
 		{
 			ias.validate(bi);
 			fail("Added out of bounds value");
 		} catch (IllegalAttributeValueException e) {}
-		ias.setMaxSize(20000);
-		ias.setMaxHeight(15);
+		ias.getConfig().setMaxSize(20000);
+		ias.getConfig().setMaxHeight(15);
 		try
 		{
 			ias.validate(bi);
 			fail("Added out of bounds value");
 		} catch (IllegalAttributeValueException e) {}
-		ias.setMaxHeight(16);
-		ias.setMaxWidth(15);
+		ias.getConfig().setMaxHeight(16);
+		ias.getConfig().setMaxWidth(15);
 		try
 		{
 			ias.validate(bi);
@@ -53,7 +51,7 @@ public class TestImageAttribute
 		} catch (IllegalAttributeValueException e) {}
 		
 		String s = ias.convertToString(bi);
-		BufferedImage after = ias.convertFromString(s);
+		UnityImage after = ias.convertFromString(s);
 		assertEquals(bi.getWidth(), after.getWidth());
 		assertEquals(bi.getHeight(), after.getHeight());
 		
@@ -61,8 +59,8 @@ public class TestImageAttribute
 		JsonNode cfg = ias.getSerializedConfiguration();
 		JpegImageAttributeSyntax ias2 = new JpegImageAttributeSyntax();
 		ias2.setSerializedConfiguration(cfg);
-		assertEquals(ias2.getMaxWidth(), 15);
-		assertEquals(ias2.getMaxHeight(), 16);
+		assertEquals(ias2.getConfig().getMaxWidth(), 15);
+		assertEquals(ias2.getConfig().getMaxHeight(), 16);
 		assertEquals(ias2.getMaxSize(), 20000);
 	}
 }

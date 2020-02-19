@@ -12,7 +12,6 @@ import java.security.cert.X509Certificate;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.ValueContext;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
@@ -26,10 +25,10 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
@@ -60,15 +59,14 @@ public class X500IdentityEditor implements IdentityEditor
 		if (context.isCustomWidth())
 			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		else
-			field.setWidth(80, Unit.PERCENTAGE);
+			field.setWidth(100, Unit.PERCENTAGE);
 		Upload upload = new Upload();
-		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
+		upload.setButtonCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
+		upload.addStyleName(Styles.vButtonLink.toString());
 		CertUploader uploader = new CertUploader(); 
 		upload.setReceiver(uploader);
 		upload.addSucceededListener(uploader);
 		
-		FormLayout wrapper = new CompactFormLayout(upload);
-		wrapper.setMargin(false);
 		setLabel(new X500Identity().getHumanFriendlyName(msg));
 		
 		binder.forField(field, context.isRequired())
@@ -76,7 +74,7 @@ public class X500IdentityEditor implements IdentityEditor
 			.bind("value");
 		binder.setBean(new StringBindingValue(""));
 		
-		return new ComponentsContainer(field, wrapper);
+		return new ComponentsContainer(field, upload);
 	}
 
 	private ValidationResult validate(String value, ValueContext context)

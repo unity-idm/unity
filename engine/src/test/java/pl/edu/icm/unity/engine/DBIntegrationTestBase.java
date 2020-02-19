@@ -142,7 +142,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected Identity createUsernameUser(String username, String role, String password, String cr) throws Exception
 	{
 		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username), 
-				cr, EntityState.valid, false);
+				cr, EntityState.valid);
 		eCredMan.setEntityCredential(new EntityParam(added1), "credential1", 
 				new PasswordToken(password).toJson());
 		if (role != null)
@@ -164,9 +164,9 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	protected Identity createCertUserNoPassword(String role) throws EngineException
 	{
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
-				"cr-certpass", EntityState.valid, false);
+				"cr-certpass", EntityState.valid);
 		idsMan.addIdentity(new IdentityParam(X500Identity.ID, DEMO_SERVER_DN), 
-				new EntityParam(added2), false);
+				new EntityParam(added2));
 		if (role != null)
 		{
 			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 

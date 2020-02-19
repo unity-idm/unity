@@ -74,7 +74,7 @@ public class ImportExportImpl implements ImportExport
 	@Override
 	public void store(OutputStream os, DBDumpContentElements content) throws IOException
 	{
-		storeWithVersion(os, content, AppDataSchemaVersion.CURRENT.getJsonDumpVersion());
+		storeWithVersion(os, content, AppDataSchemaVersion.CURRENT.getAppSchemaVersion());
 	}
 	
 	@Override
@@ -106,7 +106,7 @@ public class ImportExportImpl implements ImportExport
 				impl.serialize(jg);
 			} catch (Exception e)
 			{
-				log.error("Can not export " + impl.getStoreKey());
+				log.error("Can not export " + impl.getStoreKey(), e);
 				throw e;
 			}
 			jg.flush();
