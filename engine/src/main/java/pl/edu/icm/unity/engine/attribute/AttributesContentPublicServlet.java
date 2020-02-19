@@ -57,6 +57,7 @@ class AttributesContentPublicServlet extends HttpServlet
 			return;
 		}
 
+		resp.setHeader("access-control-allow-origin", "*");
 		resp.setContentType(content.mimeType);
 		try (ByteArrayInputStream in = new ByteArrayInputStream(content.content);
 				ServletOutputStream out = resp.getOutputStream())
