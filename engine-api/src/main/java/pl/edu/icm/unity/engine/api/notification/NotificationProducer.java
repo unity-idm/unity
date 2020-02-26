@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.notification;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -63,6 +65,19 @@ public interface NotificationProducer
 	void sendNotificationToGroup(String group, String templateId, Map<String, String> params,
 			String locale) throws EngineException;
 	
+	/**
+	 * Sends a message which is resolved from a given template with parameters.
+	 * This version sends a message to given single entities and to all entities which are members of a given groups
+	 * have channel's address defined in this group. 
+	 * @param groups
+	 * @param singleRecipients
+	 * @param templateId
+	 * @param params
+	 * @param locale can be null. In such case the server's default locale will be used
+	 * @throws EngineException
+	 */
+	Collection<String> sendNotification(List<String> groups, List<Long> singleRecipients, String templateId,
+			Map<String, String> params, String locale) throws EngineException;
 	
 	/**
 	 * Get address for entity. Address is relevant for channel configured in message template. 

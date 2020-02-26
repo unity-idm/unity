@@ -27,7 +27,7 @@ public class CollapsibleLayout extends CustomComponent
 	private VerticalLayout contentWrapper;
 	private Button modeButton;
 	private VerticalLayout main;
-			
+	private Label captionLabel;		
 	public CollapsibleLayout(String caption, Layout content)
 	{
 		HorizontalLayout bar = new HorizontalLayout();
@@ -41,7 +41,7 @@ public class CollapsibleLayout extends CustomComponent
 		modeButton.addStyleName(Styles.showHideButton.toString());
 		modeButton.addClickListener(e -> changeMode());
 	
-		Label captionLabel = new Label(caption);
+		captionLabel = new Label(caption);
 		
 		HorizontalLayout buttonWithCaption = new HorizontalLayout();
 		buttonWithCaption.setMargin(false);
@@ -67,6 +67,11 @@ public class CollapsibleLayout extends CustomComponent
 		collapse();
 		
 		setCompositionRoot(main);	
+	}
+	
+	public void setTitle(String title)
+	{
+		captionLabel.setCaption(title);
 	}
 	
 	public void setMargin(MarginInfo margin)

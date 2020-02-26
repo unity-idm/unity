@@ -26,8 +26,15 @@ public class CompatibleTemplatesComboBox extends ComboBox<String>
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, CompatibleTemplatesComboBox.class);
 	
 	private Collection<String> values; 
+	private MessageTemplateManagement msgTplMan;
 	 
 	public CompatibleTemplatesComboBox(String definitionName, MessageTemplateManagement msgTplMan) 
+	{
+		this.msgTplMan = msgTplMan;
+		setDefinitionName(definitionName);
+	}
+	
+	public void setDefinitionName(String definitionName)
 	{
 		Map<String, MessageTemplate> templates = new HashMap<>();
 		try
@@ -38,7 +45,7 @@ public class CompatibleTemplatesComboBox extends ComboBox<String>
 			LOG.error("Cannot get message templates", e);
 		}
 		values = templates.keySet();
-		setItems(values);
+		setItems(values);	
 	}
 	
 	@Override

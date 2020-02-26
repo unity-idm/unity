@@ -4,8 +4,13 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
@@ -103,7 +108,52 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 			}
 		}
 	}
+	
+	@Override
+	@Transactional
+	public Collection<String> sendNotification(List<String> groups, List<Long> singleRecipients, String templateId,
+			Map<String, String> params, String locale) throws EngineException
+	{
+		if (templateId == null)
+			return Collections.emptyList();
 
+		Set<Long> allRecipiets = new HashSet<>();
+		if (singleRecipients != null)
+		{
+			allRecipiets.addAll(singleRecipients);
+		}
+		if (groups != null)
+		{
+			for (String group : groups)
+			{
+				allRecipiets.addAll(dbGroups.getMembers(group).stream().map(m -> m.getEntityId())
+						.collect(Collectors.toList()));
+			}
+		}
+
+		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
+		NotificationChannelInstance channel = channelFactory.loadChannel(getChannelFromTemplate(allTemplates, templateId));
+		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
+		
+		List<String> recipientAddresses = new ArrayList<>();
+		for (Long membership: allRecipiets)
+		{
+			try
+			{
+				String recipientAddress = facility.getAddressForEntity(
+						new EntityParam(membership), null, false);
+				sendMessageOverChannel(recipientAddress, templateId, params, locale, 
+						allTemplates, channel);
+				recipientAddresses.add(recipientAddress);
+			} catch (IllegalIdentityValueException e)
+			{
+				//OK - ignored
+			}
+		}
+		
+		return recipientAddresses;
+	}
+	
 	@Override
 	@Transactional(autoCommit=false)
 	public Future<NotificationStatus> sendNotification(String recipientAddress,

@@ -11,6 +11,7 @@ import pl.edu.icm.unity.base.event.EventExecution;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.engine.api.event.EventListenersManagement;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.store.api.EventDAO;
@@ -35,7 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author K. Benedyczak
  */
 @Component
-public class EventProcessor implements EventPublisher
+public class EventProcessor implements EventPublisher, EventListenersManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EventProcessor.class);
 	private Set<EventListener> listeners = new HashSet<EventListener>();
@@ -117,6 +118,12 @@ public class EventProcessor implements EventPublisher
 		{
 			lock.writeLock().unlock();
 		}
+	}
+	
+	@Override
+	public Set<EventListener> getListeners()
+	{
+		return listeners;
 	}
 	
 	public int getPendingEventsNumber()
