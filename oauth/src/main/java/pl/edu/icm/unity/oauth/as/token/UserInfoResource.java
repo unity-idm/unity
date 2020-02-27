@@ -31,7 +31,15 @@ public class UserInfoResource extends BaseTokenResource
 	{
 		super(tokensDAO);
 	}
-
+	
+	@Path("/")
+	@POST
+	public Response getTokenViaPOST(@HeaderParam("Authorization") String bearerToken) 
+			throws EngineException, JsonProcessingException
+	{
+		return getToken(bearerToken);
+	}
+	
 	@Path("/")
 	@GET
 	public Response getToken(@HeaderParam("Authorization") String bearerToken) 
