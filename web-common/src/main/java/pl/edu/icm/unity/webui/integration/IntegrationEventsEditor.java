@@ -17,6 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
+import pl.edu.icm.unity.engine.api.integration.IntegrationEventGroup;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -35,7 +36,7 @@ public class IntegrationEventsEditor extends CustomComponent
 	private ObjectFactory<IntegrationEventEditorComponent> factory;
 	private VerticalLayout eventLayout;
 	private List<IntegrationEventEditorComponent> events;
-	private List<String> eventsGroups;
+	private List<IntegrationEventGroup> eventsGroups;
 
 	@Autowired
 	public IntegrationEventsEditor(UnityMessageSource msg, ObjectFactory<IntegrationEventEditorComponent> factory)
@@ -47,7 +48,7 @@ public class IntegrationEventsEditor extends CustomComponent
 		initUI();
 	}
 
-	public IntegrationEventsEditor forGroups(List<String> groups)
+	public IntegrationEventsEditor forGroups(List<IntegrationEventGroup> groups)
 	{
 		eventsGroups.addAll(groups);
 		return this;

@@ -65,20 +65,23 @@ public interface NotificationProducer
 	void sendNotificationToGroup(String group, String templateId, Map<String, String> params,
 			String locale) throws EngineException;
 	
+	
 	/**
-	 * Sends a message which is resolved from a given template with parameters.
-	 * This version sends a message to given single entities and to all entities which are members of a given groups
-	 * have channel's address defined in this group. 
-	 * @param groups
-	 * @param singleRecipients
-	 * @param templateId
-	 * @param params
-	 * @param locale can be null. In such case the server's default locale will be used
+	 * Sends a message which is resolved from a given template with
+	 * parameters. This version sends a message to given single entities and
+	 * to all entities which are members of a given groups have channel's
+	 * address defined in this group. 
+	 * @param groups groups of recipients
+	 * @param singleRecipients single recipients ids
+	 * @param templateId message template of message
+	 * @param params message parameters
+	 * @param locale
+	 * @return all addresses to which the message was sent
 	 * @throws EngineException
 	 */
 	Collection<String> sendNotification(List<String> groups, List<Long> singleRecipients, String templateId,
 			Map<String, String> params, String locale) throws EngineException;
-	
+
 	/**
 	 * Get address for entity. Address is relevant for channel configured in message template. 
 	 * @param recipient 

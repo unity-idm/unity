@@ -5,10 +5,15 @@
 package pl.edu.icm.unity.engine;
 
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -16,6 +21,7 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
@@ -24,6 +30,7 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.CredentialResetTemplateDefBase;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -31,11 +38,15 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
  * Tests the core notifications mechanism and the email facility.
@@ -46,6 +57,8 @@ public class TestNotifications extends DBIntegrationTestBase
 	@Autowired
 	private NotificationProducer notProducer;
 	
+	@Autowired
+	private UnityMessageSource msg;
 	
 	//@Test
 	public void testEmailNotification() throws Exception
@@ -146,5 +159,41 @@ public class TestNotifications extends DBIntegrationTestBase
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
 		assertEquals(emailCfg, channels.get("ch1").getConfiguration());
+	}
+	
+	@Test
+	public void shouldSendMessageToGroupsAndSingleRecipient() throws Exception
+	{
+
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
+		groupsMan.addGroup(new Group("/C"));
+
+		Identity added1 = idsMan.addEntity(
+				EmailIdentity.toIdentityParam(new VerifiableEmail("test1@test.pl"), null, null),
+				EntityState.valid);
+		Identity added2 = idsMan.addEntity(
+				EmailIdentity.toIdentityParam(new VerifiableEmail("test2@test.pl"), null, null),
+				EntityState.valid);
+		Identity added3 = idsMan.addEntity(
+				EmailIdentity.toIdentityParam(new VerifiableEmail("test3@test.pl"), null, null),
+				EntityState.valid);
+
+		groupsMan.addMemberFromParent("/A", new EntityParam(added1));
+		groupsMan.addMemberFromParent("/A", new EntityParam(added2));
+		groupsMan.addMemberFromParent("/C", new EntityParam(added2));
+
+		notMan.addNotificationChannel(new NotificationChannel("ch1", "", "", EmailFacility.NAME));
+		messageTemplateMan.addTemplate(
+				new MessageTemplate("t1", "", new I18nMessage(new I18nString("x"), new I18nString("x")),
+						EmailPasswordResetTemplateDef.NAME, MessageType.PLAIN, "ch1"));
+
+		Collection<String> addrs = notProducer.sendNotification(Arrays.asList("/A", "/B"),
+				Arrays.asList(added3.getEntityId(), added2.getEntityId()), "t1", new HashMap<>(),
+				msg.getDefaultLocaleCode());
+
+		assertThat(addrs.size(), is(3));
+		assertThat(addrs, hasItems("test1@test.pl", "test2@test.pl", "test3@test.pl"));
+
 	}
 }

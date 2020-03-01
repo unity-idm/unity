@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.integration.IntegrationEvent;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventConfiguration;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventDefinition;
+import pl.edu.icm.unity.engine.api.integration.IntegrationEventGroup;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -54,7 +55,7 @@ public class IntegrationEventEditorComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private IntegrationEventRegistry intEventDefRegistry;
-	private List<String> trimmedIntegrationEventGroups;
+	private List<IntegrationEventGroup> trimmedIntegrationEventGroups;
 	private Label title;
 	private Button showHide;
 	private VerticalLayout content;
@@ -92,7 +93,7 @@ public class IntegrationEventEditorComponent extends CustomComponent
 		return this;
 	}
 
-	public IntegrationEventEditorComponent forWebhookGroup(List<String> groups)
+	public IntegrationEventEditorComponent forWebhookGroup(List<IntegrationEventGroup> groups)
 	{
 		trimmedIntegrationEventGroups.addAll(groups);
 		return this;

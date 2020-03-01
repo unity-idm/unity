@@ -14,10 +14,12 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
@@ -40,6 +42,8 @@ import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 @Component
 public class NotificationProducerImpl implements NotificationProducer, InternalFacilitiesManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, NotificationProducerImpl.class);
+	
 	private NotificationFacilitiesRegistry facilitiesRegistry;
 	private MembershipDAO dbGroups;
 	private MessageTemplateDB mtDB;
@@ -104,7 +108,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 						allTemplates, channel);
 			} catch (IllegalIdentityValueException e)
 			{
-				//OK - ignored
+				log.trace("Can not get address for entity " + membership.getEntityId(), e);
 			}
 		}
 	}
@@ -117,20 +121,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		if (templateId == null)
 			return Collections.emptyList();
 
-		Set<Long> allRecipiets = new HashSet<>();
-		if (singleRecipients != null)
-		{
-			allRecipiets.addAll(singleRecipients);
-		}
-		if (groups != null)
-		{
-			for (String group : groups)
-			{
-				allRecipiets.addAll(dbGroups.getMembers(group).stream().map(m -> m.getEntityId())
-						.collect(Collectors.toList()));
-			}
-		}
-
+		Set<Long> allRecipiets = getRecipients(groups, singleRecipients);
 		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
 		NotificationChannelInstance channel = channelFactory.loadChannel(getChannelFromTemplate(allTemplates, templateId));
 		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
@@ -147,11 +138,29 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 				recipientAddresses.add(recipientAddress);
 			} catch (IllegalIdentityValueException e)
 			{
-				//OK - ignored
+				log.trace("Can not get address for entity " + membership, e);
 			}
 		}
 		
 		return recipientAddresses;
+	}
+	
+	private Set<Long> getRecipients(List<String> groups, List<Long> singleRecipients)
+	{
+		Set<Long> allRecipiets = new HashSet<>();
+		if (singleRecipients != null)
+		{
+			allRecipiets.addAll(singleRecipients);
+		}
+		if (groups != null)
+		{
+			for (String group : groups)
+			{
+				dbGroups.getMembers(group).stream().map(m -> m.getEntityId()).forEach(allRecipiets::add);
+			}
+		}
+		
+		return allRecipiets;
 	}
 	
 	@Override

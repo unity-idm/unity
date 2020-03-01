@@ -23,5 +23,5 @@ public interface IntegrationEventDefinition
 	
 	Map<String, IntegrationEventVariable> getVariables();
 	
-	String getGroup();
+	IntegrationEventGroup getGroup();
 }

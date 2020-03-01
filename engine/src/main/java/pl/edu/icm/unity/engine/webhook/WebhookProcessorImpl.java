@@ -22,6 +22,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,6 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.integration.IntegrationEventRegistry;
 import pl.edu.icm.unity.engine.api.integration.Webhook;
 import pl.edu.icm.unity.engine.api.integration.Webhook.WebhookHttpMethod;
 import pl.edu.icm.unity.engine.api.webhook.WebhookProcessor;
@@ -43,7 +43,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 	private PKIManagement pkiMan;
 
 	@Autowired
-	public WebhookProcessorImpl(PKIManagement pkiMan, IntegrationEventRegistry integrationEventRegistry)
+	public WebhookProcessorImpl(PKIManagement pkiMan)
 	{
 		this.pkiMan = pkiMan;
 	}
@@ -53,18 +53,12 @@ public class WebhookProcessorImpl implements WebhookProcessor
 	{
 		try
 		{
-			if (webhook.httpMethod.equals(WebhookHttpMethod.GET))
-			{
-				return doGet(webhook, params);
+			return webhook.httpMethod.equals(WebhookHttpMethod.GET) ? doGet(webhook, params)
+					: sendPost(webhook, params);
 
-			} else
-			{
-				return sendPost(webhook, params);
-			}
 		} catch (Exception e)
 		{
-			log.error("Can not execute webhook", e);
-			throw new EngineException(e.getMessage(), e);
+			throw new EngineException("Can not execute webhook", e);
 		}
 	}
 
@@ -87,13 +81,13 @@ public class WebhookProcessorImpl implements WebhookProcessor
 			throws ClientProtocolException, IOException, EngineException
 	{
 		HttpPost post = new HttpPost(webhook.url);
-		List<NameValuePair> urlParameters = new ArrayList<>();
+		List<NameValuePair> postParameters = new ArrayList<>();
 		params.forEach((k, v) -> {
-				urlParameters.add(new BasicNameValuePair(k, v));
+				postParameters.add(new BasicNameValuePair(k, v));
 		});
-		post.setEntity(new UrlEncodedFormEntity(urlParameters));
+		post.setEntity(new UrlEncodedFormEntity(postParameters));
 		HttpClient httpClient = getSSLClient(webhook.url, webhook.truststore);
-		log.debug("Request POST to " + webhook.url);
+		log.debug("Request POST to " + webhook.url + " with entity: " + EntityUtils.toString(post.getEntity()));
 		HttpResponse response = httpClient.execute(post);
 		return response;
 	}
