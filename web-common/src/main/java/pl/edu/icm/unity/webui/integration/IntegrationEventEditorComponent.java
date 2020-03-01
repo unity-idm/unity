@@ -7,7 +7,10 @@ package pl.edu.icm.unity.webui.integration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import pl.edu.icm.unity.engine.api.integration.IntegrationEventConfiguration;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventDefinition;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventGroup;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventRegistry;
+import pl.edu.icm.unity.engine.api.integration.IntegrationEventVariable;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -140,40 +144,8 @@ public class IntegrationEventEditorComponent extends CustomComponent
 		HamburgerMenu<String> menuBar = new HamburgerMenu<String>();
 		menuBar.addItem(msg.getMessage("IntegrationEventComponent.remove"), Images.remove.getResource(),
 				s -> callback.remove(IntegrationEventEditorComponent.this));
-		menuBar.addItem(msg.getMessage("IntegrationEventComponent.test"), Images.dryrun.getResource(), s -> {
-			if (editor.getValue() == null)
-			{
-				NotificationPopup.showError(msg, "", new FormValidationException());
-				return;
-			}
-						
-			Component c;
-			try
-			{
-				c = editor.test();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("IntegrationEventComponent.testError"), e);
-				return;
-			}
-			new AbstractDialog(msg, msg.getMessage("IntegrationEventComponent.testResult"))
-			{
-				
-				@Override
-				protected void onConfirm()
-				{
-					close();
-				}
-				
-				@Override
-				protected Component getContents() throws Exception
-				{
-					return c;
-				}
-			}.show();
-			
-			
-		});
+		menuBar.addItem(msg.getMessage("IntegrationEventComponent.test"), Images.dryrun.getResource(),
+				s -> showTestResult());
 		header.addComponent(menuBar);
 		header.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
 		header.setExpandRatio(menuBar, 0);
@@ -229,7 +201,7 @@ public class IntegrationEventEditorComponent extends CustomComponent
 				editor.setTrigger(e.getValue());
 			}
 		});
-		
+
 		commonFieldLayout.addComponent(typeInfo);
 		type = new EnumComboBox<IntegrationEvent.EventType>(msg, "IntegrationEventType.", EventType.class,
 				EventType.WEBHOOK);
@@ -247,6 +219,44 @@ public class IntegrationEventEditorComponent extends CustomComponent
 		refreshTitle();
 		setCompositionRoot(main);
 		showContent(false);
+	}
+
+	private void showTestResult()
+	{
+		if (editor.getValue() == null)
+		{
+			NotificationPopup.showError(msg, "", new FormValidationException());
+			return;
+		}
+
+		new TestParamsDialog(msg, intEventDefRegistry.getByName(trigger.getValue()), p -> {
+
+			Component c;
+			try
+			{
+				c = editor.test(p);
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, msg.getMessage("IntegrationEventComponent.testError"),
+						e);
+				return;
+			}
+			new AbstractDialog(msg, msg.getMessage("IntegrationEventComponent.testResult"),
+					msg.getMessage("close"))
+			{
+				@Override
+				protected void onConfirm()
+				{
+					close();
+				}
+
+				@Override
+				protected Component getContents() throws Exception
+				{
+					return c;
+				}
+			}.show();
+		}).show();
 	}
 
 	private void refreshTitle()
@@ -289,8 +299,8 @@ public class IntegrationEventEditorComponent extends CustomComponent
 	public interface Callback
 	{
 		void remove(IntegrationEventEditorComponent eventComponent);
-	}	
-	
+	}
+
 	public static class IntegrationEventVaadinBean
 	{
 		private String name;
@@ -355,6 +365,48 @@ public class IntegrationEventEditorComponent extends CustomComponent
 		{
 			this.configuration = configuration;
 		}
+	}
+
+	private static class TestParamsDialog extends AbstractDialog
+	{
+		private IntegrationEventDefinition event;
+		private Consumer<Map<String, String>> onConfirm;
+		private Map<String, TextField> params;
+
+		public TestParamsDialog(UnityMessageSource msg, IntegrationEventDefinition event,
+				Consumer<Map<String, String>> onConfirm)
+		{
+			super(msg, msg.getMessage("IntegrationEventComponent.specifyParameters"),
+					msg.getMessage("IntegrationEventComponent.test"), msg.getMessage("cancel"));
+			this.event = event;
+			this.onConfirm = onConfirm;
+			this.params = new HashMap<>();
+		}
+
+		@Override
+		protected Component getContents() throws Exception
+		{
+			FormLayoutWithFixedCaptionWidth main = FormLayoutWithFixedCaptionWidth.withShortCaptions();
+
+			for (IntegrationEventVariable var : event.getVariables().values())
+			{
+				TextField value = new TextField(var.name + ":");
+				value.setDescription(msg.getMessage(var.descriptionKey));
+				params.put(var.name, value);
+				main.addComponent(value);
+			}
+			return main;
+		}
+
+		@Override
+		protected void onConfirm()
+		{
+			close();
+			onConfirm.accept(params.entrySet().stream().filter(f -> !f.getValue().getValue().isEmpty())
+					.collect(Collectors.toMap(f -> f.getKey(), f -> f.getValue().getValue())));
+
+		}
+
 	}
 
 }

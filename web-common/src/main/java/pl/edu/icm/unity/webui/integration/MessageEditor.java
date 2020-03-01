@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.integration;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +122,7 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 	@Override
 	public IntegrationEventConfiguration getValue()
 	{
-		if (!binder.isValid())
+		if (binder.validate().hasErrors())
 		{
 			return null;
 		}
@@ -219,14 +218,14 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 	}
 	
 	@Override
-	public Component test() throws EngineException
+	public Component test(Map<String, String> params) throws EngineException
 	{
 		if (getValue() == null)
 			return null;
 
 		Message message = (Message) getValue();
 		Collection<String> addresses = notificationProducer.sendNotification(message.groupsRecipients,
-				message.singleRecipients, message.messageTemplate, Collections.emptyMap(),
+				message.singleRecipients, message.messageTemplate, params,
 				msg.getDefaultLocaleCode());
 		VerticalLayout mainLayout = new VerticalLayout();
 		Label sentInfo = new Label();

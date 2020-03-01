@@ -6,6 +6,8 @@
 
 package pl.edu.icm.unity.webui.integration;
 
+import java.util.Map;
+
 import com.vaadin.data.HasValue;
 import com.vaadin.ui.Component;
 
@@ -15,5 +17,5 @@ import pl.edu.icm.unity.exceptions.EngineException;
 public interface IntegrationEventConfigurationEditor extends Component, HasValue<IntegrationEventConfiguration>
 {
 	void setTrigger(String trigger);
-	Component test() throws EngineException;
+	Component test(Map<String, String> params) throws EngineException;
 }

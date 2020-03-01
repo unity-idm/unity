@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webui.integration;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.HttpEntity;
@@ -72,7 +73,7 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 	@Override
 	public IntegrationEventConfiguration getValue()
 	{
-		if (!binder.isValid())
+		if (hasErrors())
 		{
 			return null;
 		}
@@ -174,13 +175,13 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 	}
 	
 	@Override
-	public Component test() throws EngineException
+	public Component test(Map<String, String> params) throws EngineException
 	{
 		if (getValue() == null)
 			return null;
 		Webhook webhook = (Webhook) getValue();
 		VerticalLayout mainLayout = new VerticalLayout();
-		HttpResponse resp = webhookProcessor.trigger(webhook, Collections.emptyMap());
+		HttpResponse resp = webhookProcessor.trigger(webhook, params);
 		Label statusCode = new Label();
 		statusCode.setCaption(msg.getMessage("WebhookEditor.statusCode"));
 		statusCode.setValue(String.valueOf(resp.getStatusLine().getStatusCode()));
