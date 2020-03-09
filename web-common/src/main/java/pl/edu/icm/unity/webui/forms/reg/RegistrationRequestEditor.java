@@ -238,7 +238,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		createControls(layoutContainer, effectiveLayout, prefilled);
 	}
 	
-	void performAutomaticRemoteSignupIfNeeded()
+	boolean performAutomaticRemoteSignupIfNeeded()
 	{
 		if (isAutomatedAuthenticationDesired())
 		{
@@ -250,7 +250,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 						+ "and automated signup was requested without specifying (with " 
 						+  "{}) which one should be used. Automatic signup is skipped.", 
 						PreferredAuthenticationHelper.IDP_SELECT_PARAM);
-				return;
+				return false;
 			}
 			AuthNOption authnOption = requestedAuthnOption != null ? 
 					signupOptions.get(AuthenticationOptionKey.valueOf(requestedAuthnOption)) : 
@@ -259,19 +259,21 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			{
 				log.warn("Remote signup option {} specified for auto signup is invalid. "
 						+ "Automatic signup is skipped.", requestedAuthnOption);
-				return;
+				return false;
 			}
 			if (authnOption.authenticator instanceof ProxyAuthenticationCapable)
 			{
 				ProxyAuthenticationCapable proxyAuthn = (ProxyAuthenticationCapable) authnOption.authenticator;
 				proxyAuthn.triggerAutomatedUIAuthentication(authnOption.authenticatorUI);
+				return true;
 			} else
 			{
 				log.warn("Automatic signup was requested but the selected remote authenticator "
 						+ "is not capable of automatic triggering");
-				return;
+				return false;
 			}
 		}
+		return false;
 	}
 	
 	private boolean isAutomatedAuthenticationDesired()
