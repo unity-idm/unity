@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.engine.session;
 
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,17 +37,22 @@ import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
+import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
+import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 /**
  * Implementation of {@link SessionManagement}
@@ -61,6 +69,8 @@ public class SessionManagementImpl implements SessionManagement
 	private SessionParticipantTypesRegistry participantTypesRegistry;
 	private EntityDAO entityDAO;
 	private AttributesHelper attributeHelper;
+	private final AuditPublisher auditPublisher;
+	private final TransactionalRunner tx;
 	
 	/**
 	 * map of timestamps indexed by session ids, when the last activity update was written to DB.
@@ -71,13 +81,16 @@ public class SessionManagementImpl implements SessionManagement
 	public SessionManagementImpl(TokensManagement tokensManagement, ExecutorsService execService,
 			LoginToHttpSessionBinder sessionBinder, 
 			SessionParticipantTypesRegistry participantTypesRegistry,
-			EntityDAO entityDAO, AttributesHelper attributeHelper)
+			EntityDAO entityDAO, AttributesHelper attributeHelper, AuditPublisher auditPublisher,
+			TransactionalRunner tx)
 	{
 		this.tokensManagement = tokensManagement;
 		this.sessionBinder = sessionBinder;
 		this.participantTypesRegistry = participantTypesRegistry;
 		this.entityDAO = entityDAO;
 		this.attributeHelper = attributeHelper;
+		this.auditPublisher = auditPublisher;
+		this.tx = tx;
 		execService.getService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
 				20, 30, TimeUnit.SECONDS);
 	}
@@ -134,8 +147,6 @@ public class SessionManagementImpl implements SessionManagement
 	/**
 	 * If entity is in the state {@link EntityState#onlyLoginPermitted} this method clears the 
 	 *  removal of the entity: state is set to enabled and user ordered removal is removed.
-	 * @param entityId
-	 * @param sqlMap
 	 */
 	private void clearScheduledRemovalStatus(long entityId) 
 	{
@@ -170,6 +181,7 @@ public class SessionManagementImpl implements SessionManagement
 			tokensManagement.addToken(SESSION_TOKEN_TYPE, id, new EntityParam(loggedEntity), 
 					ls.getTokenContents(), ls.getStarted(), ls.getExpires());
 			updateLoginAttributes(loggedEntity, ls.getStarted());
+			auditLogSession(ls, loggedEntity, firstFactorOptionId, secondFactorOptionId, realm);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't create a new session", e);
@@ -179,6 +191,23 @@ public class SessionManagementImpl implements SessionManagement
 		return ls;
 	}
 
+	private void auditLogSession(LoginSession ls, long loggedEntity, String firstFactorOptionId,
+			String secondFactorOptionId, AuthenticationRealm realm)
+	{
+		Map<String, String> details = new HashMap<>();
+		details.put("firstFactorOption", firstFactorOptionId);
+		if (secondFactorOptionId != null)
+			details.put("secondFactorOption", secondFactorOptionId);
+		details.put("realm", realm.getName());
+		auditPublisher.log(AuditEventTrigger.builder()
+				.type(AuditEventType.SESSION)
+				.action(AuditEventAction.ADD)
+				.name(ls.getId())
+				.details(details)
+				.subject(loggedEntity)
+				.tags(AUTHN));
+	}
+	
 	@Transactional
 	@Override
 	public void updateSessionAttributes(String id, AttributeUpdater updater) 
@@ -194,13 +223,26 @@ public class SessionManagementImpl implements SessionManagement
 		log.debug("Recorded additional authentication with {} for session {}", optionId, id);	
 	}
 	
+	@Transactional
 	@Override
 	public void removeSession(String id, boolean soft)
+	{
+		removeSessionTransactional(id, soft);
+	}
+
+	private void removeSessionTransactional(String id, boolean soft)
 	{
 		sessionBinder.removeLoginSession(id, soft);
 		try
 		{
+			Token tokenToRemove = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
 			tokensManagement.removeToken(SESSION_TOKEN_TYPE, id);
+			auditPublisher.log(AuditEventTrigger.builder()
+					.type(AuditEventType.SESSION)
+					.action(AuditEventAction.REMOVE)
+					.name(id)
+					.subject(tokenToRemove.getOwner())
+					.tags(AUTHN));
 			if (log.isDebugEnabled())
 				log.debug("Removed session with id " + id);
 		} catch (IllegalArgumentException e)
@@ -209,6 +251,7 @@ public class SessionManagementImpl implements SessionManagement
 		}
 	}
 
+	
 	@Override
 	public LoginSession getSession(String id)
 	{
@@ -365,7 +408,7 @@ public class SessionManagementImpl implements SessionManagement
 						inactiveFor);
 				try
 				{
-					removeSession(session.getId(), false);
+					tx.runInTransaction(() -> removeSessionTransactional(session.getId(), false));
 				} catch (Exception e)
 				{
 					log.error("Can't expire the session " + session, e);
