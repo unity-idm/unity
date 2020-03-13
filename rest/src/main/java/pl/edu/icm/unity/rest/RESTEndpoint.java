@@ -164,7 +164,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		throw new UnsupportedOperationException();
 	}
 	
-	private void addInterceptors(List<Interceptor<? extends Message>> inInterceptors,
+	protected void addInterceptors(List<Interceptor<? extends Message>> inInterceptors,
 			List<Interceptor<? extends Message>> outInterceptors)
 	{
 		AuthenticationRealm realm = description.getRealm();
