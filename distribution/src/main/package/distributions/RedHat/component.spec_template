@@ -21,6 +21,9 @@ provides a self-contained Unity server.
 %changelog
 * Sat Mar 14 2020 Krzysztof Benedyczak:
 - Updated config not to use autodetected dependencies
+- Added /etc/samples to distribution 
+- Fixed specfile to properly set directory perms
+- /var/lib/webContents got config-like treatment
 
 * Wed Nov 01 2017 Krzysztof Benedyczak:
 - Updated config to include msgTemplates directory
@@ -48,33 +51,9 @@ provides a self-contained Unity server.
 #
 # Config files
 #
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/authenticators"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/i18n"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/pki"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/pki/trusted-ca"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/scripts"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/core"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/oauth"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/saml"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/modules/unicore"
-%attr(750, unity-idm, unity-idm) %dir "/etc/unity-idm/msgTemplates"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.conf"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.properties"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.xml"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/authenticators/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*.p12"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*.pem"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/msgTemplates/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/trusted-ca/*.pem"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/i18n/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/scripts/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/*.module"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/core/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/oauth/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/saml/*"
-%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/modules/unicore/*"
+%defattr(640, unity-idm, unity-idm, 750)
+
+%config(noreplace) /etc/unity-idm
 
 %attr(644, root, root) "/usr/lib/systemd/system/unity-idm.service"
 
@@ -89,21 +68,19 @@ provides a self-contained Unity server.
 #
 #var
 #
-%attr(750, unity-idm, unity-idm) %dir  "/var/log/unity-idm"
-%attr(750, unity-idm, unity-idm) %dir  "/var/run/unity-idm"
-%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm"
-%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/data"
-%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/workspace"
-%attr(750, unity-idm, unity-idm) %dir  "/var/lib/unity-idm/webContents"
-%attr(644, unity-idm, unity-idm) "/var/lib/unity-idm/webContents/*"
+/var/log/unity-idm
+/var/run/unity-idm
+
+%attr(755, unity-idm, unity-idm) %dir /var/lib/unity-idm
+%attr(755, unity-idm, unity-idm) %dir /var/lib/unity-idm/workspace
+%attr(755, unity-idm, unity-idm) %dir /var/lib/unity-idm/data
+%config(noreplace) /var/lib/unity-idm/webContents
 
 #
 # jar files
 #
 %attr(755, root, root) %dir "/usr/share/unity-idm/lib"
 %attr(644, root, root) "/usr/share/unity-idm/lib/*.jar"
-#%attr(755, root, root) %dir "/usr/share/unity-idm/lib/endorsed"
-#%attr(644, root, root) "/usr/share/unity-idm/lib/endorsed/*.jar"
 
 %pre
 /usr/sbin/groupadd -r unity-idm 2>/dev/null || :
@@ -118,8 +95,3 @@ if [ "$1" = "0" ]; then
 	/usr/bin/systemctl stop unity-idm.service >/dev/null 2>&1
 	/usr/bin/systemctl disable unity-idm.service
 fi
-
-
-
-
-
