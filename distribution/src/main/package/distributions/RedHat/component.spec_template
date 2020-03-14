@@ -10,6 +10,8 @@ URL: http://unity-idm.eu
 Requires: java >= 1.8.0 findutils bash
 BuildArch: @component-architecture@
 Packager: Krzysztof Benedyczak <unity-idm-discuss@lists.sourceforge.net> 
+Autoreq: 0
+
 @preamble@
 
 %description
@@ -17,6 +19,9 @@ Unity is a complete identity and federation management solution. This package
 provides a self-contained Unity server. 
 
 %changelog
+* Sat Mar 14 2020 Krzysztof Benedyczak:
+- Updated config not to use autodetected dependencies
+
 * Wed Nov 01 2017 Krzysztof Benedyczak:
 - Updated config to include msgTemplates directory
 
