@@ -261,9 +261,6 @@ public class EndpointManagementImpl implements EndpointManagement
 	 * -) in the new instance set all fields to the new ones if not null or to the existing values
 	 * -) serialize and store in db
 	 * -) trigger runtime system update.
-	 * @param id
-	 * @param configuration
-	 * @throws EngineException
 	 */
 	private void updateEndpointInt(String id, EndpointConfiguration configuration) throws EngineException
 	{
@@ -306,12 +303,12 @@ public class EndpointManagementImpl implements EndpointManagement
 						realm.getName(), configuration.getTag());
 				
 				
-				Endpoint current = endpointDB.get(id);
 				Endpoint updatedEndpoint = new Endpoint(id, 
 						endpointTypeId, 
 						existing.getContextAddress(), 
 						newConfiguration,
-						current.getRevision() + 1);
+						existing.getRevision() + 1,
+						existing.getState());
 				endpointDB.update(updatedEndpoint);
 				log.info("Endpoint " + id + " successfully updated in DB");
 			} catch (Exception e)
