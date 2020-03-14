@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ui.ContentMode;
@@ -113,10 +115,10 @@ class UnityImageValueComponent extends CustomComponent
 		this.value = value;
 	}
 	
-	UnityImage getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
+	Optional<UnityImage> getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
 	{
 		if (value == null && !required)
-			return null;
+			return Optional.empty();
 		if (value == null)
 		{
 			error.setValue(msg.getMessage("ImageAttributeHandler.noImage"));
@@ -137,7 +139,7 @@ class UnityImageValueComponent extends CustomComponent
 
 		error.setVisible(false);
 		field.setVisible(true);
-		return value;
+		return Optional.of(value);
 	}
 
 	static Label getErrorImage()

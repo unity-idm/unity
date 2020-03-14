@@ -44,8 +44,9 @@ class PublicLinkableImageValueEditor implements AttributeValueEditor
 	@Override
 	public String getCurrentValue() throws IllegalAttributeValueException
 	{
-		LinkableImage value = valueComponent.getValue(required, syntax);
-		return syntax.convertToString(value);
+		return valueComponent.getValue(required, syntax)
+				.map(value -> syntax.convertToString(value))
+				.orElse(null);
 	}
 
 	@Override
