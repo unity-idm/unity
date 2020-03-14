@@ -74,7 +74,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -247,18 +246,18 @@ class OAuthServiceController implements IdpServiceController
 	{
 		try
 		{
-			ResolvedEndpoint endpoint = endpointMan.getDeployedEndpoints().stream()
-					.filter(e -> e.getName().equals(name) && e.getType().getName()
+			Endpoint endpoint = endpointMan.getEndpoints().stream()
+					.filter(e -> e.getName().equals(name) && e.getTypeId()
 							.equals(OAuthAuthzWebEndpoint.Factory.TYPE.getName()))
 					.findFirst().orElse(null);
 
 			if (endpoint == null)
 				return null;
 
-			DefaultServiceDefinition oauthWebService = getServiceDef(endpoint.getEndpoint());
+			DefaultServiceDefinition oauthWebService = getServiceDef(endpoint);
 			oauthWebService.setBinding(OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
 			OAuthServiceDefinition def = new OAuthServiceDefinition(oauthWebService,
-					getTokenService(endpoint.getEndpoint().getConfiguration().getTag()));
+					getTokenService(endpoint.getConfiguration().getTag()));
 			def.setClientsSupplier(this::getOAuthClients);
 			return def;
 		} catch (Exception e)
