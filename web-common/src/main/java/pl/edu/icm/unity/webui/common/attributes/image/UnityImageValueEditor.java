@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -44,8 +46,8 @@ class UnityImageValueEditor implements AttributeValueEditor
 	@Override
 	public String getCurrentValue() throws IllegalAttributeValueException
 	{
-		UnityImage value = imageValueComponent.getValue(required, syntax::validate);
-		return syntax.convertToString(value);
+		Optional<UnityImage> value = imageValueComponent.getValue(required, syntax::validate);
+		return value.map(image -> syntax.convertToString(image)).orElse(null);
 	}
 
 	@Override

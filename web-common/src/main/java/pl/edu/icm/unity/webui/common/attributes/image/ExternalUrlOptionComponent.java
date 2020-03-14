@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,11 +42,11 @@ class ExternalUrlOptionComponent extends CustomComponent
 		setCompositionRoot(urlField);
 	}
 	
-	URL getValue(boolean required) throws IllegalAttributeValueException
+	Optional<URL> getValue(boolean required) throws IllegalAttributeValueException
 	{
 		URL value = binder.getBean().getValue();
 		if (value == null && !required)
-			return null;
+			return Optional.empty();
 
 		BinderValidationStatus<URLValue> status = binder.validate();
 		if (!status.isOk())
@@ -56,7 +57,7 @@ class ExternalUrlOptionComponent extends CustomComponent
 			throw new IllegalAttributeValueException(msg);
 		}
 		
-		return value;
+		return Optional.of(value);
 	}
 	
 	private static class URLValue
