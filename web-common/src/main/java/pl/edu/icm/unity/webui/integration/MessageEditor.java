@@ -129,7 +129,7 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 
 		MessageVaadinBean bean = binder.getBean();
 		return new Message(bean.getMessageTemplate(), bean.getEntities(),
-				bean.getGroups().stream().map(g -> g.getName()).collect(Collectors.toList()));
+				bean.getGroups().stream().map(g -> g.getName()).collect(Collectors.toSet()));
 	}
 
 	@Override

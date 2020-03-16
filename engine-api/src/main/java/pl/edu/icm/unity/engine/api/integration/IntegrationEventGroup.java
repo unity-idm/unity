@@ -8,7 +8,6 @@ package pl.edu.icm.unity.engine.api.integration;
 import com.google.common.base.Objects;
 
 /**
- * Integration event grouping indicator
  * 
  * @author P.Piernik
  *
@@ -31,5 +30,11 @@ public class IntegrationEventGroup
 			return false;
 		final IntegrationEventGroup that = (IntegrationEventGroup) o;
 		return Objects.equal(this.name, that.name);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(this.name);
 	}
 }

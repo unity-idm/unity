@@ -115,7 +115,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	
 	@Override
 	@Transactional
-	public Collection<String> sendNotification(List<String> groups, List<Long> singleRecipients, String templateId,
+	public Collection<String> sendNotification(Set<String> groups, List<Long> singleRecipients, String templateId,
 			Map<String, String> params, String locale) throws EngineException
 	{
 		if (templateId == null)
@@ -145,7 +145,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		return recipientAddresses;
 	}
 	
-	private Set<Long> getRecipients(List<String> groups, List<Long> singleRecipients)
+	private Set<Long> getRecipients(Set<String> groups, List<Long> singleRecipients)
 	{
 		Set<Long> allRecipiets = new HashSet<>();
 		if (singleRecipients != null)

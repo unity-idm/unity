@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api.notification;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -79,7 +80,7 @@ public interface NotificationProducer
 	 * @return all addresses to which the message was sent
 	 * @throws EngineException
 	 */
-	Collection<String> sendNotification(List<String> groups, List<Long> singleRecipients, String templateId,
+	Collection<String> sendNotification(Set<String> groups, List<Long> singleRecipients, String templateId,
 			Map<String, String> params, String locale) throws EngineException;
 
 	/**

@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.api.integration;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,11 +20,11 @@ public class Message implements IntegrationEventConfiguration
 {
 	public final String messageTemplate;
 	public final List<Long> singleRecipients;
-	public final List<String> groupsRecipients;
+	public final Set<String> groupsRecipients;
 
 	public Message(@JsonProperty("messageTemplate") String messageTemplate,
 			@JsonProperty("singleRecipients") List<Long> singleRecipients,
-			@JsonProperty("groupsRecipients") List<String> groupsRecipients)
+			@JsonProperty("groupsRecipients") Set<String> groupsRecipients)
 	{
 		this.messageTemplate = messageTemplate;
 		this.singleRecipients = singleRecipients;
