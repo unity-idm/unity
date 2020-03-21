@@ -217,7 +217,7 @@ CREATE TABLE ATTRIBUTES_LOOKUP (
 	</update>
 	
 	<sql id="sql-policyDocuments">
-CREATE TABLE POLICY_DOCUMENTS(
+CREATE TABLE POLICY_DOCUMENTS (
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.defaultColsBlob"/>,
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>	
 	</sql>
