@@ -23,8 +23,9 @@ public class ChipsWithFreeText extends ChipsWithDropdown<String>
 	{
 		super();
 		combo.setNewItemProvider(s -> {
-			combo.setSelectedItem(s);
-			return Optional.of(s);
+			if (getValue().contains(s))
+				return Optional.empty();
+			return Optional.of(s);	
 		});
 		combo.setDescription(msg.getMessage("typeOrSelect"));
 		combo.setPlaceholder(msg.getMessage("typeOrSelect"));
