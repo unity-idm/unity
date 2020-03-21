@@ -66,5 +66,6 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Files.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AuditEvent.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributesLookup.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/PolicyDocuments.xml" />
 	</mappers>
 </configuration>

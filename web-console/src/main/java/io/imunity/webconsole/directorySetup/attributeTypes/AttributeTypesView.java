@@ -27,7 +27,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.DirectorySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -133,7 +132,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 		
 		SearchField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
 
-		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		Toolbar<AttributeTypeEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
 		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);

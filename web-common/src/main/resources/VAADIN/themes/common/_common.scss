@@ -704,6 +704,10 @@
 		white-space: nowrap;
 	}
 	
+	.u-readOnlyComboBox .v-filterselect-button {
+		visibility: hidden;
+	}
+	
 	.v-label-wrap-line {
 		word-wrap: break-word; /* IE  */
 		white-space: pre-wrap;

@@ -149,7 +149,8 @@ public enum Images
 	cube		(VaadinIcons.CUBE),
 	money		(VaadinIcons.MONEY),
 	flag_final	(VaadinIcons.FLAG_CHECKERED),	
-	coin_piles	(VaadinIcons.COIN_PILES);
+	coin_piles	(VaadinIcons.COIN_PILES),
+	check_square	(VaadinIcons.CHECK_SQUARE_O);
 	
 	private final Resource resource;
 	private final String path;

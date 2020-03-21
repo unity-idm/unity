@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.policyDocuments.PolicyDocumentsMapper">
+	
+	<resultMap id="PolicyDocumentResult" type="BaseB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="create" parameterType="BaseB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO POLICY_DOCUMENTS (NAME, CONTENTS) VALUES (#{name}, #{contents})
+	</insert>
+	
+	<insert id="createWithKey" parameterType="BaseB">
+		INSERT INTO POLICY_DOCUMENTS (ID, NAME,  CONTENTS) VALUES (#{id}, #{name}, #{contents})
+	</insert>
+	
+	<update id="updateByKey" parameterType="BaseB">
+		UPDATE POLICY_DOCUMENTS SET CONTENTS = #{contents}, NAME = #{name} WHERE ID = #{id}
+	</update>	
+
+	<select id="getAll" resultType="BaseB">
+		select * from POLICY_DOCUMENTS
+	</select>
+
+	<select id="getByKey" parameterType="long" resultType="BaseB">
+		select * from POLICY_DOCUMENTS where ID = #{value}
+	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM POLICY_DOCUMENTS
+	</select>
+
+	<delete id="delete" parameterType="string">
+		DELETE FROM POLICY_DOCUMENTS WHERE NAME=#{value}
+	</delete>	
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM POLICY_DOCUMENTS WHERE ID = #{value}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM POLICY_DOCUMENTS
+	</delete>
+</mapper>

@@ -12,5 +12,5 @@ package pl.edu.icm.unity.base.capacityLimit;
  */
 public enum CapacityLimitName
 {
-	EntitiesCount, GroupsCount, IdentitiesCount, EndpointsCount, AuthenticatorsCount, AuthenticationFlowsCount, AttributesCount, AttributeValuesCount, AttributeValueSize, AttributeCumulativeValuesSize, RegistrationFormsCount, EnquiryFormsCount
+	EntitiesCount, GroupsCount, IdentitiesCount, EndpointsCount, AuthenticatorsCount, AuthenticationFlowsCount, AttributesCount, AttributeValuesCount, AttributeValueSize, AttributeCumulativeValuesSize, RegistrationFormsCount, EnquiryFormsCount, PolicyDocumentsCount
 }

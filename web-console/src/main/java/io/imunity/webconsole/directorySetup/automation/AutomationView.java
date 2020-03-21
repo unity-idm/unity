@@ -24,7 +24,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.DirectorySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -101,7 +100,7 @@ public class AutomationView extends CustomComponent implements UnityView
 		hamburgerMenu.addActionHandlers(getBulkHamburgerActionsHandlers());
 		automationGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		Toolbar<ScheduledProcessingRule> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
 		ComponentWithToolbar automationGridWithToolbar = new ComponentWithToolbar(automationGrid, toolbar, Alignment.BOTTOM_LEFT);
