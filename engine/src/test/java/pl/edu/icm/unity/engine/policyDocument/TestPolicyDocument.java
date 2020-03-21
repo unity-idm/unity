@@ -27,9 +27,9 @@ public class TestPolicyDocument extends DBIntegrationTestBase
 	@Autowired
 	private PolicyDocumentManagement policyDocMan;
 
-	private PolicyDocumentUpdateRequest generateUpdate(long id)
+	private PolicyDocumentUpdateRequest generateUpdate(long id, String name)
 	{
-		return new PolicyDocumentUpdateRequest(id, "newName", new I18nString("dispu"), true,
+		return new PolicyDocumentUpdateRequest(id, name, new I18nString("dispu"), false,
 				PolicyDocumentContentType.LINK, new I18nString("contu"));
 	}
 
@@ -53,9 +53,13 @@ public class TestPolicyDocument extends DBIntegrationTestBase
 	{
 		PolicyDocumentCreateRequest doc = generateCreateReq("test");
 		long id = policyDocMan.addPolicyDocument(doc);
-		policyDocMan.updatePolicyDocumentWithRevision(generateUpdate(id));
+		policyDocMan.updatePolicyDocumentWithRevision(generateUpdate(id, "test2"));
 		PolicyDocumentWithRevision docRet = policyDocMan.getPolicyDocument(id);
-		assertEqualDoc(doc, docRet);
+		assertThat(docRet.name, is("test2"));
+		assertThat(docRet.displayedName, is(new I18nString("dispu")));
+		assertThat(docRet.content, is(new I18nString("contu")));
+		assertThat(docRet.contentType, is(PolicyDocumentContentType.LINK));
+		assertThat(docRet.mandatory, is(false));
 		assertThat(docRet.revision, is(1));
 	}
 
@@ -64,9 +68,13 @@ public class TestPolicyDocument extends DBIntegrationTestBase
 	{
 		PolicyDocumentCreateRequest doc = generateCreateReq("test");
 		long id = policyDocMan.addPolicyDocument(doc);
-		policyDocMan.updatePolicyDocument(generateUpdate(id));
+		policyDocMan.updatePolicyDocument(generateUpdate(id, "test2"));
 		PolicyDocumentWithRevision docRet = policyDocMan.getPolicyDocument(id);
-		assertEqualDoc(doc, docRet);
+		assertThat(docRet.name, is("test2"));
+		assertThat(docRet.displayedName, is(new I18nString("dispu")));
+		assertThat(docRet.content, is(new I18nString("contu")));
+		assertThat(docRet.contentType, is(PolicyDocumentContentType.LINK));
+		assertThat(docRet.mandatory, is(false));
 		assertThat(docRet.revision, is(0));
 	}
 
