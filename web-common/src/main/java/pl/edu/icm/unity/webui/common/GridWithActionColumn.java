@@ -150,6 +150,15 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		deselectAll();
 		refreshHeight();
 	}
+	
+	public void removeAllElements()
+	{
+		contents.clear();
+		dataProvider.refreshAll();
+		deselectAll();
+		refreshHeight();
+		
+	}
 
 	public void setHeightByRows(boolean byRow)
 	{

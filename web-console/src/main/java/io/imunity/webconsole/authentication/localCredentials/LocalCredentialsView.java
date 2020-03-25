@@ -152,7 +152,6 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	{
 		NavigationHelper.goToView(ShowLocalCredentialView.VIEW_NAME + "/" + CommonViewParam.name.toString()
 				+ "=" + cred.getName());
-		;
 	}
 
 	private void gotoEdit(CredentialDefinition cred)

@@ -11,7 +11,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.google.common.collect.Sets;
@@ -19,22 +21,24 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.UnityViewWithSandbox;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -55,7 +59,7 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 
 	private UnityMessageSource msg;
 	private InputTranslationsController controller;
-	private ListOfElementsWithActions<TranslationProfile> profileList;
+	private GridWithActionColumn<TranslationProfile> profileList;
 	private SandboxAuthnRouter sandBoxRouter;
 
 	@Autowired
@@ -68,17 +72,21 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		profileList = new ListOfElementsWithActions<>(
-				Arrays.asList(new Column<>(msg.getMessage("InputTranslationProfilesView.nameCaption"),
-						p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)), 2)),
-				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(),
-						0, Position.Right));
-
-		profileList.setAddSeparatorLine(true);
+		
+		
+		profileList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		profileList.addComponentColumn(c -> StandardButtonsHelper.buildLinkButton(c.getName(), e -> gotoEdit(c))
+			, msg.getMessage("InputTranslationProfilesView.nameCaption"), 10).setSortable(true)
+				.setComparator((c1, c2) -> {
+					return c1.getName().compareTo(c2.getName());
+				}).setId("name");
+		profileList.sort("name");
+		
 		
 		refreshProfileList();
 		
 		VerticalLayout main = new VerticalLayout();
+		main.addComponent(new Label(msg.getMessage("InputTranslationProfilesView.headerCaption")));
 		main.addComponent(getButtonsBar());
 		main.addComponent(profileList);
 		main.setWidth(100, Unit.PERCENTAGE);
@@ -120,37 +128,37 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 				msg.getMessage("InputTranslationProfilesView.wizard"), Images.wizard,
 				e -> showWizardDialog());
 
-		Button dryRun = StandardButtonsHelper.buildActionButton(
-				msg.getMessage("InputTranslationProfilesView.dryRun"), Images.dryrun,
-				e -> showDryRunDialog());
+//		Button dryRun = StandardButtonsHelper.buildActionButton(
+//				msg.getMessage("InputTranslationProfilesView.dryRun"), Images.dryrun,
+//				e -> showDryRunDialog());
 
-		return StandardButtonsHelper.buildTopButtonsBar(dryRun, wizard, newProfile);
+		return StandardButtonsHelper.buildTopButtonsBar(wizard, newProfile);
 	}
 	
 	private void refreshProfileList()
 	{
-		profileList.clearContents();
+		profileList.removeAllElements();
 		for (TranslationProfile profile : getInputTranslations().stream()
 				.sorted((t1, t2) -> t1.getName().compareTo(t2.getName())).collect(Collectors.toList()))
 		{
-			profileList.addEntry(profile);
+			profileList.addElement(profile);
 		}
 	}
 
-	private void showDryRunDialog()
-	{
-		SandboxWizardDialog dryRunWizardDialog;
-		try
-		{
-			dryRunWizardDialog = controller.getDryRunWizardDialog(sandBoxRouter);
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-			return;
-		}
-		dryRunWizardDialog.show();
-		
-	}
+//	private void showDryRunDialog()
+//	{
+//		SandboxWizardDialog dryRunWizardDialog;
+//		try
+//		{
+//			dryRunWizardDialog = controller.getDryRunWizardDialog(sandBoxRouter);
+//		} catch (ControllerException e)
+//		{
+//			NotificationPopup.showError(msg, e);
+//			return;
+//		}
+//		dryRunWizardDialog.show();
+//		
+//	}
 
 	private void showWizardDialog()
 	{
@@ -184,7 +192,7 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 		try
 		{
 			controller.removeProfile(profile);
-			profileList.removeEntry(profile);
+			profileList.removeElement(profile);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
@@ -246,22 +254,22 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 		
 	}
 
-//	@Component
-//	public static class InputTranslationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
-//	{
-//		@Autowired
-//		public InputTranslationsNavigationInfoProvider(UnityMessageSource msg,
-//				AuthenticationNavigationInfoProvider parent,
-//				ObjectFactory<InputTranslationsView> factory)
-//		{
-//			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-//					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-//					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
-//					.withPosition(2)
-//					.build());
-//
-//		}
-//	}
+	@Component
+	public static class InputTranslationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	{
+		@Autowired
+		public InputTranslationsNavigationInfoProvider(UnityMessageSource msg,
+				AuthenticationNavigationInfoProvider parent,
+				ObjectFactory<InputTranslationsView> factory)
+		{
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
+					.withPosition(50)
+					.build());
+
+		}
+	}
 
 	
 }
