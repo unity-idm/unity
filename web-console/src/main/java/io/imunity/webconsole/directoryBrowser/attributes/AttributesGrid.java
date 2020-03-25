@@ -5,6 +5,8 @@
 
 package io.imunity.webconsole.directoryBrowser.attributes;
 
+import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +31,6 @@ import io.imunity.webadmin.attribute.AttributeEditor;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -93,11 +94,13 @@ public class AttributesGrid extends CustomComponent
 		attributesGrid.addComponentColumn(a -> getShortValue(a), msg.getMessage("AttributesGrid.valueCaption"),
 				80).setResizable(true);
 
-		attributesGrid.addSortableColumn(a -> TimeUtil.formatStandardInstant(a.getCreationTs().toInstant()),
+		attributesGrid.addSortableColumn(a -> a.getCreationTs() != null ? 
+					formatStandardInstant(a.getCreationTs().toInstant()) : "",
 				msg.getMessage("AttributesGrid.createCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 
-		attributesGrid.addSortableColumn(a -> TimeUtil.formatStandardInstant(a.getUpdateTs().toInstant()),
+		attributesGrid.addSortableColumn(a -> a.getUpdateTs() != null ? 
+					formatStandardInstant(a.getUpdateTs().toInstant()) : "",
 				msg.getMessage("AttributesGrid.updateCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 
