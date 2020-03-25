@@ -108,7 +108,7 @@ public abstract class ServiceEditorBase extends CustomComponent implements Servi
 	{
 		Resource getIcon();
 		String getType();
-		CustomComponent getComponent();
+		Component getComponent();
 		String getCaption();	
 	}
 	

@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
@@ -110,6 +111,8 @@ public class SAMLServiceConfigurationTest
 				.update("defaultGroup", "/foo1")
 				.update("groupMapping.1.mappingGroup", "/foo2")
 				.update("metadataSource", "http:foo")
+				.update("policyAgreements.1.policyDocuments", "1")
+				.update("policyAgreements.1.policyAgreementPresentationType", PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED.toString())
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
 		

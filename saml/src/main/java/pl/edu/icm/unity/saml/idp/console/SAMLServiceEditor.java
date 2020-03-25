@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
@@ -63,6 +65,7 @@ public class SAMLServiceEditor implements ServiceEditor
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private List<String> usedPaths;
 	private ImageAccessService imageAccessService;
+	private Collection<PolicyDocumentWithRevision> policyDocuments;
 
 	public SAMLServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
@@ -76,7 +79,7 @@ public class SAMLServiceEditor implements ServiceEditor
 			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
 			List<String> registrationForms, Set<String> credentials, Set<String> truststores,
 			AuthenticatorSupportService authenticatorSupportService, Collection<IdentityType> idTypes,
-			List<String> usedPaths)
+			List<String> usedPaths, Collection<PolicyDocumentWithRevision> policyDocuments)
 	{
 		this.msg = msg;
 		this.type = type;
@@ -101,6 +104,7 @@ public class SAMLServiceEditor implements ServiceEditor
 		this.pkiMan = pkiMan;
 		this.serverPrefix = serverPrefix;
 		this.serverContextPaths = serverContextPaths;
+		this.policyDocuments = policyDocuments;
 	}
 
 	@Override
@@ -120,8 +124,10 @@ public class SAMLServiceEditor implements ServiceEditor
 				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
 				type.getSupportedBinding(), msg.getMessage("IdpServiceEditorBase.authentication"));
 		
+		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
+		
 		editor = new SAMLServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, webServiceAuthenticationTab,
-				type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups, 
+				policyAgreementTab, type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups, 
 				serverConfig.getValue(UnityServerConfiguration.THEME));
 		return editor;
 	}

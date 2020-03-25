@@ -51,6 +51,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -123,6 +124,7 @@ class OAuthServiceController implements IdpServiceController
 	private EntityCredentialManagement entityCredentialManagement;
 	private IdpUsersHelper idpUsersHelper;
 	private ImageAccessService imageService;
+	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
 
 	@Autowired
@@ -149,7 +151,8 @@ class OAuthServiceController implements IdpServiceController
 			GroupsManagement groupMan,
 			EntityCredentialManagement entityCredentialManagement,
 			ImageAccessService imageService,
-			IdpUsersHelper idpUsersHelper)
+			IdpUsersHelper idpUsersHelper,
+			PolicyDocumentManagement policyDocumentManagement)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -175,6 +178,7 @@ class OAuthServiceController implements IdpServiceController
 		this.imageService = imageService;
 		this.idpUsersHelper = idpUsersHelper;
 		this.server = server;
+		this.policyDocumentManagement = policyDocumentManagement;
 	}
 
 	@Override
@@ -676,7 +680,7 @@ class OAuthServiceController implements IdpServiceController
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService,
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
-				.map(e -> e.getContextAddress()).collect(Collectors.toList()));
+				.map(e -> e.getContextAddress()).collect(Collectors.toList()), policyDocumentManagement.getPolicyDocuments());
 	}
 
 }

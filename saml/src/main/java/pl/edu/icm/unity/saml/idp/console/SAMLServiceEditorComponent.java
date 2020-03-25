@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
@@ -43,7 +44,7 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 
 	SAMLServiceEditorComponent(UnityMessageSource msg, SAMLEditorGeneralTab generalTab,
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
-			WebServiceAuthenticationTab webAuthTab, EndpointTypeDescription type, PKIManagement pkiMan,
+			WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
@@ -59,7 +60,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		samlServiceBinder = new Binder<>(DefaultServiceDefinition.class);
 		samlConfigBinder = new Binder<>(SAMLServiceConfiguration.class);
 		webConfigBinder = new Binder<>(ServiceWebConfiguration.class);
-
+		
+		samlConfigBinder.forField(policyAgreementTab).asRequired().bind("policyAgreementConfig");
+		
 		generalTab.initUI(samlServiceBinder, samlConfigBinder, editMode);
 		registerTab(generalTab);
 		clientsTab.initUI(samlConfigBinder);
@@ -68,7 +71,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		registerTab(usersTab);
 		webAuthTab.initUI(samlServiceBinder, webConfigBinder);
 		registerTab(webAuthTab);
-
+		registerTab(policyAgreementTab);
+		
+		
 		DefaultServiceDefinition serviceBean = new DefaultServiceDefinition(type.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(allGroups);

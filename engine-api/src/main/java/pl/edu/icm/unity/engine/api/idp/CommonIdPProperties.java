@@ -42,7 +42,14 @@ public class CommonIdPProperties
 	public static final String ACTIVE_VALUE_MULTI_SELECTABLE = "multiValueAttributes.";
 	
 	private static final String ASSUME_FORCE = "assumeForceOnSessionClash";
-
+	
+	public static final String POLICY_AGREEMENTS_TITLE = "policyAgreementsTitle";
+	public static final String POLICY_AGREEMENTS_INFO = "policyAgreementsInfo";
+	public static final String POLICY_AGREEMENTS_PFX = "policyAgreements.";
+	public static final String POLICY_AGREEMENT_DOCUMENTS = "policyDocuments";
+	public static final String POLICY_AGREEMENT_PRESENTATION_TYPE = "policyAgreementPresentationType";
+	public static final String POLICY_AGREEMENT_TEXT= "text";
+	
 	public static Map<String, PropertyMD> getDefaultsWithCategory(DocumentationCategory category,
 			String defaultProfileMessage, String defaultProfile)
 	{
@@ -104,6 +111,22 @@ public class CommonIdPProperties
 				.setDescription("List of attribute names for which multiple active values must be selected by a user."));
 
 		
+		defaults.put(POLICY_AGREEMENTS_TITLE,
+				new PropertyMD().setCanHaveSubkeys().setDescription("Policy acceptanance view title"));
+		defaults.put(POLICY_AGREEMENTS_INFO, new PropertyMD().setCanHaveSubkeys()
+				.setDescription("Policy acceptanance view additional information"));
+		defaults.put(POLICY_AGREEMENTS_PFX, new PropertyMD().setStructuredList(true).setDescription(
+				"Under this prefix it is possible to configure a separate policy agreement"));
+		defaults.put(POLICY_AGREEMENT_DOCUMENTS,
+				new PropertyMD().setStructuredListEntry(POLICY_AGREEMENTS_PFX).setDescription(
+						"List of policy documents ids which are subject to acceptance"));
+		defaults.put(POLICY_AGREEMENT_PRESENTATION_TYPE,
+				new PropertyMD().setStructuredListEntry(POLICY_AGREEMENTS_PFX)
+						.setDescription("Policy agreement presentation type"));
+		defaults.put(POLICY_AGREEMENT_TEXT, new PropertyMD().setCanHaveSubkeys()
+				.setStructuredListEntry(POLICY_AGREEMENTS_PFX)
+				.setDescription("Policy agreement text with placeholders. Format of placeholder is {PolicyDocucmentId:DisplayedText}"));
+
 		return defaults;
 	}
 

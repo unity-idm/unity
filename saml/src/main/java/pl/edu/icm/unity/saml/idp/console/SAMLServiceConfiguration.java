@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -80,6 +81,7 @@ public class SAMLServiceConfiguration
 	private List<SAMLIndividualTrustedSPConfiguration> individualTrustedSPs;
 	private List<UserImportConfig> userImports;
 	private boolean skipUserImport;
+	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	
 	public SAMLServiceConfiguration(List<Group> allGroups)
 	{
@@ -108,6 +110,7 @@ public class SAMLServiceConfiguration
 		autoGenerateMetadata = true;
 		userImports = new ArrayList<>();
 		skipUserImport = false;
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
 	}
 
 	public String toProperties(PKIManagement pkiManagement, UnityMessageSource msg, FileStorageService fileService,
@@ -254,6 +257,11 @@ public class SAMLServiceConfiguration
 				raw.put(SamlIdpProperties.P + key + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE,
 						impConfig.getIdentityType());
 			}
+		}
+		
+		if (policyAgreementConfig != null)
+		{
+			policyAgreementConfig.toProperties(msg).entrySet().forEach(p -> raw.put(SamlIdpProperties.P + p.getKey(), p.getValue()));
 		}
 
 		SamlIdpProperties samlProperties = new SamlIdpProperties(raw, pkiManagement);
@@ -478,6 +486,8 @@ public class SAMLServiceConfiguration
 			userImportConfig.setIdentityType(identityType);
 			userImports.add(userImportConfig);
 		}
+		
+		policyAgreementConfig.fromPropoerties(msg, samlIdpProperties);
 	}
 
 	public GroupWithIndentIndicator getUsersGroup()
@@ -708,5 +718,15 @@ public class SAMLServiceConfiguration
 	public void setGroupMappings(List<GroupMapping> groupMappings)
 	{
 		this.groupMappings = groupMappings;
+	}
+
+	public IdpPolicyAgreementsConfiguration getPolicyAgreementConfig()
+	{
+		return policyAgreementConfig;
+	}
+
+	public void setPolicyAgreementConfig(IdpPolicyAgreementsConfiguration policyAgreementConfig)
+	{
+		this.policyAgreementConfig = policyAgreementConfig;
 	}
 }

@@ -25,6 +25,7 @@ import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
@@ -74,9 +75,17 @@ class IdpServicesView extends ServicesViewBase
 				.withCaption(msg.getMessage("IdpServicesView.clientsConfig"))
 				.withIcon(Images.bullets.getResource())
 				.withHandler(r -> gotoEdit(r.iterator().next(), ServiceEditorTab.CLIENTS)).build();
+		
+		SingleActionHandler<ServiceDefinition> editPolicyAgreements= SingleActionHandler
+				.builder(ServiceDefinition.class)
+				.withCaption(msg.getMessage("IdpServicesView.policyAgreementsConfig"))
+				.withIcon(Images.check_square.getResource())
+				.hideIfInactive()
+				.withDisabledPredicate(s -> !s.getBinding().equals(VaadinAuthentication.NAME.toString()))
+				.withHandler(r -> gotoEdit(r.iterator().next(), ServiceEditorTab.POLICY_AGREEMENTS)).build();
 
 		return Stream.concat(getAdditionalActionsHandlers().stream(),
-				Arrays.asList(editGeneral, editClients, editUsers, editAuth).stream())
+				Arrays.asList(editPolicyAgreements, editGeneral, editClients, editUsers, editAuth).stream())
 				.collect(Collectors.toList());
 
 	}

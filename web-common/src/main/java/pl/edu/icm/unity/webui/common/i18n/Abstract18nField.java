@@ -47,6 +47,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	private boolean shown = false;
 	private Component main;
 	private HorizontalLayout hl;
+	private T focused;
 	
 	public Abstract18nField(UnityMessageSource msg)
 	{
@@ -66,9 +67,19 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	
 	protected abstract T makeFieldInstance();
 	
+	private T makeFieldInstanceWithFocus()
+	{
+		T field = makeFieldInstance();
+		field.addFocusListener(e -> {
+			focused = field;
+		});
+		
+		return field;
+	}
+	
 	protected void initUI()
 	{
-		defaultTf = makeFieldInstance();
+		defaultTf = makeFieldInstanceWithFocus();
 		defaultTf.setDescription(defaultLocaleName);
 		defaultTf.addValueChangeListener(e -> fireEvent(e));
 		String defStyle = Styles.getFlagBgStyleForLocale(defaultLocaleCode);
@@ -113,7 +124,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 			if (defaultLocaleCode.equals(localeKey))
 				continue;
 			
-			T tf = makeFieldInstance();
+			T tf = makeFieldInstanceWithFocus();
 			tf.setDescription(locE.getKey());
 			String style = Styles.getFlagBgStyleForLocale(localeKey);
 			if (style != null)
@@ -180,6 +191,17 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 			ret.addValue(hiddenE.getKey(), hiddenE.getValue());
 		ret.setDefaultValue(preservedDef);
 		return ret;
+	}
+
+	public void insertOnFocused(I18nString text)
+	{
+		if (focused != null)
+		{
+			focused.setValue(focused.getValue() + text.getValueRaw(translationTFs.entrySet().stream()
+					.filter(entry -> entry.getValue().equals(focused)).map(Map.Entry::getKey)
+					.findFirst().orElse(msg.getDefaultLocaleCode())));
+			focused.focus();
+		}
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.console.SAMLServiceControllerBase;
@@ -54,12 +55,13 @@ public class SAMLUnicoreServiceController extends SAMLServiceControllerBase
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper,
 			ImageAccessService imageAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider, 
+			PolicyDocumentManagement policyDocumentManagement)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService, registrationMan,
 				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService, idTypeSupport, pkiMan,
 				advertisedAddrProvider, server, outputTranslationProfileFieldFactory, idpUserHelper,
-				imageAccessService);
+				imageAccessService, policyDocumentManagement);
 	}
 
 	@Override
