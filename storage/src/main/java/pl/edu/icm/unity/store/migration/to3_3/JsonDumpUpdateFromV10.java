@@ -22,7 +22,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Update JSon dump adding an empty policyDocumentsarrays if header not contain dumpElements.
+ * Update JSon dump adding an empty policyDocumentsarrays if header not contain
+ * dumpElements.
+ * 
  * @author P.Piernik
  *
  */
@@ -44,15 +46,15 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 	public InputStream update(InputStream is) throws IOException
 	{
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
-	
+
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		JsonNode dumpElements = root.get("dumpElements");
 		if (dumpElements == null)
 		{
 			ObjectNode newContents = insertPolicyDocuments(contents);
-			root.set("contents", newContents);	
+			root.set("contents", newContents);
 		}
-		
+
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 
 	}
@@ -67,7 +69,7 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 			newContents.putPOJO(entry.getKey(), entry.getValue());
 			if ("auditEvents".equals(entry.getKey()))
 			{
-				log.info("Add empty files array");
+				log.info("Add empty policy documents array");
 				newContents.putArray("policyDocuments");
 			}
 		}
