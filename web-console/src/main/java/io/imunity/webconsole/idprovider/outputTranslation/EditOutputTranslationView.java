@@ -1,33 +1,35 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication.inputTranslation;
+package io.imunity.webconsole.idprovider.outputTranslation;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
-import io.imunity.webconsole.translationsProfiles.NewTranslationView;
+import io.imunity.webconsole.idprovider.outputTranslation.OutputTranslationsView.OutputTranslationsNavigationInfoProvider;
+import io.imunity.webconsole.translationsProfiles.EditTranslationView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 @PrototypeComponent
-class NewInputTranslationView extends NewTranslationView
+public class EditOutputTranslationView extends EditTranslationView
 {
-	public static final String VIEW_NAME = "NewInputTranslation";
+	public static final String VIEW_NAME = "EditOutputTranslation";
 
 	@Autowired
-	NewInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
+	EditOutputTranslationView(UnityMessageSource msg, OutputTranslationsController controller)
 	{
 		super(msg, controller);
+
 	}
 
+	@Override
 	public String getViewName()
 	{
 		return VIEW_NAME;
@@ -36,21 +38,20 @@ class NewInputTranslationView extends NewTranslationView
 	@Override
 	public String getViewAllName()
 	{
-		return InputTranslationsView.VIEW_NAME;
+		return OutputTranslationsView.VIEW_NAME;
 	}
 
 	@Component
-	public static class NewInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class EditInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public NewInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
-				ObjectFactory<NewInputTranslationView> factory)
+		public EditInputTranslationNavigationInfoProvider(OutputTranslationsNavigationInfoProvider parent,
+				ObjectFactory<EditOutputTranslationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
 
 		}
 	}
-
 }

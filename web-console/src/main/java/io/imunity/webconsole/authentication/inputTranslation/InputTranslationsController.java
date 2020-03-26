@@ -5,7 +5,6 @@
 
 package io.imunity.webconsole.authentication.inputTranslation;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -13,9 +12,6 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.vaadin.simplefiledownloader.SimpleFileDownloader;
-
-import com.vaadin.server.StreamResource;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
@@ -23,7 +19,7 @@ import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import io.imunity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
-import pl.edu.icm.unity.Constants;
+import io.imunity.webconsole.translationsProfiles.TranslationsControllerBase;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -36,79 +32,34 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
-/**
- * Controller for all authentication input translation views
- * 
- * @author P.Piernik
- *
- */
 @Component
-public class InputTranslationsController
+public class InputTranslationsController extends TranslationsControllerBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InputTranslationsController.class);
-	
-	private UnityMessageSource msg;
-	private TranslationProfileManagement profileMan;
 	private EndpointController endpointController;
-
-	private InputTranslationActionsRegistry inputActionsRegistry;
-	private ActionParameterComponentProvider actionComponentFactory;
 
 	@Autowired
 	public InputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			InputTranslationActionsRegistry inputActionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory,
-			EndpointController endpointController)
+			ActionParameterComponentProvider actionComponentFactory, EndpointController endpointController)
 	{
-		this.msg = msg;
-		this.profileMan = profileMan;
-		this.inputActionsRegistry = inputActionsRegistry;
-		this.actionComponentFactory = actionComponentFactory;
+		super(msg, profileMan, inputActionsRegistry, actionComponentFactory, ProfileType.INPUT);
 		this.endpointController = endpointController;
 	}
 
-	TranslationProfileEditor getEditor()
-			throws ControllerException
-	{
-		
-		initActionFactory();
-		try
-		{
-			return new TranslationProfileEditor(msg, inputActionsRegistry, ProfileType.INPUT,
-					actionComponentFactory);
-		} catch (Exception e)
-		{
-			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getEditorError"), e);
-		}
-	}
-	
-	private void initActionFactory() throws ControllerException
-	{
-		try
-		{
-			actionComponentFactory.init();
-		} catch (Exception e)
-		{
-			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.initActionFactoryError"), e);
-		}
-		
-	}
-
-	public List<TranslationProfile> getProfiles() throws ControllerException
+	protected List<TranslationProfile> getProfiles() throws ControllerException
 	{
 		try
 		{
 			return profileMan.listInputProfiles().values().stream().collect(Collectors.toList());
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getAllError"), e);
+			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.getAllError"),
+					e);
 		}
 	}
 
-	TranslationProfile getProfile(String name) throws ControllerException
+	protected TranslationProfile getProfile(String name) throws ControllerException
 	{
 		try
 		{
@@ -120,56 +71,19 @@ public class InputTranslationsController
 		}
 	}
 
-	void removeProfile(TranslationProfile profile) throws ControllerException
-	{
-		try
-		{
-			profileMan.removeProfile(ProfileType.INPUT, profile.getName());
-
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.removeError",
-					profile.getName()), e);
-		}
-	}
-
-	public void addProfile(TranslationProfile profile) throws ControllerException
-	{
-		try
-		{
-			profileMan.addProfile(profile);
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.addError",
-					profile.getName()), e);
-		}
-	}
-
-	public void updateProfile(TranslationProfile updated) throws ControllerException
-	{
-		try
-		{
-			profileMan.updateProfile(updated);
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.updateError",
-					updated.getName()), e);
-		}
-	}
-
 	SandboxWizardDialog getDryRunWizardDialog(SandboxAuthnRouter sandboxNotifier) throws ControllerException
 	{
-		DryRunWizardProvider provider = new DryRunWizardProvider(msg, getSandboxURL(), sandboxNotifier, profileMan,
-				inputActionsRegistry);
+		DryRunWizardProvider provider = new DryRunWizardProvider(msg, getSandboxURL(), sandboxNotifier,
+				profileMan, (InputTranslationActionsRegistry) actionsRegistry);
 		SandboxWizardDialog dialog = new SandboxWizardDialog(provider.getWizardInstance(),
 				provider.getCaption());
 		return dialog;
 	}
 
-	SandboxWizardDialog getWizardDialog(SandboxAuthnRouter sandboxNotifier, Runnable addCallback,  Consumer<ControllerException> errorCallback)
-			throws ControllerException
+	SandboxWizardDialog getWizardDialog(SandboxAuthnRouter sandboxNotifier, Runnable addCallback,
+			Consumer<ControllerException> errorCallback) throws ControllerException
 	{
-		
+
 		TranslationProfileEditor editor = getEditor();
 
 		ProfileWizardProvider wizardProvider = new ProfileWizardProvider(msg, getSandboxURL(), sandboxNotifier,
@@ -178,8 +92,9 @@ public class InputTranslationsController
 				wizardProvider.getCaption());
 		return dialog;
 	}
-	
-	private boolean addProfileSave(TranslationProfile profile, Runnable addCallback, Consumer<ControllerException> errorCallback)
+
+	private boolean addProfileSave(TranslationProfile profile, Runnable addCallback,
+			Consumer<ControllerException> errorCallback)
 	{
 		try
 		{
@@ -193,7 +108,7 @@ public class InputTranslationsController
 		}
 		return true;
 	}
-	
+
 	private String getSandboxURL() throws ControllerException
 	{
 		List<ResolvedEndpoint> endpointList = endpointController.getEndpoints();
@@ -207,25 +122,4 @@ public class InputTranslationsController
 		}
 		return null;
 	}
-
-	SimpleFileDownloader getDownloader(TranslationProfile profile) throws ControllerException
-	{
-		SimpleFileDownloader downloader = new SimpleFileDownloader();
-		StreamResource resource = null;
-		try
-		{
-			byte[] content = Constants.MAPPER.writeValueAsBytes(profile);
-			resource = new StreamResource(() -> new ByteArrayInputStream(content),
-					profile.getName() + ".json");
-
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.exportError",
-					profile.getName()), e);
-		}
-
-		downloader.setFileDownloadResource(resource);
-		return downloader;
-	}
-
 }

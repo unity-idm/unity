@@ -5,42 +5,26 @@
 
 package io.imunity.webconsole.authentication.inputTranslation;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
-import com.google.common.collect.Sets;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.UnityViewWithSandbox;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
-import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webconsole.translationsProfiles.TranslationsView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.translation.ProfileMode;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
@@ -53,185 +37,56 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  *
  */
 @PrototypeComponent
-class InputTranslationsView extends CustomComponent implements UnityViewWithSandbox
+class InputTranslationsView extends TranslationsView implements UnityViewWithSandbox
 {
 	public static final String VIEW_NAME = "InputTranslations";
-
-	private UnityMessageSource msg;
-	private InputTranslationsController controller;
-	private GridWithActionColumn<TranslationProfile> profileList;
 	private SandboxAuthnRouter sandBoxRouter;
 
 	@Autowired
 	public InputTranslationsView(UnityMessageSource msg, InputTranslationsController controller)
 	{
-		this.msg = msg;
-		this.controller = controller;
+		super(msg, controller);
 	}
 
 	@Override
-	public void enter(ViewChangeEvent event)
+	protected String getEditView()
 	{
-		
-		
-		profileList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		profileList.addComponentColumn(c -> StandardButtonsHelper.buildLinkButton(c.getName(), e -> gotoEdit(c))
-			, msg.getMessage("InputTranslationProfilesView.nameCaption"), 10).setSortable(true)
-				.setComparator((c1, c2) -> {
-					return c1.getName().compareTo(c2.getName());
-				}).setId("name");
-		profileList.sort("name");
-		
-		
-		refreshProfileList();
-		
-		VerticalLayout main = new VerticalLayout();
-		main.addComponent(new Label(msg.getMessage("InputTranslationProfilesView.headerCaption")));
-		main.addComponent(getButtonsBar());
-		main.addComponent(profileList);
-		main.setWidth(100, Unit.PERCENTAGE);
-		main.setMargin(false);
-
-		setCompositionRoot(main);
+		return EditInputTranslationView.VIEW_NAME;
 	}
-	
-	private List<SingleActionHandler<TranslationProfile>> getActionsHandlers()
+
+	@Override
+	protected String getNewView()
 	{
-		SingleActionHandler<TranslationProfile> edit = SingleActionHandler
-				.builder4Edit(msg, TranslationProfile.class)
-				.withHandler(r -> gotoEdit(r.iterator().next()))
-				.build();
-
-		SingleActionHandler<TranslationProfile> remove = SingleActionHandler
-				.builder4Delete(msg, TranslationProfile.class)
-				.withHandler(r -> tryRemove(r.iterator().next()))
-				.withDisabledPredicate(tp -> tp.getProfileMode() == ProfileMode.READ_ONLY).build();
-
-		SingleActionHandler<TranslationProfile> copy = SingleActionHandler
-				.builder4Copy(msg, TranslationProfile.class)
-				.withHandler(r -> gotoCopy(r.iterator().next())).build();
-
-		SingleActionHandler<TranslationProfile> export = SingleActionHandler.builder(TranslationProfile.class)
-				.withCaption(msg.getMessage("InputTranslationProfilesView.exportAction"))
-				.withIcon(Images.export.getResource()).withHandler(r -> export(r.iterator().next()))
-				.build();
-		return  Arrays.asList(edit, copy, remove, export);
+		return NewInputTranslationView.VIEW_NAME;
 	}
-	
-	private HorizontalLayout getButtonsBar()
+
+	@Override
+	public String getHeaderCaption()
 	{
+		return msg.getMessage("InputTranslationsView.headerCaption");
+	}
 
-		Button newProfile = StandardButtonsHelper.build4AddAction(msg,
-				e -> NavigationHelper.goToView(NewInputTranslationView.VIEW_NAME));
-
+	protected List<Button> getButtonsBar()
+	{
 		Button wizard = StandardButtonsHelper.buildActionButton(
-				msg.getMessage("InputTranslationProfilesView.wizard"), Images.wizard,
+				msg.getMessage("InputTranslationsView.wizard"), Images.wizard,
 				e -> showWizardDialog());
-
-//		Button dryRun = StandardButtonsHelper.buildActionButton(
-//				msg.getMessage("InputTranslationProfilesView.dryRun"), Images.dryrun,
-//				e -> showDryRunDialog());
-
-		return StandardButtonsHelper.buildTopButtonsBar(wizard, newProfile);
+		return Stream.concat(Stream.of(wizard), super.getButtonsBar().stream()).collect(Collectors.toList());
 	}
-	
-	private void refreshProfileList()
-	{
-		profileList.removeAllElements();
-		for (TranslationProfile profile : getInputTranslations().stream()
-				.sorted((t1, t2) -> t1.getName().compareTo(t2.getName())).collect(Collectors.toList()))
-		{
-			profileList.addElement(profile);
-		}
-	}
-
-//	private void showDryRunDialog()
-//	{
-//		SandboxWizardDialog dryRunWizardDialog;
-//		try
-//		{
-//			dryRunWizardDialog = controller.getDryRunWizardDialog(sandBoxRouter);
-//		} catch (ControllerException e)
-//		{
-//			NotificationPopup.showError(msg, e);
-//			return;
-//		}
-//		dryRunWizardDialog.show();
-//		
-//	}
 
 	private void showWizardDialog()
 	{
 		SandboxWizardDialog wizardDialog;
 		try
 		{
-			wizardDialog = controller.getWizardDialog(sandBoxRouter, () -> refreshProfileList(),
-					e -> NotificationPopup.showError(msg, e));
+			wizardDialog = ((InputTranslationsController) controller).getWizardDialog(sandBoxRouter,
+					() -> refreshProfileList(), e -> NotificationPopup.showError(msg, e));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
 			return;
 		}
 		wizardDialog.show();
-	}
-
-	private Collection<TranslationProfile> getInputTranslations()
-	{
-		try
-		{
-			return controller.getProfiles();
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
-		return Collections.emptyList();
-	}
-	
-	private void remove(TranslationProfile profile)
-	{
-		try
-		{
-			controller.removeProfile(profile);
-			profileList.removeElement(profile);
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
-	}
-
-	private void tryRemove(TranslationProfile profile)
-	{
-
-		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(profile.getName()));
-		new ConfirmDialog(msg, msg.getMessage("InputTranslationProfilesView.confirmDelete", confirmText),
-				() -> remove(profile)).show();
-	}
-
-	private void export(TranslationProfile profile)
-	{
-		SimpleFileDownloader downloader;
-		try
-		{
-			downloader = controller.getDownloader(profile);
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-			return;
-		}
-		addExtension(downloader);
-		downloader.download();
-	}
-
-	private void gotoEdit(TranslationProfile profile)
-	{
-		NavigationHelper.goToView(EditInputTranslationView.VIEW_NAME + "/" + CommonViewParam.name.toString()
-				+ "=" + profile.getName());
-	}
-
-	private void gotoCopy(TranslationProfile profile)
-	{
-		NavigationHelper.goToView(NewInputTranslationView.VIEW_NAME + "/" + CommonViewParam.name.toString()
-				+ "=" + profile.getName());
 	}
 
 	@Override
@@ -246,12 +101,12 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 	{
 		return VIEW_NAME;
 	}
-	
+
 	@Override
 	public void setSandboxRouter(SandboxAuthnRouter router)
 	{
 		sandBoxRouter = router;
-		
+
 	}
 
 	@Component
@@ -264,12 +119,11 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withIcon(Images.download.getResource())
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
-					.withPosition(50)
-					.build());
+					.withPosition(50).build());
 
 		}
 	}
 
-	
 }

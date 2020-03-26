@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider;
+package io.imunity.webconsole.idprovider.providers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
+import io.imunity.webconsole.idprovider.IdentityProviderNavigationInfoProvider;
 import io.imunity.webconsole.services.base.ServicesViewBase;
 import io.imunity.webconsole.spi.services.IdpServiceAdditionalAction;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -123,7 +123,7 @@ class IdpServicesView extends ServicesViewBase
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.services");
+		return msg.getMessage("WebConsoleMenu.identityProvider.providers");
 	}
 
 	@Component
@@ -131,12 +131,12 @@ class IdpServicesView extends ServicesViewBase
 	{
 		@Autowired
 		public IdpServicesNavigationInfoProvider(UnityMessageSource msg,
-				WebConsoleRootNavigationInfoProvider parent, ObjectFactory<IdpServicesView> factory)
+				IdentityProviderNavigationInfoProvider parent, ObjectFactory<IdpServicesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.idpProvider"))
-					.withIcon(Images.globe.getResource()).withPosition(40).build());
+					.withCaption(msg.getMessage("WebConsoleMenu.identityProvider.providers"))
+					.withIcon(Images.globe.getResource()).withPosition(10).build());
 
 		}
 	}
