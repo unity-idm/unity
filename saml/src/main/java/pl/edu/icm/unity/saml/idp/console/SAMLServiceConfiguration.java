@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -261,7 +262,7 @@ public class SAMLServiceConfiguration
 		
 		if (policyAgreementConfig != null)
 		{
-			policyAgreementConfig.toProperties(msg).entrySet().forEach(p -> raw.put(SamlIdpProperties.P + p.getKey(), p.getValue()));
+			raw.putAll(IdpPolicyAgreementsConfigurationParser.toProperties(msg, policyAgreementConfig, SamlIdpProperties.P));
 		}
 
 		SamlIdpProperties samlProperties = new SamlIdpProperties(raw, pkiManagement);
@@ -487,7 +488,7 @@ public class SAMLServiceConfiguration
 			userImports.add(userImportConfig);
 		}
 		
-		policyAgreementConfig.fromPropoerties(msg, samlIdpProperties);
+		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, samlIdpProperties);
 	}
 
 	public GroupWithIndentIndicator getUsersGroup()

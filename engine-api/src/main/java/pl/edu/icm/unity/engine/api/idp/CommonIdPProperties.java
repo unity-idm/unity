@@ -19,6 +19,8 @@ import com.google.common.collect.Lists;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 
@@ -222,6 +224,16 @@ public class CommonIdPProperties
 				.collect(Collectors.toList());
 	}
 
+	public static IdpPolicyAgreementsConfiguration getActiveValueSelectionConfig(UnityMessageSource msg, UnityPropertiesHelper cfg)
+	{
+		return IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, cfg);
+	}
+
+	public static boolean isIdpPolicyAgreementsConfigured(UnityMessageSource msg, UnityPropertiesHelper cfg)
+	{
+		return !getActiveValueSelectionConfig(msg, cfg).agreements.isEmpty();
+	}
+	
 	public static class ActiveValueSelectionConfig
 	{
 		public final List<DynamicAttribute> multiSelectableAttributes;

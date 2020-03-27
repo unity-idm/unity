@@ -5,7 +5,9 @@
 
 package pl.edu.icm.unity.webui.console.services.idp;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
@@ -18,6 +20,7 @@ import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
@@ -38,7 +41,7 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 {
 	private UnityMessageSource msg;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
-	private Binder<IdpPolicyAgreementsConfiguration> binder;
+	private Binder<IdpPolicyAgreementsConfigurationVaadinBean> binder;
 	private VerticalLayout main;
 
 	public PolicyAgreementsTab(UnityMessageSource msg, Collection<PolicyDocumentWithRevision> policyDocuments)
@@ -59,7 +62,7 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 
 	private void init()
 	{
-		binder = new Binder<>(IdpPolicyAgreementsConfiguration.class);
+		binder = new Binder<>(IdpPolicyAgreementsConfigurationVaadinBean.class);
 		I18nTextField title = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.title"));
 		title.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		binder.forField(title).bind("title");
@@ -91,8 +94,11 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 	{
 		if (binder.validate().hasErrors())
 			return null;
-
-		return binder.getBean();
+		IdpPolicyAgreementsConfigurationVaadinBean bean = binder.getBean();
+		if (bean == null)
+			return null;
+		return new IdpPolicyAgreementsConfiguration(bean.getTitle(), bean.getInformation(),
+				bean.getAgreements());
 	}
 
 	@Override
@@ -104,12 +110,64 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 	@Override
 	protected void doSetValue(IdpPolicyAgreementsConfiguration value)
 	{
-		binder.setBean(value);
+		binder.setBean(new IdpPolicyAgreementsConfigurationVaadinBean(value));
 	}
 
 	@Override
 	public Component getComponent()
 	{
 		return this;
+	}
+
+	public static class IdpPolicyAgreementsConfigurationVaadinBean
+	{
+		private I18nString title;
+		private I18nString information;
+		private List<PolicyAgreementConfiguration> agreements;
+
+		public IdpPolicyAgreementsConfigurationVaadinBean()
+		{
+
+		}
+
+		public IdpPolicyAgreementsConfigurationVaadinBean(IdpPolicyAgreementsConfiguration source)
+		{
+			this.agreements = new ArrayList<>();
+			if (source == null)
+				return;
+			this.agreements.addAll(source.agreements);
+			this.title = source.title;
+			this.information = source.information;
+		}
+
+		public I18nString getTitle()
+		{
+			return title;
+		}
+
+		public void setTitle(I18nString title)
+		{
+			this.title = title;
+		}
+
+		public List<PolicyAgreementConfiguration> getAgreements()
+		{
+			return agreements;
+		}
+
+		public void setAgreements(List<PolicyAgreementConfiguration> agreements)
+		{
+			this.agreements = agreements;
+		}
+
+		public I18nString getInformation()
+		{
+			return information;
+		}
+
+		public void setInformation(I18nString information)
+		{
+			this.information = information;
+		}
 	}
 }

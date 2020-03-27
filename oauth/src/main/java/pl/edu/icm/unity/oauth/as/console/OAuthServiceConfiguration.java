@@ -18,6 +18,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -217,9 +218,8 @@ public class OAuthServiceConfiguration
 
 		if (policyAgreementConfig != null)
 		{
-			policyAgreementConfig.toProperties(msg).entrySet().forEach(p -> raw.put(OAuthASProperties.P + p.getKey(), p.getValue()));
+			raw.putAll(IdpPolicyAgreementsConfigurationParser.toProperties(msg, policyAgreementConfig, OAuthASProperties.P));
 		}
-		
 		
 		OAuthASProperties oauthProperties = new OAuthASProperties(raw);
 		return oauthProperties.getAsString();
@@ -354,7 +354,7 @@ public class OAuthServiceConfiguration
 			userImports.add(userImportConfig);
 		}
 		
-		policyAgreementConfig.fromPropoerties(msg, oauthProperties);
+		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, oauthProperties);
 	}
 
 	public List<UserImportConfig> getUserImports()
