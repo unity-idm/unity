@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.translation.in;
 
+import java.util.Objects;
+
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
@@ -33,13 +35,15 @@ public class MappedAttribute
 	}
 
 	@Override
+	public String toString()
+	{
+		return "MappedAttribute [mode=" + mode + ", attribute=" + attribute + "]";
+	}
+
+	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
-		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
-		return result;
+		return Objects.hash(attribute, mode);
 	}
 
 	@Override
@@ -52,14 +56,6 @@ public class MappedAttribute
 		if (getClass() != obj.getClass())
 			return false;
 		MappedAttribute other = (MappedAttribute) obj;
-		if (attribute == null)
-		{
-			if (other.attribute != null)
-				return false;
-		} else if (!attribute.equals(other.attribute))
-			return false;
-		if (mode != other.mode)
-			return false;
-		return true;
+		return Objects.equals(attribute, other.attribute) && mode == other.mode;
 	}
 }

@@ -36,9 +36,9 @@ public class InputTranslationRule extends TranslationRuleInstance<InputTranslati
 		TranslationRuleInvocationContext context = new TranslationRuleInvocationContext();
 		if (conditionInstance.evaluate(mvelCtx))
 		{	
-			log.debug("Condition OK");
+			log.debug("Condition fulfilled");
 			MappingResult result = actionInstance.invoke(input, mvelCtx, profileName);
-			if ( actionInstance instanceof TranslationIncludeProfileAction)
+			if (actionInstance instanceof TranslationIncludeProfileAction)
 			{
 				TranslationIncludeProfileAction includeAction = (TranslationIncludeProfileAction) actionInstance;
 				context.setIncludedProfile(includeAction.getIncludedProfile());			
