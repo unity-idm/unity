@@ -45,25 +45,31 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
- * Applies all mappings which were recorded by profile's actions, taking into account the overall profile's settings.
+ * Applies all mappings which were recorded by profile's actions, taking into
+ * account the overall profile's settings.
  * <p>
- * Important: the instance is running without authorization, the object can not be exposed to direct operation.
+ * Important: the instance is running without authorization, the object can not
+ * be exposed to direct operation.
+ * 
  * @author K. Benedyczak
  */
 @Component
 public class InputTranslationEngineImpl implements InputTranslationEngine
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, InputTranslationEngineImpl.class);
+
 	private EntityManagement idsMan;
+
 	private AttributesManagement attrMan;
+
 	private GroupsManagement groupsMan;
+
 	private AttributeTypeHelper attrTypeHelper;
-	
+
 	@Autowired
-	public InputTranslationEngineImpl(@Qualifier("insecure") EntityManagement idsMan, 
+	public InputTranslationEngineImpl(@Qualifier("insecure") EntityManagement idsMan,
 			@Qualifier("insecure") AttributesManagement attrMan,
-			@Qualifier("insecure") GroupsManagement groupsMan,
-			AttributeTypeHelper attrTypeHelper)
+			@Qualifier("insecure") GroupsManagement groupsMan, AttributeTypeHelper attrTypeHelper)
 	{
 		this.idsMan = idsMan;
 		this.attrMan = attrMan;
@@ -71,18 +77,12 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		this.attrTypeHelper = attrTypeHelper;
 	}
 
-	
-	/**
-	 * Entry point.
-	 * @param result
-	 * @throws EngineException
-	 */
 	@Override
 	public void process(MappingResult result) throws EngineException
 	{
 		Set<Attribute> processedAttributes = new HashSet<>();
 		EntityParam entity = processIdentities(result, processedAttributes);
-		result.setMappedAtExistingEntity(entity);
+		result.setMappedToExistingEntity(entity);
 		if (entity == null)
 		{
 			log.info("The mapped identity does not exist in database and was not created. "
@@ -94,13 +94,10 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		processAttributes(result, entity, processedAttributes);
 		processEntityChanges(result, entity);
 	}
-	
+
 	/**
-	 * Merges the information obtained after execution of an input translation profile with a manually specified
-	 * entity.
-	 * @param result
-	 * @param baseEntity
-	 * @throws EngineException 
+	 * Merges the information obtained after execution of an input
+	 * translation profile with a manually specified entity.
 	 */
 	@Override
 	public void mergeWithExisting(MappingResult result, EntityParam baseEntity) throws EngineException
@@ -108,17 +105,15 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		result.setCleanStaleAttributes(false);
 		result.setCleanStaleIdentities(false);
 		result.setCleanStaleGroups(false);
-		
+
 		Set<Attribute> processedAttributes = new HashSet<>();
 		processIdentitiesForMerge(result, baseEntity);
 		processGroups(result, baseEntity, processedAttributes);
 		processAttributes(result, baseEntity, processedAttributes);
 		processEntityChanges(result, baseEntity);
 	}
-	
+
 	/**
-	 * 
-	 * @param result
 	 * @return true only if no one of mapped identities is present in db.
 	 */
 	@Override
@@ -139,11 +134,11 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	{
 		return idsMan.getEntity(new EntityParam(checked.getIdentity()));
 	}
-	
+
 	@Override
 	public MappedIdentity getExistingIdentity(MappingResult result)
 	{
-		for (MappedIdentity checked: result.getIdentities())
+		for (MappedIdentity checked : result.getIdentities())
 		{
 			try
 			{
@@ -151,36 +146,37 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				return checked;
 			} catch (IllegalArgumentException e)
 			{
-				//OK
+				// OK
 			} catch (EngineException e)
 			{
 				log.error("Can't check the entity status, shouldn't happen", e);
-			}			
+			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * performs identities mapping
-	 * @param result
-	 * @return an mapped identity - previously existing or newly created; or null if identity mapping was not successful
-	 * @throws EngineException
+	 * 
+	 * @return an mapped identity - previously existing or newly created; or
+	 *         null if identity mapping was not successful
 	 */
-	private EntityParam processIdentities(MappingResult result, Set<Attribute> processedAttributes) throws EngineException
+	private EntityParam processIdentities(MappingResult result, Set<Attribute> processedAttributes)
+			throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
 		List<MappedIdentity> mappedMissingCreateOrUpdateIdentities = new ArrayList<>();
 		Entity existing = null;
-		for (MappedIdentity checked: result.getIdentities())
+		for (MappedIdentity checked : result.getIdentities())
 		{
 			try
 			{
 				Entity found = idsMan.getEntity(new EntityParam(checked.getIdentity()));
 				if (existing != null && !existing.getId().equals(found.getId()))
 				{
-					log.warn("Identity was mapped to two different entities: " + 
-							existing + " and " + found);
+					log.warn("Identity was mapped to two different entities: " + existing + " and "
+							+ found);
 					throw new ExecutionBreakException();
 				}
 				existing = found;
@@ -203,9 +199,9 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				{
 					mappedMissingCreateOrUpdateIdentities.add(checked);
 				}
-			}			
+			}
 		}
-		
+
 		if (existing != null)
 		{
 			mappedMissingIdentitiesToCreate.addAll(mappedMissingCreateOrUpdateIdentities);
@@ -221,13 +217,13 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 					+ "We can't authenticate such anonymous principal.");
 			throw new ExecutionBreakException();
 		}
-		
+
 		if (mappedMissingIdentitiesToCreate.isEmpty())
 		{
 			log.debug("No identity needs to be added");
 			return existing != null ? new EntityParam(existing.getId()) : null;
 		}
-		
+
 		if (existing != null)
 		{
 			addEquivalents(mappedMissingIdentitiesToCreate, new EntityParam(existing.getId()), result);
@@ -242,9 +238,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	}
 
 	/**
-	 * Identities created from this profile and idp which are not present are removed.
-	 * @param existing
-	 * @param allMapped
+	 * Identities created from this profile and idp which are not present
+	 * are removed.
 	 */
 	private void removeStaleIdentities(Entity existing, List<MappedIdentity> allMapped)
 	{
@@ -255,14 +250,13 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		String profile = exampleMapped.getTranslationProfile();
 		if (profile == null)
 			profile = "_____MISSING";
-		for (Identity id: existing.getIdentities())
+		for (Identity id : existing.getIdentities())
 		{
 			if (idp.equals(id.getRemoteIdp()) && profile.equals(id.getTranslationProfile()))
 			{
-				boolean has = allMapped.stream().anyMatch(mi -> 
-					id.getValue().equals(mi.getIdentity().getValue()) &&
-						id.getTypeId().equals(mi.getIdentity().getTypeId())
-				);
+				boolean has = allMapped.stream()
+						.anyMatch(mi -> id.getValue().equals(mi.getIdentity().getValue())
+								&& id.getTypeId().equals(mi.getIdentity().getTypeId()));
 				if (!has)
 				{
 					try
@@ -276,18 +270,17 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			}
 		}
 	}
-	
+
 	/**
-	 * Besides returning the list of identities to be created also ensures that no one from mapped
-	 * identities does exist in the db.
-	 * @param result
-	 * @return list of mapped identities which should be created. 
-	 * @throws EngineException
+	 * Besides returning the list of identities to be created also ensures
+	 * that no one from mapped identities does exist in the db.
+	 * 
+	 * @return list of mapped identities which should be created.
 	 */
 	private List<MappedIdentity> getIdentitiesToCreate(MappingResult result) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
-		for (MappedIdentity checked: result.getIdentities())
+		for (MappedIdentity checked : result.getIdentities())
 		{
 			try
 			{
@@ -306,11 +299,11 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				{
 					mappedMissingIdentitiesToCreate.add(checked);
 				}
-			}			
+			}
 		}
 		return mappedMissingIdentitiesToCreate;
 	}
-	
+
 	private void processIdentitiesForMerge(MappingResult result, EntityParam baseEntity) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = getIdentitiesToCreate(result);
@@ -320,35 +313,33 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 					+ "We can't merge such anonymous principal.");
 			throw new ExecutionBreakException();
 		}
-		
+
 		addEquivalents(mappedMissingIdentitiesToCreate, baseEntity, result);
 	}
 
-	
-	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity, MappingResult result) 
+	private void addEquivalents(Collection<MappedIdentity> toAdd, EntityParam parentEntity, MappingResult result)
 			throws EngineException
 	{
-		for (MappedIdentity mi: toAdd)
+		for (MappedIdentity mi : toAdd)
 		{
 			idsMan.addIdentity(mi.getIdentity(), parentEntity);
 			result.addAuthenticatedWith(mi.getIdentity().getValue());
 		}
 	}
-	
-	private Identity createNewEntity(MappingResult result,
-			List<MappedIdentity> mappedMissingIdentities, 
+
+	private Identity createNewEntity(MappingResult result, List<MappedIdentity> mappedMissingIdentities,
 			Set<Attribute> processedAttributes) throws EngineException
 	{
 		MappedIdentity first = mappedMissingIdentities.remove(0);
-		
+
 		Identity added;
 		List<Attribute> attributes = getAttributesInGroup("/", result);
 		log.info("Adding entity " + first.getIdentity() + " to the local DB");
-		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), 
-				EntityState.valid, attributes);
+		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), EntityState.valid,
+				attributes);
 		result.addAuthenticatedWith(first.getIdentity().getValue());
 		processedAttributes.addAll(attributes);
-		
+
 		addEquivalents(mappedMissingIdentities, new EntityParam(added), result);
 		return added;
 	}
@@ -356,9 +347,9 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	private Map<String, List<Attribute>> getAttributesByGroup(MappingResult result)
 	{
 		Map<String, List<Attribute>> ret = new HashMap<>();
-		
+
 		ret.put("/", getAttributesInGroup("/", result));
-		for (MappedGroup mg: result.getGroups())
+		for (MappedGroup mg : result.getGroups())
 		{
 			if ("/".equals(mg.getGroup()))
 				continue;
@@ -370,30 +361,29 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	private List<Attribute> getAttributesInGroup(String group, MappingResult result)
 	{
 		List<Attribute> ret = new ArrayList<>();
-		for (MappedAttribute mappedAttr: result.getAttributes())
+		for (MappedAttribute mappedAttr : result.getAttributes())
 		{
 			if (mappedAttr.getAttribute().getGroupPath().equals(group))
 				ret.add(mappedAttr.getAttribute());
 		}
 		return ret;
 	}
-	
-	private void processGroups(MappingResult result, EntityParam principal,
-			Set<Attribute> processedAttributes) throws EngineException
+
+	private void processGroups(MappingResult result, EntityParam principal, Set<Attribute> processedAttributes)
+			throws EngineException
 	{
 		Map<String, List<Attribute>> attributesByGroup = getAttributesByGroup(result);
 		Map<String, GroupMembership> currentGroups = idsMan.getGroups(principal);
-        	Set<String> currentSimple = new HashSet<>(currentGroups.keySet());
-		for (MappedGroup gm: result.getGroups())
+		Set<String> currentSimple = new HashSet<>(currentGroups.keySet());
+		for (MappedGroup gm : result.getGroups())
 		{
-		        if (!currentGroups.containsKey(gm.getGroup()))
+			if (!currentGroups.containsKey(gm.getGroup()))
 			{
-				Deque<String> missingGroups = 
-						Group.getMissingGroups(gm.getGroup(), currentSimple);
+				Deque<String> missingGroups = Group.getMissingGroups(gm.getGroup(), currentSimple);
 				log.info("Adding to group " + gm);
-				addToGroupRecursive(principal, missingGroups, currentSimple, gm.getIdp(), 
-						gm.getProfile(), gm.getCreateIfMissing(),
-						attributesByGroup, processedAttributes);
+				addToGroupRecursive(principal, missingGroups, currentSimple, gm.getIdp(),
+						gm.getProfile(), gm.getCreateIfMissing(), attributesByGroup,
+						processedAttributes);
 			} else
 			{
 				log.debug("Entity already in the group " + gm + ", skipping");
@@ -401,9 +391,9 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		}
 		if (result.isCleanStaleGroups())
 			removeStaleMemberships(currentGroups, result, principal);
-		
+
 	}
-	
+
 	private void removeStaleMemberships(Map<String, GroupMembership> currentGroups, MappingResult result,
 			EntityParam principal)
 	{
@@ -415,10 +405,10 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		if (profile == null)
 			profile = "_____MISSING";
 		List<MappedGroup> mappedGroups = result.getGroups();
-		for (GroupMembership membership: currentGroups.values())
+		for (GroupMembership membership : currentGroups.values())
 		{
-			if (!membership.getGroup().equals("/") &&
-				idp.equals(membership.getRemoteIdp()) && profile.equals(membership.getTranslationProfile()))
+			if (!membership.getGroup().equals("/") && idp.equals(membership.getRemoteIdp())
+					&& profile.equals(membership.getTranslationProfile()))
 			{
 				if (!mappedGroups.stream().anyMatch(gm -> membership.getGroup().equals(gm.getGroup())))
 					try
@@ -426,24 +416,23 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 						groupsMan.removeMember(membership.getGroup(), principal);
 					} catch (Exception e)
 					{
-						log.error("Can not remove stale group membership in " 
+						log.error("Can not remove stale group membership in "
 								+ membership.getGroup(), e);
 					}
 			}
 		}
 	}
-	
-	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, 
-			Set<String> currentGroups, String idp, String profile, 
-			GroupEffectMode createMissingGroups, Map<String, List<Attribute>> attributesByGroup,
-			Set<Attribute> processedAttributes) 
-					throws EngineException
+
+	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, Set<String> currentGroups,
+			String idp, String profile, GroupEffectMode createMissingGroups,
+			Map<String, List<Attribute>> attributesByGroup, Set<Attribute> processedAttributes)
+			throws EngineException
 	{
 		String group = missingGroups.pollLast();
 		List<Attribute> attributes = attributesByGroup.get(group);
 		if (attributes == null)
 			attributes = new ArrayList<>();
-		
+
 		boolean present = groupsMan.isPresent(group);
 		if (!present)
 		{
@@ -460,7 +449,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				throw new ExecutionBreakException();
 			} else
 			{
-				log.debug("Entity should be added to a group " + group + " which is missing, ignoring.");
+				log.debug("Entity should be added to a group " + group
+						+ " which is missing, ignoring.");
 				return;
 			}
 		} else
@@ -468,40 +458,38 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
 			processedAttributes.addAll(attributes);
 		}
-		
+
 		currentGroups.add(group);
 		if (!missingGroups.isEmpty())
 		{
-			addToGroupRecursive(who, missingGroups, currentGroups, 
-					idp, profile, createMissingGroups, attributesByGroup, 
-					processedAttributes);
+			addToGroupRecursive(who, missingGroups, currentGroups, idp, profile, createMissingGroups,
+					attributesByGroup, processedAttributes);
 		}
 	}
-	
-	private void processAttributes(MappingResult result, EntityParam principal, 
+
+	private void processAttributes(MappingResult result, EntityParam principal,
 			Set<Attribute> alreadyProcessedAttributes) throws EngineException
 	{
 		Map<String, AttributeExt> existingAttributes = new HashMap<>();
-		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, 
-				false, null, null, false);
-		for (AttributeExt a: existingAttrs)
-			existingAttributes.put(a.getGroupPath()+"///" + a.getName(), a);
+		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, false, null, null, false);
+		for (AttributeExt a : existingAttrs)
+			existingAttributes.put(a.getGroupPath() + "///" + a.getName(), a);
 
 		List<MappedAttribute> attrs = result.getAttributes();
-		
-		for (MappedAttribute attr: attrs)
+
+		for (MappedAttribute attr : attrs)
 		{
 			Attribute att = attr.getAttribute();
 			if (alreadyProcessedAttributes.contains(att))
 				continue;
-			AttributeExt existing = existingAttributes.get(att.getGroupPath()+"///"+att.getName());
+			AttributeExt existing = existingAttributes.get(att.getGroupPath() + "///" + att.getName());
 			switch (attr.getMode())
 			{
 			case CREATE_ONLY:
 				if (existing == null)
 				{
 					log.info("Creating attribute " + att);
-					attrMan.createAttribute(principal, att);					
+					attrMan.createAttribute(principal, att);
 				} else
 				{
 					log.debug("Skipping attribute which is already present: " + att);
@@ -513,20 +501,21 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			case UPDATE_ONLY:
 				if (existing != null)
 				{
-					updateExistingAttribute(att, principal, existing);					
+					updateExistingAttribute(att, principal, existing);
 				} else
 				{
-					log.debug("Skipping attribute to be updated as there is no one defined: " + att);
+					log.debug("Skipping attribute to be updated as there is no one defined: "
+							+ att);
 				}
 				break;
 			}
 		}
-		
+
 		if (result.isCleanStaleAttributes())
 			removeStaleAttributes(result, existingAttrs, principal);
 	}
-	
-	private void updateExistingAttribute(Attribute att, EntityParam principal, AttributeExt existing) 
+
+	private void updateExistingAttribute(Attribute att, EntityParam principal, AttributeExt existing)
 			throws EngineException
 	{
 		if (existing != null && attributesEqual(att, existing))
@@ -537,7 +526,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		log.info("Updating attribute {}", att);
 		attrMan.setAttribute(principal, att);
 	}
-	
+
 	private boolean attributesEqual(Attribute attribute, AttributeExt fromDB)
 	{
 		if (!attribute.getValueSyntax().equals(fromDB.getValueSyntax()))
@@ -545,15 +534,14 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		List<String> values = attribute.getValues();
 		if (values.size() != fromDB.getValues().size())
 			return false;
-		AttributeValueSyntax<?> attrSyntax = attrTypeHelper.getUnconfiguredSyntax(
-				attribute.getValueSyntax());
-		
-		for (int i=0; i<values.size(); i++)
+		AttributeValueSyntax<?> attrSyntax = attrTypeHelper.getUnconfiguredSyntax(attribute.getValueSyntax());
+
+		for (int i = 0; i < values.size(); i++)
 			if (!attrSyntax.areEqualStringValue(values.get(i), fromDB.getValues().get(i)))
 				return false;
 		return true;
 	}
-	
+
 	private void removeStaleAttributes(MappingResult result, Collection<AttributeExt> existingAttrs,
 			EntityParam principal)
 	{
@@ -565,13 +553,14 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		if (profile == null)
 			profile = "_____MISSING";
 		List<MappedAttribute> mappedAttributes = result.getAttributes();
-		for (AttributeExt a: existingAttrs)
+		for (AttributeExt a : existingAttrs)
 		{
 			if (idp.equals(a.getRemoteIdp()) && profile.equals(a.getTranslationProfile()))
 			{
-				if (!mappedAttributes.stream().anyMatch(ma -> 
-						a.getName().equals(ma.getAttribute().getName()) &&
-						a.getGroupPath().equals(ma.getAttribute().getGroupPath())))
+				if (!mappedAttributes.stream()
+						.anyMatch(ma -> a.getName().equals(ma.getAttribute().getName())
+								&& a.getGroupPath().equals(
+										ma.getAttribute().getGroupPath())))
 					try
 					{
 						attrMan.removeAttribute(principal, a.getGroupPath(), a.getName());
@@ -582,19 +571,19 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			}
 		}
 	}
-	
+
 	private void processEntityChanges(MappingResult result, EntityParam principal) throws EngineException
 	{
 		List<EntityChange> changes = result.getEntityChanges();
-		
-		for (EntityChange change: changes)
+
+		for (EntityChange change : changes)
 		{
 			if (change.getScheduledOperation() != null)
-				log.info("Changing entity scheduled operation to " + 
-					change.getScheduledOperation() + " on " + change.getScheduledTime());
+				log.info("Changing entity scheduled operation to " + change.getScheduledOperation()
+						+ " on " + change.getScheduledTime());
 			else
 				log.info("Clearing entity scheduled change operation");
-			idsMan.scheduleEntityChange(principal, change.getScheduledTime(), 
+			idsMan.scheduleEntityChange(principal, change.getScheduledTime(),
 					change.getScheduledOperation());
 		}
 	}

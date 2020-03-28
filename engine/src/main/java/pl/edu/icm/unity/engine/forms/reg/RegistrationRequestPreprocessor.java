@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
+import static pl.edu.icm.unity.JsonUtil.serializeHumanReadable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -65,7 +67,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		if (invitationInfo.isByInvitation())
 		{
 			String code = request.getRegistrationCode();
-			log.debug("Received registration request for invitation " + code + ", removing it");
+			log.debug("Received registration request for invitation {}, removing it", code);
 			removeInvitation(code);
 		}
 	}
@@ -152,6 +154,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		if (invitation.isExpired())
 			throw new IllegalFormContentsException("The invitation has already expired");
 		
+		log.debug("Will apply invitation parameter to the request:\n{}", serializeHumanReadable(invitation.toJson()));
 		processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
 				invitation.getIdentities(), "identity");
 		processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
@@ -159,6 +162,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
 				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
 				"group");
+		log.debug("Request after applying invitation:\n{}", serializeHumanReadable(request.toJson()));
 		return invitationInfo;
 	}
 
