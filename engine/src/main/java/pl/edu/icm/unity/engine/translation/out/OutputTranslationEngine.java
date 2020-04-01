@@ -63,14 +63,13 @@ public class OutputTranslationEngine
 	
 	/**
 	 * Entry point.
-	 * @param result
-	 * @throws EngineException
 	 */
 	public void process(TranslationInput input, TranslationResult result) throws EngineException
 	{
 		persistIdentities(input, result);
 		persistAttributes(input, result);
 		resolveDynamicAttributes(result);
+		log.debug("Output translation result:\n{}", result);
 	}
 	
 	private void persistIdentities(TranslationInput input, TranslationResult result)

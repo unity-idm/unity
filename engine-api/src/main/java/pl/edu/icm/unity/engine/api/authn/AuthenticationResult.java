@@ -46,9 +46,7 @@ public class AuthenticationResult
 	private boolean enableAssociation = true;
 
 	/**
-	 * Used by local varificators
-	 * @param status
-	 * @param authenticatedEntity
+	 * Used by local verificators
 	 */
 	public AuthenticationResult(Status status, AuthenticatedEntity authenticatedEntity)
 	{
@@ -58,9 +56,6 @@ public class AuthenticationResult
 
 	/**
 	 * Used by remote verificators
-	 * @param status
-	 * @param remoteAuthnContext
-	 * @param authenticatedEntity
 	 */
 	public AuthenticationResult(Status status, RemotelyAuthenticatedContext remoteAuthnContext,
 			AuthenticatedEntity authenticatedEntity)
@@ -103,6 +98,13 @@ public class AuthenticationResult
 	public void setEnableAssociation(boolean enableAssociation)
 	{
 		this.enableAssociation = enableAssociation;
+	}
+
+	public String toStringFull()
+	{
+		return "AuthenticationResult: \nstatus=" + status + "\nremoteAuthnContext=" + remoteAuthnContext
+				+ "\nauthenticatedEntity=" + authenticatedEntity + "\nformForUnknownPrincipal="
+				+ formForUnknownPrincipal + "\nenableAssociation=" + enableAssociation;
 	}
 
 	@Override
