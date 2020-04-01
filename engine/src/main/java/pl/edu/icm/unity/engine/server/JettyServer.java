@@ -337,6 +337,12 @@ public class JettyServer implements Lifecycle, NetworkServer
 		SslContextFactory.Server factory = ssl.getSslContextFactory();
 		factory.setNeedClientAuth(serverSettings.getBooleanValue(UnityHttpServerConfiguration.REQUIRE_CLIENT_AUTHN));
 		factory.setWantClientAuth(serverSettings.getBooleanValue(UnityHttpServerConfiguration.WANT_CLIENT_AUTHN));
+		String disabledProtocols = serverSettings.getValue(UnityHttpServerConfiguration.DISABLED_PROTOCOLS);
+		if (disabledProtocols != null)
+		{
+			disabledProtocols = disabledProtocols.trim();
+			factory.setExcludeProtocols(disabledProtocols.split("[ ]+"));
+		}
 		String disabledCiphers = serverSettings.getValue(UnityHttpServerConfiguration.DISABLED_CIPHER_SUITES);
 		if (disabledCiphers != null)
 		{
