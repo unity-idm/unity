@@ -145,6 +145,6 @@ public class RemotelyAuthenticatedInput
 			for (RemoteGroupMembership gr: groups.values())
 				sb.append(" - ").append(gr).append("\n");
 		}
-		return sb.toString();
+		return sb.toString().trim();
 	}
 }
