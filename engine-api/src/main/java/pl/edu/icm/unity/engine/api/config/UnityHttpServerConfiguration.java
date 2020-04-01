@@ -175,7 +175,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 				setDescription("Space separated list of TLS cipher suites to be disabled. "
 						+ "Names of the ciphers must adhere to the standard Java cipher names, available here (search for Cipher Suites): "
 						+ "https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-7093246A-31A3-4304-AC5F-5FB6400405E2"));
-		defaults.put(DISABLED_PROTOCOLS, new PropertyMD().setCategory(advancedCat).
+		defaults.put(DISABLED_PROTOCOLS, new PropertyMD("TLSv1.1 TLSv1").setCategory(advancedCat).
 				setDescription("Space separated list of protocol variants to be disabled. "
 						+ "Names of the protocols are in table named 'Protocol Parametrs' under the link"
 						+ "https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-7093246A-31A3-4304-AC5F-5FB6400405E2"));
