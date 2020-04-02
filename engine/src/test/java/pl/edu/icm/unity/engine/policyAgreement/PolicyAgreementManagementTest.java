@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.policyAgreement;
+package pl.edu.icm.unity.engine.policyAgreement;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,26 +39,6 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 	@Autowired
 	private PolicyDocumentManagement policyDocMan;
 
-	private Long addDoc(String name, boolean mandatory) throws EngineException
-	{
-		return policyDocMan.addPolicyDocument(new PolicyDocumentCreateRequest(name, new I18nString(name),
-				mandatory, PolicyDocumentContentType.EMBEDDED, new I18nString("content")));
-
-	}
-
-	private PolicyAgreementConfiguration getConfig(List<Long> docs)
-	{
-		return new PolicyAgreementConfiguration(docs, PolicyAgreementPresentationType.CHECKBOX_SELECTED,
-				new I18nString("Empty"));
-	}
-
-	private EntityParam addUser() throws EngineException
-	{
-		setupPasswordAuthn();
-		return new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid));
-	}
-
 	@Test
 	public void shouldNotFilterAgreements() throws EngineException
 	{
@@ -91,8 +71,7 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 				user, Arrays.asList(getConfig(Arrays.asList(doc1)), getConfig(Arrays.asList(doc2))));
 
 		assertThat(filterAgreementToPresent.size(), is(1));
-		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc1)));
-		assertThat(filterAgreementToPresent.get(1).documentsIdsToAccept, is(Arrays.asList(doc2)));
+		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc2)));	
 	}
 
 	@Test
@@ -166,5 +145,24 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 		assertThat(filterAgreementToPresent.size(), is(1));
 		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc2)));
 	}
+	
+	private Long addDoc(String name, boolean mandatory) throws EngineException
+	{
+		return policyDocMan.addPolicyDocument(new PolicyDocumentCreateRequest(name, new I18nString(name),
+				mandatory, PolicyDocumentContentType.EMBEDDED, new I18nString("content")));
 
+	}
+
+	private PolicyAgreementConfiguration getConfig(List<Long> docs)
+	{
+		return new PolicyAgreementConfiguration(docs, PolicyAgreementPresentationType.CHECKBOX_SELECTED,
+				new I18nString("Empty"));
+	}
+
+	private EntityParam addUser() throws EngineException
+	{
+		setupPasswordAuthn();
+		return new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
+				EntityState.valid));
+	}
 }
