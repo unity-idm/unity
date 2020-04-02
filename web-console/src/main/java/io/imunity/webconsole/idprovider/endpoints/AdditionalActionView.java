@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.providers;
+package io.imunity.webconsole.idprovider.endpoints;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -14,7 +14,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.idprovider.providers.IdpServicesView.IdpServicesNavigationInfoProvider;
+import io.imunity.webconsole.idprovider.endpoints.IdpServicesView.IdpServicesNavigationInfoProvider;
 import io.imunity.webconsole.spi.services.IdpServiceAdditionalAction;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;

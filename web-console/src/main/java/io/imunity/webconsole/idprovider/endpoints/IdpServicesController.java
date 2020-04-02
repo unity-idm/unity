@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.providers;
+package io.imunity.webconsole.idprovider.endpoints;
 
 import org.springframework.stereotype.Component;
 

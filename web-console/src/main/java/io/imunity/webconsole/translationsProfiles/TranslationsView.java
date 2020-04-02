@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class TranslationsView extends CustomComponent implements UnityView
@@ -64,7 +65,9 @@ public abstract class TranslationsView extends CustomComponent implements UnityV
 		refreshProfileList();
 
 		VerticalLayout main = new VerticalLayout();
-		main.addComponent(new Label(getHeaderCaption()));
+		Label title = new Label(getHeaderCaption());
+		title.setStyleName(Styles.sectionTitle.toString());
+		main.addComponent(title);
 		List<Button> buttons = getButtonsBar();
 		main.addComponent(
 				StandardButtonsHelper.buildTopButtonsBar(buttons.toArray(new Button[buttons.size()])));

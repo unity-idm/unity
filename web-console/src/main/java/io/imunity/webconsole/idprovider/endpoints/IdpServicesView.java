@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.providers;
+package io.imunity.webconsole.idprovider.endpoints;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,7 +123,7 @@ class IdpServicesView extends ServicesViewBase
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.identityProvider.providers");
+		return msg.getMessage("WebConsoleMenu.identityProvider.endpoints");
 	}
 
 	@Component
@@ -135,7 +135,7 @@ class IdpServicesView extends ServicesViewBase
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.identityProvider.providers"))
+					.withCaption(msg.getMessage("WebConsoleMenu.identityProvider.endpoints"))
 					.withIcon(Images.globe.getResource()).withPosition(10).build());
 
 		}

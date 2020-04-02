@@ -3,33 +3,33 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.providers;
+package io.imunity.webconsole.idprovider.endpoints;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.idprovider.providers.IdpServicesView.IdpServicesNavigationInfoProvider;
-import io.imunity.webconsole.services.base.EditServiceViewBase;
+import io.imunity.webconsole.idprovider.endpoints.IdpServicesView.IdpServicesNavigationInfoProvider;
+import io.imunity.webconsole.services.base.NewServiceViewBase;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
- * Shows IDP service editor
+ * Shows new IDP service editor
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-class EditIdpServiceView extends EditServiceViewBase
+class NewIdpServiceView extends NewServiceViewBase
 {
-	public static final String VIEW_NAME = "EditIdpService";
+	public static final String VIEW_NAME = "NewIdpService";
 
 	@Autowired
-	EditIdpServiceView(UnityMessageSource msg, IdpServicesController controller)
+	NewIdpServiceView(UnityMessageSource msg, IdpServicesController controller)
 	{
 		super(msg, controller, IdpServicesView.VIEW_NAME);
 	}
@@ -41,12 +41,12 @@ class EditIdpServiceView extends EditServiceViewBase
 	}
 
 	@Component
-	public static class EditServiceNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class NewServiceNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public EditServiceNavigationInfoProvider(IdpServicesNavigationInfoProvider parent,
-				ObjectFactory<EditIdpServiceView> factory)
+		public NewServiceNavigationInfoProvider(IdpServicesNavigationInfoProvider parent,
+				ObjectFactory<NewIdpServiceView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
