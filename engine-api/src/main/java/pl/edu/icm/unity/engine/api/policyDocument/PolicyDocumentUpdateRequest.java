@@ -19,7 +19,6 @@ public class PolicyDocumentUpdateRequest extends PolicyDocumentCreateRequest
 	{
 		super(name, displayedName, mandatory, contentType, content);
 		this.id = id;
-
 	}
 
 	@Override

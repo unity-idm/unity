@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.engine.api.policyAgreement;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +17,8 @@ public class PolicyAgreementDecision
 	public PolicyAgreementDecision(PolicyAgreementAcceptanceStatus decision, List<Long> documents)
 	{
 		this.acceptanceStatus = decision;
-		this.documentsIdsToAccept = documents;
+		this.documentsIdsToAccept = Collections.unmodifiableList(
+				documents == null ? Collections.emptyList() : documents);
 	}
 
 	@Override

@@ -20,9 +20,9 @@ public class PolicyAgreementConfiguration
 	public PolicyAgreementConfiguration(List<Long> documentsIdsToAccept,
 			PolicyAgreementPresentationType presentationType, I18nString text)
 	{
-		this.documentsIdsToAccept = documentsIdsToAccept == null
-				? Collections.unmodifiableList(Collections.emptyList())
-				: Collections.unmodifiableList(documentsIdsToAccept);
+		this.documentsIdsToAccept = Collections.unmodifiableList(
+				documentsIdsToAccept == null ? Collections.emptyList() : documentsIdsToAccept);
+
 		this.presentationType = presentationType;
 		this.text = text;
 	}

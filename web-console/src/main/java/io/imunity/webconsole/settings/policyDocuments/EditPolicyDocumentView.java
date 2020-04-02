@@ -5,15 +5,15 @@
 
 package io.imunity.webconsole.settings.policyDocuments;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -114,11 +114,11 @@ class EditPolicyDocumentView extends CustomComponent implements UnityView
 
 	private class PolicyUpdateConfirmationDialog extends AbstractDialog
 	{
-		private ComboBox<Boolean> withRevision;
-
 		public PolicyUpdateConfirmationDialog(UnityMessageSource msg)
 		{
-			super(msg, msg.getMessage("EditPolicyDocumentView.confirm"), msg.getMessage("ok") , null);
+			super(msg, msg.getMessage("EditPolicyDocumentView.confirm"),
+					msg.getMessage("EditPolicyDocumentView.saveOfficialUpdate"),
+					msg.getMessage("cancel"));
 			setSizeEm(60, 15);
 		}
 
@@ -126,23 +126,35 @@ class EditPolicyDocumentView extends CustomComponent implements UnityView
 		protected com.vaadin.ui.Component getContents() throws Exception
 		{
 			VerticalLayout main = new VerticalLayout();
-			withRevision = new ComboBox<>();
-			withRevision.setItems(Arrays.asList(true, false));
-			withRevision.setItemCaptionGenerator(i -> msg.getMessage(
-					"EditPolicyDocumentView.update" + (i ? "WithRevision" : "WithoutRevision")));
-			withRevision.setValue(false);
-			withRevision.setEmptySelectionAllowed(false);
-			withRevision.setWidth(100, Unit.PERCENTAGE);
-			main.addComponent(withRevision);
+			Label info = new Label(msg.getMessage("EditPolicyDocumentView.updateInfo"));
+			info.setWidth(100, Unit.PERCENTAGE);
+			main.addComponent(info);
 			return main;
 		}
 
 		@Override
 		protected void onConfirm()
 		{
+			confirm(true);
+		}
+
+		@Override
+		protected AbstractOrderedLayout getButtonsBar()
+		{
+			Button button = new Button();
+			button.setCaption(msg.getMessage("EditPolicyDocumentView.saveSilently"));
+			button.addStyleName("u-dialog-confirm");
+			button.addClickListener(e -> confirm(false));
+			AbstractOrderedLayout l =  super.getButtonsBar();
+			l.addComponent(button, 1);
+			return l;
+		}
+		
+		private void confirm(Boolean withRevision)
+		{
 			try
 			{
-				controller.updatePolicyDocument(editor.getUpdateRequest(), withRevision.getValue());
+				controller.updatePolicyDocument(editor.getUpdateRequest(), withRevision);
 
 			} catch (ControllerException e)
 			{
@@ -152,7 +164,6 @@ class EditPolicyDocumentView extends CustomComponent implements UnityView
 			}
 			close();
 			NavigationHelper.goToView(PolicyDocumentsView.VIEW_NAME);
-
 		}
 	}
 

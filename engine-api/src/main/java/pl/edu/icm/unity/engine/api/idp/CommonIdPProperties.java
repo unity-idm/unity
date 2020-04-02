@@ -118,10 +118,10 @@ public class CommonIdPProperties
 		defaults.put(POLICY_AGREEMENTS_INFO, new PropertyMD().setCanHaveSubkeys()
 				.setDescription("Policy acceptanance view additional information"));
 		defaults.put(POLICY_AGREEMENTS_PFX, new PropertyMD().setStructuredList(true).setDescription(
-				"Under this prefix it is possible to configure a separate policy agreement"));
+				"Individual policy agreement items are configured under this prefix"));
 		defaults.put(POLICY_AGREEMENT_DOCUMENTS,
 				new PropertyMD().setStructuredListEntry(POLICY_AGREEMENTS_PFX).setDescription(
-						"List of policy documents ids which are subject to acceptance"));
+						"List of policy documents ids included in the item"));
 		defaults.put(POLICY_AGREEMENT_PRESENTATION_TYPE,
 				new PropertyMD().setStructuredListEntry(POLICY_AGREEMENTS_PFX)
 						.setDescription("Policy agreement presentation type"));
