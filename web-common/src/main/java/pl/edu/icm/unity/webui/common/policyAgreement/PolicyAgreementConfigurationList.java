@@ -15,9 +15,9 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementPresentationTy
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 
-public class PolicyAgreementList extends ListOfDnDCollapsableElements<PolicyAgreementConfiguration>
+public class PolicyAgreementConfigurationList extends ListOfDnDCollapsableElements<PolicyAgreementConfiguration>
 {
-	public PolicyAgreementList(UnityMessageSource msg,
+	public PolicyAgreementConfigurationList(UnityMessageSource msg,
 			Supplier<Editor<PolicyAgreementConfiguration>> editorProvider)
 	{
 		super(msg, editorProvider, msg.getMessage("PolicyAgreementList.items"));

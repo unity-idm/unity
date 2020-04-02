@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.policyDocuments;
+package pl.edu.icm.unity.engine.policyDocument;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

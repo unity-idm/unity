@@ -8,6 +8,7 @@ package pl.edu.icm.unity.engine.api.idp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.I18nString;
@@ -33,6 +34,22 @@ public class IdpPolicyAgreementsConfiguration
 	}
 
 	
-	
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (!(other instanceof IdpPolicyAgreementsConfiguration))
+			return false;
+		IdpPolicyAgreementsConfiguration castOther = (IdpPolicyAgreementsConfiguration) other;
+		return Objects.equals(title, castOther.title)
+				&& Objects.equals(information, castOther.information)
+				&& Objects.equals(agreements, castOther.agreements);
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(title, information, agreements);
+	}
 	
 }

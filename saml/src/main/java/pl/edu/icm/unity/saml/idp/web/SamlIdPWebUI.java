@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -36,10 +38,13 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
@@ -53,6 +58,7 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
@@ -81,6 +87,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected StandardWebAuthenticationProcessor authnProcessor;
 	protected SessionManagement sessionMan;
 	protected ImageAccessService imageAccessService;
+	protected PolicyAgreementManagement policyAgreementsMan;
+	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
 	
 	protected AuthnResponseProcessor samlProcessor;
 	protected SamlResponseHandler samlResponseHandler;
@@ -97,7 +105,9 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan, 
 			AttributeTypeManagement attrsMan, 
 			EnquiresDialogLauncher enquiryDialogLauncher,
-			AttributeTypeSupport aTypeSupport)
+			AttributeTypeSupport aTypeSupport,
+			PolicyAgreementManagement policyAgreementsMan,
+			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -111,6 +121,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		this.sessionMan = sessionMan;
 		this.attrTypeMan = attrsMan;
 		this.aTypeSupport = aTypeSupport;
+		this.policyAgreementsMan = policyAgreementsMan;
+		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -129,6 +141,35 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected void enter(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+		SamlIdpProperties samlConfiguration = samlCtx.getSamlConfiguration();
+		List<PolicyAgreementConfiguration> filterAgreementToPresent = new ArrayList<>();
+		try
+		{
+			filterAgreementToPresent.addAll(policyAgreementsMan.filterAgreementToPresent(
+					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+					CommonIdPProperties.getPolicyAgreementsConfig(msg, samlConfiguration).agreements));
+		} catch (EngineException e)
+		{
+			log.error("Unable to determine policy agreements to accept");
+		}
+
+		if (!filterAgreementToPresent.isEmpty())
+		{
+			setContent(policyAgreementScreenObjectFactory.getObject()
+					.withTitle(samlConfiguration.getLocalizedStringWithoutFallbackToDefault(msg,
+							CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
+					.withInfo(samlConfiguration.getLocalizedStringWithoutFallbackToDefault(msg,
+							CommonIdPProperties.POLICY_AGREEMENTS_INFO))
+					.withAgreements(filterAgreementToPresent)
+					.withSubmitHandler(() -> activeValueSelectionAndConsentStage(samlCtx, samlConfiguration)));
+		} else
+		{
+			activeValueSelectionAndConsentStage(samlCtx, samlConfiguration);
+		}
+	}
+
+	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SamlIdpProperties samlConfiguration)
+	{
 		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
@@ -153,7 +194,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		Collection<DynamicAttribute> allAttributes = translationResult.getAttributes();
 		
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = 
-				CommonIdPProperties.getActiveValueSelectionConfig(samlCtx.getSamlConfiguration(), 
+				CommonIdPProperties.getActiveValueSelectionConfig(samlConfiguration, 
 						samlProcessor.getRequestIssuer(), allAttributes);
 		
 		if (activeValueSelectionConfig.isPresent())

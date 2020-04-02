@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api.policyAgreement;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import pl.edu.icm.unity.types.I18nString;
 
@@ -19,9 +20,29 @@ public class PolicyAgreementConfiguration
 	public PolicyAgreementConfiguration(List<Long> documentsIdsToAccept,
 			PolicyAgreementPresentationType presentationType, I18nString text)
 	{
-		this.documentsIdsToAccept = documentsIdsToAccept == null ? Collections.unmodifiableList(Collections.emptyList())
-				: Collections.unmodifiableList(documentsIdsToAccept);;
+		this.documentsIdsToAccept = documentsIdsToAccept == null
+				? Collections.unmodifiableList(Collections.emptyList())
+				: Collections.unmodifiableList(documentsIdsToAccept);
 		this.presentationType = presentationType;
 		this.text = text;
 	}
+
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (!(other instanceof PolicyAgreementConfiguration))
+			return false;
+		PolicyAgreementConfiguration castOther = (PolicyAgreementConfiguration) other;
+		return Objects.equals(documentsIdsToAccept, castOther.documentsIdsToAccept)
+				&& Objects.equals(presentationType, castOther.presentationType)
+				&& Objects.equals(text, castOther.text);
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(documentsIdsToAccept, presentationType, text);
+	}
+
 }

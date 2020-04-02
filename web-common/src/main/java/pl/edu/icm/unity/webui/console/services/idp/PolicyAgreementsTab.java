@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationEditor;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementList;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
@@ -69,7 +69,7 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		I18nTextField info = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.info"));
 		info.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		binder.forField(info).bind("information");
-		PolicyAgreementList list = new PolicyAgreementList(msg,
+		PolicyAgreementConfigurationList list = new PolicyAgreementConfigurationList(msg,
 				() -> new PolicyAgreementConfigurationEditor(msg, policyDocuments));
 		binder.forField(list).withValidator((v, c) -> {
 			for (PolicyAgreementConfiguration con : v)

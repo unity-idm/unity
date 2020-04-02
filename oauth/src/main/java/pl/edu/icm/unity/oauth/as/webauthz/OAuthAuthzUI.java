@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -24,36 +27,43 @@ import com.vaadin.server.VaadinRequest;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
 
 /**
- * UI of the authorization endpoint. Presents active value selection for attributes if configured. 
- * When attributes are obtained then consent screen is presented.
- *  
+ * UI of the authorization endpoint. Presents active value selection for
+ * attributes if configured. When attributes are obtained then consent screen is
+ * presented.
+ * 
  * @author K. Benedyczak
  */
 @Component("OAuthAuthzUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class OAuthAuthzUI extends UnityEndpointUIBase 
+public class OAuthAuthzUI extends UnityEndpointUIBase
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 
@@ -63,22 +73,23 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private final PreferencesManagement preferencesMan;
 	private final StandardWebAuthenticationProcessor authnProcessor;
 	private final IdentityTypeSupport idTypeSupport;
-	private final AttributeTypeSupport aTypeSupport; 
+	private final AttributeTypeSupport aTypeSupport;
 	private final SessionManagement sessionMan;
-	private final OAuthProcessor oauthProcessor; 
+	private final OAuthProcessor oauthProcessor;
+	private final PolicyAgreementManagement policyAgreementsMan;
 
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
-
-
+	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
+	
 	@Autowired
 	public OAuthAuthzUI(UnityMessageSource msg, OAuthProcessor oauthProcessor,
-			AttributeHandlerRegistry handlersRegistry,
-			PreferencesManagement preferencesMan,
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			EnquiresDialogLauncher enquiryDialogLauncher,
-			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
-			SessionManagement sessionMan)
+			EnquiresDialogLauncher enquiryDialogLauncher, IdentityTypeSupport idTypeSupport,
+			AttributeTypeSupport aTypeSupport, SessionManagement sessionMan,
+			PolicyAgreementManagement policyAgreementsMan,
+			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -90,6 +101,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.idTypeSupport = idTypeSupport;
 		this.aTypeSupport = aTypeSupport;
+		this.policyAgreementsMan = policyAgreementsMan;
+		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 	}
 
 	@Override
@@ -97,6 +110,35 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	{
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		OAuthASProperties config = ctx.getConfig();
+		
+		List<PolicyAgreementConfiguration> filterAgreementToPresent = new ArrayList<>();
+		try
+		{
+			filterAgreementToPresent.addAll(policyAgreementsMan.filterAgreementToPresent(
+					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+					CommonIdPProperties.getPolicyAgreementsConfig(msg, config).agreements));
+		} catch (EngineException e)
+		{
+			log.error("Unable to determine policy agreements to accept");
+		}
+
+		if (!filterAgreementToPresent.isEmpty())
+		{
+			setContent(policyAgreementScreenObjectFactory.getObject()
+					.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
+							CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
+					.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
+							CommonIdPProperties.POLICY_AGREEMENTS_INFO))
+					.withAgreements(filterAgreementToPresent)
+					.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
+		} else
+		{
+			activeValueSelectionAndConsentStage(ctx, config);
+		}
+	}
+
+	private void activeValueSelectionAndConsentStage(OAuthAuthzContext ctx, OAuthASProperties config)
+	{
 		
 		TranslationResult translationResult;
 		try
@@ -107,21 +149,21 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		{
 			return;
 		}
+
 		identity = idpEngine.getIdentity(translationResult, ctx.getConfig().getSubjectIdentityType());
 
-		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult, 
+		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
 				ctx.getEffectiveRequestedAttrs());
-		
-		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = 
-				CommonIdPProperties.getActiveValueSelectionConfig(config, ctx.getClientUsername(),
-						allAttributes);
-		
+
+		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = CommonIdPProperties
+				.getActiveValueSelectionConfig(config, ctx.getClientUsername(), allAttributes);
+
 		if (activeValueSelectionConfig.isPresent())
 			showActiveValueSelectionScreen(activeValueSelectionConfig.get());
 		else
 			gotoConsentStage(allAttributes);
 	}
-	
+
 	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
 		if (OAuthContextUtils.getContext().getConfig().isSkipConsent())
@@ -129,24 +171,17 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			onFinalConfirm(identity, attributes);
 			return;
 		}
-		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, 
-				preferencesMan, authnProcessor, 
-				idTypeSupport, 
-				aTypeSupport, sessionMan, 
-				identity, attributes,
-				this::onDecline,
-				this::onFinalConfirm);
+		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
+				authnProcessor, idTypeSupport, aTypeSupport, sessionMan, identity, attributes,
+				this::onDecline, this::onFinalConfirm);
 		setContent(consentScreen);
 	}
 
 	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config)
 	{
-		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, 
-				handlersRegistry, authnProcessor, 
-				config.singleSelectableAttributes, config.multiSelectableAttributes,
-				config.remainingAttributes,
-				this::onDecline,
-				this::gotoConsentStage);
+		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
+				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
+				config.remainingAttributes, this::onDecline, this::gotoConsentStage);
 		setContent(valueSelectionScreen);
 	}
 
@@ -162,17 +197,18 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
-			//we kill the session as the user may want to log as different user 
-			//if has access to several entities.
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
+			// we kill the session as the user may want to log as
+			// different user
+			// if has access to several entities.
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
 			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
 		}
-		return null; //not reachable
+		return null; // not reachable
 	}
-	
-	private void handleRedirectIfNeeded(TranslationResult userInfo) throws EopException 
+
+	private void handleRedirectIfNeeded(TranslationResult userInfo) throws EopException
 	{
 		String redirectURL = userInfo.getRedirectURL();
 		if (redirectURL != null)
@@ -181,29 +217,29 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			throw new EopException();
 		}
 	}
-	
+
 	private void onDecline()
 	{
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
-		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
+		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());
 		oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 	}
-	
+
 	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
 	{
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		try
 		{
-			AuthorizationSuccessResponse oauthResponse = oauthProcessor.
-					prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
-			
+			AuthorizationSuccessResponse oauthResponse = oauthProcessor
+					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
+
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)
 		{
 			log.error("Error during OAuth processing", e);
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);

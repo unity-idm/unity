@@ -197,10 +197,14 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	{
 		if (focused != null)
 		{
-			focused.setValue(focused.getValue() + text.getValueRaw(translationTFs.entrySet().stream()
+			String v = focused.getValue();
+			String st = v.substring(0, focused.getCursorPosition());
+			String fi = v.substring(focused.getCursorPosition());
+			String toInsert = text.getValueRaw(translationTFs.entrySet().stream()
 					.filter(entry -> entry.getValue().equals(focused)).map(Map.Entry::getKey)
-					.findFirst().orElse(msg.getDefaultLocaleCode())));
-			focused.focus();
+					.findFirst().orElse(msg.getDefaultLocaleCode()));
+			focused.setValue(st + toInsert + fi);
+			focused.setCursorPosition(st.length() + toInsert.length());
 		}
 	}
 

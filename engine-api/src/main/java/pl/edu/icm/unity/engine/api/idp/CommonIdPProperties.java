@@ -224,14 +224,14 @@ public class CommonIdPProperties
 				.collect(Collectors.toList());
 	}
 
-	public static IdpPolicyAgreementsConfiguration getActiveValueSelectionConfig(UnityMessageSource msg, UnityPropertiesHelper cfg)
+	public static IdpPolicyAgreementsConfiguration getPolicyAgreementsConfig(UnityMessageSource msg, UnityPropertiesHelper cfg)
 	{
 		return IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, cfg);
 	}
 
 	public static boolean isIdpPolicyAgreementsConfigured(UnityMessageSource msg, UnityPropertiesHelper cfg)
 	{
-		return !getActiveValueSelectionConfig(msg, cfg).agreements.isEmpty();
+		return !getPolicyAgreementsConfig(msg, cfg).agreements.isEmpty();
 	}
 	
 	public static class ActiveValueSelectionConfig

@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webui.common.policyAgreement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -115,11 +116,11 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 
 	private ValidationResult validateText(I18nString text)
 	{
-		List<Long> searchAllDocIds;
+		Set<Long> searchAllDocIds;
 		try
 		{
-			searchAllDocIds = PolicyAgreementConfigTextParser.searchAllDocIdsInConfigText(
-					PolicyAgreementConfigTextParser.convertTextToConfig(policyDocuments, text));
+			searchAllDocIds = PolicyAgreementConfigTextParser.getAllDocsPlaceholdersInConfigText(
+					PolicyAgreementConfigTextParser.convertTextToConfig(policyDocuments, text)).keySet();
 		} catch (Exception e1)
 		{
 			return ValidationResult.error(msg.getMessage("PolicyAgreementConfigEditor.invalidText"));
