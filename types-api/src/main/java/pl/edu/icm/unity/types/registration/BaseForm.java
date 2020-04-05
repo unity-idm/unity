@@ -24,6 +24,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectROImpl;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -50,6 +51,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>());
 	private FormLayoutSettings layoutSettings = FormLayoutSettings.DEFAULT;
 	private List<RegistrationWrapUpConfig> wrapUpConfig = new ArrayList<>();
+	private List<PolicyAgreementConfiguration> policyAgreements = new ArrayList<>();
 	private boolean byInvitationOnly;
 	
 	@JsonCreator
@@ -130,6 +132,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("PageTitle", jsonMapper.valueToTree(getPageTitle()));
 		root.set("WrapUpConfig", jsonMapper.valueToTree(getWrapUpConfig()));
 		root.put("ByInvitationOnly", isByInvitationOnly());
+		root.set("PolicyAgreements", jsonMapper.valueToTree(getPolicyAgreements()));
 		return root;
 	}
 
@@ -219,6 +222,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			n = root.get("ByInvitationOnly");
 			if (n != null && !n.isNull())
 				setByInvitationOnly(n.asBoolean());
+			
+			n = root.get("PolicyAgreements");
+			if (n != null && !n.isNull())
+				setPolicyAgreements(jsonMapper.convertValue(n, new TypeReference<List<PolicyAgreementConfiguration>>(){}));
 			
 		} catch (Exception e)
 		{
@@ -440,6 +447,16 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		return !credentialParams.isEmpty();
 	}
 	
+	public List<PolicyAgreementConfiguration> getPolicyAgreements()
+	{
+		return policyAgreements;
+	}
+
+	public void setPolicyAgreements(List<PolicyAgreementConfiguration> policyAgreements)
+	{
+		this.policyAgreements = policyAgreements;
+	}
+	
 	public abstract BaseFormNotifications getNotificationsConfiguration();
 	
 	@Override
@@ -457,6 +474,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				&& Objects.equals(groupParams, castOther.groupParams)
 				&& Objects.equals(credentialParams, castOther.credentialParams)
 				&& Objects.equals(agreements, castOther.agreements)
+				&& Objects.equals(policyAgreements, castOther.policyAgreements)
 				&& Objects.equals(collectComments, castOther.collectComments)
 				&& Objects.equals(displayedName, castOther.displayedName)
 				&& Objects.equals(formInformation, castOther.formInformation)
@@ -470,7 +488,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	public int hashCode()
 	{
 		return Objects.hash(super.hashCode(), identityParams, attributeParams, groupParams, credentialParams,
-				agreements, collectComments, displayedName, formInformation, translationProfile, 
+				agreements, policyAgreements, collectComments, displayedName, formInformation, translationProfile, 
 				layoutSettings, wrapUpConfig, byInvitationOnly);
 	}
 }

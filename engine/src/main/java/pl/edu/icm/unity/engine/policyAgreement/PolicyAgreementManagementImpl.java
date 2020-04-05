@@ -18,40 +18,40 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
+import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.types.StoredPolicyDocument;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
 
 @Component
 public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 {
-	public static final String POLICY_AGREEMENT_STATE = "sys:policy-agreement-state";
-
 	private AttributesManagement attrMan;
-	private PolicyDocumentManagement policyDocMan;
+	private PolicyDocumentDAO policyDocDao;
 
 	public PolicyAgreementManagementImpl(@Qualifier("insecure") AttributesManagement attrMan,
-			PolicyDocumentManagement policyDocMan)
+			PolicyDocumentDAO policyDocDao)
 	{
 		this.attrMan = attrMan;
-		this.policyDocMan = policyDocMan;
+		this.policyDocDao = policyDocDao;
 	}
 
+	@Transactional
 	@Override
 	public List<PolicyAgreementConfiguration> filterAgreementToPresent(EntityParam entity,
 			List<PolicyAgreementConfiguration> toFilter) throws EngineException
 	{
-
 		List<PolicyAgreementConfiguration> filteredAgreements = new ArrayList<>();
-		List<PolicyAgreementStateValue> states = getState(entity);
-		Collection<PolicyDocumentWithRevision> policyDocuments = policyDocMan.getPolicyDocuments();
+		List<PolicyAgreementState> states = getPolicyAgreementsStatus(entity);
+		Collection<StoredPolicyDocument> policyDocuments = policyDocDao.getAll();
 		for (PolicyAgreementConfiguration config : toFilter)
 		{
 			if (isPolicyAgreementConfigShouldBePresent(config, states, policyDocuments))
@@ -63,16 +63,16 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 	}
 
 	private boolean isPolicyAgreementConfigShouldBePresent(PolicyAgreementConfiguration config,
-			List<PolicyAgreementStateValue> states, Collection<PolicyDocumentWithRevision> policyDocuments)
+			List<PolicyAgreementState> states, Collection<StoredPolicyDocument> policyDocuments)
 	{
 		for (Long id : config.documentsIdsToAccept)
 		{
-			Optional<PolicyDocumentWithRevision> doc = policyDocuments.stream().filter(d -> d.id == id)
+			Optional<StoredPolicyDocument> doc = policyDocuments.stream().filter(d -> d.getId() == id)
 					.findFirst();
 			if (!doc.isPresent())
 				continue;
 
-			Optional<PolicyAgreementStateValue> status = filterState(id, states);
+			Optional<PolicyAgreementState> status = filterState(id, states);
 			if (isDocumentShouldBePreseneted(doc.get(), status))
 			{
 				return true;
@@ -82,15 +82,15 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 		return false;
 	}
 
-	private boolean isDocumentShouldBePreseneted(PolicyDocumentWithRevision doc,
-			Optional<PolicyAgreementStateValue> state)
+	private boolean isDocumentShouldBePreseneted(StoredPolicyDocument doc,
+			Optional<PolicyAgreementState> state)
 	{
 		if (!state.isPresent())
 		{
 			return true;
 		}
 
-		if (doc.mandatory)
+		if (doc.isMandatory())
 		{
 			return isMandatoryDocShouldBePresented(doc, state);
 		} else
@@ -100,13 +100,13 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 
 	}
 
-	private boolean isOptionalDocShouldBePresented(PolicyDocumentWithRevision doc,
-			Optional<PolicyAgreementStateValue> state)
+	private boolean isOptionalDocShouldBePresented(StoredPolicyDocument doc,
+			Optional<PolicyAgreementState> state)
 	{
-		PolicyAgreementStateValue stateR = state.get();
+		PolicyAgreementState stateR = state.get();
 		if (stateR.acceptanceStatus == PolicyAgreementAcceptanceStatus.ACCEPTED)
 		{
-			if (doc.revision > stateR.policyDocumentRevision)
+			if (doc.getRevision() > stateR.policyDocumentRevision)
 			{
 				return true;
 			}
@@ -115,17 +115,16 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 		return false;
 	}
 
-	boolean isMandatoryDocShouldBePresented(PolicyDocumentWithRevision doc,
-			Optional<PolicyAgreementStateValue> state)
+	boolean isMandatoryDocShouldBePresented(StoredPolicyDocument doc, Optional<PolicyAgreementState> state)
 	{
-		PolicyAgreementStateValue stateR = state.get();
+		PolicyAgreementState stateR = state.get();
 
 		if (stateR.acceptanceStatus != PolicyAgreementAcceptanceStatus.ACCEPTED)
 		{
 			return true;
 		}
 
-		if (doc.revision > stateR.policyDocumentRevision)
+		if (doc.getRevision() > stateR.policyDocumentRevision)
 		{
 			return true;
 		}
@@ -133,90 +132,98 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 		return false;
 	}
 
-	private Optional<PolicyAgreementStateValue> filterState(Long id, List<PolicyAgreementStateValue> states)
+	private Optional<PolicyAgreementState> filterState(Long id, List<PolicyAgreementState> states)
 	{
 
 		return states.stream().filter(s -> s.policyDocumentId == id).findFirst();
 	}
 
-	private List<PolicyAgreementStateValue> getState(EntityParam entity) throws EngineException
+	@Override
+	public List<PolicyAgreementState> getPolicyAgreementsStatus(EntityParam entity) throws EngineException
 	{
-		List<PolicyAgreementStateValue> ret = new ArrayList<>();
+		List<PolicyAgreementState> ret = new ArrayList<>();
 
-		Collection<AttributeExt> attributes = attrMan.getAttributes(entity, "/", POLICY_AGREEMENT_STATE);
+		Collection<AttributeExt> attributes = attrMan.getAttributes(entity, "/",
+				PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE);
 		if (attributes.isEmpty())
 			return ret;
 
 		for (String v : attributes.iterator().next().getValues())
 		{
-			ret.add(PolicyAgreementStateValue.fromJson(v));
+			ret.add(PolicyAgreementState.fromJson(v));
 		}
 
 		return ret;
 	}
 
+	@Transactional
 	@Override
 	public void submitDecisions(EntityParam entity, List<PolicyAgreementDecision> decisions) throws EngineException
 	{
 
-		Map<Long, PolicyDocumentWithRevision> policyDocuments = policyDocMan.getPolicyDocuments().stream()
-				.collect(Collectors.toMap(d -> d.id, d -> d));
+		Map<Long, StoredPolicyDocument> policyDocuments = policyDocDao.getAll().stream()
+				.collect(Collectors.toMap(d -> d.getId(), d -> d));
 
-		List<PolicyAgreementStateValue> states = new ArrayList<>();
-
+		List<PolicyAgreementState> states = new ArrayList<>();
 		Date time = new Date();
-
-		for (PolicyAgreementDecision decision : decisions)
+		for (PolicyAgreementDecision decision : (Iterable<PolicyAgreementDecision>) decisions.stream()
+				.filter(d -> d != null)::iterator)
 		{
 			for (Long docId : decision.documentsIdsToAccept)
 			{
-				states.add(new PolicyAgreementStateValue(docId, policyDocuments.get(docId).revision,
-						decision.acceptanceStatus, time));
+				states.add(new PolicyAgreementState(docId,
+						policyDocuments.get(docId).getRevision(), decision.acceptanceStatus,
+						time));
 			}
 
 		}
-
 		setState(entity, states);
-
 	}
 
-	private void setState(EntityParam entity, List<PolicyAgreementStateValue> states) throws EngineException
+	private void setState(EntityParam entity, List<PolicyAgreementState> states) throws EngineException
 	{
 
-		Collection<AttributeExt> attributes = attrMan.getAttributes(entity, "/", POLICY_AGREEMENT_STATE);
+		if (states.isEmpty())
+		{
+			return;
+		}
+		Collection<AttributeExt> attributes = attrMan.getAttributes(entity, "/",
+				PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE);
 		if (attributes.isEmpty())
 		{
 			attrMan.setAttribute(entity,
-					StringAttribute.of(POLICY_AGREEMENT_STATE, "/", mapValues(states)));
+					StringAttribute.of(PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE,
+							"/", mapValues(states)));
 		} else
 		{
-			Map<Long, PolicyAgreementStateValue> actual = new HashMap<>();
+			Map<Long, PolicyAgreementState> actual = new HashMap<>();
 			for (String orgval : attributes.stream().findFirst().get().getValues())
 			{
-				PolicyAgreementStateValue value = PolicyAgreementStateValue.fromJson(orgval);
+				PolicyAgreementState value = PolicyAgreementState.fromJson(orgval);
 				actual.put(value.policyDocumentId, value);
 			}
 
-			for (PolicyAgreementStateValue state : states)
+			for (PolicyAgreementState state : states)
 			{
 				actual.put(state.policyDocumentId, state);
 			}
 
 			List<String> stringVals = new ArrayList<>();
-			for (PolicyAgreementStateValue sv : actual.values())
+			for (PolicyAgreementState sv : actual.values())
 			{
 				stringVals.add(sv.toJson());
 			}
 
 			attrMan.setAttribute(entity,
-					StringAttribute.of(POLICY_AGREEMENT_STATE, "/", mapValues(actual.values())));
+					StringAttribute.of(PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE,
+							"/", mapValues(actual.values())));
 		}
 	}
 
-	private List<String> mapValues(Collection<PolicyAgreementStateValue> states) throws EngineException
+	private List<String> mapValues(Collection<PolicyAgreementState> states) throws EngineException
 	{
 		List<String> stringVals = new ArrayList<>();
-		for (PolicyAgreementStateValue sv : states)
+		for (PolicyAgreementState sv : states)
 		{
 			stringVals.add(sv.toJson());
 		}

@@ -21,10 +21,10 @@ import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements.Editor;

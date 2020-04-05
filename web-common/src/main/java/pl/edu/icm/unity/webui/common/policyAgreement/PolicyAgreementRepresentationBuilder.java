@@ -17,13 +17,13 @@ import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser.DocPlaceholder;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 
 /**
  * Builds single policy agreement configuration representation.
@@ -56,6 +56,12 @@ public class PolicyAgreementRepresentationBuilder
 				agreementConfig.presentationType,
 				resolvedDocs.stream().filter(d -> d.mandatory).findFirst().isPresent());
 	}
+	
+	public String getAgreementRepresentationText(PolicyAgreementConfiguration agreementConfig)
+	{
+		List<PolicyDocumentWithRevision> resolvedDocs = resolvePolicyDoc(agreementConfig.documentsIdsToAccept);
+		return getAgreementTextRepresentation(agreementConfig.text, resolvedDocs);
+	}
 
 	private List<PolicyDocumentWithRevision> resolvePolicyDoc(List<Long> docs)
 	{
@@ -73,6 +79,8 @@ public class PolicyAgreementRepresentationBuilder
 	private String getAgreementTextRepresentation(I18nString agreementText, List<PolicyDocumentWithRevision> docs)
 	{
 		String text = agreementText.getValue(msg);
+		if (text == null)
+			return "";
 		Map<Long, DocPlaceholder> allDocsPlaceholdersInConfigText = PolicyAgreementConfigTextParser
 				.getAllDocsPlaceholdersInConfigText(text);
 		String ret = new String(text);

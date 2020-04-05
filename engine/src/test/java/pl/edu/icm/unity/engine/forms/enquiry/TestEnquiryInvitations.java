@@ -50,6 +50,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseBuilder;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
@@ -85,7 +86,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		InvitationWithCode invitationWithCode = getIdentityInvitation();
 		txRunner.runInTransactionThrowing(() -> {
 			invitationDB.create(invitationWithCode);
-			validator.validateSubmittedResponse(getIdentityForm(ConfirmationMode.ON_SUBMIT), response,
+			validator.validateSubmittedResponse(getIdentityForm(ConfirmationMode.ON_SUBMIT), getEnquiryResponseState(response),
 					true);
 		});
 
@@ -100,8 +101,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 
 		txRunner.runInTransactionThrowing(() -> {
 			invitationDB.create(invitationWithCode);
-			validator.validateSubmittedResponse(getIdentityForm(ConfirmationMode.ON_ACCEPT), response,
-					true);
+			validator.validateSubmittedResponse(getIdentityForm(ConfirmationMode.ON_ACCEPT),
+					getEnquiryResponseState(response), true);
 		});
 
 		assertThat(response.getIdentities().get(0).isConfirmed(), is(true));
@@ -114,7 +115,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		txRunner.runInTransactionThrowing(() -> {
 			invitationDB.create(invitationWithCode);
-			validator.validateSubmittedResponse(getAttributeForm(ConfirmationMode.ON_SUBMIT), response,
+			validator.validateSubmittedResponse(getAttributeForm(ConfirmationMode.ON_SUBMIT), 
+					getEnquiryResponseState(response),
 					true);
 		});
 
@@ -129,7 +131,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		txRunner.runInTransactionThrowing(() -> {
 			invitationDB.create(invitationWithCode);
-			validator.validateSubmittedResponse(getAttributeForm(ConfirmationMode.ON_ACCEPT), response,
+			validator.validateSubmittedResponse(getAttributeForm(ConfirmationMode.ON_ACCEPT), 
+					getEnquiryResponseState(response),
 					true);
 		});
 
@@ -144,7 +147,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		InvitationWithCode invitationWithCode = getIdentityInvitation();
 		txRunner.runInTransactionThrowing(() -> {
 			invitationDB.create(invitationWithCode);
-			validator.validateSubmittedResponse(getIdentityForm(ConfirmationMode.DONT_CONFIRM), response,
+			validator.validateSubmittedResponse(getIdentityForm(ConfirmationMode.DONT_CONFIRM), 
+					getEnquiryResponseState(response),
 					true);
 		});
 
@@ -158,7 +162,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		txRunner.runInTransactionThrowing(() -> {
 			invitationDB.create(invitationWithCode);
-			validator.validateSubmittedResponse(getAttributeForm(ConfirmationMode.DONT_CONFIRM), response,
+			validator.validateSubmittedResponse(getAttributeForm(ConfirmationMode.DONT_CONFIRM), 
+					getEnquiryResponseState(response),
 					true);
 		});
 
@@ -305,6 +310,13 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		assertThat(contents.getMembers().iterator().next().getEntityId(), is(entity.getId()));
 	}
 
+	private EnquiryResponseState getEnquiryResponseState(EnquiryResponse response)
+	{
+		EnquiryResponseState state = new EnquiryResponseState();
+		state.setRequest(response);
+		return state;
+	}
+	
 	private EnquiryForm getAttributeForm(ConfirmationMode confirmationMode)
 	{
 		return new EnquiryFormBuilder().withName("form").withType(EnquiryType.REQUESTED_OPTIONAL)

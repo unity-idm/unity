@@ -44,6 +44,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
@@ -73,6 +74,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
@@ -122,10 +124,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
 			SignUpAuthNController signUpAuthNController,
-			URLQueryPrefillCreator urlQueryPrefillCreator)
+			URLQueryPrefillCreator urlQueryPrefillCreator, 
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService);
+				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService,
+				policyAgreementsRepresentationBuilder);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation2;
@@ -512,6 +516,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		registrationCode.setRequiredIndicatorVisible(true);
 		layout.addComponent(registrationCode);
 		return true;
+	}
+	
+	@Override
+	protected boolean isPolicyAgreementsIsFiltered(PolicyAgreementConfiguration toCheck)
+	{
+		return false;
 	}
 	
 	RegistrationForm getForm()

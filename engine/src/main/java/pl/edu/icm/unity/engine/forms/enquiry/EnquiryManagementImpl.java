@@ -298,7 +298,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			AdminComment publicComment, AdminComment internalComment) 
 			throws EngineException
 	{
-		enquiryResponseValidator.validateSubmittedResponse(form, currentRequest.getRequest(), false);
+		enquiryResponseValidator.validateSubmittedResponse(form, currentRequest, false);
 		requestDB.update(currentRequest);
 		internalManagment.sendProcessingNotification(form, 
 				form.getNotificationsConfiguration().getUpdatedTemplate(),
@@ -309,7 +309,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId());
-			enquiryResponseValidator.validateSubmittedResponse(form, responseFull.getRequest(), true);
+			enquiryResponseValidator.validateSubmittedResponse(form, responseFull, true);
 			
 			boolean isSticky = form.getType().equals(EnquiryType.STICKY);
 			if (isSticky)

@@ -10,6 +10,7 @@ import java.util.List;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
 
 
 /**
@@ -165,6 +166,27 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 		}
 
 		((ArrayList<Selection>) instance.getAgreements()).add(aValue);
+
+		return (GeneratorT) this;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public GeneratorT withPolicyAgreements(List<PolicyAgreementDecision> aValue)
+	{
+		instance.setPolicyAgreements(aValue);
+
+		return (GeneratorT) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withAddedPolicyAgreement(PolicyAgreementDecision aValue)
+	{
+		if (instance.getPolicyAgreements() == null)
+		{
+			instance.setPolicyAgreements(new ArrayList<PolicyAgreementDecision>());
+		}
+
+		((ArrayList<PolicyAgreementDecision>) instance.getPolicyAgreements()).add(aValue);
 
 		return (GeneratorT) this;
 	}

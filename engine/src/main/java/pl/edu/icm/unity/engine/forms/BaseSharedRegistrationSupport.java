@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
@@ -64,13 +65,14 @@ public class BaseSharedRegistrationSupport
 	protected EntityCredentialsHelper credentialHelper;
 	protected InternalFacilitiesManagement facilitiesManagement;
 	private InvitationDB invitationDB;
+	protected PolicyAgreementManagement policyAgreementManagement;
 
 	public BaseSharedRegistrationSupport(UnityMessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
 			InternalFacilitiesManagement facilitiesManagement,
-			InvitationDB invitationDB)
+			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -79,6 +81,7 @@ public class BaseSharedRegistrationSupport
 		this.credentialHelper = entityCredentialsHelper;
 		this.facilitiesManagement = facilitiesManagement;
 		this.invitationDB =  invitationDB;
+		this.policyAgreementManagement = policyAgreementManagement;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,

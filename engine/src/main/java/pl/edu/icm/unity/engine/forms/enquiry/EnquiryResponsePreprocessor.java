@@ -7,18 +7,22 @@ package pl.edu.icm.unity.engine.forms.enquiry;
 import java.util.Collection;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.forms.BaseRequestPreprocessor;
 import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
+import pl.edu.icm.unity.engine.forms.PolicyAgreementsValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 
@@ -33,16 +37,21 @@ public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
 			EnquiryResponsePreprocessor.class);
 	
-	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponse response,
+	@Autowired
+	private PolicyAgreementsValidator agreementValidator;
+	
+	
+	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponseState response,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{	
-		InvitationPrefillInfo invitationInfo = getInvitationPrefillInfo(form, response);
+		InvitationPrefillInfo invitationInfo = getInvitationPrefillInfo(form, response.getRequest());
 
-		super.validateSubmittedRequest(form, response, doCredentialCheckAndUpdate);
-
+		super.validateSubmittedRequest(form, response.getRequest(), doCredentialCheckAndUpdate);
+		agreementValidator.validate(new EntityParam(response.getEntityId()), form, response.getRequest());
+		
 		if (invitationInfo.isByInvitation())
 		{
-			String code = response.getRegistrationCode();
+			String code = response.getRequest().getRegistrationCode();
 			log.debug("Received enquiry response for invitation " + code + ", removing it");
 			removeInvitation(code);
 		}

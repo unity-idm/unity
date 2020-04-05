@@ -11,12 +11,14 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.forms.BaseRequestPreprocessor;
 import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
+import pl.edu.icm.unity.engine.forms.PolicyAgreementsValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -44,6 +46,9 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
 			RegistrationRequestPreprocessor.class);
 	
+	@Autowired
+	private PolicyAgreementsValidator agreementValidator;
+	
 	public void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate) throws EngineException
 	{
@@ -62,6 +67,8 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		InvitationPrefillInfo invitationInfo = processInvitationAndValidateCode(form, request);
 		
 		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, skipCredentialsValidation);
+		agreementValidator.validate(form, request);
+		
 		applyContextGroupsToAttributes(form, request);
 
 		if (invitationInfo.isByInvitation())

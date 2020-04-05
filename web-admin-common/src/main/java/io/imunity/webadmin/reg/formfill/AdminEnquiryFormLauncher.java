@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
@@ -64,6 +66,8 @@ public class AdminEnquiryFormLauncher
 	private CredentialManagement authnMan;
 	private GroupsManagement groupsMan;
 	private EnquiryResponseEditorController responseController;
+	private PolicyAgreementManagement policyAgrMan;
+	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
@@ -77,7 +81,8 @@ public class AdminEnquiryFormLauncher
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
-			EnquiryResponseEditorController responseController, ImageAccessService imageAccessService)
+			EnquiryResponseEditorController responseController, ImageAccessService imageAccessService,
+			PolicyAgreementManagement policyAgrMan, PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -90,6 +95,9 @@ public class AdminEnquiryFormLauncher
 		this.idpLoginController = idpLoginController;
 		this.responseController = responseController;
 		this.imageAccessService = imageAccessService;
+		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
+		this.policyAgrMan = policyAgrMan;
+		
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -174,7 +182,8 @@ public class AdminEnquiryFormLauncher
 		{
 			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
 					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
-					groupsMan, imageAccessService, responseController.getPrefilledForSticky(form));
+					groupsMan, imageAccessService, policyAgreementsRepresentationBuilder, policyAgrMan,
+					responseController.getPrefilledForSticky(form));
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

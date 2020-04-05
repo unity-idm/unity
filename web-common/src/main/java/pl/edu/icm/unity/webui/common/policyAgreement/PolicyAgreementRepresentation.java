@@ -13,9 +13,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 /**
  * Represents single policy agreement. Shows single checkbox if needed and policy agreement text.

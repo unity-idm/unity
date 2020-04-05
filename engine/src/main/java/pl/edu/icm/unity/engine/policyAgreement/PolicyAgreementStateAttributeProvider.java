@@ -20,6 +20,8 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class PolicyAgreementStateAttributeProvider implements SystemAttributesProvider
 {
+	public static final String POLICY_AGREEMENT_STATE = "sys:policy-agreement-state";
+	
 	private UnityMessageSource msg;
 
 	@Autowired
@@ -32,7 +34,7 @@ public class PolicyAgreementStateAttributeProvider implements SystemAttributesPr
 	{
 
 		StringAttributeSyntax syntax = new StringAttributeSyntax();
-		AttributeType policyAgreementAt = new AttributeType(PolicyAgreementManagementImpl.POLICY_AGREEMENT_STATE, StringAttributeSyntax.ID,
+		AttributeType policyAgreementAt = new AttributeType(POLICY_AGREEMENT_STATE, StringAttributeSyntax.ID,
 				msg);
 		policyAgreementAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		policyAgreementAt.setMinElements(1);

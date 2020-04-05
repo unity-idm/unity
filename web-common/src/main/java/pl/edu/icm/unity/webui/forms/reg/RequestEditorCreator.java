@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
@@ -53,6 +54,7 @@ public class RequestEditorCreator
 	private String registrationCode;
 	private FormsInvitationHelper invitationHelper;
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
+	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 
 	@Autowired
 	public RequestEditorCreator(UnityMessageSource msg, ImageAccessService imageAccessService,
@@ -64,7 +66,8 @@ public class RequestEditorCreator
 			@Qualifier("insecure") CredentialManagement credMan,
 			@Qualifier("insecure") InvitationManagement invitationMan,
 			AuthenticatorSupportService authnSupport,
-			URLQueryPrefillCreator urlQueryPrefillCreator)
+			URLQueryPrefillCreator urlQueryPrefillCreator,
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -77,6 +80,7 @@ public class RequestEditorCreator
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.authnSupport = authnSupport;
 		this.imageAccessService = imageAccessService;
+		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 	}
 	
 
@@ -197,7 +201,7 @@ public class RequestEditorCreator
 				credentialEditorRegistry, attributeHandlerRegistry, 
 				aTypeMan, credMan, groupsMan, imageAccessService,
 				registrationCode, invitation, authnSupport, signUpAuthNController, 
-				urlQueryPrefillCreator);
+				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder);
 	}
 	
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException

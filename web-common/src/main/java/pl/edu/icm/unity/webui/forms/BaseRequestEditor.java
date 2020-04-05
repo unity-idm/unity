@@ -52,6 +52,8 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -95,6 +97,8 @@ import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentation;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -115,6 +119,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
 	private CredentialManagement credMan;
+	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 	
 	private Map<String, IdentityTaV> remoteIdentitiesByType;
 	private Map<String, Attribute> remoteAttributes;
@@ -123,6 +128,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private Map<Integer, FixedAttributeEditor> attributeEditor;
 	private Map<Integer, GroupsSelection> groupSelectors;
 	private List<CheckBox> agreementSelectors;
+	private List<PolicyAgreementRepresentation> policyAgreementSelectors;
 	private TextArea comment;
 	private Map<String, AttributeType> atTypes;
 	private Map<String, CredentialDefinition> credentials;
@@ -138,7 +144,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, ImageAccessService imageAccessService)
+			GroupsManagement groupsMan, ImageAccessService imageAccessService,
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
 	{
 		this.msg = msg;
 		this.form = form;
@@ -150,6 +157,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.credMan = credMan;
 		this.groupsMan = groupsMan;
 		this.imageAccessService = imageAccessService;
+		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 		
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
@@ -218,6 +226,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		setRequestAttributes(ret, status);
 		setRequestGroups(ret, status);
 		setRequestAgreements(ret, status);
+		setRequestPolicyAgreements(ret, status);
 		
 		if (form.isCollectComments())
 			ret.setComments(comment.getValue());
@@ -399,6 +408,32 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 
+	private void setRequestPolicyAgreements(BaseRegistrationInput ret, FormErrorStatus status)
+	{
+		if (policyAgreementSelectors != null)
+		{
+			List<PolicyAgreementDecision> a = new ArrayList<>();
+			for (PolicyAgreementRepresentation ar : policyAgreementSelectors)
+			{
+				if (ar == null)
+				{
+					a.add(null);
+					continue;
+				}
+				
+				if (!ar.isValid())
+				{
+					ar.setComponentError(new UserError(msg.getMessage("selectionRequired")));
+				}else
+				{
+					ar.setComponentError(null);
+				}
+				a.add(ar.getDecision());
+			}
+			ret.setPolicyAgreements(a);
+		}
+	}
+	
 	/**
 	 * Creates main layout, inserts title and form information
 	 */
@@ -454,6 +489,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		attributeEditor = new HashMap<>();
 		atTypes = getAttributeTypesMap();
 		agreementSelectors = new ArrayList<>();
+		policyAgreementSelectors  = new ArrayList<>();
 		groupSelectors = new HashMap<>();
 		credentialParamEditors = new ArrayList<>();
 		Collection<CredentialDefinition> allCreds = getCredentialDefinitions();
@@ -540,7 +576,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			
 		case AGREEMENT:
 			return createAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
-			
+		case POLICY_AGREEMENT:
+			return createPolicyAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);	
 		case COMMENTS:
 			return createCommentsControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
 			
@@ -551,7 +588,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		return false;
 	}
-	
+
 	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, 
 			FormElement next, FormCaptionElement element)
 	{
@@ -603,6 +640,24 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		return true;
 	}
+	
+	private boolean createPolicyAgreementControl(Layout layout,
+			FormParameterElement element)
+	{
+		PolicyAgreementConfiguration aParam = form.getPolicyAgreements().get(element.getIndex());
+		if (isPolicyAgreementsIsFiltered(aParam))
+		{
+			policyAgreementSelectors.add(null);
+			return true;
+		}
+		PolicyAgreementRepresentation ar = policyAgreementsRepresentationBuilder.getAgreementRepresentation(aParam);
+		policyAgreementSelectors.add(ar);
+		layout.addComponent(ar);
+		return true;	
+	}
+	
+	protected abstract boolean isPolicyAgreementsIsFiltered(PolicyAgreementConfiguration toCheck);
+	
 	
 	protected boolean createCommentsControl(Layout layout, BasicFormElement element)
 	{

@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 
 /**
  * Shows enquiry response contents and provides a possibility to edit it.
@@ -47,9 +49,10 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 	@Autowired
 	public EnquiryReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement, 
-			IdentityFormatter idFormatter, GroupsManagement groupMan)
+			IdentityFormatter idFormatter, GroupsManagement groupMan, PolicyDocumentManagement policyDocMan,
+			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
 	{
-		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan);
+		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan, policyDocMan, policyAgreementRepresentationBuilder);
 		this.identitiesManagement = identitiesManagement;
 		initUI();
 	}

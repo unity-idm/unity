@@ -3,22 +3,27 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.api.policyAgreement;
+package pl.edu.icm.unity.types.policyAgreement;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PolicyAgreementDecision
 {
 	public final PolicyAgreementAcceptanceStatus acceptanceStatus;
 	public final List<Long> documentsIdsToAccept;
 
-	public PolicyAgreementDecision(PolicyAgreementAcceptanceStatus decision, List<Long> documents)
+	@JsonCreator
+	public PolicyAgreementDecision(@JsonProperty("decision") PolicyAgreementAcceptanceStatus decision,
+			@JsonProperty("documentsIdsToAccept") List<Long> documentsIdsToAccept)
 	{
 		this.acceptanceStatus = decision;
-		this.documentsIdsToAccept = Collections.unmodifiableList(
-				documents == null ? Collections.emptyList() : documents);
+		this.documentsIdsToAccept = Collections
+				.unmodifiableList(documentsIdsToAccept == null ? Collections.emptyList() : documentsIdsToAccept);
 	}
 
 	@Override
@@ -29,7 +34,7 @@ public class PolicyAgreementDecision
 		PolicyAgreementDecision castOther = (PolicyAgreementDecision) other;
 		return Objects.equals(acceptanceStatus, castOther.acceptanceStatus)
 				&& Objects.equals(documentsIdsToAccept, castOther.documentsIdsToAccept);
-				
+
 	}
 
 	@Override

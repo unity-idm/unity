@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
 
 /**
  * Base of enquiry and registration requests.
@@ -33,6 +34,7 @@ public class BaseRegistrationInput
 	private List<CredentialParamValue> credentials = new ArrayList<>();
 	private List<GroupSelection> groupSelections = new ArrayList<>();
 	private List<Selection> agreements = new ArrayList<>();
+	private List<PolicyAgreementDecision> policyAgreements = new ArrayList<>();
 	private String comments;
 	private String userLocale;
 	private String registrationCode;
@@ -122,6 +124,16 @@ public class BaseRegistrationInput
 		this.agreements = agreements;
 	}
 
+	public List<PolicyAgreementDecision> getPolicyAgreements()
+	{
+		return policyAgreements;
+	}
+
+	public void setPolicyAgreements(List<PolicyAgreementDecision> policyAgreements)
+	{
+		this.policyAgreements = policyAgreements;
+	}
+	
 	public String getComments()
 	{
 		return comments;
@@ -165,6 +177,7 @@ public class BaseRegistrationInput
 		ObjectMapper jsonMapper = Constants.MAPPER;
 		ObjectNode root = jsonMapper.createObjectNode();
 		root.set("Agreements", jsonMapper.valueToTree(getAgreements()));
+		root.set("PolicyAgreements", jsonMapper.valueToTree(getPolicyAgreements()));
 		root.set("Attributes", jsonMapper.valueToTree(getAttributes()));
 		root.set("Comments", jsonMapper.valueToTree(getComments()));
 		root.set("Credentials", jsonMapper.valueToTree(getCredentials()));
@@ -186,6 +199,15 @@ public class BaseRegistrationInput
 			List<Selection> r = jsonMapper.readValue(v, 
 					new TypeReference<List<Selection>>(){});
 			setAgreements(r);
+		}
+		
+		n = root.get("PolicyAgreements");
+		if (n != null)
+		{
+			String v = jsonMapper.writeValueAsString(n);
+			List<PolicyAgreementDecision> r = jsonMapper.readValue(v, 
+					new TypeReference<List<PolicyAgreementDecision>>(){});
+			setPolicyAgreements(r);
 		}
 		
 		n = root.get("Attributes");
@@ -244,7 +266,7 @@ public class BaseRegistrationInput
 	public int hashCode()
 	{
 		return Objects.hash(agreements, attributes, comments, credentials, formId, groupSelections, identities,
-				userLocale, registrationCode);
+				userLocale, registrationCode, policyAgreements);
 	}
 
 	@Override
@@ -265,7 +287,8 @@ public class BaseRegistrationInput
 				&& Objects.equals(this.groupSelections, other.groupSelections)
 				&& Objects.equals(this.identities, other.identities)
 				&& Objects.equals(this.userLocale, other.userLocale)
-				&& Objects.equals(this.registrationCode, other.registrationCode);
+				&& Objects.equals(this.registrationCode, other.registrationCode)
+				&& Objects.equals(this.policyAgreements, other.policyAgreements);
 
 	}
 }

@@ -49,6 +49,7 @@ import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -90,16 +91,17 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	
 	@Autowired
-	public EnquiryFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, GroupsManagement groupsMan,
-			NotificationsManagement notificationsMan,
+	public EnquiryFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
-			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService, 
-			URIAccessService uriAccessService, ImageAccessService imageAccessService)
+			AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
+			RegistrationActionsRegistry actionsRegistry,
+			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService,
+			URIAccessService uriAccessService, ImageAccessService imageAccessService,
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, authenticationMan);
+		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
@@ -134,6 +136,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
+		initPolicyAgreementTab();
 		ignoreRequestsAndInvitation = new CheckBox(
 				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
 		addComponent(ignoreRequestsAndInvitation);
@@ -142,6 +145,12 @@ public class EnquiryFormEditor extends BaseFormEditor
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
+	}
+	
+	private void initPolicyAgreementTab() throws EngineException
+	{
+		tabs.addTab(createPolicyAgreementTabContent(),
+				msg.getMessage("RegistrationFormEditor.policyAgreements"));
 	}
 	
 	public EnquiryForm getForm() throws FormValidationException

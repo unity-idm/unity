@@ -60,6 +60,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -112,20 +113,19 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private ComboBox<String> realmNames;
 	
 	@Autowired
-	public RegistrationFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, GroupsManagement groupsMan,
-			NotificationsManagement notificationsMan,
+	public RegistrationFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
-			AttributeTypeManagement attributeMan,
-			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
-			CredentialRequirementManagement credReqMan,
+			AttributeTypeManagement attributeMan, CredentialManagement credMan,
+			RegistrationActionsRegistry actionsRegistry, CredentialRequirementManagement credReqMan,
 			ActionParameterComponentProvider actionComponentFactory,
-			AuthenticatorSupportService authenticatorSupport,
-			RealmsManagement realmsManagement, FileStorageService fileStorageService, 
-			URIAccessService uriAccessService,
-			ImageAccessService imageAccessService)
+			AuthenticatorSupportService authenticatorSupport, RealmsManagement realmsManagement,
+			FileStorageService fileStorageService, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, credMan);
+		super(msg, identitiesMan, attributeMan, credMan, policyAgreementConfigurationListFactory);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
@@ -162,6 +162,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
+		initPolicyAgreementTab();
 		ignoreRequestsAndInvitation = new CheckBox(
 				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
 		addComponent(ignoreRequestsAndInvitation);
@@ -170,6 +171,12 @@ public class RegistrationFormEditor extends BaseFormEditor
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
+	}
+
+	private void initPolicyAgreementTab() throws EngineException
+	{
+		tabs.addTab(createPolicyAgreementTabContent(),
+				msg.getMessage("RegistrationFormEditor.policyAgreements"));
 	}
 
 	public RegistrationForm getForm() throws FormValidationException

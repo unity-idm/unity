@@ -3,11 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.api.policyAgreement;
+package pl.edu.icm.unity.types.policyAgreement;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import pl.edu.icm.unity.types.I18nString;
 
@@ -17,8 +20,10 @@ public class PolicyAgreementConfiguration
 	public final PolicyAgreementPresentationType presentationType;
 	public final I18nString text;
 
-	public PolicyAgreementConfiguration(List<Long> documentsIdsToAccept,
-			PolicyAgreementPresentationType presentationType, I18nString text)
+	@JsonCreator
+	public PolicyAgreementConfiguration(@JsonProperty("documentsIdsToAccept") List<Long> documentsIdsToAccept,
+			@JsonProperty("presentationType") PolicyAgreementPresentationType presentationType,
+			@JsonProperty("text") I18nString text)
 	{
 		this.documentsIdsToAccept = Collections.unmodifiableList(
 				documentsIdsToAccept == null ? Collections.emptyList() : documentsIdsToAccept);

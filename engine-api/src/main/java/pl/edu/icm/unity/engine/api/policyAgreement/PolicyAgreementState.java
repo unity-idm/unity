@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.policyAgreement;
+package pl.edu.icm.unity.engine.api.policyAgreement;
 
 import java.util.Date;
 import java.util.Objects;
@@ -12,17 +12,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementAcceptanceStatus;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
 
-public class PolicyAgreementStateValue
+public class PolicyAgreementState
 {
 	public final long policyDocumentId;
 	public final int policyDocumentRevision;
 	public final PolicyAgreementAcceptanceStatus acceptanceStatus;
 	public final Date decisionTs;
 
-	public PolicyAgreementStateValue(@JsonProperty("policyDocumentId") Long policyDocumentId,
+	public PolicyAgreementState(@JsonProperty("policyDocumentId") Long policyDocumentId,
 			@JsonProperty("policyDocumentRevision") Integer policyDocumentRevision,
 			@JsonProperty("acceptanceStatus") PolicyAgreementAcceptanceStatus acceptanceStatus,
 			@JsonProperty("decisionTs") Date decisionTs)
@@ -44,11 +44,11 @@ public class PolicyAgreementStateValue
 		}
 	}
 
-	public static PolicyAgreementStateValue fromJson(String jsonConfig) throws EngineException
+	public static PolicyAgreementState fromJson(String jsonConfig) throws EngineException
 	{
 		try
 		{
-			return Constants.MAPPER.readValue(jsonConfig, PolicyAgreementStateValue.class);
+			return Constants.MAPPER.readValue(jsonConfig, PolicyAgreementState.class);
 		} catch (Exception e)
 		{
 			throw new EngineException("Can not parse policy agreement state value");
@@ -58,9 +58,9 @@ public class PolicyAgreementStateValue
 	@Override
 	public boolean equals(final Object other)
 	{
-		if (!(other instanceof PolicyAgreementStateValue))
+		if (!(other instanceof PolicyAgreementState))
 			return false;
-		PolicyAgreementStateValue castOther = (PolicyAgreementStateValue) other;
+		PolicyAgreementState castOther = (PolicyAgreementState) other;
 		return Objects.equals(policyDocumentId, castOther.policyDocumentId)
 				&& Objects.equals(policyDocumentRevision, castOther.policyDocumentRevision)
 				&& Objects.equals(acceptanceStatus, castOther.acceptanceStatus)

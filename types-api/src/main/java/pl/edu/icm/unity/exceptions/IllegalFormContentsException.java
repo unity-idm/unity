@@ -14,7 +14,7 @@ public class IllegalFormContentsException extends WrongArgumentException
 	private int position;
 	private Category category;
 
-	public enum Category {CREDENTIAL, AGREEMENT, ATTRIBUTE, IDENTITY, GROUP};
+	public enum Category {CREDENTIAL, AGREEMENT, POLICY_AGREEMENT, ATTRIBUTE, IDENTITY, GROUP};
 	
 	public IllegalFormContentsException(String msg, int position, Category category, Throwable cause)
 	{

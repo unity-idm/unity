@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.engine.api.policyAgreement;
+package pl.edu.icm.unity.types.policyAgreement;
 
 public enum PolicyAgreementAcceptanceStatus
 {

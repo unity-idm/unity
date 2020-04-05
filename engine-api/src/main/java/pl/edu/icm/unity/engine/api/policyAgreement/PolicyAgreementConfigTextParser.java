@@ -49,6 +49,8 @@ public class PolicyAgreementConfigTextParser
 		Map<Long, DocPlaceholder> ret = new HashMap<>();
 		String pattern = "\\{([^\\}]*)\\}";
 		Pattern r = Pattern.compile(pattern);
+		if (text == null)
+			return ret;
 		Matcher m = r.matcher(text);
 		while (m.find())
 		{

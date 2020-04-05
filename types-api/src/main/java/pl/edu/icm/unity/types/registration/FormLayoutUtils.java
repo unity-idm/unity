@@ -67,6 +67,7 @@ public final class FormLayoutUtils
 		if (form.isCollectComments())
 			elements.add(new BasicFormElement(FormLayoutElement.COMMENTS));
 		elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.AGREEMENT, form.getAgreements(), true));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.POLICY_AGREEMENT, form.getPolicyAgreements(), true));
 		return elements;
 	}
 	
@@ -230,6 +231,8 @@ public final class FormLayoutUtils
 			addParameterIfMissing(layout, FormLayoutElement.ATTRIBUTE, i, definedElements);
 		for (int i = 0; i < form.getAgreements().size(); i++)
 			addParameterIfMissing(layout, FormLayoutElement.AGREEMENT, i, definedElements);
+		for (int i = 0; i < form.getPolicyAgreements().size(); i++)
+			addParameterIfMissing(layout, FormLayoutElement.POLICY_AGREEMENT, i, definedElements);
 		for (int i = 0; i < form.getGroupParams().size(); i++)
 			addParameterIfMissing(layout, FormLayoutElement.GROUP, i, definedElements);
 		for (int i = 0; i < form.getCredentialParams().size(); i++)
@@ -238,6 +241,7 @@ public final class FormLayoutUtils
 		removeParametersWithIndexLargerThen(layout, FormLayoutElement.IDENTITY, form.getIdentityParams().size());
 		removeParametersWithIndexLargerThen(layout, FormLayoutElement.ATTRIBUTE, form.getAttributeParams().size());
 		removeParametersWithIndexLargerThen(layout, FormLayoutElement.AGREEMENT, form.getAgreements().size());
+		removeParametersWithIndexLargerThen(layout, FormLayoutElement.POLICY_AGREEMENT, form.getPolicyAgreements().size());
 		removeParametersWithIndexLargerThen(layout, FormLayoutElement.GROUP, form.getGroupParams().size());
 		removeParametersWithIndexLargerThen(layout, FormLayoutElement.CREDENTIAL, form.getCredentialParams().size());
 	}
@@ -346,6 +350,8 @@ public final class FormLayoutUtils
 			checkLayoutElement(getIdOfElement(FormLayoutElement.ATTRIBUTE, i), definedElements);
 		for (int i = 0; i < form.getAgreements().size(); i++)
 			checkLayoutElement(getIdOfElement(FormLayoutElement.AGREEMENT, i), definedElements);
+		for (int i = 0; i < form.getPolicyAgreements().size(); i++)
+			checkLayoutElement(getIdOfElement(FormLayoutElement.POLICY_AGREEMENT, i), definedElements);
 		for (int i = 0; i < form.getGroupParams().size(); i++)
 			checkLayoutElement(getIdOfElement(FormLayoutElement.GROUP, i), definedElements);
 		if (withCredentials)

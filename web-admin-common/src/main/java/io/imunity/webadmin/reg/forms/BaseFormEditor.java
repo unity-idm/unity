@@ -58,6 +58,8 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
@@ -70,6 +72,7 @@ public class BaseFormEditor extends VerticalLayout
 	private static final int COMBO_WIDTH_EM = 18;
 	private UnityMessageSource msg;
 	private IdentityTypeSupport identityTypeSupport;
+	private PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
 	private Collection<IdentityType> identityTypes;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
@@ -83,17 +86,18 @@ public class BaseFormEditor extends VerticalLayout
 	protected I18nTextArea formInformation;
 	protected CheckBox collectComments;
 	protected I18nTextField pageTitle;
-	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
+	private ListOfEmbeddedElements<AgreementRegistrationParam> optins;	
 	private ListOfEmbeddedElements<IdentityRegistrationParam> identityParams;
 	private ListOfEmbeddedElements<AttributeRegistrationParam> attributeParams;
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
+	private PolicyAgreementConfigurationList policyAgreements;
 	private TabSheet collectedParamsTabSheet;
 	
 	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan)
+			CredentialManagement authenticationMan, PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory)
 			throws EngineException
 	{
 		setSpacing(false);
@@ -106,6 +110,7 @@ public class BaseFormEditor extends VerticalLayout
 		credentialTypes = new ArrayList<>(crs.size());
 		for (CredentialDefinition cred: crs)
 			credentialTypes.add(cred.getName());
+		this.policyAgreementConfigurationListFactory = policyAgreementConfigurationListFactory;
 	}
 
 	protected void setValue(BaseForm toEdit)
@@ -118,8 +123,8 @@ public class BaseFormEditor extends VerticalLayout
 		collectComments.setValue(toEdit.isCollectComments());
 		List<AgreementRegistrationParam> agreementsP = toEdit.getAgreements();
 		if (agreementsP != null)
-			agreements.setEntries(agreementsP);
-		agreements.setEntries(toEdit.getAgreements());
+			optins.setEntries(agreementsP);
+		optins.setEntries(toEdit.getAgreements());
 		identityParams.setEntries(toEdit.getIdentityParams());
 		//order is important as attributes depend on groups for dynamic groups
 		groupParams.setEntries(toEdit.getGroupParams());
@@ -128,11 +133,12 @@ public class BaseFormEditor extends VerticalLayout
 		wrapUpConfig.setEntries(toEdit.getWrapUpConfig());
 		if (toEdit.getPageTitle() != null)
 			pageTitle.setValue(toEdit.getPageTitle());
+		policyAgreements.setValue(toEdit.getPolicyAgreements());
 	}
 	
 	protected void buildCommon(BaseFormBuilder<?> builder) throws FormValidationException
 	{
-		builder.withAgreements(agreements.getElements());
+		builder.withAgreements(optins.getElements());
 		builder.withAttributeParams(attributeParams.getElements());
 		builder.withCollectComments(collectComments.getValue());
 		builder.withCredentialParams(credentialParams.getElements());
@@ -149,6 +155,7 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withWrapUpConfig(wrapUpConfig.getElements());
 		
 		builder.withPageTitle(pageTitle.getValue());
+		builder.withPolicyAgreements(policyAgreements.getValue());
 	}
 		
 	protected void initNameAndDescFields(String defaultName) throws EngineException
@@ -184,10 +191,10 @@ public class BaseFormEditor extends VerticalLayout
 		collectedParamsTabSheet = new TabSheet();
 		collectedParamsTabSheet.setStyleName(Styles.vTabsheetMinimal.toString());
 		
-		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
+		optins = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.optins"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
-		agreements.setSpacing(false);
-		agreements.setMargin(true);
+		optins.setSpacing(false);
+		optins.setMargin(true);
 
 		IdentityEditorAndProvider identityEditorAndProvider = new IdentityEditorAndProvider();
 		if (forceInteractiveRetrieval)
@@ -210,7 +217,7 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
 				
-		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
+		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, optins);
 		return collectedParamsTabSheet;
 	}
 
@@ -273,6 +280,15 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		identityParams.resetContents();
 	}
+	
+	protected VerticalLayout createPolicyAgreementTabContent() throws EngineException
+	{
+		VerticalLayout policyAgreementTab = new VerticalLayout();
+		policyAgreements = policyAgreementConfigurationListFactory.getInstance();
+		policyAgreementTab.addComponent(policyAgreements);
+		return policyAgreementTab;	
+	}
+	
 	
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
 		Editor<AgreementRegistrationParam>

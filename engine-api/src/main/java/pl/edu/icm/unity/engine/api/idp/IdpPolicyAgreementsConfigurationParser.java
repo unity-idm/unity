@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 /**
  * Maps {@link PolicyAgreementConfiguration} to properties and vice versa

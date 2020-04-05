@@ -17,6 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 
 /**
  * Shows request contents and provides a possibility to edit it.
@@ -38,13 +40,16 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 	
 	@Autowired
 	public RegistrationReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan)
+			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
+			PolicyDocumentManagement policyDocMan,
+			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
 	{
-		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan);
-		
+		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan, policyDocMan,
+				policyAgreementRepresentationBuilder);
+
 		initUI();
 	}
-	
+
 	private void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();

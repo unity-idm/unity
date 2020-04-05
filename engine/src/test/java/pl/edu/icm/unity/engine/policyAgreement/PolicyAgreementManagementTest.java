@@ -16,11 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementState;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
@@ -30,6 +27,10 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 {
@@ -39,6 +40,21 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 	@Autowired
 	private PolicyDocumentManagement policyDocMan;
 
+	@Test
+	public void shouldSaveDecisionAndReturnStatus() throws EngineException
+	{
+		Long doc1 = addDoc("1", true);
+		EntityParam user = addUser();
+		agreementMan.submitDecisions(user,
+				Arrays.asList(new PolicyAgreementDecision(PolicyAgreementAcceptanceStatus.ACCEPTED,
+						Arrays.asList(doc1))));
+		List<PolicyAgreementState> policyAgreementsStatus = agreementMan.getPolicyAgreementsStatus(user);
+		
+		assertThat(policyAgreementsStatus.size(), is(1));
+		assertThat(policyAgreementsStatus.get(0).acceptanceStatus, is(PolicyAgreementAcceptanceStatus.ACCEPTED));
+		assertThat(policyAgreementsStatus.get(0).policyDocumentId, is(doc1));
+	}
+		
 	@Test
 	public void shouldNotFilterAgreements() throws EngineException
 	{
