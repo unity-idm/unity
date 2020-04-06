@@ -47,6 +47,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	private VerticalLayout main;
 	private Supplier<Editor<T>> editorProvider;
 	private List<SingleActionHandler<T>> additionalActionHandlers;
+	private Label captionLabel;
 
 	public ListOfDnDCollapsableElements(UnityMessageSource msg, Supplier<Editor<T>> editorProvider, String caption)
 	{
@@ -75,9 +76,9 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		addElement.setDescription(msg.getMessage("add"));
 		addElement.setIcon(Images.add.getResource());
 		addElement.addClickListener(event -> addElementComponent(makeNewInstance()));
-		Label captionL = new Label(caption);
-		elementsHeader.addComponents(captionL, addElement);
-		elementsHeader.setComponentAlignment(captionL, Alignment.MIDDLE_LEFT);
+		captionLabel = new Label(caption);
+		elementsHeader.addComponents(captionLabel, addElement);
+		elementsHeader.setComponentAlignment(captionLabel, Alignment.MIDDLE_LEFT);
 		elementsHeader.setComponentAlignment(addElement, Alignment.MIDDLE_RIGHT);
 
 		elementsLayout = new VerticalLayout();
@@ -86,6 +87,11 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		elementsLayout.setStyleName(Styles.vDropLayout.toString());
 		main.addComponent(elementsHeader);
 		main.addComponent(elementsLayout);
+	}
+	
+	public void setTitleVisible(boolean visible)
+	{
+		captionLabel.setVisible(visible);
 	}
 
 	protected abstract T makeNewInstance();

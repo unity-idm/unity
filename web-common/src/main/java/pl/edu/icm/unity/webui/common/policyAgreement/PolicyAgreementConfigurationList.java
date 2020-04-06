@@ -44,7 +44,6 @@ public class PolicyAgreementConfigurationList extends ListOfDnDCollapsableElemen
 		
 		PolicyAgreementConfigurationListFactory(UnityMessageSource msg, PolicyDocumentManagement policyDocMan)
 		{
-			super();
 			this.msg = msg;
 			this.policyDocMan = policyDocMan;
 		}
