@@ -82,6 +82,9 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		if (formInformation == null)
 			throw new IllegalStateException("Form information must be not-null "
 					+ "in a form (but it contents can be empty)");
+		if (policyAgreements.stream().filter(a -> a == null).findFirst().isPresent())
+			throw new IllegalStateException(
+					"Form policy agreement must be not-null" + " and not-empty in a form");
 		
 		assertAllQueryParamsAreUnique();
 	}

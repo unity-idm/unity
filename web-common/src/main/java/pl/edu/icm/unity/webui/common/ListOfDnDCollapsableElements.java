@@ -195,6 +195,14 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	{
 		return elements.stream().map(e -> e.getValue()).collect(Collectors.toList());
 	}
+	
+	public void validate() throws FormValidationException
+	{
+		for (ElementComponent c: elements)
+		{
+			c.validate();
+		}
+	}
 
 	@Override
 	protected void doSetValue(List<T> value)
@@ -319,6 +327,11 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		{
 			return editor.getValue();
 		}
+		
+		public void validate() throws FormValidationException
+		{
+			editor.validate();
+		}
 
 		public void setFocus()
 		{
@@ -330,6 +343,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	public static abstract class Editor<V> extends CustomField<V>
 	{
 		protected abstract String getHeaderText();
+		protected abstract void validate() throws FormValidationException;
 	}
 
 }

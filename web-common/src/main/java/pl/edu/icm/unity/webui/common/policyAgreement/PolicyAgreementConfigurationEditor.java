@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements.Editor;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -180,6 +181,15 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 				bean.presentationType,
 				PolicyAgreementConfigTextParser.convertTextToConfig(policyDocuments, bean.text));
 
+	}
+	
+	@Override
+	protected void validate() throws FormValidationException
+	{
+		if (binder.validate().hasErrors())
+		{
+			throw new FormValidationException(msg.getMessage("PolicyAgreementConfigEditor.invalidConfiguration"));
+		}	
 	}
 
 	@Override

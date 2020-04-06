@@ -155,6 +155,7 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withWrapUpConfig(wrapUpConfig.getElements());
 		
 		builder.withPageTitle(pageTitle.getValue());
+		policyAgreements.validate();
 		builder.withPolicyAgreements(policyAgreements.getValue());
 	}
 		
