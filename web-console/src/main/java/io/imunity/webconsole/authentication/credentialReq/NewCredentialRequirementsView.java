@@ -124,12 +124,10 @@ class NewCredentialRequirementsView extends CustomComponent implements UnityView
 	public static class NewCredentialRequirementsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public NewCredentialRequirementsNavigationInfoProvider(
-				CredentialsRequirementsNavigationInfoProvider parent,
-				ObjectFactory<NewCredentialRequirementsView> factory)
+		public NewCredentialRequirementsNavigationInfoProvider(ObjectFactory<NewCredentialRequirementsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(CredentialsRequirementsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

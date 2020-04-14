@@ -386,11 +386,10 @@ class AuditEventsView extends CustomComponent implements UnityView
 	{
 		@Autowired
 		public AuditLogInfoProvider(UnityMessageSource msg,
-					MaintenanceNavigationInfoProvider parent,
 					ObjectFactory<AuditEventsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(MaintenanceNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.auditLog"))
 					.withIcon(Images.records.getResource())
 					.withPosition(10).build());

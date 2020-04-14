@@ -45,11 +45,10 @@ class EditIdpServiceView extends EditServiceViewBase
 	{
 
 		@Autowired
-		public EditServiceNavigationInfoProvider(IdpServicesNavigationInfoProvider parent,
-				ObjectFactory<EditIdpServiceView> factory)
+		public EditServiceNavigationInfoProvider(ObjectFactory<EditIdpServiceView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(IdpServicesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

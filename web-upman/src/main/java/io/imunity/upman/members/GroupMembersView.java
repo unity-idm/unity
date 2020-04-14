@@ -146,11 +146,10 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	public class MembersNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public MembersNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
-				ObjectFactory<GroupMembersView> factory)
+		public MembersNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<GroupMembersView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.members"))
 					.withIcon(Images.family.getResource()).withPosition(0).build());
 

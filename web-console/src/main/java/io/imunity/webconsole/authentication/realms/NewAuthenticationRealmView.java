@@ -120,12 +120,11 @@ class NewAuthenticationRealmView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewRealmNavigationInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<NewAuthenticationRealmView> factory)
+		public NewRealmNavigationInfoProvider(ObjectFactory<NewAuthenticationRealmView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
-							.withParent(parent.getNavigationInfo())
+							.withParent(RealmsNavigationInfoProvider.ID)
 							.withObjectFactory(factory).build());
 
 		}

@@ -124,12 +124,11 @@ class EditAuthenticationRealmView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticationRealmView> factory)
+		public EditRealmViewInfoProvider(ObjectFactory<EditAuthenticationRealmView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
-							.withParent(parent.getNavigationInfo())
+							.withParent(RealmsNavigationInfoProvider.ID)
 							.withObjectFactory(factory).build());
 
 		}

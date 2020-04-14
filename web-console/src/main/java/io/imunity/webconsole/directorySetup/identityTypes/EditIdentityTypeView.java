@@ -134,11 +134,10 @@ class EditIdentityTypeView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditIdentityTypeNavigationInfoProvider(IdentityTypesNavigationInfoProvider parent,
-				ObjectFactory<EditIdentityTypeView> factory)
+		public EditIdentityTypeNavigationInfoProvider(ObjectFactory<EditIdentityTypeView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(IdentityTypesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

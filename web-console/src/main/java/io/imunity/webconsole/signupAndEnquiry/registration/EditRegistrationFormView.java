@@ -139,11 +139,10 @@ public class EditRegistrationFormView extends CustomComponent implements UnityVi
 	{
 
 		@Autowired
-		public EditRegistrationFormNavigationInfoProvider(SignupAndEnquiryFormsNavigationInfoProvider parent,
-				ObjectFactory<EditRegistrationFormView> factory)
+		public EditRegistrationFormNavigationInfoProvider(ObjectFactory<EditRegistrationFormView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(SignupAndEnquiryFormsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

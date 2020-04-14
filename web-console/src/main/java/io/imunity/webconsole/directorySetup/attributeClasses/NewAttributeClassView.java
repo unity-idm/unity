@@ -121,11 +121,10 @@ class NewAttributeClassView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewAttributeClassNavigationInfoProvider(AttributeClassesNavigationInfoProvider parent,
-				ObjectFactory<NewAttributeClassView> factory)
+		public NewAttributeClassNavigationInfoProvider(ObjectFactory<NewAttributeClassView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AttributeClassesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

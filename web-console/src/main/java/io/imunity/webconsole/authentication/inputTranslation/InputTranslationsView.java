@@ -112,13 +112,14 @@ class InputTranslationsView extends TranslationsView implements UnityViewWithSan
 	@Component
 	public static class InputTranslationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public InputTranslationsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
 				ObjectFactory<InputTranslationsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withIcon(Images.download.getResource())
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
 					.withPosition(50).build());

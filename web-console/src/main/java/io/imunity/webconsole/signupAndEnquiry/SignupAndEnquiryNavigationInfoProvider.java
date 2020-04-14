@@ -27,11 +27,10 @@ public class SignupAndEnquiryNavigationInfoProvider extends WebConsoleNavigation
 	public static final String ID = "SignupAndEnquiry";
 
 	@Autowired
-	public SignupAndEnquiryNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public SignupAndEnquiryNavigationInfoProvider(UnityMessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry"))
 				.withIcon(Images.user_check.getResource()).withPosition(30).build());
 

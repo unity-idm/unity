@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -199,4 +200,16 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 	{
 		return UnityServerConfiguration.SUPPORTED_LOCALES;
 	}
+	
+	public Properties getKeys()
+	{
+		return getMergedProperties(getLocale()).getProperties();
+	}
+	
+	 @Override
+	    protected Properties loadProperties(Resource resource, String fileName) throws IOException {
+
+	        log.info("Load " + fileName);
+	        return super.loadProperties(resource, fileName);
+	    }
 }

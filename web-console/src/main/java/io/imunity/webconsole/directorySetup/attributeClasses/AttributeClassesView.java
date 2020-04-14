@@ -175,14 +175,14 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 	@Component
 	public static class AttributeClassesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public AttributeClassesNavigationInfoProvider(UnityMessageSource msg,
-				DirectorySetupNavigationInfoProvider parent,
 				ObjectFactory<AttributeClassesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(DirectorySetupNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.attributeClasses"))
 					.withIcon(Images.archives.getResource())
 					.withPosition(30).build());

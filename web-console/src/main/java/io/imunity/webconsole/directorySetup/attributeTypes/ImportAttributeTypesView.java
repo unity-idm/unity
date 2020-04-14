@@ -119,11 +119,10 @@ class ImportAttributeTypesView extends CustomComponent implements UnityView
 	public static class ImportAttributeTypeNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public ImportAttributeTypeNavigationInfoProvider(AttributeTypesNavigationInfoProvider parent,
-				ObjectFactory<ImportAttributeTypesView> factory)
+		public ImportAttributeTypeNavigationInfoProvider(ObjectFactory<ImportAttributeTypesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AttributeTypesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

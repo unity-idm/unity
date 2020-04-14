@@ -124,11 +124,10 @@ class EditCertificateView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditCertificateViewInfoProvider(TrustedCertNavigationInfoProvider parent,
-				ObjectFactory<EditCertificateView> factory)
+		public EditCertificateViewInfoProvider(ObjectFactory<EditCertificateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(TrustedCertNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

@@ -22,11 +22,10 @@ public class IdentityProviderNavigationInfoProvider extends WebConsoleNavigation
 	public static final String ID = "IdentityProvider";
 
 	@Autowired
-	public IdentityProviderNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public IdentityProviderNavigationInfoProvider(UnityMessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.identityProvider"))
 				.withIcon(Images.globe_wire.getResource()).withPosition(40).build());
 

@@ -17,7 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.reg.requests.RequestProcessingPanel;
 import io.imunity.webadmin.reg.requests.RequestSelectionListener;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
+import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.SignupAndEnquiryFormsNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -122,10 +122,10 @@ class RequestsView extends CustomComponent implements UnityView
 
 		@Autowired
 		public RequestsNavigationInfoProvider(UnityMessageSource msg,
-				SignupAndEnquiryNavigationInfoProvider parent, ObjectFactory<RequestsView> factory)
+				 ObjectFactory<RequestsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(SignupAndEnquiryFormsNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.requests"))
 					.withIcon(Images.user_card.getResource())
 					.withPosition(20).build());

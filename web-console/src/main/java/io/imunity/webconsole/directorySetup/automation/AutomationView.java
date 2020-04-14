@@ -207,13 +207,13 @@ public class AutomationView extends CustomComponent implements UnityView
 	@Component
 	public static class AutomationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public AutomationNavigationInfoProvider(UnityMessageSource msg,
-				DirectorySetupNavigationInfoProvider parent, ObjectFactory<AutomationView> factory)
+		public AutomationNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<AutomationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(DirectorySetupNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.automation"))
 					.withIcon(Images.calendar_user.getResource())
 					.withPosition(40).build());

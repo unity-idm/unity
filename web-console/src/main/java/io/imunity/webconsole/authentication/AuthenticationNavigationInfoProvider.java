@@ -27,11 +27,10 @@ public class AuthenticationNavigationInfoProvider extends WebConsoleNavigationIn
 	public static final String ID = "Authentication";
 
 	@Autowired
-	public AuthenticationNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public AuthenticationNavigationInfoProvider(UnityMessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.authentication"))
 				.withIcon(Images.key_o.getResource()).withPosition(40).build());
 

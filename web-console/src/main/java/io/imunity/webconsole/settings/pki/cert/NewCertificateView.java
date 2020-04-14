@@ -110,11 +110,10 @@ class NewCertificateView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewCertificateNavigationInfoProvider(TrustedCertNavigationInfoProvider parent,
-				ObjectFactory<NewCertificateView> factory)
+		public NewCertificateNavigationInfoProvider(ObjectFactory<NewCertificateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(TrustedCertNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

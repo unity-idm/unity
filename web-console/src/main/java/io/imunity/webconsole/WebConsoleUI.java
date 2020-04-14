@@ -22,7 +22,6 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.spi.WebConsoleExtNavigationInfoProvider;
-import io.imunity.webconsole.spi.WebConsoleExtRootNavigationInfoProvider;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -91,7 +90,6 @@ public class WebConsoleUI extends UnityEndpointUIBase
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 		leftMenu.addNavigationElements(WebConsoleRootNavigationInfoProvider.ID);
-		leftMenu.addNavigationElements(WebConsoleExtRootNavigationInfoProvider.ID);
 	}
 
 	@Override

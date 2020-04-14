@@ -101,11 +101,10 @@ class ShowLocalCredentialView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public ShowLocalCredentialNavigationInfoProvider(LocalCredentialsNavigationInfoProvider parent,
-				ObjectFactory<ShowLocalCredentialView> factory)
+		public ShowLocalCredentialNavigationInfoProvider(ObjectFactory<ShowLocalCredentialView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(LocalCredentialsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

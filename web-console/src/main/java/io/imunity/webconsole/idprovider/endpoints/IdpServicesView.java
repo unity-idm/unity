@@ -129,12 +129,14 @@ class IdpServicesView extends ServicesViewBase
 	@Component
 	public class IdpServicesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public IdpServicesNavigationInfoProvider(UnityMessageSource msg,
-				IdentityProviderNavigationInfoProvider parent, ObjectFactory<IdpServicesView> factory)
+				 ObjectFactory<IdpServicesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(IdentityProviderNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.identityProvider.endpoints"))
 					.withIcon(Images.globe.getResource()).withPosition(10).build());
 

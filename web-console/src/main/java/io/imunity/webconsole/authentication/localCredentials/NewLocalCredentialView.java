@@ -116,11 +116,11 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewLocalCredentialNavigationInfoProvider(LocalCredentialsNavigationInfoProvider parent,
+		public NewLocalCredentialNavigationInfoProvider(
 				ObjectFactory<NewLocalCredentialView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(LocalCredentialsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

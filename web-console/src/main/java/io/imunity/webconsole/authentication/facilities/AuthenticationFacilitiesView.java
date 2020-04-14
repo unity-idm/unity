@@ -81,14 +81,14 @@ public class AuthenticationFacilitiesView extends CustomComponent implements Uni
 	@Component
 	public static class AuthenticationFacilitiesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = AuthenticationFacilitiesView.VIEW_NAME;
 
 		@Autowired
 		public AuthenticationFacilitiesNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
 				ObjectFactory<AuthenticationFacilitiesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.facilities"))
 					.withIcon(Images.sign_in.getResource())
 					.withPosition(10).build());

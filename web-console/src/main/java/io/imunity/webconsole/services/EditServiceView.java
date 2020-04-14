@@ -45,11 +45,10 @@ class EditServiceView extends EditServiceViewBase
 	{
 
 		@Autowired
-		public EditServiceNavigationInfoProvider(ServicesNavigationInfoProvider parent,
-				ObjectFactory<EditServiceView> factory)
+		public EditServiceNavigationInfoProvider(ObjectFactory<EditServiceView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(ServicesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

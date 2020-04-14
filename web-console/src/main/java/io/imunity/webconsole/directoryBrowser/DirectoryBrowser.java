@@ -102,10 +102,10 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 		@Autowired
 		@Lazy
 		public DirectoryBrowserNavigationInfoProvider(UnityMessageSource msg,
-				WebConsoleRootNavigationInfoProvider parent, ObjectFactory<DirectoryBrowser> factory)
+				ObjectFactory<DirectoryBrowser> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(WebConsoleRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directoryBrowser"))
 					.withIcon(Images.group.getResource()).withPosition(10).build());
 

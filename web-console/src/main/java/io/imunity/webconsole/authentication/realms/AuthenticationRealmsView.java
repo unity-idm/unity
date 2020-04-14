@@ -173,13 +173,14 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 	@Component
 	public static class RealmsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public RealmsNavigationInfoProvider(UnityMessageSource msg, AuthenticationNavigationInfoProvider parent,
+		public RealmsNavigationInfoProvider(UnityMessageSource msg, 
 				ObjectFactory<AuthenticationRealmsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.realms"))
 					.withIcon(Images.grid.getResource())
 					.withPosition(40).build());

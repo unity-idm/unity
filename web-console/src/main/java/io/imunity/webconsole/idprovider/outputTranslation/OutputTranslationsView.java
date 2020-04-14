@@ -69,13 +69,14 @@ class OutputTranslationsView extends TranslationsView
 	@Component
 	public static class OutputTranslationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public OutputTranslationsNavigationInfoProvider(UnityMessageSource msg,
-				IdentityProviderNavigationInfoProvider parent,
 				ObjectFactory<OutputTranslationsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(IdentityProviderNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withIcon(Images.upload.getResource())
 					.withCaption(msg.getMessage(
 							"WebConsoleMenu.identityProvider.outputTranslation"))

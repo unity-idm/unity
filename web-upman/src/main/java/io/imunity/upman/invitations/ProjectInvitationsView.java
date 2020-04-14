@@ -160,11 +160,10 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public InvitationsNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
-				ObjectFactory<ProjectInvitationsView> factory)
+		public InvitationsNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<ProjectInvitationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.invitations"))
 					.withIcon(Images.envelope_open.getResource()).withPosition(2).build());
 

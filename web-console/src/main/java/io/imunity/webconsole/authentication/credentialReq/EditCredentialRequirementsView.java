@@ -131,12 +131,10 @@ class EditCredentialRequirementsView extends CustomComponent implements UnityVie
 	{
 
 		@Autowired
-		public EditCredentialRequirementsNavigationInfoProvider(
-				CredentialsRequirementsNavigationInfoProvider parent,
-				ObjectFactory<EditCredentialRequirementsView> factory)
+		public EditCredentialRequirementsNavigationInfoProvider(ObjectFactory<EditCredentialRequirementsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(CredentialsRequirementsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

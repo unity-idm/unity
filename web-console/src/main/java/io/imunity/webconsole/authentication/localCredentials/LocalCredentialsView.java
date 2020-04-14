@@ -175,14 +175,14 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	@Component
 	public static class LocalCredentialsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public LocalCredentialsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
 				ObjectFactory<LocalCredentialsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))
 					.withIcon(Images.lock.getResource())
 					.withPosition(20).build());

@@ -121,11 +121,10 @@ class RunImmediateView extends CustomComponent implements UnityView
 	public static class RunImmadiateNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public RunImmadiateNavigationInfoProvider(AutomationNavigationInfoProvider parent,
-				ObjectFactory<RunImmediateView> factory)
+		public RunImmadiateNavigationInfoProvider(ObjectFactory<RunImmediateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AutomationNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

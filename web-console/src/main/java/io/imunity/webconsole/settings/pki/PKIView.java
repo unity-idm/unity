@@ -71,12 +71,13 @@ public class PKIView extends CustomComponent implements UnityView
 	@Component
 	public static class PKINavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static String ID = VIEW_NAME;
+		
 		@Autowired
-		public PKINavigationInfoProvider(UnityMessageSource msg, SettingsNavigationInfoProvider parent,
-				ObjectFactory<PKIView> factory)
+		public PKINavigationInfoProvider(UnityMessageSource msg, ObjectFactory<PKIView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(SettingsNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withIcon(Images.diploma.getResource())
 					.withShortCaption(msg.getMessage("WebConsoleMenu.settings.pki"))
 					.withCaption(msg.getMessage("WebConsoleMenu.settings.publicKeyInfrastructure"))

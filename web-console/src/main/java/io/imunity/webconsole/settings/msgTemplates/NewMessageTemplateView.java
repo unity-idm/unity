@@ -106,11 +106,10 @@ class NewMessageTemplateView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewMessageTemplateNavigationInfoProvider(MessageTemplatesNavigationInfoProvider parent,
-				ObjectFactory<NewMessageTemplateView> factory)
+		public NewMessageTemplateNavigationInfoProvider(ObjectFactory<NewMessageTemplateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(MessageTemplatesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

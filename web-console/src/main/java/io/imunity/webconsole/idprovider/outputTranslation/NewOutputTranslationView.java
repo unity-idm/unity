@@ -46,11 +46,10 @@ public class NewOutputTranslationView extends NewTranslationView
 	{
 
 		@Autowired
-		public NewInputTranslationNavigationInfoProvider(OutputTranslationsNavigationInfoProvider parent,
-				ObjectFactory<NewOutputTranslationView> factory)
+		public NewInputTranslationNavigationInfoProvider(ObjectFactory<NewOutputTranslationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(OutputTranslationsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

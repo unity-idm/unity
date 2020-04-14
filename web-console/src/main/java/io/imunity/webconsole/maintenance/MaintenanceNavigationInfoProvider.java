@@ -27,11 +27,10 @@ public class MaintenanceNavigationInfoProvider extends WebConsoleNavigationInfoP
 	public static final String ID = "Maintenance";
 
 	@Autowired
-	public MaintenanceNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public MaintenanceNavigationInfoProvider(UnityMessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.maintenance"))
 				.withIcon(Images.tools.getResource()).withPosition(90).build());
 

@@ -123,11 +123,10 @@ class EditMessageTemplateView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditMessageTemplateNavigationInfoProvider(MessageTemplatesNavigationInfoProvider parent,
-				ObjectFactory<EditMessageTemplateView> factory)
+		public EditMessageTemplateNavigationInfoProvider(ObjectFactory<EditMessageTemplateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(MessageTemplatesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

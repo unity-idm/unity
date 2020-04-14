@@ -183,18 +183,18 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 	@Component
 	public static class CredentialsRequirementsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = CredentialRequirementsView.VIEW_NAME;
+		
 		@Autowired
 		public CredentialsRequirementsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent, ObjectFactory<CredentialRequirementsView> factory)
+				ObjectFactory<CredentialRequirementsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage(
 							"WebConsoleMenu.authentication.credentialRequirements"))
 					.withIcon(Images.optiona_a.getResource())
 					.withPosition(30).build());
-
 		}
 	}
 }

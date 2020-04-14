@@ -126,13 +126,11 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 	@Component
 	public static class EditAuthenticatorViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
 		@Autowired
-		public EditAuthenticatorViewInfoProvider(AuthenticatorsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticatorView> factory)
+		public EditAuthenticatorViewInfoProvider(ObjectFactory<EditAuthenticatorView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AuthenticatorsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

@@ -27,11 +27,10 @@ public class DirectorySetupNavigationInfoProvider extends WebConsoleNavigationIn
 	public static final String ID = "DirectorySetup";
 
 	@Autowired
-	public DirectorySetupNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public DirectorySetupNavigationInfoProvider(UnityMessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.directorySetup"))
 				.withIcon(Images.file_tree.getResource()).withPosition(70).build());
 

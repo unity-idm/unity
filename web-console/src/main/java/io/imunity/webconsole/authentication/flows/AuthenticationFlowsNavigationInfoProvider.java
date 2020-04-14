@@ -30,7 +30,7 @@ class AuthenticationFlowsNavigationInfoProvider extends WebConsoleNavigationInfo
 			AuthenticationFacilitiesNavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(AuthenticationFacilitiesNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("AuthenticationFlows.navCaption"))
 				.build());
 

@@ -105,13 +105,13 @@ class InvitationsView extends CustomComponent implements UnityView
 	@Component
 	public static class InvitationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public InvitationsNavigationInfoProvider(UnityMessageSource msg,
-				SignupAndEnquiryNavigationInfoProvider parent, ObjectFactory<InvitationsView> factory)
+		public InvitationsNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<InvitationsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(SignupAndEnquiryNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.invitations"))
 					.withIcon(Images.taxi.getResource())
 					.withPosition(30).build());

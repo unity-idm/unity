@@ -74,11 +74,10 @@ class BackupAndRestoreView extends CustomComponent implements UnityView
 
 		@Autowired
 		public BackupAndRestoreInfoProvider(UnityMessageSource msg,
-				MaintenanceNavigationInfoProvider parent,
 				ObjectFactory<BackupAndRestoreView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(MaintenanceNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.backupAndRestore"))
 					.withIcon(Images.cloud_download.getResource())
 					.withPosition(10).build());

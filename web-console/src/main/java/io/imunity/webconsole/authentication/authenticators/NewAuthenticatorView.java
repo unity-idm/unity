@@ -119,11 +119,10 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	{
 
 		@Autowired
-		public NewAuthenticatorNavigationInfoProvider(AuthenticatorsNavigationInfoProvider parent,
-				ObjectFactory<NewAuthenticatorView> factory)
+		public NewAuthenticatorNavigationInfoProvider(ObjectFactory<NewAuthenticatorView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AuthenticatorsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

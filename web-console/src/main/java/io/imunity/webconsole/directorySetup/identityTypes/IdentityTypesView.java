@@ -145,13 +145,14 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 	@Component
 	public static class IdentityTypesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public IdentityTypesNavigationInfoProvider(UnityMessageSource msg,
-				DirectorySetupNavigationInfoProvider parent, ObjectFactory<IdentityTypesView> factory)
+				ObjectFactory<IdentityTypesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(DirectorySetupNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.identityTypes"))
 					.withIcon(Images.clipboard_user.getResource())
 					.withPosition(20).build());

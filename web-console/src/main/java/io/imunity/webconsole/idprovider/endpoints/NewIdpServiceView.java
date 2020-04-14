@@ -45,11 +45,10 @@ class NewIdpServiceView extends NewServiceViewBase
 	{
 
 		@Autowired
-		public NewServiceNavigationInfoProvider(IdpServicesNavigationInfoProvider parent,
-				ObjectFactory<NewIdpServiceView> factory)
+		public NewServiceNavigationInfoProvider(ObjectFactory<NewIdpServiceView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(IdpServicesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

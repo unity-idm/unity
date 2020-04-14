@@ -55,4 +55,11 @@ public class TestUnityMessageSource
 		
 		assertThat(message, is("From extra file"));
 	}
+	
+	@Test
+	public void test()
+	{
+		
+		msg.getKeys().keySet().forEach(k -> System.out.println(k));
+	}
 }

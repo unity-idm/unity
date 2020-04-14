@@ -152,7 +152,8 @@ public enum Images
 	money		(VaadinIcons.MONEY),
 	flag_final	(VaadinIcons.FLAG_CHECKERED),	
 	coin_piles	(VaadinIcons.COIN_PILES),
-	check_square	(VaadinIcons.CHECK_SQUARE_O);
+	check_square	(VaadinIcons.CHECK_SQUARE_O),
+	text_label	(VaadinIcons.TEXT_LABEL);
 	
 	private final Resource resource;
 	private final String path;

@@ -26,11 +26,10 @@ class AuthenticatorsNavigationInfoProvider extends WebConsoleNavigationInfoProvi
 	public static final String ID = "Authenticators";
 
 	@Autowired
-	AuthenticatorsNavigationInfoProvider(UnityMessageSource msg,
-			AuthenticationFacilitiesNavigationInfoProvider parent)
+	AuthenticatorsNavigationInfoProvider(UnityMessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(AuthenticationFacilitiesNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("Authenticators.navCaption"))
 				.build());
 

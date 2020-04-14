@@ -103,11 +103,10 @@ class NewPolicyDocumentView extends CustomComponent implements UnityView
 	public static class NewPolicyDocumentNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public NewPolicyDocumentNavigationInfoProvider(PolicyDocumentsNavigationInfoProvider parent,
-				ObjectFactory<NewPolicyDocumentView> factory)
+		public NewPolicyDocumentNavigationInfoProvider(ObjectFactory<NewPolicyDocumentView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
+					.withParent(PolicyDocumentsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

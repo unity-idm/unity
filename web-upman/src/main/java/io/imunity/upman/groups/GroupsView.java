@@ -99,11 +99,10 @@ public class GroupsView extends CustomComponent implements UpManView
 	{
 		@Autowired
 		public GroupsNavigationInfoProvider(UnityMessageSource msg,
-				UpManRootNavigationInfoProvider parent,
 				ObjectFactory<GroupsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo())
+					.withParent(UpManRootNavigationInfoProvider.ID)
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.groups"))
 					.withIcon(Images.file_tree.getResource()).withPosition(1)

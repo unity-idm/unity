@@ -138,11 +138,10 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditEnquiryFormNavigationInfoProvider(SignupAndEnquiryFormsNavigationInfoProvider parent,
-				ObjectFactory<EditEnquiryFormView> factory)
+		public EditEnquiryFormNavigationInfoProvider(ObjectFactory<EditEnquiryFormView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(SignupAndEnquiryFormsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

@@ -182,13 +182,13 @@ class PolicyDocumentsView extends CustomComponent implements UnityView
 	@Component
 	public static class PolicyDocumentsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public PolicyDocumentsNavigationInfoProvider(UnityMessageSource msg,
-				SettingsNavigationInfoProvider parent, ObjectFactory<PolicyDocumentsView> factory)
+		public PolicyDocumentsNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<PolicyDocumentsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(SettingsNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.settings.policyDocuments"))
 					.withIcon(Images.check_square.getResource()).withPosition(20).build());
 

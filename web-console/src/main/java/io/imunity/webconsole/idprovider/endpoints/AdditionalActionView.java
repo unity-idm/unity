@@ -96,11 +96,10 @@ public class AdditionalActionView extends CustomComponent implements UnityViewWi
 	{
 
 		@Autowired
-		public ExtraActionServiceNavigationInfoProvider(IdpServicesNavigationInfoProvider parent,
-				ObjectFactory<AdditionalActionView> factory)
+		public ExtraActionServiceNavigationInfoProvider(ObjectFactory<AdditionalActionView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(IdpServicesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

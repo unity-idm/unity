@@ -238,12 +238,14 @@ class ServicesView extends CustomComponent implements UnityView
 	@Component
 	public class ServicesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public ServicesNavigationInfoProvider(UnityMessageSource msg,
-				WebConsoleRootNavigationInfoProvider parent, ObjectFactory<ServicesView> factory)
+				 ObjectFactory<ServicesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(WebConsoleRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.services"))
 					.withIcon(Images.server.getResource()).withPosition(50).build());
 		}

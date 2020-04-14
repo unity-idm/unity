@@ -46,11 +46,10 @@ public class EditOutputTranslationView extends EditTranslationView
 	{
 
 		@Autowired
-		public EditInputTranslationNavigationInfoProvider(OutputTranslationsNavigationInfoProvider parent,
-				ObjectFactory<EditOutputTranslationView> factory)
+		public EditInputTranslationNavigationInfoProvider(ObjectFactory<EditOutputTranslationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(OutputTranslationsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

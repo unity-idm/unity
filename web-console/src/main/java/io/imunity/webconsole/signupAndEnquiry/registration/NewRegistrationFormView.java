@@ -135,11 +135,10 @@ class NewRegistrationFormView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewRegistrationFormNavigationInfoProvider(SignupAndEnquiryFormsNavigationInfoProvider parent,
-				ObjectFactory<NewRegistrationFormView> factory)
+		public NewRegistrationFormNavigationInfoProvider(ObjectFactory<NewRegistrationFormView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(SignupAndEnquiryFormsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

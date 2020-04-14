@@ -130,11 +130,10 @@ public class NewInvitationView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewInvitationNavigationInfoProvider(InvitationsNavigationInfoProvider parent,
-				ObjectFactory<NewInvitationView> factory)
+		public NewInvitationNavigationInfoProvider(ObjectFactory<NewInvitationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(InvitationsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

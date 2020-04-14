@@ -131,11 +131,10 @@ class NewAttributeTypeView extends CustomComponent implements UnityView
 	public static class NewAttributeTypeNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public NewAttributeTypeNavigationInfoProvider(AttributeTypesNavigationInfoProvider parent,
-				ObjectFactory<NewAttributeTypeView> factory)
+		public NewAttributeTypeNavigationInfoProvider(ObjectFactory<NewAttributeTypeView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AttributeTypesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

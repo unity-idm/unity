@@ -137,11 +137,10 @@ class EditAttributeClassView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditAttributeClassNavigationInfoProvider(AttributeClassesNavigationInfoProvider parent,
-				ObjectFactory<EditAttributeClassView> factory)
+		public EditAttributeClassNavigationInfoProvider(ObjectFactory<EditAttributeClassView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AttributeClassesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

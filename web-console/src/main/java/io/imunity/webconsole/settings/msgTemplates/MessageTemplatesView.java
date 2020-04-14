@@ -303,13 +303,14 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	@Component
 	public static class MessageTemplatesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public MessageTemplatesNavigationInfoProvider(UnityMessageSource msg,
-				SettingsNavigationInfoProvider parent, ObjectFactory<MessageTemplatesView> factory)
+				ObjectFactory<MessageTemplatesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(SettingsNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.settings.messageTemplates"))
 					.withIcon(Images.envelopes_open.getResource())
 					.withPosition(10).build());

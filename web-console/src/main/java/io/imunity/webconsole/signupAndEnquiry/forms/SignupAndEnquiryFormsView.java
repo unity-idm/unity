@@ -88,14 +88,15 @@ public class SignupAndEnquiryFormsView extends CustomComponent implements UnityV
 	@Component
 	public static class SignupAndEnquiryFormsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
 		public SignupAndEnquiryFormsNavigationInfoProvider(UnityMessageSource msg,
 				SignupAndEnquiryNavigationInfoProvider parent,
 				ObjectFactory<SignupAndEnquiryFormsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(SignupAndEnquiryNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.forms"))
 					.withIcon(Images.form.getResource())
 					.withPosition(10).build());

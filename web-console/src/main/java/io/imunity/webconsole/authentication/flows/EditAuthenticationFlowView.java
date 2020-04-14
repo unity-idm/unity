@@ -133,12 +133,11 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditAuthenticationFlowViewInfoProvider(AuthenticationFlowsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticationFlowView> factory)
+		public EditAuthenticationFlowViewInfoProvider(ObjectFactory<EditAuthenticationFlowView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
-							.withParent(parent.getNavigationInfo())
+							.withParent(AuthenticationFlowsNavigationInfoProvider.ID)
 							.withObjectFactory(factory).build());
 
 		}

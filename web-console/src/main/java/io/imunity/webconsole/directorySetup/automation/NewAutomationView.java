@@ -115,11 +115,10 @@ class NewAutomationView extends CustomComponent implements UnityView
 	public static class NewAutomationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public NewAutomationNavigationInfoProvider(AutomationNavigationInfoProvider parent,
-				ObjectFactory<NewAutomationView> factory)
+		public NewAutomationNavigationInfoProvider(ObjectFactory<NewAutomationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AutomationNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}
