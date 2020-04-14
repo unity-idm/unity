@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +16,6 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
@@ -103,7 +103,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private RegistrationInvitationParam invitation;
 	private AuthenticatorSupportService authnSupport;
 	private SignUpAuthNController signUpAuthNController;
-	private Map<AuthenticationOptionKey, AuthNOption> signupOptions;
+	private Map<AuthenticationOptionKey, AuthNOption> externalSignupOptions;
 	private Runnable onLocalSignupHandler;
 	private FormLayout effectiveLayout;
 	private Stage stage;
@@ -244,11 +244,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	boolean performAutomaticRemoteSignupIfNeeded()
 	{
-		if (isAutomatedAuthenticationDesired())
+		if (isAutomatedAuthenticationDesired() && externalSignupOptions.size() > 0)
 		{
 			VaadinServletRequest httpRequest = (VaadinServletRequest) VaadinRequest.getCurrent();
 			String requestedAuthnOption = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
-			if (signupOptions.size() > 1 && requestedAuthnOption == null)
+			if (externalSignupOptions.size() > 1 && requestedAuthnOption == null)
 			{
 				log.warn("There are more multiple remote signup options are installed, "
 						+ "and automated signup was requested without specifying (with " 
@@ -257,8 +257,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				return false;
 			}
 			AuthNOption authnOption = requestedAuthnOption != null ? 
-					signupOptions.get(AuthenticationOptionKey.valueOf(requestedAuthnOption)) : 
-					signupOptions.values().iterator().next();
+					externalSignupOptions.get(AuthenticationOptionKey.valueOf(requestedAuthnOption)) : 
+					externalSignupOptions.values().iterator().next();
 			if (authnOption == null)
 			{
 				log.warn("Remote signup option {} specified for auto signup is invalid. "
@@ -334,10 +334,10 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private void resolveRemoteSignupOptions()
 	{
+		externalSignupOptions = new HashMap<>();
 		if (!form.getExternalSignupSpec().isEnabled())
 			return;
 		
-		signupOptions = Maps.newHashMap();
 		Set<String> authnOptions = form.getExternalSignupSpec().getSpecs().stream()
 			.map(AuthenticationOptionKey::getAuthenticatorKey)
 			.collect(Collectors.toSet());
@@ -362,7 +362,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					{
 						AuthNOption signupAuthNOption = new AuthNOption(flow, vaadinAuthenticator,  vaadinAuthenticationUI);
 						setupExpectedIdentity(vaadinAuthenticationUI);
-						signupOptions.put(authnOption, signupAuthNOption);
+						externalSignupOptions.put(authnOption, signupAuthNOption);
 					}
 				}
 			}
@@ -481,12 +481,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 
 		if (spec.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS))
 		{
-			return signupOptions.entrySet().stream().filter(
+			return externalSignupOptions.entrySet().stream().filter(
 					e -> e.getKey().getAuthenticatorKey().equals(spec.getAuthenticatorKey()))
 					.map(e -> e.getValue()).collect(Collectors.toList());
 		} else
 		{
-			return signupOptions.entrySet().stream().filter(e -> e.getKey().equals(spec))
+			return externalSignupOptions.entrySet().stream().filter(e -> e.getKey().equals(spec))
 					.map(e -> e.getValue()).collect(Collectors.toList());
 		}
 	}
