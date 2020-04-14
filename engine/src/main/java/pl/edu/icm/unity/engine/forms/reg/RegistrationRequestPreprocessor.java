@@ -162,6 +162,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 			throw new IllegalFormContentsException("The invitation has already expired");
 		
 		log.debug("Will apply invitation parameter to the request:\n{}", serializeHumanReadable(invitation.toJson()));
+		log.debug("Request before applying the invitation:\n{}", serializeHumanReadable(request.toJson()));
 		processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
 				invitation.getIdentities(), "identity");
 		processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
@@ -169,7 +170,6 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
 				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
 				"group");
-		log.debug("Request after applying invitation:\n{}", serializeHumanReadable(request.toJson()));
 		return invitationInfo;
 	}
 
