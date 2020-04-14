@@ -43,6 +43,7 @@ import com.google.common.collect.Lists;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -63,7 +64,6 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.AttributesContentPublicServletProvider;
@@ -143,7 +143,7 @@ public class EngineInitialization extends LifecycleBase
 
 
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	@Autowired
 	private InternalEndpointManagement internalEndpointManager;
 	@Autowired

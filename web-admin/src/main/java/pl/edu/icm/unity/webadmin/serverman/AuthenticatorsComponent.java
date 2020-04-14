@@ -21,11 +21,11 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
@@ -46,7 +46,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AuthenticatorsComponent.class);
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private UnityServerConfiguration config;
 	private AuthenticatorManagement authMan;
 	private ServerManagement serverMan;
@@ -56,7 +56,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 	private ObjectFactory<AuthenticatorComponent> authenticatorComponentFactory;
 
 	@Autowired
-	public AuthenticatorsComponent(UnityMessageSource msg, UnityServerConfiguration config,
+	public AuthenticatorsComponent(MessageSource msg, UnityServerConfiguration config,
 			AuthenticatorManagement authMan, ServerManagement serverMan,
 			ObjectFactory<AuthenticatorComponent> authenticatorComponentFactory)
 	{

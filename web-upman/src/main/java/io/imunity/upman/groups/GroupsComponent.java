@@ -20,7 +20,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -41,12 +41,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 class GroupsComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsController controller;
 	private GroupsTree groupBrowser;
 	private String projectPath;
 
-	public GroupsComponent(UnityMessageSource msg, GroupsController controller,
+	public GroupsComponent(MessageSource msg, GroupsController controller,
 			String projectPath) throws ControllerException
 	{
 		this.msg = msg;
@@ -230,7 +230,7 @@ class GroupsComponent extends CustomComponent
 		private GroupNode parentGroup;
 		private CheckBox isPublic;
 
-		public AddGroupDialog(UnityMessageSource msg, GroupNode parentGroup,
+		public AddGroupDialog(MessageSource msg, GroupNode parentGroup,
 				BiConsumer<I18nString, Boolean> groupConsumer)
 		{
 			super(msg, msg.getMessage("AddGroupDialog.caption"));
@@ -311,7 +311,7 @@ class GroupsComponent extends CustomComponent
 		private Consumer<I18nString> groupNameConsumer;
 		private I18nTextField groupNameField;
 
-		public RenameGroupDialog(UnityMessageSource msg,
+		public RenameGroupDialog(MessageSource msg,
 				Consumer<I18nString> groupNameConsumer)
 		{
 			super(msg, msg.getMessage("RenameGroupDialog.caption"));

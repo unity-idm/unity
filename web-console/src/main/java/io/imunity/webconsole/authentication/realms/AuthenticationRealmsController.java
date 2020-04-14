@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.common.EndpointController;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -30,11 +30,11 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 class AuthenticationRealmsController
 {
 	private RealmsManagement realmMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointController endpointController;
 
 	@Autowired
-	AuthenticationRealmsController(UnityMessageSource msg, RealmsManagement realmMan,
+	AuthenticationRealmsController(MessageSource msg, RealmsManagement realmMan,
 			EndpointController endpointController)
 	{
 		this.realmMan = realmMan;

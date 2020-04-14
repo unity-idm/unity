@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
  */
 public class IdpPolicyAgreementsConfigurationParser
 {
-	public static Properties toProperties(UnityMessageSource msg, IdpPolicyAgreementsConfiguration config,
+	public static Properties toProperties(MessageSource msg, IdpPolicyAgreementsConfiguration config,
 			String prefix)
 	{
 		Properties ret = new Properties();
@@ -47,7 +47,7 @@ public class IdpPolicyAgreementsConfigurationParser
 		return ret;
 	}
 
-	public static IdpPolicyAgreementsConfiguration fromPropoerties(UnityMessageSource msg,
+	public static IdpPolicyAgreementsConfiguration fromPropoerties(MessageSource msg,
 			UnityPropertiesHelper properties)
 	{
 		I18nString title = properties.getLocalizedStringWithoutFallbackToDefault(msg,
@@ -66,7 +66,7 @@ public class IdpPolicyAgreementsConfigurationParser
 		return new IdpPolicyAgreementsConfiguration(title, information, agreements);
 	}
 
-	private static PolicyAgreementConfiguration policyAgreementConfigurationfromProperties(UnityMessageSource msg,
+	private static PolicyAgreementConfiguration policyAgreementConfigurationfromProperties(MessageSource msg,
 			UnityPropertiesHelper properties, String prefix)
 	{
 		String docsP = properties.getValue(prefix + CommonIdPProperties.POLICY_AGREEMENT_DOCUMENTS);
@@ -85,7 +85,7 @@ public class IdpPolicyAgreementsConfigurationParser
 
 	}
 
-	private static Properties policyAgreementConfigurationtoProperties(UnityMessageSource msg, String prefix,
+	private static Properties policyAgreementConfigurationtoProperties(MessageSource msg, String prefix,
 			PolicyAgreementConfiguration config)
 	{
 		Properties p = new Properties();

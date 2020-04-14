@@ -15,10 +15,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventGroup;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -32,14 +32,14 @@ import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 @PrototypeComponent
 public class IntegrationEventsEditor extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ObjectFactory<IntegrationEventEditorComponent> factory;
 	private VerticalLayout eventLayout;
 	private List<IntegrationEventEditorComponent> events;
 	private List<IntegrationEventGroup> eventsGroups;
 
 	@Autowired
-	public IntegrationEventsEditor(UnityMessageSource msg, ObjectFactory<IntegrationEventEditorComponent> factory)
+	public IntegrationEventsEditor(MessageSource msg, ObjectFactory<IntegrationEventEditorComponent> factory)
 	{
 		this.msg = msg;
 		this.factory = factory;

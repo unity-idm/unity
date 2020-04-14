@@ -15,12 +15,12 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -52,13 +52,13 @@ public class OutdatedCredentialController
 	private String credentialId;
 	private CredentialChangePanel ui;
 	private CredentialChangeConfiguration uiConfig;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private Runnable finishHandler;
 	
 	@Autowired
 	public OutdatedCredentialController(AdditionalAuthnHandler additionalAuthnHandler,
-			UnityMessageSource msg, CredentialManagement credMan,
+			MessageSource msg, CredentialManagement credMan,
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg, ImageAccessService imageAccessService)

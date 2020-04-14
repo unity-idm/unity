@@ -9,7 +9,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -22,12 +22,12 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class BigTabPanel extends HorizontalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private BigTabs tabs;
 	private VerticalLayout main;
 	private SafePanel mainPanel;
 
-	public BigTabPanel(int tabsBarWidth, Unit widthUnit, UnityMessageSource msg)
+	public BigTabPanel(int tabsBarWidth, Unit widthUnit, MessageSource msg)
 	{
 		this.msg = msg;
 		tabs = new BigTabs(tabsBarWidth, widthUnit);

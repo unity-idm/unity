@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -83,7 +83,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private AttributeTypeHelper atHelper;
 
 	@Autowired
-	public SharedEnquiryManagment(UnityMessageSource msg, NotificationProducer notificationProducer,
+	public SharedEnquiryManagment(MessageSource msg, NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper, EnquiryResponseDB enquiryResponseDB,
 			IdentityHelper dbIdentities, RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,

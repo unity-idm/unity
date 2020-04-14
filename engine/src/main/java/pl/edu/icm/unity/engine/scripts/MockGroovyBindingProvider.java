@@ -10,6 +10,7 @@ import static org.mockito.Mockito.withSettings;
 import org.apache.logging.log4j.Logger;
 
 import groovy.lang.Binding;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -36,7 +37,6 @@ import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
@@ -53,7 +53,7 @@ public class MockGroovyBindingProvider
 	
 	public static Binding getBinding(PersistableEvent event)
 	{
-		UnityMessageSource unityMessageSource = mock(UnityMessageSource.class, 
+		MessageSource unityMessageSource = mock(MessageSource.class, 
 				withSettings().verboseLogging());
 		UnityServerConfiguration config = mock(UnityServerConfiguration.class, 
 				withSettings().verboseLogging());

@@ -19,7 +19,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -30,11 +30,11 @@ class NewPolicyDocumentView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "NewPolicyDocument";
 	private PolicyDocumentsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PolicyDocumentEditor editor;
 
 	@Autowired
-	NewPolicyDocumentView(PolicyDocumentsController controller, UnityMessageSource msg)
+	NewPolicyDocumentView(PolicyDocumentsController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;

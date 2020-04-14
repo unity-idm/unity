@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 
@@ -21,13 +21,13 @@ public class ListOfEmbeddedElements<T> extends CompactFormLayout
 {
 	private ListOfEmbeddedElementsStub<T> stub;
 	
-	public ListOfEmbeddedElements(UnityMessageSource msg, EditorProvider<T> editorProvider,
+	public ListOfEmbeddedElements(MessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)
 	{
 		this(null, msg, editorProvider, min, max, showLine);
 	}
 
-	public ListOfEmbeddedElements(String caption, UnityMessageSource msg, EditorProvider<T> editorProvider,
+	public ListOfEmbeddedElements(String caption, MessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)
 	{
 		stub = new ListOfEmbeddedElementsStub<T>(msg, editorProvider, min, max, showLine);

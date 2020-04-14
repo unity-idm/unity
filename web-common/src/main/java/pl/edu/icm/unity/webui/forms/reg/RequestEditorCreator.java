@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -14,7 +15,6 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 @PrototypeComponent
 public class RequestEditorCreator
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImageAccessService imageAccessService;
 	private RegistrationForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
@@ -57,7 +57,7 @@ public class RequestEditorCreator
 	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 
 	@Autowired
-	public RequestEditorCreator(UnityMessageSource msg, ImageAccessService imageAccessService,
+	public RequestEditorCreator(MessageSource msg, ImageAccessService imageAccessService,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,

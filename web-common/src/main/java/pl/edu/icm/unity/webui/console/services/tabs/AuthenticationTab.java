@@ -15,7 +15,7 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -33,12 +33,12 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 public class AuthenticationTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<String> flows;
 	private List<String> authenticators;
 
-	public AuthenticationTab(UnityMessageSource msg, List<AuthenticationFlowDefinition> flows,
+	public AuthenticationTab(MessageSource msg, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> allRealms, String binding)
 
 	{

@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Set;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
  */
 public class SAMLServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointTypeDescription type;
 	private PKIManagement pkiMan;
 	private List<String> allRealms;
@@ -67,7 +67,7 @@ public class SAMLServiceEditor implements ServiceEditor
 	private ImageAccessService imageAccessService;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
 
-	public SAMLServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
+	public SAMLServiceEditor(MessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			String serverPrefix,

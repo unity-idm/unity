@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -42,10 +42,10 @@ class NewAuthenticationRealmView extends CustomComponent implements UnityView
 
 	private AuthenticationRealmsController controller;
 	private AuthenticationRealmEditor editor;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	NewAuthenticationRealmView(UnityMessageSource msg,
+	NewAuthenticationRealmView(MessageSource msg,
 			AuthenticationRealmsController controller)
 	{
 		this.msg = msg;

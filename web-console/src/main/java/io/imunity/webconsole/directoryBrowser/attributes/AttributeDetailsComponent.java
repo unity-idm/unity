@@ -10,8 +10,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -28,9 +28,9 @@ public class AttributeDetailsComponent extends VerticalLayout
 {
 	private static final int IMAGE_SCALE = 500;
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public AttributeDetailsComponent(UnityMessageSource msg, AttributeValueSyntax<?> syntax,
+	public AttributeDetailsComponent(MessageSource msg, AttributeValueSyntax<?> syntax,
 			WebAttributeHandler handler, AttributeExt a)
 	{
 		this.msg = msg;

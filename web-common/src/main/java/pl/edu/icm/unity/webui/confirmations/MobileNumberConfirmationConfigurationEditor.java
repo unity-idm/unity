@@ -11,9 +11,9 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Layout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgTemplateMan;
 	private Binder<MobileNumberConfirmationConfiguration> binder;
 	private MobileNumberConfirmationConfiguration initial;
@@ -39,13 +39,13 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	private int defaultValidity;
 
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
-			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix)
+			MessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix)
 	{
 		this(initial, msg, msgTemplateMan, msgPrefix, EmailConfirmationConfiguration.DEFAULT_VALIDITY);
 	}
 	
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
-			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix, int defaultValidity)
+			MessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix, int defaultValidity)
 	{
 		this.initial = initial;
 		this.msg = msg;
@@ -56,7 +56,7 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	}
 	
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
-			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+			MessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
 		this(initial, msg, msgTemplateMan, "MobileNumberConfirmationConfiguration.");
 	}

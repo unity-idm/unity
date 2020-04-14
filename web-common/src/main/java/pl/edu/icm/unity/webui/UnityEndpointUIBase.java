@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
@@ -19,7 +19,7 @@ public abstract class UnityEndpointUIBase extends UnityUIBase
 {
 	private EnquiresDialogLauncher enquiryDialogLauncher;
 	
-	public UnityEndpointUIBase(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher)
+	public UnityEndpointUIBase(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher)
 	{
 		super(msg);
 		this.enquiryDialogLauncher = enquiryDialogLauncher;

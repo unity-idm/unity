@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.attributeclass;
 import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.attributeclass.AttributesClassEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -23,7 +23,7 @@ public class AttributesClassEditDialog extends AbstractDialog
 	private AttributesClassEditor editor;
 	private Callback callback;
 	
-	public AttributesClassEditDialog(UnityMessageSource msg, String caption, AttributesClassEditor editor, 
+	public AttributesClassEditDialog(MessageSource msg, String caption, AttributesClassEditor editor, 
 			Callback callback)
 	{
 		super(msg, caption);

@@ -15,8 +15,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 @PrototypeComponent
 public class PolicyAgreementScreen extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PolicyAgreementManagement policyAgreementDecider;
 
 	private Button submitButton;
@@ -46,7 +46,7 @@ public class PolicyAgreementScreen extends CustomComponent
 	private VerticalLayout contents;
 	private Runnable submitHandler;
 
-	public PolicyAgreementScreen(UnityMessageSource msg,
+	public PolicyAgreementScreen(MessageSource msg,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
 			PolicyAgreementManagement policyAgreementDecider)
 	{

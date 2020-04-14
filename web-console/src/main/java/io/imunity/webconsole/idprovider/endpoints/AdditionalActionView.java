@@ -23,8 +23,8 @@ import io.imunity.webelements.navigation.BreadcrumbsComponent;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewWithSubViews;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -34,14 +34,14 @@ public class AdditionalActionView extends CustomComponent implements UnityViewWi
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalActionView.class);
 	public static final String VIEW_NAME = "AdditionalIdpServiceView";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdpServiceAdditionalActionsRegistry actionsRegistry;
 
 	private String serviceName;
 	private IdpServiceAdditionalAction action;;
 
 	@Autowired
-	public AdditionalActionView(UnityMessageSource msg, IdpServiceAdditionalActionsRegistry registry)
+	public AdditionalActionView(MessageSource msg, IdpServiceAdditionalActionsRegistry registry)
 	{
 		this.msg = msg;
 		this.actionsRegistry = registry;

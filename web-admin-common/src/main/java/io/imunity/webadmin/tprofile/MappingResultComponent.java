@@ -14,7 +14,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
@@ -44,7 +44,7 @@ public class MappingResultComponent extends CustomComponent
 	private HorizontalLayout titleWrap;
 	private Label noneLabel;
 	private HtmlLabel titleLabel;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	/**
 	 * The constructor should first build the main layout, set the
 	 * composition root and then do any custom initialization.
@@ -53,7 +53,7 @@ public class MappingResultComponent extends CustomComponent
 	 * visual editor.
 	 * @param msg 
 	 */
-	public MappingResultComponent(UnityMessageSource msg) 
+	public MappingResultComponent(MessageSource msg) 
 	{
 		this.msg = msg;
 

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @PrototypeComponent
 public class ActionParameterComponentProvider
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private List<String> groups;
 	private Collection<String> credReqs;
@@ -59,7 +59,7 @@ public class ActionParameterComponentProvider
 	private RegistrationsManagement registrationMan;
 
 	@Autowired
-	public ActionParameterComponentProvider(UnityMessageSource msg,
+	public ActionParameterComponentProvider(MessageSource msg,
 			AttributeTypeManagement attrsMan, IdentityTypeSupport idTypeSupport,
 			CredentialRequirementManagement credReqMan, GroupsManagement groupsMan,
 			TranslationProfileManagement profileMan,

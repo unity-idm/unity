@@ -14,7 +14,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 
 import io.imunity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -45,7 +45,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param groupPath
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(final UnityMessageSource msg, Collection<AttributeType> attributeTypes, EntityParam owner, String groupPath,
+	public AttributeEditor(final MessageSource msg, Collection<AttributeType> attributeTypes, EntityParam owner, String groupPath,
 			final AttributeHandlerRegistry handlerRegistry, final boolean required)
 	{
 		this.groupPath = groupPath;
@@ -103,7 +103,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param attribute
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute attribute, EntityParam owner, 
+	public AttributeEditor(MessageSource msg, AttributeType attributeType, Attribute attribute, EntityParam owner, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
@@ -129,7 +129,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param attribute
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, EntityParam owner, String groupPath, 
+	public AttributeEditor(MessageSource msg, AttributeType attributeType, EntityParam owner, String groupPath, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = groupPath;

@@ -24,6 +24,7 @@ import io.imunity.webadmin.groupbrowser.TreeNode;
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -50,7 +50,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class GroupBrowserController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private GroupsManagement groupsMan;
 	private EntityManagement identitiesMan;
@@ -65,7 +65,7 @@ class GroupBrowserController
 	private GroupManagementHelper groupManagementHelper;
 
 	@Autowired
-	GroupBrowserController(UnityMessageSource msg, GroupsManagement groupsMan, EntityManagement identitiesMan,
+	GroupBrowserController(MessageSource msg, GroupsManagement groupsMan, EntityManagement identitiesMan,
 			AttributeClassManagement acMan, BulkGroupQueryService bulkQueryService,
 			RegistrationsManagement registrationMan, EnquiryManagement enquiryMan,
 			AttributeTypeManagement attrTypeMan, ObjectFactory<RegistrationFormEditor> regFormEditorFactory,

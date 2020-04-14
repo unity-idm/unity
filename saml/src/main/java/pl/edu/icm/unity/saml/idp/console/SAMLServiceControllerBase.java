@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.idp.console;
 import java.util.stream.Collectors;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -55,9 +55,9 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
 
-	public SAMLServiceControllerBase(UnityMessageSource msg,
+	public SAMLServiceControllerBase(MessageSource msg,
 			EndpointManagement endpointMan,
-			UnityMessageSource msg2,
+			MessageSource msg2,
 			EndpointManagement endpointMan2,
 			RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan,

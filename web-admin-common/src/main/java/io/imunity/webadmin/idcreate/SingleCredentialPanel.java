@@ -13,9 +13,9 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -34,14 +34,14 @@ class SingleCredentialPanel extends VerticalLayout
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleCredentialPanel.class);
 	private CredentialEditorRegistry credEditorReg;
 	private CredentialManagement credMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CheckBox setTheCredential;
 	private CheckBox invalidate;
 	private CredentialEditor credEditor;
 	private ComponentsContainer credEditorComp;
 	private CredentialDefinition toEdit;
 	
-	SingleCredentialPanel(UnityMessageSource msg, 
+	SingleCredentialPanel(MessageSource msg, 
 			CredentialManagement credMan,
 			CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit)

@@ -22,8 +22,8 @@ import com.unboundid.ldap.sdk.LDAPException;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -252,7 +252,7 @@ public class LdapConfiguration
 
 	}
 
-	public void fromProperties(String properties, String type, UnityMessageSource msg)
+	public void fromProperties(String properties, String type, MessageSource msg)
 	{
 		Properties raw = new Properties();
 		try
@@ -275,7 +275,7 @@ public class LdapConfiguration
 		}	
 	}
 
-	private void fromPasswordRetrievalProperties(Properties raw, UnityMessageSource msg)
+	private void fromPasswordRetrievalProperties(Properties raw, MessageSource msg)
 	{
 		PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
 		setRetrievalName(passwordRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
@@ -287,7 +287,7 @@ public class LdapConfiguration
 		
 	}
 
-	private void fromTLSRetrievalProperties(Properties raw, UnityMessageSource msg)
+	private void fromTLSRetrievalProperties(Properties raw, MessageSource msg)
 	{
 		TLSRetrievalProperties tlsRetrievalProperties = new TLSRetrievalProperties(raw);
 		setRetrievalName(tlsRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
@@ -298,7 +298,7 @@ public class LdapConfiguration
 				.getValue(TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN));	
 	}
 
-	public String toProperties(String type, UnityMessageSource msg) throws ConfigurationException
+	public String toProperties(String type, MessageSource msg) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
@@ -468,7 +468,7 @@ public class LdapConfiguration
 	}
 	
 	
-	private void toPasswordRetrievalProperties(Properties raw, UnityMessageSource msg)
+	private void toPasswordRetrievalProperties(Properties raw, MessageSource msg)
 	{
 		if (getRetrievalName() != null && !getRetrievalName().isEmpty())
 		{
@@ -486,7 +486,7 @@ public class LdapConfiguration
 		}		
 	}
 	
-	private void toTLSRetrievalProperties(Properties raw, UnityMessageSource msg)
+	private void toTLSRetrievalProperties(Properties raw, MessageSource msg)
 	{
 		if (getRetrievalName() != null && !getRetrievalName().isEmpty())
 		{

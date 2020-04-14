@@ -21,9 +21,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -51,7 +51,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 @PrototypeComponent
 public class RequestProcessingPanel extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationsManagement regMan;
 	
 	private EventsBus bus;
@@ -70,7 +70,7 @@ public class RequestProcessingPanel extends CustomComponent
 	private EnquiryManagement enquiryMan;
 	
 	@Autowired
-	public RequestProcessingPanel(UnityMessageSource msg, RegistrationsManagement regMan,
+	public RequestProcessingPanel(MessageSource msg, RegistrationsManagement regMan,
 			EnquiryManagement enquiryMan, GenericReviewPanel requestReviewPanel)
 	{
 		this.msg = msg;

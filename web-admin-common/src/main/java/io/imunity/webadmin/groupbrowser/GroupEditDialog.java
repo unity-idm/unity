@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -38,7 +38,7 @@ public class GroupEditDialog extends AbstractDialog
 	private boolean originalIsPublic;
 	
 
-	public GroupEditDialog(UnityMessageSource msg, Group group, boolean edit, Callback callback) 
+	public GroupEditDialog(MessageSource msg, Group group, boolean edit, Callback callback) 
 	{
 		super(msg, edit ? msg.getMessage("GroupEditDialog.editCaption") : 
 					msg.getMessage("GroupEditDialog.createCaption"),

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -13,33 +13,33 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 public class AttributeTypeUtils
 {
-	public static String getBoundsDesc(UnityMessageSource msg, Integer min, Integer max)
+	public static String getBoundsDesc(MessageSource msg, Integer min, Integer max)
 	{
 		String from = (min == null || min == Integer.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";
 		String to = (max == null || max == Integer.MAX_VALUE) ? msg.getMessage("AttributeType.noLimit") : max+""; 
 		return "[" + from + ", " + to + "]";
 	}
 
-	public static String getBoundsDesc(UnityMessageSource msg, Long min, Long max)
+	public static String getBoundsDesc(MessageSource msg, Long min, Long max)
 	{
 		String from = (min == null || min == Long.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";
 		String to = (max == null || max == Long.MAX_VALUE) ? msg.getMessage("AttributeType.noLimit") : max+""; 
 		return "[" + from + ", " + to + "]";
 	}
 	
-	public static String getBoundsDesc(UnityMessageSource msg, Double min, Double max)
+	public static String getBoundsDesc(MessageSource msg, Double min, Double max)
 	{
 		String from = (min == null || min == Double.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";
 		String to = (max == null || max == Double.MAX_VALUE) ? msg.getMessage("AttributeType.noLimit") : max+""; 
 		return "[" + from + ", " + to + "]";
 	}
 	
-	public static String getBooleanDesc(UnityMessageSource msg, boolean val)
+	public static String getBooleanDesc(MessageSource msg, boolean val)
 	{
 		return val ? msg.getMessage("yes") : msg.getMessage("no");
 	}
 	
-	public static String getFlagsDesc(UnityMessageSource msg, AttributeType type)
+	public static String getFlagsDesc(MessageSource msg, AttributeType type)
 	{
 		StringBuilder sb = new StringBuilder();
 		int flags = type.getFlags();

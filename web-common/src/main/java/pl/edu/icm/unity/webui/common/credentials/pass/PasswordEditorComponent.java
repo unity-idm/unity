@@ -8,7 +8,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
@@ -28,7 +28,7 @@ public class PasswordEditorComponent extends CustomComponent implements Componen
 	private PasswordQualityComponent qualityComponent;
 	private int tabIndex;
 	
-	public PasswordEditorComponent(UnityMessageSource msg, CredentialEditorContext context, PasswordCredential config)
+	public PasswordEditorComponent(MessageSource msg, CredentialEditorContext context, PasswordCredential config)
 	{
 		super();
 		qualityComponent = new PasswordQualityComponent(msg, config, context);

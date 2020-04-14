@@ -18,8 +18,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.GridDragSource;
 
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -38,7 +38,7 @@ public class ProfileStepComponent extends CustomComponent
 	
 	private VerticalLayout rightPanel;
 	private static final float DEFAULT_SIZE_OF_SPLIT_POS = 50;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TranslationProfileEditor editor;
 	
 	/**
@@ -50,7 +50,7 @@ public class ProfileStepComponent extends CustomComponent
 	 * @param editor 
 	 * @param msg 
 	 */
-	public ProfileStepComponent(UnityMessageSource msg, TranslationProfileEditor editor) 
+	public ProfileStepComponent(MessageSource msg, TranslationProfileEditor editor) 
 	{
 		this.msg = msg;
 		this.editor = editor;

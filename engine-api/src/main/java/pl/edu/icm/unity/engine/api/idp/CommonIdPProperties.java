@@ -19,8 +19,8 @@ import com.google.common.collect.Lists;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 
@@ -224,12 +224,12 @@ public class CommonIdPProperties
 				.collect(Collectors.toList());
 	}
 
-	public static IdpPolicyAgreementsConfiguration getPolicyAgreementsConfig(UnityMessageSource msg, UnityPropertiesHelper cfg)
+	public static IdpPolicyAgreementsConfiguration getPolicyAgreementsConfig(MessageSource msg, UnityPropertiesHelper cfg)
 	{
 		return IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, cfg);
 	}
 
-	public static boolean isIdpPolicyAgreementsConfigured(UnityMessageSource msg, UnityPropertiesHelper cfg)
+	public static boolean isIdpPolicyAgreementsConfigured(MessageSource msg, UnityPropertiesHelper cfg)
 	{
 		return !getPolicyAgreementsConfig(msg, cfg).agreements.isEmpty();
 	}

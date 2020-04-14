@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser.DocPlaceholder;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
@@ -36,9 +36,9 @@ public class PolicyAgreementRepresentationBuilder
 {
 	private PolicyDocumentManagement policyDocMan;
 	private SharedEndpointManagement sharedEndpointManagement;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public PolicyAgreementRepresentationBuilder(UnityMessageSource msg,
+	public PolicyAgreementRepresentationBuilder(MessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement,
 			@Qualifier("insecure") PolicyDocumentManagement policyDocMan)
 	{

@@ -16,9 +16,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.LinkableImage;
 import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
@@ -38,7 +38,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 	
 	PublicLinkableImageValueComponent(@Nullable LinkableImage value,
 			ImageConfiguration imgConfig,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		UnityImage unityImage = value == null ? null : value.getUnityImage();
 		URL url = value == null ? null : value.getUrl();

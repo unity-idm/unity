@@ -8,7 +8,7 @@ import com.google.common.html.HtmlEscapers;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * HTML label displaying a contents which is based on a safe template with HTML and unsafe arguments which are supposed
@@ -21,16 +21,16 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class HtmlLabel extends Label
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
-	public HtmlLabel(UnityMessageSource msg)
+	public HtmlLabel(MessageSource msg)
 	{
 		this.msg = msg;
 		super.setContentMode(ContentMode.HTML);
 		resetValue();
 	}
 
-	public HtmlLabel(UnityMessageSource msg, String msgKey, Object... unsafeArgs)
+	public HtmlLabel(MessageSource msg, String msgKey, Object... unsafeArgs)
 	{
 		this(msg);
 		setHtmlValue(msgKey, unsafeArgs);

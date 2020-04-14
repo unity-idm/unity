@@ -26,7 +26,7 @@ import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
@@ -50,12 +50,12 @@ public class GroupMembersView extends CustomComponent implements UpManView
 
 	public static final String VIEW_NAME = "Members";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupMembersController controller;
 	private ConfirmationInfoFormatter formatter;
 
 	@Autowired
-	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller, ConfirmationInfoFormatter formatter)
+	public GroupMembersView(MessageSource msg, GroupMembersController controller, ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -146,7 +146,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	public class MembersNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public MembersNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<GroupMembersView> factory)
+		public MembersNavigationInfoProvider(MessageSource msg, ObjectFactory<GroupMembersView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
 					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)

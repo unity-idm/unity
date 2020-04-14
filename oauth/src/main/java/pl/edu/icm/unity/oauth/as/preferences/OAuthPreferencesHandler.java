@@ -10,9 +10,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
@@ -25,12 +25,12 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 public class OAuthPreferencesHandler implements PreferencesHandler
 {
 	private final Set<String> SUPPORTED_ENDPOINTS = new HashSet<String>();
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityManagement idsMan;
 	private IdentityTypeSupport idTypeSupport;
 	
 	@Autowired
-	public OAuthPreferencesHandler(UnityMessageSource msg, EntityManagement idsMan, 
+	public OAuthPreferencesHandler(MessageSource msg, EntityManagement idsMan, 
 			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;

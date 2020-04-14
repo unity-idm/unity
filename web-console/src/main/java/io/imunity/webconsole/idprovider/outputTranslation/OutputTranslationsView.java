@@ -14,7 +14,7 @@ import io.imunity.webconsole.idprovider.IdentityProviderNavigationInfoProvider;
 import io.imunity.webconsole.translationsProfiles.TranslationsView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 
@@ -30,7 +30,7 @@ class OutputTranslationsView extends TranslationsView
 	public static final String VIEW_NAME = "OutputTranslations";
 
 	@Autowired
-	public OutputTranslationsView(UnityMessageSource msg, OutputTranslationsController controller)
+	public OutputTranslationsView(MessageSource msg, OutputTranslationsController controller)
 	{
 		super(msg, controller);
 	}
@@ -72,7 +72,7 @@ class OutputTranslationsView extends TranslationsView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public OutputTranslationsNavigationInfoProvider(UnityMessageSource msg,
+		public OutputTranslationsNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<OutputTranslationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

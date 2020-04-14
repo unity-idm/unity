@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
  */
 public class FixedAttributeEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private String caption;
 	private String description;
@@ -39,7 +39,7 @@ public class FixedAttributeEditor
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private List<String> originalValues;
 
-	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry,
+	public FixedAttributeEditor(MessageSource msg, AttributeHandlerRegistry registry,
 			AttributeEditContext editContext, boolean showGroup, 
 			String caption, String description)
 	{

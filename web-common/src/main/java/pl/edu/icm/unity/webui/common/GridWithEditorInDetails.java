@@ -20,7 +20,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
@@ -38,7 +38,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>>
 	private T newElement;
 	private Predicate<T> disableEditAndRemovePredicate;
 
-	public GridWithEditorInDetails(UnityMessageSource msg, Class<T> type,
+	public GridWithEditorInDetails(MessageSource msg, Class<T> type,
 			Supplier<EmbeddedEditor<T>> gridEditorSupplier, Predicate<T> disableEditAndRemovePredicate)
 	{
 		this.type = type;

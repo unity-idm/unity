@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
@@ -19,10 +19,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class IntroStep extends CustomComponent implements WizardStep
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private HtmlLabel introLabel;
 	
-	public IntroStep(UnityMessageSource msg, String introTextKey)
+	public IntroStep(MessageSource msg, String introTextKey)
 	{
 		this.msg = msg;
 		setCompositionRoot(buildMainLayout(introTextKey));

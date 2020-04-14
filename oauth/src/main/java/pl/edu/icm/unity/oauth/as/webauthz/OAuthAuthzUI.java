@@ -24,6 +24,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -67,7 +67,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
 
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final OAuthIdPEngine idpEngine;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
@@ -83,7 +83,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
 	
 	@Autowired
-	public OAuthAuthzUI(UnityMessageSource msg, OAuthProcessor oauthProcessor,
+	public OAuthAuthzUI(MessageSource msg, OAuthProcessor oauthProcessor,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			EnquiresDialogLauncher enquiryDialogLauncher, IdentityTypeSupport idTypeSupport,

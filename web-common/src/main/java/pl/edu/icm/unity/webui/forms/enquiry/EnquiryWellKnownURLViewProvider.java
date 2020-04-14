@@ -14,10 +14,10 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -48,7 +48,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private EnquiryResponseEditorController editorController;
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	@Autowired
 	private StandardWebAuthenticationProcessor authnProcessor;
 	@Autowired

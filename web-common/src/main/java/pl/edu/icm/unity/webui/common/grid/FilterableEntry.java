@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.webui.common.grid;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Grid entry which can be filtered
@@ -15,5 +15,5 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public interface FilterableEntry
 {
-	 boolean anyFieldContains(String searched, UnityMessageSource msg);
+	 boolean anyFieldContains(String searched, MessageSource msg);
 }

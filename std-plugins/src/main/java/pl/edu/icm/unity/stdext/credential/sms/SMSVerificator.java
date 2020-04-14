@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -159,7 +159,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		Map<String, String> params = new HashMap<>();
 		params.put(SMSAuthnTemplateDef.VAR_CODE, code);
 		params.put(SMSAuthnTemplateDef.VAR_USER, username);
-		Locale currentLocale = UnityMessageSource.getLocale(null);
+		Locale currentLocale = LocaleHelper.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 
 		notificationProducer.sendNotification(credState.getValue(),

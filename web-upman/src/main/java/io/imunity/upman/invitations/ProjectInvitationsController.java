@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.upman.common.ServerFaultException;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -38,10 +38,10 @@ public class ProjectInvitationsController
 
 	private ProjectInvitationsManagement invitationMan;
 	private DelegatedGroupsHelper delGroupHelper;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	public ProjectInvitationsController(UnityMessageSource msg, ProjectInvitationsManagement invitationMan,
+	public ProjectInvitationsController(MessageSource msg, ProjectInvitationsManagement invitationMan,
 			DelegatedGroupsHelper delGroupHelper)
 	{
 		this.invitationMan = invitationMan;

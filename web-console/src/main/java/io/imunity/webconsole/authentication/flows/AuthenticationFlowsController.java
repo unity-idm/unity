@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.common.EndpointController;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -32,11 +32,11 @@ public class AuthenticationFlowsController
 {
 	private AuthenticationFlowManagement flowMan;
 	private AuthenticatorManagement authMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointController endpointController;
 
 	@Autowired
-	AuthenticationFlowsController(AuthenticationFlowManagement flowMan, AuthenticatorManagement authMan, UnityMessageSource msg,
+	AuthenticationFlowsController(AuthenticationFlowManagement flowMan, AuthenticatorManagement authMan, MessageSource msg,
 			EndpointController endpointController)
 	{
 		this.flowMan = flowMan;

@@ -23,7 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.google.common.collect.Sets;
 
 import io.imunity.upman.utils.DelegatedGroupsHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class TestInvitationController
 {
 	@Mock
-	private UnityMessageSource mockMsg;
+	private MessageSource mockMsg;
 
 	@Mock
 	private ProjectInvitationsManagement mockInvitationMan;

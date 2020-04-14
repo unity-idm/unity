@@ -47,9 +47,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -64,7 +64,7 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	private  PKIManagement pkiManagement;
 	
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Before
 	public void reset()

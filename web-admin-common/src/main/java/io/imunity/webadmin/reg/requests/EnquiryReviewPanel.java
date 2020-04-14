@@ -15,11 +15,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -47,7 +47,7 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 	private EntityManagement identitiesManagement;
 	
 	@Autowired
-	public EnquiryReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	public EnquiryReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement, 
 			IdentityFormatter idFormatter, GroupsManagement groupMan, PolicyDocumentManagement policyDocMan,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)

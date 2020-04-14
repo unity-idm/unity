@@ -20,9 +20,9 @@ import io.imunity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
 import io.imunity.webconsole.translationsProfiles.TranslationsControllerBase;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -39,7 +39,7 @@ public class InputTranslationsController extends TranslationsControllerBase
 	private EndpointController endpointController;
 
 	@Autowired
-	public InputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
+	public InputTranslationsController(MessageSource msg, TranslationProfileManagement profileMan,
 			InputTranslationActionsRegistry inputActionsRegistry,
 			ActionParameterComponentProvider actionComponentFactory, EndpointController endpointController)
 	{

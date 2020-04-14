@@ -18,8 +18,8 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -39,11 +39,11 @@ class NewCertificateView extends CustomComponent implements UnityView
 
 	private CertificatesController controller;
 	private CertificateEditor editor;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private UnityServerConfiguration config;
 
 	@Autowired
-	NewCertificateView(UnityMessageSource msg, CertificatesController controller,
+	NewCertificateView(MessageSource msg, CertificatesController controller,
 			UnityServerConfiguration config)
 	{
 		this.msg = msg;

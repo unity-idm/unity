@@ -23,7 +23,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.Images;
@@ -44,7 +44,7 @@ class IdpServicesView extends ServicesViewBase
 	private IdpServiceAdditionalActionsRegistry extraActionsRegistry;
 
 	@Autowired
-	IdpServicesView(UnityMessageSource msg, IdpServicesController controller,
+	IdpServicesView(MessageSource msg, IdpServicesController controller,
 			IdpServiceAdditionalActionsRegistry extraActionsRegistry)
 	{
 		super(msg, controller, NewIdpServiceView.VIEW_NAME, EditIdpServiceView.VIEW_NAME);
@@ -132,7 +132,7 @@ class IdpServicesView extends ServicesViewBase
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public IdpServicesNavigationInfoProvider(UnityMessageSource msg,
+		public IdpServicesNavigationInfoProvider(MessageSource msg,
 				 ObjectFactory<IdpServicesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

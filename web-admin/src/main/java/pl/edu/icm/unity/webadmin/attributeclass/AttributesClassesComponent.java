@@ -19,9 +19,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.attributeclass.AttributesClassEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesClassesComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeClassManagement acMan;
 	private AttributeTypeManagement attrMan;
 	
@@ -54,7 +54,7 @@ public class AttributesClassesComponent extends VerticalLayout
 	private Map<String, AttributesClass> allACs;
 	
 	@Autowired
-	public AttributesClassesComponent(UnityMessageSource msg,
+	public AttributesClassesComponent(MessageSource msg,
 			AttributeTypeManagement attributesMan, AttributeClassManagement acMan)
 	{
 		super();

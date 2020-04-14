@@ -28,8 +28,8 @@ import com.vaadin.ui.MenuBar.MenuItem;
 
 import io.imunity.webadmin.attribute.AttributeEditDialog;
 import io.imunity.webadmin.attribute.AttributeEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -60,7 +60,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesGrid extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesController controller;
 	private AttributeHandlerRegistry registry;
 
@@ -76,7 +76,7 @@ public class AttributesGrid extends CustomComponent
 	private EventsBus bus;
 
 	@Autowired
-	AttributesGrid(UnityMessageSource msg, AttributesController controller, AttributeHandlerRegistry registry)
+	AttributesGrid(MessageSource msg, AttributesController controller, AttributeHandlerRegistry registry)
 	{
 		this.msg = msg;
 		this.controller = controller;

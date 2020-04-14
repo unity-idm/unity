@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -27,7 +27,7 @@ class UnityImageValueEditor implements AttributeValueEditor
 
 	UnityImageValueEditor(String valueRaw,
 			String label,
-			UnityMessageSource msg,
+			MessageSource msg,
 			BaseImageAttributeSyntax<UnityImage> syntax)
 	{
 		UnityImage value = valueRaw == null ? null : syntax.convertFromString(valueRaw);

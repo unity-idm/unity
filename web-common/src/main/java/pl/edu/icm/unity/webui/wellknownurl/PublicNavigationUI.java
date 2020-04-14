@@ -15,7 +15,7 @@ import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * The Vaadin UI providing a concrete view depending on URL fragment. Actual views are configured via DI.
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 public class PublicNavigationUI extends GenericNavigationUI<PublicViewProvider>
 {
 	@Autowired
-	public PublicNavigationUI(UnityMessageSource msg, Collection<PublicViewProvider> viewProviders)
+	public PublicNavigationUI(MessageSource msg, Collection<PublicViewProvider> viewProviders)
 	{
 		super(msg, viewProviders);
 	}

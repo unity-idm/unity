@@ -18,9 +18,9 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -43,7 +43,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityUIBase.class);
 	
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected CancelHandler cancelHandler;
 	protected SandboxAuthnRouter sandboxRouter;
 	protected VaadinEndpointProperties config;
@@ -51,7 +51,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	
 	private Stack<Integer> pollings = new Stack<>();
 	
-	public UnityUIBase(UnityMessageSource msg)
+	public UnityUIBase(MessageSource msg)
 	{
 		super();
 		this.msg = msg;

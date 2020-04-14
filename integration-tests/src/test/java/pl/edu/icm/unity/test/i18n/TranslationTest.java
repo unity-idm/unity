@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 
 public class TranslationTest
@@ -140,7 +140,7 @@ public class TranslationTest
 	{
 		String locSuffix = locale.equals("") ? "" : "_" + locale;
 		String resource = baseLocation + locSuffix + ".properties";
-		InputStream is = UnityMessageSource.class.getResourceAsStream(resource);
+		InputStream is = MessageSource.class.getResourceAsStream(resource);
 		if (is == null)
 			throw new IOException("Resource " + resource + " not found");
 		Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);

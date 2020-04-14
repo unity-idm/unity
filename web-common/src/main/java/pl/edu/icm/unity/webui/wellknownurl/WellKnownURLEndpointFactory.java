@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
@@ -31,14 +31,14 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 			Collections.singletonMap(SecuredWellKnownURLServlet.SERVLET_PATH, "Well known links endpoint"));
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AdvertisedAddressProvider advertisedAddrProvider;
 
 	@Autowired
 	public WellKnownURLEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;

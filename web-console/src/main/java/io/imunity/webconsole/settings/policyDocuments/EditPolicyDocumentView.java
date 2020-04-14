@@ -23,7 +23,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -37,13 +37,13 @@ class EditPolicyDocumentView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "EditPolicyDocument";
 
 	private PolicyDocumentsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PolicyDocumentEditor editor;
 
 	private String policyDocName;
 
 	@Autowired
-	EditPolicyDocumentView(PolicyDocumentsController controller, UnityMessageSource msg)
+	EditPolicyDocumentView(PolicyDocumentsController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -114,7 +114,7 @@ class EditPolicyDocumentView extends CustomComponent implements UnityView
 
 	private class PolicyUpdateConfirmationDialog extends AbstractDialog
 	{
-		public PolicyUpdateConfirmationDialog(UnityMessageSource msg)
+		public PolicyUpdateConfirmationDialog(MessageSource msg)
 		{
 			super(msg, msg.getMessage("EditPolicyDocumentView.confirm"),
 					msg.getMessage("EditPolicyDocumentView.saveOfficialUpdate"),

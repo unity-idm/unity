@@ -18,7 +18,7 @@ import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webadmin.reg.invitations.InvitationSelectionListener;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -40,11 +40,11 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 class InvitationsGrid extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InvitationsController controller;
 	private GridWithActionColumn<InvitationEntry> invitationsGrid;
 
-	InvitationsGrid(UnityMessageSource msg, InvitationsController controller)
+	InvitationsGrid(MessageSource msg, InvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

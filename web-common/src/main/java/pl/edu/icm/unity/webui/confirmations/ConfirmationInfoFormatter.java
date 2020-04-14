@@ -10,7 +10,7 @@ import java.sql.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 public class ConfirmationInfoFormatter
 {
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public String getConfirmationStatusString(ConfirmationInfo cdata)
 	{

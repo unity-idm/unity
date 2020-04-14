@@ -10,10 +10,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -31,12 +31,12 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 public class EnquiresDialogLauncher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiresDialogLauncher.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnquiryResponseEditorController enquiryController;
 	private StandardWebAuthenticationProcessor authnProcessor;
 	
 	@Autowired
-	public EnquiresDialogLauncher(UnityMessageSource msg,
+	public EnquiresDialogLauncher(MessageSource msg,
 			EnquiryResponseEditorController enquiryController,
 			StandardWebAuthenticationProcessor authnProcessor)
 	{

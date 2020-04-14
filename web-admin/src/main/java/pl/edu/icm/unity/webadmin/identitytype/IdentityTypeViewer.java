@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webadmin.identitytype;
 
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer
  */
 public class IdentityTypeViewer extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Label name;
 	private Label description;
@@ -36,7 +36,7 @@ public class IdentityTypeViewer extends CompactFormLayout
 
 	private IdentityTypeSupport idTypeSupport;
 	
-	public IdentityTypeViewer(UnityMessageSource msg, IdentityTypeSupport idTypeSupport)
+	public IdentityTypeViewer(MessageSource msg, IdentityTypeSupport idTypeSupport)
 	{
 		super();
 		this.msg = msg;

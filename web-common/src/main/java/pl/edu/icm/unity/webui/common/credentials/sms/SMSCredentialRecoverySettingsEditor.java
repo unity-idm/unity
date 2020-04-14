@@ -14,8 +14,8 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredentialRecoverySettings;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 public class SMSCredentialRecoverySettingsEditor
 {
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private SMSCredentialRecoverySettings initial;
 	private CheckBox enable;
 	private MessageTemplateManagement msgTplMan;
@@ -39,13 +39,13 @@ public class SMSCredentialRecoverySettingsEditor
 	
 	private Binder<SMSCredentialRecoverySettings> binder;
 	
-	public SMSCredentialRecoverySettingsEditor(UnityMessageSource msg,
+	public SMSCredentialRecoverySettingsEditor(MessageSource msg,
 			MessageTemplateManagement msgTplMan)
 	{
 		this(msg, msgTplMan, new SMSCredentialRecoverySettings());
 	}
 
-	public SMSCredentialRecoverySettingsEditor(UnityMessageSource msg,
+	public SMSCredentialRecoverySettingsEditor(MessageSource msg,
 			MessageTemplateManagement msgTplMan, SMSCredentialRecoverySettings initial)
 	{
 		this.msg = msg;

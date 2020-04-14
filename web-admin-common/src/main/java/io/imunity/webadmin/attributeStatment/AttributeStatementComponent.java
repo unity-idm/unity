@@ -21,9 +21,9 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.RadioButtonGroup;
 
 import io.imunity.webadmin.attribute.AttributeFieldWithEdit;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -45,7 +45,7 @@ public class AttributeStatementComponent extends CustomComponent
 	private static final String MODE_FIXED = "fixed";
 	private static final String MODE_DYNAMIC = "dynamic";
 	
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final Set<String> groups;
 	private final Collection<AttributeType> attributeTypes;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
@@ -63,7 +63,7 @@ public class AttributeStatementComponent extends CustomComponent
 	private Binder<AttributeStatement> binder;
 	
 	
-	public AttributeStatementComponent(UnityMessageSource msg, GroupsManagement groupsMan,
+	public AttributeStatementComponent(MessageSource msg, GroupsManagement groupsMan,
 			Collection<AttributeType> attributeTypes,
 			AttributeHandlerRegistry attrHandlerRegistry, String group)
 	{

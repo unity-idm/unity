@@ -24,7 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.translation.ProfileMode;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -39,12 +39,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class TranslationsView extends CustomComponent implements UnityView
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected TranslationsControllerBase controller;
 	private GridWithActionColumn<TranslationProfile> profileList;
 
 	@Autowired
-	public TranslationsView(UnityMessageSource msg, TranslationsControllerBase controller)
+	public TranslationsView(MessageSource msg, TranslationsControllerBase controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

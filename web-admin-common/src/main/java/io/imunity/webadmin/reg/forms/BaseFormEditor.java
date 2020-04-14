@@ -22,11 +22,11 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -70,7 +70,7 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 public class BaseFormEditor extends VerticalLayout
 {
 	private static final int COMBO_WIDTH_EM = 18;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityTypeSupport identityTypeSupport;
 	private PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
 	private Collection<IdentityType> identityTypes;
@@ -95,7 +95,7 @@ public class BaseFormEditor extends VerticalLayout
 	private PolicyAgreementConfigurationList policyAgreements;
 	private TabSheet collectedParamsTabSheet;
 	
-	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
+	public BaseFormEditor(MessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan, PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory)
 			throws EngineException

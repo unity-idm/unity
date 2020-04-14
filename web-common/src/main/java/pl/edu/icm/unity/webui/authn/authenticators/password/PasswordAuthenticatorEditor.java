@@ -16,7 +16,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
@@ -40,10 +40,10 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<PasswordConfiguration> configBinder;
 
-	PasswordAuthenticatorEditor(UnityMessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
+	PasswordAuthenticatorEditor(MessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
 			throws EngineException
 	{
 		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(PasswordVerificator.NAME))
@@ -149,7 +149,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			this.localCredential = localCredential;
 		}
 
-		public String toProperties(UnityMessageSource msg)
+		public String toProperties(MessageSource msg)
 		{
 			Properties raw = new Properties();
 			if (getRetrievalName() != null)
@@ -161,7 +161,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg)
+		public void fromProperties(String properties, MessageSource msg)
 		{
 			Properties raw = new Properties();
 			try

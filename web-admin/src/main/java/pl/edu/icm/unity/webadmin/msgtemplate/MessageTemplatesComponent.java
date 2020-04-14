@@ -19,9 +19,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.msgtemplate.MessageTemplateEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MessageTemplatesComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgTempMan;
 	private NotificationsManagement notificationMan;
 	private GenericElementsTable<MessageTemplate> table;
@@ -53,7 +53,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 	private MessageTemplateConsumersRegistry consumersRegistry;
 	
 	@Autowired
-	public MessageTemplatesComponent(UnityMessageSource msg,
+	public MessageTemplatesComponent(MessageSource msg,
 			MessageTemplateManagement msgTempMan,
 			MessageTemplateConsumersRegistry consumersRegistry,
 			NotificationsManagement notificationMan)

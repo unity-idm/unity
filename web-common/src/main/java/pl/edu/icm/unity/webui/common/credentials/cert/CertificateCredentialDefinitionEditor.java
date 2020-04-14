@@ -8,7 +8,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -21,9 +21,9 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
  */
 public class CertificateCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public CertificateCredentialDefinitionEditor(UnityMessageSource msg)
+	public CertificateCredentialDefinitionEditor(MessageSource msg)
 	{
 		this.msg = msg;
 	}

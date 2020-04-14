@@ -14,7 +14,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.types.basic.Group;
@@ -39,7 +39,7 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 	private ChipsWithDropdown<String> enabledControls;
 	private CheckBox allowRemovalSheduling;
 
-	public HomeServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
+	public HomeServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
 			String extraTab, List<String> allAttributes, List<Group> allGroups, List<String> upManServices,
 			List<String> enquiryForms, List<String> registrationForms)
 	{

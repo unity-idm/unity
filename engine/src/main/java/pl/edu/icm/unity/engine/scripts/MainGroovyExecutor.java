@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -47,7 +48,6 @@ import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
@@ -63,7 +63,7 @@ public class MainGroovyExecutor
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MainGroovyExecutor.class);
 	
 	@Autowired
-	private UnityMessageSource unityMessageSource;
+	private MessageSource unityMessageSource;
 	@Autowired
 	private UnityServerConfiguration config;
 	@Autowired

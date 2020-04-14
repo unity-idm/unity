@@ -18,7 +18,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.jwt.authn.JWTVerificator;
@@ -40,7 +40,7 @@ class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 	private Set<String> credentials;
 	private Binder<JWTConfiguration> configBinder;
 
-	JWTAuthenticatorEditor(UnityMessageSource msg, Set<String> credentials)
+	JWTAuthenticatorEditor(MessageSource msg, Set<String> credentials)
 	{
 		super(msg);
 		this.credentials = credentials;
@@ -154,7 +154,7 @@ class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg)
+		public void fromProperties(String properties, MessageSource msg)
 		{
 			Properties raw = new Properties();
 			try

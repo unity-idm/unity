@@ -19,8 +19,8 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -48,7 +48,7 @@ public class ScheduledEntityRemovalDialog extends AbstractDialog
 	private Integer days = 0;
 	private Binder<Integer> daysBinder;
 	
-	public ScheduledEntityRemovalDialog(UnityMessageSource msg, long entityId, 
+	public ScheduledEntityRemovalDialog(MessageSource msg, long entityId, 
 			EntityManagement identitiesManagement, StandardWebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("RemoveEntityDialog.caption"));

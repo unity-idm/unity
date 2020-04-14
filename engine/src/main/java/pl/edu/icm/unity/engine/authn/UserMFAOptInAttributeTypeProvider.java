@@ -8,8 +8,8 @@ package pl.edu.icm.unity.engine.authn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -24,7 +24,7 @@ public class UserMFAOptInAttributeTypeProvider extends AbstractAttributeTypeProv
 	public static final String USER_MFA_OPT_IN = "sys:userMFAOptIn";
 	
 	@Autowired
-	public UserMFAOptInAttributeTypeProvider(UnityMessageSource msg)
+	public UserMFAOptInAttributeTypeProvider(MessageSource msg)
 	{
 		super(msg);
 	}

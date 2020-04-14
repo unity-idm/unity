@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -33,13 +33,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class ProjectInvitationsComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ProjectInvitationsController controller;
 
 	private ProjectInvitationsGrid invitationsGrid;
 	private String project;
 
-	public ProjectInvitationsComponent(UnityMessageSource msg, ProjectInvitationsController controller, String project)
+	public ProjectInvitationsComponent(MessageSource msg, ProjectInvitationsController controller, String project)
 	{
 		this.msg = msg;
 		this.controller = controller;

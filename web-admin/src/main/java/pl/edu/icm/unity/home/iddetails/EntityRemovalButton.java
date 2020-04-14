@@ -6,8 +6,8 @@ package pl.edu.icm.unity.home.iddetails;
 
 import com.vaadin.ui.Button;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.Images;
  */
 public class EntityRemovalButton extends Button
 {
-	public EntityRemovalButton(final UnityMessageSource msg, final long entity, 
+	public EntityRemovalButton(final MessageSource msg, final long entity, 
 			final EntityManagement identitiesManagement, 
 			final EntityManagement insecureIdentitiesManagement, 
 			final StandardWebAuthenticationProcessor authnProcessor,

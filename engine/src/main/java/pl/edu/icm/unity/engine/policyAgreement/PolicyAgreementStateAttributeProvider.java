@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -22,10 +22,10 @@ public class PolicyAgreementStateAttributeProvider implements SystemAttributesPr
 {
 	public static final String POLICY_AGREEMENT_STATE = "sys:policy-agreement-state";
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	PolicyAgreementStateAttributeProvider(UnityMessageSource msg)
+	PolicyAgreementStateAttributeProvider(MessageSource msg)
 	{
 		this.msg = msg;
 	}

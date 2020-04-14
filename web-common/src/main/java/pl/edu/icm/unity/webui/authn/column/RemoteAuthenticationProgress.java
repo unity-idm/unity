@@ -13,7 +13,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -22,11 +22,11 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class RemoteAuthenticationProgress extends CustomComponent
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final Runnable cancelHandler;
 	private HorizontalLayout internalHL;
 	
-	public RemoteAuthenticationProgress(UnityMessageSource msg, Runnable cancelHandler)
+	public RemoteAuthenticationProgress(MessageSource msg, Runnable cancelHandler)
 	{
 		this.msg = msg;
 		this.cancelHandler = cancelHandler;

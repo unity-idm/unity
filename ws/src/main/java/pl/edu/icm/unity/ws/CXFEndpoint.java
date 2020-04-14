@@ -19,11 +19,11 @@ import org.apache.cxf.message.Message;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -37,14 +37,14 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected String servletPath;
 	private Map<Class<?>, Object> services; 
 	protected CXFEndpointProperties genericEndpointProperties;
 	protected SessionManagement sessionMan;
 	private AuthenticationProcessor authnProcessor;
 	
-	public CXFEndpoint(UnityMessageSource msg,
+	public CXFEndpoint(MessageSource msg,
 			SessionManagement sessionMan,
 			AuthenticationProcessor authnProcessor,
 			NetworkServer server,

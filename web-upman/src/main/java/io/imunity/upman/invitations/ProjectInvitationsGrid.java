@@ -13,7 +13,7 @@ import com.vaadin.ui.Button;
 
 import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
@@ -39,7 +39,7 @@ class ProjectInvitationsGrid extends UpManGrid<ProjectInvitationEntry>
 		}
 	};
 
-	public ProjectInvitationsGrid(UnityMessageSource msg, List<SingleActionHandler<ProjectInvitationEntry>> rowActionHandlers)
+	public ProjectInvitationsGrid(MessageSource msg, List<SingleActionHandler<ProjectInvitationEntry>> rowActionHandlers)
 	{
 		super(msg, (ProjectInvitationEntry e) -> e.code);
 		createColumns(rowActionHandlers);

@@ -14,11 +14,11 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -42,7 +42,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 
 	@Autowired
 	public AuthenticatorComponent(AuthenticatorManagement authMan, ServerManagement serverMan,
-			UnityServerConfiguration config, UnityMessageSource msg)
+			UnityServerConfiguration config, MessageSource msg)
 	{
 		super(config, serverMan , msg);
 		this.authMan = authMan;

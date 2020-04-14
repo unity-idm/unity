@@ -21,7 +21,7 @@ import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider
 import io.imunity.webconsole.translationsProfiles.TranslationsView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -43,7 +43,7 @@ class InputTranslationsView extends TranslationsView implements UnityViewWithSan
 	private SandboxAuthnRouter sandBoxRouter;
 
 	@Autowired
-	public InputTranslationsView(UnityMessageSource msg, InputTranslationsController controller)
+	public InputTranslationsView(MessageSource msg, InputTranslationsController controller)
 	{
 		super(msg, controller);
 	}
@@ -115,7 +115,7 @@ class InputTranslationsView extends TranslationsView implements UnityViewWithSan
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public InputTranslationsNavigationInfoProvider(UnityMessageSource msg,
+		public InputTranslationsNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<InputTranslationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

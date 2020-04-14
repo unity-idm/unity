@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -41,10 +41,10 @@ class RunImmediateView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "RunImmediate";
 
 	private AutomationController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RuleEditorImpl editor;
 
-	RunImmediateView(AutomationController controller, UnityMessageSource msg)
+	RunImmediateView(AutomationController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;

@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -45,13 +45,13 @@ public class OutputTranslationEngine
 	private AttributesManagement attrMan;
 	private IdentityTypesRegistry idTypesReg;
 	private AttributeTypeSupport atSupport;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
 	public OutputTranslationEngine(@Qualifier("insecure") EntityManagement idsMan, 
 			@Qualifier("insecure") AttributesManagement attrMan, IdentityTypesRegistry idTypesReg,
 			AttributeTypeSupport atSupport,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.idsMan = idsMan;
 		this.attrMan = attrMan;

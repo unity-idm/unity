@@ -16,7 +16,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
@@ -40,10 +40,10 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<SMSConfiguration> configBinder;
 
-	SMSAuthenticatorEditor(UnityMessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
+	SMSAuthenticatorEditor(MessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
 			throws EngineException
 	{
 		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(SMSVerificator.NAME))
@@ -137,7 +137,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 			this.retrievalName = retrievalName;
 		}
 
-		public String toProperties(UnityMessageSource msg)
+		public String toProperties(MessageSource msg)
 		{
 			Properties raw = new Properties();
 
@@ -151,7 +151,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg)
+		public void fromProperties(String properties, MessageSource msg)
 		{
 			Properties raw = new Properties();
 			try

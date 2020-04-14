@@ -17,7 +17,7 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Grid;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
@@ -28,13 +28,13 @@ import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
  */
 public abstract class UpManGrid<T> extends Grid<T> implements FilterableGrid<T>
 {
-	protected final UnityMessageSource msg;
+	protected final MessageSource msg;
 	private List<T> entries;
 	private ListDataProvider<T> dataProvider;
 	private Function<T, String> idProvider;
 	private Collection<SerializablePredicate<T>> filters;
 	
-	public UpManGrid(UnityMessageSource msg, Function<T, String> idProvider)
+	public UpManGrid(MessageSource msg, Function<T, String> idProvider)
 	{
 		this.msg = msg;
 		this.idProvider = idProvider;

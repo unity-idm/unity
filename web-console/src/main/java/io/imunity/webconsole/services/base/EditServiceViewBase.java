@@ -11,7 +11,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.ViewWithSubViewBase;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -27,13 +27,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class EditServiceViewBase extends ViewWithSubViewBase
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ServiceControllerBase controller;
 	private MainServiceEditor editor;
 	private String mainServicesViewName;
 	private String serviceName;
 
-	public EditServiceViewBase(UnityMessageSource msg, ServiceControllerBase controller,
+	public EditServiceViewBase(MessageSource msg, ServiceControllerBase controller,
 			String mainServicesViewName)
 	{
 		this.msg = msg;

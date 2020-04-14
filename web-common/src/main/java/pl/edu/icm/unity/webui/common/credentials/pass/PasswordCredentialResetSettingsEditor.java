@@ -16,8 +16,8 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.MobilePasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
  */
 public class PasswordCredentialResetSettingsEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PasswordCredentialResetSettings initial;
 	private CheckBox enable;
 	private IntStepper codeLength;
@@ -53,12 +53,12 @@ public class PasswordCredentialResetSettingsEditor
 	
 	private Binder<PasswordCredentialResetSettings> binder;
 
-	public PasswordCredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
+	public PasswordCredentialResetSettingsEditor(MessageSource msg, MessageTemplateManagement msgTplMan)
 	{
 		this(msg, msgTplMan, new PasswordCredentialResetSettings());
 	}
 	
-	public PasswordCredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan,
+	public PasswordCredentialResetSettingsEditor(MessageSource msg, MessageTemplateManagement msgTplMan,
 			PasswordCredentialResetSettings initial)
 	{
 		this.msg = msg;

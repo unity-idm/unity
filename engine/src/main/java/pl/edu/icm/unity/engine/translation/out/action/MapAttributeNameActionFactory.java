@@ -9,8 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -37,7 +37,7 @@ public class MapAttributeNameActionFactory extends AbstractOutputTranslationActi
 	private AttributeTypeHelper atHelper;
 	
 	@Autowired
-	public MapAttributeNameActionFactory(AttributeTypeHelper atHelper, UnityMessageSource msg)
+	public MapAttributeNameActionFactory(AttributeTypeHelper atHelper, MessageSource msg)
 	{
 		super(NAME, new ActionParameterDefinition("unityAttribute",
 				"TranslationAction.mapAttributeName.paramDesc.unityAttribute",

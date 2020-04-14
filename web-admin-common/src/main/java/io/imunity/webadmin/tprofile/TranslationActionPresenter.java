@@ -4,7 +4,7 @@
  */
 package io.imunity.webadmin.tprofile;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -20,10 +20,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class TranslationActionPresenter extends LayoutEmbeddable
 {	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	
-	public TranslationActionPresenter(UnityMessageSource msg, 
+	public TranslationActionPresenter(MessageSource msg, 
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
 			TranslationAction action)
 	{

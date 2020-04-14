@@ -11,9 +11,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
@@ -30,10 +30,10 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class ValuesRendererPanel extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeSupport atSupport;
 	
-	public ValuesRendererPanel(UnityMessageSource msg, AttributeTypeSupport atSupport)
+	public ValuesRendererPanel(MessageSource msg, AttributeTypeSupport atSupport)
 	{
 		this.msg = msg;
 		this.atSupport = atSupport;

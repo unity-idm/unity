@@ -21,12 +21,12 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 public class SAMLAuthenticatorConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
-	private UnityMessageSource msg = mock(UnityMessageSource.class);
+	private MessageSource msg = mock(MessageSource.class);
 	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
 	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);

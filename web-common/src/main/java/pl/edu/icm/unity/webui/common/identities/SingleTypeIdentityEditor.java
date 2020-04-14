@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.identities;
 
 import java.util.Collection;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -28,12 +28,12 @@ public class SingleTypeIdentityEditor
 {
 	private IdentityType idType;
 	private IdentityEditorRegistry idEdRegistry;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String userFriendlyName;
 	private ListOfEmbeddedElementsStub<IdentityParam> componentsList;
 
 	public SingleTypeIdentityEditor(IdentityType idType, Collection<Identity> initial, 
-			IdentityEditorRegistry idEdRegistry, UnityMessageSource msg, 
+			IdentityEditorRegistry idEdRegistry, MessageSource msg, 
 			IdentityTypeSupport idTypeSupport)
 	{
 		this.idType = idType;

@@ -8,7 +8,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -23,7 +23,7 @@ public class EnquiryFormEditDialog extends AbstractDialog
 	private EnquiryFormEditor editor;
 	private Callback callback;
 	
-	public EnquiryFormEditDialog(UnityMessageSource msg, String caption, Callback callback, 
+	public EnquiryFormEditDialog(MessageSource msg, String caption, Callback callback, 
 			EnquiryFormEditor editor)
 	{
 		super(msg, caption);

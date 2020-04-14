@@ -31,6 +31,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
@@ -38,7 +39,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -73,13 +73,13 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public static final String NAME = "web-sms";
 	public static final String DESC = "WebSMSRetrievalFactory.desc";
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private I18nString name;
 	private CredentialEditorRegistry credEditorReg;
 	private String configuration;
 	
 	@Autowired
-	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
+	public SMSRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;

@@ -19,7 +19,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.types.I18nString;
@@ -42,13 +42,13 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
  */
 public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementConfiguration>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
 	private Binder<PolicyAgreementConfigurationVaadinBean> binder;
 	private FormLayout main;
 	private ChipsWithDropdown<PolicyDocumentWithRevision> policyToAccept;
 
-	public PolicyAgreementConfigurationEditor(UnityMessageSource msg,
+	public PolicyAgreementConfigurationEditor(MessageSource msg,
 			Collection<PolicyDocumentWithRevision> policyDocuments)
 	{
 		this.msg = msg;

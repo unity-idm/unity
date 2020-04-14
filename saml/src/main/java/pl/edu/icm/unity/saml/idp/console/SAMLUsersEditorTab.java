@@ -14,7 +14,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
@@ -34,7 +34,7 @@ public class SAMLUsersEditorTab extends IdpEditorUsersTab
 	private ComboBox<String> clientsCombo;
 	private GridWithEditor<GroupMapping> groupMappings;
 
-	public SAMLUsersEditorTab(UnityMessageSource msg, List<Group> groups,
+	public SAMLUsersEditorTab(MessageSource msg, List<Group> groups,
 			List<IdpUser> allUsers, List<String> attrTypes)
 	{
 		super(msg, groups, allUsers, attrTypes);

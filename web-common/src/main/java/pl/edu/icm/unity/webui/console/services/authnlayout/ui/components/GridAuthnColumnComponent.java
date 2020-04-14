@@ -22,8 +22,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -48,7 +48,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	private ChipsWithDropdown<AuthenticationOptionKey> valueComboField;
 	private Binder<GridStateBindingValue> binder;
 
-	public GridAuthnColumnComponent(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
+	public GridAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{

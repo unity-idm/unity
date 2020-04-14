@@ -8,7 +8,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.DoubleRangeValidator;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 /**
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 public class DoubleBoundEditor extends AbstractBoundEditor<Double>
 {
 
-	public DoubleBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
+	public DoubleBoundEditor(MessageSource msg, String labelUnlimited, String labelLimit,
 			Double bound, Double min, Double max)
 	{
 		super(msg, labelUnlimited, labelLimit, bound, min, max);
@@ -35,7 +35,7 @@ public class DoubleBoundEditor extends AbstractBoundEditor<Double>
 			.bind(fieldName);
 	}
 	
-	private static Validator<Double> getValidator(UnityMessageSource msg, Double min, Double max)
+	private static Validator<Double> getValidator(MessageSource msg, Double min, Double max)
 	{
 		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
 		return new DoubleRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 

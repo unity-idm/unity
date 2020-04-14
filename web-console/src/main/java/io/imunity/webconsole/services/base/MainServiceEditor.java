@@ -16,7 +16,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -39,7 +39,7 @@ public class MainServiceEditor extends CustomComponent
 {
 	private ComboBox<String> serviceTypeCombo;
 	private TextField serviceTypeLabel;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TypesRegistryBase<? extends ServiceControllerBaseInt> editorsRegistry;
 	private ServiceDefinition toEdit;
 	private ServiceEditor editor;
@@ -48,7 +48,7 @@ public class MainServiceEditor extends CustomComponent
 	private ServiceEditorTab initTab;
 	private SubViewSwitcher subViewSwitcher;
 
-	public MainServiceEditor(UnityMessageSource msg,
+	public MainServiceEditor(MessageSource msg,
 			TypesRegistryBase<? extends ServiceControllerBaseInt> editorsRegistry,
 			Collection<EndpointTypeDescription> autnTypes, ServiceDefinition toEdit,
 			ServiceEditorTab initTab, SubViewSwitcher subViewSwitcher)

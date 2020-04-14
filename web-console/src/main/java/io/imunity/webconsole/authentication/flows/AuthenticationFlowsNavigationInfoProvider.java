@@ -12,7 +12,7 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView.AuthenticationFacilitiesNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Provides @{link {@link NavigationInfo} about authentication flows
@@ -26,7 +26,7 @@ class AuthenticationFlowsNavigationInfoProvider extends WebConsoleNavigationInfo
 	public static final String ID = "AuthenticationFlows";
 
 	@Autowired
-	AuthenticationFlowsNavigationInfoProvider(UnityMessageSource msg,
+	AuthenticationFlowsNavigationInfoProvider(MessageSource msg,
 			AuthenticationFacilitiesNavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)

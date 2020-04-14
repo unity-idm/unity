@@ -30,10 +30,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -79,7 +79,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	private EventsBus bus;
 	private GroupDelegationConfigGenerator configGenerator;
 
-	public GroupDelegationEditConfigDialog(UnityMessageSource msg, RegistrationsManagement registrationMan,
+	public GroupDelegationEditConfigDialog(MessageSource msg, RegistrationsManagement registrationMan,
 			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan,
 			ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
 			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory, EventsBus bus,
@@ -479,7 +479,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		private Button edit;
 		private HorizontalLayout main;
 
-		public FormComboWithButtons(UnityMessageSource msg, String caption, String description, ClickListener generateListener,
+		public FormComboWithButtons(MessageSource msg, String caption, String description, ClickListener generateListener,
 				ClickListener validateListener, ClickListener editListener)
 		{
 			setCaption(caption);
@@ -566,7 +566,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		private List<String> messages;
 		private String formName;
 
-		public ValidationResultDialog(UnityMessageSource msg, List<String> messages, String formName)
+		public ValidationResultDialog(MessageSource msg, List<String> messages, String formName)
 		{
 			super(msg, msg.getMessage("GroupDelegationEditConfigDialog.validationDialogCaption"),
 					msg.getMessage("ok"));

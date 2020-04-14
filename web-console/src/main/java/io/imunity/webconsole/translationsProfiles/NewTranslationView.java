@@ -15,7 +15,7 @@ import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -24,12 +24,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class NewTranslationView extends CustomComponent implements UnityView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TranslationsControllerBase controller;
 	private TranslationProfileEditor editor;
 	
 	@Autowired
-	protected NewTranslationView(UnityMessageSource msg, TranslationsControllerBase controller)
+	protected NewTranslationView(MessageSource msg, TranslationsControllerBase controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

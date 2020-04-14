@@ -13,8 +13,8 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor;
 public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 {	
 	
-	public FloatingPointAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
+	public FloatingPointAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
 	}
@@ -60,10 +60,10 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		private FloatingPointAttributeSyntax initial;
 		private DoubleBoundEditor max;
 		private DoubleBoundEditor min;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private Binder<DoubleSyntaxBindingValue> binder;
 		
-		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial, UnityMessageSource msg)
+		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial, MessageSource msg)
 		{
 			this.initial = initial;
 			this.msg = msg;
@@ -133,10 +133,10 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class FloatingPointAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
 		@Autowired
-		public FloatingPointAttributeHandlerFactory(UnityMessageSource msg)
+		public FloatingPointAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

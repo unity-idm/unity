@@ -5,7 +5,7 @@
 
 package io.imunity.webadmin.tprofile;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.translation.ProfileType;
  */
 public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
-	public RegistrationTranslationProfileEditor(UnityMessageSource msg,
+	public RegistrationTranslationProfileEditor(MessageSource msg,
 			RegistrationActionsRegistry registry, ActionParameterComponentProvider actionComponentProvider)
 					throws EngineException
 	{

@@ -23,8 +23,8 @@ import com.vaadin.ui.dnd.DropTargetExtension;
 import io.imunity.webadmin.tprofile.RuleComponent.Callback;
 import io.imunity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import io.imunity.webadmin.tprofile.StartStopButton.ClickStopEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  */
 public class TranslationProfileEditor extends VerticalLayout
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected ProfileType type;
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	protected TextField name;
@@ -62,7 +62,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	private Binder<TranslationProfile> binder;
 	private boolean readOnlyMode;
 	
-	public TranslationProfileEditor(UnityMessageSource msg,
+	public TranslationProfileEditor(MessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type, 
 			ActionParameterComponentProvider actionComponentProvider)
 	{

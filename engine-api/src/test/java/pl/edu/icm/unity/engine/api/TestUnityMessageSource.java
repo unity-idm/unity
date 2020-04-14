@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 public class TestUnityMessageSource
 {
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Test
 	public void messageFromExternalModuleIsResolved()
@@ -54,12 +54,5 @@ public class TestUnityMessageSource
 		String message = msg.getMessage("MessageUsedForIntegrationTesting.only1");
 		
 		assertThat(message, is("From extra file"));
-	}
-	
-	@Test
-	public void test()
-	{
-		
-		msg.getKeys().keySet().forEach(k -> System.out.println(k));
 	}
 }

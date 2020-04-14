@@ -8,7 +8,7 @@ package pl.edu.icm.unity.webui.authn.authenticators;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
@@ -21,10 +21,10 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 public class BaseAuthenticatorEditor
 {
 	protected TextField name;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private Binder<StringBindingValue> nameBinder;
 
-	public BaseAuthenticatorEditor(UnityMessageSource msg)
+	public BaseAuthenticatorEditor(MessageSource msg)
 	{
 		this.msg = msg;
 		name = new TextField(msg.getMessage("BaseAuthenticatorEditor.name"));

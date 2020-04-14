@@ -20,6 +20,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
@@ -27,7 +28,6 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuil
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -53,7 +53,7 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 	private String defaultRedirect;
 
 	@Autowired
-	public EmailConfirmationUI(UnityMessageSource msg, EmailConfirmationManager confirmationMan,
+	public EmailConfirmationUI(MessageSource msg, EmailConfirmationManager confirmationMan,
 			TokensManagement tokensMan, UnityServerConfiguration serverConfig, ImageAccessService imageAccessService)
 	{
 		super(msg);

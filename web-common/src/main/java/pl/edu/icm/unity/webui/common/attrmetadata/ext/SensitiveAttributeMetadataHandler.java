@@ -8,7 +8,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.utils.SensitiveAttributeMetadataProvider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
@@ -16,9 +16,9 @@ import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
 
 public class SensitiveAttributeMetadataHandler implements WebAttributeMetadataHandler
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
-	public SensitiveAttributeMetadataHandler(UnityMessageSource msg)
+	public SensitiveAttributeMetadataHandler(MessageSource msg)
 	{
 		this.msg = msg;
 	}

@@ -19,7 +19,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public abstract class ColumnComponentBase extends CustomComponent implements ColumnComponent
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private String title;
 	private Images icon;
 	private Consumer<ColumnComponent> removeElementListener;
@@ -43,7 +43,7 @@ public abstract class ColumnComponentBase extends CustomComponent implements Col
 	private Button modeButton;
 	private HorizontalLayout header;
 
-	public ColumnComponentBase(UnityMessageSource msg, String title, Images icon, Runnable dragStart,
+	public ColumnComponentBase(MessageSource msg, String title, Images icon, Runnable dragStart,
 			Runnable dragStop, Consumer<ColumnComponent> removeElementListener)
 	{
 		this.msg = msg;

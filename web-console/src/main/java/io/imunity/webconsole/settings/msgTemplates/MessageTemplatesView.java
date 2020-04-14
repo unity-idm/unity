@@ -35,7 +35,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -67,13 +67,13 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "MessageTemplates";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateController controller;
 	private SimpleMessageTemplateViewer viewer;
 	private GridWithActionColumn<MessageTemplateEntry> messageTemplateGrid;
 
 	@Autowired
-	MessageTemplatesView(UnityMessageSource msg, MessageTemplateController controller)
+	MessageTemplatesView(MessageSource msg, MessageTemplateController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -306,7 +306,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public MessageTemplatesNavigationInfoProvider(UnityMessageSource msg,
+		public MessageTemplatesNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<MessageTemplatesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

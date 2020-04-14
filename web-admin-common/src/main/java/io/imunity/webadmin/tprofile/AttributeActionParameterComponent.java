@@ -8,7 +8,7 @@ import java.util.Collection;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
@@ -22,7 +22,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	private Binder<StringValueBean> binder;
 
 	public AttributeActionParameterComponent(ActionParameterDefinition desc,
-			UnityMessageSource msg, Collection<AttributeType> attributeTypes)
+			MessageSource msg, Collection<AttributeType> attributeTypes)
 	{
 		super(desc.getName() + ":", attributeTypes);
 		setDescription(msg.getMessage(desc.getDescriptionKey()));

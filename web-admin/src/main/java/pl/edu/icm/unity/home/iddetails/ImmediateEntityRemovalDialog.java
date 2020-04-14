@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.home.iddetails;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -30,7 +30,7 @@ public class ImmediateEntityRemovalDialog extends ConfirmDialog
 	private EntityManagement identitiesMan;
 	private RemovalModes removalMode;
 	
-	public ImmediateEntityRemovalDialog(UnityMessageSource msg, long entityId, 
+	public ImmediateEntityRemovalDialog(MessageSource msg, long entityId, 
 			EntityManagement identitiesManagement, 
 			StandardWebAuthenticationProcessor authnProcessor,
 			RemovalModes removalMode)

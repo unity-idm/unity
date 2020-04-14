@@ -13,7 +13,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -29,10 +29,10 @@ public class PublicPolicyDocumentView extends CustomComponent implements View
 {
 	public static final String POLICY_DOC_VIEW = "policyDoc";
 	public static final String POLICY_DOC_PARAM = "id";
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PolicyDocumentWithRevision doc;
 
-	public PublicPolicyDocumentView(UnityMessageSource msg)
+	public PublicPolicyDocumentView(MessageSource msg)
 	{
 		this.msg = msg;
 	}

@@ -12,7 +12,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -28,12 +28,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 class OAuthTokensComponent extends CustomComponent
 {
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private OAuthTokenController controller;
 	private OAuthTokenGrid tokensGrid;
 
 	@Autowired
-	OAuthTokensComponent(UnityMessageSource msg, OAuthTokenController controller)
+	OAuthTokensComponent(MessageSource msg, OAuthTokenController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

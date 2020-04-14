@@ -13,8 +13,9 @@ import java.util.Locale;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSourceImpl;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
 
 public class StrengthCheckerTest
@@ -22,7 +23,7 @@ public class StrengthCheckerTest
 	@Test
 	public void shouldReturnMaxScoreForGoodPassword() throws IOException
 	{
-		UnityMessageSource msg = new UnityMessageSource(mock(UnityServerConfiguration.class), true);
+		MessageSource msg = new UnityMessageSourceImpl(mock(UnityServerConfiguration.class), true);
 		StrengthInfo result = StrengthChecker.measure("horsedonteathorseradishondisk", 
 				10, Locale.ENGLISH, msg);
 		
@@ -32,7 +33,7 @@ public class StrengthCheckerTest
 	@Test
 	public void shouldReturnLowScoreForBadPassword() throws IOException
 	{
-		UnityMessageSource msg = new UnityMessageSource(mock(UnityServerConfiguration.class), true);
+		MessageSource msg = new UnityMessageSourceImpl(mock(UnityServerConfiguration.class), true);
 		StrengthInfo result = StrengthChecker.measure("soso", 10, Locale.ENGLISH, msg);
 		
 		assertThat(""+result.scoreNormalized, result.scoreNormalized < 0.15, is(true));
@@ -42,7 +43,7 @@ public class StrengthCheckerTest
 	@Test
 	public void shouldReturnWarningInSelectedLocale() throws IOException
 	{
-		UnityMessageSource msg = new UnityMessageSource(mock(UnityServerConfiguration.class), true);
+		MessageSource msg = new UnityMessageSourceImpl(mock(UnityServerConfiguration.class), true);
 		StrengthInfo result = StrengthChecker.measure("asdfghjkl;'", 10, new Locale("pl"), msg);
 		
 		assertThat(result.toString(), result.warning, 

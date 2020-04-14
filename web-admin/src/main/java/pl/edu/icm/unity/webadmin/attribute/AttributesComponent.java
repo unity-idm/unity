@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.identities.EntityChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -40,12 +40,12 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class AttributesComponent extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributesComponent.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesPanel main;
 	private AttributesManagement attributesManagement;
 	
 	@Autowired
-	public AttributesComponent(UnityMessageSource msg, AttributesPanel main,
+	public AttributesComponent(MessageSource msg, AttributesPanel main,
 			AttributesManagement attributesManagement)
 	{
 		super();

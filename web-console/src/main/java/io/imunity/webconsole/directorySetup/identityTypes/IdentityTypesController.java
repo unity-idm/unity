@@ -15,10 +15,10 @@ import com.google.common.collect.Sets;
 
 import io.imunity.webadmin.identitytype.IdentityTypeEditor;
 import io.imunity.webadmin.identitytype.IdentityTypesUpdatedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -32,13 +32,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class IdentityTypesController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityTypesManagement idMan;
 	private IdentityTypeSupport idTypeSupport;
 	private MessageTemplateManagement msgTemplateMan;
 
 	@Autowired
-	IdentityTypesController(UnityMessageSource msg, IdentityTypesManagement idMan,
+	IdentityTypesController(MessageSource msg, IdentityTypesManagement idMan,
 			IdentityTypeSupport idTypeSupport, MessageTemplateManagement msgTemplateMan)
 	{
 		this.msg = msg;

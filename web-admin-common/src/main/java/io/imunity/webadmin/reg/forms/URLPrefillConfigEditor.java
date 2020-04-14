@@ -14,7 +14,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.URLQueryPrefillConfig;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
@@ -26,7 +26,7 @@ class URLPrefillConfigEditor extends CustomComponent
 	private CheckBox enabled;
 	private Binder<DataBean> binder;
 	
-	URLPrefillConfigEditor(UnityMessageSource msg)
+	URLPrefillConfigEditor(MessageSource msg)
 	{
 		enabled = new CheckBox(msg.getMessage("URLPrefillConfigEditor.enable"));
 		TextField paramName = new TextField();

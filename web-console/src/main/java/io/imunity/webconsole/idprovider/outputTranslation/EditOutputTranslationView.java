@@ -14,7 +14,7 @@ import io.imunity.webconsole.idprovider.outputTranslation.OutputTranslationsView
 import io.imunity.webconsole.translationsProfiles.EditTranslationView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 @PrototypeComponent
@@ -23,7 +23,7 @@ public class EditOutputTranslationView extends EditTranslationView
 	public static final String VIEW_NAME = "EditOutputTranslation";
 
 	@Autowired
-	EditOutputTranslationView(UnityMessageSource msg, OutputTranslationsController controller)
+	EditOutputTranslationView(MessageSource msg, OutputTranslationsController controller)
 	{
 		super(msg, controller);
 

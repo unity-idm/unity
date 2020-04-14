@@ -17,9 +17,9 @@ import com.vaadin.ui.components.grid.GridDropTarget;
 import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
 import io.imunity.webadmin.attributeStatment.AttributeStatementEditDialog;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.WebSession;
@@ -38,14 +38,14 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 public class AttributeStatementsTable extends GenericElementsTable<AttrStatementWithId>
 {
 	private final String DND_TYPE = "attribute_statement";
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrsMan;
 	private Group group;
 	private EventsBus bus;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	
-	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
+	public AttributeStatementsTable(MessageSource msg, GroupsManagement groupsMan,
 			AttributeTypeManagement attrsMan,
 			AttributeHandlerRegistry attributeHandlerRegistry)
 	{

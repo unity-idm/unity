@@ -11,7 +11,7 @@ import java.util.Set;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -30,7 +30,7 @@ public class RestAdminServiceEditorGeneralTab extends GeneralTab
 
 	private Binder<RestAdminServiceConfiguration> restBinder;
 
-	public RestAdminServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type,
+	public RestAdminServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
 			List<String> usedEndpointsPaths, Set<String> serverContextPaths)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);

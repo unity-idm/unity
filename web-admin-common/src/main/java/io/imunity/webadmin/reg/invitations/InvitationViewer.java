@@ -7,13 +7,13 @@ package io.imunity.webadmin.reg.invitations;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -29,7 +29,7 @@ public class InvitationViewer extends CustomComponent
 	private RegistrationInvitationViewer regViewer;
 	private EnquiryInvitationViewer enqViewer;
 
-	public InvitationViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlersRegistry,
+	public InvitationViewer(MessageSource msg, AttributeHandlerRegistry attrHandlersRegistry,
 			MessageTemplateManagement msgTemplateMan, RegistrationsManagement regMan,
 			EnquiryManagement enquiryMan, SharedEndpointManagement sharedEndpointMan,
 			EntityManagement entityMan, GroupsManagement groupMan)

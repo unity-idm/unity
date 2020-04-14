@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
@@ -52,7 +52,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	private NetworkServer server;
 	private ImageAccessService imageAccessService;
 
-	HomeServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+	HomeServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			HomeUITabProvider tabProvider, AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 			ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,

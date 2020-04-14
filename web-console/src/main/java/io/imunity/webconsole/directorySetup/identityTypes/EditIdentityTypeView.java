@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.WebSession;
@@ -43,13 +43,13 @@ class EditIdentityTypeView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "EditIdentityType";
 
 	private IdentityTypesController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityTypeEditor editor;
 	private EventsBus bus;
 	
 	private String idTypeName;
 
-	EditIdentityTypeView(IdentityTypesController controller, UnityMessageSource msg)
+	EditIdentityTypeView(IdentityTypesController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;

@@ -17,7 +17,7 @@ import com.vaadin.shared.Version;
 
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 
 /**
@@ -32,13 +32,13 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 {
 	private final Configuration cfg;
 	private final String mainTemplate;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private String theme;
 	private boolean debug;
 	private long heartbeat;
 	private String uiPath;
 	
-	public UnityBootstrapHandler(String webContentsDirectory, String mainTemplate, UnityMessageSource msg, String theme,
+	public UnityBootstrapHandler(String webContentsDirectory, String mainTemplate, MessageSource msg, String theme,
 			boolean debug, long heartbeat, String uiPath)
 	{
 		this.mainTemplate = mainTemplate;

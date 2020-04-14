@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.authn;
 
 import com.vaadin.ui.Alignment;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 /**
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.webui.common.TopHeaderLight;
 public class AuthenticationTopHeader extends TopHeaderLight
 {
 
-	public AuthenticationTopHeader(String title, LocaleChoiceComponent localeChoice, UnityMessageSource msg)
+	public AuthenticationTopHeader(String title, LocaleChoiceComponent localeChoice, MessageSource msg)
 	{
 		super(title, msg);
 		

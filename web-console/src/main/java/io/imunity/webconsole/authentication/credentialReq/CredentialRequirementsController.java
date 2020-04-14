@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.credentialRequirements.CredentialRequirementChangedEvent;
 import io.imunity.webadmin.credentialRequirements.CredentialRequirementEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -28,12 +28,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class CredentialRequirementsController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialRequirementManagement credReqMan;
 	private CredentialManagement credMan;
 
 	@Autowired
-	CredentialRequirementsController(UnityMessageSource msg, CredentialRequirementManagement credReqMan,
+	CredentialRequirementsController(MessageSource msg, CredentialRequirementManagement credReqMan,
 			CredentialManagement credMan)
 	{
 		this.msg = msg;

@@ -41,10 +41,10 @@ import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.identities.RemoveAttributeColumnDialog;
 import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -76,7 +76,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class IdentitiesPanel extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesPanel.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeManagement attrsMan;
 
 	private VerticalLayout main;
@@ -90,7 +90,7 @@ public class IdentitiesPanel extends SafePanel
 	private SearchField searchText;
 	
 	@Autowired
-	public IdentitiesPanel(UnityMessageSource msg, AttributeTypeManagement attrsMan,
+	public IdentitiesPanel(MessageSource msg, AttributeTypeManagement attrsMan,
 			RemoveFromGroupHandler removeFromGroupHandler, AddToGroupHandler addToGroupHandler,
 			EntityCreationHandler entityCreationDialogHandler, DeleteEntityHandler deleteEntityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,

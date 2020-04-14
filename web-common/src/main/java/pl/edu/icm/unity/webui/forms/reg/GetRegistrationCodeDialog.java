@@ -11,7 +11,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
@@ -27,7 +27,7 @@ public class GetRegistrationCodeDialog extends AbstractDialog
 	private String information;
 	private String codeCaption;
 
-	public GetRegistrationCodeDialog(UnityMessageSource msg, GetRegistrationCodeDialog.Callback callback,
+	public GetRegistrationCodeDialog(MessageSource msg, GetRegistrationCodeDialog.Callback callback,
 			String title, String information, String codeCaption)
 	{
 		super(msg, title);

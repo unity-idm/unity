@@ -23,9 +23,9 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Image;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Images;
@@ -48,7 +48,7 @@ public class AuthnsGridWidget extends CustomComponent
 	private ListDataProvider<AuthenticationOptionGridEntry> dataProvider;
 	private final int height;
 	
-	public AuthnsGridWidget(List<AuthNOption> options, UnityMessageSource msg,
+	public AuthnsGridWidget(List<AuthNOption> options, MessageSource msg,
 			AuthNPanelFactory authNPanelFactory, int height)
 	{
 		this.options = options;

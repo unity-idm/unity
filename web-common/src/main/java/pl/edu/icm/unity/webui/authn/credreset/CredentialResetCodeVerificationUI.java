@@ -15,8 +15,8 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController.CodeConsumer;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController.CodeSender;
@@ -38,7 +38,7 @@ public class CredentialResetCodeVerificationUI extends CredentialResetLayout
 	private CodeSender codeSendCallback;
 	
 	private TextFieldWithContextLabel answer;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialResetFlowConfig credResetConfig;
 	
 	public CredentialResetCodeVerificationUI(CredentialResetFlowConfig credResetConfig, CodeConsumer proceedCallback, 

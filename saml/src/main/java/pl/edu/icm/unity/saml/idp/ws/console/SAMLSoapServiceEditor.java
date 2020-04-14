@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Set;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLUsersEditorTab;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
  */
 public class SAMLSoapServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointTypeDescription type;
 	private PKIManagement pkiMan;
 	private List<String> allRealms;
@@ -64,7 +64,7 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 	private List<String> usedPaths;
 	private ImageAccessService imageAccessService;
 
-	public SAMLSoapServiceEditor(UnityMessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
+	public SAMLSoapServiceEditor(MessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, String serverPrefix,
 			Set<String> serverContextPaths,

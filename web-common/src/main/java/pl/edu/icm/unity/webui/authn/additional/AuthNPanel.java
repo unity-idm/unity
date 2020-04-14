@@ -8,8 +8,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -23,13 +23,13 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  */
 class AuthNPanel extends CustomComponent
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final ExecutorsService execService;
 	private final VaadinAuthenticationUI authnUI;
 	private final VerticalLayout authenticatorContainer;
 
 	
-	AuthNPanel(UnityMessageSource msg, ExecutorsService execService, VaadinAuthenticationUI authnUI)
+	AuthNPanel(MessageSource msg, ExecutorsService execService, VaadinAuthenticationUI authnUI)
 	{
 		this.msg = msg;
 		this.execService = execService;

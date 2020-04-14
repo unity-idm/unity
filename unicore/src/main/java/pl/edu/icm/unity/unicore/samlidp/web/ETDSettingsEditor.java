@@ -9,7 +9,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Slider;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 
 /**
@@ -19,12 +19,12 @@ import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETD
 public class ETDSettingsEditor
 {
 	public static final long MS_PER_DAY = 1000*3600*24;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private CheckBox generateETD;
 	private Slider validityDays;
 	
-	public ETDSettingsEditor(UnityMessageSource msg, Layout parentLayout)
+	public ETDSettingsEditor(MessageSource msg, Layout parentLayout)
 	{
 		this.msg = msg;
 		addToLayout(parentLayout);

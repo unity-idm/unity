@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumns;
@@ -25,10 +25,10 @@ public class HeaderConfig implements AuthnElementConfiguration
 
 	public static class Parser implements AuthnElementParser<HeaderConfig>
 	{
-		private final UnityMessageSource msg;
+		private final MessageSource msg;
 		private final Supplier<String> idGenerator;
 		
-		public Parser(UnityMessageSource msg, Supplier<String> idGenerator)
+		public Parser(MessageSource msg, Supplier<String> idGenerator)
 		{
 			this.msg = msg;
 			this.idGenerator = idGenerator;

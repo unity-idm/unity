@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class TestGroupsController
 {
 	@Mock
-	private UnityMessageSource mockMsg;
+	private MessageSource mockMsg;
 
 	@Mock
 	private DelegatedGroupManagement mockDelGroupMan;

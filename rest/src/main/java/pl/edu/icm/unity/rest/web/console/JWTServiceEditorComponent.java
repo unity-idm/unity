@@ -7,7 +7,7 @@ package pl.edu.icm.unity.rest.web.console;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
@@ -26,7 +26,7 @@ class JWTServiceEditorComponent extends ServiceEditorBase
 	private Binder<JWTServiceConfiguration> jwtBinder;
 	private Binder<DefaultServiceDefinition> serviceBinder;
 
-	JWTServiceEditorComponent(UnityMessageSource msg, JWTServiceEditorGeneralTab generalTab, AuthenticationTab authTab, DefaultServiceDefinition toEdit)
+	JWTServiceEditorComponent(MessageSource msg, JWTServiceEditorGeneralTab generalTab, AuthenticationTab authTab, DefaultServiceDefinition toEdit)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.common.i18n;
 
 import com.vaadin.ui.TextArea;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 
 /**
@@ -22,19 +22,19 @@ public class I18nTextArea extends Abstract18nField<TextArea>
 {
 	private int rows = 2;
 	
-	public I18nTextArea(UnityMessageSource msg)
+	public I18nTextArea(MessageSource msg)
 	{
 		super(msg);
 		initUI();
 	}
 
-	public I18nTextArea(UnityMessageSource msg, String caption)
+	public I18nTextArea(MessageSource msg, String caption)
 	{
 		super(msg, caption);
 		initUI();
 	}
 	
-	public I18nTextArea(UnityMessageSource msg, String caption, int rows)
+	public I18nTextArea(MessageSource msg, String caption, int rows)
 	{
 		super(msg, caption);
 		this.rows = rows;

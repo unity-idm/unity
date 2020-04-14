@@ -12,9 +12,9 @@ import java.util.Set;
 import com.vaadin.ui.TwinColSelect;
 
 import io.imunity.webadmin.groupbrowser.GroupAttributesClassesDialog;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -36,7 +36,7 @@ public abstract class AbstractAttributesClassesDialog extends AbstractDialog
 	protected EffectiveAttrClassViewer effective;
 	protected Map<String, AttributesClass> allClasses;
 	
-	public AbstractAttributesClassesDialog(UnityMessageSource msg, String group, 
+	public AbstractAttributesClassesDialog(MessageSource msg, String group, 
 			AttributeClassManagement acMan, GroupsManagement groupsMan, String caption)
 	{
 		super(msg, caption);

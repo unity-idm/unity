@@ -21,10 +21,10 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -51,7 +51,7 @@ class AdminTokensComponent extends VerticalLayout
 			AdminTokensComponent.class);
 	private EntityManagement entityManagement;
 	protected SecuredTokensManagement tokenMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	protected VerticalLayout main;
 	protected VerticalLayout tokensTablePanel;
@@ -62,7 +62,7 @@ class AdminTokensComponent extends VerticalLayout
 	protected final OAuthTokenRepository oauthTokenDAO;
 	
 	AdminTokensComponent(SecuredTokensManagement tokenMan, OAuthTokenRepository oauthTokenDAO, 
-			UnityMessageSource msg,
+			MessageSource msg,
 			EntityManagement entityManagement, boolean showViewer)
 	{
 		
@@ -262,10 +262,10 @@ class AdminTokensComponent extends VerticalLayout
 	{
 		private Token token;
 		private OAuthToken oauthToken;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private String owner;
 		
-		public TableTokensBean(Token token, UnityMessageSource msg, String owner)
+		public TableTokensBean(Token token, MessageSource msg, String owner)
 		{
 			this.token = token;
 			this.msg = msg;

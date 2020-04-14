@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -30,11 +30,11 @@ import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameCompar
  */
 public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> implements GroupsSelection
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<Group> items;
 	private String groupChangeConfirmationQuestion;
 	
-	public MandatoryGroupSelection(UnityMessageSource msg)
+	public MandatoryGroupSelection(MessageSource msg)
 	{
 		this.msg = msg;
 		setItemCaptionGenerator(g -> g.group.getDisplayedName().getValue(msg));

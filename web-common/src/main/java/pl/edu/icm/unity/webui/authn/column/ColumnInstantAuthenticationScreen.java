@@ -29,13 +29,13 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -64,7 +64,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 public class ColumnInstantAuthenticationScreen extends CustomComponent implements AuthenticationScreen
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ColumnInstantAuthenticationScreen.class);
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final ImageAccessService imageAccessService;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
@@ -92,7 +92,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private Component cancelComponent;
 	private CredentialResetLauncher credentialResetLauncher;
 	
-	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, ImageAccessService imageAccessService, 
+	public ColumnInstantAuthenticationScreen(MessageSource msg, ImageAccessService imageAccessService, 
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,

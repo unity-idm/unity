@@ -9,8 +9,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview;
  */
 class MessageTemplateViewer extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private FormLayout main;
 	private Label name;
 	private Label description;
@@ -34,7 +34,7 @@ class MessageTemplateViewer extends VerticalLayout
 	
 	private MessageTemplateConsumersRegistry registry;
 
-	MessageTemplateViewer(UnityMessageSource msg, MessageTemplateConsumersRegistry registry)
+	MessageTemplateViewer(MessageSource msg, MessageTemplateConsumersRegistry registry)
 	{
 		this.msg = msg;
 		this.registry = registry;

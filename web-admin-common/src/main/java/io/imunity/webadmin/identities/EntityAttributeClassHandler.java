@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -30,7 +30,7 @@ public class EntityAttributeClassHandler
 	@Autowired
 	private GroupsManagement groupsMan;
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback, 
 			Supplier<String> groupSupplier)

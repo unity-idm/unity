@@ -18,7 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -38,11 +38,11 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class MetadataEditor extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
 	private Map<String, SingleMetadataEditor> entries;
 
-	public MetadataEditor(UnityMessageSource msg, AttributeMetadataHandlerRegistry attrMetaHandlerReg)
+	public MetadataEditor(MessageSource msg, AttributeMetadataHandlerRegistry attrMetaHandlerReg)
 	{
 		this.msg = msg;
 		this.attrMetaHandlerReg = attrMetaHandlerReg;
@@ -183,7 +183,7 @@ public class MetadataEditor extends VerticalLayout
 		private String key;
 		private final String initialValue;
 		
-		public MetadataEditDialog(UnityMessageSource msg, MetaUpdated parent, 
+		public MetadataEditDialog(MessageSource msg, MetaUpdated parent, 
 				String key, String initial)
 		{
 			super(msg, msg.getMessage("MetadataEditor.editMetadataCaption"));

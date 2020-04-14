@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.identities.EntityChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -31,11 +31,11 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesComponentPanel extends SafePanel
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesGrid main;
 
 	@Autowired
-	public AttributesComponentPanel(UnityMessageSource msg, AttributesGrid main,
+	public AttributesComponentPanel(MessageSource msg, AttributesGrid main,
 			AttributesManagement attributesManagement)
 	{
 		this.msg = msg;

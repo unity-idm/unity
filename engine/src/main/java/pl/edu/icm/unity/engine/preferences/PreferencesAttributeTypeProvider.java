@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.preferences;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -22,7 +22,7 @@ public class PreferencesAttributeTypeProvider extends AbstractAttributeTypeProvi
 	public static final String PREFERENCES = "sys:Preferences";
 	
 	@Autowired
-	public PreferencesAttributeTypeProvider(UnityMessageSource msg)
+	public PreferencesAttributeTypeProvider(MessageSource msg)
 	{
 		super(msg);
 	}

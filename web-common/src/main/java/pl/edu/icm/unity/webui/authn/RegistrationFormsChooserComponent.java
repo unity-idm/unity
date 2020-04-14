@@ -12,7 +12,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 class RegistrationFormsChooserComponent extends CustomComponent
 {
 	RegistrationFormsChooserComponent(List<RegistrationForm> forms, RegistrationFormsChooserListener listener,
-			Runnable finishHandler, UnityMessageSource msg)
+			Runnable finishHandler, MessageSource msg)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);

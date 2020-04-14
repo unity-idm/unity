@@ -19,7 +19,7 @@ import edu.vt.middleware.password.CharacterRule;
 import edu.vt.middleware.password.Password;
 import edu.vt.middleware.password.PasswordData;
 import edu.vt.middleware.password.Rule;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Checks strength of the password using zxcvbn derivative library and provide other simple 
@@ -34,13 +34,13 @@ public class StrengthChecker
 	 //10^14 guesses is considered super safe
 	private static final int DEFAULT_PERFECT_SCORE = 14;
 	
-	public static StrengthInfo measure(String password, int minAcceptable, UnityMessageSource msg)
+	public static StrengthInfo measure(String password, int minAcceptable, MessageSource msg)
 	{
 		return measure(password, minAcceptable, msg.getLocale(), msg);
 	}
 	
 	static StrengthInfo measure(String password, int minAcceptable, 
-			Locale locale, UnityMessageSource msg)
+			Locale locale, MessageSource msg)
 	{
 		Zxcvbn zxcvbn = new Zxcvbn();
 		Strength strength = zxcvbn.measure(password);

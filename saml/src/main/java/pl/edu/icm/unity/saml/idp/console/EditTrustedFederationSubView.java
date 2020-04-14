@@ -31,10 +31,10 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.console.SimpleIDPMetaConverter.SAMLEntityWithLogo;
 import pl.edu.icm.unity.saml.metadata.srv.MetadataDownloader;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
@@ -63,7 +63,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
  */
 class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<SAMLServiceTrustedFederationConfiguration> binder;
 	private boolean editMode = false;
 	private Set<String> validators;
@@ -74,7 +74,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 	private TextField url;
 	private ComboBox<String> httpsTruststore;
 
-	EditTrustedFederationSubView(UnityMessageSource msg, URIAccessService uriAccessService,
+	EditTrustedFederationSubView(MessageSource msg, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, SAMLServiceTrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Consumer<SAMLServiceTrustedFederationConfiguration> onConfirm,

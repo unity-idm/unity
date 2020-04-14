@@ -13,12 +13,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
@@ -41,7 +41,7 @@ public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteCon
 
 	@Autowired
 	public EmailAttributeFacility(AttributeDAO dbAttributes, EntityDAO dbIdentities,
-			AttributeTypeHelper atHelper, UnityMessageSource msg, UnityServerConfiguration serverConfig)
+			AttributeTypeHelper atHelper, MessageSource msg, UnityServerConfiguration serverConfig)
 	{
 		super(dbIdentities, msg, serverConfig.getValue(CONFIRMATION_DEFAULT_RETURN_URL));
 		this.dbAttributes = dbAttributes;

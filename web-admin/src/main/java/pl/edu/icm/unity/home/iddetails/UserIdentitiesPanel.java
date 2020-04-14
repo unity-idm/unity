@@ -13,10 +13,10 @@ import java.util.Map;
 
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.common.identities.SingleTypeIdentityEditor;
  */
 public class UserIdentitiesPanel
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	protected IdentityEditorRegistry identityEditorReg;
 	protected EntityManagement idsManagement;
 	private long entityId;
@@ -48,7 +48,7 @@ public class UserIdentitiesPanel
 	private IdentityTypeSupport idTypeSupport;
 	private GroupOfGroups componentsGroup;
 	
-	public UserIdentitiesPanel(UnityMessageSource msg, IdentityEditorRegistry identityEditorReg,
+	public UserIdentitiesPanel(MessageSource msg, IdentityEditorRegistry identityEditorReg,
 			EntityManagement idsManagement, long entityId, IdentityTypeSupport idTypeSupport) 
 					throws EngineException
 	{

@@ -27,7 +27,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T>>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private VerticalLayout elementsLayout;
 	private List<ElementComponent> elements;
 	private VerticalLayout main;
@@ -49,12 +49,12 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	private List<SingleActionHandler<T>> additionalActionHandlers;
 	private Label captionLabel;
 
-	public ListOfDnDCollapsableElements(UnityMessageSource msg, Supplier<Editor<T>> editorProvider, String caption)
+	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption)
 	{
 		this(msg, editorProvider, caption, Collections.emptyList());
 	}
 
-	public ListOfDnDCollapsableElements(UnityMessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
+	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
 			List<SingleActionHandler<T>> additionalActionHandlers)
 	{
 		this.msg = msg;

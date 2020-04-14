@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
@@ -21,10 +21,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class PolicyDocumentsController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PolicyDocumentManagement docMan;
 
-	PolicyDocumentsController(UnityMessageSource msg, PolicyDocumentManagement docMan)
+	PolicyDocumentsController(MessageSource msg, PolicyDocumentManagement docMan)
 	{
 		this.msg = msg;
 		this.docMan = docMan;

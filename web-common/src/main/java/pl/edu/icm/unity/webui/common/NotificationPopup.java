@@ -13,8 +13,8 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -61,7 +61,7 @@ public class NotificationPopup
 		}
 	}
 	
-	public static void showError(UnityMessageSource msg, ControllerException exception)
+	public static void showError(MessageSource msg, ControllerException exception)
 	{
 		String description = exception.getCause() != null ? getHumanMessage(exception.getCause()) : "";
 
@@ -93,12 +93,12 @@ public class NotificationPopup
 		}
 	}
 
-	public static void showFormError(UnityMessageSource msg)
+	public static void showFormError(MessageSource msg)
 	{
 		showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 	}
 
-	public static void showFormError(UnityMessageSource msg, String detail)
+	public static void showFormError(MessageSource msg, String detail)
 	{
 		showError(msg.getMessage("Generic.formError"), detail);
 	}
@@ -115,7 +115,7 @@ public class NotificationPopup
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 	
-	public static void showError(UnityMessageSource msg, String message, Exception e)
+	public static void showError(MessageSource msg, String message, Exception e)
 	{
 		String description = getHumanMessage(e);
 		if (description.trim().isEmpty())

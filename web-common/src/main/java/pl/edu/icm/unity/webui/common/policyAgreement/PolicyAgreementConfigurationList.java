@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 
 public class PolicyAgreementConfigurationList extends ListOfDnDCollapsableElements<PolicyAgreementConfiguration>
 {
-	public PolicyAgreementConfigurationList(UnityMessageSource msg,
+	public PolicyAgreementConfigurationList(MessageSource msg,
 			Supplier<Editor<PolicyAgreementConfiguration>> editorProvider)
 	{
 		super(msg, editorProvider, msg.getMessage("PolicyAgreementList.items"));
@@ -39,10 +39,10 @@ public class PolicyAgreementConfigurationList extends ListOfDnDCollapsableElemen
 	@Component
 	public static class PolicyAgreementConfigurationListFactory
 	{
-		private final UnityMessageSource msg;
+		private final MessageSource msg;
 		private final PolicyDocumentManagement policyDocMan;
 		
-		PolicyAgreementConfigurationListFactory(UnityMessageSource msg, PolicyDocumentManagement policyDocMan)
+		PolicyAgreementConfigurationListFactory(MessageSource msg, PolicyDocumentManagement policyDocMan)
 		{
 			this.msg = msg;
 			this.policyDocMan = policyDocMan;

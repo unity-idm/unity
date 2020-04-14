@@ -11,8 +11,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.column.RemoteAuthenticationProgress;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -28,7 +28,7 @@ public class SignUpTopHeaderComponent extends CustomComponent
 	private Button gotoSignIn;
 	private LocaleChoiceComponent localeChoice;
 
-	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, UnityMessageSource msg, 
+	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, MessageSource msg, 
 			Runnable remoteSignupCancelHandler, Optional<Runnable> signInRedirector)
 	{
 		VerticalLayout main = new VerticalLayout();

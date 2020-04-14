@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common.credentials.pass;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
@@ -23,11 +23,11 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
  */
 public class PasswordCredentialEditor implements CredentialEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PasswordCredential config;
 	private PasswordEditorComponent editor;
 
-	public PasswordCredentialEditor(UnityMessageSource msg)
+	public PasswordCredentialEditor(MessageSource msg)
 	{
 		this.msg = msg;
 	}

@@ -7,10 +7,10 @@ package pl.edu.icm.unity.unicore.samlidp.preferences;
 import java.util.Set;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesEditor;
@@ -28,7 +28,7 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 {
 	private SamlPreferencesWithETD preferences;
 	
-	public SamlPreferencesWithETDEditor(UnityMessageSource msg, SamlPreferencesWithETD preferences, 
+	public SamlPreferencesWithETDEditor(MessageSource msg, SamlPreferencesWithETD preferences, 
 			EntityManagement idsMan,
 			AttributeTypeManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistries,
 			IdentityTypeSupport idTpeSupport)

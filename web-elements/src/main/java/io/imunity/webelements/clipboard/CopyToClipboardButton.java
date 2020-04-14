@@ -9,14 +9,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.Styles;
 
 public class CopyToClipboardButton extends CustomComponent
 {
-	public CopyToClipboardButton(UnityMessageSource msg, TextField field)
+	public CopyToClipboardButton(MessageSource msg, TextField field)
 	{
 		Button copy = new Button();
 		copy.setDescription(msg.getMessage("CopyToClipboardButton.copyToClipboard"));

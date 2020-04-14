@@ -6,7 +6,7 @@ package pl.edu.icm.unity.unicore.samlidp.preferences;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SPSettingsEditor;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
@@ -21,7 +21,7 @@ public class SPSettingsWithETDDialog extends AbstractDialog
 	private SPSettingsWithETDEditor editor;
 	private Callback callback;
 	
-	public SPSettingsWithETDDialog(UnityMessageSource msg, SPSettingsWithETDEditor editor, Callback callback)
+	public SPSettingsWithETDDialog(MessageSource msg, SPSettingsWithETDEditor editor, Callback callback)
 	{
 		super(msg, msg.getMessage("SAMLPreferences.spDialogCaption"));
 		this.editor = editor;

@@ -16,8 +16,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.ExtensionsType;
 import xmlbeans.org.oasis.saml2.metadata.LocalizedNameType;
@@ -73,7 +73,7 @@ public class MetaToConfigConverterHelper
 		return null;
 	}
 
-	public static Map<String, String> getLocalizedNames(UnityMessageSource msg, UIInfoType uiInfo,
+	public static Map<String, String> getLocalizedNames(MessageSource msg, UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		Map<String, String> ret = new HashMap<String, String>();
@@ -132,7 +132,7 @@ public class MetaToConfigConverterHelper
 	 * @param names
 	 * @param ret
 	 */
-	public static void addLocalizedNames(UnityMessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
+	public static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
 	{
 		if (names == null)
 			return;

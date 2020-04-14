@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
@@ -115,7 +115,7 @@ public class HomeServiceConfiguration
 		return prop.getAsString();
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, String extraTab,
+	public void fromProperties(String properties, MessageSource msg, String extraTab,
 			List<Group> allGroups)
 	{
 		Properties raw = new Properties();

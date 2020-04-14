@@ -15,7 +15,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -27,13 +27,13 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  */
 public class SamlSPSettingsViewer extends FormLayout
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected Label autoConfirm;
 	protected ListSelect<String> hiddenAttributes;
 	protected Label defaultIdentity;
 	protected AttributeHandlerRegistry attrHandlerRegistry;
 	
-	public SamlSPSettingsViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry)
+	public SamlSPSettingsViewer(MessageSource msg, AttributeHandlerRegistry attrHandlerRegistry)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;

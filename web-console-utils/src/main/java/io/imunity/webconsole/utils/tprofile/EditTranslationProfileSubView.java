@@ -14,7 +14,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -31,12 +31,12 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 public class EditTranslationProfileSubView extends CustomComponent implements UnitySubView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TranslationProfileEditor editor;
 	private Consumer<TranslationProfile> onConfirm;
 	private Runnable onCancel;
 
-	public EditTranslationProfileSubView(UnityMessageSource msg,
+	public EditTranslationProfileSubView(MessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type,
 			ActionParameterComponentProvider actionComponentProvider,
 			Consumer<TranslationProfile> onConfirm, Runnable onCancel)

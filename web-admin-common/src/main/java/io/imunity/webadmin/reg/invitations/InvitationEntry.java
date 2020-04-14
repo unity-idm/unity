@@ -7,7 +7,7 @@ package io.imunity.webadmin.reg.invitations;
 
 import java.time.Instant;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -21,11 +21,11 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
  */
 public class InvitationEntry implements FilterableEntry
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	public final InvitationWithCode invitationWithCode;
 	public final InvitationParam invitation;
 
-	public InvitationEntry(UnityMessageSource msg, InvitationWithCode invitationWithCode)
+	public InvitationEntry(MessageSource msg, InvitationWithCode invitationWithCode)
 	{
 		this.invitationWithCode = invitationWithCode;
 		this.invitation = invitationWithCode.getInvitation();
@@ -63,7 +63,7 @@ public class InvitationEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
 

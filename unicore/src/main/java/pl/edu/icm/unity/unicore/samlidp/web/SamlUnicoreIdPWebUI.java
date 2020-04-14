@@ -18,13 +18,13 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
 import eu.unicore.security.etd.DelegationRestrictions;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
@@ -59,7 +59,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	private AuthnWithETDResponseProcessor samlWithEtdProcessor;
 
 	@Autowired
-	public SamlUnicoreIdPWebUI(UnityMessageSource msg, ImageAccessService imageAccessService,
+	public SamlUnicoreIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
 			FreemarkerAppHandler freemarkerHandler, AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan, StandardWebAuthenticationProcessor authnProcessor,
 			IdPEngine idpEngine, IdentityTypeSupport idTypeSupport, SessionManagement sessionMan,

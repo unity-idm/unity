@@ -34,8 +34,8 @@ import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import io.imunity.webadmin.utils.FileUploder;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
@@ -51,11 +51,11 @@ class CertificateEditor extends CustomComponent
 	private TextField name;
 	private TextArea value;
 	private Binder<CertificateForBinder> binder;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private FileUploder uploader;
 	private FormLayout certDetails;
 
-	CertificateEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, NamedCertificate toEdit)
+	CertificateEditor(MessageSource msg, UnityServerConfiguration serverConfig, NamedCertificate toEdit)
 	{
 		this.msg = msg;
 

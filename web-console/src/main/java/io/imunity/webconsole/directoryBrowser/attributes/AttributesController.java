@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.attribute.AttributeChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -25,7 +26,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -53,7 +53,7 @@ class AttributesController
 	private AttributeClassManagement acMan;
 	private AttributeTypeManagement aTypeManagement;
 	private GroupsManagement groupsManagement;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesManagement attrMan;
 
 	private AttributeHandlerRegistry registry;
@@ -62,7 +62,7 @@ class AttributesController
 	@Autowired
 	AttributesController(AttributesManagement attrMan, AttributeClassManagement acMan,
 			AttributeTypeManagement aTypeManagement, GroupsManagement groupsManagement,
-			AttributeHandlerRegistry registry, AttributeTypeSupport atSupport, UnityMessageSource msg)
+			AttributeHandlerRegistry registry, AttributeTypeSupport atSupport, MessageSource msg)
 	{
 		this.attrMan = attrMan;
 		this.acMan = acMan;

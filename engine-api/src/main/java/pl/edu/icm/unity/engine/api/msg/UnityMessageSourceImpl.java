@@ -45,25 +45,23 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
  * @author K. Benedyczak
  */
 @Component
-public class UnityMessageSource extends ReloadableResourceBundleMessageSource implements MessageSource
+public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSource implements MessageSource
 {
-	private Logger log = Log.getLogger(Log.U_SERVER, UnityMessageSource.class);
-	
-	public static final String PROFILE_FAIL_ON_MISSING = "failOnMissingMessage";
+	private Logger log = Log.getLogger(Log.U_SERVER, UnityMessageSourceImpl.class);
 	
 	private UnityServerConfiguration config;
 	private final boolean failOnMissingMessage;
 	
 	
 	@Autowired
-	public UnityMessageSource(UnityServerConfiguration config, Environment springEnv) throws IOException
+	public UnityMessageSourceImpl(UnityServerConfiguration config, Environment springEnv) throws IOException
 	{
 		Set<String> activeProfiles = Sets.newHashSet(springEnv.getActiveProfiles());
 		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING); 
 		init(config);
 	}
 
-	public UnityMessageSource(UnityServerConfiguration config, boolean failOnMissing) throws IOException
+	public UnityMessageSourceImpl(UnityServerConfiguration config, boolean failOnMissing) throws IOException
 	{
 		failOnMissingMessage = failOnMissing; 
 		init(config);
@@ -158,7 +156,7 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 	@Override
 	public Locale getLocale()
 	{
-		return getLocale(config.getDefaultLocale());
+		return LocaleHelper.getLocale(config.getDefaultLocale());
 	}
 	
 	@Override
@@ -177,22 +175,6 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 	public String getLocaleCode()
 	{
 		return getLocale().toString();
-	}
-	
-	public static Locale getLocale(Locale fallback)
-	{	
-		InvocationContext ctx = null;
-		try
-		{
-			ctx = InvocationContext.getCurrent();
-		} catch (Exception e)
-		{
-			return fallback;
-		}
-		Locale ret = ctx.getLocale();
-		if (ret == null)
-			return fallback;
-		return ret;
 	}
 
 	@Override

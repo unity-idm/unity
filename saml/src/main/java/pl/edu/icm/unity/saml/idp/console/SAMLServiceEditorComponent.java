@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -42,7 +42,7 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 
-	SAMLServiceEditorComponent(UnityMessageSource msg, SAMLEditorGeneralTab generalTab,
+	SAMLServiceEditorComponent(MessageSource msg, SAMLEditorGeneralTab generalTab,
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
 			WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,

@@ -13,7 +13,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
@@ -27,10 +27,10 @@ public class DashboardView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Dashboard";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	public DashboardView(UnityMessageSource msg)
+	public DashboardView(MessageSource msg)
 	{
 		this.msg = msg;
 	}

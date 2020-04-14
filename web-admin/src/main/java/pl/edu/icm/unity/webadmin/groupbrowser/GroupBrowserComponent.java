@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
@@ -27,10 +27,10 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class GroupBrowserComponent extends SafePanel
 {
 	private GroupsTree groupsTree;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
-	public GroupBrowserComponent(GroupsTree groupsTree, UnityMessageSource msg)
+	public GroupBrowserComponent(GroupsTree groupsTree, MessageSource msg)
 	{
 		this.groupsTree = groupsTree;
 		this.msg = msg;

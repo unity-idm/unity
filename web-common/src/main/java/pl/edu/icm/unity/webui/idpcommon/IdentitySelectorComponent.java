@@ -13,9 +13,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
@@ -30,14 +30,14 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class IdentitySelectorComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityTypeSupport idTypeSupport;
 	private List<IdentityParam> validIdentities;
 	
 	protected IdentityParam selectedIdentity;
 	protected ComboBox<IdentityParam> identitiesCB;
 	
-	public IdentitySelectorComponent(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
+	public IdentitySelectorComponent(MessageSource msg, IdentityTypeSupport idTypeSupport,
 			List<IdentityParam> validIdentities)
 	{
 		super();

@@ -6,7 +6,7 @@
 
 package io.imunity.upman.common;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class ServerFaultException extends ControllerException
 {
-	public ServerFaultException(UnityMessageSource msg)
+	public ServerFaultException(MessageSource msg)
 	{
 		super(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"), null);
 	}

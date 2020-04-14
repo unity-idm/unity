@@ -24,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.RegistrationTranslationProfileEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -72,7 +72,7 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfiguratio
 public class RegistrationFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditor.class);
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final GroupsManagement groupsMan;
 	private final NotificationsManagement notificationsMan;
 	private final MessageTemplateManagement msgTempMan;
@@ -113,7 +113,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private ComboBox<String> realmNames;
 	
 	@Autowired
-	public RegistrationFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+	public RegistrationFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan, CredentialManagement credMan,

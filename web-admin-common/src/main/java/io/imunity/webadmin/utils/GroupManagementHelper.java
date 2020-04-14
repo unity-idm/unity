@@ -17,12 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.attributeclass.RequiredAttributesDialog;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 @Component
 public class GroupManagementHelper
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrMan; 
 	private AttributeHandlerRegistry attrHandlerRegistry;
@@ -52,7 +52,7 @@ public class GroupManagementHelper
 	private EntityManagement identitiesMan;
 	
 	@Autowired
-	public GroupManagementHelper(UnityMessageSource msg, GroupsManagement groupsMan,
+	public GroupManagementHelper(MessageSource msg, GroupsManagement groupsMan,
 			AttributeTypeManagement attrMan, 
 			AttributeClassManagement acMan,
 			AttributeHandlerRegistry attrHandlerRegistry,

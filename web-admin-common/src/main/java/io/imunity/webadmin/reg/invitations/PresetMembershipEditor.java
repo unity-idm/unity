@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -29,7 +29,7 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	private GroupsSelection selection;
 	private List<Group> allGroups;
 	
-	public PresetMembershipEditor(UnityMessageSource msg, List<Group> allGroups, List<GroupRegistrationParam> formParams)
+	public PresetMembershipEditor(MessageSource msg, List<Group> allGroups, List<GroupRegistrationParam> formParams)
 	{
 		super(msg);
 		this.allGroups = allGroups;

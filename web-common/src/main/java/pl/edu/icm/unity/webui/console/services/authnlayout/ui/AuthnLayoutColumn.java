@@ -25,7 +25,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class AuthnLayoutColumn extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<ColumnComponent> elements;
 	private VerticalLayout elementsLayout;
 	private Consumer<ColumnComponent> removeElementListener;
@@ -53,7 +53,7 @@ public class AuthnLayoutColumn extends CustomComponent
 	private Runnable valueChange;
 	private VerticalLayout header;
 
-	public AuthnLayoutColumn(UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
+	public AuthnLayoutColumn(MessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
 			Consumer<ColumnComponent> removeElementListener, Runnable valueChange)
 	{
 		this.msg = msg;

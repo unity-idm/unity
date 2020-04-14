@@ -13,8 +13,8 @@ import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateTimeField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax;
@@ -34,10 +34,10 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 public class DateTimeAttributeHandler implements WebAttributeHandler
 {
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private DateTimeAttributeSyntax syntax;
 
-	public DateTimeAttributeHandler(AttributeValueSyntax<?> syntax, UnityMessageSource msg)
+	public DateTimeAttributeHandler(AttributeValueSyntax<?> syntax, MessageSource msg)
 	{
 
 		this.syntax = (DateTimeAttributeSyntax) syntax;
@@ -157,10 +157,10 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class DateAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
 		@Autowired
-		public DateAttributeHandlerFactory(UnityMessageSource msg)
+		public DateAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

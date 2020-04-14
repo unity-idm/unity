@@ -8,8 +8,8 @@ package io.imunity.webadmin.reg.requests;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -31,10 +31,10 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 public class RequestEntry implements FilterableEntry
 {
 	public UserRequestState<?> request;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String identity;
 
-	public RequestEntry(UserRequestState<?> request, UnityMessageSource msg, EntityManagement idMan)
+	public RequestEntry(UserRequestState<?> request, MessageSource msg, EntityManagement idMan)
 	{
 		this.request = request;
 		this.msg = msg;
@@ -123,7 +123,7 @@ public class RequestEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
 

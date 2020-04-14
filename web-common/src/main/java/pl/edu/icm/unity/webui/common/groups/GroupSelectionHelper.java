@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -85,9 +85,9 @@ public class GroupSelectionHelper
 
 	public static class GroupNameComparator implements Comparator<Group>
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
-		public GroupNameComparator(UnityMessageSource msg)
+		public GroupNameComparator(MessageSource msg)
 		{
 			this.msg = msg;
 		}

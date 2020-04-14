@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.credentials;
 import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -23,7 +23,7 @@ public class CredentialDefinitionEditDialog extends AbstractDialog
 	private CredentialDefinitionEditor editor;
 	private Callback callback;
 	
-	public CredentialDefinitionEditDialog(UnityMessageSource msg, String caption, 
+	public CredentialDefinitionEditDialog(MessageSource msg, String caption, 
 			CredentialDefinitionEditor attributeEditor, Callback callback)
 	{
 		super(msg, caption);

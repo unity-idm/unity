@@ -11,13 +11,13 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -36,12 +36,12 @@ import pl.edu.icm.unity.webui.common.Styles;
 class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SecondFactorAuthNPanel.class);
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final EntityManagement idsMan;
 	private final ExecutorsService execService;
 	private final AuthenticationListener externalListener;
 
-	SecondFactorAuthNPanel(UnityMessageSource msg,
+	SecondFactorAuthNPanel(MessageSource msg,
 			EntityManagement idsMan, ExecutorsService execService,
 			VaadinAuthenticationUI secondaryUI, PartialAuthnState partialState,
 			String optionId, AuthenticationListener externalListener)

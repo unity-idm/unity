@@ -29,9 +29,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
@@ -46,7 +46,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 	private PKIManagement pkiManagement;
 
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Test
 	public void shouldUpdateStaticConfigurationAfterReload() throws Exception

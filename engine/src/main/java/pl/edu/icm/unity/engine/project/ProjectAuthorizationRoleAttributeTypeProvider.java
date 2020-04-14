@@ -12,8 +12,8 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -29,7 +29,7 @@ public class ProjectAuthorizationRoleAttributeTypeProvider extends AbstractAttri
 	public static final String PROJECT_MANAGEMENT_AUTHORIZATION_ROLE = "sys:ProjectManagementRole";
 
 	@Autowired
-	public ProjectAuthorizationRoleAttributeTypeProvider(UnityMessageSource msg)
+	public ProjectAuthorizationRoleAttributeTypeProvider(MessageSource msg)
 	{
 		super(msg);
 	}

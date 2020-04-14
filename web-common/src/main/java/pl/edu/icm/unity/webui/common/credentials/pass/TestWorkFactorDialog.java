@@ -16,7 +16,7 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.SCryptEncoder;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -36,7 +36,7 @@ class TestWorkFactorDialog extends AbstractDialog
 	private VerticalLayout layout;
 	private final SCryptEncoder scryptEncoder;
 	
-	public TestWorkFactorDialog(UnityMessageSource msg, PasswordCredential config, 
+	public TestWorkFactorDialog(MessageSource msg, PasswordCredential config, 
 			SCryptEncoder scryptEncoder)
 	{
 		super(msg, msg.getMessage("PasswordDefinitionEditor.testWorkFactor"), 

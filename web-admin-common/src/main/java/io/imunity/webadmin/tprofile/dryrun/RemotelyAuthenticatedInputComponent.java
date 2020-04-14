@@ -14,11 +14,11 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -44,7 +44,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	private HorizontalLayout titleWrap;
 	private Label noneLabel;
 	private HtmlLabel titleLabel;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	/**
 	 * The constructor should first build the main layout, set the
 	 * composition root and then do any custom initialization.
@@ -53,7 +53,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	 * visual editor.
 	 * @param msg 
 	 */
-	public RemotelyAuthenticatedInputComponent(UnityMessageSource msg) 
+	public RemotelyAuthenticatedInputComponent(MessageSource msg) 
 	{
 		this.msg = msg;
 		buildMainLayout();

@@ -20,6 +20,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -29,7 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -64,7 +64,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);
 	private RegistrationForm form;
 	private RegistrationsManagement regMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private UnityServerConfiguration cfg;
 	private IdPLoginController idpLoginController;
 	private VerticalLayout main;
@@ -81,7 +81,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private ImageAccessService imageAccessService;
 	
 	@Autowired
-	public StandaloneRegistrationView(UnityMessageSource msg,
+	public StandaloneRegistrationView(MessageSource msg,
 			@Qualifier("insecure") RegistrationsManagement regMan,
 			UnityServerConfiguration cfg, 
 			IdPLoginController idpLoginController,

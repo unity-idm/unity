@@ -29,7 +29,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -55,12 +55,12 @@ class PolicyDocumentsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "PolicyDocuments";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PolicyDocumentsController controller;
 	private GridWithActionColumn<PolicyDocumentEntry> policyDocsGrid;
 
 	@Autowired
-	PolicyDocumentsView(UnityMessageSource msg, PolicyDocumentsController controller)
+	PolicyDocumentsView(MessageSource msg, PolicyDocumentsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -185,7 +185,7 @@ class PolicyDocumentsView extends CustomComponent implements UnityView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public PolicyDocumentsNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<PolicyDocumentsView> factory)
+		public PolicyDocumentsNavigationInfoProvider(MessageSource msg, ObjectFactory<PolicyDocumentsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
 					.withParent(SettingsNavigationInfoProvider.ID).withObjectFactory(factory)

@@ -51,10 +51,10 @@ import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -73,7 +73,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	private PKIManagement pkiManagement;
 	
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Before
 	public void reset()

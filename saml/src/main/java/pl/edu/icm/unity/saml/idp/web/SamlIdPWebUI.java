@@ -26,6 +26,7 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -78,7 +78,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected IdPEngine idpEngine;
 	protected FreemarkerAppHandler freemarkerHandler;
 	protected AttributeHandlerRegistry handlersRegistry;
@@ -98,7 +98,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected Map<String, AttributeType> attributeTypes;
 
 	@Autowired
-	public SamlIdPWebUI(UnityMessageSource msg, ImageAccessService imageAccessService,
+	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
 			FreemarkerAppHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,

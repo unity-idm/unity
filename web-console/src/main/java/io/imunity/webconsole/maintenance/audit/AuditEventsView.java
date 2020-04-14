@@ -30,10 +30,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.UnknownIdentityException;
@@ -84,7 +85,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	private final static String DATETIME_FORMAT_SHORT_PATTERN = "yyyy-MM-dd HH:mm";
 	private final static String TIMESTAMP = "timestamp";
 
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final AuditEventManagement eventManagement;
 	private final EntityManagement entityMan;
 	private final EntityManagement idsMan;
@@ -102,7 +103,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	private GridWithActionColumn<AuditEventEntry> auditEventsGrid;
 
 	@Autowired
-	AuditEventsView(UnityMessageSource msg, AuditEventManagement eventManagement,
+	AuditEventsView(MessageSource msg, AuditEventManagement eventManagement,
 					EntityManagement entityMan, EntityManagement idsMan,
 					ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory)
 	{
@@ -385,7 +386,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	public static class AuditLogInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public AuditLogInfoProvider(UnityMessageSource msg,
+		public AuditLogInfoProvider(MessageSource msg,
 					ObjectFactory<AuditEventsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)

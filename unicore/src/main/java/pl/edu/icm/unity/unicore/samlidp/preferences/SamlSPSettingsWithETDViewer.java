@@ -6,8 +6,8 @@ package pl.edu.icm.unity.unicore.samlidp.preferences;
 
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlSPSettingsViewer;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.web.ETDSettingsEditor;
@@ -22,7 +22,7 @@ public class SamlSPSettingsWithETDViewer extends SamlSPSettingsViewer
 {
 	private Label etdSettings;
 	
-	public SamlSPSettingsWithETDViewer(UnityMessageSource msg, AttributeHandlerRegistry attributeHandlerRegistry)
+	public SamlSPSettingsWithETDViewer(MessageSource msg, AttributeHandlerRegistry attributeHandlerRegistry)
 	{
 		super(msg, attributeHandlerRegistry);
 		etdSettings = new Label();

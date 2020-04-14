@@ -13,9 +13,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
@@ -33,7 +33,7 @@ public class OAuthConfiguration
 		defAccountAssociation = true;
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, 
+	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan, 
 			ImageAccessService imageAccessService)
 	{
 		Properties raw = new Properties();
@@ -61,7 +61,7 @@ public class OAuthConfiguration
 		}
 	}
 
-	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
+	public String toProperties(MessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
 			String authName) throws ConfigurationException
 	{
 		Properties raw = new Properties();

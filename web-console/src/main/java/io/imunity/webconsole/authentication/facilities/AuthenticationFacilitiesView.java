@@ -23,7 +23,7 @@ import io.imunity.webconsole.authentication.flows.AuthenticationFlowsComponent;
 import io.imunity.webconsole.authentication.flows.AuthenticationFlowsController;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
@@ -39,13 +39,13 @@ public class AuthenticationFacilitiesView extends CustomComponent implements Uni
 {
 	public static final String VIEW_NAME = "AuthenticationSetup";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuthenticationFlowsController flowsMan;
 	private AuthenticatorsController authnMan;
 	private SandboxAuthnRouter sandBoxRouter;
 
 	@Autowired
-	AuthenticationFacilitiesView(UnityMessageSource msg, AuthenticationFlowsController flowsMan,
+	AuthenticationFacilitiesView(MessageSource msg, AuthenticationFlowsController flowsMan,
 			AuthenticatorsController authnMan)
 	{
 		this.msg = msg;
@@ -84,7 +84,7 @@ public class AuthenticationFacilitiesView extends CustomComponent implements Uni
 		public static final String ID = AuthenticationFacilitiesView.VIEW_NAME;
 
 		@Autowired
-		public AuthenticationFacilitiesNavigationInfoProvider(UnityMessageSource msg,
+		public AuthenticationFacilitiesNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<AuthenticationFacilitiesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

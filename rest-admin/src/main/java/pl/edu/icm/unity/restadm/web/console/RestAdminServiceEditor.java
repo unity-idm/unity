@@ -8,7 +8,7 @@ package pl.edu.icm.unity.restadm.web.console;
 import java.util.List;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
  */
 class RestAdminServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
@@ -37,7 +37,7 @@ class RestAdminServiceEditor implements ServiceEditor
 	private List<String> usedPaths;
 	private Set<String> serverContextPaths;
 
-	RestAdminServiceEditor(UnityMessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+	RestAdminServiceEditor(MessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> usedPaths, Set<String> serverContextPaths)
 	{
 		this.msg = msg;

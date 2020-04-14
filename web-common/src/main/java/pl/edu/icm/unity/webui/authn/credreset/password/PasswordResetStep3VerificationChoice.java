@@ -12,7 +12,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController.VerificationMethod;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetCo
 class PasswordResetStep3VerificationChoice extends CredentialResetLayout
 {	
 	private ComboBox<VerificationMethod> chooser;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Runnable cancelCallback;
 	private Consumer<VerificationMethod> proceedCallback;
 	

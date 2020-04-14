@@ -13,12 +13,12 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
  */
 public class SamlPreferencesEditor implements PreferencesEditor
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected SamlPreferences preferences;
 	protected EntityManagement idsMan;
 	protected AttributeTypeManagement atsMan;
@@ -52,7 +52,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
 	protected IdentityTypeSupport idTpeSupport;
 
-	public SamlPreferencesEditor(UnityMessageSource msg, SamlPreferences preferences, EntityManagement idsMan,
+	public SamlPreferencesEditor(MessageSource msg, SamlPreferences preferences, EntityManagement idsMan,
 			AttributeTypeManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistry,
 			IdentityTypeSupport idTpeSupport)
 	{

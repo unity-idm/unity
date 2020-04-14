@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.spi.services.IdpServiceAdditionalAction;
 import io.imunity.webconsole.spi.services.ServiceActionRepresentation;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.webui.common.Images;
 
@@ -19,11 +19,11 @@ import pl.edu.icm.unity.webui.common.Images;
 class ShowOAuthTokensAction implements IdpServiceAdditionalAction
 {
 	public static final String NAME = "OAuthTokens";
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ObjectFactory<OAuthTokensComponent> actionComponentfactory;
 
 	@Autowired
-	ShowOAuthTokensAction(UnityMessageSource msg, ObjectFactory<OAuthTokensComponent> factory)
+	ShowOAuthTokensAction(MessageSource msg, ObjectFactory<OAuthTokensComponent> factory)
 	{
 		this.msg = msg;
 		this.actionComponentfactory = factory;

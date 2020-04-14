@@ -22,7 +22,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -41,11 +41,11 @@ class ImportAttributeTypesView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "ImportAttributeTypes";
 
 	private AttributeTypeController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImportAttributeTypeEditor editor;
 
 	@Autowired
-	ImportAttributeTypesView(AttributeTypeController controller, UnityMessageSource msg)
+	ImportAttributeTypesView(AttributeTypeController controller, MessageSource msg)
 	{
 		super();
 		this.controller = controller;

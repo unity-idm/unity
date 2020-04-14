@@ -17,9 +17,9 @@ import io.imunity.webadmin.bulk.RuleEditorImpl;
 import io.imunity.webadmin.bulk.ScheduledRuleParamEditorImpl;
 import io.imunity.webadmin.tprofile.ActionEditor;
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
@@ -37,13 +37,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class AutomationController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private BulkProcessingManagement bulkMan;
 	private EntityActionsRegistry registry;
 	private ActionParameterComponentProvider parameterFactory;
 
 	@Autowired
-	AutomationController(UnityMessageSource msg, BulkProcessingManagement bulkMan, EntityActionsRegistry registry,
+	AutomationController(MessageSource msg, BulkProcessingManagement bulkMan, EntityActionsRegistry registry,
 			ActionParameterComponentProvider parameterFactory)
 	{
 		this.msg = msg;

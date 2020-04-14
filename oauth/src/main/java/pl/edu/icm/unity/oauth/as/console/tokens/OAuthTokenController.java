@@ -19,11 +19,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -43,12 +43,12 @@ class OAuthTokenController
 	private SecuredTokensManagement tokenMan;
 	private EntityManagement entityManagement;
 	private EndpointManagement endpointMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private final OAuthTokenRepository oauthTokenRepository;
 
 	@Autowired
-	OAuthTokenController(UnityMessageSource msg, OAuthTokenRepository oauthTokenRepository,
+	OAuthTokenController(MessageSource msg, OAuthTokenRepository oauthTokenRepository,
 			SecuredTokensManagement tokensManagement,
 			EntityManagement entityManagement, EndpointManagement endpointMan)
 	{

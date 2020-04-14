@@ -23,8 +23,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 
@@ -54,7 +54,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	private Button enterButton;
 	private Button escapeButton;
 	protected Component contentsComponent;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected boolean lightweightWrapperPanel = false;
 	private int width = 50;
 	private int height = 50;
@@ -71,12 +71,12 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	 * @param caption
 	 * @param confirmM
 	 */
-	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM) 
+	public AbstractDialog(MessageSource msg, String caption, String confirmM) 
 	{
 		this(msg, caption, confirmM, null);
 	}
 
-	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM, String cancelM) 
+	public AbstractDialog(MessageSource msg, String caption, String confirmM, String cancelM) 
 	{
 		super(caption);
 		this.msg = msg;
@@ -87,7 +87,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		confirm = createConfirmButton();
 	}
 	
-	public AbstractDialog(UnityMessageSource msg, String caption, String confirmM,String confirmT, String cancelM, String cancelT) 
+	public AbstractDialog(MessageSource msg, String caption, String confirmM,String confirmT, String cancelM, String cancelT) 
 	{
 		super(caption);
 		this.msg = msg;
@@ -105,7 +105,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	 * @param msg
 	 * @param caption
 	 */
-	public AbstractDialog(UnityMessageSource msg, String caption) 
+	public AbstractDialog(MessageSource msg, String caption) 
 	{
 		super(caption);
 		this.msg = msg;

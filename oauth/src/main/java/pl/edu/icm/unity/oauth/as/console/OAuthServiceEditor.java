@@ -11,11 +11,11 @@ import java.util.Set;
 import java.util.function.Function;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
@@ -61,7 +61,7 @@ class OAuthServiceEditor implements ServiceEditor
 	private URIAccessService uriAccessService;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
 
-	OAuthServiceEditor(UnityMessageSource msg, 
+	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, 
 			String serverPrefix,

@@ -17,8 +17,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallGrid;
@@ -37,7 +37,7 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 	private VerticalLayout left, right;
 	private Map<String, AttributesClass> allClasses;
 	
-	public EffectiveAttrClassViewer(UnityMessageSource msg)
+	public EffectiveAttrClassViewer(MessageSource msg)
 	{
 		parents = new Tree<>(msg.getMessage("AttributesClass.parentsInEffective"));
 		parents.addSelectionListener(selection -> 

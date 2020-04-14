@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.common.widgets;
 
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 
 public class DescriptionTextField extends TextField
 {
-	public DescriptionTextField(UnityMessageSource msg)
+	public DescriptionTextField(MessageSource msg)
 	{
 		setCaption(msg.getMessage("ServiceEditorBase.description"));
 		setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);

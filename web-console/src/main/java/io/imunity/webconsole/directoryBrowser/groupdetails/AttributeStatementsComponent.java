@@ -25,7 +25,7 @@ import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.GridDropTarget;
 
 import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.WebSession;
@@ -51,7 +51,7 @@ public class AttributeStatementsComponent extends CustomComponent
 {
 	private final String DND_TYPE = "attribute_statement";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeStatementController controller;
 	private EventsBus bus;
 	private GridWithActionColumn<AttrStatementWithId> attrStatementsGrid;
@@ -59,7 +59,7 @@ public class AttributeStatementsComponent extends CustomComponent
 
 	private Group group;
 
-	public AttributeStatementsComponent(UnityMessageSource msg, AttributeStatementController controller)
+	public AttributeStatementsComponent(MessageSource msg, AttributeStatementController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

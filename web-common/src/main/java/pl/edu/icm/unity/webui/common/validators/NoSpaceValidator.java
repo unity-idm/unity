@@ -9,7 +9,7 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Checks if value does not have spaces
@@ -19,11 +19,11 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 public class NoSpaceValidator implements Validator<String>
 {
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	
 	
-	public NoSpaceValidator(UnityMessageSource msg)
+	public NoSpaceValidator(MessageSource msg)
 	{
 		this.msg = msg;
 	}

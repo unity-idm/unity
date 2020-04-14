@@ -12,7 +12,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -23,7 +23,7 @@ class AdditionalAuthnDialog extends Window
 	private Runnable cancelHandler;
 	private Registration addCloseListener;
 
-	AdditionalAuthnDialog(UnityMessageSource msg, String caption, String info, AuthNPanel authnPanel, 
+	AdditionalAuthnDialog(MessageSource msg, String caption, String info, AuthNPanel authnPanel, 
 			Runnable cancelHandler)
 	{
 		this.authnPanel = authnPanel;

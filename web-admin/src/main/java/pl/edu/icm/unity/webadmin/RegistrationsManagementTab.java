@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webadmin.reg.formfill.FormsChooserComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormsComponent;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormsComponent;
@@ -28,11 +28,11 @@ import pl.edu.icm.unity.webui.common.Styles;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RegistrationsManagementTab  extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MainTabPanel tabs;
 
 	@Autowired
-	public RegistrationsManagementTab(UnityMessageSource msg, RegistrationFormsComponent regComponent,
+	public RegistrationsManagementTab(MessageSource msg, RegistrationFormsComponent regComponent,
 			RequestsComponent requestsComponent, FormsChooserComponent reqFillComponent,
 			InvitationsComponent invitationsComponent, EnquiryFormsComponent enquiryFormsComponent)
 	{

@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
 import io.imunity.webadmin.attributeStatment.AttributeStatementEditDialog;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -31,11 +31,11 @@ class AttributeStatementController
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrsMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
 	AttributeStatementController(AttributeHandlerRegistry attributeHandlerRegistry, GroupsManagement groupsMan,
-			AttributeTypeManagement attrsMan, UnityMessageSource msg)
+			AttributeTypeManagement attrsMan, MessageSource msg)
 	{
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.groupsMan = groupsMan;

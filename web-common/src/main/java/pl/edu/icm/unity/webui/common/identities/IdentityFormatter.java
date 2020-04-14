@@ -7,9 +7,9 @@ package pl.edu.icm.unity.webui.common.identities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 public class IdentityFormatter
 {
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	@Autowired
 	private IdentityTypeSupport idTypeSupport;
 	@Autowired

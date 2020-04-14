@@ -30,11 +30,11 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -84,7 +84,7 @@ public class InvitationEditor extends CustomComponent
 
 	private static final long DEFAULT_TTL_DAYS = 3;
 	private static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private NotificationProducer notificationProducer;
@@ -117,7 +117,7 @@ public class InvitationEditor extends CustomComponent
 	private Map<Long, String> availableEntities;
 	private String entityNameAttr;
 
-	public InvitationEditor(UnityMessageSource msg, IdentityEditorRegistry identityEditorRegistry,
+	public InvitationEditor(MessageSource msg, IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates,
 			Collection<RegistrationForm> availableRegistrationForms,
 			Collection<EnquiryForm> availableEnquiryForms, Map<String, AttributeType> attrTypes,
@@ -506,7 +506,7 @@ public class InvitationEditor extends CustomComponent
 		private List<Group> allGroups;
 		private List<GroupRegistrationParam> formParams;
 
-		public PresetMembershipEditorWithAllowedGroups(UnityMessageSource msg, List<Group> allGroups,
+		public PresetMembershipEditorWithAllowedGroups(MessageSource msg, List<Group> allGroups,
 				List<GroupRegistrationParam> formParams)
 		{
 			this.formParams = formParams;

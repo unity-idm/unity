@@ -16,11 +16,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.security.etd.DelegationRestrictions;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -58,7 +58,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 
 	private UnicoreConfirmationConsumer acceptHandler;
 
-	public UnicoreConsentScreen(UnityMessageSource msg, ImageAccessService imageAccessService, 
+	public UnicoreConsentScreen(MessageSource msg, ImageAccessService imageAccessService, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan, 
 			StandardWebAuthenticationProcessor authnProcessor,

@@ -11,7 +11,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 
 /**
@@ -21,12 +21,12 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
  */
 public class TextFieldWithChangeConfirmation<T extends CustomField<String>> extends CustomField<String>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private T field;
 	private boolean editMode;
 	private Binder<StringBindingValue> binder;
 
-	public TextFieldWithChangeConfirmation(UnityMessageSource msg, T content)
+	public TextFieldWithChangeConfirmation(MessageSource msg, T content)
 	{
 		this.msg = msg;
 		binder = new Binder<>(StringBindingValue.class);

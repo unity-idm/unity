@@ -11,9 +11,9 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
@@ -28,11 +28,11 @@ import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
  */
 public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TranslationProfileManagement tpMan;
 	private InputTranslationActionsRegistry taRegistry;
 
-	public DryRunWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
+	public DryRunWizardProvider(MessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
 			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry)
 	{
 		super(getURLForDryRun(sandboxURL), sandboxNotifier);

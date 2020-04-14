@@ -16,9 +16,9 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
@@ -31,12 +31,12 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 class PolicyDocumentEditor extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<PolicyDocumentVaadinBean> binder;
 	private CustomField<I18nString> content;
 	private FormLayout mainLayout;
 
-	PolicyDocumentEditor(UnityMessageSource msg, PolicyDocumentWithRevision toEdit, Set<String> allNames)
+	PolicyDocumentEditor(MessageSource msg, PolicyDocumentWithRevision toEdit, Set<String> allNames)
 	{
 		this.msg = msg;
 		init(toEdit, allNames);

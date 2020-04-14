@@ -14,7 +14,7 @@ import io.imunity.webconsole.services.ServicesView.ServicesNavigationInfoProvide
 import io.imunity.webconsole.services.base.NewServiceViewBase;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
@@ -29,7 +29,7 @@ class NewServiceView extends NewServiceViewBase
 	public static final String VIEW_NAME = "NewService";
 
 	@Autowired
-	NewServiceView(UnityMessageSource msg, ServicesController controller)
+	NewServiceView(MessageSource msg, ServicesController controller)
 	{
 		super(msg, controller, ServicesView.VIEW_NAME);
 	}

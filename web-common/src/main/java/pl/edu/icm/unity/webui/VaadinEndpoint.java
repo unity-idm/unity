@@ -31,13 +31,13 @@ import com.vaadin.server.Constants;
 import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -83,11 +83,11 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected ProxyAuthenticationFilter proxyAuthnFilter;
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	
 	public VaadinEndpoint(NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, 
-			UnityMessageSource msg,
+			MessageSource msg,
 			ApplicationContext applicationContext,
 			String uiBeanName,
 			String servletPath)

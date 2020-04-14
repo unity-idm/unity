@@ -14,9 +14,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -42,7 +42,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToSPConfigConverter.class);
 	private static final String SP_META_CERT = "_SP_METADATA_CERT_";
 	
-	public MetaToSPConfigConverter(PKIManagement pkiManagement, UnityMessageSource msg)
+	public MetaToSPConfigConverter(PKIManagement pkiManagement, MessageSource msg)
 	{
 		super(pkiManagement, msg);
 	}

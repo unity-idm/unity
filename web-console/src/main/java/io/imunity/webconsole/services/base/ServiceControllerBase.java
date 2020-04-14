@@ -9,8 +9,8 @@ package io.imunity.webconsole.services.base;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -26,11 +26,11 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class ServiceControllerBase
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointManagement endpointMan;
 	private TypesRegistryBase<? extends ServiceControllerBaseInt> controllersRegistry;		
 			
-	public ServiceControllerBase(UnityMessageSource msg, EndpointManagement endpointMan,
+	public ServiceControllerBase(MessageSource msg, EndpointManagement endpointMan,
 			TypesRegistryBase< ? extends ServiceControllerBaseInt> controllersRegistry)
 	{
 		this.msg = msg;

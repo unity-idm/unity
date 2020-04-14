@@ -8,9 +8,9 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
@@ -26,11 +26,11 @@ import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
  */
 public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvider
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InputTranslationEngine translationEngine;
 	private RemotelyAuthenticatedContext unknownUser;
 
-	public ConnectIdAtLoginWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
+	public ConnectIdAtLoginWizardProvider(MessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
 			InputTranslationEngine translationEngine, RemotelyAuthenticatedContext unknownUser)
 	{
 		super(sandboxURL, sandboxNotifier);

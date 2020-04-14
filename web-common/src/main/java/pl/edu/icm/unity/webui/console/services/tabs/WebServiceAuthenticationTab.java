@@ -21,10 +21,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfigurati
  */
 public class WebServiceAuthenticationTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfiguration;
 	private AuthenticatorSupportService authenticatorSupportService;
@@ -65,7 +65,7 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private GroupedValuesChipsWithDropdown authAndFlows;
 
-	public WebServiceAuthenticationTab(UnityMessageSource msg, URIAccessService uriAccessService,
+	public WebServiceAuthenticationTab(MessageSource msg, URIAccessService uriAccessService,
 			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allRealms, List<String> registrationForms, String binding, String caption)
@@ -75,7 +75,7 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 		setCaption(caption);
 	}
 
-	public WebServiceAuthenticationTab(UnityMessageSource msg, URIAccessService uriAccessService,
+	public WebServiceAuthenticationTab(MessageSource msg, URIAccessService uriAccessService,
 			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allRealms, List<String> registrationForms, String binding)

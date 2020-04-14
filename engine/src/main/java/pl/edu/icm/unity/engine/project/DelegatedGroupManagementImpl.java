@@ -19,12 +19,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
@@ -63,13 +63,13 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	private BulkGroupQueryService bulkQueryService;
 	private ProjectAuthorizationManager authz;
 	private AttributeTypeManagement attrTypeMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesHelper attrHelper;
 	private EntityManagement identitiesMan;
 	private ProjectAttributeHelper projectAttrHelper;
 
 	@Autowired
-	public DelegatedGroupManagementImpl(UnityMessageSource msg, @Qualifier("insecure") GroupsManagement groupMan,
+	public DelegatedGroupManagementImpl(MessageSource msg, @Qualifier("insecure") GroupsManagement groupMan,
 			@Qualifier("insecure") BulkGroupQueryService bulkQueryService,
 			@Qualifier("insecure") AttributeTypeManagement attrTypeMan,
 			@Qualifier("insecure") EntityManagement identitiesMan, AttributesHelper attrHelper,

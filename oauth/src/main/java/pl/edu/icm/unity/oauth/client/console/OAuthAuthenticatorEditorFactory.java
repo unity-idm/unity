@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 @Component
 class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final InputTranslationProfileFieldFactory profileFieldFactory;
 	private final RegistrationsManagement registrationMan;
 	private final PKIManagement pkiMan;
@@ -42,7 +42,7 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private final ImageAccessService imageAccessService;
 
 	@Autowired
-	OAuthAuthenticatorEditorFactory(UnityMessageSource msg,
+	OAuthAuthenticatorEditorFactory(MessageSource msg,
 			RegistrationsManagement registrationMan,
 			PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,

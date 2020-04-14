@@ -8,11 +8,11 @@ package pl.edu.icm.unity.webui.console.services;
 import java.util.List;
 import java.util.Set;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
  */
 public class WebServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
@@ -50,7 +50,7 @@ public class WebServiceEditor implements ServiceEditor
 	private String defaultMainTheme;
 	private final URIAccessService uriAccessService;
 
-	public WebServiceEditor(EndpointTypeDescription type, UnityMessageSource msg,
+	public WebServiceEditor(EndpointTypeDescription type, MessageSource msg,
 			URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,

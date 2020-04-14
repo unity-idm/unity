@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.association.afterlogin;
 import org.apache.logging.log4j.Logger;
 import org.vaadin.teemu.wizards.Wizard;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
@@ -16,7 +17,6 @@ import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
@@ -39,7 +39,7 @@ class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 	private RemotelyAuthenticatedContext authnContext;
 	private Exception mergeError;
 	
-	MergeCurrentWithUnknownConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
+	MergeCurrentWithUnknownConfirmationStep(MessageSource msg, InputTranslationEngine translationEngine, 
 			Wizard wizard)
 	{
 		super(msg, translationEngine, wizard);

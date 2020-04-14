@@ -25,7 +25,7 @@ import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsCont
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 
@@ -40,14 +40,14 @@ public class SignupAndEnquiryFormsView extends CustomComponent implements UnityV
 {
 	public static final String VIEW_NAME = "SignupAndEnquirySetup";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationFormsController regController;
 	private EnquiryFormsController enqController;
 	private AdminRegistrationFormLauncher adminRegistrationFormLauncher;
 	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
 
 	@Autowired
-	SignupAndEnquiryFormsView(UnityMessageSource msg, RegistrationFormsController regController,
+	SignupAndEnquiryFormsView(MessageSource msg, RegistrationFormsController regController,
 			EnquiryFormsController enqController,
 			AdminRegistrationFormLauncher adminRegistrationFormLauncher,
 			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
@@ -91,7 +91,7 @@ public class SignupAndEnquiryFormsView extends CustomComponent implements UnityV
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public SignupAndEnquiryFormsNavigationInfoProvider(UnityMessageSource msg,
+		public SignupAndEnquiryFormsNavigationInfoProvider(MessageSource msg,
 				SignupAndEnquiryNavigationInfoProvider parent,
 				ObjectFactory<SignupAndEnquiryFormsView> factory)
 		{

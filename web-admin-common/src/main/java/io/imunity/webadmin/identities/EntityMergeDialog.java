@@ -10,8 +10,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -40,7 +40,7 @@ public class EntityMergeDialog extends AbstractDialog
 	private EntityWithLabel second;
 	private String group;
 	
-	public EntityMergeDialog(UnityMessageSource msg, EntityWithLabel first, EntityWithLabel second, String group, 
+	public EntityMergeDialog(MessageSource msg, EntityWithLabel first, EntityWithLabel second, String group, 
 			EntityManagement identitiesMan)
 	{
 		super(msg, msg.getMessage("EntitiesMergeDialog.caption"), msg.getMessage("EntitiesMergeDialog.doMerge"),

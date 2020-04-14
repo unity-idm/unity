@@ -21,8 +21,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -50,7 +50,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.SingleA
  */
 public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutConfiguration>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<AuthnLayoutColumn> columns;
 	private HorizontalLayout columnsLayout;
 	private HorizontalLayout separatorsLayout;
@@ -69,7 +69,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 	private Button addColumnButton;
 	private Panel mainPanel;
 
-	public WebServiceAuthnScreenLayoutEditor(UnityMessageSource msg,
+	public WebServiceAuthnScreenLayoutEditor(MessageSource msg,
 			AuthenticatorSupportService authenticatorSupportService,
 			Supplier<List<String>> authnOptionSupplier)
 	{

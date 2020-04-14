@@ -15,11 +15,11 @@ import java.util.Set;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -92,7 +92,7 @@ public class OAuthServiceConfiguration
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
 	}
 
-	public String toProperties(UnityMessageSource msg)
+	public String toProperties(MessageSource msg)
 	{
 		Properties raw = new Properties();
 
@@ -225,7 +225,7 @@ public class OAuthServiceConfiguration
 		return oauthProperties.getAsString();
 	}
 
-	public void fromProperties(UnityMessageSource msg, String properties, List<Group> allGroups)
+	public void fromProperties(MessageSource msg, String properties, List<Group> allGroups)
 	{
 		Properties raw = new Properties();
 		try

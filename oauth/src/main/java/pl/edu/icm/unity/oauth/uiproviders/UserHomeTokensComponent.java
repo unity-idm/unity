@@ -12,9 +12,9 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -33,7 +33,7 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	private Button refreshButton;
 
 	public UserHomeTokensComponent(SecuredTokensManagement tokenMan, OAuthTokenRepository tokensDAO,
-			UnityMessageSource msg,
+			MessageSource msg,
 			EntityManagement entityManagement)
 	{
 		super(tokenMan, tokensDAO, msg, entityManagement, false);

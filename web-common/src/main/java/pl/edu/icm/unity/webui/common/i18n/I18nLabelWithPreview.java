@@ -24,7 +24,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -43,21 +43,21 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlEscapers;
  */
 public class I18nLabelWithPreview extends CustomField<I18nString>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
 	private ContentMode previewMode;
 	private I18nString value; 
 
-	public I18nLabelWithPreview(UnityMessageSource msg, ContentMode previewMode)
+	public I18nLabelWithPreview(MessageSource msg, ContentMode previewMode)
 	{
 		this.msg = msg;
 		this.previewMode = previewMode;
 		initUI();
 	}
 
-	public I18nLabelWithPreview(UnityMessageSource msg, String caption, ContentMode contentMode)
+	public I18nLabelWithPreview(MessageSource msg, String caption, ContentMode contentMode)
 	{
 		this(msg, contentMode);
 		setCaption(caption);
@@ -132,7 +132,7 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 		private List<Registration> listeners;
 		private static final String HTML_SPACE = "&nbsp";
 
-		public HPairLayout(UnityMessageSource msg)
+		public HPairLayout(MessageSource msg)
 		{
 			setSpacing(true);
 			setWidth(100, Unit.PERCENTAGE);
@@ -204,17 +204,17 @@ public class I18nLabelWithPreview extends CustomField<I18nString>
 		}
 	}
 	
-	public static Builder builder(UnityMessageSource msg, String caption)
+	public static Builder builder(MessageSource msg, String caption)
 	{
 		return new Builder(msg, caption);
 	}
 	public static class Builder
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private String caption;
 		private ContentMode mode;
 		
-		public Builder(UnityMessageSource msg, String caption)
+		public Builder(MessageSource msg, String caption)
 		{
 			this.msg = msg;
 			this.caption = caption;

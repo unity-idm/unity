@@ -31,7 +31,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -57,12 +57,12 @@ public class AutomationView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Automation";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AutomationController controller;
 	private GridWithActionColumn<ScheduledProcessingRule> automationGrid;
 
 	@Autowired
-	AutomationView(UnityMessageSource msg, AutomationController controller)
+	AutomationView(MessageSource msg, AutomationController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -210,7 +210,7 @@ public class AutomationView extends CustomComponent implements UnityView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public AutomationNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<AutomationView> factory)
+		public AutomationNavigationInfoProvider(MessageSource msg, ObjectFactory<AutomationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(DirectorySetupNavigationInfoProvider.ID).withObjectFactory(factory)

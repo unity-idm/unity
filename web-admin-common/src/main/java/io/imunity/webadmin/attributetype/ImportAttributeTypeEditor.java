@@ -29,9 +29,9 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.utils.FileUploder;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -49,7 +49,7 @@ public class ImportAttributeTypeEditor extends CustomComponent
 		File, PredefinedSet
 	};
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private CheckBox mode;
 	private FileUploder uploader;
@@ -63,7 +63,7 @@ public class ImportAttributeTypeEditor extends CustomComponent
 
 	private Collection<AttributeType> existing;
 
-	public ImportAttributeTypeEditor(UnityMessageSource msg, Collection<AttributeType> existing,
+	public ImportAttributeTypeEditor(MessageSource msg, Collection<AttributeType> existing,
 			UnityServerConfiguration serverConfig, AttributeTypeSupport attrTypeSupport) throws Exception
 	{
 		this.msg = msg;

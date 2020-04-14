@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -43,14 +43,14 @@ class EditCredentialRequirementsView extends CustomComponent implements UnityVie
 	public static final String VIEW_NAME = "EditCredentialRequirements";
 
 	private CredentialRequirementsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialRequirementEditor editor;
 	private EventsBus bus;
 
 	private String credReqName;
 
 	@Autowired
-	EditCredentialRequirementsView(UnityMessageSource msg, CredentialRequirementsController controller)
+	EditCredentialRequirementsView(MessageSource msg, CredentialRequirementsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;

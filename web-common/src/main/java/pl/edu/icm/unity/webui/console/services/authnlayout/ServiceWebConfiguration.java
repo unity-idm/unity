@@ -16,9 +16,9 @@ import java.util.Properties;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -81,7 +81,7 @@ public class ServiceWebConfiguration
 		compactCredentialReset = true;
 	}
 
-	public Properties toProperties(UnityMessageSource msg, FileStorageService fileStorageService,
+	public Properties toProperties(MessageSource msg, FileStorageService fileStorageService,
 			String serviceName)
 	{
 		Properties raw = new Properties();
@@ -139,7 +139,7 @@ public class ServiceWebConfiguration
 		return raw;
 	}
 
-	public void fromProperties(String vaadinProperties, UnityMessageSource msg, ImageAccessService imageAccessService,
+	public void fromProperties(String vaadinProperties, MessageSource msg, ImageAccessService imageAccessService,
 			String systemDefaultTheme)
 	{
 		Properties raw = new Properties();
@@ -155,7 +155,7 @@ public class ServiceWebConfiguration
 		fromProperties(vProperties, msg, imageAccessService, systemDefaultTheme);
 	}
 
-	private void fromProperties(VaadinEndpointProperties vaadinProperties, UnityMessageSource msg,
+	private void fromProperties(VaadinEndpointProperties vaadinProperties, MessageSource msg,
 			ImageAccessService imageAccessService, String systemDefaultTheme)
 	{
 		//this is set for effective endpoint configuration at endpoint loading - we copy this here 

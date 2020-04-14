@@ -22,7 +22,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
@@ -40,13 +40,13 @@ class InvitationsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Invitations";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InvitationsController controller;
 
 	private InvitationsGrid invitationsGrid;
 
 	@Autowired
-	InvitationsView(UnityMessageSource msg, InvitationsController controller)
+	InvitationsView(MessageSource msg, InvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -108,7 +108,7 @@ class InvitationsView extends CustomComponent implements UnityView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public InvitationsNavigationInfoProvider(UnityMessageSource msg, ObjectFactory<InvitationsView> factory)
+		public InvitationsNavigationInfoProvider(MessageSource msg, ObjectFactory<InvitationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
 					.withParent(SignupAndEnquiryNavigationInfoProvider.ID).withObjectFactory(factory)

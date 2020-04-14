@@ -10,7 +10,7 @@ import java.util.Collection;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
@@ -26,7 +26,7 @@ public class BaseLocalAuthenticatorEditor extends BaseAuthenticatorEditor
 	private Binder<StringBindingValue> localCredentialBinder;
 	private Collection<String> allCredentials;
 
-	public BaseLocalAuthenticatorEditor(UnityMessageSource msg, Collection<String> allCredentials)
+	public BaseLocalAuthenticatorEditor(MessageSource msg, Collection<String> allCredentials)
 	{
 		super(msg);
 		this.allCredentials = allCredentials;

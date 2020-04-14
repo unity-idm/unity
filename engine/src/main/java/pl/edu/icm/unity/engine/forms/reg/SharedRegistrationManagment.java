@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -84,7 +84,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	
 
 	@Autowired
-	public SharedRegistrationManagment(UnityMessageSource msg,
+	public SharedRegistrationManagment(MessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,

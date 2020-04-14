@@ -21,7 +21,7 @@ import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.Si
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -44,12 +44,12 @@ class RequestsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Requests";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RequestsController controller;
 	private RequestProcessingPanel requestPanel;
 
 	@Autowired
-	RequestsView(UnityMessageSource msg, RequestsController controller, RequestProcessingPanel requestPanel)
+	RequestsView(MessageSource msg, RequestsController controller, RequestProcessingPanel requestPanel)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -121,7 +121,7 @@ class RequestsView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public RequestsNavigationInfoProvider(UnityMessageSource msg,
+		public RequestsNavigationInfoProvider(MessageSource msg,
 				 ObjectFactory<RequestsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)

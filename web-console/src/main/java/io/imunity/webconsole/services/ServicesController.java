@@ -8,8 +8,8 @@ package io.imunity.webconsole.services;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.services.base.ServiceControllerBase;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.console.services.ServiceControllersRegistry;
 
 /**
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceControllersRegistry;
 @Component
 class ServicesController extends ServiceControllerBase
 {
-	ServicesController(UnityMessageSource msg, EndpointManagement endpointMan,
+	ServicesController(MessageSource msg, EndpointManagement endpointMan,
 			ServiceControllersRegistry controllersRegistry)
 	{
 		super(msg, endpointMan, controllersRegistry);

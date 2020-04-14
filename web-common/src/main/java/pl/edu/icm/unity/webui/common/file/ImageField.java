@@ -10,9 +10,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -32,7 +32,7 @@ public class ImageField extends FileFieldBase
 	private Button clear;
 	private VerticalLayout previewL;
 
-	public ImageField(UnityMessageSource msg, URIAccessService uriAccessService, int maxFileSize)
+	public ImageField(MessageSource msg, URIAccessService uriAccessService, int maxFileSize)
 	{
 		super(msg, "image/*", maxFileSize);
 		this.uriAccessService = uriAccessService;

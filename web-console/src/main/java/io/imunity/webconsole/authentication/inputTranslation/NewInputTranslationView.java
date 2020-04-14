@@ -14,7 +14,7 @@ import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsVi
 import io.imunity.webconsole.translationsProfiles.NewTranslationView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 @PrototypeComponent
@@ -23,7 +23,7 @@ class NewInputTranslationView extends NewTranslationView
 	public static final String VIEW_NAME = "NewInputTranslation";
 
 	@Autowired
-	NewInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
+	NewInputTranslationView(MessageSource msg, InputTranslationsController controller)
 	{
 		super(msg, controller);
 	}

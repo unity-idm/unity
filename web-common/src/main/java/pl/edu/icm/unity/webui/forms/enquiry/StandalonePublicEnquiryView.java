@@ -26,11 +26,11 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -69,7 +69,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImageAccessService imageAccessService;
 	
 	private VerticalLayout main;
@@ -86,7 +86,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, 
+			@Qualifier("insecure") InvitationManagement invitationMan, MessageSource msg, 
 			ImageAccessService imageAccessService, URLQueryPrefillCreator urlQueryPrefillCreator)
 	{
 		this.editorController = editorController;

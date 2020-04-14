@@ -18,8 +18,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -50,7 +50,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	private Group generatedIdPGroup;
 	private boolean editMode;
 
-	OAuthServiceEditorComponent(UnityMessageSource msg, OAuthEditorGeneralTab generalTab,
+	OAuthServiceEditorComponent(MessageSource msg, OAuthEditorGeneralTab generalTab,
 			OAuthEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
 			WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab, FileStorageService fileStorageService,
 			ImageAccessService imageAccessService, ServiceDefinition toEdit, List<Group> allGroups,

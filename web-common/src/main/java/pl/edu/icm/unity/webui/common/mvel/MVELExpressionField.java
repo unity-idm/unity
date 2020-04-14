@@ -9,7 +9,7 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Plain text field allowing for editing an MVEL expression
@@ -20,7 +20,7 @@ public class MVELExpressionField extends TextField
 {
 	private MVELExpressionEditor editor;
 
-	public MVELExpressionField(UnityMessageSource msg, String caption, String description)
+	public MVELExpressionField(MessageSource msg, String caption, String description)
 	{
 		this.editor = new MVELExpressionEditor(this, msg, caption, description);
 	}

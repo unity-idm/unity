@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Objects;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
@@ -60,14 +60,14 @@ public class InvitationManagementImpl implements InvitationManagement
 	private InternalAuthorizationManager authz;
 	private NotificationProducer notificationProducer;
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InvitationDB invitationDB;
 	private SharedEndpointManagement sharedEndpointMan;
 
 	@Autowired
 	public InvitationManagementImpl(RegistrationFormDB registrationDB, EnquiryFormDB  enquiryDB,
 			InternalAuthorizationManager authz,
-			NotificationProducer notificationProducer, UnityMessageSource msg,
+			NotificationProducer notificationProducer, MessageSource msg,
 			InvitationDB invitationDB, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.registrationDB = registrationDB;

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.file.FileData;
@@ -50,7 +51,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -101,7 +101,7 @@ class OAuthServiceController implements IdpServiceController
 	public static final String IDP_CLIENT_MAIN_GROUP = "/IdPs";
 	public static final String OAUTH_CLIENTS_SUBGROUP = "oauth-clients";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointManagement endpointMan;
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;
@@ -128,7 +128,7 @@ class OAuthServiceController implements IdpServiceController
 	private NetworkServer server;
 
 	@Autowired
-	OAuthServiceController(UnityMessageSource msg,
+	OAuthServiceController(MessageSource msg,
 			EndpointManagement endpointMan,
 			RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan,

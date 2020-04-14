@@ -10,8 +10,8 @@ import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import io.imunity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -21,12 +21,12 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public class ProfileStep implements WizardStep 
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ProfileStepComponent profileComponent;
 	private TranslationProfileEditor editor;
 	private Callback addCallback;
 
-	public ProfileStep(UnityMessageSource msg, TranslationProfileEditor editor, 
+	public ProfileStep(MessageSource msg, TranslationProfileEditor editor, 
 			Callback addCallback) 
 	{
 		this.msg = msg;

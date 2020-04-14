@@ -8,8 +8,8 @@ package io.imunity.webconsole.idprovider.endpoints;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.services.base.ServiceControllerBase;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceControllersRegistry;
 
 /**
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpServiceControllersRegistry
 @Component
 class IdpServicesController extends ServiceControllerBase
 {
-	IdpServicesController(UnityMessageSource msg, EndpointManagement endpointMan,
+	IdpServicesController(MessageSource msg, EndpointManagement endpointMan,
 			IdpServiceControllersRegistry controllersRegistry)
 	{
 		super(msg, endpointMan, controllersRegistry);

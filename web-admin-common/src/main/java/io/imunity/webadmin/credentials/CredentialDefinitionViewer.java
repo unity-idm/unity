@@ -6,7 +6,7 @@ package io.imunity.webadmin.credentials;
 
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class CredentialDefinitionViewer extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Label name;
 	private I18nLabel displayedName;
@@ -27,7 +27,7 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 	private Label type;
 	private SafePanel typeSpecific;
 	
-	public CredentialDefinitionViewer(UnityMessageSource msg)
+	public CredentialDefinitionViewer(MessageSource msg)
 	{
 		super();
 		this.msg = msg;

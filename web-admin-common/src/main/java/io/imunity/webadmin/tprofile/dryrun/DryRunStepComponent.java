@@ -18,11 +18,11 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.MappingResultComponent;
 import io.imunity.webadmin.tprofile.TranslationProfileViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -53,7 +53,7 @@ public class DryRunStepComponent extends CustomComponent
 	private VerticalLayout progressWrapper;
 	private InputTranslationActionsRegistry taRegistry;
 	private TranslationProfileManagement tpMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MappingResultComponent mappingResult;
 	private RemotelyAuthenticatedInputComponent remoteIdpInput;
 	private TranslationProfileViewer profileViewer;
@@ -67,7 +67,7 @@ public class DryRunStepComponent extends CustomComponent
 	 * @param msg 
 	 * @param sandboxURL 
 	 */
-	public DryRunStepComponent(UnityMessageSource msg, String sandboxURL, 
+	public DryRunStepComponent(MessageSource msg, String sandboxURL, 
 			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
 	{
 		this.msg = msg;

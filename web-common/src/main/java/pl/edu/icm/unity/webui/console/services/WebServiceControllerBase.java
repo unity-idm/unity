@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.console.services;
 
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -16,7 +17,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -44,7 +44,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	private String defaultMainTheme;
 	private ImageAccessService imageAccessService;
 
-	public WebServiceControllerBase(EndpointTypeDescription type, UnityMessageSource msg,
+	public WebServiceControllerBase(EndpointTypeDescription type, MessageSource msg,
 			EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
@@ -57,7 +57,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 				null);
 	}
 
-	public WebServiceControllerBase(EndpointTypeDescription type, UnityMessageSource msg,
+	public WebServiceControllerBase(EndpointTypeDescription type, MessageSource msg,
 			EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,

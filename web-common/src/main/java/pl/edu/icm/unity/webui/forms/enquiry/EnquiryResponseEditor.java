@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.List;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -40,7 +40,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	private RegistrationLayoutsContainer layoutContainer;
 	private List<PolicyAgreementConfiguration> filteredPolicyAgreement;
 	
-	public EnquiryResponseEditor(UnityMessageSource msg, EnquiryForm form,
+	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,

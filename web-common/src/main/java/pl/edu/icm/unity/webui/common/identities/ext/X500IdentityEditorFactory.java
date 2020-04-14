@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common.identities.ext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorFactory;
@@ -19,10 +19,10 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorFactory;
 @Component
 public class X500IdentityEditorFactory implements IdentityEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
-	public X500IdentityEditorFactory(UnityMessageSource msg)
+	public X500IdentityEditorFactory(MessageSource msg)
 	{
 		this.msg = msg;
 	}

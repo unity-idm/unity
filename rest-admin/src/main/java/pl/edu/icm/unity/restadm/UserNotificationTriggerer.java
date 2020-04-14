@@ -10,11 +10,11 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -33,13 +33,13 @@ class UserNotificationTriggerer
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, UserNotificationTriggerer.class);
 	
 	private NotificationProducer notificationProducer;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityManagement identitiesMan;
 	private MessageTemplateManagement msgTemplateMan;
 	
 	@Autowired
 	public UserNotificationTriggerer(NotificationProducer notificationProducer, EntityManagement idsMan, 
-			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+			MessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
 		this.notificationProducer = notificationProducer;
 		this.msg = msg;

@@ -21,9 +21,9 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.credentialRequirements.CredentialRequirementChangedEvent;
 import io.imunity.webadmin.credentialRequirements.CredentialRequirementEditor;
 import io.imunity.webadmin.credentialRequirements.CredentialRequirementRemovalDialog;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.WebSession;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CredentialRequirementsComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialRequirementManagement credReqMan;
 	private CredentialManagement credMan;
 	private EventsBus bus;
@@ -54,7 +54,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	private com.vaadin.ui.Component main;
 	
 	@Autowired
-	public CredentialRequirementsComponent(UnityMessageSource msg,
+	public CredentialRequirementsComponent(MessageSource msg,
 			CredentialRequirementManagement authenticationMan,
 			CredentialManagement credMan)
 	{

@@ -15,14 +15,14 @@ import java.util.Properties;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
 public class HomeConfigurationTest
 {
-	private UnityMessageSource msg = mock(UnityMessageSource.class);
+	private MessageSource msg = mock(MessageSource.class);
 
 	@Test
 	public void serializationIsIdempotentForMinimalConfig() throws Exception

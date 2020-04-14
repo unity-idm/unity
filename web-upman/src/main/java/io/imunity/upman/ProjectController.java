@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import com.vaadin.server.Resource;
 
 import io.imunity.upman.common.ServerFaultException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
@@ -36,12 +36,12 @@ public class ProjectController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, ProjectController.class);
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private DelegatedGroupManagement delGroupMan;
 	private ImageAccessService imageAccessService;
 
 	@Autowired
-	public ProjectController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan, ImageAccessService imageAccessService)
+	public ProjectController(MessageSource msg, DelegatedGroupManagement delGroupMan, ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;

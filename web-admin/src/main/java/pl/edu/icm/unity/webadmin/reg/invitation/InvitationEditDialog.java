@@ -12,7 +12,7 @@ import io.imunity.webadmin.reg.invitations.InvitationEditor;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -28,7 +28,7 @@ public class InvitationEditDialog extends AbstractDialog
 	private Callback callback;
 	private Button createAndSend;
 	
-	public InvitationEditDialog(UnityMessageSource msg, String caption, 
+	public InvitationEditDialog(MessageSource msg, String caption, 
 			InvitationEditor editor, Callback callback)
 	{
 		super(msg, caption, msg.getMessage("InvitationEditDialog.createInvitation"), 

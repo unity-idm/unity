@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
@@ -60,7 +60,7 @@ public class TestNotifications extends DBIntegrationTestBase
 	private NotificationProducer notProducer;
 	
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	//@Test
 	public void testEmailNotification() throws Exception

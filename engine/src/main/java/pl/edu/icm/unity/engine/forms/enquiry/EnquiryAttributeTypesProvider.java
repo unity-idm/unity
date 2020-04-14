@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -29,13 +29,13 @@ public class EnquiryAttributeTypesProvider implements SystemAttributesProvider
 	private List<AttributeType> systemAttributes;
 	
 	@Autowired
-	public EnquiryAttributeTypesProvider(UnityMessageSource msg)
+	public EnquiryAttributeTypesProvider(MessageSource msg)
 	{
 		systemAttributes = Lists.newArrayList(getFilledEnquiresAT(msg),
 				getIgnoredEnquiresAT(msg));
 	}
 	
-	private AttributeType getFilledEnquiresAT(UnityMessageSource msg)
+	private AttributeType getFilledEnquiresAT(MessageSource msg)
 	{
 		AttributeType preferenceAt = new AttributeType(FILLED_ENQUIRES, StringAttributeSyntax.ID, msg);
 		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
@@ -45,7 +45,7 @@ public class EnquiryAttributeTypesProvider implements SystemAttributesProvider
 		return preferenceAt;
 	}
 
-	private AttributeType getIgnoredEnquiresAT(UnityMessageSource msg)
+	private AttributeType getIgnoredEnquiresAT(MessageSource msg)
 	{
 		AttributeType preferenceAt = new AttributeType(IGNORED_ENQUIRES, StringAttributeSyntax.ID, msg);
 		preferenceAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);

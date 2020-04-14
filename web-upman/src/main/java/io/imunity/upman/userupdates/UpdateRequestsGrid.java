@@ -9,7 +9,7 @@ import java.util.List;
 
 import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
@@ -37,7 +37,7 @@ public class UpdateRequestsGrid extends UpManGrid<UpdateRequestEntry>
 		}
 	};
 
-	public UpdateRequestsGrid(UnityMessageSource msg,
+	public UpdateRequestsGrid(MessageSource msg,
 			List<SingleActionHandler<UpdateRequestEntry>> rowActionHandlers, ConfirmationInfoFormatter formatter)
 	{
 		super(msg, (UpdateRequestEntry e) -> e.id);

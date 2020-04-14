@@ -23,13 +23,13 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -85,7 +85,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner tx;
 	private AttributeClassUtil acUtil;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuditPublisher audit;
 	private InternalCapacityLimitVerificator capacityLimitVerificator;
 
@@ -96,7 +96,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeClassDB acDB,
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
-			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg,
+			AttributeClassUtil acUtil, TransactionalRunner tx, MessageSource msg,
 			AuditPublisher audit, InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.dbGroups = dbGroups;

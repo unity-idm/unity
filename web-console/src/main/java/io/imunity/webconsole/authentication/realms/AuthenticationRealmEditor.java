@@ -14,7 +14,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.common.ListOfElements;
@@ -38,7 +38,7 @@ class AuthenticationRealmEditor extends CustomComponent
 	private IntStepper allowForRememberMeDays;
 	private ComboBox<RememberMePolicy> rememberMePolicy;
 
-	AuthenticationRealmEditor(UnityMessageSource msg, AuthenticationRealmEntry toEdit)
+	AuthenticationRealmEditor(MessageSource msg, AuthenticationRealmEntry toEdit)
 	{
 		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 		name.setWidth(100, Unit.PERCENTAGE);

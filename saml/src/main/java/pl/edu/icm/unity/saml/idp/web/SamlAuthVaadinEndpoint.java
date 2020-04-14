@@ -27,11 +27,11 @@ import org.springframework.context.annotation.Primary;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -101,7 +101,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected IdpConsentDeciderServletFactory dispatcherServletFactory;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
@@ -115,7 +115,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory,
 			SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg,
+			MessageSource msg,
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
@@ -137,7 +137,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory,
 			SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg,
+			MessageSource msg,
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService)

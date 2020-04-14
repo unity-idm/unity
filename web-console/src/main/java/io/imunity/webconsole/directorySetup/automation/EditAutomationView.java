@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -41,12 +41,12 @@ class EditAutomationView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "EditAutomation";
 
 	private AutomationController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ScheduledRuleParamEditorImpl editor;
 
 	private String ruleId;
 
-	EditAutomationView(AutomationController controller, UnityMessageSource msg)
+	EditAutomationView(AutomationController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;

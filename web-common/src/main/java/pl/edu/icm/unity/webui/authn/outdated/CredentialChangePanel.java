@@ -17,9 +17,9 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -46,7 +46,7 @@ class CredentialChangePanel extends CustomComponent
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private boolean changed = false;
 	private Entity entity;
 	private final long entityId;
@@ -55,7 +55,7 @@ class CredentialChangePanel extends CustomComponent
 	private CredentialDefinition toEdit;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	
-	CredentialChangePanel(UnityMessageSource msg, long entityId, ImageAccessService imageAccessService,
+	CredentialChangePanel(MessageSource msg, long entityId, ImageAccessService imageAccessService,
 			EntityCredentialManagement ecredMan, 
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit, AdditionalAuthnHandler additionalAuthnHandler,

@@ -32,13 +32,13 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -109,7 +109,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected ImageAccessService imageAccessService;
 	private BaseForm form;
 	protected RemotelyAuthenticatedContext remotelyAuthenticated;
@@ -138,7 +138,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
 	 * what is possible for registration form.
 	 */
-	public BaseRequestEditor(UnityMessageSource msg, BaseForm form,
+	public BaseRequestEditor(MessageSource msg, BaseForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,

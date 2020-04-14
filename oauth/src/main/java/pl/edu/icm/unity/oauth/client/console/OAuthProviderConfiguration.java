@@ -15,9 +15,9 @@ import org.apache.http.NameValuePair;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
@@ -59,7 +59,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		accountAssociation = ToggleWithDefault.bydefault;
 	}
 
-	public void fromTemplate(UnityMessageSource msg,  ImageAccessService imageAccessService,
+	public void fromTemplate(MessageSource msg,  ImageAccessService imageAccessService,
 			CustomProviderProperties source, String idFromTemplate, String orgId)
 	{
 		String profile = source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
@@ -69,7 +69,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		fromProperties(msg, imageAccessService, source, orgId != null ? orgId : idFromTemplate);
 	}
 
-	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService,
+	public void fromProperties(MessageSource msg, ImageAccessService imageAccessService,
 			CustomProviderProperties source, String id)
 	{
 		setId(id);
@@ -134,7 +134,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		setExtraAuthorizationParameters(additionalAuthzParams.stream().map(p -> new NameValuePairBinding(p.getName(), p.getValue())).collect(Collectors.toList()));
 	}
 
-	public void toProperties(Properties raw, UnityMessageSource msg, FileStorageService fileStorageService, String authName)
+	public void toProperties(Properties raw, MessageSource msg, FileStorageService fileStorageService, String authName)
 	{
 		String prefix = OAuthClientProperties.P + OAuthClientProperties.PROVIDERS + id + ".";
 

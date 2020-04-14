@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.as.preferences;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
@@ -19,7 +19,7 @@ public class OAuthSettingsDialog extends AbstractDialog
 	private OAuthSPSettingsEditor editor;
 	private Callback callback;
 	
-	public OAuthSettingsDialog(UnityMessageSource msg, OAuthSPSettingsEditor editor, Callback callback)
+	public OAuthSettingsDialog(MessageSource msg, OAuthSPSettingsEditor editor, Callback callback)
 	{
 		super(msg, msg.getMessage("OAuthPreferences.clientDialogCaption"));
 		this.editor = editor;

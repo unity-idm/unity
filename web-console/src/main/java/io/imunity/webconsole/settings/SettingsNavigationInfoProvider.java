@@ -13,7 +13,7 @@ import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webconsole.spi.WebConsoleExtendableMenuElements;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -28,7 +28,7 @@ public class SettingsNavigationInfoProvider extends WebConsoleNavigationInfoProv
 	public static final String ID = WebConsoleExtendableMenuElements.SETTINGS;
 
 	@Autowired
-	public SettingsNavigationInfoProvider(UnityMessageSource msg)
+	public SettingsNavigationInfoProvider(MessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(WebConsoleRootNavigationInfoProvider.ID)

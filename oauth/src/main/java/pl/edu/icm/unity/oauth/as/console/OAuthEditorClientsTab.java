@@ -26,9 +26,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
@@ -56,7 +56,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
  */
 class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
 	private SubViewSwitcher subViewSwitcher;
@@ -73,7 +73,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 
 	private MandatoryGroupSelection groupCombo;
 
-	OAuthEditorClientsTab(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+	OAuthEditorClientsTab(MessageSource msg, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, SubViewSwitcher subViewSwitcher,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allRealms, List<String> allUsernames, String binding)

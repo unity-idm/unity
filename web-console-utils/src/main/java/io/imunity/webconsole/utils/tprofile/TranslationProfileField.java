@@ -16,7 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
@@ -38,14 +38,14 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 public class TranslationProfileField extends CustomField<TranslationProfile>
 {
 	private TranslationRulesPresenter viewer;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private ProfileType type;
 	private SubViewSwitcher subViewSwitcher;
 	private TranslationProfile value;
 
-	TranslationProfileField(UnityMessageSource msg, ProfileType type,
+	TranslationProfileField(MessageSource msg, ProfileType type,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
 			ActionParameterComponentProvider actionComponentProvider, SubViewSwitcher subViewSwitcher)
 	{

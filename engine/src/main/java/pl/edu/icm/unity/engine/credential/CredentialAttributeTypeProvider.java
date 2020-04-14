@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.credential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -25,7 +25,7 @@ public class CredentialAttributeTypeProvider extends AbstractAttributeTypeProvid
 	public static final String CREDENTIAL_PREFIX = "sys:Credential:";
 	
 	@Autowired
-	public CredentialAttributeTypeProvider(UnityMessageSource msg)
+	public CredentialAttributeTypeProvider(MessageSource msg)
 	{
 		super(msg);
 	}

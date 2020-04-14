@@ -12,7 +12,7 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -27,7 +27,7 @@ public class AuthenticationNavigationInfoProvider extends WebConsoleNavigationIn
 	public static final String ID = "Authentication";
 
 	@Autowired
-	public AuthenticationNavigationInfoProvider(UnityMessageSource msg)
+	public AuthenticationNavigationInfoProvider(MessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(WebConsoleRootNavigationInfoProvider.ID)

@@ -15,7 +15,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -36,7 +36,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 	private Collection<CredentialRequirements> allCRs;
 	private HashSet<String> removedCr;
 
-	public CredentialRequirementRemovalDialog(UnityMessageSource msg, HashSet<String> removedCr, 
+	public CredentialRequirementRemovalDialog(MessageSource msg, HashSet<String> removedCr, 
 			Collection<CredentialRequirements> allCRs, Callback callback) 
 	{
 		super(msg, msg.getMessage("CredentialRequirements.removalCaption"));

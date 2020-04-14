@@ -16,7 +16,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  */
 public class AttributeFieldWithEdit extends CustomField<Attribute>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	protected AttributeHandlerRegistry attrHandlerRegistry;
 	protected Collection<AttributeType> attributeTypes;
 	protected String group;
@@ -42,7 +42,7 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 	private Attribute attribute;
 	private AttributeType fixedAttributeType;
 	
-	public AttributeFieldWithEdit(UnityMessageSource msg, String caption, 
+	public AttributeFieldWithEdit(MessageSource msg, String caption, 
 			AttributeHandlerRegistry attrHandlerRegistry,
 			Collection<AttributeType> attributeTypes, String group, Attribute initial,
 			boolean valuesRequired)

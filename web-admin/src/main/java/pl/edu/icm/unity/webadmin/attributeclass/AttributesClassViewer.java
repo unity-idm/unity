@@ -10,7 +10,7 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
 import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallGrid;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class AttributesClassViewer extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Label name;
 	private Label typeDescription;
@@ -33,7 +33,7 @@ public class AttributesClassViewer extends CompactFormLayout
 	private EffectiveAttrClassViewer effectiveViewer;
 	
 	
-	public AttributesClassViewer(UnityMessageSource msg)
+	public AttributesClassViewer(MessageSource msg)
 	{
 		super();
 		this.msg = msg;

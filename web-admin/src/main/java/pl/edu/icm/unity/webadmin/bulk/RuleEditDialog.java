@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.bulk.RuleEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -24,7 +24,7 @@ public class RuleEditDialog<T extends TranslationRule> extends AbstractDialog
 	private Consumer<T> callback;
 	private RuleEditor<T> editor;
 
-	public RuleEditDialog(UnityMessageSource msg, String caption, RuleEditor<T> editor,
+	public RuleEditDialog(MessageSource msg, String caption, RuleEditor<T> editor,
 			Consumer<T> callback)
 	{
 		super(msg, caption);

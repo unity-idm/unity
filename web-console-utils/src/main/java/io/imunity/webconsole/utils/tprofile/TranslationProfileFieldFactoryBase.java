@@ -9,7 +9,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -23,13 +23,13 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 class TranslationProfileFieldFactoryBase
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ProfileType type;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private String caption;
 
-	TranslationProfileFieldFactoryBase(String caption, UnityMessageSource msg, ProfileType type,
+	TranslationProfileFieldFactoryBase(String caption, MessageSource msg, ProfileType type,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
 			ActionParameterComponentProvider actionComponentProvider)
 	{

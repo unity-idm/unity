@@ -18,7 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  */
 public class EntityDetailsWithActions extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private UserAttributesPanel attrsPanel;
 	private UserIdentitiesPanel identitiesPanel;
 	private Set<String> disabled;
@@ -45,7 +45,7 @@ public class EntityDetailsWithActions extends CustomComponent
 	public EntityDetailsWithActions(Set<String> disabled,
 			UserDetailsPanel detailsPanel, UserIdentitiesPanel identitiesPanel,
 			UserAttributesPanel attrsPanel, 
-			Button removalButton, UnityMessageSource msg,
+			Button removalButton, MessageSource msg,
 			ConnectIdWizardProvider accountAssociationWizardProvider) throws EngineException
 	{
 		this.disabled = disabled;

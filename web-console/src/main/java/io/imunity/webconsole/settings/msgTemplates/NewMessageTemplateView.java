@@ -20,7 +20,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -39,10 +39,10 @@ class NewMessageTemplateView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "NewMessageTemplate";
 
 	private MessageTemplateController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateEditor editor;
 
-	NewMessageTemplateView(MessageTemplateController controller, UnityMessageSource msg)
+	NewMessageTemplateView(MessageTemplateController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;

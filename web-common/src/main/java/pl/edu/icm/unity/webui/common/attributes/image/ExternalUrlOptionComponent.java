@@ -20,7 +20,7 @@ import com.vaadin.data.ValueContext;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -28,7 +28,7 @@ class ExternalUrlOptionComponent extends CustomComponent
 {
 	private final Binder<URLValue> binder;
 	
-	ExternalUrlOptionComponent(URL initialValue, UnityMessageSource msg)
+	ExternalUrlOptionComponent(URL initialValue, MessageSource msg)
 	{
 		TextField urlField = new TextField();
 		urlField.setStyleName(Styles.bottomMargin.toString());

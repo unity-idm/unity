@@ -8,7 +8,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
@@ -20,9 +20,9 @@ import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
  */
 public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
-	public EntityNameMetadataHandler(UnityMessageSource msg)
+	public EntityNameMetadataHandler(MessageSource msg)
 	{
 		this.msg = msg;
 	}

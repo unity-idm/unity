@@ -23,10 +23,10 @@ import io.imunity.webadmin.attributetype.ImmutableAttributeTypeEditor;
 import io.imunity.webadmin.attributetype.ImportAttributeTypeEditor;
 import io.imunity.webadmin.attributetype.RegularAttributeTypeEditor;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class AttributeTypeController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeManagement attrTypeMan;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
@@ -49,7 +49,7 @@ class AttributeTypeController
 	private UnityServerConfiguration serverConfig;
 
 	@Autowired
-	AttributeTypeController(UnityMessageSource msg, AttributeTypeManagement attrTypeMan,
+	AttributeTypeController(MessageSource msg, AttributeTypeManagement attrTypeMan,
 			AttributeHandlerRegistry attrHandlerRegistry,
 			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry, AttributeTypeSupport atSupport,
 			UnityServerConfiguration serverConfig)

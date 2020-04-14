@@ -22,7 +22,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<SAMLAuthnTrustedFederationConfiguration> binder;
 	private boolean editMode = false;
 	private Set<String> validators;
@@ -49,7 +49,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
 
-	EditTrustedFederationSubView(UnityMessageSource msg,
+	EditTrustedFederationSubView(MessageSource msg,
 			InputTranslationProfileFieldFactory profileFieldFactory, SAMLAuthnTrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Set<String> registrationForms,

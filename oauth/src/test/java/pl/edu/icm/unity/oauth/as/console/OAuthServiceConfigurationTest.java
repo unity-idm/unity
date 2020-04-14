@@ -17,9 +17,9 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class OAuthServiceConfigurationTest
 {
-	private UnityMessageSource msg = mock(UnityMessageSource.class);
+	private MessageSource msg = mock(MessageSource.class);
 	
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.OUTPUT, 
 			Lists.newArrayList(new TranslationRule("true", 

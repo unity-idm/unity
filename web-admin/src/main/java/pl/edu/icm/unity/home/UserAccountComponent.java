@@ -20,6 +20,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -33,7 +34,6 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
@@ -76,7 +76,7 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 public class UserAccountComponent extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAccountComponent.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialManagement credMan;
 	private EntityManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
@@ -102,7 +102,7 @@ public class UserAccountComponent extends VerticalLayout
 	private EnquiryResponseEditorController enquiryResController;
 	
 	@Autowired
-	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
+	public UserAccountComponent(MessageSource msg, CredentialManagement credMan,
 			EntityManagement idsMan, EntityCredentialManagement ecredMan,
 			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg,
 			@Qualifier("insecure") EntityManagement insecureIdsMan,

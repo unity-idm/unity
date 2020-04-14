@@ -22,8 +22,8 @@ import io.imunity.webadmin.reg.formfill.AdminRegistrationFormLauncher;
 import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -45,12 +45,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class RegistrationFormsComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationFormsController controller;
 	private GridWithActionColumn<RegistrationForm> registrationFormsList;
 	private AdminRegistrationFormLauncher adminRegistrationFormLauncher;
 
-	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationFormsController controller,
+	public RegistrationFormsComponent(MessageSource msg, RegistrationFormsController controller,
 			AdminRegistrationFormLauncher adminRegistrationFormLauncher)
 
 	{

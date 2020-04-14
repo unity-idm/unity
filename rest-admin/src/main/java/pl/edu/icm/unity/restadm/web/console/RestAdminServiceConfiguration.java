@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
 
@@ -73,7 +73,7 @@ public class RestAdminServiceConfiguration
 		return prop.getAsString();
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg)
+	public void fromProperties(String properties, MessageSource msg)
 	{
 		Properties raw = new Properties();
 		try

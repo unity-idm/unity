@@ -25,7 +25,7 @@ import io.imunity.webconsole.directoryBrowser.identities.IdentitiesPanel;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
@@ -43,14 +43,14 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "DirectoryBrowser";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupBrowserPanel groupBrowserPanel;
 	private AttributesComponentPanel attributesPanel;
 	private IdentitiesPanel identitiesPanel;
 	private GroupDetailsPanel groupDetailsPanel;
 
 	@Autowired
-	public DirectoryBrowser(UnityMessageSource msg, GroupBrowserPanel groupBrowser,
+	public DirectoryBrowser(MessageSource msg, GroupBrowserPanel groupBrowser,
 			IdentitiesPanel identitiesTable, GroupDetailsPanel groupDetails,
 			AttributesComponentPanel attributesComponent)
 	{
@@ -101,7 +101,7 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 	{
 		@Autowired
 		@Lazy
-		public DirectoryBrowserNavigationInfoProvider(UnityMessageSource msg,
+		public DirectoryBrowserNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<DirectoryBrowser> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)

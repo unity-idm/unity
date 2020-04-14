@@ -20,10 +20,10 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
 import pl.edu.icm.unity.engine.api.registration.RequestedGroupDiff;
@@ -60,7 +60,7 @@ public class RequestReviewPanelBase extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RequestReviewPanelBase.class);
 
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	private UserRequestState<?> requestState;
 	private IdentityTypesRegistry idTypesRegistry;
@@ -82,7 +82,7 @@ public class RequestReviewPanelBase extends CustomComponent
 	private Panel identitiesP;
 	private IdentityFormatter idFormatter;
 
-	public RequestReviewPanelBase(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	public RequestReviewPanelBase(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
 			PolicyDocumentManagement policyDocMan,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)

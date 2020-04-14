@@ -23,7 +23,7 @@ import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 abstract class AbstractOptionalLang18nField<T extends AbstractField<String>> extends CustomField<I18nString>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String defaultLocaleCode;
 	private Map<String, String> enabledLocalesNamesByCode;
 	private SingleLanguageEditBox defaultTf;
@@ -50,7 +50,7 @@ abstract class AbstractOptionalLang18nField<T extends AbstractField<String>> ext
 	private String preservedDef;
 	private VerticalLayout main;
 
-	public AbstractOptionalLang18nField(UnityMessageSource msg)
+	public AbstractOptionalLang18nField(MessageSource msg)
 	{
 		this.enabledLocalesNamesByCode = msg.getEnabledLocales().entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getValue().toString(), e -> e.getKey()));
@@ -59,7 +59,7 @@ abstract class AbstractOptionalLang18nField<T extends AbstractField<String>> ext
 
 	}
 
-	public AbstractOptionalLang18nField(UnityMessageSource msg, String caption)
+	public AbstractOptionalLang18nField(MessageSource msg, String caption)
 	{
 		this(msg);
 		setCaption(caption);

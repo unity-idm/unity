@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.function.Consumer;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.LastUsedConfig;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBas
 public class LastUsedOptionColumnComponent extends ColumnComponentBase
 {
 
-	public LastUsedOptionColumnComponent(UnityMessageSource msg, Consumer<ColumnComponent> removeElementListener,
+	public LastUsedOptionColumnComponent(MessageSource msg, Consumer<ColumnComponent> removeElementListener,
 			Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.lastUsedOption"), Images.star,

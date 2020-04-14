@@ -14,9 +14,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class GroupDetailsPanel extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupDetailsPanel.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsManagement groupsManagement;
 
 	private Label info;
@@ -50,7 +50,7 @@ public class GroupDetailsPanel extends SafePanel
 	private AttributeStatementsComponent attrStatements;
 
 	@Autowired
-	public GroupDetailsPanel(UnityMessageSource msg, AttributeStatementController controller,
+	public GroupDetailsPanel(MessageSource msg, AttributeStatementController controller,
 			GroupsManagement groupsManagement)
 	{
 		this.msg = msg;

@@ -17,8 +17,8 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
@@ -40,11 +40,11 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 public class TrustedDevicesComponent extends CustomComponent 
 {
 	private TokensManagement tokenMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Grid<TableTokensBean> tokensTable;
 	private long entityId;
 
-	public TrustedDevicesComponent(TokensManagement tokenMan, UnityMessageSource msg, long entityId)
+	public TrustedDevicesComponent(TokensManagement tokenMan, MessageSource msg, long entityId)
 	{
 		this.tokenMan = tokenMan;
 		this.msg = msg;
@@ -189,9 +189,9 @@ public class TrustedDevicesComponent extends CustomComponent
 	{
 		private Token token;
 		private RememberMeToken rememberMeToken;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
-		public TableTokensBean(Token token, UnityMessageSource msg)
+		public TableTokensBean(Token token, MessageSource msg)
 		{
 			this.token = token;
 			this.msg = msg;

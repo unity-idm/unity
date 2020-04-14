@@ -9,8 +9,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import io.imunity.webadmin.tprofile.TranslationActionPresenter;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
@@ -19,13 +19,13 @@ import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
  */
 public class ScheduledRuleViewerPanel extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityActionsRegistry registry;
 	
 	private FormLayout main;
 	
 	
-	public ScheduledRuleViewerPanel(UnityMessageSource msg, EntityActionsRegistry registry)
+	public ScheduledRuleViewerPanel(MessageSource msg, EntityActionsRegistry registry)
 	{
 		this.msg = msg;
 		this.registry = registry;

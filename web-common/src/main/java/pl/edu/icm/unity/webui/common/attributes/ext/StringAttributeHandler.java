@@ -16,8 +16,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 public class StringAttributeHandler extends TextOnlyAttributeHandler
 {
 	
-	public StringAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
+	public StringAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
 	}
@@ -63,10 +63,10 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		private IntegerBoundEditor max;
 		private TextField min;
 		private TextField regexp;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private Binder<StringSyntaxBindingValue> binder;
 		
-		public StringSyntaxEditor(StringAttributeSyntax initial, UnityMessageSource msg)
+		public StringSyntaxEditor(StringAttributeSyntax initial, MessageSource msg)
 		{
 			this.initial = initial;
 			this.msg = msg;
@@ -165,10 +165,10 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class StringAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
 		@Autowired
-		public StringAttributeHandlerFactory(UnityMessageSource msg)
+		public StringAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

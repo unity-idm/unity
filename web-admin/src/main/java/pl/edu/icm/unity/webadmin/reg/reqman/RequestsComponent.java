@@ -10,10 +10,10 @@ import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webadmin.reg.requests.RequestProcessingPanel;
 import io.imunity.webadmin.reg.requests.RequestSelectionListener;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -38,7 +38,7 @@ public class RequestsComponent extends CustomComponent implements ActivationList
 {
 	private EntityManagement idMan;
 	private RegistrationsManagement registrationsManagement;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnquiryManagement enquiryManagement;
 	private RequestProcessingPanel requestPanel;
 	
@@ -47,7 +47,7 @@ public class RequestsComponent extends CustomComponent implements ActivationList
 	@Autowired
 	public RequestsComponent(EntityManagement idMan, RegistrationsManagement registrationsManagement, 
 			EnquiryManagement enquiryManagement,
-			UnityMessageSource msg, 
+			MessageSource msg, 
 			RequestProcessingPanel requestPanel)
 	{
 		this.idMan = idMan;

@@ -16,8 +16,8 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
@@ -39,12 +39,12 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfiguration> implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
 	private Binder<IdpPolicyAgreementsConfigurationVaadinBean> binder;
 	private VerticalLayout main;
 
-	public PolicyAgreementsTab(UnityMessageSource msg, Collection<PolicyDocumentWithRevision> policyDocuments)
+	public PolicyAgreementsTab(MessageSource msg, Collection<PolicyDocumentWithRevision> policyDocuments)
 	{
 		setCaption(msg.getMessage("IdpServiceEditorBase.policyAgreements"));
 		setIcon(Images.check_square.getResource());

@@ -13,8 +13,8 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor;
 public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 {
 	
-	public IntegerAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
+	public IntegerAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
 	}
@@ -61,10 +61,10 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		private IntegerAttributeSyntax initial;
 		private LongBoundEditor max;
 		private LongBoundEditor min;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private Binder<LongSyntaxBindingValue> binder;
 		
-		public IntegerSyntaxEditor(IntegerAttributeSyntax initial, UnityMessageSource msg)
+		public IntegerSyntaxEditor(IntegerAttributeSyntax initial, MessageSource msg)
 		{
 			this.initial = initial;
 			this.msg = msg;
@@ -132,10 +132,10 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class IntegerAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
 		@Autowired
-		public IntegerAttributeHandlerFactory(UnityMessageSource msg)
+		public IntegerAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

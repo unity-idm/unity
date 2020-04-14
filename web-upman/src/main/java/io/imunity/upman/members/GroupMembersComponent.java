@@ -23,8 +23,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManUI;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.I18nString;
@@ -53,14 +53,14 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 class GroupMembersComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupMembersController controller;
 	
 	private GroupMemebersGrid groupMemebersGrid;
 	private String group;
 	private String project;
 
-	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller, String project, ConfirmationInfoFormatter formatter)
+	public GroupMembersComponent(MessageSource msg, GroupMembersController controller, String project, ConfirmationInfoFormatter formatter)
 			throws ControllerException
 	{
 		this.msg = msg;
@@ -326,7 +326,7 @@ class GroupMembersComponent extends CustomComponent
 		private Consumer<String> selectionConsumer;
 		private MandatoryGroupSelection groupSelection;
 
-		public TargetGroupSelectionDialog(UnityMessageSource msg, Consumer<String> selectionConsumer)
+		public TargetGroupSelectionDialog(MessageSource msg, Consumer<String> selectionConsumer)
 		{
 			super(msg, msg.getMessage("AddToGroupDialog.caption"));
 			this.selectionConsumer = selectionConsumer;

@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
@@ -21,9 +21,9 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 public abstract class AbstractAttributeTypeProvider implements SystemAttributesProvider
 {
 	private List<AttributeType> systemAttributes;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	
-	public AbstractAttributeTypeProvider(UnityMessageSource msg)
+	public AbstractAttributeTypeProvider(MessageSource msg)
 	{
 		this.msg = msg;
 	}

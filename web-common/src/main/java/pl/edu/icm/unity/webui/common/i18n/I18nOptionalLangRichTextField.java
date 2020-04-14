@@ -6,17 +6,17 @@ package pl.edu.icm.unity.webui.common.i18n;
 
 import com.vaadin.ui.RichTextArea;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 public class I18nOptionalLangRichTextField extends AbstractOptionalLang18nField<RichTextArea>
 {
-	public I18nOptionalLangRichTextField(UnityMessageSource msg)
+	public I18nOptionalLangRichTextField(MessageSource msg)
 	{
 		super(msg);
 		initUI();
 	}
 
-	public I18nOptionalLangRichTextField(UnityMessageSource msg, String caption)
+	public I18nOptionalLangRichTextField(MessageSource msg, String caption)
 	{
 		super(msg, caption);
 		initUI();

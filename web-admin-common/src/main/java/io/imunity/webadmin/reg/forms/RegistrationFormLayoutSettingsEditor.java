@@ -15,10 +15,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.common.file.ImageField;
  */
 public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
@@ -42,7 +42,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 	private Binder<FormLayoutSettingsWithLogo> binder;
 	private ImageAccessService imageAccessService;
 
-	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+	public RegistrationFormLayoutSettingsEditor(MessageSource msg, UnityServerConfiguration serverConfig,
 			FileStorageService fileStorageService, URIAccessService uriAccessService, 
 			ImageAccessService imageAccessService)
 	{

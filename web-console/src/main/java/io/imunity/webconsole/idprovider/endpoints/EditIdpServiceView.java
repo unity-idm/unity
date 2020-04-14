@@ -14,7 +14,7 @@ import io.imunity.webconsole.idprovider.endpoints.IdpServicesView.IdpServicesNav
 import io.imunity.webconsole.services.base.EditServiceViewBase;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
@@ -29,7 +29,7 @@ class EditIdpServiceView extends EditServiceViewBase
 	public static final String VIEW_NAME = "EditIdpService";
 
 	@Autowired
-	EditIdpServiceView(UnityMessageSource msg, IdpServicesController controller)
+	EditIdpServiceView(MessageSource msg, IdpServicesController controller)
 	{
 		super(msg, controller, IdpServicesView.VIEW_NAME);
 	}

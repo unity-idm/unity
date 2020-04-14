@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
  */
 public class AuthnLayoutComponentsFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Consumer<AuthnLayoutColumn> removeListener;
 	private Consumer<ColumnComponent> removeElementListener;
 	private Runnable dragStart;
@@ -43,7 +43,7 @@ public class AuthnLayoutComponentsFactory
 	private Supplier<List<String>> authnOptionSupplier;
 	private boolean blockRemoveLastAndExpand;
 
-	public AuthnLayoutComponentsFactory(UnityMessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
+	public AuthnLayoutComponentsFactory(MessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
 			Consumer<ColumnComponent> removeElementListener, Runnable dragStart, Runnable dragStop,
 			Runnable valueChange, AuthenticatorSupportService authenticatorSupportService,
 			Supplier<List<String>> authnOptionSupplier, boolean blockRemoveLastAndExpand)

@@ -18,9 +18,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateProcessor;
@@ -47,7 +47,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	private NotificationFacilitiesRegistry facilitiesRegistry;
 	private MembershipDAO dbGroups;
 	private MessageTemplateDB mtDB;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TxManager txManager;
 	private final MessageTemplateProcessor messageTemplateProcessor = new MessageTemplateProcessor();
 	private final ChannelInstanceFactory channelFactory;
@@ -56,7 +56,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	public NotificationProducerImpl(
 			ChannelInstanceFactory channelFactory, 
 			NotificationFacilitiesRegistry facilitiesRegistry,
-			MembershipDAO dbGroups, MessageTemplateDB mtDB, UnityMessageSource msg,
+			MembershipDAO dbGroups, MessageTemplateDB mtDB, MessageSource msg,
 			TxManager txManager)
 	{
 		this.channelFactory = channelFactory;

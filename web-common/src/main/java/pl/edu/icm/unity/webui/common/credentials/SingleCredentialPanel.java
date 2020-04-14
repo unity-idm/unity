@@ -18,11 +18,11 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -54,7 +54,7 @@ public class SingleCredentialPanel extends VerticalLayout
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private CredentialManagement credMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private boolean changed = false;
 	private Entity entity;
 	private final long entityId;
@@ -73,7 +73,7 @@ public class SingleCredentialPanel extends VerticalLayout
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	
 	
-	public SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, long entityId,
+	public SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId,
 			EntityCredentialManagement ecredMan, CredentialManagement credMan,
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit, boolean simpleMode, boolean showButtons, Callback callback)

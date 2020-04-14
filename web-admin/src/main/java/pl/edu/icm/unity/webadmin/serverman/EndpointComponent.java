@@ -15,11 +15,11 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
@@ -53,7 +53,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			ServerManagement serverMan,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			UnityServerConfiguration config,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		super(config, serverMan, msg);
 		this.endpointMan = endpointMan;

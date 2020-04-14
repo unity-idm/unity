@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
@@ -79,7 +79,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private EnquiryResponseDB requestDB;
 	private NotificationProducer notificationProducer;
 	private RegistrationConfirmationSupport confirmationsSupport;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InternalAuthorizationManager authz;
 	private BaseFormValidator baseFormValidator;
 	private EnquiryResponsePreprocessor enquiryResponseValidator;
@@ -95,7 +95,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
 			NotificationProducer notificationProducer,
 			RegistrationConfirmationSupport confirmationsSupport,
-			UnityMessageSource msg, InternalAuthorizationManager authz,
+			MessageSource msg, InternalAuthorizationManager authz,
 			BaseFormValidator baseFormValidator,
 			EnquiryResponsePreprocessor enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,

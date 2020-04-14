@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.LinkableImage;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
@@ -17,10 +17,10 @@ import pl.edu.icm.unity.webui.common.attributes.ext.AttributeHandlerHelper;
 
 class PublicLinkableImageAttributeHandler implements WebAttributeHandler
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final PublicLinkableImageSyntax syntax;
 
-	PublicLinkableImageAttributeHandler(UnityMessageSource msg, PublicLinkableImageSyntax syntax)
+	PublicLinkableImageAttributeHandler(MessageSource msg, PublicLinkableImageSyntax syntax)
 	{
 		this.msg = msg;
 		this.syntax = syntax;

@@ -35,7 +35,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
@@ -59,7 +59,7 @@ public class AuthnOptionsColumns extends CustomComponent
 	public static final String SPECIAL_ENTRY_EXPAND = "_EXPAND"; //note that this one is not documented, for internal use
 	
 	private final VaadinEndpointProperties config;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final AuthenticationOptionsHandler authnOptionsHandler;
 	private final boolean enableRegistration;
 	private final AuthNPanelFactory authNPanelFactory;
@@ -67,7 +67,7 @@ public class AuthnOptionsColumns extends CustomComponent
 	
 	private List<AuthnOptionsColumn> columns;
 	
-	AuthnOptionsColumns(VaadinEndpointProperties config, UnityMessageSource msg,
+	AuthnOptionsColumns(VaadinEndpointProperties config, MessageSource msg,
 			AuthenticationOptionsHandler authnOptionsHandler, boolean enableRegistration,
 			AuthNPanelFactory authNPanelFactory,
 			Runnable registrationLayoutLauncher)

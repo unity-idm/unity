@@ -7,7 +7,7 @@ package io.imunity.webadmin.tprofile;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.CheckBox;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
@@ -20,7 +20,7 @@ public class BooleanActionParameterComponent extends CheckBox implements ActionP
 	private Binder<StringValueBean> binder;
 	
 	public BooleanActionParameterComponent(ActionParameterDefinition desc,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		super(desc.getName());
 		setDescription(msg.getMessage(desc.getDescriptionKey()));

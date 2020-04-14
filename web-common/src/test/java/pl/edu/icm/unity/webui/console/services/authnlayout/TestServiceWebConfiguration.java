@@ -19,10 +19,10 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLa
 
 public class TestServiceWebConfiguration
 {
-	private UnityMessageSource msg = mock(UnityMessageSource.class);
+	private MessageSource msg = mock(MessageSource.class);
 	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 

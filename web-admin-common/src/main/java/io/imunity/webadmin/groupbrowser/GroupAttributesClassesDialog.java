@@ -14,9 +14,9 @@ import com.vaadin.ui.Panel;
 import io.imunity.webadmin.attributeclass.ACTwinColSelect;
 import io.imunity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
@@ -36,7 +36,7 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 {
 	private Callback callback;
 	
-	public GroupAttributesClassesDialog(UnityMessageSource msg, String group, 
+	public GroupAttributesClassesDialog(MessageSource msg, String group, 
 			AttributeClassManagement acMan, GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, group, acMan, groupsMan, msg.getMessage("GroupAttributesClasses.caption"));

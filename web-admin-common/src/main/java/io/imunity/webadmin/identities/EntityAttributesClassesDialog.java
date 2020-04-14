@@ -16,9 +16,9 @@ import com.vaadin.ui.Panel;
 import io.imunity.webadmin.attributeclass.ACTwinColSelect;
 import io.imunity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -45,7 +45,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 	private GenericElementsTable<String> groupAcs;
 	private Runnable callback;
 	
-	public EntityAttributesClassesDialog(UnityMessageSource msg, String group, EntityWithLabel entity, 
+	public EntityAttributesClassesDialog(MessageSource msg, String group, EntityWithLabel entity, 
 			AttributeClassManagement attrMan, GroupsManagement groupsMan, Runnable callback)
 	{
 		super(msg, group, attrMan, groupsMan, msg.getMessage("EntityAttributesClasses.caption"));

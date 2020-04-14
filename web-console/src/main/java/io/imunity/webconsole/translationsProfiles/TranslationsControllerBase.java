@@ -16,8 +16,8 @@ import com.vaadin.server.StreamResource;
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class TranslationsControllerBase
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected TranslationProfileManagement profileMan;
 	
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> actionsRegistry;
@@ -34,7 +34,7 @@ public abstract class TranslationsControllerBase
 	private ProfileType type;
 	
 	@Autowired
-	public TranslationsControllerBase(UnityMessageSource msg, TranslationProfileManagement profileMan,
+	public TranslationsControllerBase(MessageSource msg, TranslationProfileManagement profileMan,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> actionsRegistry,
 			ActionParameterComponentProvider actionComponentFactory,
 			ProfileType type)

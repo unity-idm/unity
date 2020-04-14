@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webconsole.common.EndpointController;
 import io.imunity.webconsole.translationsProfiles.TranslationsControllerBase;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class OutputTranslationsController extends TranslationsControllerBase
 {
 	@Autowired
-	public OutputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
+	public OutputTranslationsController(MessageSource msg, TranslationProfileManagement profileMan,
 			OutputTranslationActionsRegistry outputActionsRegistry,
 			ActionParameterComponentProvider actionComponentFactory, EndpointController endpointController)
 	{

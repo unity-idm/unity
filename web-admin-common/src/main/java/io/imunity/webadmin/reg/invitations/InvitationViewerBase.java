@@ -17,11 +17,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -46,7 +46,7 @@ public abstract class InvitationViewerBase extends CustomComponent
 	
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private MessageTemplateManagement msgTemplateMan;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected SharedEndpointManagement sharedEndpointMan;
 	private GroupsManagement groupMan;
 	
@@ -72,7 +72,7 @@ public abstract class InvitationViewerBase extends CustomComponent
 	protected BaseForm form;
 	
 	public InvitationViewerBase(AttributeHandlerRegistry attrHandlersRegistry,
-			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg, SharedEndpointManagement sharedEndpointMan, GroupsManagement groupMan)
+			MessageTemplateManagement msgTemplateMan, MessageSource msg, SharedEndpointManagement sharedEndpointMan, GroupsManagement groupMan)
 	{
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.msgTemplateMan = msgTemplateMan;

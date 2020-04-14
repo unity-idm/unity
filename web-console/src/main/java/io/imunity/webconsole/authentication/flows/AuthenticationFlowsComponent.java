@@ -19,7 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -38,10 +38,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class AuthenticationFlowsComponent extends CustomComponent
 {
 	private AuthenticationFlowsController flowsMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GridWithActionColumn<AuthenticationFlowEntry> flowsGrid;
 
-	public AuthenticationFlowsComponent(UnityMessageSource msg, AuthenticationFlowsController flowsMan)
+	public AuthenticationFlowsComponent(MessageSource msg, AuthenticationFlowsController flowsMan)
 	{
 		this.msg = msg;
 		this.flowsMan = flowsMan;

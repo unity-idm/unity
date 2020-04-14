@@ -14,7 +14,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class ListOfEmbeddedElementsStub<T>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EditorProvider<T> editorProvider;
 	private int min = 0;
 	private int max = Integer.MAX_VALUE;
@@ -40,7 +40,7 @@ public class ListOfEmbeddedElementsStub<T>
 	private Runnable valueChangeListener;
 	
 	
-	public ListOfEmbeddedElementsStub(UnityMessageSource msg, EditorProvider<T> editorProvider,
+	public ListOfEmbeddedElementsStub(MessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)
 	{
 		this.msg = msg;

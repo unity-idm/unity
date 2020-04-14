@@ -20,7 +20,7 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 abstract class Abstract18nField<T extends AbstractTextField> extends CustomField<I18nString>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String defaultLocaleCode;
 	private String defaultLocaleName;
 	private Map<String, Locale> enabledLocales;
@@ -49,7 +49,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	private HorizontalLayout hl;
 	private T focused;
 	
-	public Abstract18nField(UnityMessageSource msg)
+	public Abstract18nField(MessageSource msg)
 	{
 		this.enabledLocales = new HashMap<>(msg.getEnabledLocales());
 		this.defaultLocaleCode = msg.getDefaultLocaleCode();
@@ -59,7 +59,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 				defaultLocaleName = locE.getKey();
 	}
 
-	public Abstract18nField(UnityMessageSource msg, String caption)
+	public Abstract18nField(MessageSource msg, String caption)
 	{
 		this(msg);
 		setCaption(caption);

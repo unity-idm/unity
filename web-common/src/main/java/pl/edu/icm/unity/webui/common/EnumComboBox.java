@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * {@link ComboBox} allowing to simply select from enum constatnts.
@@ -20,28 +20,28 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class EnumComboBox<T extends Enum<?>> extends ComboBox<T>{
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String msgPrefix;
 	
-	public EnumComboBox(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
+	public EnumComboBox(MessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
 	{
 		init(msg, msgPrefix, enumClass, initialValue, t -> true);
 	}
 	
-	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
+	public EnumComboBox(String caption, MessageSource msg, String msgPrefix, Class<T> enumClass, 
 			T initialValue)
 	{
 		this(caption, msg, msgPrefix, enumClass, initialValue, t -> true);
 	}
 	
-	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
+	public EnumComboBox(String caption, MessageSource msg, String msgPrefix, Class<T> enumClass, 
 			T initialValue,	Predicate<T> filter)
 	{
 		super(caption);
 		init(msg, msgPrefix, enumClass, initialValue, filter);
 	}
 
-	private void init(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue,
+	private void init(MessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue,
 		Predicate<T> filter)
 	{
 		this.msg = msg;

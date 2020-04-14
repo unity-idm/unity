@@ -28,6 +28,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
@@ -35,7 +36,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -60,11 +60,11 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected RESTEndpointProperties genericEndpointProperties;
 	protected String servletPath;
 	protected SessionManagement sessionMan;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
-	public RESTEndpoint(UnityMessageSource msg,
+	public RESTEndpoint(MessageSource msg,
 			SessionManagement sessionMan,
 			AuthenticationProcessor authenticationProcessor,
 			NetworkServer server,

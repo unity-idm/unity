@@ -8,11 +8,11 @@ package pl.edu.icm.unity.webui.common.credentials.sms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 @Component
 public class SMSCredentialEditorFactory implements CredentialEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgTplMan;
 	private AttributeTypeSupport attrTypeSupport;
 	private AttributeSupport attrMan;
@@ -36,7 +36,7 @@ public class SMSCredentialEditorFactory implements CredentialEditorFactory
 	private MobileNumberConfirmationManager  mobileConfirmationMan;
 
 	@Autowired
-	public SMSCredentialEditorFactory(UnityMessageSource msg,
+	public SMSCredentialEditorFactory(MessageSource msg,
 			AttributeTypeSupport attrTypeSupport, AttributeSupport attrMan,
 			MessageTemplateManagement msgTplMan,
 			MobileNumberConfirmationManager mobileConfirmationMan,

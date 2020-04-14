@@ -40,7 +40,7 @@ import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webadmin.groupbrowser.GroupEditDialog;
 import io.imunity.webadmin.groupbrowser.TreeNode;
 import io.imunity.webconsole.directoryBrowser.identities.IdentitiesTreeGrid;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -71,7 +71,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupsTreeGrid extends TreeGrid<TreeNode>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EventsBus bus;
 	private TreeData<TreeNode> treeData;
 	private TreeDataProvider<TreeNode> dataProvider;
@@ -79,7 +79,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private GroupBrowserController controller;
 
 	@Autowired
-	public GroupsTreeGrid(UnityMessageSource msg, GroupBrowserController controller)
+	public GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
 
 		this.msg = msg;

@@ -14,8 +14,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class ExposedSelectableAttributesComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	
 	private Map<String, DynamicAttribute> attributes;
@@ -45,7 +45,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	private boolean enableEdit;
 	
 
-	public ExposedSelectableAttributesComponent(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	public ExposedSelectableAttributesComponent(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			Map<String, AttributeType> attributeTypes, AttributeTypeSupport aTypeSupport,
 			Collection<DynamicAttribute> attributesCol, boolean enableEdit)
 	{

@@ -19,9 +19,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -40,13 +40,13 @@ public class AttributeHandlerRegistry
 	private static final int SHORT_TEXT_VALUE_LENGHT = 100;
 	private static final int PREVIEW_IMAGE_SIZE = 29;
 		
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeSupport aTypeSupport;
 
 	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
 
 	@Autowired
-	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, UnityMessageSource msg,
+	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, MessageSource msg,
 			AttributeTypeSupport aTypeSupport)
 	{
 		this.msg = msg;

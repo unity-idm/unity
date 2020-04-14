@@ -26,7 +26,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -49,13 +49,13 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "IdentityTypes";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityTypesController controller;
 
 	private GridWithActionColumn<IdentityTypeEntry> identityTypesGrid;
 
 	@Autowired
-	IdentityTypesView(UnityMessageSource msg, IdentityTypesController controller)
+	IdentityTypesView(MessageSource msg, IdentityTypesController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -148,7 +148,7 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public IdentityTypesNavigationInfoProvider(UnityMessageSource msg,
+		public IdentityTypesNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<IdentityTypesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

@@ -24,9 +24,9 @@ import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -53,9 +53,9 @@ public abstract class AbstractMetaToConfigConverter
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AbstractMetaToConfigConverter.class);
 	protected PKIManagement pkiManagement;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	
-	public AbstractMetaToConfigConverter(PKIManagement pkiManagement, UnityMessageSource msg)
+	public AbstractMetaToConfigConverter(PKIManagement pkiManagement, MessageSource msg)
 	{
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;

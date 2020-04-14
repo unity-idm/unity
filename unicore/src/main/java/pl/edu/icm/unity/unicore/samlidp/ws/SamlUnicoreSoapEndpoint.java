@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -24,7 +25,6 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -53,7 +53,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public static final String SERVLET_PATH = "/saml2unicoreidp-soap";
 	
 	@Autowired
-	public SamlUnicoreSoapEndpoint(UnityMessageSource msg,
+	public SamlUnicoreSoapEndpoint(MessageSource msg,
 			NetworkServer server,
 			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,

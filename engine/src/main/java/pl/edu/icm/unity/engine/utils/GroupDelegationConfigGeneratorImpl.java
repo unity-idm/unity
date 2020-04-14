@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
@@ -67,7 +67,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 @Primary
 public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfigGenerator
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationFormDB regFormDB;
 	private MessageTemplateDB messageDB;
 	private EnquiryFormDB enqFormDB;
@@ -75,7 +75,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	private AttributesHelper attrHelper;
 
 	@Autowired
-	public GroupDelegationConfigGeneratorImpl(UnityMessageSource msg, RegistrationFormDB regFormDB,
+	public GroupDelegationConfigGeneratorImpl(MessageSource msg, RegistrationFormDB regFormDB,
 			MessageTemplateDB messageDB, EnquiryFormDB enqFormDB, AttributesHelper attrHelper,
 			GroupDAO groupDB)
 	{

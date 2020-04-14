@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
@@ -24,7 +24,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	private List<String> values;
 	private Binder<StringValueBean> binder;
 	
-	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
+	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, MessageSource msg, 
 			Collection<?> vals)
 	{
 		values = vals.stream().map(v -> v.toString()).collect(Collectors.toList());
@@ -34,7 +34,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		initCommon(desc, msg, def, desc.isMandatory());
 	}
 
-	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
+	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, MessageSource msg, 
 			Object[] vals)
 	{
 		values = Arrays.stream(vals).map(v -> v.toString()).collect(Collectors.toList());
@@ -43,7 +43,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		initCommon(desc, msg, def, desc.isMandatory());
 	}
 	
-	protected final void initCommon(ActionParameterDefinition desc, UnityMessageSource msg,
+	protected final void initCommon(ActionParameterDefinition desc, MessageSource msg,
 			String def, boolean mandatory)
 	{
 		setEmptySelectionAllowed(!mandatory);

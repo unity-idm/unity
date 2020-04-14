@@ -9,10 +9,10 @@ import java.util.function.Function;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -28,12 +28,12 @@ import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
  */
 public class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final ExecutorsService execService;
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider; 
 	private final boolean gridCompatible;
 	
-	public FirstFactorAuthNPanel(UnityMessageSource msg, 
+	public FirstFactorAuthNPanel(MessageSource msg, 
 			ExecutorsService execService,
 			CancelHandler cancelHandler,
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,

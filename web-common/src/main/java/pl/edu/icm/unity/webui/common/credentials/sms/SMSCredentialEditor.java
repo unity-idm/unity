@@ -18,12 +18,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
@@ -60,7 +60,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		New, Existing
 	};
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeSupport attrTypeSupport;
 	private AttributeSupport attrSup;
 	private ConfirmationInfoFormatter formatter;
@@ -75,7 +75,7 @@ public class SMSCredentialEditor implements CredentialEditor
 	private CredentialEditorContext context;
 	private SingleStringFieldBinder binder;
 	
-	public SMSCredentialEditor(UnityMessageSource msg, AttributeTypeSupport attrTypeSupport,
+	public SMSCredentialEditor(MessageSource msg, AttributeTypeSupport attrTypeSupport,
 			AttributeSupport attrSup,
 			MobileNumberConfirmationManager mobileConfirmationMan,
 			ConfirmationInfoFormatter formatter)

@@ -12,11 +12,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
  */
 public class OAuthPreferencesEditor implements PreferencesEditor
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected OAuthPreferences preferences;
 	protected EntityManagement idsMan;
 	private IdentityTypeSupport idTypeSupport;
@@ -46,7 +46,7 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	
 	protected List<Identity> identities;
 
-	public OAuthPreferencesEditor(UnityMessageSource msg, OAuthPreferences preferences, EntityManagement idsMan,
+	public OAuthPreferencesEditor(MessageSource msg, OAuthPreferences preferences, EntityManagement idsMan,
 			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;

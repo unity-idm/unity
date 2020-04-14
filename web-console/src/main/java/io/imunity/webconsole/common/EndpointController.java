@@ -11,8 +11,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -25,10 +25,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class EndpointController
 {
 	private EndpointManagement endpointMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
-	public EndpointController(EndpointManagement endpointMan, UnityMessageSource msg)
+	public EndpointController(EndpointManagement endpointMan, MessageSource msg)
 	{
 		this.endpointMan = endpointMan;
 		this.msg = msg;

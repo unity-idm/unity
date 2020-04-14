@@ -27,7 +27,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -53,12 +53,12 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "LocalCredentials";
 
 	private LocalCredentialsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GridWithActionColumn<CredentialDefinition> credList;
 	private EventsBus bus;
 
 	@Autowired
-	public LocalCredentialsView(UnityMessageSource msg, LocalCredentialsController controller)
+	public LocalCredentialsView(MessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -178,7 +178,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 		public static final String ID = VIEW_NAME;
 		
 		@Autowired
-		public LocalCredentialsNavigationInfoProvider(UnityMessageSource msg,
+		public LocalCredentialsNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<LocalCredentialsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)

@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
@@ -26,13 +26,13 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 @Component
 class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private OAuthTokenRepository tokenDAO;
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;;
 
 	@Autowired
-	OAuthRPAuthenticatorEditorFactory(UnityMessageSource msg, OAuthTokenRepository tokenDAO, PKIManagement pkiMan,
+	OAuthRPAuthenticatorEditorFactory(MessageSource msg, OAuthTokenRepository tokenDAO, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;

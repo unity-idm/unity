@@ -28,6 +28,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventConfiguration;
@@ -35,7 +36,6 @@ import pl.edu.icm.unity.engine.api.integration.IntegrationEventDefinition;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventGroup;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventRegistry;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventVariable;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -57,7 +57,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 @PrototypeComponent
 public class IntegrationEventEditorComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IntegrationEventRegistry intEventDefRegistry;
 	private List<IntegrationEventGroup> trimmedIntegrationEventGroups;
 	private Label title;
@@ -72,7 +72,7 @@ public class IntegrationEventEditorComponent extends CustomComponent
 	private EnumComboBox<EventType> type;
 
 	@Autowired
-	public IntegrationEventEditorComponent(UnityMessageSource msg, IntegrationEventRegistry intEventDefRegistry,
+	public IntegrationEventEditorComponent(MessageSource msg, IntegrationEventRegistry intEventDefRegistry,
 			IntegrationEventConfigurationEditorRegistry editorsRegistry)
 	{
 		this.msg = msg;
@@ -373,7 +373,7 @@ public class IntegrationEventEditorComponent extends CustomComponent
 		private Consumer<Map<String, String>> onConfirm;
 		private Map<String, TextField> params;
 
-		public TestParamsDialog(UnityMessageSource msg, IntegrationEventDefinition event,
+		public TestParamsDialog(MessageSource msg, IntegrationEventDefinition event,
 				Consumer<Map<String, String>> onConfirm)
 		{
 			super(msg, msg.getMessage("IntegrationEventComponent.specifyParameters"),

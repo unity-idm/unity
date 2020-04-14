@@ -11,9 +11,9 @@ import java.util.List;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.types.basic.Group;
@@ -34,7 +34,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private FileStorageService fileStorageService;
 
-	HomeServiceEditorComponent(UnityMessageSource msg, HomeServiceEditorGeneralTab generalTab, WebServiceAuthenticationTab authTab,
+	HomeServiceEditorComponent(MessageSource msg, HomeServiceEditorGeneralTab generalTab, WebServiceAuthenticationTab authTab,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			DefaultServiceDefinition toEdit, String extraTab, List<Group> allGroups)

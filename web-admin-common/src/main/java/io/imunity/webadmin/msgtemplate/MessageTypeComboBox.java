@@ -18,7 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.CustomField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -34,12 +34,12 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview.PreviewWindow;
  */
 public class MessageTypeComboBox extends CustomField<MessageType>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Function<String, String> i18nTextProvider;
 	private ComboBox<MessageType> bodyType;
 	private Component main;
 	
-	public MessageTypeComboBox(UnityMessageSource msg, Function<String, String> i18nTextProvider)
+	public MessageTypeComboBox(MessageSource msg, Function<String, String> i18nTextProvider)
 	{
 		this.msg = msg;
 		this.i18nTextProvider = i18nTextProvider;
@@ -101,7 +101,7 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 	{
 		private Button preview;
 		
-		public HPairLayout(UnityMessageSource msg, Supplier<String> contentProvider)
+		public HPairLayout(MessageSource msg, Supplier<String> contentProvider)
 		{
 			preview = new Button(msg.getMessage("MessageTemplateViewer.preview"));
 			preview.setStyleName(Styles.vButtonLink.toString());
