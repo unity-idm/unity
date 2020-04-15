@@ -174,8 +174,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldReturnUpdatedInvitation() throws EngineException
 	{
-		InvitationWithCode invitationWithCode = getAttributeInvitation();
-		InvitationParam invitation = invitationWithCode.getInvitation();
+		InvitationParam invitation = EnquiryInvitationParam.builder().withForm("form").withEntity(1L)
+				.withExpiration(Instant.now().plusSeconds(1000)).build();
 		enquiryMan.addEnquiry(new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("form").build());
 		String code = invitationMan.addInvitation(invitation);
