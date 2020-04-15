@@ -42,6 +42,9 @@ public class ProfileFetcherUtils
 			if (entry.getValue() == null)
 				continue;
 			Object value = JSONValue.parse(entry.getValue().toString());
+			if (value==null)
+				continue;
+			
 			if (value instanceof JSONObject)
 			{
 				ret.put(entry.getKey(), Arrays.asList(value.toString()));
