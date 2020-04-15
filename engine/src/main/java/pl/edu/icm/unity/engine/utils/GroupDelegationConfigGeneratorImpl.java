@@ -157,8 +157,8 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 			return ret;
 		}
 
-		if (form.getIdentityParams() == null || form.getIdentityParams().size() != 1
-				|| !form.getIdentityParams().get(0).getIdentityType().equals(EmailIdentity.ID))
+		if (form.getIdentityParams() == null || 
+				!form.getIdentityParams().get(0).getIdentityType().equals(EmailIdentity.ID))
 		{
 			ret.add(msg.getMessage("FormGenerator.noEmailIdentity"));
 		}
