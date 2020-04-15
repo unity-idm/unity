@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -57,7 +59,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldRespectIdentityConfirmationFromInvitationWhenVerifiedOnSubmit() throws EngineException
 	{
-		RegistrationRequest request = getIdentityRequest();
+		RegistrationRequest request = getRegistrationRequestWithNullIdentity();
 		InvitationWithCode invitationWithCode = getIdentityInvitation();
 		txRunner.runInTransactionThrowing(() -> 
 		{
@@ -71,7 +73,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldRespectIdentityConfirmationFromInvitationWhenVerifiedOnAcceptance() throws EngineException
 	{
-		RegistrationRequest request = getIdentityRequest();
+		RegistrationRequest request = getRegistrationRequestWithNullIdentity();
 		InvitationWithCode invitationWithCode = getIdentityInvitation();
 
 		txRunner.runInTransactionThrowing(() -> 
@@ -86,7 +88,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldRespectAttributeConfirmationFromInvitationWhenVerifiedOnSubmit() throws EngineException
 	{
-		RegistrationRequest request = getAttributeRequest();
+		RegistrationRequest request = getRegistrationRequestWithEmailAttr();
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		txRunner.runInTransactionThrowing(() -> 
 		{
@@ -101,7 +103,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldRespectAttributeConfirmationFromInvitationWhenVerifiedOnAcceptance() throws EngineException
 	{
-		RegistrationRequest request = getAttributeRequest();
+		RegistrationRequest request = getRegistrationRequestWithEmailAttr();
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		txRunner.runInTransactionThrowing(() -> 
 		{
@@ -117,7 +119,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldOverrideIdentityConfirmationFromInvitationWhenSetToUnverified() throws EngineException
 	{
-		RegistrationRequest request = getIdentityRequest();
+		RegistrationRequest request = getRegistrationRequestWithNullIdentity();
 		InvitationWithCode invitationWithCode = getIdentityInvitation();
 		txRunner.runInTransactionThrowing(() -> 
 		{
@@ -131,7 +133,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldOverrideAttributeConfirmationFromInvitationWhenSetToUnverified() throws EngineException
 	{
-		RegistrationRequest request = getAttributeRequest();
+		RegistrationRequest request = getRegistrationRequestWithEmailAttr();
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		txRunner.runInTransactionThrowing(() -> 
 		{
@@ -146,8 +148,10 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldReturnUpdatedInvitation() throws EngineException
 	{
-		InvitationWithCode invitationWithCode = getAttributeInvitation();
-		InvitationParam invitation = invitationWithCode.getInvitation();
+		InvitationParam invitation = RegistrationInvitationParam.builder()
+				.withForm("form")
+				.withExpiration(Instant.now().plusSeconds(1000))
+				.build();
 		
 		registrationsMan.addForm(new RegistrationFormBuilder()
 				.withName("form")
@@ -165,10 +169,12 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void formWithnvitationCantBeUpdated() throws Exception
+	public void formWithInvitationCantBeUpdated() throws Exception
 	{
-		InvitationWithCode invitationWithCode = getAttributeInvitation();
-		InvitationParam invitation = invitationWithCode.getInvitation();
+		InvitationParam invitation = RegistrationInvitationParam.builder()
+				.withForm("form")
+				.withExpiration(Instant.now().plusSeconds(1000))
+				.build();
 		
 		RegistrationForm form = new RegistrationFormBuilder()
 				.withName("form")
@@ -181,6 +187,32 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		Throwable exception = catchThrowable(() -> registrationsMan.updateForm(form, false));
 		Assertions.assertThat(exception).isNotNull().isInstanceOf(SchemaConsistencyException.class);	
 	}
+
+	
+	@Test
+	public void invitationWithNotMatchingIdentityIsRejected() throws Exception
+	{
+		InvitationParam invitation = RegistrationInvitationParam.builder()
+				.withForm("form")
+				.withIdentity(new IdentityParam(UsernameIdentity.ID, "wrong"), PrefilledEntryMode.READ_ONLY)
+				.withExpiration(Instant.now().plusSeconds(1000))
+				.build();
+		
+		RegistrationForm form = new RegistrationFormBuilder()
+				.withName("form")
+				.withPubliclyAvailable(true)
+				.withDefaultCredentialRequirement(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withAddedIdentityParam().withIdentityType(EmailIdentity.ID).endIdentityParam()
+				.build();
+		registrationsMan.addForm(form);
+		
+		Throwable exception = catchThrowable(() -> invitationMan.addInvitation(invitation));
+
+		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);	
+	}
+	
+	
 	
 	private RegistrationForm getIdentityForm(ConfirmationMode confirmationMode)
 	{
@@ -236,7 +268,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		return new InvitationWithCode(invitation, invitationCode, null, 0);
 	}
 	
-	private RegistrationRequest getIdentityRequest()
+	private RegistrationRequest getRegistrationRequestWithNullIdentity()
 	{
 		return new RegistrationRequestBuilder()
 				.withRegistrationCode("code")
@@ -245,7 +277,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 				.build();
 	}
 
-	private RegistrationRequest getAttributeRequest() throws EngineException
+	private RegistrationRequest getRegistrationRequestWithEmailAttr() throws EngineException
 	{
 		aTypeMan.addAttributeType(new AttributeType("email", VerifiableEmailAttributeSyntax.ID));
 		return new RegistrationRequestBuilder()
