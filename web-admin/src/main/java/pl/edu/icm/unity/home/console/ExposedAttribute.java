@@ -9,19 +9,14 @@ package pl.edu.icm.unity.home.console;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
-/**
- * 
- * @author P.Piernik
- *
- */
-class ExposedAttribute
+public class ExposedAttribute
 {
 	private String name;
 	private GroupWithIndentIndicator group;
 	private boolean editable;
 	private boolean showGroup;
 
-	ExposedAttribute()
+	public ExposedAttribute()
 	{
 		group = new GroupWithIndentIndicator(new Group("/"), false);
 	}
