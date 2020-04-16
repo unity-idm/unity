@@ -55,19 +55,22 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 	}
 
 	@After
-	public void after() {
+	public void after() 
+	{
 		// make sure entityNameAttribute is to null after test
 		auditListener.entityNameAttribute = null;
 	}
 
 	@Test
-	public void shouldInitializeEntityNameAttributeToNullAfterDbReset() {
+	public void shouldInitializeEntityNameAttributeToNullAfterDbReset() 
+	{
 		//given
 		assertNull(auditListener.entityNameAttribute);
 	}
 
 	@Test
-	public void shouldSetEntityNameAttributeWhenAttributeIsAdded() throws EngineException {
+	public void shouldSetEntityNameAttributeWhenAttributeIsAdded() throws EngineException 
+	{
 		//given
 		assertNull(auditListener.entityNameAttribute);
 
@@ -75,11 +78,13 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.addAttributeType(typeWithEntityName);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME)
+			.until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
 	@Test
-	public void shouldUnsetEntityNameAttributeWhenAttributeIsRemoved() throws EngineException {
+	public void shouldUnsetEntityNameAttributeWhenAttributeIsRemoved() throws EngineException 
+	{
 		//given
 		assertNull(auditListener.entityNameAttribute);
 		initializeAttributeTypeWithEntityName();
@@ -88,11 +93,13 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.removeAttributeType(typeWithEntityName.getName(), false);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> (auditListener.entityNameAttribute == null));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME)
+			.until(() -> (auditListener.entityNameAttribute == null));
 	}
 
 	@Test
-	public void shouldUnsetEntityNameAttributeWhenMetadataIsRemoved() throws EngineException {
+	public void shouldUnsetEntityNameAttributeWhenMetadataIsRemoved() throws EngineException 
+	{
 		//given
 		assertNull(auditListener.entityNameAttribute);
 		initializeAttributeTypeWithEntityName();
@@ -102,11 +109,13 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.updateAttributeType(typeWithEntityName);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> (auditListener.entityNameAttribute == null));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME)
+			.until(() -> (auditListener.entityNameAttribute == null));
 	}
 
 	@Test
-	public void shouldSetEntityNameAttributeWhenMetadataIsAdded() throws EngineException {
+	public void shouldSetEntityNameAttributeWhenMetadataIsAdded() throws EngineException 
+	{
 		//given
 		assertNull(auditListener.entityNameAttribute);
 		AttributeType type = getType();
@@ -121,11 +130,13 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.updateAttributeType(type);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME)
+			.until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
 	@Test
-	public void shouldSetEntityNameAttributeWhenMetadataRemovedAndAddedToOtherAttribute() throws EngineException {
+	public void shouldSetEntityNameAttributeWhenMetadataRemovedAndAddedToOtherAttribute() throws EngineException 
+	{
 		//given
 		assertNull(auditListener.entityNameAttribute);
 		initializeAttributeTypeWithEntityName();
@@ -144,15 +155,19 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 		attributeTypeMan.updateAttributeType(type);
 
 		//then
-		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME)
+			.until(() -> type.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
-	private void initializeAttributeTypeWithEntityName() throws EngineException {
+	private void initializeAttributeTypeWithEntityName() throws EngineException 
+	{
 		attributeTypeMan.addAttributeType(typeWithEntityName);
-		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME).until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
+		Awaitility.with().pollInSameThread().await().atMost(DEFAULT_WAIT_TIME)
+			.until(() -> typeWithEntityName.getName().equalsIgnoreCase(auditListener.entityNameAttribute));
 	}
 
-	private AttributeType getType() {
+	private AttributeType getType() 
+	{
 		AttributeType type = new AttributeType("theName", "string");
 		type.setDescription(new I18nString("desc"));
 		type.setDisplayedName(new I18nString("Displayed name"));

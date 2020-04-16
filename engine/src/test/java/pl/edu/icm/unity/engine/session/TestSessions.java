@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.engine.session;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.either;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
@@ -113,9 +111,9 @@ public class TestSessions extends DBIntegrationTestBase
 		
 		sessionMan.removeSession(s.getId(), false);
 		
-		catchException(sessionMan).getSession(s.getId());
+		Throwable error = catchThrowable(() -> sessionMan.getSession(s.getId()));
 		
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -151,9 +149,9 @@ public class TestSessions extends DBIntegrationTestBase
 		
 		Thread.sleep(1001);
 		
-		catchException(sessionMan).getSession(s.getId());
-		
-		assertThat(caughtException(), either(isA(SessionExpiredException.class)).or(isA(IllegalArgumentException.class)));
+		Throwable error = catchThrowable(() -> sessionMan.getSession(s.getId()));
+
+		assertThat(error).isInstanceOfAny(SessionExpiredException.class, IllegalArgumentException.class);
 	}
 
 	@Test
@@ -167,9 +165,9 @@ public class TestSessions extends DBIntegrationTestBase
 		
 		Thread.sleep(1001);
 		
-		catchException(sessionMan).updateSessionActivity(s.getId());
+		Throwable error = catchThrowable(() -> sessionMan.updateSessionActivity(s.getId()));
 		
-		assertThat(caughtException(), isA(SessionExpiredException.class));
+		assertThat(error).isInstanceOfAny(SessionExpiredException.class, IllegalArgumentException.class);
 	}
 	
 	private void checkLastAuthnAttribute(long entityId) throws EngineException
