@@ -147,7 +147,7 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 				Arrays.asList(new PolicyAgreementDecision(PolicyAgreementAcceptanceStatus.ACCEPTED,
 						Arrays.asList(doc1))));
 		agreementMan.submitDecisions(user,
-				Arrays.asList(new PolicyAgreementDecision(PolicyAgreementAcceptanceStatus.NOTACCEPTED,
+				Arrays.asList(new PolicyAgreementDecision(PolicyAgreementAcceptanceStatus.NOT_ACCEPTED,
 						Arrays.asList(doc3))));
 
 		policyDocMan.updatePolicyDocumentWithRevision(

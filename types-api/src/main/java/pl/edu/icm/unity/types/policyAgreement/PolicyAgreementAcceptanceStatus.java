@@ -8,5 +8,5 @@ package pl.edu.icm.unity.types.policyAgreement;
 
 public enum PolicyAgreementAcceptanceStatus
 {
-	ACCEPTED, NOTACCEPTED;
+	ACCEPTED, NOT_ACCEPTED;
 }

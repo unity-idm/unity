@@ -53,11 +53,9 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 	{
 		if (instance.getIdentities() == null)
 		{
-			instance.setIdentities(new ArrayList<IdentityParam>());
+			instance.setIdentities(new ArrayList<>());
 		}
-
-		((ArrayList<IdentityParam>) instance.getIdentities()).add(aValue);
-
+		instance.getIdentities().add(aValue);
 		return (GeneratorT) this;
 	}
 

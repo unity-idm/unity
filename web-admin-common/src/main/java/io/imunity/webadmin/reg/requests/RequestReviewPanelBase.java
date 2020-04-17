@@ -59,7 +59,8 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class RequestReviewPanelBase extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RequestReviewPanelBase.class);
-
+	private static final int MAX_TEXT_LENGHT = 300;
+	
 	protected MessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	private UserRequestState<?> requestState;
@@ -223,8 +224,8 @@ public class RequestReviewPanelBase extends CustomComponent
 			String info = (selection.isSelected()) ? msg.getMessage("RequestReviewPanel.accepted") : 
 				msg.getMessage("RequestReviewPanel.notAccepted");
 			String agreementTextStr = agreementText.getText().getValue(msg);
-			String aText = (agreementTextStr.length() > 300) ? 
-					agreementTextStr.substring(0, 300) + "[...]" : agreementTextStr;
+			String aText = (agreementTextStr.length() > MAX_TEXT_LENGHT) ? 
+					agreementTextStr.substring(0, MAX_TEXT_LENGHT) + "[...]" : agreementTextStr;
 			optins.addEntry(info + ": " +  aText);
 		}
 		optinsP.setVisible(optins.getComponentCount() > 0);
@@ -247,8 +248,8 @@ public class RequestReviewPanelBase extends CustomComponent
 			String agreementText = policyAgreementRepresentationBuilder
 					.getAgreementRepresentationText(policyAgreementConfig);
 			String agreementTextWithDoc = agreementText + " " + agreementDocs;
-			String aText = (agreementTextWithDoc.length() > 300)
-					? agreementTextWithDoc.substring(0, 300) + "[...]"
+			String aText = (agreementTextWithDoc.length() > MAX_TEXT_LENGHT)
+					? agreementTextWithDoc.substring(0, MAX_TEXT_LENGHT) + "[...]"
 					: agreementTextWithDoc;
 			policyAgreements.addEntry(info + ": " + aText);
 		}

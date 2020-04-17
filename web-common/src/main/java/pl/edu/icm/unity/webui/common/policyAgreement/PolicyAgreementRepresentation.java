@@ -82,7 +82,7 @@ public class PolicyAgreementRepresentation extends CustomComponent
 	{
 		return new PolicyAgreementDecision(
 				decisionCheckBox.getValue() ? PolicyAgreementAcceptanceStatus.ACCEPTED
-						: PolicyAgreementAcceptanceStatus.NOTACCEPTED,
+						: PolicyAgreementAcceptanceStatus.NOT_ACCEPTED,
 				documentsIdsToAccept);
 	}
 

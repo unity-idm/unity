@@ -8,6 +8,7 @@ package pl.edu.icm.unity.engine.api.policyAgreement;
 import java.util.Date;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -21,7 +22,8 @@ public class PolicyAgreementState
 	public final int policyDocumentRevision;
 	public final PolicyAgreementAcceptanceStatus acceptanceStatus;
 	public final Date decisionTs;
-
+	
+	@JsonCreator
 	public PolicyAgreementState(@JsonProperty("policyDocumentId") Long policyDocumentId,
 			@JsonProperty("policyDocumentRevision") Integer policyDocumentRevision,
 			@JsonProperty("acceptanceStatus") PolicyAgreementAcceptanceStatus acceptanceStatus,

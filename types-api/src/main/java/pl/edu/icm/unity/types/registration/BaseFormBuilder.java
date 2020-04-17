@@ -266,11 +266,9 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	{
 		if (instance.getPolicyAgreements() == null)
 		{
-			instance.setPolicyAgreements(new ArrayList<PolicyAgreementConfiguration>());
+			instance.setPolicyAgreements(new ArrayList<>());
 		}
-
-		((ArrayList<PolicyAgreementConfiguration>) instance.getPolicyAgreements()).add(aValue);
-
+		instance.getPolicyAgreements().add(aValue);
 		return (T) this;
 	}
 	

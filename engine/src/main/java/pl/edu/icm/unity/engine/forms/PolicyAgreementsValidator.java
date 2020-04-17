@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.engine.forms;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,7 +19,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
-import pl.edu.icm.unity.store.types.StoredPolicyDocument;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
@@ -96,12 +94,8 @@ public class PolicyAgreementsValidator
 
 	private Set<Long> filterAllMandatoryDocIds(PolicyAgreementConfiguration config)
 	{
-
-		Set<Long> ret = new HashSet<>();
-		List<StoredPolicyDocument> all = policyDocDao.getAll();
-		ret.addAll(all.stream().filter(d -> config.documentsIdsToAccept.contains(d.getId()) && d.isMandatory())
-				.map(d -> d.getId()).collect(Collectors.toList()));
-
-		return ret;
+		return policyDocDao.getAll().stream()
+				.filter(d -> config.documentsIdsToAccept.contains(d.getId()) && d.isMandatory())
+				.map(d -> d.getId()).collect(Collectors.toSet());
 	}
 }
