@@ -230,9 +230,9 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		return showDetailsColumn;
 	}
 
-	public void addActionHandler(SingleActionHandler<T> actionHandler)
+	public void addActionHandler(int position, SingleActionHandler<T> actionHandler)
 	{
-		actionHandlers.add(actionHandler);
+		actionHandlers.add(position, actionHandler);
 		refreshActionColumn();
 	}
 
@@ -304,6 +304,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		wrapper.addComponent(actions);
 		wrapper.setComponentAlignment(actions, Alignment.MIDDLE_RIGHT);
 		wrapper.setWidth(100, Unit.PERCENTAGE);
+		wrapper.setHeight(100, Unit.PERCENTAGE);
 		
 		
 		for (SingleActionHandler<T> handler : actionHandlers)

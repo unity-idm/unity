@@ -57,7 +57,8 @@ public class WebConsoleUI extends UnityEndpointUIBase
 	@Autowired
 	public WebConsoleUI(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor, AuthorizationController authzController,
-			Collection<WebConsoleNavigationInfoProvider> providers, Collection<WebConsoleExtNavigationInfoProvider> extProviders)
+			Collection<WebConsoleNavigationInfoProvider> providers,
+			Collection<WebConsoleExtNavigationInfoProvider> extProviders)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;

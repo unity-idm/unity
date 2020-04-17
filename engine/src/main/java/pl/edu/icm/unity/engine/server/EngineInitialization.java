@@ -83,6 +83,7 @@ import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
+import pl.edu.icm.unity.engine.msg.MessageRepository;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateInitializatior;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
 import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
@@ -239,10 +240,11 @@ public class EngineInitialization extends LifecycleBase
 	private AuthenticationFlowManagement authnFlowManagement;
 	@Autowired(required = false)
 	private AttributesContentPublicServletProvider attributesContentServletFactory;
-	
 	@Autowired
 	@Qualifier("insecure")
 	private PKIManagement pkiManagement;
+	@Autowired
+	private MessageRepository messageRepository;
 	
 	private long endpointsLoadTime;
 
@@ -251,6 +253,7 @@ public class EngineInitialization extends LifecycleBase
 	{
 		try
 		{
+			initializeMessageRepository();
 			installEventListeners();
 			endpointsLoadTime = System.currentTimeMillis();
 			boolean skipLoading = config
@@ -270,6 +273,11 @@ public class EngineInitialization extends LifecycleBase
 			log.error("Fatal error initializating server.", e);
 			throw e;
 		}
+	}
+
+	private void initializeMessageRepository()
+	{
+		tx.runInTransaction(() -> messageRepository.reload());
 	}
 
 	@Override

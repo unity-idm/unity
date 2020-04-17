@@ -2,11 +2,14 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.msg;
+package pl.edu.icm.unity.engine.msg;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,10 +30,13 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.MessageArea;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
+import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Extension of the {@link ResourceBundleMessageSource} which 
@@ -51,11 +57,17 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 	
 	private UnityServerConfiguration config;
 	private final boolean failOnMissingMessage;
+	private Map<MessageArea, Set<Object>> byCategory;
+	private MessageRepository msgRep;
+	private MessageAreaRegistry areas;
 	
-	
+
 	@Autowired
-	public UnityMessageSourceImpl(UnityServerConfiguration config, Environment springEnv) throws IOException
+	public UnityMessageSourceImpl(UnityServerConfiguration config, Environment springEnv, MessageRepository msgMan,
+			MessageAreaRegistry areas) throws IOException
 	{
+		this.msgRep = msgMan;
+		this.areas = areas;
 		Set<String> activeProfiles = Sets.newHashSet(springEnv.getActiveProfiles());
 		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING); 
 		init(config);
@@ -69,6 +81,7 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 
 	private void init(UnityServerConfiguration config) throws IOException
 	{
+		byCategory = new HashMap<>();
 		this.config = config;
 		List<String> allBundles = new ArrayList<>();
 		Optional<String> fsLocation = getFSMessagesDirectory();
@@ -183,15 +196,70 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 		return UnityServerConfiguration.SUPPORTED_LOCALES;
 	}
 	
-	public Properties getKeys()
+	public Map<MessageArea, Set<Object>> getKeysByCategory()
 	{
-		return getMergedProperties(getLocale()).getProperties();
+		return byCategory;
 	}
 	
-	 @Override
-	    protected Properties loadProperties(Resource resource, String fileName) throws IOException {
+	@Override
+	protected Properties loadProperties(Resource resource, String fileName) throws IOException
+	{
+		log.trace("Load message file"  + fileName);
+		int lastSlash = fileName.lastIndexOf('/');
+		int oneButLastSlash = fileName.substring(0, lastSlash).lastIndexOf('/');
+		String category =  fileName.substring(oneButLastSlash +  1, lastSlash);
+		MessageArea area = null;
+		try
+		{
+			area = areas.getByName(category).getMessageArea();
+		} catch (IllegalArgumentException e)
+		{
+			area = new MessageArea(category, "UnknownMessageArea.displayedName", false);
+		}
+		Properties ret =  super.loadProperties(resource, fileName);
+		if (byCategory.containsKey(area)) 
+		{
+			Set<Object> arSet = byCategory.get(area);
+			ret.keySet().forEach(c -> arSet.add(c));
+		}else {
+			byCategory.put(area, new HashSet<>(ret.keySet()));
+		}
+		
+		return ret;	
+	}
 
-	        log.info("Load " + fileName);
-	        return super.loadProperties(resource, fileName);
-	    }
+	@Override
+	public I18nString getI18nMessage(String code, Object... args)
+	{
+		I18nString ret = new I18nString();
+		for (Locale locale : getEnabledLocales().values())
+		{
+			String msg = "";
+			try {
+				 msg = super.getMessage(code, args, locale);
+			}catch (NoSuchMessageException e)
+			{
+				//ok
+			}
+			ret.addValue(locale.toString(), msg);
+		}
+		return ret;	
+	}
+
+	@Override
+	protected String getMessageInternal(String code, Object[] args, Locale locale)
+	{
+		Object[] argsToUse = args;
+		Optional<String> fromDB = msgRep.get(code, locale);
+		
+		if (fromDB.isPresent())
+		{
+			argsToUse = resolveArguments(args, locale);
+			MessageFormat format = new MessageFormat(fromDB.get(), locale);
+			return format.format(argsToUse);
+
+		}
+		
+		return super.getMessageInternal(code, args, locale);
+	}
 }

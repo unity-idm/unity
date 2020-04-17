@@ -18,6 +18,7 @@ import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
 import pl.edu.icm.unity.store.impl.membership.MembershipIE;
+import pl.edu.icm.unity.store.impl.messages.MessageIE;
 import pl.edu.icm.unity.store.impl.policyDocuments.PolicyDocucentIE;
 import pl.edu.icm.unity.store.impl.tokens.TokensIE;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
@@ -127,7 +128,8 @@ public class DBDumpContentTypeMapper
 				CertificateHandler.CERTIFICATE_OBJECT_TYPE,
 				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID,
 				OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE,
-				PolicyDocucentIE.POLICY_DOCUMENTS_OBJECT_TYPE);
+				PolicyDocucentIE.POLICY_DOCUMENTS_OBJECT_TYPE,
+				MessageIE.MESSAGES_OBJECT_TYPE);
 
 	}
 

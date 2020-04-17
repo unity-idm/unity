@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource(properties = { "unityConfig: src/test/resources/unityServer.conf" })
 @UnityIntegrationTest
 public abstract class SecuredDBIntegrationTestBase
 {

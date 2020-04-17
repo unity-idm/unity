@@ -6,7 +6,10 @@ package pl.edu.icm.unity.stdext.credential.pass;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -14,8 +17,6 @@ import java.util.Locale;
 import org.junit.Test;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSourceImpl;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
 
 public class StrengthCheckerTest
@@ -23,30 +24,38 @@ public class StrengthCheckerTest
 	@Test
 	public void shouldReturnMaxScoreForGoodPassword() throws IOException
 	{
-		MessageSource msg = new UnityMessageSourceImpl(mock(UnityServerConfiguration.class), true);
-		StrengthInfo result = StrengthChecker.measure("horsedonteathorseradishondisk", 
-				10, Locale.ENGLISH, msg);
-		
-		assertThat(""+result.scoreNormalized, result.scoreNormalized, is(1.0));
+		MessageSource msg = mock(MessageSource.class);
+		StrengthInfo result = StrengthChecker.measure("horsedonteathorseradishondisk", 10, Locale.ENGLISH, msg);
+
+		assertThat("" + result.scoreNormalized, result.scoreNormalized, is(1.0));
 	}
 
 	@Test
 	public void shouldReturnLowScoreForBadPassword() throws IOException
 	{
-		MessageSource msg = new UnityMessageSourceImpl(mock(UnityServerConfiguration.class), true);
+		MessageSource msg = mock(MessageSource.class);
+		when(msg.getMessage(eq("feedback.repeat.warning.likeABCABCABC"), any(), any())).thenReturn("ok1");
+		when(msg.getMessage(eq("feedback.extra.suggestions.addAnotherWord"), any(), any())).thenReturn("o2k");
+		when(msg.getMessage(eq("feedback.repeat.suggestions.avoidRepeatedWords"), any(), any()))
+				.thenReturn("ok3");
 		StrengthInfo result = StrengthChecker.measure("soso", 10, Locale.ENGLISH, msg);
-		
-		assertThat(""+result.scoreNormalized, result.scoreNormalized < 0.15, is(true));
-		
+
+		assertThat("" + result.scoreNormalized, result.scoreNormalized < 0.15, is(true));
+
 	}
-	
+
 	@Test
 	public void shouldReturnWarningInSelectedLocale() throws IOException
 	{
-		MessageSource msg = new UnityMessageSourceImpl(mock(UnityServerConfiguration.class), true);
+		MessageSource msg = mock(MessageSource.class);
+		when(msg.getMessage(eq("feedback.spatial.suggestions.UseLongerKeyboardPattern"), any(),
+				eq(new Locale("pl")))).thenReturn("ok1");
+		when(msg.getMessage(eq("feedback.repeat.suggestions.avoidRepeatedWords"), any(), any()))
+				.thenReturn("ok2");
+		when(msg.getMessage(eq("feedback.extra.suggestions.addAnotherWord"), any(), any())).thenReturn("ok3");
+		when(msg.getMessage(eq("feedback.spatial.warning.straightRowsOfKeys"), any(), any())).thenReturn("ok4");
 		StrengthInfo result = StrengthChecker.measure("asdfghjkl;'", 10, new Locale("pl"), msg);
-		
-		assertThat(result.toString(), result.warning, 
-				is("Ciągi znaków z klawiatury są łatwe do zgadnięcia"));
+
+		assertThat(result.toString(), result.warning, is("ok4"));
 	}
 }

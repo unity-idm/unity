@@ -90,7 +90,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 		showAll.addClickListener((event) -> 
 		{
-				show();
+				expand();
 				if (shown)
 				{
 					showAll.setIcon(Images.upArrow.getResource());
@@ -153,7 +153,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		return main;
 	}
 
-	private void show()
+	public void expand()
 	{
 		shown = !shown;
 		for (T tf: translationTFs.values())

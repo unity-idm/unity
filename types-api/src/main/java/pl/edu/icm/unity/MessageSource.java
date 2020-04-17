@@ -6,6 +6,9 @@ package pl.edu.icm.unity;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
+import pl.edu.icm.unity.types.I18nString;
 
 public interface MessageSource extends org.springframework.context.MessageSource
 {
@@ -20,4 +23,8 @@ public interface MessageSource extends org.springframework.context.MessageSource
 	String getLocaleCode();
 	Map<String, Locale> getEnabledLocales();
 	Map<String, Locale> getSupportedLocales();	
+	
+	Map<MessageArea, Set<Object>> getKeysByCategory();
+	I18nString getI18nMessage(String code, Object... args);
+	
 }

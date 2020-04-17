@@ -51,7 +51,7 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 		JsonNode dumpElements = root.get("dumpElements");
 		if (dumpElements == null)
 		{
-			ObjectNode newContents = insertPolicyDocuments(contents);
+			ObjectNode newContents = insertPolicyDocumentsAndMessages(contents);
 			root.set("contents", newContents);
 		}
 
@@ -59,7 +59,7 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 
 	}
 
-	private ObjectNode insertPolicyDocuments(ObjectNode contents)
+	private ObjectNode insertPolicyDocumentsAndMessages(ObjectNode contents)
 	{
 		ObjectNode newContents = new ObjectNode(JsonNodeFactory.instance);
 		Iterator<Map.Entry<String, JsonNode>> fields = contents.fields();
@@ -71,9 +71,9 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 			{
 				log.info("Add empty policy documents array");
 				newContents.putArray("policyDocuments");
+				newContents.putArray("messages");
 			}
 		}
 		return newContents;
 	}
-
 }

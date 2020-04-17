@@ -59,6 +59,9 @@
 	<update id="cleardb-16">
 		DROP TABLE IF EXISTS POLICY_DOCUMENTS;
 	</update>
+	<update id="cleardb-17">
+		DROP TABLE IF EXISTS MESSAGES;
+	</update>
 	<update id="cleardb-99">
 		DROP TABLE IF EXISTS UVOS_FLAG;
 	</update>
@@ -118,6 +121,9 @@
 	</delete>
 	<delete id="deletedb-policyDocuments">
 		DELETE FROM POLICY_DOCUMENTS;
+	</delete>
+	<delete id="deletedb-messages">
+		DELETE FROM MESSAGES;
 	</delete>
 	<delete id="deletedb-capacityLimit">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = 'capacityLimit'
