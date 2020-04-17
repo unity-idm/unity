@@ -65,6 +65,10 @@
 	</update>
 	
 	<update id="updateSchema-011-02">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-messages"/>
+	</update>
+	
+	<update id="updateSchema-011-02">
 		UPDATE UVOS_FLAG SET VAL = '11'
 	</update>
 	
