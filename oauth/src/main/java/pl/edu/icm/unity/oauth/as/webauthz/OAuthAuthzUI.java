@@ -110,7 +110,19 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	{
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		OAuthASProperties config = ctx.getConfig();
-		
+
+		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(config);
+		if (!filteredAgreementToPresent.isEmpty())
+		{
+			policyAgreementsStage(ctx, config, filteredAgreementToPresent);
+		} else
+		{
+			activeValueSelectionAndConsentStage(ctx, config);
+		}
+	}
+
+	private List<PolicyAgreementConfiguration> filterAgreementsToPresents(OAuthASProperties config)
+	{
 		List<PolicyAgreementConfiguration> filterAgreementToPresent = new ArrayList<>();
 		try
 		{
@@ -121,22 +133,21 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		{
 			log.error("Unable to determine policy agreements to accept");
 		}
-
-		if (!filterAgreementToPresent.isEmpty())
-		{
-			setContent(policyAgreementScreenObjectFactory.getObject()
-					.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
-							CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
-					.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
-							CommonIdPProperties.POLICY_AGREEMENTS_INFO))
-					.withAgreements(filterAgreementToPresent)
-					.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
-		} else
-		{
-			activeValueSelectionAndConsentStage(ctx, config);
-		}
+		return filterAgreementToPresent;
 	}
-
+	
+	private void policyAgreementsStage(OAuthAuthzContext ctx, OAuthASProperties config,
+			List<PolicyAgreementConfiguration> filterAgreementToPresent)
+	{
+		setContent(policyAgreementScreenObjectFactory.getObject()
+				.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
+						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
+				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
+						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
+				.withAgreements(filterAgreementToPresent)
+				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
+	}
+	
 	private void activeValueSelectionAndConsentStage(OAuthAuthzContext ctx, OAuthASProperties config)
 	{
 		

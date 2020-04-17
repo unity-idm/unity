@@ -61,9 +61,9 @@ public class PolicyAgreementConfigTextParser
 			{
 				Long id = Long.valueOf(split[0]);
 				ret.put(id, new DocPlaceholder(id, split[1]));
-			} catch (Exception e)
+			} catch (NumberFormatException e)
 			{
-				log.error("Invalid document placeholder in text " + text);
+				log.debug("Invalid document placeholder in text " + text);
 				continue;
 			}
 		}
@@ -134,7 +134,7 @@ public class PolicyAgreementConfigTextParser
 				try
 				{
 					return new DocPlaceholder(Long.valueOf(split[0]), split[1]);
-				} catch (Exception e)
+				} catch (NumberFormatException e)
 				{
 					//ok
 				}

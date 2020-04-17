@@ -142,32 +142,43 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 		SamlIdpProperties samlConfiguration = samlCtx.getSamlConfiguration();
-		List<PolicyAgreementConfiguration> filterAgreementToPresent = new ArrayList<>();
-		try
+		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(samlConfiguration);
+		if (!filteredAgreementToPresent.isEmpty())
 		{
-			filterAgreementToPresent.addAll(policyAgreementsMan.filterAgreementToPresent(
-					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
-					CommonIdPProperties.getPolicyAgreementsConfig(msg, samlConfiguration).agreements));
-		} catch (EngineException e)
-		{
-			log.error("Unable to determine policy agreements to accept");
-		}
-
-		if (!filterAgreementToPresent.isEmpty())
-		{
-			setContent(policyAgreementScreenObjectFactory.getObject()
-					.withTitle(samlConfiguration.getLocalizedStringWithoutFallbackToDefault(msg,
-							CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
-					.withInfo(samlConfiguration.getLocalizedStringWithoutFallbackToDefault(msg,
-							CommonIdPProperties.POLICY_AGREEMENTS_INFO))
-					.withAgreements(filterAgreementToPresent)
-					.withSubmitHandler(() -> activeValueSelectionAndConsentStage(samlCtx, samlConfiguration)));
+			policyAgreementsStage(samlCtx, samlConfiguration, filteredAgreementToPresent);
 		} else
 		{
 			activeValueSelectionAndConsentStage(samlCtx, samlConfiguration);
 		}
 	}
+	
+	private List<PolicyAgreementConfiguration> filterAgreementsToPresents(SamlIdpProperties config)
+	{
+		List<PolicyAgreementConfiguration> filterAgreementToPresent = new ArrayList<>();
+		try
+		{
+			filterAgreementToPresent.addAll(policyAgreementsMan.filterAgreementToPresent(
+					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+					CommonIdPProperties.getPolicyAgreementsConfig(msg, config).agreements));
+		} catch (EngineException e)
+		{
+			log.error("Unable to determine policy agreements to accept");
+		}
+		return filterAgreementToPresent;
+	}
 
+	private void policyAgreementsStage(SAMLAuthnContext ctx, SamlIdpProperties config,
+			List<PolicyAgreementConfiguration> filterAgreementToPresent)
+	{
+		setContent(policyAgreementScreenObjectFactory.getObject()
+				.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
+						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
+				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
+						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
+				.withAgreements(filterAgreementToPresent)
+				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
+	}
+	
 	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SamlIdpProperties samlConfiguration)
 	{
 		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 

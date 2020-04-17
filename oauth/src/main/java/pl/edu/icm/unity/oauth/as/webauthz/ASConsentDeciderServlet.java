@@ -22,6 +22,7 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
@@ -62,12 +64,15 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private String authenticationUIServletPath;
 	private EnquiryManagement enquiryManagement;
 	private final OAuthProcessor oauthProcessor;
+	private final PolicyAgreementManagement policyAgreementsMan;
+	private final MessageSource msg;
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			OAuthProcessor oauthProcessor, SessionManagement sessionMan,
 			String oauthUiServletPath, String authenticationUIServletPath,
-			EnquiryManagement enquiryManagement)
+			EnquiryManagement enquiryManagement, PolicyAgreementManagement policyAgreementsMan,
+			MessageSource msg)
 	{
 		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
@@ -76,6 +81,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 		this.enquiryManagement = enquiryManagement;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
+		this.policyAgreementsMan = policyAgreementsMan;
+		this.msg = msg;
 	}
 
 	@Override
@@ -149,7 +156,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private boolean isInteractiveUIRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx) 
-				|| isEnquiryWaiting();
+				|| isEnquiryWaiting() || isPolicyAgreementWaiting(oauthCtx);
 	}
 
 	
@@ -183,6 +190,22 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.warn("Can't retrieve pending enquiries for user", e);
 			return false;
 		}
+	}
+	
+	private boolean isPolicyAgreementWaiting(OAuthAuthzContext oauthCtx)
+	{
+		try
+		{
+			return !policyAgreementsMan.filterAgreementToPresent(
+					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+					CommonIdPProperties.getPolicyAgreementsConfig(msg,
+							oauthCtx.getConfig()).agreements)
+					.isEmpty();
+		} catch (EngineException e)
+		{
+			log.error("Unable to determine policy agreements to accept");
+		}
+		return false;
 	}
 
 	/**
