@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.LabelAsTextField;
 import pl.edu.icm.unity.webui.common.i18n.I18nOptionalLangRichTextField;
 import pl.edu.icm.unity.webui.common.i18n.I18nOptionalLangTextField;
@@ -47,6 +48,7 @@ class PolicyDocumentEditor extends CustomComponent
 		TextField name = new TextField(msg.getMessage("PolicyDocumentEditor.name"));
 		I18nTextField displayedName = new I18nTextField(msg,
 				msg.getMessage("PolicyDocumentEditor.displayedName"));
+		displayedName.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		CheckBox optional = new CheckBox(msg.getMessage("PolicyDocumentEditor.optionalAcceptance"));
 		LabelAsTextField revision = new LabelAsTextField(msg.getMessage("PolicyDocumentEditor.revision"));
 		revision.setReadOnly(true);

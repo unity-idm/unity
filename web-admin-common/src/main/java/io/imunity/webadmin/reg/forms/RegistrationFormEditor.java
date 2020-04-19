@@ -162,7 +162,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
-		initPolicyAgreementTab();
 		ignoreRequestsAndInvitation = new CheckBox(
 				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
 		addComponent(ignoreRequestsAndInvitation);
@@ -171,12 +170,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
-	}
-
-	private void initPolicyAgreementTab() throws EngineException
-	{
-		tabs.addTab(createPolicyAgreementTabContent(),
-				msg.getMessage("RegistrationFormEditor.policyAgreements"));
 	}
 
 	public RegistrationForm getForm() throws FormValidationException

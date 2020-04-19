@@ -65,7 +65,7 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		binder = new Binder<>(IdpPolicyAgreementsConfigurationVaadinBean.class);
 		I18nTextField title = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.title"));
 		title.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		binder.forField(title).bind("title");
+		binder.forField(title).asRequired().bind("title");
 		I18nTextField info = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.info"));
 		info.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		binder.forField(info).bind("information");

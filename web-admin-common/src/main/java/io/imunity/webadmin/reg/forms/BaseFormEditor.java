@@ -186,7 +186,7 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}
 	
-	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
+	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval) throws EngineException
 	{
 		this.groups = groups;
 		collectedParamsTabSheet = new TabSheet();
@@ -217,8 +217,12 @@ public class BaseFormEditor extends VerticalLayout
 			attributeEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
-				
-		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, optins);
+			
+		policyAgreements = policyAgreementConfigurationListFactory.getInstance();
+		VerticalLayout policyAgreementsLayout = new VerticalLayout(policyAgreements);
+		policyAgreementsLayout.setCaption(msg.getMessage("RegistrationFormEditor.policyAgreements"));
+
+		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, optins, policyAgreementsLayout);
 		return collectedParamsTabSheet;
 	}
 
@@ -281,15 +285,6 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		identityParams.resetContents();
 	}
-	
-	protected VerticalLayout createPolicyAgreementTabContent() throws EngineException
-	{
-		VerticalLayout policyAgreementTab = new VerticalLayout();
-		policyAgreements = policyAgreementConfigurationListFactory.getInstance();
-		policyAgreementTab.addComponent(policyAgreements);
-		return policyAgreementTab;	
-	}
-	
 	
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
 		Editor<AgreementRegistrationParam>

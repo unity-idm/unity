@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.ui.AbstractTextField;
@@ -47,7 +48,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	private boolean shown = false;
 	private Component main;
 	private HorizontalLayout hl;
-	private T focused;
+	private T lastFocused;
 	
 	public Abstract18nField(MessageSource msg)
 	{
@@ -71,9 +72,8 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	{
 		T field = makeFieldInstance();
 		field.addFocusListener(e -> {
-			focused = field;
-		});
-		
+			lastFocused = field;
+		});	
 		return field;
 	}
 	
@@ -193,18 +193,18 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		return ret;
 	}
 
-	public void insertOnFocused(I18nString text)
+	public void insertOnLastFocused(I18nString text)
 	{
-		if (focused != null)
+		if (lastFocused != null)
 		{
-			String v = focused.getValue();
-			String st = v.substring(0, focused.getCursorPosition());
-			String fi = v.substring(focused.getCursorPosition());
+			String v = lastFocused.getValue();
+			String st = v.substring(0, lastFocused.getCursorPosition());
+			String fi = v.substring(lastFocused.getCursorPosition());
 			String toInsert = text.getValueRaw(translationTFs.entrySet().stream()
-					.filter(entry -> entry.getValue().equals(focused)).map(Map.Entry::getKey)
+					.filter(entry -> entry.getValue().equals(lastFocused)).map(Map.Entry::getKey)
 					.findFirst().orElse(msg.getDefaultLocaleCode()));
-			focused.setValue(st + toInsert + fi);
-			focused.setCursorPosition(st.length() + toInsert.length());
+			lastFocused.setValue(st + toInsert + fi);
+			lastFocused.setCursorPosition(st.length() + toInsert.length());
 		}
 	}
 
@@ -237,6 +237,16 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		}
 		defaultTf.addFocusListener(listener);
 	}
+	
+	public void addBlurListener(BlurListener listener)
+	{
+		for (T tf: translationTFs.values())
+		{
+			tf.addBlurListener(listener);
+		}
+		defaultTf.addBlurListener(listener);
+	}
+	
 	
 	@Override
 	public void setWidth(float width, Unit unit)

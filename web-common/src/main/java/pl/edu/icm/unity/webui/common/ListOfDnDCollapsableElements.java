@@ -73,9 +73,13 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		elementsHeader.setMargin(false);
 		elementsHeader.setWidth(100, Unit.PERCENTAGE);
 		Button addElement = new Button();
-		addElement.setDescription(msg.getMessage("add"));
+		addElement.setCaption(msg.getMessage("addNew"));
+		addElement.addStyleName("u-button-action");
 		addElement.setIcon(Images.add.getResource());
-		addElement.addClickListener(event -> addElementComponent(makeNewInstance()));
+		addElement.addClickListener(event -> {
+			ElementComponent ec = addElementComponent(makeNewInstance());
+			ec.showHideContent(true);
+		});
 		captionLabel = new Label(caption);
 		elementsHeader.addComponents(captionLabel, addElement);
 		elementsHeader.setComponentAlignment(captionLabel, Alignment.MIDDLE_LEFT);
@@ -102,12 +106,13 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		return main;
 	}
 
-	private void addElementComponent(T element)
+	private ElementComponent addElementComponent(T element)
 	{
 		ElementComponent ec = addElementComponentAt(element, elements.size());
 		if (element == null)
 			ec.setFocus();
 		refreshElements();
+		return ec;
 	}
 
 	private void remove(ElementComponent el)

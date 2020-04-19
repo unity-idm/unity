@@ -66,7 +66,7 @@ public class PolicyAgreementScreen extends CustomComponent
 			agrRep.addValueChangeListener(() -> refreshSubmitButton());
 			agreements.add(agrRep);
 			contents.addComponent(agrRep);
-			contents.setExpandRatio(agrRep, 1);
+			contents.setComponentAlignment(agrRep, Alignment.MIDDLE_CENTER);
 		}
 		refreshSubmitButton();
 
@@ -95,36 +95,43 @@ public class PolicyAgreementScreen extends CustomComponent
 
 	public PolicyAgreementScreen init()
 	{
-		VerticalLayout vmain = new VerticalLayout();
-		vmain.setWidth(100, Unit.PERCENTAGE);
-		vmain.setMargin(false);
-		vmain.setSpacing(false);
-
+		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
+		VerticalLayout mainCenter = new VerticalLayout();
+		mainCenter.setMargin(false);
+		mainCenter.setSpacing(false);
 		contents = new VerticalLayout();
-		contents.setWidth(50, Unit.PERCENTAGE);
-		vmain.addComponent(contents);
-		vmain.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
-
+		contents.addStyleName(Styles.maxWidthColumn.toString());
+		mainCenter.addComponent(contents);
+		mainCenter.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
 		titleLabel = new Label();
-		titleLabel.setStyleName(Styles.textTitle.toString());
+		titleLabel.setStyleName(Styles.textXLarge.toString());
 		titleLabel.setVisible(false);
 		infoLabel = new Label();
-		infoLabel.setStyleName(Styles.textXLarge.toString());
+		infoLabel.setStyleName(Styles.textLarge.toString());
 		infoLabel.setVisible(false);
+		Label space = new Label();
 		contents.addComponent(titleLabel);
 		contents.setComponentAlignment(titleLabel, Alignment.MIDDLE_CENTER);
 		contents.addComponent(infoLabel);
 		contents.setComponentAlignment(infoLabel, Alignment.MIDDLE_CENTER);
-
+		contents.addComponent(space);
+		contents.setComponentAlignment(space, Alignment.MIDDLE_CENTER);
+		
 		submitButton = new Button(msg.getMessage("submit"));
 		submitButton.addClickListener(e -> submit());
-
-		vmain.addComponent(submitButton);
-		vmain.setComponentAlignment(submitButton, Alignment.MIDDLE_CENTER);
-
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setHeight(100, Unit.PERCENTAGE);
+		wrapper.addStyleName(Styles.maxWidthColumn.toString());
+		wrapper.addComponent(submitButton);
+		wrapper.setComponentAlignment(submitButton, Alignment.TOP_CENTER);
+		mainCenter.addComponent(wrapper);
+		mainCenter.setComponentAlignment(wrapper, Alignment.MIDDLE_CENTER);
+		main.addComponent(mainCenter);
+		main.setComponentAlignment(mainCenter, Alignment.MIDDLE_CENTER);
 		refreshSubmitButton();
-		setCompositionRoot(vmain);
-		setWidth(100, Unit.PERCENTAGE);
+		setCompositionRoot(main);
+		setSizeFull();
 		return this;
 	}
 

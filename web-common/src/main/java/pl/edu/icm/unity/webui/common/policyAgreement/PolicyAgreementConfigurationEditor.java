@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements.Editor;
@@ -47,6 +48,7 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 	private Binder<PolicyAgreementConfigurationVaadinBean> binder;
 	private FormLayout main;
 	private ChipsWithDropdown<PolicyDocumentWithRevision> policyToAccept;
+	private List<Button> buttons;
 
 	public PolicyAgreementConfigurationEditor(MessageSource msg,
 			Collection<PolicyDocumentWithRevision> policyDocuments)
@@ -59,6 +61,7 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 	private void init()
 	{
 		binder = new Binder<>(PolicyAgreementConfigurationVaadinBean.class);
+		buttons = new ArrayList<>();
 		main = new FormLayout();
 
 		policyToAccept = new ChipsWithDropdown<>(p -> p.name, true);
@@ -69,24 +72,39 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 				msg, "PolicyAgreementPresentationType.", PolicyAgreementPresentationType.class,
 				PolicyAgreementPresentationType.INFORMATIVE_ONLY);
 		presentationType.setCaption(msg.getMessage("PolicyAgreementConfigEditor.presentationType"));
+		presentationType.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
+				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		I18nTextField text = new I18nTextField(msg, msg.getMessage("PolicyAgreementConfigEditor.text"));
 		text.setWidth(100, Unit.PERCENTAGE);
-		HorizontalLayout buttons = new HorizontalLayout();
+		text.addBlurListener(e -> buttons.forEach(b -> b.setEnabled(false)));
+		
+		text.addFocusListener(e -> buttons.forEach(b -> b.setEnabled(true)));
+		
+
+		HorizontalLayout buttonsLayout = new HorizontalLayout();
 		HorizontalLayout buttonsWrapper = new HorizontalLayout();
 		buttonsWrapper.setMargin(false);
-		buttonsWrapper.addComponent(buttons);
+		buttonsWrapper.addComponent(buttonsLayout);
 		buttonsWrapper.setWidth(100, Unit.PERCENTAGE);
-		buttonsWrapper.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
+		buttonsWrapper.setComponentAlignment(buttonsLayout, Alignment.BOTTOM_LEFT);
 
 		policyToAccept.addValueChangeListener(e -> {
-			buttons.removeAllComponents();
+			buttonsLayout.removeAllComponents();
 			e.getValue().forEach(d -> {
 				Button b = new Button();
 				b.setCaption(d.name);
 				b.addStyleName(Styles.vButtonSmall.toString());
-				b.addClickListener(
-						eb -> text.insertOnFocused(prepareToInsert(d.name, d.displayedName)));
-				buttons.addComponent(b);
+				b.addClickListener(eb -> {
+					b.setEnabled(false);
+					text.insertOnLastFocused(prepareToInsert(d.name, d.displayedName));
+				});
+				b.addFocusListener(eb -> {
+					b.setEnabled(true);
+				});
+
+				b.setEnabled(false);
+				buttonsLayout.addComponent(b);
+				buttons.add(b);
 			});
 		});
 
@@ -121,7 +139,8 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 		try
 		{
 			searchAllDocIds = PolicyAgreementConfigTextParser.getAllDocsPlaceholdersInConfigText(
-					PolicyAgreementConfigTextParser.convertTextToConfig(policyDocuments, text)).keySet();
+					PolicyAgreementConfigTextParser.convertTextToConfig(policyDocuments, text))
+					.keySet();
 		} catch (Exception e1)
 		{
 			return ValidationResult.error(msg.getMessage("PolicyAgreementConfigEditor.invalidText"));
@@ -182,14 +201,15 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 				PolicyAgreementConfigTextParser.convertTextToConfig(policyDocuments, bean.text));
 
 	}
-	
+
 	@Override
 	protected void validate() throws FormValidationException
 	{
 		if (binder.validate().hasErrors())
 		{
-			throw new FormValidationException(msg.getMessage("PolicyAgreementConfigEditor.invalidConfiguration"));
-		}	
+			throw new FormValidationException(
+					msg.getMessage("PolicyAgreementConfigEditor.invalidConfiguration"));
+		}
 	}
 
 	@Override

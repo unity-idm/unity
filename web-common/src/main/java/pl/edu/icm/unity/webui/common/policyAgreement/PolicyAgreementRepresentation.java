@@ -54,26 +54,21 @@ public class PolicyAgreementRepresentation extends CustomComponent
 		caption.setContentMode(ContentMode.HTML);
 		setCaptionAsHtml(true);
 
-		Label space = new Label("");
-		space.setWidth(2, Unit.EM);
-		space.setVisible(false);
-
 		if (presentationType == PolicyAgreementPresentationType.INFORMATIVE_ONLY)
 		{
 			decisionCheckBox.setValue(true);
 			decisionCheckBox.setVisible(false);
-			space.setVisible(true);
 
 		} else if (presentationType == PolicyAgreementPresentationType.CHECKBOX_SELECTED)
 		{
 			decisionCheckBox.setValue(true);
 		}
-		main.addComponent(space);
+		
 		main.addComponent(decisionCheckBox);
 		main.addComponent(caption);
-		main.setExpandRatio(space, 0);
 		main.setExpandRatio(decisionCheckBox, 0);
 		main.setExpandRatio(caption, 1);
+		
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
 	}
