@@ -21,10 +21,11 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementState;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
@@ -192,8 +193,8 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 		if (attributes.isEmpty())
 		{
 			attrMan.setAttribute(entity,
-					StringAttribute.of(PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE,
-							"/", mapValues(states)));
+					new Attribute(PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE,
+							PolicyAgreementAttributeSyntax.ID, "/", mapValues(states)));
 		} else
 		{
 			Map<Long, PolicyAgreementState> actual = new HashMap<>();
@@ -215,8 +216,9 @@ public class PolicyAgreementManagementImpl implements PolicyAgreementManagement
 			}
 
 			attrMan.setAttribute(entity,
-					StringAttribute.of(PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE,
-							"/", mapValues(actual.values())));
+					new Attribute(PolicyAgreementStateAttributeProvider.POLICY_AGREEMENT_STATE,
+							PolicyAgreementAttributeSyntax.ID, "/",
+							mapValues(actual.values())));
 		}
 	}
 

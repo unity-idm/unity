@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -34,7 +35,7 @@ public class PolicyAgreementStateAttributeProvider implements SystemAttributesPr
 	{
 
 		StringAttributeSyntax syntax = new StringAttributeSyntax();
-		AttributeType policyAgreementAt = new AttributeType(POLICY_AGREEMENT_STATE, StringAttributeSyntax.ID,
+		AttributeType policyAgreementAt = new AttributeType(POLICY_AGREEMENT_STATE, PolicyAgreementAttributeSyntax.ID,
 				msg);
 		policyAgreementAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		policyAgreementAt.setMinElements(1);
