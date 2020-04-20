@@ -257,7 +257,6 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 			argsToUse = resolveArguments(args, locale);
 			MessageFormat format = new MessageFormat(fromDB.get(), locale);
 			return format.format(argsToUse);
-
 		}
 		
 		return super.getMessageInternal(code, args, locale);

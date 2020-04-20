@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml;
+package pl.edu.icm.unity.ldap;
 
 import org.springframework.stereotype.Component;
 
@@ -11,14 +11,14 @@ import pl.edu.icm.unity.MessageArea;
 import pl.edu.icm.unity.msg.MessageAreaProvider;
 
 @Component
-public class SamlMessageAreaProvider implements MessageAreaProvider
+public class LdapMessageAreaProvider implements MessageAreaProvider
 {
-	public final String NAME = "saml";
+	public final String NAME = "ldap";
 
 	@Override
 	public MessageArea getMessageArea()
 	{
-		return new MessageArea(NAME, "SamlMessageAreaProvider.displayedName", true);
+		return new MessageArea(NAME, "LdapMessageAreaProvider.displayedName", false);
 	}
 
 	@Override

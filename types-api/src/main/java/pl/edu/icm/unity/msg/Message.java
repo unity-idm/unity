@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.msg;
 
 import java.util.Locale;
 import java.util.Objects;

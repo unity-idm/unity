@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.api;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.Message;
+import pl.edu.icm.unity.msg.Message;
 
 /**
  * Messages DAO

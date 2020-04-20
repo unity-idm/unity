@@ -14,9 +14,9 @@ import pl.edu.icm.unity.engine.api.msg.MessageManagement;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.msg.Message;
 import pl.edu.icm.unity.store.api.MessagesDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.basic.Message;
 
 /**
  * Implementation of {@link MessageManagement}

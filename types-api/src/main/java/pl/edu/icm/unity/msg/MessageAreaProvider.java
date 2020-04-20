@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.engine.api.msg;
+package pl.edu.icm.unity.msg;
 
 import pl.edu.icm.unity.MessageArea;
 

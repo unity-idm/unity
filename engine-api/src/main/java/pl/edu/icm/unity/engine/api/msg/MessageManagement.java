@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Message;
+import pl.edu.icm.unity.msg.Message;
 
 /**
  * 

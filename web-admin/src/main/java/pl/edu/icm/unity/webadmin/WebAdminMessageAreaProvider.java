@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml;
+package pl.edu.icm.unity.webadmin;
 
 import org.springframework.stereotype.Component;
 
@@ -11,14 +11,14 @@ import pl.edu.icm.unity.MessageArea;
 import pl.edu.icm.unity.msg.MessageAreaProvider;
 
 @Component
-public class SamlMessageAreaProvider implements MessageAreaProvider
+public class WebAdminMessageAreaProvider implements MessageAreaProvider
 {
-	public final String NAME = "saml";
+	public final String NAME = "webadmin";
 
 	@Override
 	public MessageArea getMessageArea()
 	{
-		return new MessageArea(NAME, "SamlMessageAreaProvider.displayedName", true);
+		return new MessageArea(NAME, "WebAdminMessageAreaProvider.displayedName", false);
 	}
 
 	@Override

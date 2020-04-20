@@ -8,7 +8,7 @@ package pl.edu.icm.unity.stdext;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageArea;
-import pl.edu.icm.unity.engine.api.msg.MessageAreaProvider;
+import pl.edu.icm.unity.msg.MessageAreaProvider;
 
 @Component
 public class StdextMessageAreaProvider implements MessageAreaProvider
