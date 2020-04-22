@@ -9,11 +9,9 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.JavaScript;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import io.imunity.webadmin.importExport.ImportExportComponent;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -24,7 +22,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.FidoService;
+import pl.edu.icm.unity.engine.api.FidoManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -35,23 +33,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+// FIXME for testing only purposes - remove when functionality will be implemented properly
 @PrototypeComponent
 class FidoTestingView extends CustomComponent implements UnityView
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, FidoTestingView.class);
 	public static final String VIEW_NAME = "FidoTestView";
 
-	private UnityMessageSource msg;
-	private FidoService fidoService;
+	private FidoManagement fidoManagement;
 
-	private final Button clearButton = new Button();
 	private final TextArea logs = new TextArea();
 
 	@Autowired
-	FidoTestingView(UnityMessageSource msg, ImportExportComponent importExportComponent, FidoService fidoService)
+	FidoTestingView(FidoManagement fidoManagement)
 	{
-		this.msg = msg;
-		this.fidoService = fidoService;
+		this.fidoManagement = fidoManagement;
 	}
 
 	@Override
@@ -60,17 +56,20 @@ class FidoTestingView extends CustomComponent implements UnityView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 
-		FidoComponent fidoComponent = new FidoComponent(fidoService);
+		FidoComponent fidoComponent = FidoComponent.builder(fidoManagement).build();
 
-		clearButton.setCaption("Remove data");
-		clearButton.addClickListener((Button.ClickListener) clickEvent -> {
-			fidoComponent.removeFidoCredentials();
-		});
+		TextField usernameField = new TextField("username");
+
+		Button register = new Button("Register");
+		register.addClickListener(e -> fidoComponent.invokeRegistration(usernameField.getValue()));
+
+		Button auth = new Button("Auth");
+		auth.addClickListener(e -> fidoComponent.invokeAuthentication(usernameField.getValue()));
 
 		logs.setRows(20);
 		logs.setWidth(500, Unit.PIXELS);
 
-		main.addComponents(fidoComponent, clearButton, logs);
+		main.addComponents(fidoComponent, usernameField, register, auth, logs);
 		setCompositionRoot(main);
 	}
 

@@ -105,10 +105,15 @@ public class SingleCredentialPanel extends VerticalLayout
 
 		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
 
+		Map<String, CredentialPublicInformation> state = entity.getCredentialInfo()
+				.getCredentialsState();
+		CredentialPublicInformation credPublicInfo = state.get(toEdit.getName());
+
 		credEditorComp = credEditor.getEditor(CredentialEditorContext.builder()
 				.withConfiguration(toEdit.getConfiguration())
 				.withRequired(true)
 				.withEntityId(entityId)
+				.withExtraInformation(credPublicInfo.getExtraInformation())
 				.withAdminMode(!simpleMode)
 				.build());
 		

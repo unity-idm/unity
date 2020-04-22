@@ -13,21 +13,23 @@ import com.vaadin.server.Sizeable.Unit;
  */
 public class CredentialEditorContext
 {
-	public static final CredentialEditorContext EMPTY = new CredentialEditorContext(null, false, null, false, false, null, null);
+	public static final CredentialEditorContext EMPTY = new CredentialEditorContext(null, false, null, null, false, false, null, null);
 	private final String credentialConfiguration;
 	private final boolean required;
 	private final Long entityId;
+	private final String extraInformation;
 	private final boolean adminMode;
 	private final boolean showLabelInline;
 	private Float customWidth = null;
 	private Unit customWidthUnit = null;
 
-	CredentialEditorContext(String credentialConfiguration, boolean required, Long entityId, boolean adminMode,
-			boolean showLabelInline, Float customWidth, Unit customWidthUnit)
+	CredentialEditorContext(String credentialConfiguration, boolean required, Long entityId, String extraInformation,
+							boolean adminMode, boolean showLabelInline, Float customWidth, Unit customWidthUnit)
 	{
 		this.credentialConfiguration = credentialConfiguration;
 		this.required = required;
 		this.entityId = entityId;
+		this.extraInformation = extraInformation;
 		this.adminMode = adminMode;
 		this.showLabelInline = showLabelInline;
 		this.customWidth = customWidth;
@@ -47,6 +49,11 @@ public class CredentialEditorContext
 	public Long getEntityId()
 	{
 		return entityId;
+	}
+
+	public String getExtraInformation()
+	{
+		return extraInformation;
 	}
 
 	public boolean isAdminMode()
@@ -84,6 +91,7 @@ public class CredentialEditorContext
 		private String credentialConfiguration;
 		private boolean required;
 		private Long entityId;
+		private String extraInformation;
 		private boolean adminMode;
 		private boolean showLabelInline;
 		private Float customWidth = null;
@@ -104,6 +112,12 @@ public class CredentialEditorContext
 		public Builder withEntityId(Long entityId)
 		{
 			this.entityId = entityId;
+			return this;
+		}
+
+		public Builder withExtraInformation(String extraInformation)
+		{
+			this.extraInformation = extraInformation;
 			return this;
 		}
 
@@ -133,7 +147,7 @@ public class CredentialEditorContext
 
 		public CredentialEditorContext build()
 		{
-			return new CredentialEditorContext(credentialConfiguration, required, entityId, 
+			return new CredentialEditorContext(credentialConfiguration, required, entityId, extraInformation,
 					adminMode, showLabelInline, customWidth, customWidthUnit);
 		}
 	}

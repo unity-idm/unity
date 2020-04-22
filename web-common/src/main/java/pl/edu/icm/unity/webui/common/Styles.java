@@ -14,6 +14,7 @@ public enum Styles
 {
 	emphasized("u-emphasized"),
 	bold("u-bold"),
+	strike("u-strike"),
 	immutableAttribute("u-immutableAttribute"),
 	readOnlyTableElement("u-readOnlyTableElement"),
 	captionBold("bold"),
@@ -26,6 +27,9 @@ public enum Styles
 	smallMargins("u-smallMargins"),
 	iconError("u-error-icon"),
 	maxWidthColumn("u-maxWidthColumn"),
+
+	red("u-red"),
+	green("u-green"),
 	
 	bigTabs("u-bigTabs"),
 	bigTab("u-bigTab"),

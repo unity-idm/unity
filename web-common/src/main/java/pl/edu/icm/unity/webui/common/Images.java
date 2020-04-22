@@ -46,6 +46,7 @@ public enum Images
 	addEntity	(VaadinIcons.PLUS_CIRCLE_O),
 	addFolder	(VaadinIcons.FOLDER_ADD),
 	delete		(VaadinIcons.TRASH),
+	recycle 	(VaadinIcons.RECYCLE),
 	removeFromGroup (VaadinIcons.BAN),
 	reject 		(VaadinIcons.BAN),
 	undeploy	(VaadinIcons.BAN),

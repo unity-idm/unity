@@ -34,6 +34,7 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TransientIdentity;
+import pl.edu.icm.unity.stdext.identity.UserHandleIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -147,13 +148,14 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void typesForAllSyntaxesAreReturned() throws Exception
 	{
 		Collection<IdentityType> idTypes = idTypeMan.getIdentityTypes();
-		assertEquals(7, idTypes.size());
+		assertEquals(8, idTypes.size());
 		assertNotNull(getIdentityTypeByName(idTypes, PersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, TargetedPersistentIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, X500Identity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, UsernameIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, TransientIdentity.ID));
 		assertNotNull(getIdentityTypeByName(idTypes, IdentifierIdentity.ID));
+		assertNotNull(getIdentityTypeByName(idTypes, UserHandleIdentity.ID));
 	}
 
 	@Test

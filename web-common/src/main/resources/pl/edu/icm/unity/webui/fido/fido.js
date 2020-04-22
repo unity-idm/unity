@@ -1,132 +1,47 @@
 // Define the namespace
-// Based on https://vaadin.com/docs/v7/framework/gwt/gwt-javascript.html
 var unityfido = unityfido || {};
 
-// Fido component instance
-var fidocomponent;
-
 /**
- * FidoComponent JavaScript counterpart.
+ * FidoComponent JavaScript part.
  */
 window.pl_edu_icm_unity_webui_fido_FidoComponent =
 	function() {
-		// Create the component
-		fidocomponent =
-			new unityfido.FidoComponent(this.getElement());
-
-		// Handle changes from the server-side
-		this.onStateChange = function() {
-			const state = this.getState();
-			fidocomponent.regButton.setup(state.regEnabled, state.regCaption);
-			fidocomponent.authButton.setup(state.loginEnabled, state.loginCaption);
-			//fidocomponent.setValue(this.getState().value);
-		};
-
-		// Pass user interaction to the server-side
 		var self = this;
 
-		// Triggers BE to start FIDO registration process on authenticator for given user.
-		fidocomponent.invokeRegistration = function() {
-			self.invokeRegistration(fidocomponent.getUsername());
+		/**
+		 * Triggers FIDO authenticator registration process on client side. Called from BE.
+		 * @param key Registration request ID
+		 * @param options Registration options.
+		 */
+		this.createCredentials = function(key, options) {
+			const convertedOptions = convertOptions(JSON.parse(options));
+			navigator.credentials.create({
+				publicKey: convertedOptions
+			}).then(promise => {
+				const convertedPromise = convertPromise(promise);
+				self.finalizeRegistration(key, JSON.stringify(convertedPromise));
+			}).catch(err => {
+				self.showError("Fido registration failed", err.message);
+			});
 		};
 
-		// Send promise returned by FIDO authenticator to BE for validation and credential storage.
-		fidocomponent.finalizeRegistration = function(key, value) {
-			self.finalizeRegistration(key, value);
-		};
-
-		// Triggers BE to start FIDO authentication process on authenticator for given user.
-		fidocomponent.invokeAuthentication = function() {
-			self.invokeAuthentication(fidocomponent.getUsername());
-		};
-
-		// Send promise returned by FIDO authenticator to BE for validation.
-		fidocomponent.finalizeAuthentication = function(key, value) {
-			self.finalizeAuthentication(key, value);
-		};
-
-		// Show error window.
-		fidocomponent.showError = function(title, msg) {
-			self.showError(title, msg);
+		/**
+		 * Triggers FIDO authenticator authentication process on client side. Called from BE.
+		 * @param key Authentication request ID
+		 * @param options Registration options.
+		 */
+		this.getCredentials = function(key, options) {
+			const convertedOptions = convertOptions(JSON.parse(options));
+			navigator.credentials.get({
+				publicKey: convertedOptions.publicKeyCredentialRequestOptions
+			}).then(promise => {
+				const convertedPromise = convertPromise(promise);
+				self.finalizeAuthentication(key, JSON.stringify(convertedPromise));
+			}).catch(err => {
+				self.showError("Fido authentication failed", err.message);
+			});
 		};
 	};
-
-/**
- * UI controls for FidoComponent interactions.
- */
-unityfido.FidoComponent = function (element) {
-	element.innerHTML =
-		"<div class='textinput'>" +
-		"	<input class='v-textfield v-widget' type='text' name='value' style='margin-right: 10px'/>" +
-		"		<div role='button' class='v-button v-widget' style='margin-right: 10px'>" +
-		"			<span class='v-button-wrap'><span class='v-button-caption' name='registration-caption'>Register</span></span>" +
-		"		</div>" +
-		"		<div role='button' class='v-button v-widget' style='margin-right: 10px'>" +
-		"			<span class='v-button-wrap'><span class='v-button-caption'>Login</span></span>" +
-		"		</div>" +
-		"</div>";
-
-	// Function to fetch username value form input control.
-	var self = this; // Can't use this inside the function
-	self.usernameField = element.getElementsByTagName("input")[0];
-	self.getUsername = function () {
-		return self.usernameField.value;
-	};
-
-	// Setup registration button
-	self.regButton = element.getElementsByTagName("div")[1];
-	self.regButton.caption = element.getElementsByTagName("span")[1];
-	self.regButton.onclick = function () {
-		self.invokeRegistration();
-	};
-	this.regButton.setup = function(enabled, caption) {
-		this.style.display = enabled === true ? 'run-in' : 'none';
-		this.caption.textContent = caption;
-	}
-
-	// Setup authentication button
-	self.authButton = element.getElementsByTagName("div")[2];
-	self.authButton.caption = element.getElementsByTagName("span")[3];
-	self.authButton.onclick = function () {
-		self.invokeAuthentication();
-	};
-	self.authButton.setup = function(enabled, caption) {
-		self.style.display = enabled === true ? 'run-in' : 'none';
-		self.caption.textContent = caption;
-	}
-};
-
-/**
- * Triggers FIDO authenticator registration process on client side. Called from BE.
- * @param options Registration options.
- */
-function createCredentials(key, options) {
-	const convertedOptions = convertOptions(JSON.parse(options));
-	navigator.credentials.create({
-		publicKey: convertedOptions
-	}).then(promise => {
-		const convertedPromise = convertPromise(promise);
-		fidocomponent.finalizeRegistration(key, JSON.stringify(convertedPromise));
-	}).catch(err => {
-		fidocomponent.showError("Fido registration", err.message);
-	});
-};
-
-/**
- * Triggers FIDO authenticator authentication process on client side. Called from BE.
- * @param options Registration options.
- */
-function getCredentials(key, options) {
-		const convertedOptions = convertOptions(JSON.parse(options));
-		navigator.credentials.get({
-			publicKey: convertedOptions.publicKeyCredentialRequestOptions
-		}).then(promise => {
-			const convertedPromise = convertPromise(promise);
-			fidocomponent.finalizeAuthentication(key, JSON.stringify(convertedPromise));
-		}).catch(err => {
-			fidocomponent.showError("Fido authentication", err.message);
-		});
-};
 
 /**
  * Coverts String representation of registration/authentication options received from BE to Arrays acceptable by FIDO authenticators.
@@ -158,6 +73,9 @@ function convertOptions(options) {
 			return credential;
 		});
 		options.excludeCredentials = excludeCredentials;
+
+		// FIXME removing this objet allows to register multiple credential with single usb key
+		delete options.excludeCredentials;
 	}
 
 	return options;
