@@ -19,66 +19,66 @@ import pl.edu.icm.unity.types.basic.UserHandle;
 @Component
 public class UserHandleIdentity extends AbstractStaticIdentityTypeProvider
 {
-    public static final String ID = "userHandle";
+	public static final String ID = "userHandle";
 
-    @Override
-    public String getId()
-    {
-        return ID;
-    }
+	@Override
+	public String getId()
+	{
+		return ID;
+	}
 
-    @Override
-    public String getDefaultDescriptionKey()
-    {
-        return "UserHandleIdentity.description";
-    }
+	@Override
+	public String getDefaultDescriptionKey()
+	{
+		return "UserHandleIdentity.description";
+	}
 
-    @Override
-    public void validate(String value)
-    {
-    }
+	@Override
+	public void validate(String value)
+	{
+	}
 
-    @Override
-    public Identity createNewIdentity(String realm, String target, long entityId)
-    {
-        throw new IllegalStateException("This identity type doesn't support dynamic identity creation.");
-    }
+	@Override
+	public Identity createNewIdentity(String realm, String target, long entityId)
+	{
+		throw new IllegalStateException("This identity type doesn't support dynamic identity creation.");
+	}
 
-    @Override
-    public IdentityParam convertFromString(String stringRepresentation, String remoteIdp,
-                                           String translationProfile) throws IllegalIdentityValueException
-    {
-        return super.convertFromString(stringRepresentation.trim(), remoteIdp, translationProfile);
-    }
+	@Override
+	public IdentityParam convertFromString(String stringRepresentation, String remoteIdp,
+										   String translationProfile) throws IllegalIdentityValueException
+	{
+		return super.convertFromString(stringRepresentation.trim(), remoteIdp, translationProfile);
+	}
 
-    @Override
-    public String getComparableValue(String from, String realm, String target)
-    {
-        return from;
-    }
+	@Override
+	public String getComparableValue(String from, String realm, String target)
+	{
+		return from;
+	}
 
-    @Override
-    public String toPrettyStringNoPrefix(IdentityParam from)
-    {
-        return from.getValue();
-    }
+	@Override
+	public String toPrettyStringNoPrefix(IdentityParam from)
+	{
+		return from.getValue();
+	}
 
 
-    @Override
-    public String getHumanFriendlyDescription(MessageSource msg)
-    {
-        return msg.getMessage("UserHandleIdentity.description");
-    }
+	@Override
+	public String getHumanFriendlyDescription(MessageSource msg)
+	{
+		return msg.getMessage("UserHandleIdentity.description");
+	}
 
-    @Override
-    public boolean isDynamic()
-    {
-        return false;
-    }
+	@Override
+	public boolean isDynamic()
+	{
+		return false;
+	}
 
-    @Override
-    public String getHumanFriendlyName(MessageSource msg)
-    {
-        return msg.getMessage("UserHandleIdentity.name");
-    }
+	@Override
+	public String getHumanFriendlyName(MessageSource msg)
+	{
+		return msg.getMessage("UserHandleIdentity.name");
+	}
 }

@@ -14,6 +14,5 @@ import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
  */
 public interface FidoExchange extends CredentialExchange
 {
-    static final String ID = "fido exchange";
-
+	static final String ID = "fido exchange";
 }

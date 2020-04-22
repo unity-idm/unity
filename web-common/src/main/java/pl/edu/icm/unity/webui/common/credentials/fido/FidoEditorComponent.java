@@ -35,102 +35,102 @@ import static java.util.Objects.nonNull;
  */
 public class FidoEditorComponent extends CustomComponent
 {
-    private static final Logger log = Log.getLogger(Log.U_SERVER_REST, FidoEditorComponent.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, FidoEditorComponent.class);
 
-    private UnityMessageSource msg;
-    private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
-    private final FidoComponent fidoComponent;
-    private final VerticalLayout credentialsLayout;
+	private UnityMessageSource msg;
+	private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
+	private final FidoComponent fidoComponent;
+	private final VerticalLayout credentialsLayout;
 
-    public FidoEditorComponent(final FidoManagement fidoService, final CredentialEditorContext context, final UnityMessageSource msg)
-    {
-        super();
+	public FidoEditorComponent(final FidoManagement fidoService, final CredentialEditorContext context, final UnityMessageSource msg)
+	{
+		super();
 
-        this.msg = msg;
+		this.msg = msg;
 
-        fidoComponent = FidoComponent.builder(fidoService)
-                .showSuccessNotification(false)
-                .entityId(context.getEntityId())
-                .newCredentialListener(this::addNewCredential)
-                .build();
+		fidoComponent = FidoComponent.builder(fidoService)
+				.showSuccessNotification(false)
+				.entityId(context.getEntityId())
+				.newCredentialListener(this::addNewCredential)
+				.build();
 
-        Button addButton = new Button();
-        addButton.setDescription(msg.getMessage("Fido.newRegistration"));
-        addButton.setIcon(Images.add.getResource());
-        addButton.addStyleName(Styles.vButtonLink.toString());
-        addButton.addStyleName(Styles.toolbarButton.toString());
-        addButton.addClickListener(e -> fidoComponent.invokeRegistration());
+		Button addButton = new Button();
+		addButton.setDescription(msg.getMessage("Fido.newRegistration"));
+		addButton.setIcon(Images.add.getResource());
+		addButton.addStyleName(Styles.vButtonLink.toString());
+		addButton.addStyleName(Styles.toolbarButton.toString());
+		addButton.addClickListener(e -> fidoComponent.invokeRegistration());
 
-        VerticalLayout root = new VerticalLayout();
-        root.setMargin(false);
-        root.setSpacing(false);
+		VerticalLayout root = new VerticalLayout();
+		root.setMargin(false);
+		root.setSpacing(false);
 
-        credentialsLayout = new VerticalLayout();
-        credentialsLayout.setMargin(false);
-        credentialsLayout.setSpacing(false);
+		credentialsLayout = new VerticalLayout();
+		credentialsLayout.setMargin(false);
+		credentialsLayout.setSpacing(false);
 
-        root.addComponents(fidoComponent, addButton, credentialsLayout);
+		root.addComponents(fidoComponent, addButton, credentialsLayout);
 
-        setCompositionRoot(root);
+		setCompositionRoot(root);
 
-        initUI(context.getExtraInformation());
-    }
+		initUI(context.getExtraInformation());
+	}
 
-    void initUI(final String extraInformation)
-    {
-        initCredentials(extraInformation);
-        reload();
-    }
+	void initUI(final String extraInformation)
+	{
+		initCredentials(extraInformation);
+		reload();
+	}
 
-    private void initCredentials(String extraInformation)
-    {
-        credentials.clear();
+	private void initCredentials(String extraInformation)
+	{
+		credentials.clear();
 
-        if (isNull(extraInformation) || extraInformation.isEmpty())
-        {
-            return;
-        }
+		if (isNull(extraInformation) || extraInformation.isEmpty())
+		{
+			return;
+		}
 
-        credentials.addAll(FidoCredentialInfo.deserializeList(extraInformation).stream()
-                .map(info -> new FidoCredentialInfoWrapper(FidoCredentialInfoWrapper.CredentialState.STORED, info))
-                .collect(Collectors.toList()));
-    }
+		credentials.addAll(FidoCredentialInfo.deserializeList(extraInformation).stream()
+				.map(info -> new FidoCredentialInfoWrapper(FidoCredentialInfoWrapper.CredentialState.STORED, info))
+				.collect(Collectors.toList()));
+	}
 
-    private void reload()
-    {
-        credentialsLayout.removeAllComponents();
+	private void reload()
+	{
+		credentialsLayout.removeAllComponents();
 
-        credentials.stream()
-                .map(info -> (Component) new FidoPreviewComponent(msg, info, this::reload))
-                .forEach(comp ->
-                {
-                    credentialsLayout.addComponent(HtmlTag.horizontalLine());
-                    credentialsLayout.addComponent(comp);
-                });
+		credentials.stream()
+				.map(info -> (Component) new FidoPreviewComponent(msg, info, this::reload))
+				.forEach(comp ->
+				{
+					credentialsLayout.addComponent(HtmlTag.horizontalLine());
+					credentialsLayout.addComponent(comp);
+				});
 
-        if (credentialsLayout.getComponentCount() > 0)
-        {
-            credentialsLayout.addComponent(HtmlTag.horizontalLine());
-        }
-    }
+		if (credentialsLayout.getComponentCount() > 0)
+		{
+			credentialsLayout.addComponent(HtmlTag.horizontalLine());
+		}
+	}
 
-    private void addNewCredential(final FidoCredentialInfo credential)
-    {
-        credentials.add(new FidoCredentialInfoWrapper(FidoCredentialInfoWrapper.CredentialState.NEW, credential));
-        reload();
-    }
+	private void addNewCredential(final FidoCredentialInfo credential)
+	{
+		credentials.add(new FidoCredentialInfoWrapper(FidoCredentialInfoWrapper.CredentialState.NEW, credential));
+		reload();
+	}
 
-    public String getValue() throws IllegalCredentialException
-    {
-        return FidoCredentialInfo.serializeList(credentials.stream()
-                .filter(info -> info.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED)
-                .map(FidoCredentialInfoWrapper::getCredential)
-                .collect(Collectors.toList()));
-    }
+	public String getValue() throws IllegalCredentialException
+	{
+		return FidoCredentialInfo.serializeList(credentials.stream()
+				.filter(info -> info.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED)
+				.map(FidoCredentialInfoWrapper::getCredential)
+				.collect(Collectors.toList()));
+	}
 
-    public void setCredentialError(EngineException error)
-    {
-        if (nonNull(error))
-            fidoComponent.showError("Error", error.getLocalizedMessage());
-    }
+	public void setCredentialError(EngineException error)
+	{
+		if (nonNull(error))
+			fidoComponent.showError("Error", error.getLocalizedMessage());
+	}
 }

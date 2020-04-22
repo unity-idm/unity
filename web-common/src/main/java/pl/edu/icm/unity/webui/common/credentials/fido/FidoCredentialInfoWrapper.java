@@ -15,42 +15,42 @@ import java.util.Date;
  */
 public class FidoCredentialInfoWrapper
 {
-    private CredentialState state;
+	private CredentialState state;
 
-    public FidoCredentialInfo getCredential()
-    {
-        return credential;
-    }
+	public FidoCredentialInfo getCredential()
+	{
+		return credential;
+	}
 
-    private FidoCredentialInfo credential;
+	private FidoCredentialInfo credential;
 
-    public FidoCredentialInfoWrapper(final CredentialState state, final FidoCredentialInfo credential)
-    {
-        this.state = state;
-        this.credential = credential;
-    }
+	public FidoCredentialInfoWrapper(final CredentialState state, final FidoCredentialInfo credential)
+	{
+		this.state = state;
+		this.credential = credential;
+	}
 
-    public CredentialState getState()
-    {
-        return state;
-    }
+	public CredentialState getState()
+	{
+		return state;
+	}
 
-    public void setState(final CredentialState state)
-    {
-        this.state = state;
-    }
+	public void setState(final CredentialState state)
+	{
+		this.state = state;
+	}
 
-    public Date getRegistrationTimestamp()
-    {
-        return new Date(credential.getRegistrationTimestamp());
-    }
+	public Date getRegistrationTimestamp()
+	{
+		return new Date(credential.getRegistrationTimestamp());
+	}
 
-    enum CredentialState
-    {
-        STORED,
-        NEW,
-        DELETED
-    }
+	enum CredentialState
+	{
+		STORED,
+		NEW,
+		DELETED
+	}
 
-    ;
+	;
 }

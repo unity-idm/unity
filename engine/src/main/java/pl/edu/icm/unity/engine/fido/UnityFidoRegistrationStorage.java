@@ -26,83 +26,83 @@ import static java.util.Objects.nonNull;
 
 public class UnityFidoRegistrationStorage implements CredentialRepository
 {
-    private static final org.apache.logging.log4j.Logger log = Log.getLogger(Log.U_SERVER_REST, UnityFidoRegistrationStorage.class);
+	private static final org.apache.logging.log4j.Logger log = Log.getLogger(Log.U_SERVER_REST, UnityFidoRegistrationStorage.class);
 
-    private FidoEntityHelper entityHelper;
+	private FidoEntityHelper entityHelper;
 
-    public UnityFidoRegistrationStorage(final FidoEntityHelper entityHelper)
-    {
-        this.entityHelper = entityHelper;
-    }
+	public UnityFidoRegistrationStorage(final FidoEntityHelper entityHelper)
+	{
+		this.entityHelper = entityHelper;
+	}
 
-    @Override
-    public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(final String username)
-    {
-        log.debug("Enter getCredentialIdsForUsername({})", username);
-        return getFidoCredentialInfoForUsername(username).stream()
-                .map(i -> PublicKeyCredentialDescriptor.builder()
-                        .id(i.getCredentialId())
-                        .build())
-                .collect(Collectors.toSet());
-    }
+	@Override
+	public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(final String username)
+	{
+		log.debug("Enter getCredentialIdsForUsername({})", username);
+		return getFidoCredentialInfoForUsername(username).stream()
+				.map(i -> PublicKeyCredentialDescriptor.builder()
+						.id(i.getCredentialId())
+						.build())
+				.collect(Collectors.toSet());
+	}
 
-    @Override
-    public Optional<String> getUsernameForUserHandle(final ByteArray userHandle)
-    {
-        UserHandle uh = new UserHandle(userHandle.getBytes());
-        log.debug("getUsernameForUserHandle({})", uh.asString());
-        return entityHelper.getUsernameForUserHandle(uh.asString());
-    }
+	@Override
+	public Optional<String> getUsernameForUserHandle(final ByteArray userHandle)
+	{
+		UserHandle uh = new UserHandle(userHandle.getBytes());
+		log.debug("getUsernameForUserHandle({})", uh.asString());
+		return entityHelper.getUsernameForUserHandle(uh.asString());
+	}
 
-    @Override
-    public Optional<ByteArray> getUserHandleForUsername(final String username)
-    {
-        log.debug("getUserHandleForUsername({})", username);
-        return entityHelper.getUserHandleForUsername(username).map(uh -> new ByteArray(UserHandle.fromString(uh).getBytes()));
-    }
+	@Override
+	public Optional<ByteArray> getUserHandleForUsername(final String username)
+	{
+		log.debug("getUserHandleForUsername({})", username);
+		return entityHelper.getUserHandleForUsername(username).map(uh -> new ByteArray(UserHandle.fromString(uh).getBytes()));
+	}
 
-    List<FidoCredentialInfo> getFidoCredentialInfoForUserHandle(final String userHandle)
-    {
-        log.debug("getFidoCredentialInfoForUserHandle({})", userHandle);
-        return getFidoCredentialInfoForEntity(entityHelper.getEntityByUserHandle(userHandle));
-    }
+	List<FidoCredentialInfo> getFidoCredentialInfoForUserHandle(final String userHandle)
+	{
+		log.debug("getFidoCredentialInfoForUserHandle({})", userHandle);
+		return getFidoCredentialInfoForEntity(entityHelper.getEntityByUserHandle(userHandle));
+	}
 
-    private List<FidoCredentialInfo> getFidoCredentialInfoForUsername(final String username)
-    {
-        log.debug("getFidoCredentialInfoForUsername({})", username);
-        return getFidoCredentialInfoForEntity(entityHelper.getEntityByUsername(username));
-    }
+	private List<FidoCredentialInfo> getFidoCredentialInfoForUsername(final String username)
+	{
+		log.debug("getFidoCredentialInfoForUsername({})", username);
+		return getFidoCredentialInfoForEntity(entityHelper.getEntityByUsername(username));
+	}
 
-    private List<FidoCredentialInfo> getFidoCredentialInfoForEntity(final Entity entity)
-    {
-        if (isNull(entity))
-            return Collections.emptyList();
+	private List<FidoCredentialInfo> getFidoCredentialInfoForEntity(final Entity entity)
+	{
+		if (isNull(entity))
+			return Collections.emptyList();
 
-        Map<String, CredentialPublicInformation> creds = entity.getCredentialInfo().getCredentialsState();
-        CredentialPublicInformation info = creds.get("fido"); // FIXME - need to be proper credential
+		Map<String, CredentialPublicInformation> creds = entity.getCredentialInfo().getCredentialsState();
+		CredentialPublicInformation info = creds.get("fido"); // FIXME - need to be proper credential
 
-        if (nonNull(info))
-            return FidoCredentialInfo.deserializeList(info.getExtraInformation());
+		if (nonNull(info))
+			return FidoCredentialInfo.deserializeList(info.getExtraInformation());
 
-        return Collections.emptyList();
-    }
+		return Collections.emptyList();
+	}
 
-    @Override
-    public Optional<RegisteredCredential> lookup(final ByteArray credentialId, final ByteArray userHandle)
-    {
-        log.debug("Enter lookup()");
-        return getFidoCredentialInfoForUserHandle(new UserHandle(userHandle.getBytes()).asString()).stream()
-                .filter(info -> info.getCredentialId().equals(credentialId))
-                .map(info -> info.getCredentialWithHandle(userHandle))
-                .findFirst();
-    }
+	@Override
+	public Optional<RegisteredCredential> lookup(final ByteArray credentialId, final ByteArray userHandle)
+	{
+		log.debug("Enter lookup()");
+		return getFidoCredentialInfoForUserHandle(new UserHandle(userHandle.getBytes()).asString()).stream()
+				.filter(info -> info.getCredentialId().equals(credentialId))
+				.map(info -> info.getCredentialWithHandle(userHandle))
+				.findFirst();
+	}
 
-    @Override
-    public Set<RegisteredCredential> lookupAll(final ByteArray credentialId)
-    {
-        log.debug("Enter lookupAll()");
-        // FIXME used to make sure no other credential with given ID exists
-        return Collections.EMPTY_SET;
-    }
+	@Override
+	public Set<RegisteredCredential> lookupAll(final ByteArray credentialId)
+	{
+		log.debug("Enter lookupAll()");
+		// FIXME used to make sure no other credential with given ID exists
+		return Collections.EMPTY_SET;
+	}
 
 }

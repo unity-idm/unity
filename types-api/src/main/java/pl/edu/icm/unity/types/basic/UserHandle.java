@@ -15,41 +15,41 @@ import java.util.Random;
  */
 public class UserHandle
 {
-    final byte[] value;
+	final byte[] value;
 
-    public UserHandle(final byte[] value)
-    {
-        this.value = copyArray(value);
-    }
+	public UserHandle(final byte[] value)
+	{
+		this.value = copyArray(value);
+	}
 
-    private UserHandle()
-    {
-        this.value = new byte[64];
-        new Random().nextBytes(value);
-    }
+	private UserHandle()
+	{
+		this.value = new byte[64];
+		new Random().nextBytes(value);
+	}
 
-    public static UserHandle fromString(final String stringValue)
-    {
-        return new UserHandle(Base64.getDecoder().decode(stringValue));
-    }
+	public static UserHandle fromString(final String stringValue)
+	{
+		return new UserHandle(Base64.getDecoder().decode(stringValue));
+	}
 
-    public String asString()
-    {
-        return Base64.getEncoder().encodeToString(value);
-    }
+	public String asString()
+	{
+		return Base64.getEncoder().encodeToString(value);
+	}
 
-    public byte[] getBytes()
-    {
-        return copyArray(value);
-    }
+	public byte[] getBytes()
+	{
+		return copyArray(value);
+	}
 
-    public static UserHandle create()
-    {
-        return new UserHandle();
-    }
+	public static UserHandle create()
+	{
+		return new UserHandle();
+	}
 
-    private byte[] copyArray(final byte[] value)
-    {
-        return Arrays.copyOf(value, value.length);
-    }
+	private byte[] copyArray(final byte[] value)
+	{
+		return Arrays.copyOf(value, value.length);
+	}
 }

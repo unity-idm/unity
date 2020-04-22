@@ -22,46 +22,46 @@ import static java.util.Objects.nonNull;
  */
 public class FidoCredentialEditor implements CredentialEditor
 {
-    private FidoManagement fidoService;
-    private FidoEditorComponent editorComponent;
-    private UnityMessageSource msg;
+	private FidoManagement fidoService;
+	private FidoEditorComponent editorComponent;
+	private UnityMessageSource msg;
 
-    public FidoCredentialEditor(final UnityMessageSource msg, final FidoManagement fidoService)
-    {
-        this.msg = msg;
-        this.fidoService = fidoService;
-    }
+	public FidoCredentialEditor(final UnityMessageSource msg, final FidoManagement fidoService)
+	{
+		this.msg = msg;
+		this.fidoService = fidoService;
+	}
 
-    @Override
-    public ComponentsContainer getEditor(CredentialEditorContext context)
-    {
-        if (isNull(editorComponent))
-            editorComponent = new FidoEditorComponent(fidoService, context, msg);
+	@Override
+	public ComponentsContainer getEditor(CredentialEditorContext context)
+	{
+		if (isNull(editorComponent))
+			editorComponent = new FidoEditorComponent(fidoService, context, msg);
 
-        return new ComponentsContainer(editorComponent);
-    }
+		return new ComponentsContainer(editorComponent);
+	}
 
-    @Override
-    public String getValue() throws IllegalCredentialException
-    {
-        return editorComponent.getValue();
-    }
+	@Override
+	public String getValue() throws IllegalCredentialException
+	{
+		return editorComponent.getValue();
+	}
 
-    @Override
-    public ComponentsContainer getViewer(String credentialConfiguration)
-    {
-        // Viewer is empty - editor handles both functions.
-        // Make sure editor is reloaded when needed.
-        if (nonNull(editorComponent))
-        {
-            editorComponent.initUI(credentialConfiguration);
-        }
-        return new ComponentsContainer();
-    }
+	@Override
+	public ComponentsContainer getViewer(String credentialConfiguration)
+	{
+		// Viewer is empty - editor handles both functions.
+		// Make sure editor is reloaded when needed.
+		if (nonNull(editorComponent))
+		{
+			editorComponent.initUI(credentialConfiguration);
+		}
+		return new ComponentsContainer();
+	}
 
-    @Override
-    public void setCredentialError(EngineException exception)
-    {
-        editorComponent.setCredentialError(exception);
-    }
+	@Override
+	public void setCredentialError(EngineException exception)
+	{
+		editorComponent.setCredentialError(exception);
+	}
 }

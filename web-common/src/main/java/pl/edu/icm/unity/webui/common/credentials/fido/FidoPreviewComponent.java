@@ -26,58 +26,58 @@ import static pl.edu.icm.unity.webui.common.credentials.fido.FidoCredentialInfoW
  */
 public class FidoPreviewComponent extends CustomComponent
 {
-    private final UnityMessageSource msg;
-    private final FidoCredentialInfoWrapper credential;
+	private final UnityMessageSource msg;
+	private final FidoCredentialInfoWrapper credential;
 
-    public FidoPreviewComponent(final UnityMessageSource msg,
-                                final FidoCredentialInfoWrapper credential,
-                                final Runnable deleteCallback)
-    {
-        super();
-        this.msg = msg;
-        this.credential = credential;
+	public FidoPreviewComponent(final UnityMessageSource msg,
+								final FidoCredentialInfoWrapper credential,
+								final Runnable deleteCallback)
+	{
+		super();
+		this.msg = msg;
+		this.credential = credential;
 
-        HorizontalLayout rootLayout = new HorizontalLayout();
-        FormLayout mainForm = getMainForm();
+		HorizontalLayout rootLayout = new HorizontalLayout();
+		FormLayout mainForm = getMainForm();
 		VerticalLayout statusLayout = getStatusLayout(deleteCallback);
 
 		rootLayout.setMargin(false);
 		rootLayout.setSpacing(false);
-        rootLayout.addComponents(mainForm, statusLayout);
-        rootLayout.setWidth("100%");
+		rootLayout.addComponents(mainForm, statusLayout);
+		rootLayout.setWidth("100%");
 
-        setCompositionRoot(rootLayout);
-    }
+		setCompositionRoot(rootLayout);
+	}
 
-    private FormLayout getMainForm()
-    {
-        Label attestationType = new Label();
-        attestationType.setCaption(msg.getMessage("Fido.attestationType"));
-        attestationType.setValue(msg.getMessage("Fido." + credential.getCredential().getAttestationFormat()));
+	private FormLayout getMainForm()
+	{
+		Label attestationType = new Label();
+		attestationType.setCaption(msg.getMessage("Fido.attestationType"));
+		attestationType.setValue(msg.getMessage("Fido." + credential.getCredential().getAttestationFormat()));
 
-        Label creationTime = new Label();
-        creationTime.setCaption(msg.getMessage("Fido.created"));
-        creationTime.setValue(credential.getRegistrationTimestamp().toString());
+		Label creationTime = new Label();
+		creationTime.setCaption(msg.getMessage("Fido.created"));
+		creationTime.setValue(credential.getRegistrationTimestamp().toString());
 
-        Label authenticatorInfo = new Label();
-        authenticatorInfo.setCaption(msg.getMessage("Fido.authenticatorInfo"));
-        authenticatorInfo.setValue("-"); // FIXME get some useful information from attestation data
+		Label authenticatorInfo = new Label();
+		authenticatorInfo.setCaption(msg.getMessage("Fido.authenticatorInfo"));
+		authenticatorInfo.setValue("-"); // FIXME get some useful information from attestation data
 
-        if (credential.getState() == DELETED)
-        {
-            attestationType.addStyleName(Styles.strike.toString());
-            attestationType.addStyleName(Styles.red.toString());
-            creationTime.addStyleName(Styles.strike.toString());
-            creationTime.addStyleName(Styles.red.toString());
-            authenticatorInfo.addStyleName(Styles.strike.toString());
-            authenticatorInfo.addStyleName(Styles.red.toString());
-        }
+		if (credential.getState() == DELETED)
+		{
+			attestationType.addStyleName(Styles.strike.toString());
+			attestationType.addStyleName(Styles.red.toString());
+			creationTime.addStyleName(Styles.strike.toString());
+			creationTime.addStyleName(Styles.red.toString());
+			authenticatorInfo.addStyleName(Styles.strike.toString());
+			authenticatorInfo.addStyleName(Styles.red.toString());
+		}
 
-        return new CompactFormLayout(attestationType, creationTime, authenticatorInfo);
-    }
+		return new CompactFormLayout(attestationType, creationTime, authenticatorInfo);
+	}
 
-    private VerticalLayout getStatusLayout(final Runnable deleteCallback)
-    {
+	private VerticalLayout getStatusLayout(final Runnable deleteCallback)
+	{
 		VerticalLayout statusLayout = new VerticalLayout();
 		statusLayout.setMargin(false);
 		statusLayout.setSpacing(false);
@@ -104,11 +104,11 @@ public class FidoPreviewComponent extends CustomComponent
 
 		statusLayout.addComponents(credState, button);
 		statusLayout.setComponentAlignment(credState, Alignment.TOP_RIGHT);
-        statusLayout.setComponentAlignment(button, Alignment.BOTTOM_RIGHT);
+		statusLayout.setComponentAlignment(button, Alignment.BOTTOM_RIGHT);
 		statusLayout.setExpandRatio(credState, 1.0f);
 		statusLayout.setHeight("100%");
 		statusLayout.setWidth("100%");
 
 		return statusLayout;
-    }
+	}
 }

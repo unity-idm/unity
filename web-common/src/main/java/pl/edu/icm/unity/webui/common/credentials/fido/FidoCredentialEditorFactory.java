@@ -22,37 +22,37 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 @Component
 public class FidoCredentialEditorFactory implements CredentialEditorFactory
 {
-    private UnityMessageSource msg;
-    private FidoManagement fidoService;
+	private UnityMessageSource msg;
+	private FidoManagement fidoService;
 
-    @Autowired
-    public FidoCredentialEditorFactory(final UnityMessageSource msg, final FidoManagement fidoService)
-    {
-        this.msg = msg;
-        this.fidoService = fidoService;
-    }
+	@Autowired
+	public FidoCredentialEditorFactory(final UnityMessageSource msg, final FidoManagement fidoService)
+	{
+		this.msg = msg;
+		this.fidoService = fidoService;
+	}
 
-    @Override
-    public String getSupportedCredentialType()
-    {
-        return FidoCredentialVerificator.NAME;
-    }
+	@Override
+	public String getSupportedCredentialType()
+	{
+		return FidoCredentialVerificator.NAME;
+	}
 
-    @Override
-    public CredentialEditor createCredentialEditor()
-    {
-        return new FidoCredentialEditor(msg, fidoService);
-    }
+	@Override
+	public CredentialEditor createCredentialEditor()
+	{
+		return new FidoCredentialEditor(msg, fidoService);
+	}
 
-    @Override
-    public CredentialDefinitionEditor creteCredentialDefinitionEditor()
-    {
-        return new FidoCredentialDefinitionEditor(msg);
-    }
+	@Override
+	public CredentialDefinitionEditor creteCredentialDefinitionEditor()
+	{
+		return new FidoCredentialDefinitionEditor(msg);
+	}
 
-    @Override
-    public CredentialDefinitionViewer creteCredentialDefinitionViewer()
-    {
-        return new FidoCredentialDefinitionEditor(msg);
-    }
+	@Override
+	public CredentialDefinitionViewer creteCredentialDefinitionViewer()
+	{
+		return new FidoCredentialDefinitionEditor(msg);
+	}
 }

@@ -73,19 +73,24 @@ class FidoTestingView extends CustomComponent implements UnityView
 		setCompositionRoot(main);
 	}
 
-	private void executeJSFromFile(String filepath) {
-		try {
+	private void executeJSFromFile(String filepath)
+	{
+		try
+		{
 			File file = new File(
 					filepath
 			);
 			StringBuffer buffer = new StringBuffer();
 			String firstLine = null;
 			try (FileReader reader = new FileReader(file);
-				BufferedReader br = new BufferedReader(reader)) {
+				 BufferedReader br = new BufferedReader(reader))
+			{
 
 				String line;
-				while ((line = br.readLine()) != null) {
-					if (buffer.length() == 0) {
+				while ((line = br.readLine()) != null)
+				{
+					if (buffer.length() == 0)
+					{
 						firstLine = line;
 					}
 					buffer.append(line);
@@ -97,7 +102,8 @@ class FidoTestingView extends CustomComponent implements UnityView
 
 			JavaScript.getCurrent().execute(buffer.toString());
 
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			log.error("Got exception", e);
 		}
 	}
@@ -120,8 +126,8 @@ class FidoTestingView extends CustomComponent implements UnityView
 
 		@Autowired
 		public FidoTestViewInfoProvider(UnityMessageSource msg,
-				MaintenanceNavigationInfoProvider parent,
-				ObjectFactory<FidoTestingView> factory)
+										MaintenanceNavigationInfoProvider parent,
+										ObjectFactory<FidoTestingView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)

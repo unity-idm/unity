@@ -33,35 +33,34 @@ import static java.util.Objects.nonNull;
  */
 public class FidoCredentialInfo
 {
-    private static final Logger log = LogManager.getLogger(FidoCredentialInfo.class);
-
-    // Credential properties
+	private static final Logger log = LogManager.getLogger(FidoCredentialInfo.class);
+	// Credential properties
 	/**
 	 * Key creation timestamp
- 	 */
-    private long registrationTimestamp;
+	 */
+	private long registrationTimestamp;
 	/**
 	 * Unique identified of key - stored also on Authenticator
 	 */
-    private ByteArray credentialId;
+	private ByteArray credentialId;
 	/**
 	 * Encoded public key
 	 */
-    private ByteArray publicKeyCose;
+	private ByteArray publicKeyCose;
 	/**
 	 * Number of times private key was used to sign challenge - stored also on Authenticator
 	 */
-    private long signatureCount;
+	private long signatureCount;
 
-    // Registration details
+	// Registration details
 	/**
 	 * Indicates if user presence verified during registration.
 	 */
-    private boolean userPresent;
+	private boolean userPresent;
 	/**
 	 * Indicates if user identity verified during registration. E.g. via PIN, fingerprint etc.
 	 */
-    private boolean userVerified;
+	private boolean userVerified;
 	/**
 	 * Provide information on structure of given Attestation object
 	 */
@@ -69,100 +68,100 @@ public class FidoCredentialInfo
 	/**
 	 * Fido 2  Authenticator Attestation GUID - identifies model of authenticator. null if NONE authenticationType
 	 */
-    private ByteArray aaguid;
+	private ByteArray aaguid;
 
-    // FIXME investigate if provided data are sufficient. Maybe better to store whole attestation raw data (byte array received from authenticator)
+	// FIXME investigate if provided data are sufficient. Maybe better to store whole attestation raw data (byte array received from authenticator)
 	// Attestation properties
 	/**
 	 * Indicates if attestation key was confirmed as trusted during registration.
 	 */
-    private boolean attestationTrusted;
-    // TODO clarify meaning and domain
-    private String metadataIdentifier;
+	private boolean attestationTrusted;
 	// TODO clarify meaning and domain
-    private Map<String, String> vendorProperties;
+	private String metadataIdentifier;
 	// TODO clarify meaning and domain
-    private Map<String, String> deviceProperties;
+	private Map<String, String> vendorProperties;
+	// TODO clarify meaning and domain
+	private Map<String, String> deviceProperties;
 	/**
 	 * What transport of data is supported by Authenticator.
 	 */
-    private Set<Transport> transports;
+	private Set<Transport> transports;
 
-    public long getRegistrationTimestamp()
-    {
-        return registrationTimestamp;
-    }
+	public long getRegistrationTimestamp()
+	{
+		return registrationTimestamp;
+	}
 
-    public ByteArray getCredentialId()
-    {
-        return credentialId;
-    }
+	public ByteArray getCredentialId()
+	{
+		return credentialId;
+	}
 
-    public ByteArray getPublicKeyCose()
-    {
-        return publicKeyCose;
-    }
+	public ByteArray getPublicKeyCose()
+	{
+		return publicKeyCose;
+	}
 
-    public long getSignatureCount()
-    {
-        return signatureCount;
-    }
+	public long getSignatureCount()
+	{
+		return signatureCount;
+	}
 
-    public boolean isUserPresent()
-    {
-        return userPresent;
-    }
+	public boolean isUserPresent()
+	{
+		return userPresent;
+	}
 
-    public boolean isUserVerified()
-    {
-        return userVerified;
-    }
+	public boolean isUserVerified()
+	{
+		return userVerified;
+	}
 
-    public ByteArray getAaguid()
-    {
-        return aaguid;
-    }
+	public ByteArray getAaguid()
+	{
+		return aaguid;
+	}
 
-    public boolean isAttestationTrusted()
-    {
-        return attestationTrusted;
-    }
+	public boolean isAttestationTrusted()
+	{
+		return attestationTrusted;
+	}
 
-    public String getAttestationFormat()
-    {
-        return attestationFormat;
-    }
+	public String getAttestationFormat()
+	{
+		return attestationFormat;
+	}
 
-    public String getMetadataIdentifier()
-    {
-        return metadataIdentifier;
-    }
+	public String getMetadataIdentifier()
+	{
+		return metadataIdentifier;
+	}
 
-    public Map<String, String> getVendorProperties()
-    {
-        return vendorProperties;
-    }
+	public Map<String, String> getVendorProperties()
+	{
+		return vendorProperties;
+	}
 
-    public Map<String, String> getDeviceProperties()
-    {
-        return deviceProperties;
-    }
+	public Map<String, String> getDeviceProperties()
+	{
+		return deviceProperties;
+	}
 
-    public Set<Transport> getTransports()
-    {
-        return transports;
-    }
+	public Set<Transport> getTransports()
+	{
+		return transports;
+	}
 
-    @JsonIgnore
-    public RegisteredCredential getCredentialWithHandle(final ByteArray userHandle)
-    {
-        return RegisteredCredential.builder()
-                .credentialId(credentialId)
-                .userHandle(userHandle)
-                .publicKeyCose(publicKeyCose)
-                .signatureCount(signatureCount)
-                .build();
-    }
+	@JsonIgnore
+	public RegisteredCredential getCredentialWithHandle(final ByteArray userHandle)
+	{
+		return RegisteredCredential.builder()
+				.credentialId(credentialId)
+				.userHandle(userHandle)
+				.publicKeyCose(publicKeyCose)
+				.signatureCount(signatureCount)
+				.build();
+	}
 
 	/**
 	 * Coverts single Fido 2 credential (multiple keys) into JSON representation.
@@ -171,16 +170,16 @@ public class FidoCredentialInfo
 	 * @return JSON representation
 	 */
 	public static String serializeList(final List<FidoCredentialInfo> list)
-    {
-        try
-        {
-            return Constants.MAPPER.writeValueAsString(list);
-        } catch (JsonProcessingException e)
-        {
-            log.error("Failed to serialize fido credential information", e);
-            return null;
-        }
-    }
+	{
+		try
+		{
+			return Constants.MAPPER.writeValueAsString(list);
+		} catch (JsonProcessingException e)
+		{
+			log.error("Failed to serialize fido credential information", e);
+			return null;
+		}
+	}
 
 	/**
 	 * Coverts JSON into Fido 2 credential.
@@ -188,32 +187,34 @@ public class FidoCredentialInfo
 	 * @param credentials JSON representation of Fido 2 credential
 	 * @return List of Fido 2 public keys with metadata.
 	 */
-    public static List<FidoCredentialInfo> deserializeList(final String credentials)
-    {
-        if (isNull(credentials) || credentials.isEmpty())
-        {
-            return Collections.emptyList();
-        }
+	public static List<FidoCredentialInfo> deserializeList(final String credentials)
+	{
+		if (isNull(credentials) || credentials.isEmpty())
+		{
+			return Collections.emptyList();
+		}
 
-        try
-        {
-            return Constants.MAPPER.readValue(credentials, new TypeReference<List<FidoCredentialInfo>>() {});
-        } catch (IOException e)
-        {
-            log.error("Failed to deserialize fido credential information: ", e);
-            return Collections.emptyList();
-        }
-    }
+		try
+		{
+			return Constants.MAPPER.readValue(credentials, new TypeReference<List<FidoCredentialInfo>>()
+			{
+			});
+		} catch (IOException e)
+		{
+			log.error("Failed to deserialize fido credential information: ", e);
+			return Collections.emptyList();
+		}
+	}
 
-    public static FidoCredentialInfoBuilder builder()
-    {
-        return new FidoCredentialInfoBuilder();
-    }
+	public static FidoCredentialInfoBuilder builder()
+	{
+		return new FidoCredentialInfoBuilder();
+	}
 
-    public static final class FidoCredentialInfoBuilder
-    {
+	public static final class FidoCredentialInfoBuilder
+	{
 		private long registrationTimestamp;
-        private ByteArray credentialId;
+		private ByteArray credentialId;
 		private ByteArray publicKeyCose;
 		private long signatureCount;
 
@@ -222,46 +223,46 @@ public class FidoCredentialInfo
 		private String attestationFormat;
 		private ByteArray aaguid;
 
-        Attestation attestationMetadata;
+		Attestation attestationMetadata;
 
-        private FidoCredentialInfoBuilder()
-        {
-        }
+		private FidoCredentialInfoBuilder()
+		{
+		}
 
-        public static FidoCredentialInfoBuilder aFidoCredentialInfo()
-        {
-            return new FidoCredentialInfoBuilder();
-        }
+		public static FidoCredentialInfoBuilder aFidoCredentialInfo()
+		{
+			return new FidoCredentialInfoBuilder();
+		}
 
-        public FidoCredentialInfoBuilder credentialId(ByteArray credentialId)
-        {
-            this.credentialId = credentialId;
-            return this;
-        }
+		public FidoCredentialInfoBuilder credentialId(ByteArray credentialId)
+		{
+			this.credentialId = credentialId;
+			return this;
+		}
 
-        public FidoCredentialInfoBuilder publicKeyCose(ByteArray publicKeyCose)
-        {
-            this.publicKeyCose = publicKeyCose;
-            return this;
-        }
+		public FidoCredentialInfoBuilder publicKeyCose(ByteArray publicKeyCose)
+		{
+			this.publicKeyCose = publicKeyCose;
+			return this;
+		}
 
-        public FidoCredentialInfoBuilder signatureCount(long signatureCount)
-        {
-            this.signatureCount = signatureCount;
-            return this;
-        }
+		public FidoCredentialInfoBuilder signatureCount(long signatureCount)
+		{
+			this.signatureCount = signatureCount;
+			return this;
+		}
 
-        public FidoCredentialInfoBuilder registrationTime(long registrationTime)
-        {
-            this.registrationTimestamp = registrationTime;
-            return this;
-        }
+		public FidoCredentialInfoBuilder registrationTime(long registrationTime)
+		{
+			this.registrationTimestamp = registrationTime;
+			return this;
+		}
 
-        public FidoCredentialInfoBuilder attestationMetadata(Attestation attestationMetadata)
-        {
-            this.attestationMetadata = attestationMetadata;
-            return this;
-        }
+		public FidoCredentialInfoBuilder attestationMetadata(Attestation attestationMetadata)
+		{
+			this.attestationMetadata = attestationMetadata;
+			return this;
+		}
 
 		public FidoCredentialInfoBuilder userPresent(final boolean userPresent)
 		{
@@ -287,13 +288,13 @@ public class FidoCredentialInfo
 			return this;
 		}
 
-        public FidoCredentialInfo build()
-        {
-            FidoCredentialInfo info = new FidoCredentialInfo();
+		public FidoCredentialInfo build()
+		{
+			FidoCredentialInfo info = new FidoCredentialInfo();
 
-            info.registrationTimestamp = this.registrationTimestamp;
-            info.credentialId = this.credentialId;
-            info.publicKeyCose = publicKeyCose;
+			info.registrationTimestamp = this.registrationTimestamp;
+			info.credentialId = this.credentialId;
+			info.publicKeyCose = publicKeyCose;
 			info.signatureCount = this.signatureCount;
 
 			info.userPresent = this.userPresent;
@@ -314,7 +315,7 @@ public class FidoCredentialInfo
 				info.transports = attestationMetadata.getTransports().orElse(null);
 			}
 
-            return info;
-        }
-    }
+			return info;
+		}
+	}
 }

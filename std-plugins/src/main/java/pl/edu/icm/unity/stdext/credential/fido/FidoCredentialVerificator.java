@@ -30,76 +30,76 @@ import static java.util.Objects.isNull;
 @PrototypeComponent
 public class FidoCredentialVerificator extends AbstractLocalVerificator
 {
-    private static final Logger log = Log.getLogger(Log.U_SERVER, FidoCredentialVerificator.class);
-    public static final String NAME = "fido credential";
-    public static final String DESC = "Verifies fido credential";
+	private static final Logger log = Log.getLogger(Log.U_SERVER, FidoCredentialVerificator.class);
+	public static final String NAME = "fido credential";
+	public static final String DESC = "Verifies fido credential";
 
-    private CredentialHelper credentialHelper;
-    private EntityManagement idMan;
+	private CredentialHelper credentialHelper;
+	private EntityManagement idMan;
 
-    @Autowired
-    public FidoCredentialVerificator(final CredentialHelper credentialHelper)
-    {
-        super(NAME, DESC, FidoExchange.ID, false);
-        this.credentialHelper = credentialHelper;
-    }
+	@Autowired
+	public FidoCredentialVerificator(final CredentialHelper credentialHelper)
+	{
+		super(NAME, DESC, FidoExchange.ID, false);
+		this.credentialHelper = credentialHelper;
+	}
 
-    @Override
-    public String getSerializedConfiguration()
-    {
-        // TODO return proper configuration when created.
-        // JsonUtil.serialize(credential.getSerializedConfiguration());
-        return "";
-    }
+	@Override
+	public String getSerializedConfiguration()
+	{
+		// TODO return proper configuration when created.
+		// JsonUtil.serialize(credential.getSerializedConfiguration());
+		return "";
+	}
 
-    @Override
-    public void setSerializedConfiguration(String json)
-    {
-        // TODO implementation to be provided
-    }
+	@Override
+	public void setSerializedConfiguration(String json)
+	{
+		// TODO implementation to be provided
+	}
 
-    @Override
-    public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
-            throws IllegalCredentialException
-    {
-        return rawCredential;
-    }
+	@Override
+	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
+			throws IllegalCredentialException
+	{
+		return rawCredential;
+	}
 
-    @Override
-    public CredentialPublicInformation checkCredentialState(String currentCredential)
-    {
-        String credDetails = isNull(currentCredential) ? "" : currentCredential;
-        return new CredentialPublicInformation(credDetails.isEmpty() ? LocalCredentialState.notSet : LocalCredentialState.correct, credDetails);
-    }
+	@Override
+	public CredentialPublicInformation checkCredentialState(String currentCredential)
+	{
+		String credDetails = isNull(currentCredential) ? "" : currentCredential;
+		return new CredentialPublicInformation(credDetails.isEmpty() ? LocalCredentialState.notSet : LocalCredentialState.correct, credDetails);
+	}
 
-    @Override
-    public String invalidate(String currentCredential)
-    {
-        throw new IllegalStateException("This credential doesn't support invalidation");
-    }
+	@Override
+	public String invalidate(String currentCredential)
+	{
+		throw new IllegalStateException("This credential doesn't support invalidation");
+	}
 
-    @Override
-    public boolean isCredentialSet(EntityParam entity)
-            throws EngineException
-    {
-        return credentialHelper.isCredentialSet(entity, credentialName);
-    }
+	@Override
+	public boolean isCredentialSet(EntityParam entity)
+			throws EngineException
+	{
+		return credentialHelper.isCredentialSet(entity, credentialName);
+	}
 
-    @Override
-    public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
-    {
-        return false;
-    }
+	@Override
+	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
+	{
+		return false;
+	}
 
-    @Component
-    public static class Factory extends AbstractLocalCredentialVerificatorFactory
-    {
-        @Autowired
-        public Factory(ObjectFactory<FidoCredentialVerificator> factory)
-        {
-            super(NAME, DESC, false, factory);
-        }
-    }
+	@Component
+	public static class Factory extends AbstractLocalCredentialVerificatorFactory
+	{
+		@Autowired
+		public Factory(ObjectFactory<FidoCredentialVerificator> factory)
+		{
+			super(NAME, DESC, false, factory);
+		}
+	}
 
 }
 

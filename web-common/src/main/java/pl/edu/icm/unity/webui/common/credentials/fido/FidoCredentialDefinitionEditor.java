@@ -20,32 +20,32 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
  */
 public class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {
-    private UnityMessageSource msg;
+	private UnityMessageSource msg;
 
-    public FidoCredentialDefinitionEditor(UnityMessageSource msg)
-    {
-        this.msg = msg;
-    }
+	public FidoCredentialDefinitionEditor(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 
-    @Override
-    public Component getEditor(String credentialDefinitionConfiguration)
-    {
-        Label label = new Label("Not used for now"); // FIXME
-        FormLayout ret = new CompactFormLayout(label);
-        ret.setSpacing(true);
-        ret.setMargin(true);
-        return ret;
-    }
+	@Override
+	public Component getEditor(String credentialDefinitionConfiguration)
+	{
+		Label label = new Label("Not used for now"); // FIXME
+		FormLayout ret = new CompactFormLayout(label);
+		ret.setSpacing(true);
+		ret.setMargin(true);
+		return ret;
+	}
 
-    @Override
-    public String getCredentialDefinition() throws IllegalCredentialException
-    {
-        return "";
-    }
+	@Override
+	public String getCredentialDefinition() throws IllegalCredentialException
+	{
+		return "";
+	}
 
-    @Override
-    public Component getViewer(String credentialDefinitionConfiguration)
-    {
-        return getEditor(credentialDefinitionConfiguration);
-    }
+	@Override
+	public Component getViewer(String credentialDefinitionConfiguration)
+	{
+		return getEditor(credentialDefinitionConfiguration);
+	}
 }
