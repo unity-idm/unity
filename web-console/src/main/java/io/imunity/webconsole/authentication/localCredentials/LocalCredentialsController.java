@@ -95,7 +95,7 @@ class LocalCredentialsController
 	{
 		try
 		{
-			credMan.updateCredentialDefinition(updated, LocalCredentialState.correct);
+			credMan.updateCredentialDefinition(updated, state);
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, updated.getName()));
 		} catch (Exception e)
 		{
