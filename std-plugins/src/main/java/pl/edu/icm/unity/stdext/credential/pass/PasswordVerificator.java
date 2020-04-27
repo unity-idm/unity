@@ -56,11 +56,7 @@ import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -284,13 +280,13 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			Deque<PasswordInfo> credentials = credState.getPasswords();
 			if (credentials.isEmpty())
 			{
-				log.debug("The user has no password set: " + username);
+				log.debug("The user has no password set: {}", username);
 				return new AuthenticationResult(Status.deny, null);
 			}
 			PasswordInfo current = credentials.getFirst();
 			if (!passwordEngine.verify(current, password))
 			{
-				log.debug("Password provided by " + username + " is invalid");
+				log.debug("Password provided by {} is invalid", username);
 				return new AuthenticationResult(Status.deny, null);
 			}
 			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
@@ -321,13 +317,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * <p>
 	 * Additionally, if it is detected that the credential is outdated by checking the password, 
 	 * this newly received information is stored in DB: credential is updated to be manually outdated.
-	 *   
-	 * @param password
-	 * @throws AuthenticationException 
-	 * @throws IllegalGroupValueException 
-	 * @throws IllegalAttributeTypeException 
-	 * @throws IllegalTypeException 
-	 * @throws IllegalAttributeValueException 
 	 */
 	private boolean isCurrentPasswordOutdated(String password, PasswordCredentialDBState credState, 
 			EntityWithCredential resolved) throws AuthenticationException
@@ -355,8 +344,10 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		}
 		
 		if (storedPasswordRequiresRehash(credState))
+		{
+			log.debug("Password hash of user {} is outdated: hashing parameters were changed", resolved.getEntityId());
 			rehashPassword(password, credState, resolved);
-		
+		}
 		return false;
 	}
 
@@ -393,28 +384,24 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	{
 		if (credState.isOutdated())
 		{
-			log.debug("Password is outdated: was previously set to outdated state");
 			return new PasswordStatus(true, "set as");
 		}
 		if (credState.getSecurityQuestion() == null && 
 				credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 		{
-			log.debug("Password is outdated: security question is not set while it is required now");
 			return new PasswordStatus(true, "no question");
 		}
 		PasswordInfo current = credState.getPasswords().getFirst();
 		Date validityEnd = new Date(current.getTime().getTime() + credential.getMaxAge());
 		if (new Date().after(validityEnd))
 		{
-			log.debug("Password is outdated: its validity expired on {}", validityEnd);
 			return new PasswordStatus(true, "expired");
 		}
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion() &&
 				!passwordEngine.checkParamsUpToDate(credential, credState.getAnswer()))
 		{
-			log.debug("Password is outdated: security question answers do not meet current requirements");
 			return new PasswordStatus(true, "question outdated");
 		}
 		return new PasswordStatus(false, null);
@@ -427,12 +414,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private boolean storedPasswordRequiresRehash(PasswordCredentialDBState credState)
 	{
 		PasswordInfo password = credState.getPasswords().getFirst();
-		if (!passwordEngine.checkParamsUpToDate(credential, password))
-		{
-			log.debug("Password hash is outdated: hashing parameters were changed");
-			return true;
-		}
-		return false;
+		return !passwordEngine.checkParamsUpToDate(credential, password);
 	}
 	
 	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials, int historyLookback) 

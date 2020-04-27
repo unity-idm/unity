@@ -54,6 +54,22 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 		});
 	}
 	
+	@Test
+	public void modificationOfReturnedGroupDoNotAffectItsSubsequentRead()
+	{
+		tx.runInTransaction(() -> {
+			Group original = new Group("/A");
+			original.setDisplayedName(new I18nString("DN1"));
+			long key = dao.create(original);
+
+			Group returned1 = dao.getByKey(key);
+			returned1.setDisplayedName(new I18nString("changed"));
+
+			Group returned2 = dao.getByKey(key);
+
+			assertThat(returned2.getDisplayedName(), is(new I18nString("DN1")));
+		});
+	}
 	
 	@Test
 	public void childGroupsAreRemovedOnParentRemoval()
