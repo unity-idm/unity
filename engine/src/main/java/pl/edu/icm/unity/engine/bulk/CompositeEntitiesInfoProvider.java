@@ -142,7 +142,8 @@ class CompositeEntitiesInfoProvider
 	
 	private GlobalSystemData loadGlobalData() throws EngineException
 	{
-		return GlobalSystemData.builder()
+		Stopwatch watch = Stopwatch.createStarted();
+		GlobalSystemData ret = GlobalSystemData.builder()
 				.withAttributeTypes(attributeTypeDAO.getAllAsMap())
 				.withAttributeClasses(acDB.getAllAsMap())
 				.withGroups(groupDAO.getAllAsMap())
@@ -150,6 +151,8 @@ class CompositeEntitiesInfoProvider
 				.withCredentialRequirements(getCredentialRequirements())
 				.withEnquiryForms(enquiryDB.getAllAsMap())
 				.build();
+		log.debug("loading global data {}", watch.toString());
+		return ret;
 	}
 	
 	private Map<String, CredentialRequirements> getCredentialRequirements() throws EngineException
@@ -171,7 +174,7 @@ class CompositeEntitiesInfoProvider
 		Stopwatch w = Stopwatch.createStarted();
 		Stream<StoredAttribute> all = attributeDAO.getAll().stream()
 				.filter(sa -> entityTester.test(sa.getEntityId()));
-		log.debug("getAttrs {}", w.toString());
+		log.debug("getAllAttrs {}", w.toString());
 		return mapAttributesByEntities(all);
 	}
 	
