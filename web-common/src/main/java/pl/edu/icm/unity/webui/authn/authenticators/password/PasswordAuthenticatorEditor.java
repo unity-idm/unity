@@ -149,7 +149,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			this.localCredential = localCredential;
 		}
 
-		public String toProperties(UnityMessageSource msg)
+		private String toProperties(UnityMessageSource msg)
 		{
 			Properties raw = new Properties();
 			if (getRetrievalName() != null)
@@ -161,12 +161,12 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg)
+		private void fromProperties(String properties, UnityMessageSource msg)
 		{
 			Properties raw = new Properties();
 			try
 			{
-				raw.load(new StringReader(properties));
+				raw.load(new StringReader(properties == null ? "" : properties));
 			} catch (IOException e)
 			{
 				throw new InternalException("Invalid configuration of the password verificator", e);
