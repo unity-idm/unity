@@ -5,15 +5,13 @@
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
@@ -27,8 +25,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * @author K. Benedyczak
  * 
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class GroupBrowserPanel extends SafePanel
 {
 	private GroupsTreeGrid groupsTree;

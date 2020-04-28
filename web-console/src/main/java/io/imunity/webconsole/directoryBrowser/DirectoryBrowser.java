@@ -26,19 +26,12 @@ import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.sessionscope.WebSessionComponent;
 
-/**
- * Default dashbord view
- * 
- * @author P.Piernik
- *
- */
-
-@PrototypeComponent
+@WebSessionComponent
 public class DirectoryBrowser extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "DirectoryBrowser";
