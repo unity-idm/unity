@@ -42,11 +42,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @Component
 class GroupBrowserController
 {
@@ -118,8 +113,6 @@ class GroupBrowserController
 		}
 
 		return groupTree;
-		
-
 	}
 
 	GroupContents getGroupContent(String path, int filter) throws ControllerException
@@ -197,7 +190,6 @@ class GroupBrowserController
 
 	GroupStructuralData getBulkStructuralData(String path) throws ControllerException
 	{
-
 		try
 		{
 			return bulkQueryService.getBulkStructuralData(path);

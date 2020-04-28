@@ -9,9 +9,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.shared.ui.MarginInfo;
@@ -45,6 +42,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -71,8 +69,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class IdentitiesPanel extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesPanel.class);
@@ -108,7 +105,7 @@ public class IdentitiesPanel extends SafePanel
 			this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
 		} catch (EngineException e)
 		{
-			log.error("Can not determine name attribute");
+			log.error("Can not determine name attribute", e);
 		}
 		
 		main = new VerticalLayout();
