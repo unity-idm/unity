@@ -108,12 +108,13 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
-		
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
+		SingleActionHandler<TreeNode> refreshAction = getRefreshAction();
 
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandler(expandAllAction);
 		hamburgerMenu.addActionHandler(collapseAllAction);
+		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(deleteAction);
 
 		toolbar.addHamburger(hamburgerMenu);
@@ -403,7 +404,12 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		controller.getGroupDelegationEditConfigDialog(bus, group, g -> updateGroup(node.getPath(), g)).show();
 	}
-
+	
+	private SingleActionHandler<TreeNode> getRefreshAction()
+	{
+		return SingleActionHandler.builder4Refresh(msg, TreeNode.class).withHandler(n -> refresh()).build();
+	}
+	
 	private SingleActionHandler<TreeNode> getDeleteAction()
 	{
 		return SingleActionHandler.builder4Delete(msg, TreeNode.class).withHandler(this::deleteHandler).build();
