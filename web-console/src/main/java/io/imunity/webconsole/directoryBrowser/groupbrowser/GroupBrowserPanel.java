@@ -10,11 +10,11 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 
+import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.bus.RefreshEvent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -56,6 +56,6 @@ public class GroupBrowserPanel extends SafePanel
 		setStyleName(Styles.vPanelLight.toString());
 		setSizeFull();
 		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(event -> groupsTree.refresh(), RefreshEvent.class);
+		bus.addListener(event -> groupsTree.refreshAndEnsureSelection(), RefreshAndSelectEvent.class);
 	}
 }

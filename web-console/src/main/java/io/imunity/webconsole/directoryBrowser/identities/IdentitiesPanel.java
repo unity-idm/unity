@@ -38,6 +38,7 @@ import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.identities.RemoveAttributeColumnDialog;
 import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
+import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -138,9 +139,10 @@ public class IdentitiesPanel extends SafePanel
 		bus = WebSession.getCurrent().getEventBus();
 
 		bus.addListener(event -> setGroup(event.getGroup()), GroupChangedEvent.class);
-
+		
+		bus.addListener(event -> refreshGroupAndSelectIfNeeded(), RefreshAndSelectEvent.class);
+		
 		bus.addListener(event -> setGroup(identitiesTable.getGroup()), CredentialRequirementChangedEvent.class);
-
 		bus.addListener(event -> {
 			if (event.isUpdatedExisting())
 				setGroup(identitiesTable.getGroup());
@@ -297,6 +299,13 @@ public class IdentitiesPanel extends SafePanel
 		return hamburgerMenu;
 	}
 
+	private void refreshGroupAndSelectIfNeeded()
+	{
+		String currentGroup = identitiesTable.getGroup();
+		setGroup(currentGroup == null ? "/" : currentGroup);
+	}
+
+	
 	private void setGroup(String group)
 	{
 		identitiesTable.clearFilters();
