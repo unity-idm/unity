@@ -235,7 +235,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			refreshNode(rootItem);
 	}
 
-	private void refreshNode(TreeNode node)// throws ControllerException
+	private void refreshNode(TreeNode node)
 	{
 		treeData.removeItem(node);
 		try
@@ -346,7 +346,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		new GroupEditDialog(msg, group, true, g -> {
 			updateGroup(node.getPath(), g);
-			refreshNode(node.getParentNode());
+			if (node.getParentNode() != null)
+				refreshNode(node.getParentNode());
+			else
+				refresh();
 			if (node.equals(getSingleSelection()))
 				bus.fireEvent(new GroupChangedEvent(node.getPath()));
 		}).show();
