@@ -145,15 +145,12 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			{
 				select(treeData.getRootItems().get(0));
 			}
-
 		} catch (ControllerException e)
 		{
-			// // this will show error node
 			TreeNode parent = new TreeNode(msg, new Group("/"), Images.noAuthzGrp.getHtml());
 			treeData.addItems(null, parent);
 			dataProvider.refreshAll();
 		}
-
 	}
 
 	private MenuBar getRowHamburgerMenuComponent(TreeNode target)
@@ -229,6 +226,15 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	}
 
+	void refreshAndEnsureSelection()
+	{
+		for (TreeNode rootItem : treeData.getRootItems())
+			refreshNode(rootItem);
+		if (!treeData.getRootItems().isEmpty() && getSelectedItems().isEmpty())
+			select(treeData.getRootItems().get(0));
+	}
+
+	
 	public void refresh()
 	{
 		for (TreeNode rootItem : treeData.getRootItems())
@@ -428,7 +434,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			NotificationPopup.showError(msg, e);
 		}
-
 	}
 
 	private SingleActionHandler<TreeNode> getExpandAllAction()

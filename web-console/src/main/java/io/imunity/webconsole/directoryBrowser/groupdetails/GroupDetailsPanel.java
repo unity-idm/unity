@@ -14,6 +14,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
@@ -48,6 +48,7 @@ public class GroupDetailsPanel extends SafePanel
 
 	private VerticalLayout main;
 	private AttributeStatementsComponent attrStatements;
+	private String group;
 
 	@Autowired
 	public GroupDetailsPanel(UnityMessageSource msg, AttributeStatementController controller,
@@ -71,26 +72,25 @@ public class GroupDetailsPanel extends SafePanel
 		setContent(main);
 		setStyleName(Styles.vPanelLight.toString());
 
-		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(new EventListener<GroupChangedEvent>()
-		{
-			@Override
-			public void handleEvent(GroupChangedEvent event)
-			{
-				setGroup(event.getGroup());
-			}
-		}, GroupChangedEvent.class);
+		EventsBus eventBus = WebSession.getCurrent().getEventBus();
+		eventBus.addListener(event -> refreshAndEnsureSelection(), RefreshAndSelectEvent.class);
+		eventBus.addListener(event -> setGroup(event.getGroup()), GroupChangedEvent.class);
 		setGroup(null);
+	}
+
+	private void refreshAndEnsureSelection()
+	{
+		setGroup(group == null ? "/" : group);
 	}
 
 	private void setGroup(String group)
 	{
+		this.group = group;
 		if (group == null)
 		{
 			setProblem(msg.getMessage("GroupDetails.noGroup"), Level.warning);
 			return;
 		}
-
 		try
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.EVERYTHING);
