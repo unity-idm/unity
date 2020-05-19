@@ -42,6 +42,11 @@
   			<groupId>com.github.vaadin4qbanos</groupId>
    			<artifactId>jsclipboard</artifactId>
 		</dependency>
+		<dependency>
+  			<groupId>pl.edu.icm.unity</groupId>
+   			<artifactId>unity-server-web-vaadin-tooltip</artifactId>
+   			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -14,6 +14,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
+import io.imunity.tooltip.TooltipExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -42,6 +43,7 @@ class AuthenticationRealmEditor extends CustomComponent
 	{
 		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
+		TooltipExtension.build(name, msg.getMessage("AuthenticationRealm.name.tooltip"));
 		
 		description = new DescriptionTextField(
 				msg);
@@ -104,6 +106,8 @@ class AuthenticationRealmEditor extends CustomComponent
 			endpoints.setCaption(msg.getMessage("AuthenticationRealm.endpoints"));
 			mainLayout.addComponent(endpoints);
 		}
+		
+		TooltipExtension.build(allowForRememberMeDays, msg.getMessage("AuthenticationRealm.allowForRememberMeDays.tooltip"));
 		setCompositionRoot(mainLayout);
 		setWidth(45, Unit.EM);
 	}
