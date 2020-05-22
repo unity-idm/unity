@@ -9,6 +9,7 @@
 	<artifactId>unity-server-ldap</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Authenticator checking user credential against LDAP server</description>
 	<properties>
 		<m.name>ldap</m.name>
 	</properties>
@@ -73,10 +74,6 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.directory.server</groupId>
-			<artifactId>apacheds-protocol-ldap</artifactId>
 		</dependency>
 	</dependencies>
 	

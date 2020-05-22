@@ -105,8 +105,8 @@
 				<artifactId>httpclient</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>eu.unicore.security</groupId>
-			<artifactId>SAMLMetadataTypes</artifactId>
+			<groupId>io.imunity.samly</groupId>
+			<artifactId>samly2-metadatatypes</artifactId>
 		</dependency>
 	</dependencies>
 	
