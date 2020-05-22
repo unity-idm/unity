@@ -18,6 +18,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.ws.rs.core.MediaType;
+
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -41,7 +43,6 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
 import com.nimbusds.oauth2.sdk.auth.Secret;
-import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -334,7 +335,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		HTTPRequest httpRequest = new CustomHttpRequestFactory()
 				.wrapRequest(request.toHTTPRequest(), context, config); 
 		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
-			httpRequest.setAccept(CommonContentTypes.APPLICATION_JSON.toString());
+			httpRequest.setAccept(MediaType.APPLICATION_JSON);
 		
 		if (log.isTraceEnabled())
 		{
