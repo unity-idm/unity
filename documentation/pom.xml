@@ -95,9 +95,8 @@
 		<extensions>
 			<!-- Enabling the use of FTP -->
 			<extension>
-				<groupId>pl.edu.icm.maven</groupId>
-				<artifactId>wagon-sftp</artifactId>
-				<version>1.0.0</version>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
 			</extension>
 		</extensions>
 
