@@ -14,6 +14,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -25,7 +26,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 
@@ -54,7 +55,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 				.stream().collect(Collectors.toMap(NameValuePair::getName,
 						nvp -> Lists.newArrayList(nvp.getValue()))));	
 		uri.clearParameters();
-		HTTPRequest httpReqRaw = new HTTPRequest(
+		HTTPRequest httpReq = new HTTPRequest(
 				providerConfig.getClientHttpMethodForProfileAccess(),
 				uri.build().toURL());
 
@@ -62,8 +63,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 				BaseRemoteASProperties.CLIENT_HOSTNAME_CHECKING,
 				ServerHostnameCheckingMode.class);
 
-		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw,
-				providerConfig.getValidator(), checkingMode);
+		HttpRequestConfigurer.secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
 		
 		
 		if (providerConfig.getClientAuthModeForProfileAccess() == ClientAuthnMode.secretPost)
@@ -88,11 +88,10 @@ public class PlainProfileFetcher implements UserProfileFetcher
 		}
 		log.trace("Received user's profile from {}:\n{}", userInfoEndpoint, resp.getContent().trim());
 
-		if (resp.getContentType() == null || !"application/json"
-				.equals(resp.getContentType().getBaseType().toString()))
+		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information. "
-					+ "It has non-JSON content type: " + resp.getContentType());
+					+ "It has non-JSON content type: " + resp.getEntityContentType());
 
 		JSONObject profile = resp.getContentAsJSONObject();	
 	

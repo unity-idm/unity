@@ -9,9 +9,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.Logger;
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
@@ -33,8 +33,8 @@ import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.OrcidProviderProperties;
 
@@ -82,7 +82,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		URI tokenEndpoint = new URI(accessTokenEndpoint);
 		TokenRequest request = new TokenRequest(tokenEndpoint, clientAuth, clientGrant, scope);
 
-		HTTPRequest httpRequest = new CustomHTTPSRequest(request.toHTTPRequest(), 
+		HTTPRequest httpRequest = HttpRequestConfigurer.secureRequest(request.toHTTPRequest(), 
 				providerConfig.getValidator(), checkingMode);
 
 		HTTPResponse httpResponse = httpRequest.send();
@@ -114,10 +114,10 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 					+ "but the orcid id is missing in the received access token");
 		
 		String userBioEndpoint = bioEndpointBase + userid;
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
-		CustomHTTPSRequest httpReq = new CustomHTTPSRequest(httpReqRaw, providerConfig.getValidator(), checkingMode);
+		HTTPRequest httpReq = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
+		HttpRequestConfigurer.secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
 		httpReq.setAuthorization(clientAccessToken.toAuthorizationHeader());
-		httpReq.setAccept(ContentType.APPLICATION_JSON.getMimeType());
+		httpReq.setAccept(org.apache.http.entity.ContentType.APPLICATION_JSON.getMimeType());
 		HTTPResponse resp = httpReq.send();
 		
 		if (resp.getStatusCode() != 200)
@@ -129,11 +129,11 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		if (log.isTraceEnabled())
 			log.trace("Received user's profile:\n" + resp.getContent());
 
-		if (resp.getContentType() == null || !ContentType.APPLICATION_JSON.getMimeType().equals(
-				resp.getContentType().getBaseType().toString()))
+		
+		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information. "
-					+ "It has non-orcid-JSON content type: " + resp.getContentType());
+					+ "It has non-orcid-JSON content type: " + resp.getEntityContentType());
 		
 		return resp.getContentAsJSONObject();
 	}

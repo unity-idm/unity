@@ -27,14 +27,14 @@ public class OpenIdConnectDiscovery
 	private URL providerMetadataEndpoint;
 	private OIDCProviderMetadata providerMeta;
 	private long expiresAt = -1;
-	private CustomHttpRequestFactory requestFactory;
+	private HttpRequestConfigurer requestFactory;
 	
 	public OpenIdConnectDiscovery(URL providerMetadataEndpoint)
 	{
-		this(providerMetadataEndpoint, new CustomHttpRequestFactory());
+		this(providerMetadataEndpoint, new HttpRequestConfigurer());
 	}
 
-	OpenIdConnectDiscovery(URL providerMetadataEndpoint, CustomHttpRequestFactory requestFactory)
+	OpenIdConnectDiscovery(URL providerMetadataEndpoint, HttpRequestConfigurer requestFactory)
 	{
 		this.providerMetadataEndpoint = providerMetadataEndpoint;
 		this.requestFactory = requestFactory;
@@ -84,6 +84,6 @@ public class OpenIdConnectDiscovery
 	
 	private HTTPRequest wrapRequest(HTTPRequest httpRequest, CustomProviderProperties config)
 	{
-		return requestFactory.wrapRequest(httpRequest, config); 
+		return requestFactory.secureRequest(httpRequest, config); 
 	}
 }

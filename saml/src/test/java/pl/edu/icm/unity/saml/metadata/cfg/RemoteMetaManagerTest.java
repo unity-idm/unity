@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +184,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 					new MetaToIDPConfigConverter(pkiManagement, msg),
 					metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
-		Awaitility.await().atMost(Duration.TEN_SECONDS).untilAsserted(() -> 
+		Awaitility.await().atMost(Durations.TEN_SECONDS).untilAsserted(() -> 
 		{
 			SamlIdpProperties config = (SamlIdpProperties) manager.getVirtualConfiguration();
 			String ret = config.getPrefixOfSP("https://eu01.alma.exlibrisgroup.com/mng/login");

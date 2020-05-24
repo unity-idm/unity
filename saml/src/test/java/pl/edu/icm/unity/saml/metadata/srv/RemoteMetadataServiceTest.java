@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -57,7 +57,7 @@ public class RemoteMetadataServiceTest
 		String key = service.preregisterConsumer("url");
 		service.registerConsumer(key, 100, null, (m,id) -> gotEvent.set(true));
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 	}
 
@@ -73,7 +73,7 @@ public class RemoteMetadataServiceTest
 		String key2 = service.preregisterConsumer("url2");
 		service.registerConsumer(key2, 100, null, (m,id) -> gotEvent.set(true));
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 	}
 
@@ -95,7 +95,7 @@ public class RemoteMetadataServiceTest
 		String key2 = service.preregisterConsumer("url");
 		service.registerConsumer(key2, 200, null, (m,id) -> gotEvent.set(true));
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 		verify(downloader, atMost(1)).getFresh(ArgumentMatchers.anyString(), ArgumentMatchers.any());
 	}
@@ -109,7 +109,7 @@ public class RemoteMetadataServiceTest
 		String id = service.preregisterConsumer("url");
 		service.registerConsumer(id, 25, null, (m,cid) -> gotEvent.incrementAndGet());
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get()>0);
 		service.unregisterConsumer(id);
 		int events = gotEvent.get();

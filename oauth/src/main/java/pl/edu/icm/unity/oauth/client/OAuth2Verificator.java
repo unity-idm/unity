@@ -331,9 +331,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
-		
-		HTTPRequest httpRequest = new CustomHttpRequestFactory()
-				.wrapRequest(request.toHTTPRequest(), context, config); 
+		HTTPRequest httpRequest = new HttpRequestConfigurer()
+				.secureRequest(request.toHTTPRequest(), context, config); 
 		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 			httpRequest.setAccept(MediaType.APPLICATION_JSON);
 		

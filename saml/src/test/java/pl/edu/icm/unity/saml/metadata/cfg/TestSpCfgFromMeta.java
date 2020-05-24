@@ -39,7 +39,7 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +111,7 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SAMLSPProperties.IDPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.FIVE_SECONDS)
+			.atMost(Durations.FIVE_SECONDS)
 			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 
 		SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();
@@ -169,7 +169,7 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SAMLSPProperties.IDPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.FIVE_SECONDS)
+			.atMost(Durations.FIVE_SECONDS)
 			.untilAsserted(() -> {
 				SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();
 				

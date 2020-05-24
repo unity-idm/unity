@@ -53,12 +53,12 @@ public class OIDCDiscoveryTest
 	@Test
 	public void shouldDiscoverMetadataWithoutCacheHeaders() throws ParseException, IOException
 	{
-		CustomHttpRequestFactory reqFactory = mock(CustomHttpRequestFactory.class);
+		HttpRequestConfigurer reqFactory = mock(HttpRequestConfigurer.class);
 		CustomProviderProperties def = mock(CustomProviderProperties.class);
 		URL url = new URL("https://test.org");
 		HTTPRequest wrapped =  mock(HTTPRequest.class);
 		HTTPResponse response = mock(HTTPResponse.class);
-		when(reqFactory.wrapRequest(any(), any())).thenReturn(wrapped);
+		when(reqFactory.secureRequest(any(), any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
 		when(response.getContent()).thenReturn(META);

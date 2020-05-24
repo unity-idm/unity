@@ -41,7 +41,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +114,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 					metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.ONE_MINUTE)
+			.atMost(Durations.ONE_MINUTE)
 			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 	}
 	
@@ -157,7 +157,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.TEN_SECONDS)
+			.atMost(Durations.TEN_SECONDS)
 			.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
 
@@ -195,7 +195,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.TEN_SECONDS)
+			.atMost(Durations.TEN_SECONDS)
 			.untilAsserted(() -> assertEndpointsCfgLoaded(manager));
 	}
 	

@@ -7,13 +7,12 @@ package pl.edu.icm.unity.engine.audit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 
 public class AuditEventListenerTest extends DBIntegrationTestBase
 {
-	private static final Duration DEFAULT_WAIT_TIME = new Duration(20, TimeUnit.SECONDS);
+	private static final Duration DEFAULT_WAIT_TIME = Duration.ofSeconds(20);
 	@Autowired
 	private AuditEventManagement auditManager;
 

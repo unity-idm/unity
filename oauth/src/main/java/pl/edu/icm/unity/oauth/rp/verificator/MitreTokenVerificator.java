@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import org.apache.logging.log4j.Logger;
 
+import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
@@ -26,7 +27,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 
@@ -53,7 +54,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 	{
 		String verificationEndpoint = config.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.POST, new URL(verificationEndpoint));
+		HTTPRequest httpReq = new HTTPRequest(Method.POST, new URL(verificationEndpoint));
 		StringBuilder queryB = new StringBuilder();
 		queryB.append("token=").append(URLEncoder.encode(token.getValue(), "UTF-8"));
 		
@@ -67,7 +68,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 		{
 		case secretBasic:
 			ClientSecretBasic secret = new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
-			httpReqRaw.setAuthorization(secret.toHTTPAuthorizationHeader());
+			httpReq.setAuthorization(secret.toHTTPAuthorizationHeader());
 			break;
 		case secretPost:
 			queryB.append("&client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID), 
@@ -80,11 +81,11 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 					+ "Mitre token verificator: " + clientAuthnMode);
 		}
 		
-		httpReqRaw.setQuery(queryB.toString());
+		httpReq.setQuery(queryB.toString());
 		
 		ServerHostnameCheckingMode checkingMode = config.getEnumValue(
 				OAuthRPProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
-		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, config.getValidator(), checkingMode);
+		HttpRequestConfigurer.secureRequest(httpReq, config.getValidator(), checkingMode);
 
 		HTTPResponse resp = httpReq.send();
 		
@@ -97,10 +98,9 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 		if (log.isTraceEnabled())
 			log.trace("Received tokens's status:\n" + resp.getContent());
 
-		if (resp.getContentType() == null || 
-				!"application/json".equals(resp.getContentType().getBaseType().toString()))
+		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
 			throw new AuthenticationException("Token status query was successful "
-					+ "but it has non-JSON content type: " + resp.getContentType());
+					+ "but it has non-JSON content type: " + resp.getEntityContentType());
 		
 		JSONObject status = resp.getContentAsJSONObject();
 		

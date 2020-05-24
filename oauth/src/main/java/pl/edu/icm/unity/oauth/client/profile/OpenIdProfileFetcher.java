@@ -22,8 +22,8 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
@@ -41,7 +41,7 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
 				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, 
 				ServerHostnameCheckingMode.class);
-		HTTPRequest httpsRequest = new CustomHTTPSRequest(uiRequest.toHTTPRequest(), 
+		HTTPRequest httpsRequest = HttpRequestConfigurer.secureRequest(uiRequest.toHTTPRequest(), 
 				providerConfig.getValidator(), checkingMode); 
 		HTTPResponse uiHttpResponse = httpsRequest.send();
 		UserInfoResponse uiResponse = UserInfoResponse.parse(uiHttpResponse);
