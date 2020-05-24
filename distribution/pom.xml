@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>pl.edu.icm.unity</groupId>
+		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
 		<version>3.3.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
@@ -33,7 +33,7 @@
 		 -->
 		 
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -43,57 +43,57 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-admin</artifactId>
 			<version>${project.version}</version>
 		</dependency>	
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-console</artifactId>
 			<version>${project.version}</version>
 		</dependency>		
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-saml</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-unicore</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-pam</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest-admin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-composite-password</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-upman</artifactId>
 			<version>${project.version}</version>
 		</dependency>		
@@ -101,7 +101,7 @@
 		<!-- Resource dependencies - used for packaging of module contents which should go to assembly/distro.
 		Test scope not to include in regular libs directory -->
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -109,7 +109,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -117,7 +117,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ws</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -125,7 +125,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-std-plugins</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -133,7 +133,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-saml</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -141,7 +141,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-unicore</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -149,7 +149,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-unicore</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -157,7 +157,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -165,7 +165,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-console</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -173,7 +173,7 @@
 			<scope>test</scope>
 		</dependency>				
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-admin</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -181,7 +181,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest-admin</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -189,7 +189,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -197,7 +197,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -205,7 +205,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -213,7 +213,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-base</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -221,7 +221,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -229,7 +229,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
@@ -237,7 +237,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
