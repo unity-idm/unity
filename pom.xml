@@ -55,6 +55,7 @@
 		<module>storage-api</module>
 		<module>storage</module>
 		<module>std-plugins</module>
+		<module>web-vaadin-tooltip</module>
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
 		<module>web-elements</module>
@@ -76,7 +77,7 @@
 		<module>distribution</module>
 		<module>documentation</module>
 		<module>composite-password</module>
-  </modules>
+	</modules>
 
 	<developers>
 		<developer>
@@ -482,6 +483,11 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-themes</artifactId>
+				<version>${vaadin.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-client</artifactId>
 				<version>${vaadin.version}</version>
 			</dependency>
 			<dependency>
