@@ -15,7 +15,8 @@ import io.imunity.tooltip.TooltipExtension;
 public class TooltipExtensionConnector extends AbstractExtensionConnector
 {
 	private Widget baseWidget;
-	private String tooltipText = "";
+	private String tooltipText;
+	private Integer topOffset;
 
 	public TooltipExtensionConnector()
 	{
@@ -31,6 +32,7 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 	protected void extend(ServerConnector target)
 	{
 		tooltipText = getState().tooltipText;
+		topOffset = getState().topOffset;
 		if (baseWidget == null)
 		{
 			baseWidget = ((AbstractComponentConnector) target).getWidget();
@@ -55,7 +57,7 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 		Element element = baseWidget.getElement();
 		String containerId = DOM.createUniqueId();
 		String fixedTooltipContent = createContentOfFixedTooltip(containerId);
-		attachFixedTooltip(element, fixedTooltipContent);
+		attachFixedTooltip(element, topOffset, fixedTooltipContent);
 		attachNestedTooltip(containerId, tooltipText);
 	}
 	
@@ -71,7 +73,7 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 				"</svg>";
 	}
 	
-	private native void attachFixedTooltip(Element target, String fixedContent) 
+	private native void attachFixedTooltip(Element target, int offset, String fixedContent) 
 	/*-{
 		$wnd.tippy(target, {
 		    arrow: false,
@@ -82,6 +84,7 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 		    hideOnClick: false,
 		    trigger: 'manual',
 		    interactive: true,
+		    offset: [offset, 5],
 		    popperOptions: {
 		        modifiers: [
 		            {

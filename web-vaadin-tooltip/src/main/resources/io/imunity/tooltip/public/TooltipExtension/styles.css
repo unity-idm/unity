@@ -1,6 +1,7 @@
 .icon-container {
 	width: 20px;
 	height: 20px;
+	color: black;
 }
 
 .help-icon {
@@ -9,5 +10,4 @@
 
 .tippy-box[data-theme~='help'] {
 	background-color: transparent;
-	color: black;
 }

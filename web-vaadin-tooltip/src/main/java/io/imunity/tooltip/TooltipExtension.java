@@ -11,6 +11,15 @@ import io.imunity.tooltip.client.TooltipExtensionState;
 @StyleSheet({ "vaadin://tippy.css" })
 public class TooltipExtension extends AbstractJavaScriptExtension
 {
+	/**
+	 * The way the console layout is styled currently confuses the tippy
+	 * library causing to display the help in incorrect place - the number
+	 * below is the size of the top bar plus default padding of form layout.
+	 * There might be a need to calculate this number dynamically, but so far
+	 * the fixed number is good enough.
+	 */
+	private static final int CONSOLE_TOP_OFFSET = -68;
+
 	@Override
 	protected TooltipExtensionState getState()
 	{
@@ -26,15 +35,16 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 		super.extend(component);
 	}
 
-	public static void build(AbstractComponent component, String tooltipText)
+	public static void buildForConsole(AbstractComponent component, String tooltipText)
 	{
 		TooltipExtension te = new TooltipExtension();
 		te.getState().tooltipText = tooltipText == null ? "" : tooltipText;
+		te.getState().topOffset = CONSOLE_TOP_OFFSET;
 		te.extend(component);
 	}
-	
-	public static void buildDescriptionBased(AbstractComponent component)
+
+	public static void buildForConsoleDescriptionBased(AbstractComponent component)
 	{
-		build(component, component.getDescription());
+		buildForConsole(component, component.getDescription());
 	}
 }
