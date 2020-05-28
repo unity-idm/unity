@@ -38,6 +38,9 @@
 	
    
     //Custom styles
+	.u-auto-width {
+		width: auto !important;
+	}
 	
 	.u-visiblescroll {
 		overflow: visible;
@@ -572,9 +575,19 @@
 	}
 
 	.u-authn-columnsSeparator {
-		min-width: $v-unit-size;		
+		margin-left: $v-unit-size / 2;		
+		margin-right: $v-unit-size / 2;
+		margin-top: $v-unit-size * 2;		
 	}
 
+	.u-authn-languageSelector {
+		width: auto;		
+	}
+	
+	.u-authn-columnTitle {
+		margin-top: $v-unit-size / 2;
+	}
+	
 	.u-authn-logo {
 		height: $v-unit-size * 2;
 	}

@@ -30,6 +30,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -227,8 +228,7 @@ public class AuthnOptionsColumns extends CustomComponent
 	
 	private Component createStandardExpandedLayout(Iterator<String> columnKeys)
 	{
-		HorizontalLayout columnsLayout = new HorizontalLayout();
-		columnsLayout.setMargin(false);
+		CssLayout columnsLayout = new CssLayout();
 		boolean showAll = config.getBooleanValue(AUTHN_ADD_ALL);
 		boolean focussed = false;
 		columns.clear();
@@ -246,6 +246,7 @@ public class AuthnOptionsColumns extends CustomComponent
 				continue;
 			
 			AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(title, width);
+			columnComponent.addStyleName("u-auto-width");
 			columnsLayout.addComponent(columnComponent);
 			columns.add(columnComponent);
 			columnComponent.addOptions(columnAuthnComponents);
@@ -257,7 +258,6 @@ public class AuthnOptionsColumns extends CustomComponent
 			{
 				Component separator = getColumnsSeparator(columnKey);
 				columnsLayout.addComponent(separator);
-				columnsLayout.setComponentAlignment(separator, Alignment.MIDDLE_CENTER);
 			}
 		}
 		return columnsLayout;

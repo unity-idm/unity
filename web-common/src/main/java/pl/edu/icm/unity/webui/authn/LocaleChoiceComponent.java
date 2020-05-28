@@ -33,7 +33,6 @@ import pl.edu.icm.unity.webui.common.Styles;
  * Allows for choosing the language
  * @author K. Benedyczak
  */
-@SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LocaleChoiceComponent extends CompactFormLayout
@@ -65,6 +64,8 @@ public class LocaleChoiceComponent extends CompactFormLayout
 				chooser.setValue(selected);
 			chooser.setTextInputAllowed(false);
 			chooser.addStyleName(Styles.vComboSmall.toString());
+			chooser.addStyleName("u-authn-languageSelector");
+			chooser.setWidthUndefined();
 			chooser.addSelectionListener(event ->
 				{
 					String localeName = (String) chooser.getValue();

@@ -7,6 +7,10 @@ $narrow-bar-size: 50px;
 
 @mixin sidebar {
 	
+	.u-auto-width {
+		width: auto !important;
+	}
+	
 	.v-menubar-menuitem .v-icon {
 		color: $menubar-icon-color !important;
 	}
