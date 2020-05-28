@@ -48,7 +48,7 @@
 			<directoryMode>0755</directoryMode>
 			<unpack>true</unpack>
 			<includes>
-				<include>pl.edu.icm.unity:unity-server-web-common:zip:webResources</include>
+				<include>io.imunity:unity-server-web-common:zip:webResources</include>
 			</includes>
 			<scope>test</scope>
 		</dependencySet>
@@ -57,8 +57,8 @@
 			<directoryMode>0755</directoryMode>
 			<unpack>true</unpack>
 			<includes>
-				<include>pl.edu.icm.unity:*:zip:i18n</include>
-				<include>pl.edu.icm.unity:*:zip:scripts</include>
+				<include>io.imunity:*:zip:i18n</include>
+				<include>io.imunity:*:zip:scripts</include>
 			</includes>
 			<scope>test</scope>
 		</dependencySet>
