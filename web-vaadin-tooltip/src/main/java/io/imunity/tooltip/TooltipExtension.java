@@ -20,7 +20,7 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 	 * the fixed number is good enough.
 	 */
 	private static final int CONSOLE_TOP_OFFSET = -68;
-	private static final String VAADIN_ICON_HTML = VaadinIcons.QUESTION.getHtml();
+	private static final String VAADIN_ICON_HTML = VaadinIcons.QUESTION_CIRCLE_O.getHtml();
 
 	@Override
 	protected TooltipExtensionState getState()
