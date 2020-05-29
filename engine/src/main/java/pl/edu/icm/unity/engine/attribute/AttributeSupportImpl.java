@@ -73,6 +73,15 @@ public class AttributeSupportImpl implements AttributeSupport
 		return attributesHelper.getAttributeByMetadata(entity, group, metadataId);
 	}
 
+	@Transactional
+	@Override
+	public String getAttributeValueByMetadata(EntityParam entity, String group,
+											   String metadataId) throws EngineException
+	{
+		entity.validateInitialization();
+		return attributesHelper.getAttributeValueByMetadata(entity, group, metadataId);
+	}
+
 	@Override
 	@Transactional
 	public Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException

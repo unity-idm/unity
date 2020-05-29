@@ -229,6 +229,18 @@ public class AttributesHelper
 		return ret.size() == 1 ? ret.iterator().next() : null; 
 	}
 
+	public String getAttributeValueByMetadata(EntityParam entity, String group, String metadataId)
+			throws EngineException
+	{
+		AttributeExt attribute = getAttributeByMetadata(entity, group, metadataId);
+		if (attribute == null)
+			return null;
+		List<?> values = attribute.getValues();
+		if (values.isEmpty())
+			return null;
+		return values.get(0).toString();
+	}
+
 	
 	/**
 	 * Sets ACs of a given entity. Pure business logic - no authZ and transaction management.

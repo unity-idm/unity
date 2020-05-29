@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.identity;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +22,15 @@ import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -38,22 +42,24 @@ public class IdentityResolverImpl implements IdentityResolver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityResolverImpl.class);
 	private IdentityTypeHelper idTypeHelper;
-	private EntityDAO dbIdentities;
-	private EntityResolver dbResolver;
+	private IdentityHelper idHelper;
+	private EntityDAO entityDAO;
+	private EntityResolver entityResolver;
 	private AttributesHelper attributeHelper;
 	private CredentialReqRepository credReqRepository;
 	
 	
 	@Autowired
-	public IdentityResolverImpl(IdentityTypeHelper idTypeHelper, EntityDAO dbIdentities,
-			EntityResolver dbResolver, AttributesHelper attributeHelper,
-			CredentialReqRepository credReqRepository)
+	public IdentityResolverImpl(IdentityTypeHelper idTypeHelper, IdentityHelper idHelper, IdentityDAO idDAO,
+								EntityDAO entityDAO, EntityResolver entityResolver, AttributesHelper attributeHelper,
+								CredentialReqRepository credReqRepository)
 	{
 		this.idTypeHelper = idTypeHelper;
-		this.dbIdentities = dbIdentities;
-		this.dbResolver = dbResolver;
+		this.entityDAO = entityDAO;
+		this.entityResolver = entityResolver;
 		this.attributeHelper = attributeHelper;
 		this.credReqRepository = credReqRepository;
+		this.idHelper = idHelper;
 	}
 
 	@Override
@@ -114,7 +120,7 @@ public class IdentityResolverImpl implements IdentityResolver
 			IdentityTaV tav = new IdentityTaV(identityType, identity, target, realm);
 			try
 			{
-				Identity found = dbResolver.getFullIdentity(tav);
+				Identity found = entityResolver.getFullIdentity(tav);
 				if (!requireConfirmed || isIdentityConfirmed(found))
 				{
 					return found.getEntityId();
@@ -142,8 +148,22 @@ public class IdentityResolverImpl implements IdentityResolver
 	@Override
 	public boolean isEntityEnabled(long entity)
 	{
-		EntityState entityState = dbIdentities.getByKey(entity).getEntityState();
+		EntityState entityState = entityDAO.getByKey(entity).getEntityState();
 		return entityState != EntityState.authenticationDisabled && entityState != EntityState.disabled;
 	}
-	
+
+	@Transactional
+	@Override
+	public List<Identity> getIdentitiesForEntity(EntityParam entity) throws IllegalIdentityValueException
+	{
+		return idHelper.getIdentitiesForEntity(entityResolver.getEntityId(entity), null);
+	}
+
+	@Transactional
+	@Override
+	public Identity insertIdentity(IdentityParam toAdd, EntityParam entity)
+			throws IllegalIdentityValueException
+	{
+		return idHelper.insertIdentity(toAdd, entityResolver.getEntityId(entity), false);
+	}
 }

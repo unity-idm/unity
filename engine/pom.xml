@@ -116,18 +116,6 @@
 			<type>pom</type>
 			<scope>compile</scope>
 		</dependency>
-		<!-- fido dependencies -->
-		<dependency>
-			<groupId>com.yubico</groupId>
-			<artifactId>webauthn-server-core</artifactId>
-			<version>1.5.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jdk8</artifactId>
-			<version>2.9.10</version>
-		</dependency>
 	</dependencies>
 
 	<build>

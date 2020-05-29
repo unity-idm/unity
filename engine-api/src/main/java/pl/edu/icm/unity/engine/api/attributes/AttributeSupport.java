@@ -41,6 +41,13 @@ public interface AttributeSupport
 	 */
 	AttributeExt getAttributeByMetadata(EntityParam entity, String group, String metadataId)
 			throws EngineException;
+
+	/**
+	 * Returns get first value of attribute which has the given metadata set. If there is no such attribute type with this metadata or value,
+	 * then null is returned. The metadata must be singleton, otherwise unchecked exception is thrown.
+	 */
+	String getAttributeValueByMetadata(EntityParam entity, String group, String metadataId)
+			throws EngineException;
 	
 	/**
 	 * @return all attribute types as map. Not authorized anyhow 

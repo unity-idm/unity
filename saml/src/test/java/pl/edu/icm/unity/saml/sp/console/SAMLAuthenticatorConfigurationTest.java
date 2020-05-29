@@ -17,6 +17,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
+@Ignore
 public class SAMLAuthenticatorConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);

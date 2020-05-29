@@ -22,11 +22,11 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.FidoManagement;
+import pl.edu.icm.unity.fido.FidoManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.fido.component.FidoComponent;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.fido.FidoComponent;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,13 +41,15 @@ class FidoTestingView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "FidoTestView";
 
 	private FidoManagement fidoManagement;
+	private UnityMessageSource msg;
 
 	private final TextArea logs = new TextArea();
 
 	@Autowired
-	FidoTestingView(FidoManagement fidoManagement)
+	FidoTestingView(final FidoManagement fidoManagement, final UnityMessageSource msg)
 	{
 		this.fidoManagement = fidoManagement;
+		this.msg = msg;
 	}
 
 	@Override
@@ -56,7 +58,7 @@ class FidoTestingView extends CustomComponent implements UnityView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 
-		FidoComponent fidoComponent = FidoComponent.builder(fidoManagement).build();
+		FidoComponent fidoComponent = FidoComponent.builder(fidoManagement, msg).build();
 
 		TextField usernameField = new TextField("username");
 

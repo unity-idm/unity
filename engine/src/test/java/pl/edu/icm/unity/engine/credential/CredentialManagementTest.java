@@ -92,7 +92,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 	@Test
 	public void shouldReturnAllCredTypes() throws Exception
 	{
-		int automaticCredTypes = 4;
+		int automaticCredTypes = 3;
 		Collection<CredentialType> credTypes = credMan.getCredentialTypes();
 		assertEquals(credTypes.toString(), 1+automaticCredTypes, credTypes.size());
 		CredentialType credType = getDescObjectByName(credTypes, MockPasswordVerificatorFactory.ID);

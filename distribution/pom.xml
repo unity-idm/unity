@@ -95,7 +95,12 @@
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-web-upman</artifactId>
 			<version>${project.version}</version>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-fido</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		
 		<!-- Resource dependencies - used for packaging of module contents which should go to assembly/distro.
 		Test scope not to include in regular libs directory -->
@@ -241,6 +246,14 @@
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>scripts</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-fido</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>i18n</classifier>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
