@@ -2,6 +2,7 @@ package io.imunity.tooltip;
 
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.annotations.StyleSheet;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.AbstractJavaScriptExtension;
 import com.vaadin.ui.AbstractComponent;
 
@@ -19,6 +20,7 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 	 * the fixed number is good enough.
 	 */
 	private static final int CONSOLE_TOP_OFFSET = -68;
+	private static final String VAADIN_ICON_HTML = VaadinIcons.QUESTION.getHtml();
 
 	@Override
 	protected TooltipExtensionState getState()
@@ -40,6 +42,7 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 		TooltipExtension te = new TooltipExtension();
 		te.getState().tooltipText = tooltipText == null ? "" : tooltipText;
 		te.getState().topOffset = CONSOLE_TOP_OFFSET;
+		te.getState().vaadinIconHtml = VAADIN_ICON_HTML;
 		te.extend(component);
 	}
 
