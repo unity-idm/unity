@@ -84,7 +84,7 @@
 			<artifactId>spring-context</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>nl.simplecaptcha</groupId>
+			<groupId>io.imunity.simplecaptcha</groupId>
 			<artifactId>simplecaptcha</artifactId>
 		</dependency>
 		<dependency>
