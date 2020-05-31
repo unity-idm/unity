@@ -23,19 +23,6 @@
 		<tag>HEAD</tag>
 	</scm>
 
-	<distributionManagement>
-		<repository>
-			<id>unicore.eu</id>
-			<name>UNICORE repository</name>
-			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</repository>
-		<snapshotRepository>
-			<id>unicore.eu</id>
-			<name>UNICORE SNAPSHOT Repository</name>
-			<url>dav:https://unicore-dev.zam.kfa-juelich.de/maven</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
