@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -98,10 +99,12 @@ public class EnquiryFormEditor extends BaseFormEditor
 			RegistrationActionsRegistry actionsRegistry,
 			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService,
 			URIAccessService uriAccessService, ImageAccessService imageAccessService,
-			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory)
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
+			AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory);
+		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory,
+				attributeTypeSupport);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;

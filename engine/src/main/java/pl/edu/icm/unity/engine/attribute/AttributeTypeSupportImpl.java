@@ -91,4 +91,10 @@ public class AttributeTypeSupportImpl implements AttributeTypeSupport
 	{
 		return aTypeHelper.getAttibuteTypeResourcesFromClasspathDir();
 	}
+
+	@Override
+	public AttributeValueSyntax<?> getUnconfiguredSyntax(String syntaxId)
+	{
+		return aTypeHelper.getUnconfiguredSyntax(syntaxId);
+	}
 }

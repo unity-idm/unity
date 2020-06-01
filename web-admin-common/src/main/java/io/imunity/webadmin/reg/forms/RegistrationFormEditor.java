@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
@@ -122,10 +123,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 			AuthenticatorSupportService authenticatorSupport, RealmsManagement realmsManagement,
 			FileStorageService fileStorageService, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
-			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory)
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
+			AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, credMan, policyAgreementConfigurationListFactory);
+		super(msg, identitiesMan, attributeMan, credMan, policyAgreementConfigurationListFactory, attributeTypeSupport);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
