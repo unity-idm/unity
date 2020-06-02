@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.engine.msg;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,26 +23,41 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 public class MessageRepository
 {
 	private MessagesDAO dao;
-	private List<Message> all;
+	private Map<String, Map<Locale, String>> all;
 
 	@Autowired
 	public MessageRepository(MessagesDAO dao, TransactionalRunner tx) throws EngineException
 	{
 		this.dao = dao;	
-		all = new ArrayList<>();
+		all = new HashMap<>();
 	}
 
 	@Transactional
 	public void reload()
 	{
-		all = dao.getAll();
+		all.clear();
+		for (Message m : dao.getAll())
+		{
+			if (all.containsKey(m.getName()))
+			{
+				all.get(m.getName()).put(m.getLocale(), m.getValue());
+			}else
+			{
+				
+				Map<Locale, String> v = new HashMap<>();
+				v.put(m.getLocale(), m.getValue());
+				all.put(m.getName(), v);
+			}
+		}
 	}
 
 	public Optional<String> get(String name, Locale locale)
 	{
-		Optional<Message> message = all.stream()
-				.filter(m -> m.getName().equals(name) && m.getLocale().equals(locale))
-				.findFirst();
-		return message.isPresent() ? Optional.of(message.get().getValue()) : Optional.empty();
+		String message = null;
+		if (all.containsKey(name))
+		{
+			message = all.get(name).get(locale);
+		}	
+		return message != null ? Optional.of(message) : Optional.empty();
 	}
 }

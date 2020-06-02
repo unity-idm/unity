@@ -44,11 +44,14 @@ import pl.edu.icm.unity.types.I18nString;
  * and allows for an easier invocation using varargs.
  * It also sets UTF-8 encoding and disables platform's locale fallback.
  * <p>
- * Another improvement is loading of messages from all classpath resources which are under 
+ * Improvements: 
+ * 1. Loading of messages from all classpath resources which are under 
  * messages/per-module-id/messages.properties path and from a respective file which is under 
  * configured i18n location in the same subdirectory as the per-module-id from classpath.
+ * 2. Loading of messages from db from table messages. 
  * 
  * @author K. Benedyczak
+ * @author P.Piernik
  */
 @Component
 public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSource implements MessageSource
