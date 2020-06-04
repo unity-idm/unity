@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -247,13 +248,9 @@ public class IdentityHelper
 
 	List<Identity> getIdentitiesForEntity(long entityId, String target) throws IllegalIdentityValueException
 	{
-		List<Identity> all = identityDAO.getByEntity(entityId);
-		List<Identity> ret = new ArrayList<>(all.size());
-		for (Identity id: all)
-			if (id.getTarget() == null || id.getTarget().equals(target))
-				ret.add(id);
-
-		return ret;
+		return identityDAO.getByEntity(entityId).stream()
+				.filter(id -> id.getTarget() == null || id.getTarget().equals(target))
+				.collect(Collectors.toList());
 	}
 	
 	private Identity createDynamicIdentity(IdentityTypeDefinition idTypeImpl, long entityId, String target)

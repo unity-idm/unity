@@ -14,7 +14,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.fido.exceptions.FidoException;
 import pl.edu.icm.unity.fido.identity.FidoUserHandleIdentity;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -59,7 +58,7 @@ class FidoEntityHelper
 
 	String getDisplayName(final Identities identities) throws FidoException
 	{
-		String displayName = null;
+		Optional<String> displayName = Optional.empty();
 		try
 		{
 			displayName = attributeSupport.getAttributeValueByMetadata(identities.getEntityParam(), "/",
@@ -68,17 +67,13 @@ class FidoEntityHelper
 		{
 			log.error("Failed to get entity {} display name", identities.getEntityParam(), e);
 		}
-		if (isNull(displayName))
+		try
 		{
-			try
-			{
-				displayName = "Entity [" + entityResolver.getEntityId(identities.getEntityParam()) + "]";
-			} catch (IllegalIdentityValueException e)
-			{
-				throw new FidoException(msg.getMessage(NO_ENTITY_MSG), e);
-			}
+			return displayName.orElse("Entity [" + entityResolver.getEntityId(identities.getEntityParam()) + "]");
+		} catch (IllegalIdentityValueException e)
+		{
+			throw new FidoException(msg.getMessage(NO_ENTITY_MSG), e);
 		}
-		return displayName;
 	}
 
 	Optional<String> getUserHandleForUsername(final String username)

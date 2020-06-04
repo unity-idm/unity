@@ -12,7 +12,6 @@ import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.fido.exceptions.FidoException;
 import pl.edu.icm.unity.fido.identity.FidoUserHandleIdentity;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -85,7 +84,7 @@ public class FidoEntityHelperTest
 	public void shouldReturnDisplayName() throws FidoException, EngineException
 	{
 		//given
-		when(attributeSupport.getAttributeValueByMetadata(any(), any(), any())).thenReturn(DISPLAY_NAME);
+		when(attributeSupport.getAttributeValueByMetadata(any(), any(), any())).thenReturn(Optional.of(DISPLAY_NAME));
 
 		//when
 		String dn = helper.getDisplayName(Identities.builder().identities(identitiesList).build());
@@ -98,7 +97,7 @@ public class FidoEntityHelperTest
 	public void shouldReturnDefaultDisplayName() throws FidoException, EngineException
 	{
 		//given
-		when(attributeSupport.getAttributeValueByMetadata(any(), any(), any())).thenReturn(null);
+		when(attributeSupport.getAttributeValueByMetadata(any(), any(), any())).thenReturn(Optional.empty());
 		when(entityResolver.getEntityId(eq(USERNAME_IDENTITY_PARAMS))).thenReturn(2L);
 
 		//when

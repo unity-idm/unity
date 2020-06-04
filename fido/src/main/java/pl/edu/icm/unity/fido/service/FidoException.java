@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.fido.exceptions;
+package pl.edu.icm.unity.fido.service;
 
 /**
  * Thrown when there is a problem with processing Fido registration or authentication.

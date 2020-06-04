@@ -46,6 +46,7 @@ public class EntityResolverImpl implements EntityResolver
 		return getFullIdentity(entity).getEntityId();
 	}
 
+	@Transactional
 	@Override
 	public long getEntityId(EntityParam entity) throws IllegalIdentityValueException
 	{

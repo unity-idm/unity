@@ -6,14 +6,12 @@ package pl.edu.icm.unity.fido.component;
 
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.ui.AbstractJavaScriptComponent;
-import com.vaadin.ui.JavaScriptFunction;
-import elemental.json.JsonArray;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.fido.FidoManagement;
-import pl.edu.icm.unity.fido.exceptions.FidoException;
 import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
+import pl.edu.icm.unity.fido.service.FidoException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import java.util.AbstractMap;
@@ -36,6 +34,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 
 	private final Long entityId;
 	private final String userName;
+	private final boolean showSuccessNotification;
+	private final Consumer<FidoCredentialInfo> newCredentialListener;
 
 	private FidoComponent(final FidoManagement fidoManagement,
 						  final UnityMessageSource msg,
@@ -48,12 +48,17 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		this.msg = msg;
 		this.entityId = entityId;
 		this.userName = userName;
+		this.showSuccessNotification = showSuccessNotification;
+		this.newCredentialListener = newCredentialListener;
 
-		// Validate registration function
-		addFunction("finalizeRegistration", new JavaScriptFunction()
-		{
-			@Override
-			public void call(JsonArray arguments)
+		addFinalizeRegistrationJSFunction();
+		addFinalizeAuthenticationJSFunction();
+		addShowErrorJSFunctions();
+	}
+
+	private void addFinalizeRegistrationJSFunction()
+	{
+		addFunction("finalizeRegistration", arguments ->
 			{
 				log.info("Invoke finalize registration for reqId={}", arguments.getString(0));
 				try
@@ -65,20 +70,18 @@ public class FidoComponent extends AbstractJavaScriptComponent
 					}
 					if (showSuccessNotification)
 					{
-						NotificationPopup.showSuccess(msg.getMessage("Fido.registration"), msg.getMessage("Fido.newCredential")	);
+						NotificationPopup.showSuccess(msg.getMessage("Fido.registration"), msg.getMessage("Fido.newCredential"));
 					}
 				} catch (FidoException e)
 				{
 					NotificationPopup.showError(msg.getMessage("Fido.registrationFail"), e.getLocalizedMessage());
 				}
-			}
-		});
+			});
+	}
 
-		// Validate authentication function
-		addFunction("finalizeAuthentication", new JavaScriptFunction()
-		{
-			@Override
-			public void call(JsonArray arguments)
+	private void addFinalizeAuthenticationJSFunction()
+	{
+		addFunction("finalizeAuthentication", arguments ->
 			{
 				log.info("Invoke finalize authentication for reqId={}", arguments.getString(0));
 				try
@@ -92,30 +95,28 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				{
 					showError(msg.getMessage("Fido.authenticationFail"), e.getLocalizedMessage());
 				}
-			}
-		});
+			});
+	}
 
+	private void addShowErrorJSFunctions()
+	{
 		// Show error notification function
-		addFunction("showError", new JavaScriptFunction()
-		{
-			@Override
-			public void call(JsonArray arguments)
+		addFunction("showError", arguments ->
 			{
-				log.debug("Showing error {}: {}", arguments.getString(0), arguments.getString(1));
-				showError(arguments.getString(0), arguments.getString(1));
-			}
-		});
+				{
+					log.debug("Showing error {}: {}", arguments.getString(0), arguments.getString(1));
+					showError(arguments.getString(0), arguments.getString(1));
+				}
+			});
 
 		// Show internal error notification
-		addFunction("showInternalError", new JavaScriptFunction()
-		{
-			@Override
-			public void call(JsonArray arguments)
+		addFunction("showInternalError", arguments ->
 			{
-				log.error("Showing internal error caused by {}: {}", arguments.getString(0), arguments.getString(1));
-				showError(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
-			}
-		});
+				{
+					log.error("Showing internal error caused by {}: {}", arguments.getString(0), arguments.getString(1));
+					showError(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
+				}
+			});
 	}
 
 	public void showError(final String title, final String errorMsg)

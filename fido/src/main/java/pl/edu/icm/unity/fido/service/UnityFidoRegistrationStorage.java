@@ -13,7 +13,6 @@ import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
-import pl.edu.icm.unity.fido.exceptions.FidoException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 import java.util.Collections;

@@ -20,11 +20,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.fido.exceptions.FidoException;
 import pl.edu.icm.unity.fido.FidoManagement;
 import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
@@ -42,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author R. Ledzinski
  */
 @Component
-public class FidoManagementImpl implements FidoManagement
+class FidoManagementImpl implements FidoManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoManagementImpl.class);
 	private final UnityFidoRegistrationStorage fidoStorage;

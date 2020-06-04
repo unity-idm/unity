@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.fido;
 
 import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
-import pl.edu.icm.unity.fido.exceptions.FidoException;
+import pl.edu.icm.unity.fido.service.FidoException;
 
 import java.util.AbstractMap.SimpleEntry;
 
