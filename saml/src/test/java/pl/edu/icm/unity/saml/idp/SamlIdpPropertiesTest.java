@@ -15,7 +15,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 
 public class SamlIdpPropertiesTest
 {
