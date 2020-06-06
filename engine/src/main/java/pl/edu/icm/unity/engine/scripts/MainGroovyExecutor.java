@@ -49,6 +49,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 /**
@@ -139,6 +140,8 @@ public class MainGroovyExecutor
 	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 	@Autowired
 	private SessionManagement sessionManagement;
+	@Autowired
+	private RegistrationFormTranslationActionGenerator regTranslationActionGenerator;
 	
 	
 	@Autowired
@@ -213,6 +216,7 @@ public class MainGroovyExecutor
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
 		binding.setVariable("groupDelegationConfigGenerator", groupDelegationConfigGenerator);
 		binding.setVariable("sessionManagement", sessionManagement);
+		binding.setVariable("regTranslationActionGenerator", regTranslationActionGenerator);
 		boolean coldStart = false;
 		if (event.getTrigger().equals(EventCategory.POST_INIT.toString()) || 
 				event.getTrigger().equals(EventCategory.PRE_INIT.toString()))
