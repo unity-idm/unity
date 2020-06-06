@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 /**
@@ -108,6 +109,8 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		SessionManagement sessionManagement = mock(SessionManagement.class, 
 				withSettings().verboseLogging());
+		RegistrationFormTranslationActionGenerator regTranslationActionGenerator = mock(
+				RegistrationFormTranslationActionGenerator.class, withSettings().verboseLogging());
 		
 		Binding binding = new Binding();
 		binding.setVariable("config", config);
@@ -140,6 +143,7 @@ public class MockGroovyBindingProvider
 		binding.setVariable("isColdStart", true);
 		binding.setVariable("event", event.getTrigger());
 		binding.setVariable("context", event.getContents());
+		binding.setVariable("regTranslationActionGenerator", regTranslationActionGenerator);
 		binding.setVariable("log", LOG);
 		return binding;
 	}
