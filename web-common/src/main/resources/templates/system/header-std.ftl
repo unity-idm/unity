@@ -6,5 +6,5 @@
 
 <style type="text/css">html, body {height:100%;margin:0;}</style>
 
-<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="./VAADIN/themes/${theme}/favicon.ico">
-<link rel="icon" type="image/vnd.microsoft.icon" href="./VAADIN/themes/${theme}/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="./VAADIN/themes/common/img/favicon/favicon-16.png">
+<link rel="icon" type="image/png" sizes="24x24" href="./VAADIN/themes/common/img/favicon/favicon-24.png">
