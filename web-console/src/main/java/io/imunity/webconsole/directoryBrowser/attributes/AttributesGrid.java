@@ -42,9 +42,11 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -141,6 +143,11 @@ public class AttributesGrid extends CustomComponent
 		Toolbar<AttributeExt> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
+		toolbar.addActionButton(StandardButtonsHelper.buildActionButton(
+						msg.getMessage("add"),
+						Images.add,
+						e -> showAddDialog()), 
+				Alignment.MIDDLE_RIGHT);
 		ComponentWithToolbar componentWithToolbar = new ComponentWithToolbar(attributesGrid, toolbar,
 				Alignment.BOTTOM_LEFT);
 		componentWithToolbar.setSizeFull();
@@ -203,11 +210,7 @@ public class AttributesGrid extends CustomComponent
 	{
 		AttributeType attributeType = attributeTypes.get(attribute.getName());
 		if (attributeType == null)
-		{
-			// log.error("Attribute type is not in the map: " +
-			// attribute.getName());
 			return false;
-		}
 		return attributeType.isInstanceImmutable();
 	}
 
@@ -232,13 +235,10 @@ public class AttributesGrid extends CustomComponent
 
 	private List<SingleActionHandler<AttributeExt>> getGlobalHamburgerHandlers()
 	{
-		SingleActionHandler<AttributeExt> add = SingleActionHandler.builder4Add(msg, AttributeExt.class)
-				.withHandler(this::showAddDialog).build();
-
-		return Arrays.asList(add, getDeleteAction());
+		return Arrays.asList(getDeleteAction());
 	}
 
-	private void showAddDialog(Collection<AttributeExt> target)
+	private void showAddDialog()
 	{
 		List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
 		for (AttributeType at : attributeTypes.values())
