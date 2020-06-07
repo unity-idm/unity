@@ -17,7 +17,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -41,7 +41,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	private EnumComboBox<EntityScheduledOperation> entityScheduledChange;
 	private DateTimeField changeTime;
 	
-	public ChangeEntityStateDialog(UnityMessageSource msg, EntityWithLabel entity, Callback callback)
+	public ChangeEntityStateDialog(MessageSource msg, EntityWithLabel entity, Callback callback)
 	{
 		super(msg, msg.getMessage("ChangeEntityStateDialog.caption"));
 		this.entity = entity;

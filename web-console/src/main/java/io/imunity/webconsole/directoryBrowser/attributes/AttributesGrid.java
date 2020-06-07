@@ -5,6 +5,8 @@
 
 package io.imunity.webconsole.directoryBrowser.attributes;
 
+import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,10 +28,9 @@ import com.vaadin.ui.MenuBar.MenuItem;
 
 import io.imunity.webadmin.attribute.AttributeEditDialog;
 import io.imunity.webadmin.attribute.AttributeEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -41,9 +42,11 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -59,7 +62,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesGrid extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesController controller;
 	private AttributeHandlerRegistry registry;
 
@@ -75,7 +78,7 @@ public class AttributesGrid extends CustomComponent
 	private EventsBus bus;
 
 	@Autowired
-	AttributesGrid(UnityMessageSource msg, AttributesController controller, AttributeHandlerRegistry registry)
+	AttributesGrid(MessageSource msg, AttributesController controller, AttributeHandlerRegistry registry)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -93,11 +96,13 @@ public class AttributesGrid extends CustomComponent
 		attributesGrid.addComponentColumn(a -> getShortValue(a), msg.getMessage("AttributesGrid.valueCaption"),
 				80).setResizable(true);
 
-		attributesGrid.addSortableColumn(a -> TimeUtil.formatStandardInstant(a.getCreationTs().toInstant()),
+		attributesGrid.addSortableColumn(a -> a.getCreationTs() != null ? 
+					formatStandardInstant(a.getCreationTs().toInstant()) : "",
 				msg.getMessage("AttributesGrid.createCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 
-		attributesGrid.addSortableColumn(a -> TimeUtil.formatStandardInstant(a.getUpdateTs().toInstant()),
+		attributesGrid.addSortableColumn(a -> a.getUpdateTs() != null ? 
+					formatStandardInstant(a.getUpdateTs().toInstant()) : "",
 				msg.getMessage("AttributesGrid.updateCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 
@@ -138,6 +143,11 @@ public class AttributesGrid extends CustomComponent
 		Toolbar<AttributeExt> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
+		toolbar.addActionButton(StandardButtonsHelper.buildActionButton(
+						msg.getMessage("add"),
+						Images.add,
+						e -> showAddDialog()), 
+				Alignment.MIDDLE_RIGHT);
 		ComponentWithToolbar componentWithToolbar = new ComponentWithToolbar(attributesGrid, toolbar,
 				Alignment.BOTTOM_LEFT);
 		componentWithToolbar.setSizeFull();
@@ -200,11 +210,7 @@ public class AttributesGrid extends CustomComponent
 	{
 		AttributeType attributeType = attributeTypes.get(attribute.getName());
 		if (attributeType == null)
-		{
-			// log.error("Attribute type is not in the map: " +
-			// attribute.getName());
 			return false;
-		}
 		return attributeType.isInstanceImmutable();
 	}
 
@@ -229,13 +235,10 @@ public class AttributesGrid extends CustomComponent
 
 	private List<SingleActionHandler<AttributeExt>> getGlobalHamburgerHandlers()
 	{
-		SingleActionHandler<AttributeExt> add = SingleActionHandler.builder4Add(msg, AttributeExt.class)
-				.withHandler(this::showAddDialog).build();
-
-		return Arrays.asList(add, getDeleteAction());
+		return Arrays.asList(getDeleteAction());
 	}
 
-	private void showAddDialog(Collection<AttributeExt> target)
+	private void showAddDialog()
 	{
 		List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
 		for (AttributeType at : attributeTypes.values())

@@ -28,7 +28,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
@@ -54,12 +54,12 @@ class ServicesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Services";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ServicesController controller;
 	private GridWithActionColumn<ServiceDefinition> servicesGrid;
 
 	@Autowired
-	ServicesView(UnityMessageSource msg, ServicesController controller)
+	ServicesView(MessageSource msg, ServicesController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -238,12 +238,14 @@ class ServicesView extends CustomComponent implements UnityView
 	@Component
 	public class ServicesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public ServicesNavigationInfoProvider(UnityMessageSource msg,
-				WebConsoleRootNavigationInfoProvider parent, ObjectFactory<ServicesView> factory)
+		public ServicesNavigationInfoProvider(MessageSource msg,
+				 ObjectFactory<ServicesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(WebConsoleRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.services"))
 					.withIcon(Images.server.getResource()).withPosition(50).build());
 		}

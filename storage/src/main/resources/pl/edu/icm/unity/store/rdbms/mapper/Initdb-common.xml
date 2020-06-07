@@ -215,6 +215,29 @@ CREATE TABLE ATTRIBUTES_LOOKUP (
 	<update id="initdb-21">
 		<include refid="sql-initAttributesLookupTableIdx"/>	
 	</update>
+	
+	<sql id="sql-policyDocuments">
+CREATE TABLE POLICY_DOCUMENTS (
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.defaultColsBlob"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>	
+	</sql>
+	
+	<update id="initdb-22">
+		<include refid="sql-policyDocuments"/>
+	</update>
+	
+	<sql id="sql-messages">
+CREATE TABLE MESSAGES (
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.defaultColsMem"/>,
+		LOCALE VARCHAR(100),
+		UNIQUE(NAME, LOCALE)
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>	
+	</sql>
+	
+	<update id="initdb-23">
+		<include refid="sql-messages"/>
+	</update>
+	
 
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(

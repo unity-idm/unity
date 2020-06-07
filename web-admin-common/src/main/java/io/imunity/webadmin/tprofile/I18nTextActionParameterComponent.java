@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.data.Binder;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
@@ -17,7 +17,7 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 {
 	private Binder<StringValueBean> binder;
 	
-	public I18nTextActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
+	public I18nTextActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		super(msg, desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));	

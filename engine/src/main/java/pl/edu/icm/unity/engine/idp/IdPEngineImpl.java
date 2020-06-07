@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
@@ -38,7 +38,7 @@ public class IdPEngineImpl extends IdPEngineImplBase
 			UserImportSerivce userImportService,
 			OutputTranslationActionsRegistry actionsRegistry,
 			AttributeValueConverter attrValueConverter,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		super(attributesMan, insecureAttributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 

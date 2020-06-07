@@ -7,9 +7,9 @@ package pl.edu.icm.unity.engine.attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -24,7 +24,7 @@ public class AttributeClassTypeProvider extends AbstractAttributeTypeProvider
 	public static final String ATTRIBUTE_CLASSES_ATTRIBUTE = "sys:AttributeClasses"; 
 	
 	@Autowired
-	public AttributeClassTypeProvider(UnityMessageSource msg)
+	public AttributeClassTypeProvider(MessageSource msg)
 	{
 		super(msg);
 	}

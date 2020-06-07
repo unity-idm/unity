@@ -17,8 +17,8 @@ import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class ActionEditor extends LayoutEmbeddable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ActionEditor.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	
 	private ComboBox<String> actions;
@@ -44,7 +44,7 @@ public class ActionEditor extends LayoutEmbeddable
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
 	private BiConsumer<String, Optional<TranslationAction>> callback;
 	
-	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+	public ActionEditor(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
 			BiConsumer<String, Optional<TranslationAction>> callback)
 	{
@@ -56,7 +56,7 @@ public class ActionEditor extends LayoutEmbeddable
 	}
 	
 	
-	public ActionEditor(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+	public ActionEditor(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider)
 	{
 		this(msg, tc, toEdit, actionComponentProvider, null);

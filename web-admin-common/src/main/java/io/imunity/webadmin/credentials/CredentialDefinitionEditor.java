@@ -12,7 +12,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class CredentialDefinitionEditor extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
 	private TextField name;
 	private I18nTextField displayedName;
@@ -46,7 +46,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 	
 	private Binder<CredentialDefinition> binder;
 	
-	public CredentialDefinitionEditor(UnityMessageSource msg, CredentialEditorRegistry credentialEditorReg,
+	public CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg,
 			CredentialDefinition initial)
 	{
 		this.msg = msg;
@@ -54,7 +54,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		init(initial, credentialEditorReg);
 	}
 	
-	public CredentialDefinitionEditor(UnityMessageSource msg, CredentialEditorRegistry credentialEditorReg)
+	public CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg)
 	{
 		this(msg, credentialEditorReg, null);
 	}

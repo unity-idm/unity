@@ -13,11 +13,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -42,7 +42,7 @@ public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfir
 
 	@Autowired
 	protected EmailIdentityFacility(EntityDAO dbIdentities, IdentityTypeHelper identityTypeHelper,
-			IdentityDAO idDAO, TxManager tx, UnityMessageSource msg, UnityServerConfiguration serverConfig)
+			IdentityDAO idDAO, TxManager tx, MessageSource msg, UnityServerConfiguration serverConfig)
 	{
 		super(dbIdentities, msg, serverConfig.getValue(CONFIRMATION_DEFAULT_RETURN_URL));
 		this.identityTypeHelper = identityTypeHelper;

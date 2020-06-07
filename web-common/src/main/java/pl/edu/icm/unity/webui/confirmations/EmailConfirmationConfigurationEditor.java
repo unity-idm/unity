@@ -11,9 +11,9 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class EmailConfirmationConfigurationEditor extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgTemplateMan;
 	private Binder<EmailConfirmationConfiguration> binder;
 	private EmailConfirmationConfiguration initial;
@@ -35,7 +35,7 @@ public class EmailConfirmationConfigurationEditor extends CompactFormLayout
 	private TextField validityTime;
 
 	public EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial,
-			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+			MessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
 		this.initial = initial;
 		this.msg = msg;

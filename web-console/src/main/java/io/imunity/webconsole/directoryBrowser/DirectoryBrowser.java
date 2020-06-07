@@ -15,7 +15,6 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webconsole.directoryBrowser.attributes.AttributesComponentPanel;
@@ -25,32 +24,25 @@ import io.imunity.webconsole.directoryBrowser.identities.IdentitiesPanel;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.sessionscope.WebSessionComponent;
 
-/**
- * Default dashbord view
- * 
- * @author P.Piernik
- *
- */
-
-@PrototypeComponent
+@WebSessionComponent
 public class DirectoryBrowser extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "DirectoryBrowser";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupBrowserPanel groupBrowserPanel;
 	private AttributesComponentPanel attributesPanel;
 	private IdentitiesPanel identitiesPanel;
 	private GroupDetailsPanel groupDetailsPanel;
 
 	@Autowired
-	public DirectoryBrowser(UnityMessageSource msg, GroupBrowserPanel groupBrowser,
+	public DirectoryBrowser(MessageSource msg, GroupBrowserPanel groupBrowser,
 			IdentitiesPanel identitiesTable, GroupDetailsPanel groupDetails,
 			AttributesComponentPanel attributesComponent)
 	{
@@ -81,7 +73,7 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 		setSizeFull();
 
 		setCompositionRoot(mainL);
-		WebSession.getCurrent().getEventBus().fireEvent(new GroupChangedEvent("/"));
+		WebSession.getCurrent().getEventBus().fireEvent(new RefreshAndSelectEvent());
 	}
 
 	@Override
@@ -101,11 +93,11 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 	{
 		@Autowired
 		@Lazy
-		public DirectoryBrowserNavigationInfoProvider(UnityMessageSource msg,
-				WebConsoleRootNavigationInfoProvider parent, ObjectFactory<DirectoryBrowser> factory)
+		public DirectoryBrowserNavigationInfoProvider(MessageSource msg,
+				ObjectFactory<DirectoryBrowser> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(WebConsoleRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directoryBrowser"))
 					.withIcon(Images.group.getResource()).withPosition(10).build());
 

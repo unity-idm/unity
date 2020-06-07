@@ -14,7 +14,7 @@ import io.imunity.webconsole.services.ServicesView.ServicesNavigationInfoProvide
 import io.imunity.webconsole.services.base.EditServiceViewBase;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
@@ -29,7 +29,7 @@ class EditServiceView extends EditServiceViewBase
 	public static final String VIEW_NAME = "EditService";
 
 	@Autowired
-	EditServiceView(UnityMessageSource msg, ServicesController controller)
+	EditServiceView(MessageSource msg, ServicesController controller)
 	{
 		super(msg, controller, ServicesView.VIEW_NAME);
 	}
@@ -45,11 +45,10 @@ class EditServiceView extends EditServiceViewBase
 	{
 
 		@Autowired
-		public EditServiceNavigationInfoProvider(ServicesNavigationInfoProvider parent,
-				ObjectFactory<EditServiceView> factory)
+		public EditServiceNavigationInfoProvider(ObjectFactory<EditServiceView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(ServicesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.identities;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  */
 public class MembershipFormatter
 {
-	public static String toString(UnityMessageSource msg, GroupMembership membership)
+	public static String toString(MessageSource msg, GroupMembership membership)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(msg.getMessage("MembershipFormatter.groupCore", membership.getGroup()));
@@ -27,7 +27,7 @@ public class MembershipFormatter
 		return sb.toString();
 	}
 	
-	private static String getRemoteInfoString(UnityMessageSource msg, GroupMembership membership)
+	private static String getRemoteInfoString(MessageSource msg, GroupMembership membership)
 	{
 		StringBuilder rep = new StringBuilder();
 		if (membership.getRemoteIdp() != null)

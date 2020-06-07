@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -24,9 +24,9 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class CertificatesController
 {
 	private PKIManagement pkiMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	CertificatesController(PKIManagement pkiMan, UnityMessageSource msg)
+	CertificatesController(PKIManagement pkiMan, MessageSource msg)
 	{
 		this.pkiMan = pkiMan;
 		this.msg = msg;

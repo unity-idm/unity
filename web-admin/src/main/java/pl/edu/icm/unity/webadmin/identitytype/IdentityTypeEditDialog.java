@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.identitytype;
 import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.identitytype.IdentityTypeEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -21,7 +21,7 @@ public class IdentityTypeEditDialog extends AbstractDialog
 	private IdentityTypeEditor editor;
 	private Callback callback;
 	
-	public IdentityTypeEditDialog(UnityMessageSource msg, String caption, Callback callback, 
+	public IdentityTypeEditDialog(MessageSource msg, String caption, Callback callback, 
 			IdentityTypeEditor editor)
 	{
 		super(msg, caption);

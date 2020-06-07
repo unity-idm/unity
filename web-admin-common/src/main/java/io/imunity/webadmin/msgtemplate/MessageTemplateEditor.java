@@ -27,12 +27,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
@@ -61,7 +61,7 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  */
 public class MessageTemplateEditor extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateConsumersRegistry registry;
 	private NotificationsManagement notChannelsMan;
 	private TextField name;
@@ -85,7 +85,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private Label externalTemplateInfo;
 	private ChipsWithTextfield customVariablesPicker;
 
-	public MessageTemplateEditor(UnityMessageSource msg,
+	public MessageTemplateEditor(MessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
 			MessageTemplateManagement msgTemplateMgr,  NotificationsManagement notChannelsMan)
 	{

@@ -18,7 +18,6 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -355,22 +354,16 @@ public class Group extends I18nDescribedObject implements NamedObject
 
 		if (JsonUtil.notNull(main, "delegationConfiguration"))
 		{
-			ObjectMapper jsonMapper = Constants.MAPPER;
-			String v;
 			try
 			{
-				v = jsonMapper.writeValueAsString(
-						main.get("delegationConfiguration"));
-				GroupDelegationConfiguration config = jsonMapper.readValue(v,
-						GroupDelegationConfiguration.class);
-				setDelegationConfiguration(config);
+				GroupDelegationConfiguration delegationConfig = Constants.MAPPER.treeToValue(
+						main.get("delegationConfiguration"), GroupDelegationConfiguration.class);
+				setDelegationConfiguration(delegationConfig);
 			} catch (Exception e)
 			{
 				throw new InternalException(
-						"Can't deserialize group delegation configuration from JSON",
-						e);
+						"Can't deserialize group delegation configuration from JSON", e);
 			}
-
 		} else
 		{
 			setDelegationConfiguration(new GroupDelegationConfiguration(false));

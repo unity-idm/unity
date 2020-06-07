@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.apache.logging.log4j.util.Strings;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
@@ -22,14 +22,14 @@ import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringSt
  */
 public class PostFillingHandler
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String formId;
 	private List<RegistrationWrapUpConfig> wrapUpConfigs;
 	private String pageTitle;
 	private String logoURL;
 	private String msgPrefix;
 	
-	public PostFillingHandler(String formId, List<RegistrationWrapUpConfig> wrapUpConfigs, UnityMessageSource msg,
+	public PostFillingHandler(String formId, List<RegistrationWrapUpConfig> wrapUpConfigs, MessageSource msg,
 			String pageTitle, String logoURL, boolean registration)
 	{
 		this.formId = formId;

@@ -21,11 +21,11 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 @PrototypeComponent
 public class EndpointsComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointManagement endpointMan;
 	private ServerManagement serverMan;
 	private VerticalLayout content;
@@ -51,7 +51,7 @@ public class EndpointsComponent extends VerticalLayout
 	private ObjectFactory<EndpointComponent> endpointComponentFactory;
 
 	@Autowired
-	public EndpointsComponent(UnityMessageSource msg, EndpointManagement endpointMan,
+	public EndpointsComponent(MessageSource msg, EndpointManagement endpointMan,
 			ServerManagement serverMan,
 			TranslationProfileManagement profilesMan,
 			ObjectMapper jsonMapper,

@@ -16,8 +16,8 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 public class OAuthTokenViewer extends VerticalLayout
 {
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private FormLayout main;
 	
@@ -42,7 +42,7 @@ public class OAuthTokenViewer extends VerticalLayout
 	private CompactFormLayout userInfoComponent;
 	
 	
-	public OAuthTokenViewer(UnityMessageSource msg)
+	public OAuthTokenViewer(MessageSource msg)
 	{
 		super();
 		this.msg = msg;

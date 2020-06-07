@@ -14,7 +14,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutConfigToUIConverter;
@@ -35,7 +35,7 @@ public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnEleme
 {
 	public static final String RET_COLUMN_ID = "RETUSER";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private HorizontalLayout columnLayout;
 	private AuthnLayoutColumn column;
 	private Runnable valueChange = () -> fireEvent(
@@ -51,7 +51,7 @@ public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnEleme
 	};
 	private VerticalLayout main;
 
-	public WebServiceReturningLayoutEditor(UnityMessageSource msg)
+	public WebServiceReturningLayoutEditor(MessageSource msg)
 	{
 		this.msg = msg;
 		initUI();

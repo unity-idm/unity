@@ -12,12 +12,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponseAutoProcessEvent;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestAutoProcessEvent;
@@ -57,13 +57,13 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 	protected EnquiryFormDB enquiresDB;
 	private ApplicationEventPublisher publisher;
 	private TxManager txMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 
 	public RegistrationEmailFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			ApplicationEventPublisher publisher,
-			TxManager txMan, UnityMessageSource msg)
+			TxManager txMan, MessageSource msg)
 	{
 		this.requestDB = requestDB;
 		this.enquiryResponsesDB = enquiryResponsesDB;

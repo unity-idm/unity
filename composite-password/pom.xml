@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>pl.edu.icm.unity</groupId>
+		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
 		<version>3.3.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
@@ -9,6 +9,7 @@
 	<artifactId>unity-composite-password</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>Password authenticator which can validate password against multiple backends</description>
 
 	<properties>
 		<m.name>composite-password</m.name>
@@ -22,27 +23,27 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-std-plugins</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-pam</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -57,32 +58,32 @@
 			<scope>test</scope>
 		</dependency>
 		 <dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ws</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ws</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>

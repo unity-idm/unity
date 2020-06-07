@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common.credentials.cert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
@@ -17,10 +17,10 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 @Component
 public class CertificateCredentialEditorFactory implements CredentialEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
-	public CertificateCredentialEditorFactory(UnityMessageSource msg)
+	public CertificateCredentialEditorFactory(MessageSource msg)
 	{
 		this.msg = msg;
 	}

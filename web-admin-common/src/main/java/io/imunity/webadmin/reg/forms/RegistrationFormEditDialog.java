@@ -8,7 +8,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -26,7 +26,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 	private RegistrationFormEditor editor;
 	private Callback callback;
 	
-	public RegistrationFormEditDialog(UnityMessageSource msg, String caption, Callback callback, 
+	public RegistrationFormEditDialog(MessageSource msg, String caption, Callback callback, 
 			RegistrationFormEditor attributeEditor)
 	{
 		super(msg, caption);

@@ -13,7 +13,7 @@ import java.util.List;
 
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 
 
@@ -26,9 +26,9 @@ public class FormAttributeGroupComboBox extends ComboBox<String>
 {
 	private List<String> groups;
 	private List<String> dynamicGroups;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public FormAttributeGroupComboBox(String caption, UnityMessageSource msg, Collection<String> groups, 
+	public FormAttributeGroupComboBox(String caption, MessageSource msg, Collection<String> groups, 
 			List<String> dynamicGroups)
 	{
 		super(caption);

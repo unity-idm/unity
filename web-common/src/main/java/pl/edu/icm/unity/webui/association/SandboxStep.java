@@ -19,7 +19,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxPopup;
 
 /**
@@ -31,11 +31,11 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxPopup;
 public class SandboxStep extends CustomComponent implements WizardStep 
 {
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private boolean onAdvance;
 	private Wizard wizard;
 
-	public SandboxStep(UnityMessageSource msg, String sandboxURL, final Wizard wizard) 
+	public SandboxStep(MessageSource msg, String sandboxURL, final Wizard wizard) 
 	{
 		this.msg = msg;
 		this.wizard = wizard;
@@ -77,7 +77,7 @@ public class SandboxStep extends CustomComponent implements WizardStep
 		return this;
 	}
 
-	private void buildMainLayout(UnityMessageSource msg, String sandboxURL) 
+	private void buildMainLayout(MessageSource msg, String sandboxURL) 
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setWidth("100%");

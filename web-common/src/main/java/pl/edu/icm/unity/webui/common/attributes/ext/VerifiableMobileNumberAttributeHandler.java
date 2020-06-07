@@ -15,11 +15,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
@@ -49,12 +49,12 @@ import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
  */
 public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 {	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ConfirmationInfoFormatter formatter;
 	private VerifiableMobileNumberAttributeSyntax syntax;
 	private MobileNumberConfirmationManager  mobileConfirmationMan;
 
-	public VerifiableMobileNumberAttributeHandler(UnityMessageSource msg,
+	public VerifiableMobileNumberAttributeHandler(MessageSource msg,
 			ConfirmationInfoFormatter formatter, AttributeValueSyntax<?> syntax,
 			MobileNumberConfirmationManager mobileConfirmationMan)
 	{
@@ -116,13 +116,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	{
 
 		private VerifiableMobileNumberAttributeSyntax initial;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private MessageTemplateManagement msgTemplateMan;
 		private MobileNumberConfirmationConfigurationEditor editor;
 
 		public VerifiableMobileNumberSyntaxEditor(
 				VerifiableMobileNumberAttributeSyntax initial,
-				UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+				MessageSource msg, MessageTemplateManagement msgTemplateMan)
 		{
 			this.initial = initial;
 			this.msg = msg;
@@ -338,13 +338,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	public static class VerifiableMobileNumberAttributeHandlerFactory
 			implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private ConfirmationInfoFormatter formatter;
 		private MessageTemplateManagement msgTemplateMan;
 		private MobileNumberConfirmationManager smsConfirmationMan;
 
 		@Autowired
-		public VerifiableMobileNumberAttributeHandlerFactory(UnityMessageSource msg,
+		public VerifiableMobileNumberAttributeHandlerFactory(MessageSource msg,
 				ConfirmationInfoFormatter formatter,
 				MessageTemplateManagement msgTemplateMan,
 				MobileNumberConfirmationManager smsConfirmationMan,

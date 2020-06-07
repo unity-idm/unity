@@ -10,18 +10,17 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
@@ -41,16 +40,15 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class GroupDetailsPanel extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupDetailsPanel.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsManagement groupsManagement;
-
-	private Label info;
 
 	private VerticalLayout main;
 	private AttributeStatementsComponent attrStatements;
+	private String group;
 
 	@Autowired
-	public GroupDetailsPanel(UnityMessageSource msg, AttributeStatementController controller,
+	public GroupDetailsPanel(MessageSource msg, AttributeStatementController controller,
 			GroupsManagement groupsManagement)
 	{
 		this.msg = msg;
@@ -60,43 +58,40 @@ public class GroupDetailsPanel extends SafePanel
 		main.setMargin(false);
 		main.setSizeFull();
 
-		info = new Label();
-
 		attrStatements = new AttributeStatementsComponent(msg, controller);
 
-		main.addComponents(info, attrStatements);
+		main.addComponents(attrStatements);
 		main.setExpandRatio(attrStatements, 1);
 
 		setSizeFull();
 		setContent(main);
 		setStyleName(Styles.vPanelLight.toString());
 
-		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(new EventListener<GroupChangedEvent>()
-		{
-			@Override
-			public void handleEvent(GroupChangedEvent event)
-			{
-				setGroup(event.getGroup());
-			}
-		}, GroupChangedEvent.class);
+		EventsBus eventBus = WebSession.getCurrent().getEventBus();
+		eventBus.addListener(event -> refreshAndEnsureSelection(), RefreshAndSelectEvent.class);
+		eventBus.addListener(event -> setGroup(event.getGroup()), GroupChangedEvent.class);
 		setGroup(null);
+	}
+
+	private void refreshAndEnsureSelection()
+	{
+		setGroup(group == null ? "/" : group);
 	}
 
 	private void setGroup(String group)
 	{
+		this.group = group;
 		if (group == null)
 		{
 			setProblem(msg.getMessage("GroupDetails.noGroup"), Level.warning);
 			return;
 		}
-
 		try
 		{
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.EVERYTHING);
 			Group rGroup = contents.getGroup();
 
-			info.setValue(msg.getMessage("GroupDetails.infoLabel",group,
+			setCaption(msg.getMessage("GroupDetails.infoLabel",group,
 					String.valueOf(contents.getMembers().size()),
 					String.valueOf(contents.getSubGroups().size())));
 			attrStatements.setInput(rGroup);

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class UserDetailsPanel
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ComponentsGroup contents;
 	private Label id;
 	private Label scheduledAction;
@@ -36,7 +36,7 @@ public class UserDetailsPanel
 	private HtmlLabel groups;
 	
 	
-	public UserDetailsPanel(UnityMessageSource msg)
+	public UserDetailsPanel(MessageSource msg)
 	{
 		this.msg = msg;
 		

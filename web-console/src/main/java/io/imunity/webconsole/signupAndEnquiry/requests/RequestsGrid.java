@@ -18,7 +18,7 @@ import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webadmin.reg.requests.RequestEntry;
 import io.imunity.webadmin.reg.requests.RequestSelectionListener;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -48,12 +48,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 class RequestsGrid extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RequestsController controller;
 	private GridWithActionColumn<RequestEntry> requestsGrid;
 	private EventsBus bus;
 
-	RequestsGrid(UnityMessageSource msg, RequestsController controller)
+	RequestsGrid(MessageSource msg, RequestsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

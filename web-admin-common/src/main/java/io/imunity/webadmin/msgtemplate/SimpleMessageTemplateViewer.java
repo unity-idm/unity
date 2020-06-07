@@ -8,8 +8,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -23,14 +23,14 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview;
  */
 public class SimpleMessageTemplateViewer extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private FormLayout main;
 	private Label description;
 	private Label consumer;
 
 	private MessageTemplateConsumersRegistry registry;
 
-	public SimpleMessageTemplateViewer(UnityMessageSource msg, MessageTemplateConsumersRegistry registry)
+	public SimpleMessageTemplateViewer(MessageSource msg, MessageTemplateConsumersRegistry registry)
 	{
 		this.msg = msg;
 		this.registry = registry;

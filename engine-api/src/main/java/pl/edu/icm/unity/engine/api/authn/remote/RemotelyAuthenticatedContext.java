@@ -140,4 +140,14 @@ public class RemotelyAuthenticatedContext
 		this.sessionParticipants = new HashSet<>();
 		this.sessionParticipants.addAll(sessionParticipants);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "RemotelyAuthenticatedContext [remoteIdPName=" + remoteIdPName + "\ninputTranslationProfile="
+				+ inputTranslationProfile + "\nsessionParticipants=" + sessionParticipants
+				+ "\nidentities=" + identities + "\nlocalMappedPrincipal=" + localMappedPrincipal
+				+ "\nattributes=" + attributes + "\ngroups=" + groups + "\n***mappingResult=\n"
+				+ mappingResult + "\n***input:\n" + input.getTextDump() + "\ncreationTime=" + creationTime + "]";
+	}
 }

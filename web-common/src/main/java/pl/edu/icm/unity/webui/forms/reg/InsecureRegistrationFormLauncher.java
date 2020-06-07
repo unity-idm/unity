@@ -11,12 +11,12 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,7 +53,7 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 	private ImageAccessService imageAccessService;
 	
 	@Autowired
-	public InsecureRegistrationFormLauncher(UnityMessageSource msg, IdPLoginController idpLoginController,
+	public InsecureRegistrationFormLauncher(MessageSource msg, IdPLoginController idpLoginController,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory, 
 			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
 			AutoLoginAfterSignUpProcessor autoLoginProcessor, ImageAccessService imageAccessService)

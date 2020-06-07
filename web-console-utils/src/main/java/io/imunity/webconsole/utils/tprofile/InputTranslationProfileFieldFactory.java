@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.types.translation.ProfileType;
 
@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 public class InputTranslationProfileFieldFactory extends TranslationProfileFieldFactoryBase
 {
 	@Autowired
-	InputTranslationProfileFieldFactory(UnityMessageSource msg,
+	InputTranslationProfileFieldFactory(MessageSource msg,
 			InputTranslationActionsRegistry inputActionsRegistry,
 			ActionParameterComponentProvider actionComponentProvider)
 	{

@@ -6,8 +6,6 @@ package pl.edu.icm.unity.types.basic;
 
 import java.io.Serializable;
 
-import org.mvel2.MVEL;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -163,7 +161,7 @@ public class AttributeStatement
 	public void setCondition(String condition)
 	{
 		this.condition = condition;
-		this.compiledCondition = MVEL.compileExpression(condition);
+		this.compiledCondition = MVELCompiledExpressionsCache.getCompiledExpression(condition);
 	}
 	public void setExtraAttributesGroup(String extraAttributesGroup)
 	{
@@ -200,7 +198,7 @@ public class AttributeStatement
 	public void setDynamicAttributeExpression(String dynamicAttributeExpression)
 	{
 		this.dynamicAttributeExpression = dynamicAttributeExpression;
-		this.compiledDynamicAttributeExpression = MVEL.compileExpression(dynamicAttributeExpression);
+		this.compiledDynamicAttributeExpression = MVELCompiledExpressionsCache.getCompiledExpression(dynamicAttributeExpression);
 	}
 	
 	

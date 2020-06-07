@@ -21,8 +21,7 @@ import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProv
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.WebSession;
@@ -32,6 +31,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.sessionscope.WebSessionComponent;
 
 /**
  * Lists all registration and enquiry requests.
@@ -39,17 +39,17 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  * @author P.Piernik
  *
  */
-@PrototypeComponent
+@WebSessionComponent
 class RequestsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Requests";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RequestsController controller;
 	private RequestProcessingPanel requestPanel;
 
 	@Autowired
-	RequestsView(UnityMessageSource msg, RequestsController controller, RequestProcessingPanel requestPanel)
+	RequestsView(MessageSource msg, RequestsController controller, RequestProcessingPanel requestPanel)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -59,7 +59,6 @@ class RequestsView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-
 		RequestsGrid requestGrid = new RequestsGrid(msg, controller);
 		EventsBus eventBus = WebSession.getCurrent().getEventBus();
 		eventBus.addListener(e -> requestGrid.refresh(), RegistrationRequestChangedEvent.class);
@@ -119,13 +118,12 @@ class RequestsView extends CustomComponent implements UnityView
 	@Component
 	public static class RequestsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
 		@Autowired
-		public RequestsNavigationInfoProvider(UnityMessageSource msg,
-				SignupAndEnquiryNavigationInfoProvider parent, ObjectFactory<RequestsView> factory)
+		public RequestsNavigationInfoProvider(MessageSource msg,
+				 ObjectFactory<RequestsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(SignupAndEnquiryNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.requests"))
 					.withIcon(Images.user_card.getResource())
 					.withPosition(20).build());

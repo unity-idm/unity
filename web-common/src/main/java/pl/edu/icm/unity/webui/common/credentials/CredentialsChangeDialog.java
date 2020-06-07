@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -44,7 +44,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	
 	@Autowired
-	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, CredentialManagement credMan, 
+	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,AuthenticationFlowManagement authnFlowMan, 
 			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan)

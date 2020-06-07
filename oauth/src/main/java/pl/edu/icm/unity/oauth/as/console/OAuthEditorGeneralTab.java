@@ -34,8 +34,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
@@ -67,7 +67,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<DefaultServiceDefinition> oauthWebAuthzBinder;
 	private Binder<DefaultServiceDefinition> oauthTokenBinder;
 	private Binder<OAuthServiceConfiguration> configBinder;
@@ -88,7 +88,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private TextField name;
 	private boolean editMode;
 
-	OAuthEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths,
+	OAuthEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
 			boolean editMode, Set<String> credentials, Collection<IdentityType> identityTypes,
 			List<String> attrTypes, List<String> usedEndpointsPaths)
@@ -561,7 +561,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	{
 		private Binder<OAuthScope> binder;
 
-		public ScopeEditor(UnityMessageSource msg, List<String> attrTypes)
+		public ScopeEditor(MessageSource msg, List<String> attrTypes)
 		{
 			binder = new Binder<>(OAuthScope.class);
 			TextField name = new TextField();

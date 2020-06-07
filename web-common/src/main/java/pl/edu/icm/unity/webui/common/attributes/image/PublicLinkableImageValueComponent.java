@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common.attributes.image;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -15,9 +16,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.LinkableImage;
 import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
@@ -37,7 +38,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 	
 	PublicLinkableImageValueComponent(@Nullable LinkableImage value,
 			ImageConfiguration imgConfig,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		UnityImage unityImage = value == null ? null : value.getUnityImage();
 		URL url = value == null ? null : value.getUrl();
@@ -46,6 +47,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		
 		imageValueComponent = new UnityImageValueComponent(unityImage, imgConfig, msg);
 		urlValueComponent = new ExternalUrlOptionComponent(url, msg);
+		urlValueComponent.setWidth(100, Unit.PERCENTAGE);
 		
 		if (activeOption == Option.EMBEDDED_IMAGE)
 			urlValueComponent.setVisible(false);
@@ -64,7 +66,7 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		setCompositionRoot(layout);
 	}
 
-	LinkableImage getValue(boolean required, PublicLinkableImageSyntax syntax) throws IllegalAttributeValueException
+	Optional<LinkableImage> getValue(boolean required, PublicLinkableImageSyntax syntax) throws IllegalAttributeValueException
 	{
 		Option selected = selector.getSelectedItem().orElse(null);
 		if (selected == null)
@@ -72,12 +74,11 @@ class PublicLinkableImageValueComponent extends CustomComponent
 		
 		if (selected == Option.EMBEDDED_IMAGE)
 		{
-			UnityImage image = imageValueComponent.getValue(required, new LinkableImageValidator(syntax));
-			return new LinkableImage(image, externalId);
+			Optional<UnityImage> image = imageValueComponent.getValue(required, new LinkableImageValidator(syntax));
+			return image.map(imageV -> new LinkableImage(imageV, externalId));
 		}
 		
-		URL url = urlValueComponent.getValue(required);
-		return new LinkableImage(url, externalId);
+		return urlValueComponent.getValue(required).map(url -> new LinkableImage(url, externalId));
 	}
 	
 	private void valueChange(ValueChangeEvent<Option> event)

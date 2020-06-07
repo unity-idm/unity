@@ -109,7 +109,7 @@ public class MappingResult
 		return mappedAtExistingEntity;
 	}
 
-	public void setMappedAtExistingEntity(EntityParam mappedAtExistingEntity)
+	public void setMappedToExistingEntity(EntityParam mappedAtExistingEntity)
 	{
 		this.mappedAtExistingEntity = mappedAtExistingEntity;
 	}
@@ -135,5 +135,42 @@ public class MappingResult
 		this.cleanStaleGroups |= result.isCleanStaleGroups();
 		if (mappedAtExistingEntity == null)
 			this.mappedAtExistingEntity = result.mappedAtExistingEntity; 
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		if (!authenticatedWith.isEmpty())
+			sb.append("Authenticated with: ").append(authenticatedWith).append("\n");
+		if (!identities.isEmpty())
+		{
+			sb.append("Identities:\n");
+			for (MappedIdentity id: identities)
+				sb.append(" - ").append(id).append("\n");
+		}
+		if (!entityChanges.isEmpty())
+		{
+			sb.append("Entity changes:\n");
+			for (EntityChange id: entityChanges)
+				sb.append(" - ").append(id).append("\n");
+		}
+		if (mappedAtExistingEntity != null)
+			sb.append("Mapped at existing entity: ").append(mappedAtExistingEntity).append("\n");
+		if (!attributes.isEmpty())
+		{
+			sb.append("Attributes:\n");
+			for (MappedAttribute at: attributes)
+				sb.append(" - ").append(at).append("\n");
+		}
+		if (!groups.isEmpty())
+		{
+			sb.append("Groups:\n");
+			for (MappedGroup gr: groups)
+				sb.append(" - ").append(gr).append("\n");
+		}
+		sb.append("Cleaning stale groups: ").append(cleanStaleGroups).append(" attributes: ")
+			.append(cleanStaleAttributes).append(" identities: ").append(cleanStaleIdentities);
+		return sb.toString();
 	}
 }

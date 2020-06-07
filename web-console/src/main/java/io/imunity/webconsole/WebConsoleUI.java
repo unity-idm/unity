@@ -22,7 +22,6 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.spi.WebConsoleExtNavigationInfoProvider;
-import io.imunity.webconsole.spi.WebConsoleExtRootNavigationInfoProvider;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -30,7 +29,7 @@ import io.imunity.webelements.menu.left.LeftMenuLabel;
 import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
@@ -56,9 +55,10 @@ public class WebConsoleUI extends UnityEndpointUIBase
 	private AuthorizationController authzController;
 
 	@Autowired
-	public WebConsoleUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
+	public WebConsoleUI(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor, AuthorizationController authzController,
-			Collection<WebConsoleNavigationInfoProvider> providers, Collection<WebConsoleExtNavigationInfoProvider> extProviders)
+			Collection<WebConsoleNavigationInfoProvider> providers,
+			Collection<WebConsoleExtNavigationInfoProvider> extProviders)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
@@ -91,7 +91,6 @@ public class WebConsoleUI extends UnityEndpointUIBase
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 		leftMenu.addNavigationElements(WebConsoleRootNavigationInfoProvider.ID);
-		leftMenu.addNavigationElements(WebConsoleExtRootNavigationInfoProvider.ID);
 	}
 
 	@Override

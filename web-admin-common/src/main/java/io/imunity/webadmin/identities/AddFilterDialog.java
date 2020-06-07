@@ -14,7 +14,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 
@@ -32,7 +32,7 @@ public class AddFilterDialog extends AbstractDialog
 	private EnumComboBox<Operand> operand;
 	private TextField argument;
 	
-	public AddFilterDialog(UnityMessageSource msg, Collection<String> columns, Callback callback)
+	public AddFilterDialog(MessageSource msg, Collection<String> columns, Callback callback)
 	{
 		super(msg, msg.getMessage("AddFilterDialog.caption"));
 		this.columns = columns;

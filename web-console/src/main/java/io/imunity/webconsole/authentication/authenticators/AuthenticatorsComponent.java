@@ -20,7 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -41,12 +41,12 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  */
 public class AuthenticatorsComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuthenticatorsController controller;
 	private GridWithActionColumn<AuthenticatorEntry> authenticatorsGrid;
 	private SandboxAuthnRouter sandBoxRouter;
 
-	public AuthenticatorsComponent(UnityMessageSource msg, AuthenticatorsController controller,
+	public AuthenticatorsComponent(MessageSource msg, AuthenticatorsController controller,
 			SandboxAuthnRouter sandBoxRouter)
 	{
 		this.msg = msg;

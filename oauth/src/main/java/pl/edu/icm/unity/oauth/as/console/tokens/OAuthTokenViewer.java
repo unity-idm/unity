@@ -20,8 +20,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
  */
 class OAuthTokenViewer extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private FormLayout main;
 	private TextArea token;
 	private TextArea jwtClaimsSet;
@@ -47,7 +47,7 @@ class OAuthTokenViewer extends VerticalLayout
 	private Label requestedScopes;
 	private CompactFormLayout userInfoComponent;
 
-	OAuthTokenViewer(UnityMessageSource msg)
+	OAuthTokenViewer(MessageSource msg)
 	{
 		this.msg = msg;
 		initUI();

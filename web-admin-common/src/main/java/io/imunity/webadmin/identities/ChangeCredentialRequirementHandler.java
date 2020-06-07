@@ -9,9 +9,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -29,7 +29,7 @@ public class ChangeCredentialRequirementHandler
 	@Autowired
 	private EntityCredentialManagement eCredMan;
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback)
 	{

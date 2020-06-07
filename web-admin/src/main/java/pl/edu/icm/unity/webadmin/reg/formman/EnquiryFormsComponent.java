@@ -23,9 +23,9 @@ import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -55,7 +55,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 @PrototypeComponent
 public class EnquiryFormsComponent extends VerticalLayout implements ActivationListener
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnquiryManagement enquiriesManagement;
 	private EventsBus bus;
 	
@@ -65,7 +65,7 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 	
 	
 	@Autowired
-	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryManagement enquiryManagement,
+	public EnquiryFormsComponent(MessageSource msg, EnquiryManagement enquiryManagement,
 			SharedEndpointManagement sharedEndpointMan,
 			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory)
 	{

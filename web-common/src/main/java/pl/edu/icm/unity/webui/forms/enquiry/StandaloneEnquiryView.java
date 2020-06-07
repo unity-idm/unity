@@ -18,9 +18,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -36,7 +36,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneEnquiryView.class);
 	protected EnquiryResponseEditor editor;
 	private Callback callback;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
 	protected ImageAccessService imageAccessService;
 	
@@ -44,7 +44,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	
 	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, 
 			ImageAccessService imageAccessService,
-			UnityMessageSource msg,	Callback callback)
+			MessageSource msg,	Callback callback)
 	{
 		this.editor = editor;
 		this.authnProcessor = authnProcessor;

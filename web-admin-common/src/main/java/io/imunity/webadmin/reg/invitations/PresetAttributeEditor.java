@@ -11,7 +11,7 @@ import java.util.Optional;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -37,7 +37,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 	private FormLayout wrapper;
 	private AttributeRegistrationParam selectedParam;
 	
-	public PresetAttributeEditor(UnityMessageSource msg,
+	public PresetAttributeEditor(MessageSource msg,
 			List<AttributeRegistrationParam> formParams,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			Map<String, AttributeType> attrTypes)

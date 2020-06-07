@@ -9,10 +9,10 @@ import java.util.Set;
 import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.attributetype.ImportAttributeTypeEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -33,7 +33,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 	private ImportAttributeTypeEditor editor;
 
-	public ImportAttributeTypeDialog(UnityMessageSource msg, String caption, UnityServerConfiguration serverConfig,
+	public ImportAttributeTypeDialog(MessageSource msg, String caption, UnityServerConfiguration serverConfig,
 			AttributeTypeManagement attrTypeMan, AttributeTypeSupport attrTypeSupport, Runnable callback)
 	{
 		super(msg, caption);

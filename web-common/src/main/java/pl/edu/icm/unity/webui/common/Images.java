@@ -75,6 +75,7 @@ public enum Images
 	transfer	(VaadinIcons.LINK),
 	reload		(VaadinIcons.RETWEET),
 	download	(VaadinIcons.DOWNLOAD),
+	upload		(VaadinIcons.UPLOAD),
 	upArrow		(VaadinIcons.ANGLE_UP),
 	topArrow	(VaadinIcons.ANGLE_DOUBLE_UP),
 	downArrow	(VaadinIcons.ANGLE_DOWN),
@@ -101,6 +102,7 @@ public enum Images
 	user		(VaadinIcons.USER),
 	question	(VaadinIcons.QUESTION_CIRCLE_O),
 	globe		(VaadinIcons.GLOBE),
+	globe_wire		(VaadinIcons.GLOBE_WIRE),
 	family		(VaadinIcons.FAMILY),
 	file_tree 	(VaadinIcons.FILE_TREE),
 	file_tree_small (VaadinIcons.FILE_TREE_SMALL),
@@ -150,7 +152,10 @@ public enum Images
 	cube		(VaadinIcons.CUBE),
 	money		(VaadinIcons.MONEY),
 	flag_final	(VaadinIcons.FLAG_CHECKERED),	
-	coin_piles	(VaadinIcons.COIN_PILES);
+	coin_piles	(VaadinIcons.COIN_PILES),
+	check_square	(VaadinIcons.CHECK_SQUARE_O),
+	text_label	(VaadinIcons.TEXT_LABEL),
+	eraser		(VaadinIcons.ERASER);
 	
 	private final Resource resource;
 	private final String path;

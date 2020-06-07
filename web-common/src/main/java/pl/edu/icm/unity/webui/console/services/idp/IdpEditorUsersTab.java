@@ -20,7 +20,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected Binder<?> configBinder;
 	protected List<Group> allGroups;
 	private List<IdpUser> allUsers;
@@ -55,7 +55,7 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 	protected Map<String, String> availableClients;
 	private GridWithEditorInDetails<ActiveValueConfig> releasedAttrsGrid;
 
-	public IdpEditorUsersTab(UnityMessageSource msg, List<Group> groups,
+	public IdpEditorUsersTab(MessageSource msg, List<Group> groups,
 			List<IdpUser> allUsers, List<String> attrTypes)
 	{
 		this.msg = msg;
@@ -202,7 +202,7 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 	{
 		private Binder<ActiveValueConfig> binder;
 
-		public ActiveValueConfigEditor(UnityMessageSource msg, List<String> attrTypes,
+		public ActiveValueConfigEditor(MessageSource msg, List<String> attrTypes,
 				Map<String, String> clients)
 		{
 			binder = new Binder<>(ActiveValueConfig.class);

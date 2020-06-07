@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.attributeclass.AttributesClassEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -26,12 +26,12 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class AttributeClassController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeClassManagement attrClassMan;
 	private AttributeTypeManagement attrTypeMan;
 
 	@Autowired
-	AttributeClassController(UnityMessageSource msg, AttributeClassManagement attrClassMan,
+	AttributeClassController(MessageSource msg, AttributeClassManagement attrClassMan,
 			AttributeTypeManagement attrTypeMan)
 	{
 		this.msg = msg;

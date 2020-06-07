@@ -12,10 +12,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -37,7 +37,7 @@ public class PreferenceViewTab extends VerticalLayout
 {
 	private PreferencesHandler preferenceHandler;
 	private PreferencesManagement prefMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityParam entityParam;
 	
 	private Label saveInfo;
@@ -46,7 +46,7 @@ public class PreferenceViewTab extends VerticalLayout
 	private PreferencesEditor editor;
 	private String currentValue;
 	
-	public PreferenceViewTab(UnityMessageSource msg, PreferencesHandler preferenceHandler, 
+	public PreferenceViewTab(MessageSource msg, PreferencesHandler preferenceHandler, 
 			PreferencesManagement prefMan)
 	{
 		this.msg = msg;

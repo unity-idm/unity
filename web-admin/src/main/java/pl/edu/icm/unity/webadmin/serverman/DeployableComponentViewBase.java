@@ -19,10 +19,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
@@ -46,7 +46,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	
 	protected UnityServerConfiguration config;
 	protected ServerManagement serverMan;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected HorizontalLayout header;
 	protected FormLayout content;
 	protected HorizontalLayout footer;
@@ -58,7 +58,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 	protected Label separator;
 
 	public DeployableComponentViewBase(UnityServerConfiguration config, ServerManagement serverMan, 
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 
 		this.config = config;

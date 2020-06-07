@@ -17,10 +17,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -41,11 +41,11 @@ public class StickyEnquiryUpdatableComponent extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StickyEnquiryUpdatableComponent.class);
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnquiryResponseEditorController controller;
 	private List<String> forms;
 
-	public StickyEnquiryUpdatableComponent(UnityMessageSource msg, EnquiryResponseEditorController controller, 
+	public StickyEnquiryUpdatableComponent(MessageSource msg, EnquiryResponseEditorController controller, 
 			List<String> forms) throws WrongArgumentException
 	{
 		this.msg = msg;

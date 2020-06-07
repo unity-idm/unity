@@ -18,6 +18,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
@@ -46,7 +46,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AuthenticationInterceptor.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuthenticationProcessor authenticationProcessor;
 	protected List<AuthenticationFlow> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
@@ -55,7 +55,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	private Properties endpointProperties;
 	
-	public AuthenticationInterceptor(UnityMessageSource msg, AuthenticationProcessor authenticationProcessor, 
+	public AuthenticationInterceptor(MessageSource msg, AuthenticationProcessor authenticationProcessor, 
 			List<AuthenticationFlow> authenticators,
 			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths,
 			Properties endpointProperties)

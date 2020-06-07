@@ -47,9 +47,9 @@ import io.imunity.webadmin.identities.IdentityConfirmationResendHandler;
 import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.identities.RemoveAttributeColumnDialog;
 import io.imunity.webadmin.identities.RemoveFromGroupHandler;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.WebSession;
@@ -76,7 +76,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class IdentitiesComponent extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesComponent.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private VerticalLayout main;
 	private IdentitiesGrid identitiesTable;
 	private HorizontalLayout filtersBar;
@@ -85,7 +85,7 @@ public class IdentitiesComponent extends SafePanel
 	private ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory;
 	
 	@Autowired
-	public IdentitiesComponent(UnityMessageSource msg, AttributeTypeManagement attrsMan,
+	public IdentitiesComponent(MessageSource msg, AttributeTypeManagement attrsMan,
 			EntityAttributeClassHandler entityAttributeClassHandler,
 			RemoveFromGroupHandler removeFromGroupHandler,
 			AddToGroupHandler addToGroupHandler,

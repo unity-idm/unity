@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -83,7 +83,7 @@ public class MetadataSourceHandlerTest
 		MetadataConsumer consumer = new MetadataConsumer(1500, (m,id) -> gotEvent.set(true), "1");
 		handler.addConsumer(consumer);
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 		verify(uriAccessService).readURI(eq(new URI("http://url")), any());
 	}
@@ -102,7 +102,7 @@ public class MetadataSourceHandlerTest
 		MetadataConsumer consumer2 = new MetadataConsumer(1500, (m,id) -> event2.set(true), "2");
 		handler.addConsumer(consumer2);
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> event1.get() && event2.get());
 		verify(uriAccessService, atMost(2)).readURI(new URI("http://url"));
 	}
@@ -164,7 +164,7 @@ public class MetadataSourceHandlerTest
 		MetadataConsumer consumer2 = new MetadataConsumer(1500, (m,id) -> gotEvent.set(true), "2");
 		handler.addConsumer(consumer2);
 		
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 		verify(uriAccessService, atLeast(1)).readURI(eq(new URI("http://url")), any());
 	}
@@ -214,7 +214,7 @@ public class MetadataSourceHandlerTest
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		MetadataConsumer consumer1 = new MetadataConsumer(15000, (m,id) -> gotEvent.set(true), "1");
 		handler.addConsumer(consumer1);
-		Awaitility.await().atMost(Duration.ONE_SECOND).until(
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 
 		
@@ -222,7 +222,7 @@ public class MetadataSourceHandlerTest
 		MetadataConsumer consumer2 = new MetadataConsumer(15000, (m,id) -> gotEvent2.set(true), "2");
 		handler.addConsumer(consumer2);
 		Awaitility.await().pollDelay(10, TimeUnit.MILLISECONDS)
-				.atMost(Duration.ONE_SECOND).until(
+				.atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent2.get());
 	}
 }

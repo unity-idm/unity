@@ -27,9 +27,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.clipboard.CopyToClipboardButton;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -54,14 +54,14 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
 	private Binder<OAuthClient> binder;
 	private boolean editMode = false;
 	private Set<String> allClientsIds;
 
-	EditOAuthClientSubView(UnityMessageSource msg, URIAccessService uriAccessService,
+	EditOAuthClientSubView(MessageSource msg, URIAccessService uriAccessService,
 			UnityServerConfiguration serverConfig, Set<String> allClientsIds, OAuthClient toEdit,
 			Consumer<OAuthClient> onConfirm, Runnable onCancel)
 	{

@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 @PrototypeComponent
 public class EntityDetailsPanel extends FormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private IdentityFormatter idFormatter;
 	private Label id;
 	private Label status;
@@ -46,7 +46,7 @@ public class EntityDetailsPanel extends FormLayout
 	private ListOfElementsWithActions<String> groups;
 	
 	@Autowired
-	public EntityDetailsPanel(UnityMessageSource msg, IdentityFormatter idFormatter)
+	public EntityDetailsPanel(MessageSource msg, IdentityFormatter idFormatter)
 	{
 		this.msg = msg;
 		this.idFormatter = idFormatter;

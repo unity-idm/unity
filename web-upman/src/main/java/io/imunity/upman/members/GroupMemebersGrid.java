@@ -12,7 +12,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 
 import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -37,7 +37,7 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 		}
 	};
 
-	GroupMemebersGrid(UnityMessageSource msg, List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
+	GroupMemebersGrid(MessageSource msg, List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
 			Map<String, String> additionalAttributesName, ConfirmationInfoFormatter formatter)
 	{
 		super(msg, (GroupMemberEntry e) -> String.valueOf(e.getEntityId()));

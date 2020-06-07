@@ -10,10 +10,10 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.unicore.samlidp.web.SamlUnicoreIdPWebEndpointFactory;
 import pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreSoapEndpoint;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -28,14 +28,14 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 public class SamlPreferencesWithETDHandler implements PreferencesHandler
 {
 	private final Set<String> SUPPORTED_ENDPOINTS = new HashSet<String>();
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityManagement idsMan;
 	private AttributeTypeManagement atsMan;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private IdentityTypeSupport idTpeSupport;
 	
 	@Autowired
-	public SamlPreferencesWithETDHandler(UnityMessageSource msg, EntityManagement idsMan,
+	public SamlPreferencesWithETDHandler(MessageSource msg, EntityManagement idsMan,
 			AttributeTypeManagement atsMan, 
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			IdentityTypeSupport idTpeSupport)

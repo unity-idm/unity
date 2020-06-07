@@ -22,7 +22,7 @@ import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -40,11 +40,11 @@ public class GroupsView extends CustomComponent implements UpManView
 {
 	public static final String VIEW_NAME = "Groups";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsController controller;
 
 	@Autowired
-	public GroupsView(UnityMessageSource msg, GroupsController controller)
+	public GroupsView(MessageSource msg, GroupsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -98,12 +98,11 @@ public class GroupsView extends CustomComponent implements UpManView
 	public class GroupsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public GroupsNavigationInfoProvider(UnityMessageSource msg,
-				UpManRootNavigationInfoProvider parent,
+		public GroupsNavigationInfoProvider(MessageSource msg,
 				ObjectFactory<GroupsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo())
+					.withParent(UpManRootNavigationInfoProvider.ID)
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.groups"))
 					.withIcon(Images.file_tree.getResource()).withPosition(1)

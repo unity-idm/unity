@@ -30,10 +30,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.composite.password.CompositePasswordProperties;
 import pl.edu.icm.unity.composite.password.CompositePasswordProperties.VerificatorTypes;
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
@@ -63,7 +63,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Collection<CredentialDefinition> credentialDefinitions;
 	private PamAuthenticatorEditorFactory pamFactory;
 	private LdapAuthenticatorEditorFactory ldapFactory;
@@ -72,7 +72,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 	private Binder<CompositePasswordConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
+	CompositePasswordAuthenticatorEditor(MessageSource msg,
 			Collection<CredentialDefinition> credentialDefinitions,
 			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
 	{
@@ -175,7 +175,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			remoteAuthenticators = new ArrayList<>();
 		}
 
-		public String toProperties(UnityMessageSource msg)
+		public String toProperties(MessageSource msg)
 		{
 
 			Properties raw = new Properties();
@@ -223,7 +223,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg)
+		public void fromProperties(String properties, MessageSource msg)
 		{
 			Properties raw = new Properties();
 			try

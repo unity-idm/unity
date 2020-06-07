@@ -47,7 +47,9 @@ public class SignUpAuthNController
 	
 	private void processAuthn(AuthenticationResult result, String error)
 	{
-		LOG.info("processAuthn {}, {}", result, error);
+		LOG.info("Processing results of remote authentication {}, {}", result, error);
+		if (LOG.isDebugEnabled())
+			LOG.debug("Complete remote authn context:\n{}", result.toStringFull());
 		try
 		{
 			authnProcessor.processPrimaryAuthnResult(result, selectedAuthNOption.flow, 

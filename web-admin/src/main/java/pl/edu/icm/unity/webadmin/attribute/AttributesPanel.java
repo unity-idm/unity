@@ -30,6 +30,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.attribute.AttributeChangedEvent;
 import io.imunity.webadmin.attribute.AttributeEditDialog;
 import io.imunity.webadmin.attribute.AttributeEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -38,7 +39,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -71,7 +71,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributesPanel.class);
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
@@ -95,7 +95,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeClassManagement acMan;
 
 	@Autowired
-	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry,
+	public AttributesPanel(MessageSource msg, AttributeHandlerRegistry registry,
 			AttributesManagement attributesManagement,
 			GroupsManagement groupsManagement, AttributeTypeManagement atManagement,
 			AttributeClassManagement acMan, AttributeTypeSupport atSupport)

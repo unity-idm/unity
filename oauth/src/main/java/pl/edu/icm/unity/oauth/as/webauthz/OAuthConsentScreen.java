@@ -20,12 +20,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -57,7 +57,7 @@ import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
 class OAuthConsentScreen extends CustomComponent 
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConsentScreen.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
@@ -76,7 +76,7 @@ class OAuthConsentScreen extends CustomComponent
 	private Runnable declineHandler;
 	private BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler; 
 	
-	OAuthConsentScreen(UnityMessageSource msg, 
+	OAuthConsentScreen(MessageSource msg, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, 

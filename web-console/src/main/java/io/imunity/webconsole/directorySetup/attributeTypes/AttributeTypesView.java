@@ -27,7 +27,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.DirectorySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -35,7 +34,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -65,12 +64,12 @@ class AttributeTypesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "AttributeTypes";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeController controller;
 	private GridWithActionColumn<AttributeTypeEntry> attrTypesGrid;
 
 	@Autowired
-	AttributeTypesView(UnityMessageSource msg, AttributeTypeController controller)
+	AttributeTypesView(MessageSource msg, AttributeTypeController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -133,7 +132,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 		
 		SearchField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
 
-		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		Toolbar<AttributeTypeEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
 		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);
@@ -286,13 +285,14 @@ class AttributeTypesView extends CustomComponent implements UnityView
 	@Component
 	public static class AttributeTypesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
+		public static final String ID = VIEW_NAME;
 
 		@Autowired
-		public AttributeTypesNavigationInfoProvider(UnityMessageSource msg,
-				DirectorySetupNavigationInfoProvider parent, ObjectFactory<AttributeTypesView> factory)
+		public AttributeTypesNavigationInfoProvider(MessageSource msg,
+				ObjectFactory<AttributeTypesView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(DirectorySetupNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.attributeTypes"))
 					.withIcon(Images.tags.getResource())
 					.withPosition(10).build());

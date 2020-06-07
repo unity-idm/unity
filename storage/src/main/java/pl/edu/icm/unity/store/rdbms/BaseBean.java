@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 /**
  * In DB representation of basic data which is present in the most of tables.
- * @author K. Benedyczak
  */
 public class BaseBean implements GenericDBBean
 {

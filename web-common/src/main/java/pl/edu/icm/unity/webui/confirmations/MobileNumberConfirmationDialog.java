@@ -13,11 +13,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
@@ -52,7 +52,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 	
 	
 	public MobileNumberConfirmationDialog(String mobileToConfirm, ConfirmationInfo confirmatioInfo,
-			UnityMessageSource msg,
+			MessageSource msg,
 			MobileNumberConfirmationManager mobileConfirmationMan,
 			MobileNumberConfirmationConfiguration confirmationConfiguration,
 			Callback callback)

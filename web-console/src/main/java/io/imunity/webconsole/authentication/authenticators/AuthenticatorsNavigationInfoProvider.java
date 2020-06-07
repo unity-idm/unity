@@ -12,7 +12,7 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.facilities.AuthenticationFacilitiesView.AuthenticationFacilitiesNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Provides @{link {@link NavigationInfo} about authenticators
@@ -26,11 +26,10 @@ class AuthenticatorsNavigationInfoProvider extends WebConsoleNavigationInfoProvi
 	public static final String ID = "Authenticators";
 
 	@Autowired
-	AuthenticatorsNavigationInfoProvider(UnityMessageSource msg,
-			AuthenticationFacilitiesNavigationInfoProvider parent)
+	AuthenticatorsNavigationInfoProvider(MessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(AuthenticationFacilitiesNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("Authenticators.navCaption"))
 				.build());
 

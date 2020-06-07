@@ -22,11 +22,11 @@ import com.vaadin.event.selection.SingleSelectionListener;
 import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
@@ -52,14 +52,14 @@ public class AuthenticatorsController
 
 	private AuthenticatorManagement authnMan;
 	private AuthenticationFlowManagement flowsMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EndpointController endpointController;
 	private AuthenticatorEditorFactoriesRegistry editorsRegistry;
 	private TranslationProfileManagement profileMan;
 	private InputTranslationActionsRegistry inputActionsRegistry;
 
 	@Autowired
-	AuthenticatorsController(AuthenticatorManagement authnMan, UnityMessageSource msg,
+	AuthenticatorsController(AuthenticatorManagement authnMan, MessageSource msg,
 			EndpointController endpointController, AuthenticationFlowManagement flowsMan,
 			AuthenticatorEditorFactoriesRegistry editorsRegistry, TranslationProfileManagement profileMan,
 			InputTranslationActionsRegistry inputActionsRegistry)

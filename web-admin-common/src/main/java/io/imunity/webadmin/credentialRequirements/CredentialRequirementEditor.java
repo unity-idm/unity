@@ -11,7 +11,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -26,17 +26,17 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  */
 public class CredentialRequirementEditor extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<CredentialRequirements> binder;
 
-	public CredentialRequirementEditor(UnityMessageSource msg, Collection<CredentialDefinition> allCredentials, 
+	public CredentialRequirementEditor(MessageSource msg, Collection<CredentialDefinition> allCredentials, 
 			CredentialRequirements initial)
 	{
 		this.msg = msg;
 		init(initial, allCredentials);
 	}
 	
-	public CredentialRequirementEditor(UnityMessageSource msg, Collection<CredentialDefinition> allCredentials)
+	public CredentialRequirementEditor(MessageSource msg, Collection<CredentialDefinition> allCredentials)
 	{
 		this(msg, allCredentials, null);
 	}

@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.common.composite.GroupOfGroups;
 public class UserAttributesPanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAttributesPanel.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
 	private HomeEndpointProperties config;
@@ -64,7 +64,7 @@ public class UserAttributesPanel
 	
 	public UserAttributesPanel(
 			AdditionalAuthnHandler additionalAuthnHandler,
-			UnityMessageSource msg,
+			MessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, EntityManagement idsMan,
 			AttributeSupport atMan,

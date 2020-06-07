@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLServiceConfiguration;
@@ -41,7 +41,7 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 	private Binder<SAMLServiceConfiguration> samlConfigBinder;
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
 
-	SAMLSoapServiceEditorComponent(UnityMessageSource msg, SAMLEditorGeneralTab generalTab,
+	SAMLSoapServiceEditorComponent(MessageSource msg, SAMLEditorGeneralTab generalTab,
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
 			AuthenticationTab authTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,

@@ -7,9 +7,9 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -23,10 +23,10 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 @Component
 class ImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 
 	@Autowired
-	ImageAttributeHandlerFactory(UnityMessageSource msg)
+	ImageAttributeHandlerFactory(MessageSource msg)
 	{
 		this.msg = msg;
 	}

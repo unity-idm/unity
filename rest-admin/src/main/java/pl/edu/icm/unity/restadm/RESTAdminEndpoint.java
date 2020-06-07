@@ -17,10 +17,10 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -48,7 +48,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	private final ObjectFactory<List<RESTAdminHandler>> factories;
 	
 	@Autowired
-	public RESTAdminEndpoint(UnityMessageSource msg,
+	public RESTAdminEndpoint(MessageSource msg,
 			SessionManagement sessionMan,
 			NetworkServer server,
 			AuthenticationProcessor authnProcessor,

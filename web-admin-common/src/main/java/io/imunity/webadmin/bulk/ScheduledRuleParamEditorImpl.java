@@ -9,8 +9,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
 import io.imunity.webadmin.tprofile.ActionEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionArea;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.mvel.MVELExpressionArea;
  */
 public class ScheduledRuleParamEditorImpl extends CustomComponent implements RuleEditor<ScheduledProcessingRuleParam>
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 
 	protected MVELExpressionArea condition;
 	protected ActionEditor actionEditor;
@@ -31,7 +31,7 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	private FormLayout main;
 	
 	
-	public ScheduledRuleParamEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
+	public ScheduledRuleParamEditorImpl(MessageSource msg, ActionEditor actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;

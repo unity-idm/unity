@@ -11,10 +11,10 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -39,7 +39,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 	private IdPLoginController idpLoginController;
 	private boolean withSimplifiedFinalization;
 	
-	public RegistrationFormFillDialog(UnityMessageSource msg, ImageAccessService imageAccessService, String caption, 
+	public RegistrationFormFillDialog(MessageSource msg, ImageAccessService imageAccessService, String caption, 
 			RegistrationRequestEditor editor, Callback callback, IdPLoginController idpLoginController,
 			boolean withSimplifiedFinalization)
 	{

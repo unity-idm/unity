@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class AttributeTypeViewer extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Label name;
 	private I18nLabel displayedName;
@@ -40,7 +40,7 @@ public class AttributeTypeViewer extends CompactFormLayout
 	private SafePanel syntaxPanel;
 	private VerticalLayout metaPanel;
 
-	public AttributeTypeViewer(UnityMessageSource msg)
+	public AttributeTypeViewer(MessageSource msg)
 	{
 		this.msg = msg;
 		initUI();

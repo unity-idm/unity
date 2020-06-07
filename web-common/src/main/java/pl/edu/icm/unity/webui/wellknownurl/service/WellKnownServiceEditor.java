@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.wellknownurl.WellKnownURLEndpointFactory;
  */
 public class WellKnownServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
@@ -38,7 +38,7 @@ public class WellKnownServiceEditor implements ServiceEditor
 	private List<String> usedEndpointsPaths;
 	private Set<String> serverContextPaths;
 
-	public WellKnownServiceEditor(UnityMessageSource msg, List<String> allRealms,
+	public WellKnownServiceEditor(MessageSource msg, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,  List<String> usedPaths,
 			Set<String> serverContextPaths)
 	{
@@ -74,7 +74,7 @@ public class WellKnownServiceEditor implements ServiceEditor
 
 		private Binder<DefaultServiceDefinition> serviceBinder;
 
-		public WellKnownServiceEditorComponent(UnityMessageSource msg, GeneralTab generalTab, AuthenticationTab authTab,
+		public WellKnownServiceEditorComponent(MessageSource msg, GeneralTab generalTab, AuthenticationTab authTab,
 				DefaultServiceDefinition toEdit)
 		{
 			super(msg);

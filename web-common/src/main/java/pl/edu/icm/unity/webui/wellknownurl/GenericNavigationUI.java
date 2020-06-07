@@ -12,7 +12,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.VaadinRequest;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -28,7 +28,7 @@ abstract class GenericNavigationUI<T extends ViewProvider> extends UnityUIBase i
 	protected Navigator navigator;
 	protected Collection<T> viewProviders;
 	
-	public GenericNavigationUI(UnityMessageSource msg, Collection<T> viewProviders)
+	public GenericNavigationUI(MessageSource msg, Collection<T> viewProviders)
 	{
 		super(msg);
 		this.viewProviders = viewProviders;

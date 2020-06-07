@@ -16,7 +16,7 @@ import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import io.imunity.upman.utils.UpManGridHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -34,7 +34,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 	private List<SingleActionHandler<GroupNode>> rowActionHandlers;
 	private String projectPath;
 
-	public GroupsTree(UnityMessageSource msg, GroupsController controller,
+	public GroupsTree(MessageSource msg, GroupsController controller,
 			List<SingleActionHandler<GroupNode>> actions, String projectPath)
 			throws ControllerException
 	{

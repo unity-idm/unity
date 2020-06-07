@@ -14,7 +14,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.forms.layout.FormLayoutEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class RegistrationFormLayoutEditor extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Supplier<RegistrationForm> formProvider;
 	private CheckBox enableCustomLayout;
 	private FormLayoutEditor primaryLayoutEditor;
@@ -37,7 +37,7 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 	private boolean isInitialValueSet = false;
 	private Panel secondaryLayoutPanel;
 
-	public RegistrationFormLayoutEditor(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
+	public RegistrationFormLayoutEditor(MessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
 		super();
 		this.msg = msg;

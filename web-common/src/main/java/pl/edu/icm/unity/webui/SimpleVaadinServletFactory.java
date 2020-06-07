@@ -15,8 +15,8 @@ import org.springframework.context.ApplicationContext;
 
 import com.vaadin.server.Constants;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 /**
@@ -32,13 +32,13 @@ public class SimpleVaadinServletFactory
 	private UnityServerConfiguration config;
 	private String uiClassName;
 	private Properties configuration;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String themeConfigKey;
 	private String servletPath;
 	private String templateConfigKey;
 
 	public SimpleVaadinServletFactory(ApplicationContext applicationContext, UnityServerConfiguration config,
-			UnityMessageSource msg, 
+			MessageSource msg, 
 			String uiClassName, Properties configuration,
 			String themeConfigKey, 
 			String templateConfigKey, 

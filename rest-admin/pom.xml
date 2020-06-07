@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>pl.edu.icm.unity</groupId>
+		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
 		<version>3.3.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
@@ -9,6 +9,7 @@
 	<artifactId>unity-server-rest-admin</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
+	<description>REST Admin API</description>
 	<properties>
 		<m.name>rest-admin</m.name>
 	</properties>
@@ -31,7 +32,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<type>test-jar</type>
@@ -42,13 +43,13 @@
 			<artifactId>catch-exception</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -59,7 +60,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -67,7 +68,7 @@
 		</dependency>
 						
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
 		</dependency>

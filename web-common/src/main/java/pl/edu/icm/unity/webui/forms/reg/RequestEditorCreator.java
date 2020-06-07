@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -14,7 +15,6 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
@@ -38,7 +39,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 @PrototypeComponent
 public class RequestEditorCreator
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImageAccessService imageAccessService;
 	private RegistrationForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
@@ -53,9 +54,10 @@ public class RequestEditorCreator
 	private String registrationCode;
 	private FormsInvitationHelper invitationHelper;
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
+	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 
 	@Autowired
-	public RequestEditorCreator(UnityMessageSource msg, ImageAccessService imageAccessService,
+	public RequestEditorCreator(MessageSource msg, ImageAccessService imageAccessService,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -64,7 +66,8 @@ public class RequestEditorCreator
 			@Qualifier("insecure") CredentialManagement credMan,
 			@Qualifier("insecure") InvitationManagement invitationMan,
 			AuthenticatorSupportService authnSupport,
-			URLQueryPrefillCreator urlQueryPrefillCreator)
+			URLQueryPrefillCreator urlQueryPrefillCreator,
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -77,6 +80,7 @@ public class RequestEditorCreator
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.authnSupport = authnSupport;
 		this.imageAccessService = imageAccessService;
+		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 	}
 	
 
@@ -197,7 +201,7 @@ public class RequestEditorCreator
 				credentialEditorRegistry, attributeHandlerRegistry, 
 				aTypeMan, credMan, groupsMan, imageAccessService,
 				registrationCode, invitation, authnSupport, signUpAuthNController, 
-				urlQueryPrefillCreator);
+				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder);
 	}
 	
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException

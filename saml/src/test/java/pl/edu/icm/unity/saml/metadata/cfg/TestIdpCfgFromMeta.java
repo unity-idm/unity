@@ -41,7 +41,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +51,10 @@ import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -73,7 +73,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	private PKIManagement pkiManagement;
 	
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Before
 	public void reset()
@@ -114,7 +114,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 					metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.ONE_MINUTE)
+			.atMost(Durations.ONE_MINUTE)
 			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 	}
 	
@@ -157,7 +157,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.TEN_SECONDS)
+			.atMost(Durations.TEN_SECONDS)
 			.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
 
@@ -195,7 +195,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.TEN_SECONDS)
+			.atMost(Durations.TEN_SECONDS)
 			.untilAsserted(() -> assertEndpointsCfgLoaded(manager));
 	}
 	

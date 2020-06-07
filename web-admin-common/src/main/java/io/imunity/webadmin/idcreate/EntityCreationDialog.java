@@ -28,12 +28,12 @@ import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webadmin.idcreate.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import io.imunity.webadmin.idcreate.SingleCredentialPanel.ObtainedCredential;
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
@@ -87,7 +87,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	private TabSheet tabs;
 	private EntityCredentialManagement ecredMan;
 	
-	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, EntityManagement identitiesMan,
+	public EntityCreationDialog(MessageSource msg, String initialGroup, EntityManagement identitiesMan,
 			CredentialRequirementManagement credReqMan, 
 			AttributeTypeManagement attrMan,
 			IdentityEditorRegistry identityEditorReg, 

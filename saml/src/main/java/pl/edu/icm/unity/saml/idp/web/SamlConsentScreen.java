@@ -18,11 +18,11 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -56,7 +56,7 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 public class SamlConsentScreen extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlConsentScreen.class);
-	protected final UnityMessageSource msg;
+	protected final MessageSource msg;
 	protected final AttributeHandlerRegistry handlersRegistry;
 	protected final IdentityTypeSupport identityTypeSupport;
 	protected final PreferencesManagement preferencesMan;
@@ -76,7 +76,7 @@ public class SamlConsentScreen extends CustomComponent
 	protected SamlResponseHandler samlResponseHandler;
 	protected CheckBox rememberCB;
 
-	public SamlConsentScreen(UnityMessageSource msg, ImageAccessService imageAccessService,  
+	public SamlConsentScreen(MessageSource msg, ImageAccessService imageAccessService,  
 			AttributeHandlerRegistry handlersRegistry, 
 			PreferencesManagement preferencesMan,
 			StandardWebAuthenticationProcessor authnProcessor, 

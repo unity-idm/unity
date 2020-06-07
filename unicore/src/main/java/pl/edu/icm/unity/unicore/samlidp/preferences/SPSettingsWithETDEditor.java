@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SPSettingsEditor;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -29,7 +29,7 @@ public class SPSettingsWithETDEditor extends SPSettingsEditor
 {
 	private ETDSettingsEditor editor;
 	
-	public SPSettingsWithETDEditor(UnityMessageSource msg, AttributeHandlerRegistry attributeHandlerRegistries,
+	public SPSettingsWithETDEditor(MessageSource msg, AttributeHandlerRegistry attributeHandlerRegistries,
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial, SPETDSettings initialETD)
 	{
@@ -38,7 +38,7 @@ public class SPSettingsWithETDEditor extends SPSettingsEditor
 		editor.setValues(initialETD);
 	}
 
-	public SPSettingsWithETDEditor(UnityMessageSource msg, AttributeHandlerRegistry attributeHandlerRegistries, 
+	public SPSettingsWithETDEditor(MessageSource msg, AttributeHandlerRegistry attributeHandlerRegistries, 
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, Collection<AttributeType> atTypes,
 			Set<String> allSps)
 	{

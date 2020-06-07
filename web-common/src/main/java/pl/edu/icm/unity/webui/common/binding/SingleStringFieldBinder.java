@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Extension of {@link Binder} allowing for robust creation of binders for components with a single field
@@ -19,9 +19,9 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class SingleStringFieldBinder extends Binder<StringBindingValue>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public SingleStringFieldBinder(UnityMessageSource msg)
+	public SingleStringFieldBinder(MessageSource msg)
 	{
 		super(StringBindingValue.class);
 		this.msg = msg;

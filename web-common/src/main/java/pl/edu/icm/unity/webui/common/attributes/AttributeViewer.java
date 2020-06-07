@@ -11,7 +11,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
  */
 public class AttributeViewer
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributeType attributeType;
 	private Attribute attribute;
@@ -34,7 +34,7 @@ public class AttributeViewer
 	private ComponentsGroup group;
 	private AttributeViewerContext context;
 	
-	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry, 
+	public AttributeViewer(MessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeType attributeType, Attribute attribute, boolean showGroup, 
 			AttributeViewerContext context)
 	{

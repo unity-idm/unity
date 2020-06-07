@@ -128,6 +128,7 @@ class AuthnOptionsColumn extends CustomComponent
 		if (title != null)
 		{
 			Label title = new Label(this.title);
+			title.addStyleName("u-authn-columnTitle");
 			column.addComponent(title);
 			column.setComponentAlignment(title, Alignment.TOP_CENTER);
 		}

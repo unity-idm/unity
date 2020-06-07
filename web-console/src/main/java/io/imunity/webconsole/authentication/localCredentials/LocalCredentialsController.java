@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
 import io.imunity.webadmin.credentials.CredentialDefinitionViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -30,10 +30,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 class LocalCredentialsController
 {
 	private CredentialManagement credMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
 
-	LocalCredentialsController(CredentialManagement credMan, UnityMessageSource msg,
+	LocalCredentialsController(CredentialManagement credMan, MessageSource msg,
 			CredentialEditorRegistry credentialEditorReg)
 	{
 		this.credMan = credMan;
@@ -95,7 +95,7 @@ class LocalCredentialsController
 	{
 		try
 		{
-			credMan.updateCredentialDefinition(updated, LocalCredentialState.correct);
+			credMan.updateCredentialDefinition(updated, state);
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, updated.getName()));
 		} catch (Exception e)
 		{

@@ -31,4 +31,10 @@ public class EntityChange
 	{
 		return scheduledTime;
 	}
+
+	@Override
+	public String toString()
+	{
+		return scheduledOperation + ", scheduled on " + scheduledTime;
+	}
 }

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.common.identities.ext;
 
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -22,12 +22,12 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
  */
 public class IdentifierIdentityEditor implements IdentityEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TextField field;
 	private IdentityEditorContext context;
 	private SingleStringFieldBinder binder;
 	
-	public IdentifierIdentityEditor(UnityMessageSource msg)
+	public IdentifierIdentityEditor(MessageSource msg)
 	{
 		this.msg = msg;
 	}

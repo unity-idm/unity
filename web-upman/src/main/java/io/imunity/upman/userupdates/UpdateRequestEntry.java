@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
@@ -75,7 +75,7 @@ class UpdateRequestEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 
 		String textLower = searched.toLowerCase();

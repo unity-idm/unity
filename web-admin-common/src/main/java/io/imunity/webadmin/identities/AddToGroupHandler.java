@@ -16,8 +16,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -36,11 +36,11 @@ public class AddToGroupHandler
 {
 	private final GroupManagementHelper groupManagementHelper;
 	private final GroupsManagement groupsManagement;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	
 	@Autowired
 	public AddToGroupHandler(GroupManagementHelper groupManagementHelper, GroupsManagement groupsManagement,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.groupManagementHelper = groupManagementHelper;
 		this.groupsManagement = groupsManagement;
@@ -73,7 +73,7 @@ public class AddToGroupHandler
 		private Consumer<String> selectionConsumer;
 		private GroupComboBox groupSelection;
 
-		public TargetGroupSelectionDialog(UnityMessageSource msg, Consumer<String> selectionConsumer)
+		public TargetGroupSelectionDialog(MessageSource msg, Consumer<String> selectionConsumer)
 		{
 			super(msg, msg.getMessage("AddToGroupHandler.caption"));
 			this.selectionConsumer = selectionConsumer;

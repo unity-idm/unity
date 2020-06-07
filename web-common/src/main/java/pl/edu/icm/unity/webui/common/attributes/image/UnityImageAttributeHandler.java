@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
@@ -21,10 +21,10 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  */
 class UnityImageAttributeHandler implements WebAttributeHandler
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final BaseImageAttributeSyntax<UnityImage> syntax;
 
-	UnityImageAttributeHandler(UnityMessageSource msg, BaseImageAttributeSyntax<UnityImage> syntax)
+	UnityImageAttributeHandler(MessageSource msg, BaseImageAttributeSyntax<UnityImage> syntax)
 	{
 		this.msg = msg;
 		this.syntax = syntax;

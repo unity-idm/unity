@@ -17,8 +17,8 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webadmin.utils.ProjectManagementHelper;
@@ -44,7 +44,7 @@ public class UserHomeUI extends UnityEndpointUIBase
 	private ProjectManagementHelper projectManHelper;
 
 	@Autowired
-	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent,
+	public UserHomeUI(MessageSource msg, UserAccountComponent userAccountComponent,
 			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher, 
 			ProjectManagementHelper projectManHelper)
 	{

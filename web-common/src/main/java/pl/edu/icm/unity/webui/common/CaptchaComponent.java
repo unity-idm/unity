@@ -34,7 +34,7 @@ import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
 import nl.captcha.text.producer.DefaultTextProducer;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.webui.authn.credreset.TextFieldWithContextLabel;
@@ -52,7 +52,7 @@ public class CaptchaComponent
 		'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
 		'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	private static final Random random = new Random();
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Captcha engine;
 	
 	private Image challenge;
@@ -62,12 +62,12 @@ public class CaptchaComponent
 	private int length;
 	private boolean showLabelInline;
 	
-	public CaptchaComponent(UnityMessageSource msg, boolean showLabelInline)
+	public CaptchaComponent(MessageSource msg, boolean showLabelInline)
 	{
 		this(msg, 6, showLabelInline);
 	}
 
-	public CaptchaComponent(UnityMessageSource msg, int length, boolean showLabelInline)
+	public CaptchaComponent(MessageSource msg, int length, boolean showLabelInline)
 	{
 		this.msg = msg;
 		this.length = length;

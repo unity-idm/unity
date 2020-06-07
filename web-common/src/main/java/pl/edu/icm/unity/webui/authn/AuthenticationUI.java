@@ -30,12 +30,12 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -84,7 +84,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private boolean resetScheduled;
 	
 	@Autowired
-	public AuthenticationUI(UnityMessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
+	public AuthenticationUI(MessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
 			StandardWebAuthenticationProcessor authnProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,

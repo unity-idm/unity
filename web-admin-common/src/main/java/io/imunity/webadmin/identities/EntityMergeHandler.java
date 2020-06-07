@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -28,7 +28,7 @@ public class EntityMergeHandler
 	@Autowired
 	private EntityManagement identitiesMan;
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public SingleActionHandler<IdentityEntry> getAction(Supplier<String> groupSupplier)
 	{

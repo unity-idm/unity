@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.authn.credreset;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController.NewCredentialConsumer;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
  */
 public class CredentialResetNewCredentialUI extends CredentialResetLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialEditor credEditor;
 	private NewCredentialConsumer newCredentialConsumer;
 	private String credentialConfiguration;

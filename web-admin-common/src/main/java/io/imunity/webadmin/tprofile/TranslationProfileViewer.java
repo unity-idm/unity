@@ -8,7 +8,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ProfileMode;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class TranslationProfileViewer extends VerticalLayout
 {	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	protected Label name;
 	protected Label description;
 	protected Label mode;
@@ -32,7 +32,7 @@ public class TranslationProfileViewer extends VerticalLayout
 	private FormLayout main;
 	
 	
-	public TranslationProfileViewer(UnityMessageSource msg)
+	public TranslationProfileViewer(MessageSource msg)
 	{
 		super();
 		this.msg = msg;

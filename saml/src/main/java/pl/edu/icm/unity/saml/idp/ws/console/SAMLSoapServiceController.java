@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -20,7 +21,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
@@ -32,9 +32,9 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 class SAMLSoapServiceController extends SAMLSoapServiceControllerBase
 {
 	@Autowired
-	public SAMLSoapServiceController(UnityMessageSource msg,
+	public SAMLSoapServiceController(MessageSource msg,
 			EndpointManagement endpointMan,
-			UnityMessageSource msg2,
+			MessageSource msg2,
 			EndpointManagement endpointMan2,
 			RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan,

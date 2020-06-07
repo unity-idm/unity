@@ -17,8 +17,8 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -36,11 +36,11 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
 	protected AttributeValueSyntax<?> syntax;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	
 	public static final int LARGE_STRING = 1000;
 	
-	public TextOnlyAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
+	public TextOnlyAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		this.syntax = syntax;
 		this.msg = msg;

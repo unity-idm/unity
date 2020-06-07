@@ -22,8 +22,8 @@ import io.imunity.webadmin.reg.formfill.AdminEnquiryFormLauncher;
 import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
@@ -44,13 +44,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class EnquiryFormsComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnquiryFormsController controller;
 	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
 
 	private GridWithActionColumn<EnquiryForm> enquiryFormsList;
 
-	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryFormsController controller,
+	public EnquiryFormsComponent(MessageSource msg, EnquiryFormsController controller,
 			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
 	{
 		this.msg = msg;

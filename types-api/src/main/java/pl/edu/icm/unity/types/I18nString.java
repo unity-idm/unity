@@ -7,6 +7,7 @@ package pl.edu.icm.unity.types;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.springframework.context.NoSuchMessageException;
@@ -184,6 +185,20 @@ public class I18nString
 							: " ");
 		}
 	}
+	
+	public void replace(String oldV, String newV)
+	{
+		if (defaultValue != null)
+		{
+			defaultValue.replace(oldV, newV);
+		}
+		for (Entry<String, String> v : values.entrySet())
+		{
+			values.put(v.getKey(), v.getValue().replace(oldV, newV));
+		}
+		
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{

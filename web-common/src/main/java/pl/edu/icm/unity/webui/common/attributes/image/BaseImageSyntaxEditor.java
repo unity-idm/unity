@@ -10,8 +10,8 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -27,7 +27,7 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 {
 	private final BaseImageAttributeSyntax<T> initial;
 	private final Supplier<BaseImageAttributeSyntax<T>> ctor;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	
 	private IntegerBoundEditor maxHeight, maxSize;
 	private IntegerBoundEditor maxWidth;
@@ -35,7 +35,7 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 
 	BaseImageSyntaxEditor(BaseImageAttributeSyntax<T> initial,
 			Supplier<BaseImageAttributeSyntax<T>> ctor,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.initial = initial;
 		this.ctor = ctor;

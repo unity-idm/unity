@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.msgtemplate.MessageTemplateEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -26,7 +26,7 @@ public class MessageTemplateEditDialog extends AbstractDialog
 {
 	MessageTemplateEditor editor;
 	private Callback callback;
-	public MessageTemplateEditDialog(UnityMessageSource msg, String caption,
+	public MessageTemplateEditDialog(MessageSource msg, String caption,
 			Callback callback, MessageTemplateEditor editor)
 	{
 		super(msg, caption);

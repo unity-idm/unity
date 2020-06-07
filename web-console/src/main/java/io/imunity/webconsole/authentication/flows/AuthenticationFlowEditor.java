@@ -16,7 +16,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.ListOfElements;
@@ -36,7 +36,7 @@ class AuthenticationFlowEditor extends CustomComponent
 	private Binder<AuthenticationFlowDefinition> binder;
 	private ComboBox<Policy> policy;
 
-	AuthenticationFlowEditor(UnityMessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
+	AuthenticationFlowEditor(MessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
 	{
 		name = new TextField(msg.getMessage("AuthenticationFlow.name"));
 		name.setWidth(100, Unit.PERCENTAGE);

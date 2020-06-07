@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.composite.password.CompositePasswordProperties.VerificatorTypes;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.pam.PAMVerificator;
@@ -34,13 +34,13 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 class EditRemoteAuthenticatorSubView extends CustomComponent implements UnitySubView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuthenticatorEditorFactory factory;
 	private AuthenticatorDefinition toEdit;
 
 	private boolean editMode;
 
-	EditRemoteAuthenticatorSubView(UnityMessageSource msg, AuthenticatorEditorFactory factory,
+	EditRemoteAuthenticatorSubView(MessageSource msg, AuthenticatorEditorFactory factory,
 			AuthenticatorDefinition toEdit, Consumer<AuthenticatorDefinition> onConfirm, Runnable onCancel,
 			SubViewSwitcher subViewSwitcher)
 	{

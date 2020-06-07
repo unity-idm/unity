@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.reg.requests.RequestEntry;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -40,11 +40,11 @@ class RequestsController
 	private EntityManagement idMan;
 	private RegistrationsManagement regMan;
 	private EnquiryManagement enqMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
 	RequestsController(EntityManagement idMan, RegistrationsManagement regMan, EnquiryManagement enqMan,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.idMan = idMan;
 		this.regMan = regMan;

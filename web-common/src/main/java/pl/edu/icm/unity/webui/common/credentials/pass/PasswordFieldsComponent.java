@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
  */
 public class PasswordFieldsComponent extends CustomComponent
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final PasswordCredential config;
 
 	private PasswordFieldWithContextLabel password1;
@@ -49,7 +49,7 @@ public class PasswordFieldsComponent extends CustomComponent
 	private Consumer<String> onPasswordChangeListener;
 	private SingleStringFieldBinder binder;
 	
-	public PasswordFieldsComponent(UnityMessageSource msg, CredentialEditorContext context, 
+	public PasswordFieldsComponent(MessageSource msg, CredentialEditorContext context, 
 			PasswordCredential config, Consumer<String> onPasswordChangeListener)
 	{
 		super();

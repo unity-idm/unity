@@ -19,8 +19,8 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -41,11 +41,11 @@ class EditCertificateView extends CustomComponent implements UnityView
 	private CertificatesController controller;
 	private UnityServerConfiguration config;
 	private CertificateEditor editor;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String certName;
 
 	@Autowired
-	EditCertificateView(UnityMessageSource msg, CertificatesController controller,
+	EditCertificateView(MessageSource msg, CertificatesController controller,
 			UnityServerConfiguration config)
 	{
 		this.msg = msg;
@@ -124,11 +124,10 @@ class EditCertificateView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditCertificateViewInfoProvider(TrustedCertNavigationInfoProvider parent,
-				ObjectFactory<EditCertificateView> factory)
+		public EditCertificateViewInfoProvider(ObjectFactory<EditCertificateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(TrustedCertNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

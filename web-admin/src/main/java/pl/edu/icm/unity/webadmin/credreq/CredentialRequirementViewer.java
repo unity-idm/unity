@@ -9,7 +9,7 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallGrid;
@@ -20,13 +20,13 @@ import pl.edu.icm.unity.webui.common.SmallGrid;
  */
 public class CredentialRequirementViewer extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Label name;
 	private Label description;
 	private Grid<String> credentials;
 	
-	public CredentialRequirementViewer(UnityMessageSource msg)
+	public CredentialRequirementViewer(MessageSource msg)
 	{
 		super();
 		this.msg = msg;

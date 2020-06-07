@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.idp.console;
 import java.util.stream.Collectors;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -51,11 +52,12 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
 	private ImageAccessService imageAccessService;
+	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
 
-	public SAMLServiceControllerBase(UnityMessageSource msg,
+	public SAMLServiceControllerBase(MessageSource msg,
 			EndpointManagement endpointMan,
-			UnityMessageSource msg2,
+			MessageSource msg2,
 			EndpointManagement endpointMan2,
 			RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan,
@@ -73,7 +75,8 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 			NetworkServer server,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper,
-			ImageAccessService imageAccessService)
+			ImageAccessService imageAccessService,
+			PolicyDocumentManagement policyDocumentManagement)
 	{
 		super(msg, endpointMan);
 		this.realmsMan = realmsMan;
@@ -93,6 +96,7 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.idpUserHelper = idpUserHelper;
 		this.imageAccessService = imageAccessService;
+		this.policyDocumentManagement = policyDocumentManagement;
 	}
 
 	@Override
@@ -119,7 +123,8 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 						.map(r -> r.getName()).collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), pkiMan.getValidatorNames(), authenticatorSupportService,
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
-						.map(e -> e.getContextAddress()).collect(Collectors.toList()));
+						.map(e -> e.getContextAddress()).collect(Collectors.toList()),
+						policyDocumentManagement.getPolicyDocuments());
 	}
 
 	public abstract EndpointTypeDescription getType();

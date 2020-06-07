@@ -25,7 +25,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.components.grid.DetailsGenerator;
 import com.vaadin.ui.components.grid.GridRowDragger;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
 /**
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
  */
 public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<T> contents;
 	private ListDataProvider<T> dataProvider;
 	private Column<T, HorizontalLayout> actionColumn;
@@ -50,18 +50,18 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private boolean hideActionColumn = false;
 	
 
-	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers)
+	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers)
 	{
 		this(msg, actionHandlers, true, true);
 	}
 
-	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers,
+	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers,
 			boolean enableDrag)
 	{
 		this(msg, actionHandlers, enableDrag, true);
 	}
 
-	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers,
+	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers,
 			boolean enableDrag, boolean heightByRows)
 	{
 		this.msg = msg;
@@ -150,6 +150,15 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		deselectAll();
 		refreshHeight();
 	}
+	
+	public void removeAllElements()
+	{
+		contents.clear();
+		dataProvider.refreshAll();
+		deselectAll();
+		refreshHeight();
+		
+	}
 
 	public void setHeightByRows(boolean byRow)
 	{
@@ -221,9 +230,9 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		return showDetailsColumn;
 	}
 
-	public void addActionHandler(SingleActionHandler<T> actionHandler)
+	public void addActionHandler(int position, SingleActionHandler<T> actionHandler)
 	{
-		actionHandlers.add(actionHandler);
+		actionHandlers.add(position, actionHandler);
 		refreshActionColumn();
 	}
 
@@ -295,6 +304,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		wrapper.addComponent(actions);
 		wrapper.setComponentAlignment(actions, Alignment.MIDDLE_RIGHT);
 		wrapper.setWidth(100, Unit.PERCENTAGE);
+		wrapper.setHeight(100, Unit.PERCENTAGE);
 		
 		
 		for (SingleActionHandler<T> handler : actionHandlers)

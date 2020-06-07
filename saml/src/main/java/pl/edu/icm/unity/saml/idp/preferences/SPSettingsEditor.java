@@ -21,9 +21,9 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  */
 public class SPSettingsEditor extends FormLayout
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected List<Identity> identities;
 	protected Collection<AttributeType> attributeTypes;
 	
@@ -54,14 +54,14 @@ public class SPSettingsEditor extends FormLayout
 	private AttributeHandlerRegistry handlerReg;
 	private IdentityTypeSupport idTypeSupport;
 	
-	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
+	public SPSettingsEditor(MessageSource msg, AttributeHandlerRegistry handlerReg, 
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial)
 	{
 		this(msg, handlerReg, idTypeSupport, identities, atTypes, sp, initial, null);
 	}
 
-	public SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
+	public SPSettingsEditor(MessageSource msg, AttributeHandlerRegistry handlerReg, 
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes,
 			Set<String> allSps)
@@ -69,7 +69,7 @@ public class SPSettingsEditor extends FormLayout
 		this(msg, handlerReg, idTypeSupport, identities, atTypes, null, null, allSps);
 	}
 
-	private SPSettingsEditor(UnityMessageSource msg, AttributeHandlerRegistry handlerReg, 
+	private SPSettingsEditor(MessageSource msg, AttributeHandlerRegistry handlerReg, 
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial, Set<String> allSps)
 	{
@@ -226,7 +226,7 @@ public class SPSettingsEditor extends FormLayout
 	{
 		private ComboBox<String> selection;
 		
-		public SelectAttributeDialog(UnityMessageSource msg)
+		public SelectAttributeDialog(MessageSource msg)
 		{
 			super(msg, msg.getMessage("SAMLPreferences.selectAttribute"));
 			setSizeMode(SizeMode.SMALL);

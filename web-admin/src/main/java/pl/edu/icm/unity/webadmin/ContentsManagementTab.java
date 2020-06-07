@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webadmin.attribute.AttributesComponent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupBrowserComponent;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupDetailsComponent;
@@ -28,14 +28,14 @@ import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ContentsManagementTab extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupBrowserComponent groupBrowser;
 	private AttributesComponent attributesComponent;
 	private IdentitiesComponent identitiesTable;
 	private GroupDetailsComponent groupDetails;
 	
 	@Autowired
-	public ContentsManagementTab(UnityMessageSource msg, GroupBrowserComponent groupBrowser,
+	public ContentsManagementTab(MessageSource msg, GroupBrowserComponent groupBrowser,
 			AttributesComponent attributesComponent, IdentitiesComponent identitiesTable, 
 			GroupDetailsComponent groupDetails)
 	{

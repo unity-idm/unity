@@ -20,7 +20,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -39,11 +39,11 @@ class EditAuthenticationRealmView extends CustomComponent implements UnityView
 
 	private AuthenticationRealmsController controller;
 	private AuthenticationRealmEditor editor;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String realmName;
 
 	@Autowired
-	EditAuthenticationRealmView(UnityMessageSource msg,
+	EditAuthenticationRealmView(MessageSource msg,
 			AuthenticationRealmsController controller)
 	{
 		this.msg = msg;
@@ -124,12 +124,11 @@ class EditAuthenticationRealmView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticationRealmView> factory)
+		public EditRealmViewInfoProvider(ObjectFactory<EditAuthenticationRealmView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
-							.withParent(parent.getNavigationInfo())
+							.withParent(RealmsNavigationInfoProvider.ID)
 							.withObjectFactory(factory).build());
 
 		}

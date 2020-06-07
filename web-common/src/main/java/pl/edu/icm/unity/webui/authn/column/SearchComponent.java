@@ -9,12 +9,12 @@ import java.util.function.Consumer;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
 public class SearchComponent extends CustomComponent
 {
-	public SearchComponent(UnityMessageSource msg, Consumer<String> filterChangedCallback)
+	public SearchComponent(MessageSource msg, Consumer<String> filterChangedCallback)
 	{
 		TextField search = new TextField();
 		search.setPlaceholder(msg.getMessage("IdpSelectorComponent.filter"));

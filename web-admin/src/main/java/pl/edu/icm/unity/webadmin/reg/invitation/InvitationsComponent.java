@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webadmin.reg.invitations.InvitationViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -22,7 +23,6 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class InvitationsComponent extends CustomComponent implements ActivationListener
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationsManagement registrationManagement;
 	private EnquiryManagement enquiryMan;
 	private AttributeHandlerRegistry attrHandlersRegistry;
@@ -58,7 +58,7 @@ public class InvitationsComponent extends CustomComponent implements ActivationL
 	private InvitationsTable invitationsTable;
 	
 	@Autowired
-	public InvitationsComponent(UnityMessageSource msg,
+	public InvitationsComponent(MessageSource msg,
 			RegistrationsManagement registrationManagement,
 			EnquiryManagement enquiryMan,
 			AttributeTypeManagement attributesManagement,

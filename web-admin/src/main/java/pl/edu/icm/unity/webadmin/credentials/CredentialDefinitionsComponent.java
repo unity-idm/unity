@@ -20,8 +20,8 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
 import io.imunity.webadmin.credentials.CredentialDefinitionViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CredentialDefinitionsComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialManagement credentialMan;
 	private CredentialEditorRegistry credentialEditorReg;
 	private EventsBus bus;
@@ -56,7 +56,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	private com.vaadin.ui.Component main;
 	
 	@Autowired
-	public CredentialDefinitionsComponent(UnityMessageSource msg, CredentialEditorRegistry credentialEditorReg,
+	public CredentialDefinitionsComponent(MessageSource msg, CredentialEditorRegistry credentialEditorReg,
 			CredentialManagement credentialMan)
 	{
 		super();

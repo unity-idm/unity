@@ -21,9 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.registration.RequestedGroupDiff;
@@ -82,17 +83,18 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private AttributeTypeHelper atHelper;
 
 	@Autowired
-	public SharedEnquiryManagment(UnityMessageSource msg, NotificationProducer notificationProducer,
+	public SharedEnquiryManagment(MessageSource msg, NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper, EnquiryResponseDB enquiryResponseDB,
 			IdentityHelper dbIdentities, RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			EnquiryResponsePreprocessor responseValidator, AttributeTypeHelper atHelper,
-			RegistrationConfirmationSupport confirmationsSupport, InvitationDB invitationDB, GroupDAO groupDB)
+			RegistrationConfirmationSupport confirmationsSupport, InvitationDB invitationDB, GroupDAO groupDB,
+			PolicyAgreementManagement policyAgreementManagement)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper, entityCredentialsHelper,
-				facilitiesManagement, invitationDB);
+				facilitiesManagement, invitationDB, policyAgreementManagement);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
@@ -165,6 +167,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		confirmationsSupport.sendIdentityConfirmationRequest(currentRequest, form, entityId, Phase.ON_ACCEPT);
 		if (rewriteConfirmationToken)
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, entityId);
+		
+		policyAgreementManagement.submitDecisions(new EntityParam(entityId), currentRequest.getRequest().getPolicyAgreements());
 	}
 
 	private void applyGroupsAndAttributesFromEnquiry(long entityId, List<Group> allGroups, List<Group> allUserGroups,

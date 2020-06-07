@@ -14,10 +14,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -52,12 +52,12 @@ import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer
  */
 public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ConfirmationInfoFormatter formatter;
 	private VerifiableEmailAttributeSyntax syntax;
 	private EmailConfirmationManager emailConfirmationMan;
 
-	public VerifiableEmailAttributeHandler(UnityMessageSource msg, ConfirmationInfoFormatter formatter, 
+	public VerifiableEmailAttributeHandler(MessageSource msg, ConfirmationInfoFormatter formatter, 
 			AttributeValueSyntax<?> syntax, EmailConfirmationManager emailConfirmationMan)
 	{
 		this.msg = msg;
@@ -100,13 +100,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	private static class VerifiableEmailSyntaxEditor implements AttributeSyntaxEditor<VerifiableEmail>
 	{
 		private VerifiableEmailAttributeSyntax initial;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private MessageTemplateManagement msgTemplateMan;
 		private EmailConfirmationConfigurationEditor editor;
 		
 			
 		public VerifiableEmailSyntaxEditor(VerifiableEmailAttributeSyntax initial,
-				UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+				MessageSource msg, MessageTemplateManagement msgTemplateMan)
 		{
 			this.initial = initial;
 			this.msg = msg;
@@ -327,13 +327,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class VerifiableEmailAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private ConfirmationInfoFormatter formatter;
 		private MessageTemplateManagement msgTemplateMan;
 		private EmailConfirmationManager emailConfirmationMan;
 
 		@Autowired
-		public VerifiableEmailAttributeHandlerFactory(UnityMessageSource msg,
+		public VerifiableEmailAttributeHandlerFactory(MessageSource msg,
 				ConfirmationInfoFormatter formatter,
 				MessageTemplateManagement msgTemplateMan,
 				EmailConfirmationManager emailConfirmationMan)

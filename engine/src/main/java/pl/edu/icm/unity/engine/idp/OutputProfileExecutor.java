@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.idp;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -34,7 +34,7 @@ class OutputProfileExecutor
 	private final OutputTranslationEngine translationEngine;
 	private final OutputTranslationProfileRepository outputProfileRepo;
 	private final OutputTranslationActionsRegistry actionsRegistry;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final AttributeValueConverter attrValueConverter; 
 	private final OutputTranslationProfile defaultProfile;
 
@@ -43,7 +43,7 @@ class OutputProfileExecutor
 			OutputTranslationEngine translationEngine,
 			OutputTranslationActionsRegistry actionsRegistry,
 			AttributeValueConverter attrValueConverter,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.translationEngine = translationEngine;
 		this.outputProfileRepo = outputProfileRepo;

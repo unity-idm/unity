@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 
 /**
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 public class EmailConfirmationServletFactory extends SimpleVaadinServletFactory implements EmailConfirmationServletProvider
 {
 	@Autowired
-	public EmailConfirmationServletFactory(ApplicationContext applicationContext, UnityMessageSource msg, 
+	public EmailConfirmationServletFactory(ApplicationContext applicationContext, MessageSource msg, 
 			UnityServerConfiguration config)
 	{
 		super(applicationContext, config, msg, EmailConfirmationUI.class.getSimpleName(), new Properties(),

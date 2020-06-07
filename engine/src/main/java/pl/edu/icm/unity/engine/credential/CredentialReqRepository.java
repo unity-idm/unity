@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -31,11 +31,11 @@ public class CredentialReqRepository
 
 	private CredentialRepository credentialRepo;
 	private CredentialRequirementDB credentialRequirementDB;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
 	public CredentialReqRepository(CredentialRepository credentialRepo,
-			CredentialRequirementDB credentialRequirementDB, UnityMessageSource msg)
+			CredentialRequirementDB credentialRequirementDB, MessageSource msg)
 	{
 
 		this.credentialRepo = credentialRepo;

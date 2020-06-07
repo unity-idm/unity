@@ -69,6 +69,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	public static final String WANT_CLIENT_AUTHN = "wantClientAuthn";
 	public static final String REQUIRE_CLIENT_AUTHN = "requireClientAuthn";
 	public static final String DISABLED_CIPHER_SUITES = "disabledCipherSuites";
+	public static final String DISABLED_PROTOCOLS = "disabledProtocols";
 	public static final String GZIP_PREFIX = "gzip.";
 	public static final String MIN_GZIP_SIZE = GZIP_PREFIX + "minGzipSize";
 	public static final String ENABLE_GZIP = GZIP_PREFIX + "enable";
@@ -171,9 +172,13 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 		defaults.put(WANT_CLIENT_AUTHN, new PropertyMD("true").setCategory(advancedCat).
 				setDescription("Controls whether the SSL socket accepts (but does not require) client-side authentication."));
 		defaults.put(DISABLED_CIPHER_SUITES, new PropertyMD("").setCategory(advancedCat).
-				setDescription("Space separated list of SSL cipher suites to be disabled. "
-						+ "Names of the ciphers must adhere to the standard Java cipher names, available here: "
-						+ "http://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SupportedCipherSuites"));
+				setDescription("Space separated list of TLS cipher suites to be disabled. "
+						+ "Names of the ciphers must adhere to the standard Java cipher names, available here (search for Cipher Suites): "
+						+ "https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-7093246A-31A3-4304-AC5F-5FB6400405E2"));
+		defaults.put(DISABLED_PROTOCOLS, new PropertyMD("TLSv1.1 TLSv1").setCategory(advancedCat).
+				setDescription("Space separated list of protocol variants to be disabled. "
+						+ "Names of the protocols are in table named 'Protocol Parametrs' under the link"
+						+ "https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-7093246A-31A3-4304-AC5F-5FB6400405E2"));
 		defaults.put(MIN_GZIP_SIZE, new PropertyMD("100000").setCategory(advancedCat).
 				setDescription("Specifies the minimal size of message that should be compressed."));
 		

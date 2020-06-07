@@ -7,7 +7,7 @@ package io.imunity.webadmin.tprofile;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.TextArea;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
@@ -18,7 +18,7 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 {
 	private Binder<StringValueBean> binder;
 	
-	public TextAreaActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
+	public TextAreaActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		super(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));

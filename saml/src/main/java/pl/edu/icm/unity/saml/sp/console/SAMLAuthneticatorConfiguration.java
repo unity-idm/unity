@@ -17,6 +17,7 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -24,7 +25,6 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
@@ -72,7 +72,7 @@ public class SAMLAuthneticatorConfiguration
 		setDefAccountAssociation(true);
 	}
 
-	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, UnityMessageSource msg,
+	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, MessageSource msg,
 			String name) throws ConfigurationException
 	{
 		Properties raw = new Properties();
@@ -165,7 +165,7 @@ public class SAMLAuthneticatorConfiguration
 	}
 
 	public void fromProperties(PKIManagement pkiMan, URIAccessService uriAccessService, 
-			ImageAccessService imageAccessService, UnityMessageSource msg, String properties)
+			ImageAccessService imageAccessService, MessageSource msg, String properties)
 	{
 		Properties raw = new Properties();
 		try

@@ -9,9 +9,9 @@ import java.net.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.LinkableImage;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -21,11 +21,11 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 @Component
 class PublicLinkableImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final URL serverAdvertisedAddress;
 
 	@Autowired
-	PublicLinkableImageAttributeHandlerFactory(UnityMessageSource msg,
+	PublicLinkableImageAttributeHandlerFactory(MessageSource msg,
 			AdvertisedAddressProvider advertisedAddressProvider)
 	{
 		this.msg = msg;

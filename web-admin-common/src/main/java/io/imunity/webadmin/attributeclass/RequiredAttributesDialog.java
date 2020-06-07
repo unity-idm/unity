@@ -16,7 +16,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.attribute.AttributeFieldWithEdit;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  */
 public class RequiredAttributesDialog extends AbstractDialog
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Set<String> missingAttributes;
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private Collection<AttributeType> attributeTypes;
@@ -42,7 +42,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 	private List<AttributeFieldWithEdit> attrEdits;
 	private String info;
 
-	public RequiredAttributesDialog(UnityMessageSource msg, String info, 
+	public RequiredAttributesDialog(MessageSource msg, String info, 
 			Set<String> missingAttributes, AttributeHandlerRegistry attrHandlerRegistry,
 			Collection<AttributeType> attributeTypes, String group, Callback callback)
 	{

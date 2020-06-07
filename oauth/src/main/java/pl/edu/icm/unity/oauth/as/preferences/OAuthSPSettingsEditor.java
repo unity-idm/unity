@@ -15,9 +15,9 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.types.basic.Identity;
  */
 public class OAuthSPSettingsEditor extends FormLayout
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private IdentityTypeSupport idTypeSupport;
 	protected List<Identity> identities;
 	
@@ -40,7 +40,7 @@ public class OAuthSPSettingsEditor extends FormLayout
 	protected RadioButtonGroup<Decision> decision;
 	protected RadioButtonGroup<Identity> identity;
 	
-	public OAuthSPSettingsEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
+	public OAuthSPSettingsEditor(MessageSource msg, IdentityTypeSupport idTypeSupport,
 			List<Identity> identities, 
 			String client, OAuthClientSettings initial)
 	{
@@ -50,7 +50,7 @@ public class OAuthSPSettingsEditor extends FormLayout
 		initUI(initial, client, null);
 	}
 
-	public OAuthSPSettingsEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport, 
+	public OAuthSPSettingsEditor(MessageSource msg, IdentityTypeSupport idTypeSupport, 
 			List<Identity> identities, Set<String> allClients)
 	{
 		this.msg = msg;

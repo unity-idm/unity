@@ -9,8 +9,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -30,7 +30,7 @@ public class ChangeEntityStateHandler
 	@Autowired
 	private EntityManagement identitiesMan;
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback)
 	{

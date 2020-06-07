@@ -19,7 +19,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.ViewWithSubViewBase;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -40,12 +40,12 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 
 	private AuthenticatorsController controller;
 	private MainAuthenticatorEditor editor;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String authenticatorName;
 	private VerticalLayout mainView;
 
 	@Autowired
-	EditAuthenticatorView(UnityMessageSource msg, AuthenticatorsController controller)
+	EditAuthenticatorView(MessageSource msg, AuthenticatorsController controller)
 	{
 		super();
 		this.msg = msg;
@@ -126,13 +126,11 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 	@Component
 	public static class EditAuthenticatorViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
 		@Autowired
-		public EditAuthenticatorViewInfoProvider(AuthenticatorsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticatorView> factory)
+		public EditAuthenticatorViewInfoProvider(ObjectFactory<EditAuthenticatorView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AuthenticatorsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

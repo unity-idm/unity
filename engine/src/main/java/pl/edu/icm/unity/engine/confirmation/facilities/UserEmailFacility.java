@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.states.UserEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -29,10 +29,10 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	protected EntityDAO entityDAO;
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private String defaultRedirectURL;
 
-	protected UserEmailFacility(EntityDAO entityDAO, UnityMessageSource msg, String defaultRedirectURL)
+	protected UserEmailFacility(EntityDAO entityDAO, MessageSource msg, String defaultRedirectURL)
 	{
 		this.entityDAO = entityDAO;
 		this.msg = msg;

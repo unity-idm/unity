@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 import io.imunity.webadmin.idcreate.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 public class EntityCreationHandler
 {
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	@Autowired
 	private EntityManagement identitiesMan;
 	@Autowired

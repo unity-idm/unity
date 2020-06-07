@@ -39,9 +39,9 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -60,13 +60,13 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class ImportExportComponent extends VerticalLayout
 {
 	private static final int MAX_SIZE = 50000000;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final ServerManagement serverManagement;
 	private final UnityServerConfiguration serverConfig;
 	private DumpUploader uploader;
 
 	@Autowired
-	public ImportExportComponent(UnityMessageSource msg, ServerManagement serverManagement,
+	public ImportExportComponent(MessageSource msg, ServerManagement serverManagement,
 			UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;

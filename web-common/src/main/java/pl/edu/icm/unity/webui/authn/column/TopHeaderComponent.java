@@ -11,7 +11,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -25,11 +25,11 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 class TopHeaderComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public TopHeaderComponent(Component localeChoice, boolean enableRegistration, 
 			VaadinEndpointProperties config, Runnable registrationLayoutLauncher, 
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.msg = msg;
 		init(localeChoice, enableRegistration, config.getRegistrationConfiguration(), registrationLayoutLauncher);

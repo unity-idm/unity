@@ -15,7 +15,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -34,7 +34,7 @@ class JWTServiceEditorGeneralTab extends GeneralTab
 	private Binder<JWTServiceConfiguration> jwtBinder;
 	private Set<String> credentials;
 
-	JWTServiceEditorGeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
+	JWTServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
 			Set<String> credentials)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);

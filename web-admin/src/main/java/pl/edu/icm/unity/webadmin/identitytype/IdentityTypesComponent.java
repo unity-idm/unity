@@ -18,10 +18,10 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.identitytype.IdentityTypeEditor;
 import io.imunity.webadmin.identitytype.IdentityTypesUpdatedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.identitytype.IdentityTypeEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class IdentityTypesComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private GenericElementsTable<IdentityType> table;
 	private IdentityTypeViewer viewer;
@@ -55,7 +55,7 @@ public class IdentityTypesComponent extends VerticalLayout
 	private MessageTemplateManagement msgTemplateMan;
 
 	@Autowired
-	public IdentityTypesComponent(UnityMessageSource msg,
+	public IdentityTypesComponent(MessageSource msg,
 			IdentityTypesManagement identitiesManagement,
 			IdentityTypeSupport idTypeSupport,
 			MessageTemplateManagement msgTemplateMan)

@@ -18,7 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class FormLayoutEditor extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Supplier<FormLayout> layoutProvider;
 	
 	private Component layoutControls;
@@ -46,7 +46,7 @@ public class FormLayoutEditor extends CustomComponent
 	private List<EntryComponent> entries;
 	private VerticalLayout entriesLayout;
 
-	public FormLayoutEditor(UnityMessageSource msg, Supplier<FormLayout> layoutProvider)
+	public FormLayoutEditor(MessageSource msg, Supplier<FormLayout> layoutProvider)
 	{
 		super();
 		this.msg = msg;

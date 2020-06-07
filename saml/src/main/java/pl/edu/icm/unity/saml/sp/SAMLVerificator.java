@@ -28,6 +28,7 @@ import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -39,7 +40,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -89,7 +89,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 	
@@ -101,7 +101,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			RemoteMetadataService metadataService,
 			SLOSPManager sloManager,
 			SLOReplyInstaller sloReplyInstaller,
-			UnityMessageSource msg,
+			MessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			URIAccessService uriAccessService)

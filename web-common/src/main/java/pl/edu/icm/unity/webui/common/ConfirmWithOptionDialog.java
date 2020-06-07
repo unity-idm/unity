@@ -9,7 +9,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Confirmation dialog, witch an additional checkbox. Useful for situations when confirmation
@@ -25,12 +25,12 @@ public class ConfirmWithOptionDialog extends AbstractDialog
 	private String option;
 	private CheckBox optionCb;
 
-	public ConfirmWithOptionDialog(UnityMessageSource msg, String question, String option, Callback callback) 
+	public ConfirmWithOptionDialog(MessageSource msg, String question, String option, Callback callback) 
 	{
 		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, option, callback);
 	}
 	
-	public ConfirmWithOptionDialog(UnityMessageSource msg, String caption, String question, String option,
+	public ConfirmWithOptionDialog(MessageSource msg, String caption, String question, String option,
 			Callback callback) 
 	{
 		super(msg, caption);

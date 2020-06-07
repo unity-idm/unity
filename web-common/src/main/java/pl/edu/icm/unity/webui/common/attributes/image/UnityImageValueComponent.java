@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ui.ContentMode;
@@ -16,10 +18,10 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -42,13 +44,13 @@ class UnityImageValueComponent extends CustomComponent
 	private final ProgressBar progressIndicator;
 	private final CheckBox scale;
 	private final Label error;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 
 	private UnityImage value;
 	
 	UnityImageValueComponent(UnityImage initialValue,
 			ImageConfiguration imgConfig,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.msg = msg;
 		this.value = initialValue;
@@ -113,10 +115,10 @@ class UnityImageValueComponent extends CustomComponent
 		this.value = value;
 	}
 	
-	UnityImage getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
+	Optional<UnityImage> getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
 	{
 		if (value == null && !required)
-			return null;
+			return Optional.empty();
 		if (value == null)
 		{
 			error.setValue(msg.getMessage("ImageAttributeHandler.noImage"));
@@ -137,7 +139,7 @@ class UnityImageValueComponent extends CustomComponent
 
 		error.setVisible(false);
 		field.setVisible(true);
-		return value;
+		return Optional.of(value);
 	}
 
 	static Label getErrorImage()
@@ -148,7 +150,7 @@ class UnityImageValueComponent extends CustomComponent
 		return errorImage;
 	}
 
-	static Component getHints(ImageConfiguration imgConfig, UnityMessageSource msg)
+	static Component getHints(ImageConfiguration imgConfig, MessageSource msg)
 	{
 		Label ret = new Label(msg.getMessage("ImageAttributeHandler.maxSize", imgConfig.getMaxSize() / 1024) + "  "
 				+ msg.getMessage("ImageAttributeHandler.maxDim", imgConfig.getMaxWidth(), imgConfig.getMaxHeight()));
@@ -163,7 +165,7 @@ class UnityImageValueComponent extends CustomComponent
 	{
 		private UnityImage image;
 
-		public ShowImageDialog(UnityImage image, UnityMessageSource msg)
+		public ShowImageDialog(UnityImage image, MessageSource msg)
 		{
 			super(msg, msg.getMessage("ImageAttributeHandler.image"), msg.getMessage("close"));
 			this.image = image;

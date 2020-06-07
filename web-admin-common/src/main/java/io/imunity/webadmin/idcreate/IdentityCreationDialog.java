@@ -19,8 +19,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.identities.IdentityEntry;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -50,14 +50,14 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected ComboBox<String> identityTypeSelector;
 	protected IdentityEditor identityEditor;
 	
-	public IdentityCreationDialog(UnityMessageSource msg, long entityId, EntityManagement identitiesMan,
+	public IdentityCreationDialog(MessageSource msg, long entityId, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
 		this.entityId = entityId;
 	}
 
-	protected IdentityCreationDialog(String caption, UnityMessageSource msg, EntityManagement identitiesMan,
+	protected IdentityCreationDialog(String caption, MessageSource msg, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
 	{
 		super(msg, caption);
@@ -70,7 +70,7 @@ public class IdentityCreationDialog extends AbstractDialog
 	public static class IdentityCreationDialogHandler
 	{
 		@Autowired
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		@Autowired
 		private EntityManagement identitiesMan;
 		@Autowired

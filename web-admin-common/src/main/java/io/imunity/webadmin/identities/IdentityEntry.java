@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.springframework.util.StringUtils;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -29,7 +29,7 @@ public class IdentityEntry
 	private EntityWithLabel sourceEntity;
 	private Identity sourceIdentity;
 
-	public IdentityEntry(EntityWithLabel entityWithLabel, Map<String, String> attributes, UnityMessageSource msg)
+	public IdentityEntry(EntityWithLabel entityWithLabel, Map<String, String> attributes, MessageSource msg)
 	{
 		this.sourceEntity = entityWithLabel;
 		this.sourceIdentity = null;
@@ -39,7 +39,7 @@ public class IdentityEntry
 	}
 
 	public IdentityEntry(EntityWithLabel entityWithLabel, Map<String, String> attributes, Identity id, 
-			IdentityTypeDefinition typeDefinition, UnityMessageSource msg)
+			IdentityTypeDefinition typeDefinition, MessageSource msg)
 	{
 		this.sourceEntity = entityWithLabel;
 		this.sourceIdentity = id;
@@ -57,7 +57,7 @@ public class IdentityEntry
 	}
 
 	private void setShared(EntityWithLabel entityWithLabel, Map<String, String> attributes, 
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		columnsToValues.put(BaseColumn.entity, entityWithLabel.toString());
 		columnsToValues.put(BaseColumn.credReq, 

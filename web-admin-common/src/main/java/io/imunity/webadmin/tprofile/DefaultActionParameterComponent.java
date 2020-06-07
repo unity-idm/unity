@@ -7,7 +7,7 @@ package io.imunity.webadmin.tprofile;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
@@ -18,7 +18,7 @@ public class DefaultActionParameterComponent extends TextField implements Action
 {
 	protected Binder<StringValueBean> binder;
 
-	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
+	public DefaultActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		setCaption(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
@@ -26,7 +26,7 @@ public class DefaultActionParameterComponent extends TextField implements Action
 		configureBinding(msg, desc.isMandatory());
 	}
 	
-	protected void configureBinding(UnityMessageSource msg, boolean mandatory)
+	protected void configureBinding(MessageSource msg, boolean mandatory)
 	{	
 		if (mandatory)
 		{

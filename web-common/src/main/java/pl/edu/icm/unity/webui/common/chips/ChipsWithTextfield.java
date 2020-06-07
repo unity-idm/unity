@@ -20,7 +20,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
 
 /**
@@ -40,12 +40,12 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 
 	private Registration shortcutReg;
 
-	public ChipsWithTextfield(UnityMessageSource msg)
+	public ChipsWithTextfield(MessageSource msg)
 	{
 		this(msg, true, true);
 	}
 
-	public ChipsWithTextfield(UnityMessageSource msg, boolean multiSelectable, boolean chipsOnTop)
+	public ChipsWithTextfield(MessageSource msg, boolean multiSelectable, boolean chipsOnTop)
 	{
 		this.maxSelection = multiSelectable ? Integer.MAX_VALUE : 1;
 		chipsRow = new ChipsRow<>();
@@ -100,7 +100,7 @@ public class ChipsWithTextfield extends CustomField<List<String>>
 		chipsRow.addChipRemovalListener(listner);
 	}
 
-	public void setValidator(UnityMessageSource msg, SerializablePredicate<String> validityPredicate,
+	public void setValidator(MessageSource msg, SerializablePredicate<String> validityPredicate,
 			String message)
 	{
 		binder = new SingleStringFieldBinder(msg);

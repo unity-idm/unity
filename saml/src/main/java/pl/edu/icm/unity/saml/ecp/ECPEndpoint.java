@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -28,7 +29,6 @@ import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -67,7 +67,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private ExecutorsService executorsService;
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
@@ -82,7 +82,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			EntityManagement identitiesMan,
 			SessionManagement sessionMan,
 			ExecutorsService executorsService,
-			UnityMessageSource msg,
+			MessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,

@@ -60,8 +60,10 @@ public class AuditEventListener implements EventListener
 	}
 
 	@Override
-	public void init() {
-		if (!enabled) {
+	public void init() 
+	{
+		if (!enabled) 
+		{
 			return;
 		}
 		initEntityNameAttribute();
@@ -105,20 +107,19 @@ public class AuditEventListener implements EventListener
 	@Override
 	public boolean handleEvent(final Event abstractEvent)
 	{
-		if (!enabled) {
+		if (!enabled)
 			return true;
-		}
-		if (abstractEvent instanceof AttributeTypeChangedEvent) {
+		if (abstractEvent instanceof AttributeTypeChangedEvent)
 			return handleAttributeTypeChangeEvent((AttributeTypeChangedEvent)abstractEvent);
-		}
-		if (abstractEvent instanceof AuditEventTrigger) {
+		if (abstractEvent instanceof AuditEventTrigger)
 			return handleAuditEventTrigger((AuditEventTrigger)abstractEvent);
-		}
+
 		log.error("Unexpected event type, verify isWanted() method implementation");
 		return false;
 	}
 
-	private boolean handleAuditEventTrigger(AuditEventTrigger event) {
+	private boolean handleAuditEventTrigger(AuditEventTrigger event) 
+	{
 		AuditEvent auditEvent = AuditEvent.builder()
 				.type(event.getType())
 				.action(event.getAction())
@@ -139,19 +140,21 @@ public class AuditEventListener implements EventListener
 		return true;
 	}
 
-	private boolean handleAttributeTypeChangeEvent(AttributeTypeChangedEvent event) {
-		if (event.oldAT == null) {
+	private boolean handleAttributeTypeChangeEvent(AttributeTypeChangedEvent event) 
+	{
+		if (event.oldAT == null) 
+		{
 			// New attribute created
-			if (event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) {
+			if (event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) 
 				initEntityNameAttribute();
-			}
-		} else if (event.newAT == null) {
+		} else if (event.newAT == null) 
+		{
 			// Attribute was removed
-			if (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) {
+			if (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
 				initEntityNameAttribute();
-			}
 		} else if ((!event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
-			|| (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && !event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))) {
+			|| (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && !event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))) 
+		{
 			// EntityNameMetadataProvider.NAME was added or removed from attribute
 			initEntityNameAttribute();
 		}
@@ -174,10 +177,9 @@ public class AuditEventListener implements EventListener
 	public AuditEntity createAuditEntity(final Long entityId)
 	{
 		if (entityId == null)
-		{
 			return null;
-		}
-		return tx.runInTransactionRet(() -> {
+		return tx.runInTransactionRet(() -> 
+		{
 			String email = null;
 			try
 			{
@@ -194,7 +196,8 @@ public class AuditEventListener implements EventListener
 			}
 
 			String name = null;
-			if (entityNameAttribute != null) {
+			if (entityNameAttribute != null) 
+			{
 				List<StoredAttribute> attrs = attributeDAO.getAttributes(entityNameAttribute, entityId, null);
 				name = attrs.size() > 0 ? attrs.get(0).getAttribute().getValues().get(0) : null;
 			}

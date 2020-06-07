@@ -14,7 +14,7 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -36,11 +36,11 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 class OAuthTokenGrid extends CustomComponent
 {
 	private OAuthTokenController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private GridWithActionColumn<OAuthTokenBean> tokensGrid;
 
-	OAuthTokenGrid(UnityMessageSource msg, OAuthTokenController controller)
+	OAuthTokenGrid(MessageSource msg, OAuthTokenController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

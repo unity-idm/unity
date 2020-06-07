@@ -11,11 +11,12 @@ import java.util.Set;
 import java.util.function.Function;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -30,11 +31,12 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
@@ -57,8 +59,9 @@ class OAuthServiceEditor implements ServiceEditor
 	private List<String> usedPaths;
 	private List<String> allUsernames;
 	private URIAccessService uriAccessService;
+	private Collection<PolicyDocumentWithRevision> policyDocuments;
 
-	OAuthServiceEditor(UnityMessageSource msg, 
+	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, 
 			String serverPrefix,
@@ -79,7 +82,8 @@ class OAuthServiceEditor implements ServiceEditor
 			Set<String> credentials,
 			AuthenticatorSupportService authenticatorSupportService, 
 			Collection<IdentityType> idTypes,
-			List<String> usedPaths)
+			List<String> usedPaths,
+			Collection<PolicyDocumentWithRevision> policyDocuments)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -103,6 +107,7 @@ class OAuthServiceEditor implements ServiceEditor
 		this.allIdpUsers = allIdpUsers;
 		this.systemClientsSupplier = systemClientsSupplier;
 		this.allUsernames = allUsernames;
+		this.policyDocuments = policyDocuments;
 	}
 
 	@Override
@@ -121,7 +126,9 @@ class OAuthServiceEditor implements ServiceEditor
 		IdpEditorUsersTab usersTab = new IdpEditorUsersTab(msg, allGroups, allIdpUsers,
 				allAttributes);
 		
-		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab,
+		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
+		
+		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
 				fileStorageService, imageService, endpoint, allGroups, systemClientsSupplier, 
 				serverConfig.getValue(UnityServerConfiguration.THEME));
 		return editor;

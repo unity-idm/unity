@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
@@ -66,7 +66,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private NotificationProducer notificationProducer;
 
 	private SharedRegistrationManagment internalManagment;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TransactionalRunner tx;
 	private RegistrationRequestPreprocessor registrationRequestValidator;
 	private BaseFormValidator baseValidator;
@@ -77,7 +77,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			RegistrationRequestDB requestDB, CredentialReqRepository credentialReqDB,
 			RegistrationConfirmationSupport confirmationsSupport,
 			InternalAuthorizationManager authz, NotificationProducer notificationProducer,
-			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
+			SharedRegistrationManagment internalManagment, MessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestPreprocessor registrationRequestValidator,
 			BaseFormValidator baseValidator,

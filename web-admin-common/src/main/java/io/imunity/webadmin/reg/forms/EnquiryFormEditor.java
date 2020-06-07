@@ -21,17 +21,18 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.RegistrationTranslationProfileEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -61,7 +63,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditor.class);
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
@@ -90,16 +92,19 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	
 	@Autowired
-	public EnquiryFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, GroupsManagement groupsMan,
-			NotificationsManagement notificationsMan,
+	public EnquiryFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
+			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
-			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService, 
-			URIAccessService uriAccessService, ImageAccessService imageAccessService)
+			AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
+			RegistrationActionsRegistry actionsRegistry,
+			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService,
+			URIAccessService uriAccessService, ImageAccessService imageAccessService,
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
+			AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, authenticationMan);
+		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory,
+				attributeTypeSupport);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
@@ -257,7 +262,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		notificationsEditor.addToLayout(main);
 	}
 	
-	private void initCollectedTab()
+	private void initCollectedTab() throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));

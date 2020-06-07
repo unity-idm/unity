@@ -13,7 +13,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -29,9 +29,9 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 	private TextField redirectURL;
 	private CheckBox automatic;
 	private I18nTextField redirectCaption;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
-	public RegistrationWrapUpConfigEditor(UnityMessageSource msg, 
+	public RegistrationWrapUpConfigEditor(MessageSource msg, 
 			Predicate<RegistrationWrapUpConfig.TriggeringState> filter)
 	{
 		this.msg = msg;

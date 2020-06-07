@@ -12,7 +12,7 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -27,11 +27,10 @@ public class DirectorySetupNavigationInfoProvider extends WebConsoleNavigationIn
 	public static final String ID = "DirectorySetup";
 
 	@Autowired
-	public DirectorySetupNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public DirectorySetupNavigationInfoProvider(MessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.directorySetup"))
 				.withIcon(Images.file_tree.getResource()).withPosition(70).build());
 

@@ -24,13 +24,13 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -52,7 +52,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthenticationScreen.class);
 	private SandboxAuthnRouter sandboxRouter;
 
-	public SandboxAuthenticationScreen(UnityMessageSource msg, 
+	public SandboxAuthenticationScreen(MessageSource msg, 
 			ImageAccessService imageAccessService,
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,

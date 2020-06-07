@@ -21,8 +21,8 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
@@ -52,7 +52,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class RuleComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	private ActionEditor actionEditor;
 	private MVELExpressionField condition;
@@ -70,7 +70,7 @@ public class RuleComponent extends CustomComponent
 	private HamburgerMenu<String> menuBar;
 	private MenuItem embedProfileMenuItem;
 	
-	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
+	public RuleComponent(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
 			Callback callback)
 	{

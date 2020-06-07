@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.common.grid;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.SearchField;
 
 /**
@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webui.common.SearchField;
 public class FilterableGridHelper
 {
 	public static SearchField generateSearchField(FilterableGrid<? extends FilterableEntry> grid,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		SearchField searchText = getRowSearchField(msg);
 		searchText.addValueChangeListener(event -> {
@@ -32,7 +32,7 @@ public class FilterableGridHelper
 		return searchText;
 	}
 	
-	public static SearchField getRowSearchField(UnityMessageSource msg)
+	public static SearchField getRowSearchField(MessageSource msg)
 	{
 		return new SearchField(msg);
 	}

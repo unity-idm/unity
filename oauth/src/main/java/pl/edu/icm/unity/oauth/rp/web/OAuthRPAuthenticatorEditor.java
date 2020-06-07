@@ -20,8 +20,8 @@ import com.vaadin.ui.VerticalLayout;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
@@ -55,7 +55,7 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 	private Set<String> validators;
 	private Binder<OAuthRPConfiguration> configBinder;
 
-	OAuthRPAuthenticatorEditor(UnityMessageSource msg, OAuthTokenRepository tokenMan, PKIManagement pkiMan,
+	OAuthRPAuthenticatorEditor(MessageSource msg, OAuthTokenRepository tokenMan, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory) throws EngineException
 	{
 		super(msg);

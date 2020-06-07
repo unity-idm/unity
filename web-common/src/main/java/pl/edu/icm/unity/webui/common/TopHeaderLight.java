@@ -8,7 +8,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Top bar with header. Only show informational text, and optional sub title.
@@ -18,7 +18,7 @@ public class TopHeaderLight extends HorizontalLayout
 {
 	private Label titleL;
 	
-	public TopHeaderLight(String title, UnityMessageSource msg)
+	public TopHeaderLight(String title, MessageSource msg)
 	{
 		addStyleName(Styles.header.toString());
 		setMargin(true);

@@ -22,7 +22,7 @@ import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -44,10 +44,10 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 
 	private UpdateRequestsController controller;
 	private ConfirmationInfoFormatter formatter;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	public UserUpdatesView(UnityMessageSource msg, UpdateRequestsController controller, ConfirmationInfoFormatter formatter)
+	public UserUpdatesView(MessageSource msg, UpdateRequestsController controller, ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -105,11 +105,10 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 	public class MembersNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public MembersNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
-				ObjectFactory<UserUpdatesView> factory)
+		public MembersNavigationInfoProvider(MessageSource msg, ObjectFactory<UserUpdatesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.userUpdates"))
 					.withIcon(Images.user_check.getResource()).withPosition(3).build());
 

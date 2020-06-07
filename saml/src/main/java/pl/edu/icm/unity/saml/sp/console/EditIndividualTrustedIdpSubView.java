@@ -21,9 +21,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.EnableDisableCombo;
@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  */
 class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySubView
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
 	private Binder<SAMLIndividualTrustedSamlIdpConfiguration> configBinder;
@@ -57,7 +57,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 	private Set<String> usedNames;
 	private boolean editMode = false;
 
-	EditIndividualTrustedIdpSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, URIAccessService uriAccessService,
+	EditIndividualTrustedIdpSubView(MessageSource msg, UnityServerConfiguration serverConfig, URIAccessService uriAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			SAMLIndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,

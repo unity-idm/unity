@@ -12,7 +12,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrapper>
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected T min;
 	protected T max;
 	protected T bound;
@@ -30,7 +30,7 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 	private TextField limit;
 	private Binder<ValueWrapper> binder;
 	
-	public AbstractBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
+	public AbstractBoundEditor(MessageSource msg, String labelUnlimited, String labelLimit,
 			T bound, T min, T max)
 	{
 		this.msg = msg;

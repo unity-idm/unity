@@ -19,9 +19,9 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
 	
@@ -61,13 +61,13 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private MetadataEditor metaEditor;
 	private AttributeTypeSupport atSupport;
 	
-	public RegularAttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
+	public RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		this(msg, registry, null, attrMetaHandlerReg, atSupport);
 	}
 
-	public RegularAttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit, 
+	public RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit, 
 			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		super();

@@ -13,8 +13,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.common.Images;
@@ -30,12 +30,12 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class AccessBlockedDialog extends Window
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ExecutorsService execService;
 	
 	
 	
-	public AccessBlockedDialog(UnityMessageSource msg, ExecutorsService execService)
+	public AccessBlockedDialog(MessageSource msg, ExecutorsService execService)
 	{
 		this.msg = msg;
 		this.execService = execService;

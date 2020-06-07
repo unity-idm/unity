@@ -23,10 +23,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -46,12 +46,12 @@ public class AttributeTypeHelper
 	private AttributeSyntaxFactoriesRegistry atSyntaxRegistry;
 	private AttributeTypeDAO attributeTypeDAO;
 	private ApplicationContext appContext;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
 	public AttributeTypeHelper(AttributeSyntaxFactoriesRegistry atSyntaxRegistry, 
 			AttributeTypeDAO attributeTypeDAO, ApplicationContext appContext,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.atSyntaxRegistry = atSyntaxRegistry;
 		this.attributeTypeDAO = attributeTypeDAO;

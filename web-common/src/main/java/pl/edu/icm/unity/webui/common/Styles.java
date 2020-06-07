@@ -92,6 +92,7 @@ public enum Styles
 	narrowTable("u-narrowTable"),
 	borderBold("u-border-bold"),
 	borderBoldGreen("u-border-bold-green"),
+	readOnlyComboBox("u-readOnlyComboBox"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

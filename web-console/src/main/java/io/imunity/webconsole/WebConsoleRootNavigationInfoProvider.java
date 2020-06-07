@@ -7,6 +7,7 @@ package io.imunity.webconsole;
 
 import org.springframework.stereotype.Component;
 
+import io.imunity.webconsole.spi.WebConsoleExtendableMenuElements;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -20,7 +21,7 @@ import io.imunity.webelements.navigation.UnityView;
 @Component
 public class WebConsoleRootNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 {
-	public static final String ID = "Root";
+	public static final String ID = WebConsoleExtendableMenuElements.ROOT;
 
 	public WebConsoleRootNavigationInfoProvider()
 	{

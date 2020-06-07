@@ -10,9 +10,9 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -34,7 +34,7 @@ public class ChangeCredentialRequirementDialog extends AbstractDialog
 	
 	private ComboBox<String> credentialRequirement;
 	
-	public ChangeCredentialRequirementDialog(UnityMessageSource msg, EntityWithLabel entity, String initialCR,
+	public ChangeCredentialRequirementDialog(MessageSource msg, EntityWithLabel entity, String initialCR,
 			EntityCredentialManagement eCredMan, CredentialRequirementManagement credReqMan, 
 			Callback callback)
 	{

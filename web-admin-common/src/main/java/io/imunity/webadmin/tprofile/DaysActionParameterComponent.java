@@ -7,7 +7,7 @@ package io.imunity.webadmin.tprofile;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 
 /**
@@ -16,13 +16,13 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  */
 public class DaysActionParameterComponent extends DefaultActionParameterComponent
 {
-	public DaysActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
+	public DaysActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		super(desc, msg);
 	}
 
 	@Override
-	protected void configureBinding(UnityMessageSource msg, boolean mandatory)
+	protected void configureBinding(MessageSource msg, boolean mandatory)
 	{
 		if (mandatory)
 		{

@@ -17,10 +17,10 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -58,7 +58,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	private ImageAccessService imageAccessService;
 	
 	@Autowired
-	public TranslationProfileSandboxUI(UnityMessageSource msg, 
+	public TranslationProfileSandboxUI(MessageSource msg, 
 			LocaleChoiceComponent localeChoice,
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 

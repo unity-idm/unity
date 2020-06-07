@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.vaadin.ui.CheckBox;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
@@ -15,7 +16,6 @@ import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
  */
 public class BaseFormNotificationsEditor extends LayoutEmbeddable
 {
-	protected final UnityMessageSource msg;
+	protected final MessageSource msg;
 	protected final GroupsManagement groupsMan;
 	protected final NotificationsManagement notificationsMan;
 	protected final MessageTemplateManagement msgTempMan;
@@ -41,7 +41,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	private CompatibleTemplatesComboBox updatedTemplate;
 	private CompatibleTemplatesComboBox invitationTemplate;
 	
-	public BaseFormNotificationsEditor(UnityMessageSource msg, GroupsManagement groupsMan,
+	public BaseFormNotificationsEditor(MessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan, MessageTemplateManagement msgTempMan) throws EngineException
 	{
 		this.msg = msg;

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.messages.MessagesMapper">
+	
+	<resultMap id="MessageResult" type="MessageB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="locale" column="LOCALE"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="create" parameterType="MessageB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO MESSAGES (NAME, LOCALE, CONTENTS) VALUES (#{name}, #{locale},  #{contents})
+	</insert>
+	
+	<insert id="createWithKey" parameterType="MessageB">
+		INSERT INTO MESSAGES (ID, NAME, LOCALE, CONTENTS) VALUES (#{id}, #{name}, #{locale},  #{contents})
+	</insert>
+	
+	<update id="updateByKey" parameterType="MessageB">
+		UPDATE MESSAGES SET CONTENTS = #{contents}, NAME = #{name}, LOCALE = #{locale} WHERE ID = #{id}
+	</update>	
+
+	<select id="getAll" resultType="MessageB">
+		select * from MESSAGES
+	</select>
+
+	<select id="getByKey" parameterType="long" resultType="MessageB">
+		select * from MESSAGES where ID = #{value}
+	</select>
+	
+	<select id="getByNameAndLocale" parameterType="MessageB" resultType="MessageB">
+		select * from MESSAGES where NAME = #{name} AND LOCALE = #{locale}
+	</select>
+	
+	<select id="getByName" parameterType="string" resultType="MessageB">
+		select * from MESSAGES where NAME = #{value}
+	</select>
+	
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM MESSAGES
+	</select>
+
+	<delete id="deleteByNameAndLocale" parameterType="MessageB">
+		DELETE FROM MESSAGES WHERE NAME=#{name} AND LOCALE=#{locale}
+	</delete>	
+	
+	<delete id="deleteByName" parameterType="string">
+		DELETE FROM MESSAGES WHERE NAME=#{value} 
+	</delete>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM MESSAGES WHERE ID = #{value}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM MESSAGES
+	</delete>
+	
+</mapper>

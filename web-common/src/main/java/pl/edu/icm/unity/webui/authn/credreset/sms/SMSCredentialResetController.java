@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -36,7 +36,7 @@ public class SMSCredentialResetController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SMSCredentialResetController.class);
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialReset backend;
 	private CredentialEditor credEditor;
 	private Runnable finishHandler;
@@ -44,7 +44,7 @@ public class SMSCredentialResetController
 	private CredentialResetScreen mainWrapper;
 	private CredentialResetFlowConfig credResetUIConfig;
 	
-	public SMSCredentialResetController(UnityMessageSource msg, CredentialReset backend,
+	public SMSCredentialResetController(MessageSource msg, CredentialReset backend,
 			CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig config)
 	{
 		this.msg = msg;

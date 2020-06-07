@@ -5,18 +5,16 @@
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.bus.RefreshEvent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -27,15 +25,14 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * @author K. Benedyczak
  * 
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class GroupBrowserPanel extends SafePanel
 {
 	private GroupsTreeGrid groupsTree;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	public GroupBrowserPanel(GroupsTreeGrid groupsTree, UnityMessageSource msg)
+	public GroupBrowserPanel(GroupsTreeGrid groupsTree, MessageSource msg)
 	{
 		this.groupsTree = groupsTree;
 		this.msg = msg;
@@ -51,7 +48,7 @@ public class GroupBrowserPanel extends SafePanel
 		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, groupsTree.getToolbar(),
 				Alignment.BOTTOM_LEFT);
 		treeWithToolbar.setSizeFull();
-		wrapper.setMargin(new MarginInfo(true, false));
+		wrapper.setMargin(new MarginInfo(false, false, true, false));
 		wrapper.setSpacing(true);
 		wrapper.addComponent(treeWithToolbar);
 		
@@ -59,6 +56,6 @@ public class GroupBrowserPanel extends SafePanel
 		setStyleName(Styles.vPanelLight.toString());
 		setSizeFull();
 		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(event -> groupsTree.refresh(), RefreshEvent.class);
+		bus.addListener(event -> groupsTree.refreshAndEnsureSelection(), RefreshAndSelectEvent.class);
 	}
 }

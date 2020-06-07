@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.ui.AbstractTextField;
@@ -20,7 +21,7 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -36,7 +37,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 abstract class Abstract18nField<T extends AbstractTextField> extends CustomField<I18nString>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String defaultLocaleCode;
 	private String defaultLocaleName;
 	private Map<String, Locale> enabledLocales;
@@ -47,8 +48,9 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	private boolean shown = false;
 	private Component main;
 	private HorizontalLayout hl;
+	private T lastFocused;
 	
-	public Abstract18nField(UnityMessageSource msg)
+	public Abstract18nField(MessageSource msg)
 	{
 		this.enabledLocales = new HashMap<>(msg.getEnabledLocales());
 		this.defaultLocaleCode = msg.getDefaultLocaleCode();
@@ -58,7 +60,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 				defaultLocaleName = locE.getKey();
 	}
 
-	public Abstract18nField(UnityMessageSource msg, String caption)
+	public Abstract18nField(MessageSource msg, String caption)
 	{
 		this(msg);
 		setCaption(caption);
@@ -66,9 +68,18 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 	
 	protected abstract T makeFieldInstance();
 	
+	private T makeFieldInstanceWithFocus()
+	{
+		T field = makeFieldInstance();
+		field.addFocusListener(e -> {
+			lastFocused = field;
+		});	
+		return field;
+	}
+	
 	protected void initUI()
 	{
-		defaultTf = makeFieldInstance();
+		defaultTf = makeFieldInstanceWithFocus();
 		defaultTf.setDescription(defaultLocaleName);
 		defaultTf.addValueChangeListener(e -> fireEvent(e));
 		String defStyle = Styles.getFlagBgStyleForLocale(defaultLocaleCode);
@@ -79,7 +90,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 		showAll.addClickListener((event) -> 
 		{
-				show();
+				expand();
 				if (shown)
 				{
 					showAll.setIcon(Images.upArrow.getResource());
@@ -113,7 +124,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 			if (defaultLocaleCode.equals(localeKey))
 				continue;
 			
-			T tf = makeFieldInstance();
+			T tf = makeFieldInstanceWithFocus();
 			tf.setDescription(locE.getKey());
 			String style = Styles.getFlagBgStyleForLocale(localeKey);
 			if (style != null)
@@ -142,7 +153,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		return main;
 	}
 
-	private void show()
+	public void expand()
 	{
 		shown = !shown;
 		for (T tf: translationTFs.values())
@@ -182,6 +193,21 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		return ret;
 	}
 
+	public void insertOnLastFocused(I18nString text)
+	{
+		if (lastFocused != null)
+		{
+			String v = lastFocused.getValue();
+			String st = v.substring(0, lastFocused.getCursorPosition());
+			String fi = v.substring(lastFocused.getCursorPosition());
+			String toInsert = text.getValueRaw(translationTFs.entrySet().stream()
+					.filter(entry -> entry.getValue().equals(lastFocused)).map(Map.Entry::getKey)
+					.findFirst().orElse(msg.getDefaultLocaleCode()));
+			lastFocused.setValue(st + toInsert + fi);
+			lastFocused.setCursorPosition(st.length() + toInsert.length());
+		}
+	}
+
 	@Override
 	protected void doSetValue(I18nString value)
 	{
@@ -211,6 +237,16 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		}
 		defaultTf.addFocusListener(listener);
 	}
+	
+	public void addBlurListener(BlurListener listener)
+	{
+		for (T tf: translationTFs.values())
+		{
+			tf.addBlurListener(listener);
+		}
+		defaultTf.addBlurListener(listener);
+	}
+	
 	
 	@Override
 	public void setWidth(float width, Unit unit)

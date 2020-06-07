@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -40,11 +40,11 @@ class EditMessageTemplateView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "EditMessageTemplate";
 
 	private MessageTemplateController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String templateName;
 	private MessageTemplateEditor editor;
 
-	EditMessageTemplateView(MessageTemplateController controller, UnityMessageSource msg)
+	EditMessageTemplateView(MessageTemplateController controller, MessageSource msg)
 	{
 		super();
 		this.controller = controller;
@@ -123,11 +123,10 @@ class EditMessageTemplateView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditMessageTemplateNavigationInfoProvider(MessageTemplatesNavigationInfoProvider parent,
-				ObjectFactory<EditMessageTemplateView> factory)
+		public EditMessageTemplateNavigationInfoProvider(ObjectFactory<EditMessageTemplateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(MessageTemplatesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

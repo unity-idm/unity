@@ -1,0 +1,7 @@
+.icon-container {
+	color: black;
+}
+
+.tippy-box[data-theme~='help'] {
+	background-color: transparent;
+}

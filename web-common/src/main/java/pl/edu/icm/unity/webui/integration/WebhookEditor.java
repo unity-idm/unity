@@ -25,12 +25,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventConfiguration;
 import pl.edu.icm.unity.engine.api.integration.Webhook;
 import pl.edu.icm.unity.engine.api.integration.Webhook.WebhookHttpMethod;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.webhook.WebhookProcessor;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -50,12 +50,12 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 		implements IntegrationEventConfigurationEditor
 {
 	private Binder<WebhookVaadinBean> binder;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PKIManagement pkiMan;
 	private WebhookProcessor webhookProcessor;
 
 	@Autowired
-	public WebhookEditor(UnityMessageSource msg, PKIManagement pkiMan, WebhookProcessor webhookProcessor)
+	public WebhookEditor(MessageSource msg, PKIManagement pkiMan, WebhookProcessor webhookProcessor)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;

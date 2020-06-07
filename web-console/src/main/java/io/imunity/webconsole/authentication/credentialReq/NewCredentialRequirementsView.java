@@ -20,7 +20,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -42,12 +42,12 @@ class NewCredentialRequirementsView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "NewCredentialRequirements";
 
 	private CredentialRequirementsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialRequirementEditor editor;
 	private EventsBus bus;
 
 	@Autowired
-	NewCredentialRequirementsView(UnityMessageSource msg, CredentialRequirementsController controller)
+	NewCredentialRequirementsView(MessageSource msg, CredentialRequirementsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -124,12 +124,10 @@ class NewCredentialRequirementsView extends CustomComponent implements UnityView
 	public static class NewCredentialRequirementsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public NewCredentialRequirementsNavigationInfoProvider(
-				CredentialsRequirementsNavigationInfoProvider parent,
-				ObjectFactory<NewCredentialRequirementsView> factory)
+		public NewCredentialRequirementsNavigationInfoProvider(ObjectFactory<NewCredentialRequirementsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(CredentialsRequirementsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.utils;
 import java.util.Collection;
 import java.util.Iterator;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -23,7 +23,7 @@ public class MessageUtils
 	 * @param objects
 	 * @return
 	 */
-	public static String createConfirmFromStrings(UnityMessageSource msg, Collection<?> objects)
+	public static String createConfirmFromStrings(MessageSource msg, Collection<?> objects)
 	{
 		StringBuilder confirmText = new StringBuilder();
 		Iterator<?> it = objects.iterator();
@@ -36,12 +36,12 @@ public class MessageUtils
 	}
 	
 	/**
-	 * As {@link #createConfirmFromStrings(UnityMessageSource, Collection)} but uses getName() instead of toString().
+	 * As {@link #createConfirmFromStrings(MessageSource, Collection)} but uses getName() instead of toString().
 	 * @param msg
 	 * @param objects
 	 * @return
 	 */
-	public static String createConfirmFromNames(UnityMessageSource msg, 
+	public static String createConfirmFromNames(MessageSource msg, 
 			Collection<? extends NamedObject> objects)
 	{
 		StringBuilder confirmText = new StringBuilder();

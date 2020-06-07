@@ -29,9 +29,9 @@ import io.imunity.webadmin.tprofile.TranslationProfileViewer;
 import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import io.imunity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
@@ -64,7 +64,7 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 @PrototypeComponent
 public class TranslationProfilesComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TranslationProfileManagement profileMan;
 	private GenericElementsTable<TranslationProfile> table;
 	private TranslationProfileViewer viewer;
@@ -82,7 +82,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private SingleActionHandler<TranslationProfile> wizardAction;	
 
 	@Autowired
-	public TranslationProfilesComponent(UnityMessageSource msg,
+	public TranslationProfilesComponent(MessageSource msg,
 			TranslationProfileManagement profileMan, EndpointManagement endpointMan,
 			InputTranslationActionsRegistry inputTranslationActionsRegistry,
 			OutputTranslationActionsRegistry outputTranslationActionsRegistry,

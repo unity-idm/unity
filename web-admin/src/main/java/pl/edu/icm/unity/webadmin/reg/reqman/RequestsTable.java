@@ -20,10 +20,10 @@ import com.vaadin.ui.Grid.SelectionMode;
 
 import io.imunity.webadmin.reg.requests.RequestEntry;
 import io.imunity.webadmin.reg.requests.RequestSelectionListener;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -57,12 +57,12 @@ public class RequestsTable extends CustomComponent
 	private EntityManagement idMan;
 	private RegistrationsManagement registrationsManagement;
 	private EnquiryManagement enquiryManagement;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EventsBus bus;
 	
 	private Grid<RequestEntry> requestsTable;
 
-	public RequestsTable(EntityManagement idMan, RegistrationsManagement regMan, EnquiryManagement enquiryManagement, UnityMessageSource msg)
+	public RequestsTable(EntityManagement idMan, RegistrationsManagement regMan, EnquiryManagement enquiryManagement, MessageSource msg)
 	{
 		this.idMan = idMan;
 		this.registrationsManagement = regMan;

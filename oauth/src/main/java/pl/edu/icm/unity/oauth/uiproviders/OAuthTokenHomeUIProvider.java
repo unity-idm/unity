@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
@@ -26,13 +26,13 @@ public class OAuthTokenHomeUIProvider implements HomeUITabProvider
 	public static final String ID = "oauthTokens";
 	
 	private SecuredTokensManagement tokenMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityManagement entityManagement;
 	private OAuthTokenRepository tokenDAO;
 	
 	@Autowired
 	public OAuthTokenHomeUIProvider(SecuredTokensManagement tokenMan, OAuthTokenRepository tokenDAO,
-			UnityMessageSource msg,
+			MessageSource msg,
 			EntityManagement entityManagement)
 	{
 		this.tokenMan = tokenMan;

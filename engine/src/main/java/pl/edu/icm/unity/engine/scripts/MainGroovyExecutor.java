@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -47,8 +48,9 @@ import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 /**
@@ -63,7 +65,7 @@ public class MainGroovyExecutor
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MainGroovyExecutor.class);
 	
 	@Autowired
-	private UnityMessageSource unityMessageSource;
+	private MessageSource unityMessageSource;
 	@Autowired
 	private UnityServerConfiguration config;
 	@Autowired
@@ -139,6 +141,12 @@ public class MainGroovyExecutor
 	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 	@Autowired
 	private SessionManagement sessionManagement;
+	@Autowired
+	private RegistrationFormTranslationActionGenerator regTranslationActionGenerator;
+	@Autowired
+	private TokensManagement tokensManagement;
+	@Autowired
+	private ApplicationContext applicationContext;
 	
 	
 	@Autowired
@@ -213,6 +221,9 @@ public class MainGroovyExecutor
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
 		binding.setVariable("groupDelegationConfigGenerator", groupDelegationConfigGenerator);
 		binding.setVariable("sessionManagement", sessionManagement);
+		binding.setVariable("regTranslationActionGenerator", regTranslationActionGenerator);
+		binding.setVariable("tokensManagement", tokensManagement);
+		binding.setVariable("applicationContext", applicationContext);
 		boolean coldStart = false;
 		if (event.getTrigger().equals(EventCategory.POST_INIT.toString()) || 
 				event.getTrigger().equals(EventCategory.PRE_INIT.toString()))

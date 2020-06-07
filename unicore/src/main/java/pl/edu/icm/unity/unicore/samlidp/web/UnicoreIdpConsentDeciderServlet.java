@@ -19,12 +19,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
@@ -61,10 +63,12 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			IdPEngine idpEngine,
 			FreemarkerAppHandler freemarker,
 			SessionManagement sessionMan,
-			@Qualifier("insecure") EnquiryManagement enquiryManagement)
+			@Qualifier("insecure") EnquiryManagement enquiryManagement,
+			PolicyAgreementManagement policyAgreementsMan,
+			MessageSource msg)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan, enquiryManagement);
+				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg);
 	}
 	
 	

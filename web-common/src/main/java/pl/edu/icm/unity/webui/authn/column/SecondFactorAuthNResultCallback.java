@@ -9,11 +9,11 @@ import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -29,7 +29,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			SecondFactorAuthNResultCallback.class);
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final WebAuthenticationProcessor authnProcessor;
 	private final AuthenticationRealm realm;
 	private final AuthenticationListener authNListener;
@@ -40,7 +40,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	private String clientIp;
 
 
-	SecondFactorAuthNResultCallback(UnityMessageSource msg,
+	SecondFactorAuthNResultCallback(MessageSource msg,
 			WebAuthenticationProcessor authnProcessor, AuthenticationRealm realm,
 			AuthenticationListener authNListener, Supplier<Boolean> rememberMeProvider,
 			PartialAuthnState partialState,

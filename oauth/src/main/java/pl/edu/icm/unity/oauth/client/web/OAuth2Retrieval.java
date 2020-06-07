@@ -17,10 +17,10 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -43,14 +43,14 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public static final String NAME = "web-oauth2";
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
 	public static final String REMOTE_AUTHN_CONTEXT = OAuth2Retrieval.class.getName()+".authnContext";
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImageAccessService imageService;
 	private OAuthContextsManagement contextManagement;
 	private ExecutorsService executorsService;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 	
 	@Autowired
-	public OAuth2Retrieval(UnityMessageSource msg, ImageAccessService imageService, OAuthContextsManagement contextManagement, 
+	public OAuth2Retrieval(MessageSource msg, ImageAccessService imageService, OAuthContextsManagement contextManagement, 
 			ExecutorsService executorsService)
 	{
 		super(VaadinAuthentication.NAME);

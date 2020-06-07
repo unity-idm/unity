@@ -6,7 +6,7 @@ package io.imunity.webadmin.groupbrowser;
 
 import com.vaadin.data.TreeData;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -19,15 +19,15 @@ public class TreeNode
 	private String path;
 	private TreeNode parent;
 	private boolean contentsFetched = false;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String icon;
 
-	public TreeNode(UnityMessageSource msg, Group group, String icon)
+	public TreeNode(MessageSource msg, Group group, String icon)
 	{
 		this(msg, group, icon, null);
 	}
 
-	public TreeNode(UnityMessageSource msg, Group group, String icon, TreeNode parent)
+	public TreeNode(MessageSource msg, Group group, String icon, TreeNode parent)
 	{
 		this.msg = msg;
 		this.path = group.toString();
@@ -112,7 +112,7 @@ public class TreeNode
 		return false;
 	}
 
-	public boolean anyFieldsOrChildContains(String searched, UnityMessageSource msg, TreeData<TreeNode> treeData)
+	public boolean anyFieldsOrChildContains(String searched, MessageSource msg, TreeData<TreeNode> treeData)
 	{
 		String textLower = searched.toLowerCase();
 

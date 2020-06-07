@@ -16,8 +16,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.sms.SMSAuthnTemplateDef;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredential;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationConfiguratio
  */
 public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgTplMan;
 	
 	private IntStepper codeLength;
@@ -49,7 +49,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 	private MobileNumberConfirmationConfigurationEditor confirmationConfigEditor;
 	private Binder<SMSCredential> binder;
 	
-	public SMSCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
+	public SMSCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplMan)
 	{
 		this.msg = msg;
 		this.msgTplMan = msgTplMan;

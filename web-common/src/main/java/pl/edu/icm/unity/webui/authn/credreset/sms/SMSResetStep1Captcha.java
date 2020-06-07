@@ -11,7 +11,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.common.CaptchaComponent;
  */
 public class SMSResetStep1Captcha extends CredentialResetLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private TextFieldWithContextLabel username;
 	private CaptchaComponent captcha;

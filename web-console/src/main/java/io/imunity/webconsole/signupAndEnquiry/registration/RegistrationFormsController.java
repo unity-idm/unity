@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -29,13 +29,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class RegistrationFormsController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationsManagement regMan;
 	private SharedEndpointManagement sharedEndpointMan;
 	private ObjectFactory<RegistrationFormEditor> editorFactory;
 
 	@Autowired
-	RegistrationFormsController(UnityMessageSource msg, RegistrationsManagement regMan,
+	RegistrationFormsController(MessageSource msg, RegistrationsManagement regMan,
 			SharedEndpointManagement sharedEndpointMan, ObjectFactory<RegistrationFormEditor> editorFactory)
 	{
 		this.msg = msg;

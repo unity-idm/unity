@@ -11,7 +11,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class SPInfoComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Resource logo;
 	private String name;
 	private String url;
@@ -35,7 +35,7 @@ public class SPInfoComponent extends CustomComponent
 	 * @param name
 	 * @param url can be null
 	 */
-	public SPInfoComponent(UnityMessageSource msg, Resource logo, String name, String url)
+	public SPInfoComponent(MessageSource msg, Resource logo, String name, String url)
 	{
 		super();
 		this.msg = msg;

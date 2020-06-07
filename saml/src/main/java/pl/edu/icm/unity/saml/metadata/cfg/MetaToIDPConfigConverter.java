@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
@@ -47,7 +47,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToIDPConfigConverter.class);
 	private static final String IDP_META_CERT = "_IDP_METADATA_CERT_";
 	
-	public MetaToIDPConfigConverter(PKIManagement pkiManagement, UnityMessageSource msg)
+	public MetaToIDPConfigConverter(PKIManagement pkiManagement, MessageSource msg)
 	{
 		super(pkiManagement, msg);
 	}

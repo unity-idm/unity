@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -31,10 +31,10 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 public class RemoveFromGroupHandler
 {
 	private GroupsManagement groupsMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
-	RemoveFromGroupHandler(GroupsManagement groupsMan, UnityMessageSource msg)
+	RemoveFromGroupHandler(GroupsManagement groupsMan, MessageSource msg)
 	{
 		this.groupsMan = groupsMan;
 		this.msg = msg;

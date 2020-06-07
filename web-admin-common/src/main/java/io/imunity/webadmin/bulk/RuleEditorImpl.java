@@ -9,7 +9,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
 import io.imunity.webadmin.tprofile.ActionEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
  */
 public class RuleEditorImpl extends CustomComponent implements RuleEditor<TranslationRule>
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 
 	protected MVELExpressionField condition;
 	protected ActionEditor actionEditor;
@@ -28,7 +28,7 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Transl
 	
 	private FormLayout main;
 	
-	public RuleEditorImpl(UnityMessageSource msg, ActionEditor actionEditor)
+	public RuleEditorImpl(MessageSource msg, ActionEditor actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;

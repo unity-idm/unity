@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Convert service binding and type to more readable form
@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class ServiceTypeInfoHelper
 {
-	public static String getBinding(UnityMessageSource msg, String binding)
+	public static String getBinding(MessageSource msg, String binding)
 	{
 		try
 		{
@@ -27,7 +27,7 @@ public class ServiceTypeInfoHelper
 		}
 	}
 
-	public static String getType(UnityMessageSource msg, String type)
+	public static String getType(MessageSource msg, String type)
 	{
 		try
 		{

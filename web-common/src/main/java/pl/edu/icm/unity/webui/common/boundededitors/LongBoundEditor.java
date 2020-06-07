@@ -8,7 +8,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.LongRangeValidator;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 /**
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 public class LongBoundEditor extends AbstractBoundEditor<Long>
 {
 
-	public LongBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
+	public LongBoundEditor(MessageSource msg, String labelUnlimited, String labelLimit,
 			Long bound, Long min, Long max)
 	{
 		super(msg, labelUnlimited, labelLimit, bound, min, max);
@@ -35,7 +35,7 @@ public class LongBoundEditor extends AbstractBoundEditor<Long>
 			.bind(fieldName);
 	}
 	
-	private static Validator<Long> getValidator(UnityMessageSource msg, Long min, Long max)
+	private static Validator<Long> getValidator(MessageSource msg, Long min, Long max)
 	{
 		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
 		return new LongRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 

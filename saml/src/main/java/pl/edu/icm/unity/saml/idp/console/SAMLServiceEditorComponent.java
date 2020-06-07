@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -24,6 +24,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
@@ -41,9 +42,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 
-	SAMLServiceEditorComponent(UnityMessageSource msg, SAMLEditorGeneralTab generalTab,
+	SAMLServiceEditorComponent(MessageSource msg, SAMLEditorGeneralTab generalTab,
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
-			WebServiceAuthenticationTab webAuthTab, EndpointTypeDescription type, PKIManagement pkiMan,
+			WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
@@ -59,7 +60,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		samlServiceBinder = new Binder<>(DefaultServiceDefinition.class);
 		samlConfigBinder = new Binder<>(SAMLServiceConfiguration.class);
 		webConfigBinder = new Binder<>(ServiceWebConfiguration.class);
-
+		
+		samlConfigBinder.forField(policyAgreementTab).asRequired().bind("policyAgreementConfig");
+		
 		generalTab.initUI(samlServiceBinder, samlConfigBinder, editMode);
 		registerTab(generalTab);
 		clientsTab.initUI(samlConfigBinder);
@@ -68,7 +71,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		registerTab(usersTab);
 		webAuthTab.initUI(samlServiceBinder, webConfigBinder);
 		registerTab(webAuthTab);
-
+		registerTab(policyAgreementTab);
+		
+		
 		DefaultServiceDefinition serviceBean = new DefaultServiceDefinition(type.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(allGroups);

@@ -6,14 +6,14 @@ package pl.edu.icm.unity;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
-/**
- * Interface implemented by UnityMessageSource. This interface exists only to be able to use i19n in this 
- * Maven module, as UnityMessageSource is not and won't be available here.
- * @author K. Benedyczak
- */
+import pl.edu.icm.unity.types.I18nString;
+
 public interface MessageSource extends org.springframework.context.MessageSource
 {
+	public static final String PROFILE_FAIL_ON_MISSING = "failOnMissingMessage";
+	
 	String getMessage(String code, Object... args);
 	String getMessageUnsafe(String code, Object... args);
 	String getMessageNullArg(String code, Object... args);
@@ -22,5 +22,9 @@ public interface MessageSource extends org.springframework.context.MessageSource
 	String getDefaultLocaleCode();
 	String getLocaleCode();
 	Map<String, Locale> getEnabledLocales();
-	Map<String, Locale> getSupportedLocales();
+	Map<String, Locale> getSupportedLocales();	
+	
+	Map<MessageArea, Set<Object>> getKeysByCategory();
+	I18nString getI18nMessage(String code, Object... args);
+	
 }

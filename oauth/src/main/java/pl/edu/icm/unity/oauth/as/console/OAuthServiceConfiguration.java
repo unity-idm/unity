@@ -15,8 +15,11 @@ import java.util.Set;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -60,9 +63,11 @@ public class OAuthServiceConfiguration
 	private int maxExtendAccessTokenValidity;
 	private boolean supportExtendTokenValidity;
 	private AccessTokenFormat accessTokenFormat;
+	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 
 	public OAuthServiceConfiguration()
 	{
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
 	}
 
 	public OAuthServiceConfiguration(List<Group> allGroups)
@@ -84,9 +89,10 @@ public class OAuthServiceConfiguration
 		skipUserImport = false;
 		userImports = new ArrayList<>();
 		accessTokenFormat = AccessTokenFormat.PLAIN;
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
 	}
 
-	public String toProperties()
+	public String toProperties(MessageSource msg)
 	{
 		Properties raw = new Properties();
 
@@ -210,11 +216,16 @@ public class OAuthServiceConfiguration
 		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group.toString());
 		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group.toString());
 
+		if (policyAgreementConfig != null)
+		{
+			raw.putAll(IdpPolicyAgreementsConfigurationParser.toProperties(msg, policyAgreementConfig, OAuthASProperties.P));
+		}
+		
 		OAuthASProperties oauthProperties = new OAuthASProperties(raw);
 		return oauthProperties.getAsString();
 	}
 
-	public void fromProperties(String properties, List<Group> allGroups)
+	public void fromProperties(MessageSource msg, String properties, List<Group> allGroups)
 	{
 		Properties raw = new Properties();
 		try
@@ -343,7 +354,7 @@ public class OAuthServiceConfiguration
 			userImports.add(userImportConfig);
 		}
 		
-
+		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, oauthProperties);
 	}
 
 	public List<UserImportConfig> getUserImports()
@@ -579,5 +590,15 @@ public class OAuthServiceConfiguration
 	public void setAccessTokenFormat(AccessTokenFormat accessTokenFormat)
 	{
 		this.accessTokenFormat = accessTokenFormat;
+	}
+
+	public IdpPolicyAgreementsConfiguration getPolicyAgreementConfig()
+	{
+		return policyAgreementConfig;
+	}
+
+	public void setPolicyAgreementConfig(IdpPolicyAgreementsConfiguration policyAgreementConfig)
+	{
+		this.policyAgreementConfig = policyAgreementConfig;
 	}
 }

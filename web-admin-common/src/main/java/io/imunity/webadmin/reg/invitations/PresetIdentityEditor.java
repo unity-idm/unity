@@ -10,7 +10,7 @@ import java.util.Optional;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
@@ -36,7 +36,7 @@ public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 	private IdentityEditor editor;
 	
 	public PresetIdentityEditor(IdentityEditorRegistry identityEditorRegistry,
-			List<IdentityRegistrationParam> formParameters, UnityMessageSource msg)
+			List<IdentityRegistrationParam> formParameters, MessageSource msg)
 	{
 		super(msg);
 		this.identityEditorRegistry = identityEditorRegistry;

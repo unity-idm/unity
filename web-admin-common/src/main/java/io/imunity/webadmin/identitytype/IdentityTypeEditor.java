@@ -14,10 +14,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor
  */
 public class IdentityTypeEditor extends FormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private IdentityType original;
 	private AbstractTextField name;
@@ -45,7 +45,7 @@ public class IdentityTypeEditor extends FormLayout
 	private MessageTemplateManagement msgTemplateMan;
 	private IdentityTypeDefinition typeDefinition;
 
-	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport, MessageTemplateManagement msgTemplateMan,
+	public IdentityTypeEditor(MessageSource msg, IdentityTypeSupport idTypeSupport, MessageTemplateManagement msgTemplateMan,
 			IdentityType toEdit)
 	{
 		super();

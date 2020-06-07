@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -40,11 +40,11 @@ class ShowLocalCredentialView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "ShowLocalCredential";
 
 	private LocalCredentialsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String credentialName;
 
 	@Autowired
-	ShowLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	ShowLocalCredentialView(MessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -101,11 +101,10 @@ class ShowLocalCredentialView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public ShowLocalCredentialNavigationInfoProvider(LocalCredentialsNavigationInfoProvider parent,
-				ObjectFactory<ShowLocalCredentialView> factory)
+		public ShowLocalCredentialNavigationInfoProvider(ObjectFactory<ShowLocalCredentialView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(LocalCredentialsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

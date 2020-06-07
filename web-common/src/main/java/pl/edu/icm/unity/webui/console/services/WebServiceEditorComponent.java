@@ -7,8 +7,8 @@ package pl.edu.icm.unity.webui.console.services;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -30,7 +30,7 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private FileStorageService fileStorageService;
 
-	public WebServiceEditorComponent(UnityMessageSource msg, GeneralTab generalTab, 
+	public WebServiceEditorComponent(MessageSource msg, GeneralTab generalTab, 
 			WebServiceAuthenticationTab authTab,  EndpointTypeDescription type,
 			ImageAccessService imageAccessService, FileStorageService fileStorageService,  
 			DefaultServiceDefinition toEdit, String defaultMainTheme)

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * {@link ChipsWithDropdown} text version. Allow also for free-text input.
@@ -19,12 +19,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class ChipsWithFreeText extends ChipsWithDropdown<String>
 {
-	public ChipsWithFreeText(UnityMessageSource msg)
+	public ChipsWithFreeText(MessageSource msg)
 	{
 		super();
 		combo.setNewItemProvider(s -> {
-			combo.setSelectedItem(s);
-			return Optional.of(s);
+			if (getValue().contains(s))
+				return Optional.empty();
+			return Optional.of(s);	
 		});
 		combo.setDescription(msg.getMessage("typeOrSelect"));
 		combo.setPlaceholder(msg.getMessage("typeOrSelect"));

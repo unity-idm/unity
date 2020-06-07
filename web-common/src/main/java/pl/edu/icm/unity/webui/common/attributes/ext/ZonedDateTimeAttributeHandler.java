@@ -16,8 +16,8 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateTimeField;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.ZonedDateTimeAttributeSyntax;
@@ -38,11 +38,11 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 {
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	private ZonedDateTimeAttributeSyntax syntax;
 
-	public ZonedDateTimeAttributeHandler(AttributeValueSyntax<?> syntax, UnityMessageSource msg)
+	public ZonedDateTimeAttributeHandler(AttributeValueSyntax<?> syntax, MessageSource msg)
 	{
 
 		this.syntax = (ZonedDateTimeAttributeSyntax) syntax;
@@ -179,10 +179,10 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class DateAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
 		@Autowired
-		public DateAttributeHandlerFactory(UnityMessageSource msg)
+		public DateAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

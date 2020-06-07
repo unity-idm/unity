@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webadmin.attributeclass.AttributesClassesComponent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesComponent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionsComponent;
@@ -29,11 +29,11 @@ import pl.edu.icm.unity.webui.common.Styles;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SchemaManagementTab  extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MainTabPanel tabs;
 
 	@Autowired
-	public SchemaManagementTab(UnityMessageSource msg, AttributeTypesComponent attributeTypes,
+	public SchemaManagementTab(MessageSource msg, AttributeTypesComponent attributeTypes,
 			CredentialDefinitionsComponent cdComponent, CredentialRequirementsComponent crComponent,
 			AttributesClassesComponent acComponent, IdentityTypesComponent idTypes)
 	{

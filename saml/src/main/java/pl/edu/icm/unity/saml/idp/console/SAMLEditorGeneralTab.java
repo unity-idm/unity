@@ -31,9 +31,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
@@ -63,7 +63,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
  */
 public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
 	private Binder<SAMLServiceConfiguration> configBinder;
 	private OutputTranslationProfileFieldFactory profileFieldFactory;
@@ -83,7 +83,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 	private HorizontalLayout metaLinkButtonWrapper;
 	private Label metaOffInfo;
 	
-	public SAMLEditorGeneralTab(UnityMessageSource msg, String serverPrefix, Set<String> serverContextPaths, UnityServerConfiguration serverConfig,
+	public SAMLEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
 			List<String> usedEndpointsPaths,
 			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes)

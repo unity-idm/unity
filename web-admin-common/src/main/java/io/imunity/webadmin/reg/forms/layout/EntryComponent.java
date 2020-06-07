@@ -9,7 +9,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class EntryComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private int position;
 	private Button up;
 	private Button down;
@@ -31,7 +31,7 @@ public class EntryComponent extends CustomComponent
 	private FormElementEditor<?> elementEditor;
 	
 	
-	public EntryComponent(int position, UnityMessageSource msg,
+	public EntryComponent(int position, MessageSource msg,
 			FormElementEditor<?> elementEditor, Callback callback)
 	{
 		this.position = position;

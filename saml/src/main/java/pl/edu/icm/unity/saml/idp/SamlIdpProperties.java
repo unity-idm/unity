@@ -40,11 +40,11 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -521,7 +521,7 @@ public class SamlIdpProperties extends SamlProperties
 		return getValue(spKey + ALLOWED_SP_NAME);
 	}
 
-	public Resource getLogoForRequester(NameIDType id, UnityMessageSource msg, ImageAccessService imageAccessService)
+	public Resource getLogoForRequester(NameIDType id, MessageSource msg, ImageAccessService imageAccessService)
 	{
 		String spKey = getSPConfigKey(id);
 		if (spKey == null)

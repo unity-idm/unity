@@ -18,11 +18,11 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -50,7 +50,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class GroupDetailsComponent extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupDetailsComponent.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GroupsManagement groupsManagement;
 	
 	private VerticalLayout main;
@@ -61,7 +61,7 @@ public class GroupDetailsComponent extends SafePanel
 	private AttributeStatementsTable attrStatements;
 	
 	@Autowired
-	public GroupDetailsComponent(UnityMessageSource msg, GroupsManagement groupsManagement, 
+	public GroupDetailsComponent(MessageSource msg, GroupsManagement groupsManagement, 
 			AttributeHandlerRegistry attributeHandlersReg, AttributeTypeManagement atMan,
 			AttributeClassManagement acMan)
 	{

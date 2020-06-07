@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.google.common.collect.Sets;
 
 import io.imunity.upman.utils.DelegatedGroupsHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class TestRequestsController
 {
 	@Mock
-	private UnityMessageSource mockMsg;
+	private MessageSource mockMsg;
 
 	@Mock
 	private ProjectRequestManagement mockRequestMan;

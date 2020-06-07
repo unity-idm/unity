@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
@@ -96,6 +97,7 @@ public class BaseRequestPreprocessor
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
 			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws IllegalFormContentsException
 	{
+		log.debug("Validating registration request:\n{}", JsonUtil.serializeHumanReadable(request.toJson()));
 		validateRequestAgreements(form, request);
 		validateRequestedAttributes(form, request);
 		if (!skipCredentialsValidation)
@@ -177,7 +179,7 @@ public class BaseRequestPreprocessor
 						i, Category.AGREEMENT);
 		}
 	}
-
+	
 	protected void validateFinalAttributes(Collection<Attribute> attributes) 
 			throws EngineException
 	{
@@ -299,8 +301,8 @@ public class BaseRequestPreprocessor
 			IdentityRegistrationParam formParam = form.getIdentityParams().get(i);
 			if (!formParam.getIdentityType().equals(idParam.getTypeId()))
 				throw new IllegalFormContentsException("Identity nr " + i + " must be of " 
-						+ form.getIdentityParams().get(i).getIdentityType() + " type",
-						i, Category.IDENTITY);
+						+ form.getIdentityParams().get(i).getIdentityType() + 
+						" type, but is " + idParam, i, Category.IDENTITY);
 			forceConfirmationStateOfIdentity(formParam, i, idParam);
 		}
 	}

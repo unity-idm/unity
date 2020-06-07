@@ -21,7 +21,7 @@ import com.vaadin.ui.Upload.SucceededListener;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -40,12 +40,12 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
  */
 public class X500IdentityEditor implements IdentityEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private TextField field;
 	private IdentityEditorContext context;
 	private SingleStringFieldBinder binder;
 	
-	public X500IdentityEditor(UnityMessageSource msg)
+	public X500IdentityEditor(MessageSource msg)
 	{
 		this.msg = msg;
 	}

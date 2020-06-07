@@ -21,10 +21,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.idcreate.SingleCredentialPanel.ObtainedCredential;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -43,14 +43,14 @@ public class NewEntityCredentialsPanel extends VerticalLayout
 	private CredentialManagement credMan;
 	private CredentialRequirementManagement credReqMan;
 	private CredentialEditorRegistry credEditorReg;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Map<String, CredentialDefinition> credentials;
 	private List<SingleCredentialPanel> panels;
 	private String credReqId;
 
 	@Autowired
-	private NewEntityCredentialsPanel(UnityMessageSource msg, 
+	private NewEntityCredentialsPanel(MessageSource msg, 
 			CredentialManagement credMan, 
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg)

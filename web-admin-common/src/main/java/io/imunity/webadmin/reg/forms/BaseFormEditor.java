@@ -7,13 +7,13 @@ package io.imunity.webadmin.reg.forms;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Sets;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -22,11 +22,12 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -58,6 +59,8 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
 /**
@@ -68,9 +71,10 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 public class BaseFormEditor extends VerticalLayout
 {
 	private static final int COMBO_WIDTH_EM = 18;
-	private UnityMessageSource msg;
-	private IdentityTypeSupport identityTypeSupport;
-	private Collection<IdentityType> identityTypes;
+	private MessageSource msg;
+	private PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
+	private final Map<String, IdentityTypeDefinition> allowedIdentitiesByName;
+	private final AttributeTypeSupport attributeTypeSupport;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
 	private List<String> credentialTypes;
@@ -83,31 +87,49 @@ public class BaseFormEditor extends VerticalLayout
 	protected I18nTextArea formInformation;
 	protected CheckBox collectComments;
 	protected I18nTextField pageTitle;
-	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
+	private ListOfEmbeddedElements<AgreementRegistrationParam> optins;	
 	private ListOfEmbeddedElements<IdentityRegistrationParam> identityParams;
 	private ListOfEmbeddedElements<AttributeRegistrationParam> attributeParams;
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
+	private PolicyAgreementConfigurationList policyAgreements;
 	private TabSheet collectedParamsTabSheet;
 	
-	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
+	public BaseFormEditor(MessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
-			CredentialManagement authenticationMan)
+			CredentialManagement authenticationMan, 
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
+			AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
+		this.attributeTypeSupport = attributeTypeSupport;
 		setSpacing(false);
 		setMargin(false);
-		this.identityTypeSupport = identityTypeSupport;
 		this.msg = msg;
-		identityTypes = identityTypeSupport.getIdentityTypes(); 
 		attributeTypes = attributeMan.getAttributeTypes();
 		Collection<CredentialDefinition> crs = authenticationMan.getCredentialDefinitions();
 		credentialTypes = new ArrayList<>(crs.size());
 		for (CredentialDefinition cred: crs)
 			credentialTypes.add(cred.getName());
+		this.policyAgreementConfigurationListFactory = policyAgreementConfigurationListFactory;
+		this.allowedIdentitiesByName = getAllowedIdentities(identityTypeSupport);
 	}
 
+	private Map<String, IdentityTypeDefinition> getAllowedIdentities(IdentityTypeSupport identityTypeSupport)
+	{
+		Collection<IdentityType> identityTypes = identityTypeSupport.getIdentityTypes();
+		Map<String, IdentityTypeDefinition> allowedIdentitiesByName = new HashMap<>();
+		for (IdentityType it: identityTypes)
+		{
+			IdentityTypeDefinition typeDef = identityTypeSupport.getTypeDefinition(it.getName());
+			if (typeDef.isDynamic())
+				continue;
+			allowedIdentitiesByName.put(it.getIdentityTypeProvider(), typeDef);
+		}
+		return Collections.unmodifiableMap(allowedIdentitiesByName);
+	}
+	
 	protected void setValue(BaseForm toEdit)
 	{
 		setNameFieldValue(toEdit.getName());
@@ -118,8 +140,8 @@ public class BaseFormEditor extends VerticalLayout
 		collectComments.setValue(toEdit.isCollectComments());
 		List<AgreementRegistrationParam> agreementsP = toEdit.getAgreements();
 		if (agreementsP != null)
-			agreements.setEntries(agreementsP);
-		agreements.setEntries(toEdit.getAgreements());
+			optins.setEntries(agreementsP);
+		optins.setEntries(toEdit.getAgreements());
 		identityParams.setEntries(toEdit.getIdentityParams());
 		//order is important as attributes depend on groups for dynamic groups
 		groupParams.setEntries(toEdit.getGroupParams());
@@ -128,11 +150,12 @@ public class BaseFormEditor extends VerticalLayout
 		wrapUpConfig.setEntries(toEdit.getWrapUpConfig());
 		if (toEdit.getPageTitle() != null)
 			pageTitle.setValue(toEdit.getPageTitle());
+		policyAgreements.setValue(toEdit.getPolicyAgreements());
 	}
 	
 	protected void buildCommon(BaseFormBuilder<?> builder) throws FormValidationException
 	{
-		builder.withAgreements(agreements.getElements());
+		builder.withAgreements(optins.getElements());
 		builder.withAttributeParams(attributeParams.getElements());
 		builder.withCollectComments(collectComments.getValue());
 		builder.withCredentialParams(credentialParams.getElements());
@@ -149,6 +172,8 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withWrapUpConfig(wrapUpConfig.getElements());
 		
 		builder.withPageTitle(pageTitle.getValue());
+		policyAgreements.validate();
+		builder.withPolicyAgreements(policyAgreements.getValue());
 	}
 		
 	protected void initNameAndDescFields(String defaultName) throws EngineException
@@ -178,16 +203,16 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}
 	
-	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
+	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval) throws EngineException
 	{
 		this.groups = groups;
 		collectedParamsTabSheet = new TabSheet();
 		collectedParamsTabSheet.setStyleName(Styles.vTabsheetMinimal.toString());
 		
-		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
+		optins = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.optins"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
-		agreements.setSpacing(false);
-		agreements.setMargin(true);
+		optins.setSpacing(false);
+		optins.setMargin(true);
 
 		IdentityEditorAndProvider identityEditorAndProvider = new IdentityEditorAndProvider();
 		if (forceInteractiveRetrieval)
@@ -209,8 +234,12 @@ public class BaseFormEditor extends VerticalLayout
 			attributeEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
-				
-		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
+			
+		policyAgreements = policyAgreementConfigurationListFactory.getInstance();
+		VerticalLayout policyAgreementsLayout = new VerticalLayout(policyAgreements);
+		policyAgreementsLayout.setCaption(msg.getMessage("RegistrationFormEditor.policyAgreements"));
+
+		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, optins, policyAgreementsLayout);
 		return collectedParamsTabSheet;
 	}
 
@@ -332,15 +361,7 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			identityType = new NotNullComboBox<>(msg.getMessage("RegistrationFormViewer.paramIdentity"));
 			identityType.setWidth(COMBO_WIDTH_EM, Unit.EM);
-			Set<String> items = Sets.newHashSet();
-			for (IdentityType it: identityTypes)
-			{
-				IdentityTypeDefinition typeDef = identityTypeSupport.getTypeDefinition(it.getName());
-				if (typeDef.isDynamic())
-					continue;
-				items.add(it.getIdentityTypeProvider());
-			}
-			identityType.setItems(items);
+			identityType.setItems(allowedIdentitiesByName.keySet());
 			confirmationMode = new EnumComboBox<>(
 					msg.getMessage("RegistrationFormViewer.paramConfirmationMode"), 
 					msg, 
@@ -349,14 +370,20 @@ public class BaseFormEditor extends VerticalLayout
 					ConfirmationMode.ON_SUBMIT);
 			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
 			confirmationMode.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			
+			identityType.addSelectionListener(val -> {
+				confirmationMode.setVisible(allowedIdentitiesByName.get(val.getValue()).isEmailVerifiable());
+			});
+			
 			urlPrefillEditor = new URLPrefillConfigEditor(msg);
 			main.add(identityType, confirmationMode);
 			if (value != null)
 			{
 				identityType.setValue(value.getIdentityType());
-				confirmationMode.setValue(value.getConfirmationMode());
+				confirmationMode.setValue(value.getConfirmationMode());	
 				urlPrefillEditor.setValue(value.getUrlQueryPrefill());
 			}
+			confirmationMode.setVisible(allowedIdentitiesByName.get(identityType.getValue()).isEmailVerifiable());
 			initEditorComponent(value);
 			main.add(urlPrefillEditor);
 			return main;
@@ -416,6 +443,10 @@ public class BaseFormEditor extends VerticalLayout
 			urlPrefillEditor = new URLPrefillConfigEditor(msg);
 			main.add(attributeType, group, showGroups, confirmationMode);
 			
+			attributeType.addSelectionListener(val -> {
+				String syntaxId = val.getValue().getValueSyntax();
+				confirmationMode.setVisible(attributeTypeSupport.getUnconfiguredSyntax(syntaxId).isEmailVerifiable());
+			});
 			if (value != null)
 			{
 				attributeType.setSelectedItemByName(value.getAttributeType());
@@ -424,6 +455,8 @@ public class BaseFormEditor extends VerticalLayout
 				confirmationMode.setValue(value.getConfirmationMode());
 				urlPrefillEditor.setValue(value.getUrlQueryPrefill());
 			}
+			confirmationMode.setVisible(attributeTypeSupport.getUnconfiguredSyntax(
+					attributeType.getValue().getValueSyntax()).isEmailVerifiable());
 			initEditorComponent(value);
 			main.add(urlPrefillEditor);
 			return main;

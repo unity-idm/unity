@@ -13,9 +13,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
@@ -42,7 +42,7 @@ public class SelectableAttributeWithValues extends CustomComponent
 	
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
 			Attribute attribute, AttributeType at, 
-			WebAttributeHandler webHandler, UnityMessageSource msg, 
+			WebAttributeHandler webHandler, MessageSource msg, 
 			AttributeTypeSupport aTypeSupport)
 	{
 		this.firstheader = firstheader;
@@ -60,7 +60,7 @@ public class SelectableAttributeWithValues extends CustomComponent
 	public SelectableAttributeWithValues(Component firstheader, Component secondHeader,
 			Attribute attribute, String customAttrName, String customAttrDesc,
 			boolean enableSelect, AttributeType at,
-			WebAttributeHandler webHandler, UnityMessageSource msg, 
+			WebAttributeHandler webHandler, MessageSource msg, 
 			AttributeTypeSupport aTypeSupport)
 	{
 		this(firstheader, secondHeader, attribute, at, webHandler, msg, aTypeSupport);

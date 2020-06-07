@@ -38,7 +38,7 @@ import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -67,13 +67,13 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 	public static final String VIEW_NAME = "Invitations";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ProjectInvitationsController controller;
 	private String project;
 	private ProjectInvitationsComponent invitationsComponent;
 
 	@Autowired
-	public ProjectInvitationsView(UnityMessageSource msg, ProjectInvitationsController controller)
+	public ProjectInvitationsView(MessageSource msg, ProjectInvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -160,11 +160,10 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public InvitationsNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
-				ObjectFactory<ProjectInvitationsView> factory)
+		public InvitationsNavigationInfoProvider(MessageSource msg, ObjectFactory<ProjectInvitationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.invitations"))
 					.withIcon(Images.envelope_open.getResource()).withPosition(2).build());
 
@@ -179,7 +178,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		private DateTimeField lifeTime;
 		private Binder<ProjectInvitationParams> binder;
 
-		public NewInvitationDialog(UnityMessageSource msg, Consumer<ProjectInvitationParam> selectionConsumer)
+		public NewInvitationDialog(MessageSource msg, Consumer<ProjectInvitationParam> selectionConsumer)
 		{
 			super(msg, msg.getMessage("NewInvitationDialog.caption"));
 			this.selectionConsumer = selectionConsumer;

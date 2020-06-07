@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.upman.common.ServerFaultException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
@@ -36,10 +36,10 @@ public class GroupsController
 	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupsController.class);
 
 	private DelegatedGroupManagement delGroupMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	public GroupsController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan)
+	public GroupsController(MessageSource msg, DelegatedGroupManagement delGroupMan)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;

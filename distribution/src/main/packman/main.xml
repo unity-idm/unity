@@ -11,7 +11,7 @@
 	<!-- These properties can be only overwritten from command line -->
 	<property name="maven.version" value="3.1.1" />
 	<property name="maven.repo.local" value="${user.home}/.m2/repository" />
-	<property name="maven.repo.url" value="http://unicore-dev.zam.kfa-juelich.de/maven" />
+	<property name="maven.repo.url" value="https://repo1.maven.org/maven2/" />
 	<property name="package.config.dir" value="src/main/package" />
 
 	<!-- Other general properties are set in the 'init-settings' task, 

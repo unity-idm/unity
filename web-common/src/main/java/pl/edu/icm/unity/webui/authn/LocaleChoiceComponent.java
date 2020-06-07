@@ -21,9 +21,9 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -33,7 +33,6 @@ import pl.edu.icm.unity.webui.common.Styles;
  * Allows for choosing the language
  * @author K. Benedyczak
  */
-@SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LocaleChoiceComponent extends CompactFormLayout
@@ -42,7 +41,7 @@ public class LocaleChoiceComponent extends CompactFormLayout
 	private Map<String, Locale> selectableLocales;
 	
 	@Autowired
-	public LocaleChoiceComponent(UnityServerConfiguration cfg, UnityMessageSource msg)
+	public LocaleChoiceComponent(UnityServerConfiguration cfg, MessageSource msg)
 	{
 		selectableLocales = cfg.getEnabledLocales();
 		if (selectableLocales.size() < 2)
@@ -65,6 +64,8 @@ public class LocaleChoiceComponent extends CompactFormLayout
 				chooser.setValue(selected);
 			chooser.setTextInputAllowed(false);
 			chooser.addStyleName(Styles.vComboSmall.toString());
+			chooser.addStyleName("u-authn-languageSelector");
+			chooser.setWidthUndefined();
 			chooser.addSelectionListener(event ->
 				{
 					String localeName = (String) chooser.getValue();

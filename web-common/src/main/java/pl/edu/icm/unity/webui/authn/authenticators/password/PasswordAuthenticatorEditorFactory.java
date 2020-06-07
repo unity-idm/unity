@@ -9,8 +9,8 @@ package pl.edu.icm.unity.webui.authn.authenticators.password;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
@@ -24,11 +24,11 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 @Component
 class PasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialManagement credMan;
 	
 	@Autowired
-	PasswordAuthenticatorEditorFactory(UnityMessageSource msg, CredentialManagement credMan)
+	PasswordAuthenticatorEditorFactory(MessageSource msg, CredentialManagement credMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;

@@ -23,11 +23,11 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -54,7 +54,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 public class FormsChooserComponent extends CustomComponent
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, FormsChooserComponent.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationsManagement registrationsManagement;
 	private EnquiryManagement enquiryManagement;
 	private AdminRegistrationFormLauncher registrationFormLauncher;
@@ -65,7 +65,7 @@ public class FormsChooserComponent extends CustomComponent
 	private AdminEnquiryFormLauncher enquiryFormLauncher;
 	
 	@Autowired
-	public FormsChooserComponent(UnityMessageSource msg,
+	public FormsChooserComponent(MessageSource msg,
 			RegistrationsManagement registrationsManagement,
 			AdminRegistrationFormLauncher registrationFormLauncher,
 			AdminEnquiryFormLauncher enquiryFormLauncher,

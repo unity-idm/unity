@@ -17,12 +17,12 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
@@ -46,13 +46,13 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	public static final String DESC = "WebSAMLRetrievalFactory.desc";
 	public static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private SamlContextManagement samlContextManagement;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
 	private URIAccessService uriAccessService;
 	
 	@Autowired
-	public SAMLRetrieval(UnityMessageSource msg, NetworkServer jettyServer, 
+	public SAMLRetrieval(MessageSource msg, NetworkServer jettyServer, 
 			SharedEndpointManagement sharedEndpointMan,
 			SamlContextManagement samlContextManagement, URIAccessService uriAccessService)
 	{

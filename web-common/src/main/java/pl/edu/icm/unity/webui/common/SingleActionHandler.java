@@ -12,7 +12,7 @@ import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Resource;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Simplified {@link Handler} providing and handling a single action. 
@@ -56,7 +56,7 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Add(UnityMessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Add(MessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("add"))
@@ -70,7 +70,7 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Refresh(UnityMessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Refresh(MessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("refresh"))
@@ -84,7 +84,7 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Delete(UnityMessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Delete(MessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("remove"))
@@ -98,7 +98,7 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Edit(UnityMessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Edit(MessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("edit"))
@@ -111,7 +111,7 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4ShowDetails(UnityMessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4ShowDetails(MessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("showDetails"))
@@ -124,7 +124,7 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Copy(UnityMessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Copy(MessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("copy"))

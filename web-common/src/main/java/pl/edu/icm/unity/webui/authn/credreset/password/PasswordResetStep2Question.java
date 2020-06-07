@@ -11,8 +11,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 class PasswordResetStep2Question extends CredentialResetLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordResetStep2Question.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Runnable cancelCallback;
 	private AnswerConsumer proceedCallback;
 	private TextFieldWithContextLabel answer;

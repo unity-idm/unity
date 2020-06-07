@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.function.Consumer;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.ExpandConfig;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBas
  */
 public class ExpandColumnComponent extends ColumnComponentBase
 {	
-	public ExpandColumnComponent(UnityMessageSource msg, Consumer<ColumnComponent> removeElementListener,
+	public ExpandColumnComponent(MessageSource msg, Consumer<ColumnComponent> removeElementListener,
 			Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.expand"), Images.expand,

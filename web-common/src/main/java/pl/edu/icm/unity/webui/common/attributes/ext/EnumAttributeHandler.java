@@ -23,8 +23,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
@@ -45,10 +45,10 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
  */
 public class EnumAttributeHandler implements WebAttributeHandler
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnumAttributeSyntax syntax;
 	
-	public EnumAttributeHandler(UnityMessageSource msg, EnumAttributeSyntax syntax)
+	public EnumAttributeHandler(MessageSource msg, EnumAttributeSyntax syntax)
 	{
 		this.msg = msg;
 		this.syntax = syntax;
@@ -159,9 +159,9 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		private TextField value;
 		private Button add;
 		private GenericElementsTable<String> current;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		
-		public EnumSyntaxEditor(EnumAttributeSyntax initial, UnityMessageSource msg)
+		public EnumSyntaxEditor(EnumAttributeSyntax initial, MessageSource msg)
 		{
 			this.initial = initial;
 			this.msg = msg;
@@ -247,10 +247,10 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	@org.springframework.stereotype.Component
 	public static class EnumAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
-		private UnityMessageSource msg;
+		private MessageSource msg;
 
 		@Autowired
-		public EnumAttributeHandlerFactory(UnityMessageSource msg)
+		public EnumAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

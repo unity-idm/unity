@@ -28,7 +28,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.Editor;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
@@ -44,9 +44,9 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	private GridWithActionColumn<T> grid;
 	private Class<T> type;
 	private T newElement;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public GridWithEditor(UnityMessageSource msg, Class<T> type)
+	public GridWithEditor(MessageSource msg, Class<T> type)
 	{
 		this.type = type;
 		this.msg = msg;

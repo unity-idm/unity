@@ -24,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.RegistrationTranslationProfileEditor;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -32,12 +33,12 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -60,6 +61,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -71,7 +73,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 public class RegistrationFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditor.class);
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final GroupsManagement groupsMan;
 	private final NotificationsManagement notificationsMan;
 	private final MessageTemplateManagement msgTempMan;
@@ -112,20 +114,20 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private ComboBox<String> realmNames;
 	
 	@Autowired
-	public RegistrationFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, GroupsManagement groupsMan,
-			NotificationsManagement notificationsMan,
+	public RegistrationFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
+			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
-			AttributeTypeManagement attributeMan,
-			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
-			CredentialRequirementManagement credReqMan,
+			AttributeTypeManagement attributeMan, CredentialManagement credMan,
+			RegistrationActionsRegistry actionsRegistry, CredentialRequirementManagement credReqMan,
 			ActionParameterComponentProvider actionComponentFactory,
-			AuthenticatorSupportService authenticatorSupport,
-			RealmsManagement realmsManagement, FileStorageService fileStorageService, 
-			URIAccessService uriAccessService,
-			ImageAccessService imageAccessService)
+			AuthenticatorSupportService authenticatorSupport, RealmsManagement realmsManagement,
+			FileStorageService fileStorageService, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
+			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
+			AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, credMan);
+		super(msg, identitiesMan, attributeMan, credMan, policyAgreementConfigurationListFactory, attributeTypeSupport);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;

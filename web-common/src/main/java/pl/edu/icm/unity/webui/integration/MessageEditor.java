@@ -24,6 +24,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventConfiguration;
 import pl.edu.icm.unity.engine.api.integration.Message;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -67,11 +67,11 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 	private ChipsWithDropdown<Long> entity;
 	private List<Group> groups;
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private NotificationProducer notificationProducer;
 
 	@Autowired
-	MessageEditor(BulkGroupQueryService bulkQuery, UnityMessageSource msg, AttributeSupport attributeSupport,
+	MessageEditor(BulkGroupQueryService bulkQuery, MessageSource msg, AttributeSupport attributeSupport,
 			MessageTemplateManagement messageTemplateManagement, NotificationProducer notificationProducer)
 	{
 		this.msg = msg;
@@ -129,7 +129,7 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 
 		MessageVaadinBean bean = binder.getBean();
 		return new Message(bean.getMessageTemplate(), bean.getEntities(),
-				bean.getGroups().stream().map(g -> g.getName()).collect(Collectors.toList()));
+				bean.getGroups().stream().map(g -> g.getName()).collect(Collectors.toSet()));
 	}
 
 	@Override

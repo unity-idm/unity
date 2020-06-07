@@ -14,7 +14,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 
 public class I18nTextFieldTest
@@ -22,7 +22,7 @@ public class I18nTextFieldTest
 	@Test
 	public void preservesValue()
 	{
-		UnityMessageSource msg = mock(UnityMessageSource.class);
+		MessageSource msg = mock(MessageSource.class);
 		
 		when(msg.getDefaultLocaleCode()).thenReturn("en");
 		Map<String, Locale> locales = new HashMap<>();

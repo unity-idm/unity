@@ -8,8 +8,8 @@ package pl.edu.icm.unity.rest.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.jwt.authn.JWTVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
@@ -23,11 +23,11 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 @Component
 class JWTAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PKIManagement pkiMan;
 
 	@Autowired
-	JWTAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan)
+	JWTAuthenticatorEditorFactory(MessageSource msg, PKIManagement pkiMan)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;

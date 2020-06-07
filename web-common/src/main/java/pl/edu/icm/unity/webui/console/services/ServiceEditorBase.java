@@ -18,7 +18,7 @@ import com.vaadin.ui.HasComponents;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Base for all service editor. Editor based on two tabs - general and
@@ -29,12 +29,12 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public abstract class ServiceEditorBase extends CustomComponent implements ServiceEditorComponent
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 
 	private Map<String, Tab> defTabs;
 	private TabSheet tabs;
 
-	public ServiceEditorBase(UnityMessageSource msg)
+	public ServiceEditorBase(MessageSource msg)
 	{
 		this.msg = msg;
 
@@ -108,7 +108,7 @@ public abstract class ServiceEditorBase extends CustomComponent implements Servi
 	{
 		Resource getIcon();
 		String getType();
-		CustomComponent getComponent();
+		Component getComponent();
 		String getCaption();	
 	}
 	

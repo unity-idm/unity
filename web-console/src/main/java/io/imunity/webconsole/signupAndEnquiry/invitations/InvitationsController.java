@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import io.imunity.webadmin.reg.invitations.InvitationEditor;
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webadmin.reg.invitations.InvitationViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -51,7 +51,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 class InvitationsController
 {
 	private InvitationManagement invMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationsManagement registrationManagement;
 	private EnquiryManagement enquiryMan;
 	private AttributeHandlerRegistry attrHandlersRegistry;
@@ -66,7 +66,7 @@ class InvitationsController
 	private AttributeSupport attributeSupport;
 
 	@Autowired
-	InvitationsController(InvitationManagement invMan, UnityMessageSource msg,
+	InvitationsController(InvitationManagement invMan, MessageSource msg,
 			RegistrationsManagement registrationManagement, EnquiryManagement enquiryMan,
 			AttributeHandlerRegistry attrHandlersRegistry, MessageTemplateManagement msgTemplateManagement,
 			GroupsManagement groupsManagement, EntityManagement entityManagement,

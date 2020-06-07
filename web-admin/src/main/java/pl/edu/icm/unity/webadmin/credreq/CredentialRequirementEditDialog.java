@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.credreq;
 import com.vaadin.ui.Component;
 
 import io.imunity.webadmin.credentialRequirements.CredentialRequirementEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -23,7 +23,7 @@ public class CredentialRequirementEditDialog extends AbstractDialog
 	private CredentialRequirementEditor editor;
 	private Callback callback;
 	
-	public CredentialRequirementEditDialog(UnityMessageSource msg, String caption, 
+	public CredentialRequirementEditDialog(MessageSource msg, String caption, 
 			CredentialRequirementEditor attributeEditor, Callback callback)
 	{
 		super(msg, caption);

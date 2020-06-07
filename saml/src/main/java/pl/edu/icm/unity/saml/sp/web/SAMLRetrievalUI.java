@@ -23,6 +23,7 @@ import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
@@ -59,7 +59,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private URIAccessService uriAccessService;
 	
 
@@ -80,7 +80,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private IdPAuthNComponent idpComponent;
 
-	public SAMLRetrievalUI(UnityMessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
+	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
 			SamlContextManagement samlContextManagement, String idpKey, String configKey,
 			String authenticatorName, Context context)
 	{

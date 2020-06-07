@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.idp.preferences;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
@@ -19,7 +19,7 @@ public class SPSettingsDialog extends AbstractDialog
 	private SPSettingsEditor editor;
 	private Callback callback;
 	
-	public SPSettingsDialog(UnityMessageSource msg, SPSettingsEditor editor, Callback callback)
+	public SPSettingsDialog(MessageSource msg, SPSettingsEditor editor, Callback callback)
 	{
 		super(msg, msg.getMessage("SAMLPreferences.spDialogCaption"));
 		this.editor = editor;

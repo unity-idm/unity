@@ -5,7 +5,7 @@
 
 package io.imunity.webconsole.authentication.authenticators;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
@@ -15,7 +15,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  */
 public class AuthenticatorTypeLabelHelper
 {
-	public static String getAuthenticatorTypeLabel(UnityMessageSource msg, AuthenticatorTypeDescription t)
+	public static String getAuthenticatorTypeLabel(MessageSource msg, AuthenticatorTypeDescription t)
 	{
 		try
 		{

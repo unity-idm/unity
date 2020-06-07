@@ -10,7 +10,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
  */
 public class PasswordQualityComponent extends CustomComponent
 {
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final PasswordCredential config;
 
 	private ProgressBar qualityMeter;
@@ -34,7 +34,7 @@ public class PasswordQualityComponent extends CustomComponent
 	private Label minClassesStatus;
 	private Label sequencesStatus;
 
-	public PasswordQualityComponent(UnityMessageSource msg, PasswordCredential config, 
+	public PasswordQualityComponent(MessageSource msg, PasswordCredential config, 
 			CredentialEditorContext context)
 	{
 		super();

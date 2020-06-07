@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -150,7 +150,7 @@ public abstract class CredentialResetBase implements CredentialReset
 		Map<String, String> params = new HashMap<>();
 		params.put(CredentialResetTemplateDefBase.VAR_CODE, codeSent);
 		params.put(CredentialResetTemplateDefBase.VAR_USER, requestedSubject.getValue());
-		Locale currentLocale = UnityMessageSource.getLocale(null);
+		Locale currentLocale = LocaleHelper.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 		notificationProducer.sendNotification(new EntityParam(resolved.getEntityId()), 
 				msgTemplate, params, locale, requestedSubject.getValue(), true);

@@ -17,12 +17,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RegistrationWithCommentsTemplateDef;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
@@ -57,20 +58,21 @@ public class BaseSharedRegistrationSupport
 	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
 	public static final String AUTO_PROCESS_INVITATIONS_COMMENT = "Automatically processed invitations";
 
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected NotificationProducer notificationProducer;
 	protected AttributesHelper attributesHelper;
 	protected GroupHelper groupHelper;
 	protected EntityCredentialsHelper credentialHelper;
 	protected InternalFacilitiesManagement facilitiesManagement;
 	private InvitationDB invitationDB;
+	protected PolicyAgreementManagement policyAgreementManagement;
 
-	public BaseSharedRegistrationSupport(UnityMessageSource msg,
+	public BaseSharedRegistrationSupport(MessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
 			InternalFacilitiesManagement facilitiesManagement,
-			InvitationDB invitationDB)
+			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -79,6 +81,7 @@ public class BaseSharedRegistrationSupport
 		this.credentialHelper = entityCredentialsHelper;
 		this.facilitiesManagement = facilitiesManagement;
 		this.invitationDB =  invitationDB;
+		this.policyAgreementManagement = policyAgreementManagement;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,

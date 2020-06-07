@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
@@ -26,7 +26,7 @@ public class HeaderColumnComponent extends ColumnComponentBase
 	private I18nTextField valueField;
 	private Binder<I18nStringBindingValue> binder;
 
-	public HeaderColumnComponent(UnityMessageSource msg, Consumer<ColumnComponent> removeElementListener,
+	public HeaderColumnComponent(MessageSource msg, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.header"), Images.header, dragStart,

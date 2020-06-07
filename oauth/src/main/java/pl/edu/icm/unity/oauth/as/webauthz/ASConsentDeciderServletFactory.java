@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
@@ -27,19 +29,25 @@ public class ASConsentDeciderServletFactory
 	private SessionManagement sessionMan;
 	private EnquiryManagement enquiryManagement;
 	private OAuthProcessor processor;
+	private PolicyAgreementManagement policyAgreementManagement;
+	private MessageSource msg;
 
 	@Autowired
 	public ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, 
 			SessionManagement sessionMan,
 			OAuthProcessor processor,
-			@Qualifier("insecure") EnquiryManagement enquiryManagement)
+			@Qualifier("insecure") EnquiryManagement enquiryManagement,
+			PolicyAgreementManagement policyAgreementManagement,
+			MessageSource msg)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.sessionMan = sessionMan;
 		this.processor = processor;
 		this.enquiryManagement = enquiryManagement;
+		this.policyAgreementManagement = policyAgreementManagement;
+		this.msg = msg;
 	}
 
 
@@ -47,6 +55,6 @@ public class ASConsentDeciderServletFactory
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
 				processor, sessionMan, oauthUiServletPath, authenticationUIServletPath, 
-				enquiryManagement);
+				enquiryManagement, policyAgreementManagement, msg);
 	}
 }

@@ -24,7 +24,7 @@ public class NavigationInfo
 	};
 
 	public final String id;
-	public final NavigationInfo parent;
+	public final String parent;
 	public final Type type;
 	public final ObjectFactory<?> objectFactory;
 	public final String caption;
@@ -48,7 +48,7 @@ public class NavigationInfo
 	public static class NavigationInfoBuilder
 	{
 		private String id;
-		private NavigationInfo parent;
+		private String parent;
 		private Type type;
 
 		private ObjectFactory<?> objectFactory;
@@ -97,7 +97,7 @@ public class NavigationInfo
 			return this;
 		}
 
-		public NavigationInfoBuilder withParent(NavigationInfo parent)
+		public NavigationInfoBuilder withParent(String parent)
 		{
 			this.parent = parent;
 			return this;

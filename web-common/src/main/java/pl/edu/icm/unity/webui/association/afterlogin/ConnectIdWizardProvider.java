@@ -13,8 +13,8 @@ import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.webui.association.IntroStep;
@@ -30,12 +30,12 @@ import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
  */
 public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InputTranslationEngine translationEngine;
 	private WizardFinishedCallback callback;
 	private MergeCurrentWithUnknownConfirmationStep confirmationStep;
 
-	public ConnectIdWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
+	public ConnectIdWizardProvider(MessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
 			InputTranslationEngine translationEngine, WizardFinishedCallback callback)
 	{
 		super(sandboxURL, sandboxNotifier);

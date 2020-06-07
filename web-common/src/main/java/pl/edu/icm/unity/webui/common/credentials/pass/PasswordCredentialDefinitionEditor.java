@@ -19,8 +19,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordEncodingPoolProvider;
@@ -44,7 +44,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 {
 	private static final double MS_IN_MONTH = 3600000L*24L*30.41;
 	private static final int MAX_MONTHS = 48;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgTplMan;
 	private IntStepper minScore;
 	private IntStepper minLength;
@@ -58,7 +58,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private PasswordCredentialResetSettingsEditor resetSettings;
 	private SCryptEncoder scryptEncoder;
 	
-	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan, 
+	public PasswordCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplMan, 
 			PasswordEncodingPoolProvider poolProvider)
 	{
 		this.msg = msg;
@@ -277,7 +277,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	{
 		private PasswordCredential config;
 
-		public TestPasswordDialog(UnityMessageSource msg, PasswordCredential config)
+		public TestPasswordDialog(MessageSource msg, PasswordCredential config)
 		{
 			super(msg, msg.getMessage("PasswordDefinitionEditor.testMe"), 
 					msg.getMessage("close"));

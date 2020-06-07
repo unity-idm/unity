@@ -11,7 +11,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.forms.layout.FormLayoutEditor;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
@@ -24,13 +24,13 @@ import pl.edu.icm.unity.types.registration.layout.FormLayout;
  */
 public class EnquiryFormLayoutEditorTab extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Supplier<EnquiryForm> formProvider;
 	private CheckBox enableCustomLayout;
 	private FormLayoutEditor layoutEditor;
 	private boolean isInitialValueSet = false;
 
-	public EnquiryFormLayoutEditorTab(UnityMessageSource msg, Supplier<EnquiryForm> formProvider)
+	public EnquiryFormLayoutEditorTab(MessageSource msg, Supplier<EnquiryForm> formProvider)
 	{
 		super();
 		this.msg = msg;

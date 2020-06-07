@@ -19,7 +19,7 @@ import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 
@@ -34,12 +34,12 @@ class BackupAndRestoreView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "BackupAndRestore";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImportExportComponent importExportComponent;
 	
 
 	@Autowired
-	BackupAndRestoreView(UnityMessageSource msg, ImportExportComponent importExportComponent)
+	BackupAndRestoreView(MessageSource msg, ImportExportComponent importExportComponent)
 	{
 		this.msg = msg;
 		this.importExportComponent = importExportComponent;
@@ -73,12 +73,11 @@ class BackupAndRestoreView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public BackupAndRestoreInfoProvider(UnityMessageSource msg,
-				MaintenanceNavigationInfoProvider parent,
+		public BackupAndRestoreInfoProvider(MessageSource msg,
 				ObjectFactory<BackupAndRestoreView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(MaintenanceNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.backupAndRestore"))
 					.withIcon(Images.cloud_download.getResource())
 					.withPosition(10).build());

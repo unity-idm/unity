@@ -19,7 +19,14 @@ public class WebConsoleExtNavigationInfoProviderBase implements WebConsoleExtNav
 
 	public WebConsoleExtNavigationInfoProviderBase(NavigationInfo navigationInfo)
 	{
-		this.navigationInfo = navigationInfo;
+		this.navigationInfo = new NavigationInfo.NavigationInfoBuilder(navigationInfo.id, navigationInfo.type)
+				.withCaption(navigationInfo.caption)
+				.withIcon(navigationInfo.icon)
+				.withParent(navigationInfo.parent)
+				.withPosition(navigationInfo.position + 1000)
+				.withShortCaption(navigationInfo.shortCaption)
+				.withObjectFactory(navigationInfo.objectFactory)
+				.build();
 	}
 
 	@Override

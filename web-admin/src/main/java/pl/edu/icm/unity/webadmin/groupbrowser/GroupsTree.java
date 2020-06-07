@@ -41,6 +41,7 @@ import io.imunity.webadmin.idcreate.EntityCreationHandler;
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -51,7 +52,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -84,7 +84,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 {
 	private GroupsManagement groupsMan;
 	private EntityManagement identitiesMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EventsBus bus;
 	private AttributeClassManagement acMan;
 	private TreeData<TreeNode> treeData;
@@ -101,7 +101,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
-			UnityMessageSource msg, AttributeClassManagement acMan,
+			MessageSource msg, AttributeClassManagement acMan,
 			EntityCreationHandler entityCreationDialogHandler,
 			GroupManagementHelper groupManagementHelper,
 			BulkGroupQueryService bulkQueryService, 

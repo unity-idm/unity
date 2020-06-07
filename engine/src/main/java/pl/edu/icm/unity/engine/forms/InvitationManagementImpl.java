@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Objects;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
@@ -44,11 +44,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
-/**
- * Implementation of {@link InvitationManagement}
- * 
- * @author K. Benedyczak
- */
 @Component
 @Primary
 @InvocationEventProducer
@@ -60,14 +55,14 @@ public class InvitationManagementImpl implements InvitationManagement
 	private InternalAuthorizationManager authz;
 	private NotificationProducer notificationProducer;
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private InvitationDB invitationDB;
 	private SharedEndpointManagement sharedEndpointMan;
 
 	@Autowired
 	public InvitationManagementImpl(RegistrationFormDB registrationDB, EnquiryFormDB  enquiryDB,
 			InternalAuthorizationManager authz,
-			NotificationProducer notificationProducer, UnityMessageSource msg,
+			NotificationProducer notificationProducer, MessageSource msg,
 			InvitationDB invitationDB, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.registrationDB = registrationDB;
@@ -84,19 +79,7 @@ public class InvitationManagementImpl implements InvitationManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 	
-		if (invitation.getFormId() == null)
-		{
-			throw new WrongArgumentException("The invitation has no form configured");
-		}
-		
-		
-		if (invitation.getType().equals(InvitationType.REGISTRATION))
-		{
-			assertRegistrationFormIsForInvitation(invitation.getFormId());
-		}else
-		{
-			assertEnquiryFormIsPresent(invitation.getFormId());
-		}
+		validateInvitation(invitation);
 		
 		String randomUUID = UUID.randomUUID().toString();
 		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID, null, 0);
@@ -166,18 +149,36 @@ public class InvitationManagementImpl implements InvitationManagement
 		invitationDB.update(updated);
 	}
 	
-	private void assertEnquiryFormIsPresent(String formId)
+	private void validateInvitation(InvitationParam invitation) throws WrongArgumentException
 	{
-		enquiryDB.get(formId);		
+		if (invitation.getFormId() == null)
+		{
+			throw new WrongArgumentException("The invitation has no form configured");
+		}
+		
+		if (invitation.getType().equals(InvitationType.REGISTRATION))
+		{
+			validateRegistrationInvitation(invitation);
+		} else
+		{
+			validateEnquiryInvitation(invitation);
+		}
+	}
+	
+	private void validateEnquiryInvitation(InvitationParam invitation)
+	{
+		EnquiryForm enquiryForm = enquiryDB.get(invitation.getFormId());
+		InvitationValidator.validate(invitation, enquiryForm);
 	}
 
-	private void assertRegistrationFormIsForInvitation(String formId) throws WrongArgumentException
+	private void validateRegistrationInvitation(InvitationParam invitation) throws WrongArgumentException
 	{
-		RegistrationForm form = registrationDB.get(formId);
+		RegistrationForm form = registrationDB.get(invitation.getFormId());
 		if (!form.isPubliclyAvailable())
 			throw new WrongArgumentException("Invitations can be attached to public forms only");
 		if (form.getRegistrationCode() != null)
 			throw new WrongArgumentException("Invitations can not be attached to forms with a fixed registration code");
+		InvitationValidator.validate(invitation, form);
 	}
 	
 	private void sendRegistrationInvitation(RegistrationInvitationParam invitation, String code)

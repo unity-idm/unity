@@ -21,7 +21,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -41,12 +41,12 @@ class EditAttributeClassView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "EditAttributeClass";
 
 	private AttributeClassController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributesClassEditor editor;
 
 	private String attributeClassName;
 
-	EditAttributeClassView(AttributeClassController controller, UnityMessageSource msg)
+	EditAttributeClassView(AttributeClassController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -137,11 +137,10 @@ class EditAttributeClassView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public EditAttributeClassNavigationInfoProvider(AttributeClassesNavigationInfoProvider parent,
-				ObjectFactory<EditAttributeClassView> factory)
+		public EditAttributeClassNavigationInfoProvider(ObjectFactory<EditAttributeClassView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AttributeClassesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.msgtemplate.MessageTemplateEditor;
 import io.imunity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -32,13 +32,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class MessageTemplateController
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MessageTemplateManagement msgMan;
 	private MessageTemplateConsumersRegistry consumersRegistry;
 	private NotificationsManagement notChannelsMan;
 	
 	@Autowired
-	MessageTemplateController(UnityMessageSource msg, MessageTemplateManagement msgMan, NotificationsManagement notChannelsMan, MessageTemplateConsumersRegistry consumersRegistry)
+	MessageTemplateController(MessageSource msg, MessageTemplateManagement msgMan, NotificationsManagement notChannelsMan, MessageTemplateConsumersRegistry consumersRegistry)
 	{
 		super();
 		this.msg = msg;

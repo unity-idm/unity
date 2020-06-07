@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webui.association.atlogin;
 
 import org.vaadin.teemu.wizards.Wizard;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -25,7 +25,7 @@ class MergeUnknownWithExistingConfirmationStep extends AbstractConfirmationStep
 	private final RemotelyAuthenticatedContext unknownUser;
 	private AuthenticatedEntity locallyAuthenticatedEntity;
 	
-	MergeUnknownWithExistingConfirmationStep(UnityMessageSource msg, 
+	MergeUnknownWithExistingConfirmationStep(MessageSource msg, 
 			RemotelyAuthenticatedContext unknownUser,
 			InputTranslationEngine translationEngine,
 			Wizard wizard)

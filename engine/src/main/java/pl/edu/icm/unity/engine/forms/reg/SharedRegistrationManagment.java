@@ -22,9 +22,10 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.registration.RequestedGroupDiff;
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -79,9 +81,10 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private RegistrationConfirmationSupport confirmationsSupport;
 	private AutomaticInvitationProcessingSupport autoInvitationProcessingSupport;
 	private GroupDAO groupDB;
+	
 
 	@Autowired
-	public SharedRegistrationManagment(UnityMessageSource msg,
+	public SharedRegistrationManagment(MessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
@@ -95,11 +98,11 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationConfirmationSupport confirmationsSupport,
 			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport,
 			InvitationDB invitationDB,
-			GroupDAO groupDB)
+			GroupDAO groupDB, PolicyAgreementManagement policyAgreementManagement)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
-				entityCredentialsHelper, facilitiesManagement, invitationDB);
+				entityCredentialsHelper, facilitiesManagement, invitationDB, policyAgreementManagement);
 		this.requestDB = requestDB;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;
@@ -188,6 +191,9 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				Phase.ON_ACCEPT);
 		if (rewriteConfirmationToken)
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
+		
+		policyAgreementManagement.submitDecisions(new EntityParam(initial), currentRequest.getRequest().getPolicyAgreements());
+		
 		
 		return initial.getEntityId();
 	}

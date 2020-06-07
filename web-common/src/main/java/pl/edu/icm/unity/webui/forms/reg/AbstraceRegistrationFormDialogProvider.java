@@ -8,8 +8,8 @@ import java.util.function.Function;
 
 import org.springframework.beans.factory.ObjectFactory;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
@@ -27,10 +27,10 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  */
 public abstract class AbstraceRegistrationFormDialogProvider implements RegistrationFormDialogProvider
 {
-	protected final UnityMessageSource msg;
+	protected final MessageSource msg;
 	protected final ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory;
 	
-	public AbstraceRegistrationFormDialogProvider(UnityMessageSource msg,
+	public AbstraceRegistrationFormDialogProvider(MessageSource msg,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
 	{
 		this.msg = msg;

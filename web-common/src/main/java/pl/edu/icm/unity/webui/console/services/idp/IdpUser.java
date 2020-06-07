@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services.idp;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
@@ -31,7 +31,7 @@ public class IdpUser implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
 		if (name != null && name.toLowerCase().contains(textLower))

@@ -17,7 +17,7 @@ public interface ServiceEditorComponent extends Component
 {
 	public enum ServiceEditorTab
 	{
-		GENERAL, AUTHENTICATION, CLIENTS, USERS
+		GENERAL, AUTHENTICATION, CLIENTS, USERS, POLICY_AGREEMENTS
 	}
 
 	void setActiveTab(String tab);

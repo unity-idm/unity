@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -25,7 +26,8 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -80,6 +82,7 @@ public class SAMLServiceConfiguration
 	private List<SAMLIndividualTrustedSPConfiguration> individualTrustedSPs;
 	private List<UserImportConfig> userImports;
 	private boolean skipUserImport;
+	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	
 	public SAMLServiceConfiguration(List<Group> allGroups)
 	{
@@ -108,9 +111,10 @@ public class SAMLServiceConfiguration
 		autoGenerateMetadata = true;
 		userImports = new ArrayList<>();
 		skipUserImport = false;
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
 	}
 
-	public String toProperties(PKIManagement pkiManagement, UnityMessageSource msg, FileStorageService fileService,
+	public String toProperties(PKIManagement pkiManagement, MessageSource msg, FileStorageService fileService,
 			String name) throws ConfigurationException, IOException
 	{
 		Properties raw = new Properties();
@@ -255,12 +259,17 @@ public class SAMLServiceConfiguration
 						impConfig.getIdentityType());
 			}
 		}
+		
+		if (policyAgreementConfig != null)
+		{
+			raw.putAll(IdpPolicyAgreementsConfigurationParser.toProperties(msg, policyAgreementConfig, SamlIdpProperties.P));
+		}
 
 		SamlIdpProperties samlProperties = new SamlIdpProperties(raw, pkiManagement);
 		return samlProperties.getAsString();
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, URIAccessService uriAccessService,
+	public void fromProperties(String properties, MessageSource msg, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			PKIManagement pkiManagement, List<Group> allGroups) throws ConfigurationException
 	{
@@ -478,6 +487,8 @@ public class SAMLServiceConfiguration
 			userImportConfig.setIdentityType(identityType);
 			userImports.add(userImportConfig);
 		}
+		
+		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, samlIdpProperties);
 	}
 
 	public GroupWithIndentIndicator getUsersGroup()
@@ -708,5 +719,15 @@ public class SAMLServiceConfiguration
 	public void setGroupMappings(List<GroupMapping> groupMappings)
 	{
 		this.groupMappings = groupMappings;
+	}
+
+	public IdpPolicyAgreementsConfiguration getPolicyAgreementConfig()
+	{
+		return policyAgreementConfig;
+	}
+
+	public void setPolicyAgreementConfig(IdpPolicyAgreementsConfiguration policyAgreementConfig)
+	{
+		this.policyAgreementConfig = policyAgreementConfig;
 	}
 }

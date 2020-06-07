@@ -9,7 +9,7 @@ import java.util.Collections;
 
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
  */
 public class AttributeMetaEditorPanel extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private Label valueType;
 	private Label typeDescription;
@@ -36,13 +36,13 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	private AttributeSelectionComboBox attributeTypes;
 	private TypeChangeCallback callback;
 
-	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, UnityMessageSource msg)
+	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, MessageSource msg)
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
 	}
 	
 	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, 
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 		this.msg = msg;
 		createAttributeSelectionWidget(attributeTypes);

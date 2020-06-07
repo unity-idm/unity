@@ -17,9 +17,9 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  */
 public class RequestCommentPanel extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationsManagement regMan;
 	private EnquiryManagement enquiryMan;
 	private UserRequestState<?> requestState;
@@ -48,7 +48,7 @@ public class RequestCommentPanel extends CustomComponent
 	private VerticalLayout contentP; 
 	private TextArea commentField;
 	
-	public RequestCommentPanel(UnityMessageSource msg, RegistrationsManagement regMan,
+	public RequestCommentPanel(MessageSource msg, RegistrationsManagement regMan,
 			EnquiryManagement enquiryMan)
 	{
 		this.msg = msg;

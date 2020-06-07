@@ -20,7 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -42,13 +42,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class ServicesViewBase extends CustomComponent implements UnityView
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private ServiceControllerBase controller;
 	private GridWithActionColumn<ServiceDefinition> servicesGrid;
 	private String newServiceViewName;
 	private String editServiceViewName;
 	
-	public ServicesViewBase(UnityMessageSource msg, ServiceControllerBase controller, String newServiceViewName, String editServiceViewName)
+	public ServicesViewBase(MessageSource msg, ServiceControllerBase controller, String newServiceViewName, String editServiceViewName)
 	{
 		this.msg = msg;
 		this.controller = controller;

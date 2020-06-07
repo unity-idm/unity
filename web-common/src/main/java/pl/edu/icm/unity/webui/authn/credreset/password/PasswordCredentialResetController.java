@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
@@ -39,7 +39,7 @@ public class PasswordCredentialResetController
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordCredentialResetController.class);
 	public enum VerificationMethod {Email, Mobile}
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialReset backend;
 	private CredentialEditor credEditor;
 	private Runnable finishHandler;
@@ -47,7 +47,7 @@ public class PasswordCredentialResetController
 	private CredentialResetScreen mainWrapper;
 	private CredentialResetFlowConfig credResetUIConfig;
 	
-	public PasswordCredentialResetController(UnityMessageSource msg, CredentialReset backend,
+	public PasswordCredentialResetController(MessageSource msg, CredentialReset backend,
 			CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig credResetConfig)
 	{
 		this.msg = msg;

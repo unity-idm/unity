@@ -29,7 +29,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -53,11 +53,11 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "AuthenticationRealms";
 
 	private AuthenticationRealmsController realmsMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GridWithActionColumn<AuthenticationRealmEntry> realmsGrid;
 
 	@Autowired
-	public AuthenticationRealmsView(UnityMessageSource msg, AuthenticationRealmsController realmsMan)
+	public AuthenticationRealmsView(MessageSource msg, AuthenticationRealmsController realmsMan)
 	{
 		this.realmsMan = realmsMan;
 		this.msg = msg;
@@ -173,13 +173,14 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 	@Component
 	public static class RealmsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public RealmsNavigationInfoProvider(UnityMessageSource msg, AuthenticationNavigationInfoProvider parent,
+		public RealmsNavigationInfoProvider(MessageSource msg, 
 				ObjectFactory<AuthenticationRealmsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.realms"))
 					.withIcon(Images.grid.getResource())
 					.withPosition(40).build());

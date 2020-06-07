@@ -21,7 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.pam.PAMProperties;
@@ -52,7 +52,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 
 	private Binder<PamConfiguration> configBinder;
 
-	PamAuthenticatorEditor(UnityMessageSource msg, List<String> registrationForms,
+	PamAuthenticatorEditor(MessageSource msg, List<String> registrationForms,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 
 	{
@@ -161,7 +161,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyInputProfile();
 		}
 
-		public String toProperties(UnityMessageSource msg)
+		public String toProperties(MessageSource msg)
 		{
 			Properties raw = new Properties();
 
@@ -199,7 +199,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String source, UnityMessageSource msg)
+		public void fromProperties(String source, MessageSource msg)
 		{
 			Properties raw = new Properties();
 			try

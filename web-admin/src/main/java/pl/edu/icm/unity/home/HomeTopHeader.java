@@ -11,7 +11,7 @@ import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -27,7 +27,7 @@ public class HomeTopHeader extends TopHeader
 {
 	private Optional<String> projectManLink;
 
-	public HomeTopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, UnityMessageSource msg,
+	public HomeTopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, MessageSource msg,
 			Optional<String> upManLink)
 	{
 		super(title, authnProcessor, msg);

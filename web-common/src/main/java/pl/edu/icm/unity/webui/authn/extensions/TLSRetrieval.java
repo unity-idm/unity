@@ -27,12 +27,12 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -53,14 +53,14 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	public static final String NAME = "web-certificate";
 	public static final String DESC = "WebTLSRetrievalFactory.desc";
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private I18nString name;
 	private String registrationFormForUnknown;
 	private boolean enableAssociation;
 	private String configuration;
 	
 	@Autowired
-	public TLSRetrieval(UnityMessageSource msg)
+	public TLSRetrieval(MessageSource msg)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;

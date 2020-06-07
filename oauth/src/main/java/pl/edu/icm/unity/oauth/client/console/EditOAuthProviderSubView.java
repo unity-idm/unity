@@ -25,10 +25,10 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
@@ -73,7 +73,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 {
 	private static final String TMP_CONFIG_KEY = "tmp.";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PKIManagement pkiMan;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
@@ -84,7 +84,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 	private boolean editMode = false;
 
-	EditOAuthProviderSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan, 
+	EditOAuthProviderSubView(MessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan, 
 			URIAccessService uriAccessService, ImageAccessService imageAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			OAuthProviderConfiguration toEdit, Set<String> providersIds, SubViewSwitcher subViewSwitcher,

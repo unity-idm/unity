@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.importExport.ImportExportComponent;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
@@ -31,12 +31,12 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerManagementTab  extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private MainTabPanel tabs;
 	private TranslationProfilesComponent tComponent;
 
 	@Autowired
-	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,
+	public ServerManagementTab(MessageSource msg, ImportExportComponent ieComponent,
 			EndpointsComponent eComponent, AuthenticatorsComponent aComponent,
 			TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent, 
 			BulkProcessingComponent bulkProcessingComponent, AdminUITabProvider provider)

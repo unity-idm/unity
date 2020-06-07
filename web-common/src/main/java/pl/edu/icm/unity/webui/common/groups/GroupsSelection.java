@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
  */
 public interface GroupsSelection extends Component
 {
-	static GroupsSelection getGroupsSelection(UnityMessageSource msg, boolean multiSelectable, boolean mandatory)
+	static GroupsSelection getGroupsSelection(MessageSource msg, boolean multiSelectable, boolean mandatory)
 	{
 		return mandatory && !multiSelectable ? new MandatoryGroupSelection(msg) : 
 			new OptionalGroupsSelection(msg, multiSelectable);

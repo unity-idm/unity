@@ -11,7 +11,7 @@ import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
@@ -28,7 +28,7 @@ public class FileField extends FileFieldBase
 	private String fileName;
 	private Button clear;
 	
-	public FileField(UnityMessageSource msg, String mimeType, String previewFileName, int maxFileSize)
+	public FileField(MessageSource msg, String mimeType, String previewFileName, int maxFileSize)
 	{
 		super(msg, mimeType, maxFileSize);
 		this.fileName = previewFileName;

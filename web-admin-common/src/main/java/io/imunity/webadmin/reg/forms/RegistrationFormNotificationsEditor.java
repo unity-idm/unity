@@ -4,11 +4,11 @@
  */
 package io.imunity.webadmin.reg.forms;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
@@ -21,7 +21,7 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 {
 	private CompatibleTemplatesComboBox submittedTemplate;
 	
-	public RegistrationFormNotificationsEditor(UnityMessageSource msg,
+	public RegistrationFormNotificationsEditor(MessageSource msg,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan) throws EngineException
 	{

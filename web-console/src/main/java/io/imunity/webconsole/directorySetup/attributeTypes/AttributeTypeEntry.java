@@ -5,7 +5,7 @@
 
 package io.imunity.webconsole.directorySetup.attributeTypes;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
@@ -19,9 +19,9 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 class AttributeTypeEntry implements FilterableEntry
 {
 	public final AttributeType attributeType;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	AttributeTypeEntry(UnityMessageSource msg, AttributeType attributeType)
+	AttributeTypeEntry(MessageSource msg, AttributeType attributeType)
 	{
 		this.attributeType = attributeType;
 		this.msg = msg;
@@ -49,7 +49,7 @@ class AttributeTypeEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
 

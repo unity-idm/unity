@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -33,7 +33,7 @@ public class RegistrationInvitationViewer extends InvitationViewerBase
 	private Label expectedIdentity;
 	
 	public RegistrationInvitationViewer(AttributeHandlerRegistry attrHandlersRegistry,
-			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg,
+			MessageTemplateManagement msgTemplateMan, MessageSource msg,
 			SharedEndpointManagement sharedEndpointMan, RegistrationsManagement regMan,
 			GroupsManagement groupsMan)
 	{

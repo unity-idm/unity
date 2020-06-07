@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 
 /**
@@ -20,12 +20,12 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSetting
  */
 public class OAuthSPSettingsViewer extends FormLayout
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected Label autoConfirm;
 	protected Label defaultIdentity;
 	
 	
-	public OAuthSPSettingsViewer(UnityMessageSource msg)
+	public OAuthSPSettingsViewer(MessageSource msg)
 	{
 		this.msg = msg;
 		

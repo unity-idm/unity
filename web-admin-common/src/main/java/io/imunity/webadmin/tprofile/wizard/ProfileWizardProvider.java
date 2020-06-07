@@ -10,9 +10,9 @@ import com.vaadin.ui.UI;
 
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import io.imunity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
@@ -26,11 +26,11 @@ import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
  */
 public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Callback addCallback;
 	private TranslationProfileEditor editor;
 
-	public ProfileWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
+	public ProfileWizardProvider(MessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
 			TranslationProfileEditor editor, Callback addCallback)
 	{
 		super(sandboxURL, sandboxNotifier);

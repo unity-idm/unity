@@ -22,7 +22,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -43,10 +43,10 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 
 	private AuthenticationFlowsController controller;
 	private AuthenticationFlowEditor editor;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
 	@Autowired
-	NewAuthenticationFlowView(UnityMessageSource msg,
+	NewAuthenticationFlowView(MessageSource msg,
 			AuthenticationFlowsController controller)
 	{
 		this.msg = msg;
@@ -131,12 +131,11 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewAuthenticationFlowNavigationInfoProvider(AuthenticationFlowsNavigationInfoProvider parent,
-				ObjectFactory<NewAuthenticationFlowView> factory)
+		public NewAuthenticationFlowNavigationInfoProvider(ObjectFactory<NewAuthenticationFlowView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
-							.withParent(parent.getNavigationInfo())
+							.withParent(AuthenticationFlowsNavigationInfoProvider.ID)
 							.withObjectFactory(factory).build());
 
 		}

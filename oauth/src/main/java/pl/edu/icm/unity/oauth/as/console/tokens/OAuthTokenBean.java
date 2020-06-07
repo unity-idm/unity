@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 
 import com.nimbusds.jwt.SignedJWT;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
@@ -23,10 +23,10 @@ class OAuthTokenBean implements FilterableEntry
 {
 	private Token token;
 	private OAuthToken oauthToken;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String owner;
 
-	public OAuthTokenBean(Token token, UnityMessageSource msg, String owner)
+	public OAuthTokenBean(Token token, MessageSource msg, String owner)
 	{
 		this.token = token;
 		this.msg = msg;
@@ -119,7 +119,7 @@ class OAuthTokenBean implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
 

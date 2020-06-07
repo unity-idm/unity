@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 public class PublicWellKnownUrlServletFactory extends SimpleVaadinServletFactory implements PublicWellKnownURLServletProvider
 {
 	@Autowired
-	public PublicWellKnownUrlServletFactory(ApplicationContext applicationContext, UnityMessageSource msg, 
+	public PublicWellKnownUrlServletFactory(ApplicationContext applicationContext, MessageSource msg, 
 			UnityServerConfiguration config)
 	{
 		super(applicationContext, config, msg, PublicNavigationUI.class.getSimpleName(), new Properties(),

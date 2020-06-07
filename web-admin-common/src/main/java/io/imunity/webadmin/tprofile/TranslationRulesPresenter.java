@@ -10,7 +10,7 @@ import java.util.List;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.TranslationRule;
@@ -25,11 +25,11 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class TranslationRulesPresenter extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private FormLayout rules;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 
-	public TranslationRulesPresenter(UnityMessageSource msg,
+	public TranslationRulesPresenter(MessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry)
 	{
 		super();

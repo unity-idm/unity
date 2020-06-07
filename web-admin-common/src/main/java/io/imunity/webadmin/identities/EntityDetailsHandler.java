@@ -11,8 +11,8 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
@@ -34,7 +34,7 @@ public class EntityDetailsHandler
 	@Autowired
 	private EntityManagement entityMan;
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	public SingleActionHandler<IdentityEntry> getShowEntityAction()
 	{

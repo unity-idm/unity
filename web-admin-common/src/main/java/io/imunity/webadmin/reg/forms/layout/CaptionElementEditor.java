@@ -7,7 +7,7 @@ package io.imunity.webadmin.reg.forms.layout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
@@ -18,10 +18,10 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 public class CaptionElementEditor extends CustomComponent implements FormElementEditor<FormCaptionElement>
 {
 	private FormCaptionElement element;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private I18nTextField caption;
 	
-	public CaptionElementEditor(UnityMessageSource msg, FormCaptionElement element)
+	public CaptionElementEditor(MessageSource msg, FormCaptionElement element)
 	{
 		this.msg = msg;
 		initUI();

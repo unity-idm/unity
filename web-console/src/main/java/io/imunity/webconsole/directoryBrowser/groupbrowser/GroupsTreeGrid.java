@@ -13,9 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.data.TreeData;
@@ -40,7 +37,8 @@ import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webadmin.groupbrowser.GroupEditDialog;
 import io.imunity.webadmin.groupbrowser.TreeNode;
 import io.imunity.webconsole.directoryBrowser.identities.IdentitiesTreeGrid;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -66,12 +64,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * 
  * @author K. Benedyczak
  */
-
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@PrototypeComponent
 public class GroupsTreeGrid extends TreeGrid<TreeNode>
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EventsBus bus;
 	private TreeData<TreeNode> treeData;
 	private TreeDataProvider<TreeNode> dataProvider;
@@ -79,7 +75,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private GroupBrowserController controller;
 
 	@Autowired
-	public GroupsTreeGrid(UnityMessageSource msg, GroupBrowserController controller)
+	public GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
 
 		this.msg = msg;
@@ -112,12 +108,13 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
-		
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
+		SingleActionHandler<TreeNode> refreshAction = getRefreshAction();
 
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandler(expandAllAction);
 		hamburgerMenu.addActionHandler(collapseAllAction);
+		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(deleteAction);
 
 		toolbar.addHamburger(hamburgerMenu);
@@ -132,7 +129,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		dataProvider.setSortComparator((g1, g2) -> g1.getPath().compareTo(g2.getPath()));
 
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer()).setExpandRatio(10);
-		addComponentColumn(n -> getRowHamburgerMenuComponent(Sets.newHashSet(n))).setExpandRatio(0);
+		addComponentColumn(n -> getRowHamburgerMenuComponent(n)).setExpandRatio(0);
 		setHeaderVisible(false);
 		setPrimaryStyleName(Styles.vGroupBrowser.toString());
 		setRowHeight(34);
@@ -149,21 +146,15 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			{
 				select(treeData.getRootItems().get(0));
 			}
-
 		} catch (ControllerException e)
 		{
-			// // this will show error node
 			TreeNode parent = new TreeNode(msg, new Group("/"), Images.noAuthzGrp.getHtml());
 			treeData.addItems(null, parent);
 			dataProvider.refreshAll();
 		}
-
 	}
 
-	
-	
-	
-	private MenuBar getRowHamburgerMenuComponent(Set<TreeNode> target)
+	private MenuBar getRowHamburgerMenuComponent(TreeNode target)
 	{
 		SingleActionHandler<TreeNode> addAction = getAddAction();
 		SingleActionHandler<TreeNode> editAction = getEditAction();
@@ -174,14 +165,23 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAction();
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 		
-		HamburgerMenu<TreeNode> menu = new HamburgerMenu<TreeNode>();
-		menu.setTarget(target);
-		menu.addActionHandlers(Arrays.asList(addAction, expandAllAction, collapseAllAction, deleteAction, editAction, editACAction, editDelegationConfigAction));
+		HamburgerMenu<TreeNode> menu = new HamburgerMenu<>();
+		menu.setTarget(Sets.newHashSet(target));
+		menu.addActionHandlers(Arrays.asList(addAction, expandAllAction, collapseAllAction, 
+				deleteAction, editAction, editACAction, editDelegationConfigAction));
 		menu.addStyleName(SidebarStyles.sidebar.toString());
-
+		
+		menu.setVisible(menuVisibleOnSelection(getSelectedItems(), target));
+		((MultiSelectionModel<TreeNode>)getSelectionModel()).addMultiSelectionListener(
+				event -> menu.setVisible(menuVisibleOnSelection(event.getAllSelectedItems(), target)));
 		return menu;
 	}
 
+	private static boolean menuVisibleOnSelection(Set<TreeNode> selectedItems, TreeNode target)
+	{
+		return selectedItems.size() == 1 && selectedItems.contains(target);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void setupDragNDrop()
 	{
@@ -227,13 +227,22 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	}
 
+	void refreshAndEnsureSelection()
+	{
+		for (TreeNode rootItem : treeData.getRootItems())
+			refreshNode(rootItem);
+		if (!treeData.getRootItems().isEmpty() && getSelectedItems().isEmpty())
+			select(treeData.getRootItems().get(0));
+	}
+
+	
 	public void refresh()
 	{
 		for (TreeNode rootItem : treeData.getRootItems())
 			refreshNode(rootItem);
 	}
 
-	private void refreshNode(TreeNode node)// throws ControllerException
+	private void refreshNode(TreeNode node)
 	{
 		treeData.removeItem(node);
 		try
@@ -260,7 +269,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			TreeNode rootNode = new TreeNode(msg, rootGr, Images.folder_close.getHtml(), parent);
 			treeData.addItem(parent, rootNode);
-			addChilds(rootNode, groupTree);
+			addChildren(rootNode, groupTree);
 		}
 	}
 
@@ -269,13 +278,13 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		return treeData.getChildren(node);
 	}
 
-	private void addChilds(TreeNode parentNode, Map<String, List<Group>> groupTree)
+	private void addChildren(TreeNode parentNode, Map<String, List<Group>> groupTree)
 	{
 		for (Group child : groupTree.get(parentNode.getPath()))
 		{
 			TreeNode childNode = new TreeNode(msg, child, Images.folder_close.getHtml(), parentNode);
 			treeData.addItem(parentNode, childNode);
-			addChilds(childNode, groupTree);
+			addChildren(childNode, groupTree);
 		}
 	}
 
@@ -344,7 +353,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		new GroupEditDialog(msg, group, true, g -> {
 			updateGroup(node.getPath(), g);
-			refreshNode(node.getParentNode());
+			if (node.getParentNode() != null)
+				refreshNode(node.getParentNode());
+			else
+				refresh();
 			if (node.equals(getSingleSelection()))
 				bus.fireEvent(new GroupChangedEvent(node.getPath()));
 		}).show();
@@ -392,7 +404,12 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		controller.getGroupDelegationEditConfigDialog(bus, group, g -> updateGroup(node.getPath(), g)).show();
 	}
-
+	
+	private SingleActionHandler<TreeNode> getRefreshAction()
+	{
+		return SingleActionHandler.builder4Refresh(msg, TreeNode.class).withHandler(n -> refresh()).build();
+	}
+	
 	private SingleActionHandler<TreeNode> getDeleteAction()
 	{
 		return SingleActionHandler.builder4Delete(msg, TreeNode.class).withHandler(this::deleteHandler).build();
@@ -423,7 +440,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			NotificationPopup.showError(msg, e);
 		}
-
 	}
 
 	private SingleActionHandler<TreeNode> getExpandAllAction()

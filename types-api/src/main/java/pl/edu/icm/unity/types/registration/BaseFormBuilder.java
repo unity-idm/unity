@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -251,6 +252,24 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	{
 		instance.setLayoutSettings(getDefaultRegFormLayoutSettings(logo));
 		return (T)this;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public T withPolicyAgreements(List<PolicyAgreementConfiguration> policyAgreements)
+	{
+		instance.setPolicyAgreements(policyAgreements);
+		return (T)this;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public T withAddedPolicyAgreement(PolicyAgreementConfiguration aValue)
+	{
+		if (instance.getPolicyAgreements() == null)
+		{
+			instance.setPolicyAgreements(new ArrayList<>());
+		}
+		instance.getPolicyAgreements().add(aValue);
+		return (T) this;
 	}
 	
 	private FormLayoutSettings getDefaultRegFormLayoutSettings(String logo)

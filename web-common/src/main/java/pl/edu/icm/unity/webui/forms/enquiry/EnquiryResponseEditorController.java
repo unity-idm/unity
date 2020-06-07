@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -28,7 +29,7 @@ import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -56,6 +57,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
 /**
@@ -69,7 +71,7 @@ public class EnquiryResponseEditorController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryResponseEditorController.class);
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EnquiryManagement enquiryManagement;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
@@ -81,9 +83,12 @@ public class EnquiryResponseEditorController
 	private AttributesManagement attrMan;
 	private IdPLoginController idpLoginController;
 	private ImageAccessService imageAccessService;
+	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
+
+	private PolicyAgreementManagement policyAgrMan;
 
 	@Autowired
-	public EnquiryResponseEditorController(UnityMessageSource msg,
+	public EnquiryResponseEditorController(MessageSource msg,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
@@ -93,7 +98,9 @@ public class EnquiryResponseEditorController
 			@Qualifier("insecure") GroupsManagement groupsMan,
 			@Qualifier("insecure") EntityManagement idMan,
 			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController,
-			ImageAccessService imageAccessService)
+			ImageAccessService imageAccessService,
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
+			PolicyAgreementManagement policyAgrMan)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -107,6 +114,8 @@ public class EnquiryResponseEditorController
 		this.attrMan = attrMan;
 		this.idpLoginController = idpLoginController;
 		this.imageAccessService = imageAccessService;
+		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
+		this.policyAgrMan = policyAgrMan;
 	}
 
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
@@ -114,7 +123,8 @@ public class EnquiryResponseEditorController
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, set);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, 
+				policyAgreementsRepresentationBuilder, policyAgrMan, set);
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.restadm.web.console;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
@@ -26,7 +26,7 @@ class RestAdminServiceEditorComponent extends ServiceEditorBase
 	private Binder<RestAdminServiceConfiguration> restBinder;
 	private Binder<DefaultServiceDefinition> serviceBinder;
 
-	public RestAdminServiceEditorComponent(UnityMessageSource msg, RestAdminServiceEditorGeneralTab generalTab,
+	public RestAdminServiceEditorComponent(MessageSource msg, RestAdminServiceEditorGeneralTab generalTab,
 			AuthenticationTab authTab, DefaultServiceDefinition toEdit)
 	{
 		super(msg);

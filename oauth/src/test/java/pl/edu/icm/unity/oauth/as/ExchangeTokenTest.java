@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -35,7 +36,6 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 
 /**
  * An integration test of token exchange flow
@@ -71,7 +71,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				new Scope("bar"));
 
 		HTTPRequest bare = exchangeRequest.toHTTPRequest();
-		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+		HTTPRequest wrapped = secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse errorResp = wrapped.send();
 		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_BAD_REQUEST));
@@ -97,7 +97,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				new Scope("bar"));
 
 		HTTPRequest bare = exchangeRequest.toHTTPRequest();
-		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
+		HTTPRequest wrapped = secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse errorResp = wrapped.send();
 		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_BAD_REQUEST));
@@ -123,7 +123,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				new Scope("openid foo bar"));
 
 		HTTPRequest bare = exchangeRequest.toHTTPRequest();
-		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+		HTTPRequest wrapped = secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse exchangeResp = wrapped.send();
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);
@@ -160,7 +160,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				new Scope("foo bar"));
 
 		HTTPRequest bare = exchangeRequest.toHTTPRequest();
-		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+		HTTPRequest wrapped = secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse exchangeResp = wrapped.send();
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);

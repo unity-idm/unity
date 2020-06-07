@@ -15,8 +15,8 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -40,7 +40,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	private ComboBox<AuthenticationOptionKey> valueComboField;
 	private Binder<AuthnOptionKeyBindingValue> binder;
 
-	public SingleAuthnColumnComponent(UnityMessageSource msg, AuthenticatorSupportService authenticatorSupport,
+	public SingleAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{

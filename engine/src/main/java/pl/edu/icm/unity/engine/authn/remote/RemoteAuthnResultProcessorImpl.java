@@ -187,10 +187,6 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 * Invokes the configured translation profile on the remotely obtained authentication input. Then assembles  
 	 * the {@link RemotelyAuthenticatedContext} from the processed input containing the information about what 
 	 * from the remote data is or can be meaningful in the local DB.
-	 * 
-	 * @param input
-	 * @return
-	 * @throws EngineException
 	 */
 	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
 			TranslationProfile translationProfile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException
@@ -206,12 +202,13 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 				translationProfile, inputProfileRepo, actionsRegistry);
 		
 		MappingResult result = profileInstance.translate(input);
-		
+		log.debug("Result of remote data mapping:\n{}", result);
 		if (identity.isPresent())
 		{
 			IdentityTaV presetIdentity = identity.get();
 			IdentityParam presetIdParam = new IdentityParam(presetIdentity.getTypeId(), 
 					presetIdentity.getValue());
+			log.debug("Adding a preset identity as a required to results of mapping: {}", presetIdentity);
 			result.addIdentity(new MappedIdentity(IdentityEffectMode.REQUIRE_MATCH, 
 					presetIdParam, null));
 		}

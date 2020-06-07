@@ -26,9 +26,9 @@ import io.imunity.webadmin.bulk.RuleEditorImpl;
 import io.imunity.webadmin.bulk.ScheduledRuleParamEditorImpl;
 import io.imunity.webadmin.tprofile.ActionEditor;
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
@@ -52,7 +52,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class BulkProcessingComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private BulkProcessingManagement bulkManagement;
 	private EntityActionsRegistry registry;
 	private ActionParameterComponentProvider parameterFactory;
@@ -62,7 +62,7 @@ public class BulkProcessingComponent extends CustomComponent
 	private VerticalLayout main;
 	
 	@Autowired
-	public BulkProcessingComponent(UnityMessageSource msg,
+	public BulkProcessingComponent(MessageSource msg,
 			BulkProcessingManagement bulkManagement, EntityActionsRegistry registry,
 			ActionParameterComponentProvider parameterFactory)
 	{

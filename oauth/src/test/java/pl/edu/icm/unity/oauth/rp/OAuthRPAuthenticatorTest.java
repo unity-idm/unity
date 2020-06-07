@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.rp;
 
 import static org.junit.Assert.assertEquals;
+import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
 import java.io.File;
 import java.net.URL;
@@ -38,7 +39,6 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
@@ -216,7 +216,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(endpoint));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
-		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
+		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(200, response.getStatusCode());
@@ -230,7 +230,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, 
 				new URL("https://localhost:52443/jwt-mitre/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
-		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
+		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(200, response.getStatusCode());
@@ -264,7 +264,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
-		HTTPRequest httpReq = new CustomHTTPSRequest(httpReqRaw, new BinaryCertChainValidator(true), 
+		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(200, response.getStatusCode());

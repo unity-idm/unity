@@ -16,7 +16,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
@@ -30,12 +30,12 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public abstract class AbstractConfirmationStep extends CustomComponent implements WizardStep
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected HtmlLabel introLabel;
 	protected InputTranslationEngine translationEngine;
 	protected ErrorComponent errorComponent;
 	
-	public AbstractConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
+	public AbstractConfirmationStep(MessageSource msg, InputTranslationEngine translationEngine, 
 			Wizard wizard)
 	{
 		this.msg = msg;

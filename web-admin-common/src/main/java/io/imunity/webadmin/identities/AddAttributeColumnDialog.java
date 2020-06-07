@@ -11,8 +11,8 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -32,7 +32,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	private CheckBox useRootGroup;
 	
 	
-	public AddAttributeColumnDialog(UnityMessageSource msg, AttributeTypeManagement attrsMan, 
+	public AddAttributeColumnDialog(MessageSource msg, AttributeTypeManagement attrsMan, 
 			Callback callback)
 	{
 		super(msg, msg.getMessage("AddAttributeColumnDialog.caption"));

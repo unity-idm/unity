@@ -34,8 +34,8 @@ import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
@@ -63,7 +63,7 @@ public class UpManUI extends UnityEndpointUIBase
 	private ProjectController controller;
 
 	@Autowired
-	public UpManUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
+	public UpManUI(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor,
 			Collection<UpManNavigationInfoProvider> providers,
 			ProjectController controller)

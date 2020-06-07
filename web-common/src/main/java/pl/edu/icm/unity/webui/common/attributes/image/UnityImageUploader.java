@@ -18,10 +18,10 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
@@ -32,7 +32,7 @@ class UnityImageUploader extends AbstractUploadReceiver
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, UnityImageUploader.class);
 	
 	private final ImageConfiguration imgConfig;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final CheckBox scale;
 	private final Consumer<UnityImage> uploadedImageConsumer;
 	
@@ -44,7 +44,7 @@ class UnityImageUploader extends AbstractUploadReceiver
 	UnityImageUploader(Image image,
 			Upload upload,
 			ImageConfiguration imgConfig,
-			UnityMessageSource msg,
+			MessageSource msg,
 			ProgressBar progress,
 			CheckBox scale,
 			Consumer<UnityImage> uploadedImageConsumer)

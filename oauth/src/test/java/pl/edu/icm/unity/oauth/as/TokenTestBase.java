@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -38,7 +39,6 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
-import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -112,7 +112,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 				new URI("https://localhost:52443/oauth/tokeninfo"),
 				(BearerAccessToken) token);
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
-		HTTPRequest wrapped2 = new CustomHTTPSRequest(bare2, pkiMan.getValidator("MAIN"),
+		HTTPRequest wrapped2 = secureRequest(bare2, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse httpResponse = wrapped2.send();
 
@@ -210,7 +210,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
 						new URI("https://return.host.com/foo")));
 		HTTPRequest bare = request.toHTTPRequest();
-		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+		HTTPRequest wrapped = secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse resp2 = wrapped.send();

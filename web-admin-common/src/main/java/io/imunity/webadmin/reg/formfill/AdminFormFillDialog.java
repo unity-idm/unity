@@ -11,7 +11,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
@@ -31,7 +31,7 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 	private Callback<T> callback;
 	private Button submitAndAccept;
 	
-	public AdminFormFillDialog(UnityMessageSource msg, String caption, 
+	public AdminFormFillDialog(MessageSource msg, String caption, 
 			BaseRequestEditor<T> editor, Callback<T> callback)
 	{
 		super(msg, caption, msg.getMessage("UserFormFillDialog.submitRequest"), 

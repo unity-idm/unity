@@ -13,7 +13,7 @@ import com.vaadin.data.ValueContext;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Field allowing for editing a Quartz cron expression
@@ -21,9 +21,9 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class CronExpressionField extends TextField
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public CronExpressionField(UnityMessageSource msg, String caption)
+	public CronExpressionField(MessageSource msg, String caption)
 	{
 		this.msg = msg;
 		setCaption(caption);
@@ -37,7 +37,7 @@ public class CronExpressionField extends TextField
 
 	}
 
-	private static Validator<String> getValidator(UnityMessageSource msg)
+	private static Validator<String> getValidator(MessageSource msg)
 	{
 		Validator<String> expressionValidator = new Validator<String>()
 		{

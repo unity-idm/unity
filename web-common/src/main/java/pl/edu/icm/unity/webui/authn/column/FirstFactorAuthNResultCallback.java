@@ -13,13 +13,13 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinService;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
@@ -39,7 +39,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			FirstFactorAuthNResultCallback.class);
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final WebAuthenticationProcessor authnProcessor;
 	private final AuthenticationRealm realm;
 	private final AuthenticationFlow selectedAuthnFlow;
@@ -51,7 +51,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 
 	private String clientIp;
 	
-	public FirstFactorAuthNResultCallback(UnityMessageSource msg,
+	public FirstFactorAuthNResultCallback(MessageSource msg,
 			WebAuthenticationProcessor authnProcessor, AuthenticationRealm realm,
 			AuthenticationFlow selectedAuthnFlow, Supplier<Boolean> rememberMeProvider,
 			AuthenticationListener authNListener, String authnId, String endpointPath,

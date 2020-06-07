@@ -22,11 +22,11 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -47,7 +47,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Binder<SAMLServiceConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 	private PKIManagement pkiMan;
@@ -56,7 +56,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 	private FileStorageService fileStorageService;
 	private IndividualTrustedSPComponent trustedSPs;
 	
-	public SAMLEditorClientsTab(UnityMessageSource msg, PKIManagement pkiMan, UnityServerConfiguration serverConfig,
+	public SAMLEditorClientsTab(MessageSource msg, PKIManagement pkiMan, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
 			SubViewSwitcher subViewSwitcher)
 	{

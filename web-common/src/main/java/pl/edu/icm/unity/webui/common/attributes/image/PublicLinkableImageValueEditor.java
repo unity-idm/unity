@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.LinkableImage;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -25,7 +25,7 @@ class PublicLinkableImageValueEditor implements AttributeValueEditor
 
 	PublicLinkableImageValueEditor(String valueRaw,
 			String label,
-			UnityMessageSource msg,
+			MessageSource msg,
 			PublicLinkableImageSyntax syntax)
 	{
 		LinkableImage value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
@@ -44,8 +44,9 @@ class PublicLinkableImageValueEditor implements AttributeValueEditor
 	@Override
 	public String getCurrentValue() throws IllegalAttributeValueException
 	{
-		LinkableImage value = valueComponent.getValue(required, syntax);
-		return syntax.convertToString(value);
+		return valueComponent.getValue(required, syntax)
+				.map(value -> syntax.convertToString(value))
+				.orElse(null);
 	}
 
 	@Override

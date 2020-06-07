@@ -21,13 +21,13 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -56,7 +56,7 @@ public class CredentialsPanel extends VerticalLayout
 	private CredentialEditorRegistry credEditorReg;
 	private AuthenticationFlowManagement flowMan;	
 	private TokensManagement tokenMan;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Entity entity;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	private final long entityId;
@@ -70,7 +70,7 @@ public class CredentialsPanel extends VerticalLayout
 	/**
 	 * @param simpleMode if true then admin-only action buttons (credential reset/outdate) are not shown.
 	 */
-	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, long entityId, CredentialManagement credMan, 
+	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan,TokensManagement tokenMan,

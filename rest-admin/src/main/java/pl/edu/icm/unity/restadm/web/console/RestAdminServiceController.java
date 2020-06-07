@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
@@ -36,7 +36,7 @@ class RestAdminServiceController extends DefaultServicesControllerBase implement
 	private AuthenticatorManagement authMan;
 	private NetworkServer networkServer;
 
-	RestAdminServiceController(UnityMessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+	RestAdminServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer)
 	{
 		super(msg, endpointMan);

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
@@ -80,6 +82,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private String authenticationUIServletPath;
 	protected AttributeTypeSupport aTypeSupport;
 	private EnquiryManagement enquiryManagement;
+	private final PolicyAgreementManagement policyAgreementsMan;
+	private final MessageSource msg;
 	
 	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
@@ -87,7 +91,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			IdPEngine idpEngine,
 			FreemarkerAppHandler freemarker,
 			SessionManagement sessionMan,
-			@Qualifier("insecure") EnquiryManagement enquiryManagement)
+			@Qualifier("insecure") EnquiryManagement enquiryManagement,
+			PolicyAgreementManagement policyAgreementsMan,
+			MessageSource msg)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
@@ -95,6 +101,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.enquiryManagement = enquiryManagement;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
 		this.sessionMan = sessionMan;
+		this.policyAgreementsMan = policyAgreementsMan;
+		this.msg = msg;
 	}
 
 	protected void init(String samlUiServletPath, String authenticationUIServletPath)
@@ -186,7 +194,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private boolean isInteractiveUIRequired(SPSettings preferences, SAMLAuthnContext samlCtx)
 	{
 		return isConsentRequired(preferences, samlCtx) || isActiveValueSelectionRequired(samlCtx) ||
-				isEnquiryWaiting();
+				isEnquiryWaiting() || isPolicyAgreementWaiting(samlCtx);
 	}
 
 	
@@ -226,6 +234,21 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		}
 	}
 
+	private boolean isPolicyAgreementWaiting(SAMLAuthnContext samlCtx)
+	{
+		try
+		{
+			return !policyAgreementsMan.filterAgreementToPresent(
+					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+					CommonIdPProperties.getPolicyAgreementsConfig(msg,
+							samlCtx.getSamlConfiguration()).agreements)
+					.isEmpty();
+		} catch (EngineException e)
+		{
+			log.error("Unable to determine policy agreements to accept");
+		}
+		return false;
+	}
 	
 	/**
 	 * Automatically sends a SAML response, without the consent screen.

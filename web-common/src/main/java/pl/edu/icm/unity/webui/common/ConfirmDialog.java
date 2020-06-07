@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
@@ -21,12 +21,12 @@ public class ConfirmDialog extends AbstractDialog
 	private String question;
 	private boolean htmlContent = false;
 
-	public ConfirmDialog(UnityMessageSource msg, String question, Callback callback)
+	public ConfirmDialog(MessageSource msg, String question, Callback callback)
 	{
 		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, callback);
 	}
 
-	public ConfirmDialog(UnityMessageSource msg, String question, String confirmM, String confirmT, String cancelM,
+	public ConfirmDialog(MessageSource msg, String question, String confirmM, String confirmT, String cancelM,
 			String cancelT, Callback callback)
 	{
 		super(msg, msg.getMessage("ConfirmDialog.confirm"), confirmM, confirmT, cancelM, cancelT);
@@ -36,7 +36,7 @@ public class ConfirmDialog extends AbstractDialog
 		setSizeMode(SizeMode.SMALL);
 	}
 
-	public ConfirmDialog(UnityMessageSource msg, String caption, String question, Callback callback)
+	public ConfirmDialog(MessageSource msg, String caption, String question, Callback callback)
 	{
 		super(msg, caption);
 		this.question = question;
@@ -45,7 +45,7 @@ public class ConfirmDialog extends AbstractDialog
 		setSizeMode(SizeMode.SMALL);
 	}
 
-	protected ConfirmDialog(UnityMessageSource msg, String question)
+	protected ConfirmDialog(MessageSource msg, String question)
 	{
 		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, null);
 	}

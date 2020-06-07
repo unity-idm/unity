@@ -16,8 +16,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -38,14 +38,14 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 public class GeneralTab extends CustomComponent implements EditorTab
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	private EndpointTypeDescription type;
 	private List<String> usedEndpointsPaths;
 	private Set<String> serverContextPaths;
 	protected VerticalLayout mainLayout;
 	
 
-	public GeneralTab(UnityMessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths)
+	public GeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.type = type;

@@ -16,7 +16,7 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -34,11 +34,11 @@ public class FileUploder extends AbstractUploadReceiver
 	private LimitedOuputStream fos;
 	private boolean uploading = false;
 	private boolean blocked = false;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private File tempDir;
 	private Runnable uploadSucceededCallback;
 
-	public FileUploder(Upload upload, ProgressBar progress, Label info, UnityMessageSource msg, File tempDir, Runnable callback)
+	public FileUploder(Upload upload, ProgressBar progress, Label info, MessageSource msg, File tempDir, Runnable callback)
 	{
 		super(upload, progress);
 		this.info = info;
@@ -49,7 +49,7 @@ public class FileUploder extends AbstractUploadReceiver
 		upload.setCaption(msg.getMessage("FileUploader.uploadCaption"));
 	}
 	
-	public FileUploder(Upload upload, ProgressBar progress, Label info, UnityMessageSource msg, File tempDir)
+	public FileUploder(Upload upload, ProgressBar progress, Label info, MessageSource msg, File tempDir)
 	{
 		this(upload, progress, info, msg, tempDir, null);
 	}

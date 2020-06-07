@@ -50,8 +50,10 @@ public class MappedGroup
 		return profile;
 	}
 
+	@Override
 	public String toString()
         {
 	    return group;
         }
+	
 }

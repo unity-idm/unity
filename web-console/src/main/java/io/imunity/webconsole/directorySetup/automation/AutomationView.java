@@ -24,7 +24,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.DirectorySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -32,7 +31,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -58,12 +57,12 @@ public class AutomationView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Automation";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AutomationController controller;
 	private GridWithActionColumn<ScheduledProcessingRule> automationGrid;
 
 	@Autowired
-	AutomationView(UnityMessageSource msg, AutomationController controller)
+	AutomationView(MessageSource msg, AutomationController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -101,7 +100,7 @@ public class AutomationView extends CustomComponent implements UnityView
 		hamburgerMenu.addActionHandlers(getBulkHamburgerActionsHandlers());
 		automationGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		Toolbar<ScheduledProcessingRule> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
 		ComponentWithToolbar automationGridWithToolbar = new ComponentWithToolbar(automationGrid, toolbar, Alignment.BOTTOM_LEFT);
@@ -208,13 +207,13 @@ public class AutomationView extends CustomComponent implements UnityView
 	@Component
 	public static class AutomationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = VIEW_NAME;
+		
 		@Autowired
-		public AutomationNavigationInfoProvider(UnityMessageSource msg,
-				DirectorySetupNavigationInfoProvider parent, ObjectFactory<AutomationView> factory)
+		public AutomationNavigationInfoProvider(MessageSource msg, ObjectFactory<AutomationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withParent(DirectorySetupNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.automation"))
 					.withIcon(Images.calendar_user.getResource())
 					.withPosition(40).build());

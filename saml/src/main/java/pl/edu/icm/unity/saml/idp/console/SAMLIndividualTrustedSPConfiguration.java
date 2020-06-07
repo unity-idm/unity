@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.types.I18nString;
@@ -48,7 +48,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		x500Name = false;
 	}
 
-	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService, SamlIdpProperties source,
+	public void fromProperties(MessageSource msg, ImageAccessService imageAccessService, SamlIdpProperties source,
 			String name, String theme)
 	{
 		setName(name);
@@ -108,7 +108,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		setSoapLogoutEndpoint(source.getValue(prefix + SamlProperties.SOAP_LOGOUT_URL));
 	}
 
-	public void toProperties(Properties raw, UnityMessageSource msg, FileStorageService fileService,
+	public void toProperties(Properties raw, MessageSource msg, FileStorageService fileService,
 			String serviceName)
 	{
 		String prefix = SamlIdpProperties.P + SamlIdpProperties.ALLOWED_SP_PREFIX + getName() + ".";

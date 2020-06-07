@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringSt
 public class PostFillingHandlerTest extends DBIntegrationTestBase
 {
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Test
 	public void testDefaultSubmitted() throws EngineException

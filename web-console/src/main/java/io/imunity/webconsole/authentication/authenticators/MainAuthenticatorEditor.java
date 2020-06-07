@@ -19,7 +19,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
@@ -38,7 +38,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 {
 	private ComboBox<AuthenticatorTypeDescription> authenticatorTypeCombo;
 	private TextField authenticatorTypeLabel;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuthenticatorEditorFactoriesRegistry editorsRegistry;
 	private Collection<AuthenticatorTypeDescription> autnTypes;
 	private AuthenticatorEntry toEdit;
@@ -49,7 +49,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 	private VerticalLayout mainLayout;
 	private Optional<SingleSelectionListener<AuthenticatorTypeDescription>> typeChangeListener;
 
-	public MainAuthenticatorEditor(UnityMessageSource msg, AuthenticatorEditorFactoriesRegistry editorsRegistry,
+	public MainAuthenticatorEditor(MessageSource msg, AuthenticatorEditorFactoriesRegistry editorsRegistry,
 			Collection<AuthenticatorTypeDescription> autnTypes, AuthenticatorEntry toEdit,
 			SubViewSwitcher subViewSwitcher, Optional<SingleSelectionListener<AuthenticatorTypeDescription>> typeChangeListener)
 	{

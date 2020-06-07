@@ -8,7 +8,7 @@ import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -25,7 +25,7 @@ public class AdminTopHeader extends TopHeader
 	private Button switchView;
 	private ViewSwitchCallback callback;
 	
-	public AdminTopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, UnityMessageSource msg, 
+	public AdminTopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, MessageSource msg, 
 			ViewSwitchCallback callback)
 	{
 		super(title, authnProcessor, msg);

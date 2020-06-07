@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
@@ -41,10 +41,10 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 public class AuthnLayoutPropertiesParser
 {
 	public static final Class<? extends AuthnElementConfiguration> DEFAULT_CONFIG_PARSER = SingleAuthnConfig.class;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Map<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> configFactories;
 
-	public AuthnLayoutPropertiesParser(UnityMessageSource msg)
+	public AuthnLayoutPropertiesParser(MessageSource msg)
 	{
 		this.msg = msg;
 		this.configFactories = ImmutableMap
@@ -164,7 +164,7 @@ public class AuthnLayoutPropertiesParser
 	}
 
 	private List<AuthnElementConfiguration> getColumnElements(String prefix, VaadinEndpointProperties properties,
-			UnityMessageSource msg)
+			MessageSource msg)
 	{
 
 		return getColumnElements(properties,

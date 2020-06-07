@@ -4,12 +4,13 @@
  */
 package pl.edu.icm.unity.store.impl.groups;
 
+import java.util.Objects;
+
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 
 
 /**
  * In DB group representation.
- * @author K. Benedyczak
  */
 public class GroupBean extends BaseBean
 {
@@ -41,5 +42,27 @@ public class GroupBean extends BaseBean
 	public void setParentId(Integer parentId)
 	{
 		this.parentId = parentId;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(parentId, parentPath);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GroupBean other = (GroupBean) obj;
+		return Objects.equals(parentId, other.parentId) && Objects.equals(parentPath, other.parentPath);
 	}
 }

@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -35,11 +35,11 @@ public class SendNotificationActionFactory extends AbstractEntityActionFactory
 	public static final String NAME = "sendMessage";
 	private EntityManagement idsMan;
 	private NotificationProducer notificationProducer;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
 	public SendNotificationActionFactory(@Qualifier("insecure") EntityManagement idsMan,
-			NotificationProducer notificationProducer, UnityMessageSource msg)
+			NotificationProducer notificationProducer, MessageSource msg)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -65,12 +65,12 @@ public class SendNotificationActionFactory extends AbstractEntityActionFactory
 				SendNotificationAction.class);
 		private NotificationProducer notificationProducer;
 		private String template;
-		private UnityMessageSource msg;
+		private MessageSource msg;
 		private EntityManagement idsMan;
 		
 		public SendNotificationAction(EntityManagement idsMan,
 				NotificationProducer notificationProducer,
-				UnityMessageSource msg,
+				MessageSource msg,
 				TranslationActionType description, String[] params)
 		{
 			super(description, params);

@@ -8,11 +8,11 @@ package pl.edu.icm.unity.home.console;
 import java.util.List;
 import java.util.Set;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class HomeServiceEditor implements ServiceEditor
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private List<String> allRealms;
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
@@ -46,7 +46,7 @@ class HomeServiceEditor implements ServiceEditor
 	private Set<String> serverContextPaths;
 	private ImageAccessService imageAccessService;
 
-	HomeServiceEditor(UnityMessageSource msg, URIAccessService uriAccessService,
+	HomeServiceEditor(MessageSource msg, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,

@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -23,7 +23,7 @@ public class LastAuthenticationAttributeTypeProvider extends AbstractAttributeTy
 	public static final String LAST_AUTHENTICATION = "sys:LastAuthentication";
 	
 	@Autowired
-	public LastAuthenticationAttributeTypeProvider(UnityMessageSource msg)
+	public LastAuthenticationAttributeTypeProvider(MessageSource msg)
 	{
 		super(msg);
 	}

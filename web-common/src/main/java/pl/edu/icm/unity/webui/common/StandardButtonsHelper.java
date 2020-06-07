@@ -10,10 +10,11 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+
+import pl.edu.icm.unity.MessageSource;
+
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
  * Helper for creating standard actions buttons
@@ -44,7 +45,7 @@ public class StandardButtonsHelper
 		return buildButtonsBar(Alignment.MIDDLE_RIGHT, false, buttons);
 	}
 
-	public static Button build4AddAction(UnityMessageSource msg, ClickListener clickListener)
+	public static Button build4AddAction(MessageSource msg, ClickListener clickListener)
 	{
 		return buildActionButton(msg.getMessage("addNew"), Images.add, clickListener);
 	}
@@ -65,7 +66,7 @@ public class StandardButtonsHelper
 		return layout;
 	}
 
-	public static HorizontalLayout buildConfirmButtonsBar(UnityMessageSource msg, String confirm, Runnable onConfirm,
+	public static HorizontalLayout buildConfirmButtonsBar(MessageSource msg, String confirm, Runnable onConfirm,
 			Runnable onCancel)
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
@@ -73,13 +74,13 @@ public class StandardButtonsHelper
 				buildConfirmButton(confirm, onConfirm));
 	}
 	
-	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+	public static HorizontalLayout buildConfirmNewButtonsBar(MessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
 		return buildConfirmNewButtonsBar(msg, onConfirm, onCancel, Alignment.MIDDLE_LEFT);
 	}
 	
-	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+	public static HorizontalLayout buildConfirmNewButtonsBar(MessageSource msg, Runnable onConfirm,
 			Runnable onCancel, Alignment alligment)
 	{
 		return buildButtonsBar(alligment, true,
@@ -87,13 +88,13 @@ public class StandardButtonsHelper
 				buildConfirmButton(msg.getMessage("create"), onConfirm));
 	}
 
-	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+	public static HorizontalLayout buildConfirmEditButtonsBar(MessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
 		return buildConfirmEditButtonsBar(msg, onConfirm, onCancel, Alignment.MIDDLE_LEFT);
 	}
 	
-	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+	public static HorizontalLayout buildConfirmEditButtonsBar(MessageSource msg, Runnable onConfirm,
 			Runnable onCancel, Alignment alligment)
 	{
 		return buildButtonsBar(alligment, true,
@@ -101,7 +102,7 @@ public class StandardButtonsHelper
 				buildConfirmButton(msg.getMessage("update"), onConfirm));
 	}
 
-	public static HorizontalLayout buildShowButtonsBar(UnityMessageSource msg, Runnable onCancel)
+	public static HorizontalLayout buildShowButtonsBar(MessageSource msg, Runnable onCancel)
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
 				buildCancelButton(msg.getMessage("close"), onCancel));

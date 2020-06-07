@@ -29,7 +29,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.WebSession;
@@ -53,12 +53,12 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "CredentialRequirements";
 
 	private CredentialRequirementsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private GridWithActionColumn<CredentialRequirements> credList;
 	private EventsBus bus;
 
 	@Autowired
-	CredentialRequirementsView(UnityMessageSource msg, CredentialRequirementsController controller)
+	CredentialRequirementsView(MessageSource msg, CredentialRequirementsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -183,18 +183,18 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 	@Component
 	public static class CredentialsRequirementsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
+		public static final String ID = CredentialRequirementsView.VIEW_NAME;
+		
 		@Autowired
-		public CredentialsRequirementsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent, ObjectFactory<CredentialRequirementsView> factory)
+		public CredentialsRequirementsNavigationInfoProvider(MessageSource msg,
+				ObjectFactory<CredentialRequirementsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+			super(new NavigationInfo.NavigationInfoBuilder(ID, Type.View)
+					.withParent(AuthenticationNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage(
 							"WebConsoleMenu.authentication.credentialRequirements"))
 					.withIcon(Images.optiona_a.getResource())
 					.withPosition(30).build());
-
 		}
 	}
 }

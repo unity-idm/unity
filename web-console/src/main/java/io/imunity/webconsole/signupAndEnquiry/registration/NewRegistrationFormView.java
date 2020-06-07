@@ -22,7 +22,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -42,10 +42,10 @@ class NewRegistrationFormView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "NewRegistrationForm";
 
 	private RegistrationFormsController controller;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private RegistrationFormEditor editor;
 
-	NewRegistrationFormView(RegistrationFormsController controller, UnityMessageSource msg)
+	NewRegistrationFormView(RegistrationFormsController controller, MessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -135,11 +135,10 @@ class NewRegistrationFormView extends CustomComponent implements UnityView
 	{
 
 		@Autowired
-		public NewRegistrationFormNavigationInfoProvider(SignupAndEnquiryFormsNavigationInfoProvider parent,
-				ObjectFactory<NewRegistrationFormView> factory)
+		public NewRegistrationFormNavigationInfoProvider(ObjectFactory<NewRegistrationFormView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(SignupAndEnquiryFormsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

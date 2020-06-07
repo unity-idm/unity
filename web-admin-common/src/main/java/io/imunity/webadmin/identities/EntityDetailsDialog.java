@@ -4,7 +4,7 @@
  */
 package io.imunity.webadmin.identities;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
@@ -15,7 +15,7 @@ public class EntityDetailsDialog extends AbstractDialog
 {
 	private EntityDetailsPanel contents;
 	
-	public EntityDetailsDialog(UnityMessageSource msg, EntityDetailsPanel contents)
+	public EntityDetailsDialog(MessageSource msg, EntityDetailsPanel contents)
 	{
 		super(msg, msg.getMessage("IdentityDetails.entityDetailsCaption"),
 				msg.getMessage("close"));

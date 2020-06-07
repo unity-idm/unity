@@ -15,8 +15,8 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  */
 public class AttributesClassEditor extends CompactFormLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Map<String, AttributesClass> allClasses;
 	private Map<String, AttributeType> types;
 
@@ -45,7 +45,7 @@ public class AttributesClassEditor extends CompactFormLayout
 	
 	private Binder<AttributesClass> binder;
 	
-	public AttributesClassEditor(UnityMessageSource msg, Map<String, AttributesClass> allClasses,
+	public AttributesClassEditor(MessageSource msg, Map<String, AttributesClass> allClasses,
 			Collection<AttributeType> allTypes)
 	{
 		this.msg = msg;

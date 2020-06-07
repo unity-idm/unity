@@ -16,7 +16,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
@@ -37,13 +37,13 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class ExposedAttributesComponent extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	protected Map<String, DynamicAttribute> attributes;
 	protected ListOfSelectableElements attributesHiding;
 	private AttributeHandlerRegistry handlersRegistry;
 
-	public ExposedAttributesComponent(UnityMessageSource msg,
+	public ExposedAttributesComponent(MessageSource msg,
 			AttributeHandlerRegistry handlersRegistry,
 			Collection<DynamicAttribute> attributesCol)
 	{

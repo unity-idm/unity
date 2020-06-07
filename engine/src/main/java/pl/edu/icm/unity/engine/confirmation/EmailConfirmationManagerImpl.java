@@ -29,6 +29,7 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -45,7 +46,6 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttri
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -83,7 +83,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 	private EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
 	private MessageTemplateDB mtDB;
 	private URL advertisedAddress;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private EntityResolver idResolver;
 	private Ehcache confirmationReqCache;
 	private int requestLimit;
@@ -98,7 +98,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
 			MessageTemplateDB mtDB,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			UnityMessageSource msg,
+			MessageSource msg,
 			EntityResolver idResolver,
 			TransactionalRunner tx,
 			CacheProvider cacheProvider,

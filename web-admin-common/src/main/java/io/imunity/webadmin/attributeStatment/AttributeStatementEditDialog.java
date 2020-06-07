@@ -8,9 +8,9 @@ import java.util.Collection;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -39,7 +39,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	 * @param attributeStatement attribute statement to be displayed initially or 
 	 * null when a new statement should be created
 	 */
-	public AttributeStatementEditDialog(UnityMessageSource msg, AttributeStatement attributeStatement,
+	public AttributeStatementEditDialog(MessageSource msg, AttributeStatement attributeStatement,
 			AttributeTypeManagement attrsMan, String group, AttributeHandlerRegistry attrHandlerRegistry, 
 			GroupsManagement groupsMan, Callback callback)
 	{

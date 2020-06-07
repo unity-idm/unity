@@ -12,9 +12,9 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -62,7 +62,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(SAMLSPProperties.DEFAULT_TRANSLATION_PROFILE));
 	}
 
-	public void fromProperties(UnityMessageSource msg, ImageAccessService imageAccessService, SAMLSPProperties source,
+	public void fromProperties(MessageSource msg, ImageAccessService imageAccessService, SAMLSPProperties source,
 			String name)
 	{
 
@@ -132,7 +132,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 
 	}
 
-	public void toProperties(Properties raw, UnityMessageSource msg, FileStorageService fileService,
+	public void toProperties(Properties raw, MessageSource msg, FileStorageService fileService,
 			String authName)
 	{
 		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + getName() + ".";

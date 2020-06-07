@@ -11,7 +11,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Text field with clear button
@@ -23,7 +23,7 @@ public class SearchField extends CustomComponent
 {
 	private TextField searchText;
 
-	public SearchField(UnityMessageSource msg)
+	public SearchField(MessageSource msg)
 	{
 
 		HorizontalLayout wrapper = new HorizontalLayout();

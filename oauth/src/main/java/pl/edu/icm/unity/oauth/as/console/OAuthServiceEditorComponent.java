@@ -18,8 +18,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import com.vaadin.data.Binder;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditorComponent extends ServiceEditorBase
@@ -49,9 +50,9 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	private Group generatedIdPGroup;
 	private boolean editMode;
 
-	OAuthServiceEditorComponent(UnityMessageSource msg, OAuthEditorGeneralTab generalTab,
+	OAuthServiceEditorComponent(MessageSource msg, OAuthEditorGeneralTab generalTab,
 			OAuthEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
-			WebServiceAuthenticationTab webAuthTab, FileStorageService fileStorageService,
+			WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab, FileStorageService fileStorageService,
 			ImageAccessService imageAccessService, ServiceDefinition toEdit, List<Group> allGroups,
 			Function<String, List<OAuthClient>> systemClientsSupplier,
 			String systemTheme)
@@ -95,10 +96,13 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		});
 		webAuthTab.initUI(oauthServiceWebAuthzBinder, webConfigBinder);
 
+		oauthConfigBinder.forField(policyAgreementTab).asRequired().bind("policyAgreementConfig");
+		
 		registerTab(generalTab);
 		registerTab(clientsTab);
 		registerTab(usersTab);
 		registerTab(webAuthTab);
+		registerTab(policyAgreementTab);
 
 		OAuthServiceDefinition oauthServiceToEdit;
 		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(allGroups);
@@ -118,7 +122,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 			if (webAuthzService != null && webAuthzService.getConfiguration() != null)
 			{
-				oauthConfig.fromProperties(webAuthzService.getConfiguration(), allGroups);
+				oauthConfig.fromProperties(msg, webAuthzService.getConfiguration(), allGroups);
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService, systemTheme);
 			}
 			clientsBean.setClients(cloneClients(
@@ -193,10 +197,10 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		DefaultServiceDefinition webAuthz = oauthServiceWebAuthzBinder.getBean();
 		VaadinEndpointProperties prop = new VaadinEndpointProperties(
 				webConfigBinder.getBean().toProperties(msg, fileStorageService, webAuthz.getName()));
-		webAuthz.setConfiguration(oauthConfigBinder.getBean().toProperties() + "\n" + prop.getAsString());
+		webAuthz.setConfiguration(oauthConfigBinder.getBean().toProperties(msg) + "\n" + prop.getAsString());
 
 		DefaultServiceDefinition token = oauthServiceTokenBinder.getBean();
-		token.setConfiguration(oauthConfigBinder.getBean().toProperties());
+		token.setConfiguration(oauthConfigBinder.getBean().toProperties(msg));
 
 		if (token.getName() == null || token.getName().isEmpty())
 		{

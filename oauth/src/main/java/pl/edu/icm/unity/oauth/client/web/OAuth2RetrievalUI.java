@@ -21,12 +21,12 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
@@ -57,7 +57,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ImageAccessService imageAccessService;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
@@ -76,7 +76,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private ExpectedIdentity expectedIdentity;
 
-	public OAuth2RetrievalUI(UnityMessageSource msg, ImageAccessService imageAccessService, OAuthExchange credentialExchange,
+	public OAuth2RetrievalUI(MessageSource msg, ImageAccessService imageAccessService, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
 			String idpKey, String configKey, String authenticatorName, Context context)
 	{

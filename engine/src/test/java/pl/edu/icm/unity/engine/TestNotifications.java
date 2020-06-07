@@ -21,7 +21,9 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
@@ -58,7 +60,7 @@ public class TestNotifications extends DBIntegrationTestBase
 	private NotificationProducer notProducer;
 	
 	@Autowired
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	//@Test
 	public void testEmailNotification() throws Exception
@@ -188,7 +190,7 @@ public class TestNotifications extends DBIntegrationTestBase
 				new MessageTemplate("t1", "", new I18nMessage(new I18nString("x"), new I18nString("x")),
 						EmailPasswordResetTemplateDef.NAME, MessageType.PLAIN, "ch1"));
 
-		Collection<String> addrs = notProducer.sendNotification(Arrays.asList("/A", "/B"),
+		Collection<String> addrs = notProducer.sendNotification(Sets.newHashSet("/A", "/B"),
 				Arrays.asList(added3.getEntityId(), added2.getEntityId()), "t1", new HashMap<>(),
 				msg.getDefaultLocaleCode());
 

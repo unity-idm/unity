@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.upman.common.ServerFaultException;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
@@ -37,9 +37,9 @@ public class UpdateRequestsController
 
 	private ProjectRequestManagement requestMan;
 	private DelegatedGroupsHelper delGroupHelper;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 
-	public UpdateRequestsController(UnityMessageSource msg, ProjectRequestManagement requestMan,
+	public UpdateRequestsController(MessageSource msg, ProjectRequestManagement requestMan,
 			DelegatedGroupsHelper delGroupHelper)
 	{
 		this.requestMan = requestMan;

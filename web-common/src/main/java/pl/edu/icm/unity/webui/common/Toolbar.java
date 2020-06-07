@@ -127,6 +127,7 @@ public class Toolbar<T> extends CustomComponent
 	public void addHamburger(HamburgerMenu<?> menuBar)
 	{
 		main.addComponent(menuBar);
+		main.setComponentAlignment(menuBar, Alignment.BOTTOM_LEFT);
 		menuBar.addStyleName(Styles.toolbarButton.toString());
 	}
 	
@@ -134,6 +135,12 @@ public class Toolbar<T> extends CustomComponent
 	{
 		main.addComponent(search);
 		main.setComponentAlignment(search, searchAligment);
+	}
+
+	public void addActionButton(Button button, Alignment aligment)
+	{
+		main.addComponent(button);
+		main.setComponentAlignment(button, aligment);
 	}
 	
 	public void addButtons(Button... buttons)

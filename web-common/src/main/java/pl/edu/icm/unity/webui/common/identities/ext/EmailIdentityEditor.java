@@ -9,10 +9,10 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.ValueContext;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 public class EmailIdentityEditor implements IdentityEditor
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private ConfirmationInfo confirmationInfo;
 	private TextFieldWithVerifyButton editor;
 	private boolean skipUpdate = false;
@@ -44,7 +44,7 @@ public class EmailIdentityEditor implements IdentityEditor
 	private ConfirmationInfoFormatter formatter;
 	private SingleStringFieldBinder binder;
 	
-	public EmailIdentityEditor(UnityMessageSource msg, EmailConfirmationManager emailConfirmationMan, 
+	public EmailIdentityEditor(MessageSource msg, EmailConfirmationManager emailConfirmationMan, 
 			EntityResolver idResolver, ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;

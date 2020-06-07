@@ -20,13 +20,13 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
@@ -48,14 +48,14 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 	private static final String CACHE_ID = "MobileConfirmationCache";
 	
 	private NotificationProducer notificationProducer;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AttributeTypeHelper attrTypeHelper;
 	private Ehcache confirmationReqCache;
 	private int requestLimit;
 	
 	@Autowired
 	public MobileNumberConfirmationManagerImpl(NotificationProducer notificationProducer,
-			UnityMessageSource msg, AttributeTypeHelper attrTypeHelper,
+			MessageSource msg, AttributeTypeHelper attrTypeHelper,
 			CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.notificationProducer = notificationProducer;

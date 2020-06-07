@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.vaadin.server.Resource;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 
 /**
  * Settings useful for most of the credential reset screens
@@ -18,13 +18,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 public class CredentialResetFlowConfig
 {
 	public final Optional<Resource> logo;
-	public final UnityMessageSource msg;
+	public final MessageSource msg;
 	public final Runnable cancelCallback;
 	public final float infoWidth;
 	public final float contentsWidth;
 	public final boolean compactLayout;
 	
-	public CredentialResetFlowConfig(Optional<Resource> logo, UnityMessageSource msg, Runnable cancelCallback,
+	public CredentialResetFlowConfig(Optional<Resource> logo, MessageSource msg, Runnable cancelCallback,
 			float infoWidth, float contentsWidth, boolean compactLayout)
 	{
 		this.logo = logo;

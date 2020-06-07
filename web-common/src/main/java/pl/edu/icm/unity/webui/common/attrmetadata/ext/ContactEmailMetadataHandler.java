@@ -8,7 +8,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataEditor;
@@ -20,9 +20,9 @@ import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
  */
 public class ContactEmailMetadataHandler implements WebAttributeMetadataHandler
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
-	public ContactEmailMetadataHandler(UnityMessageSource msg)
+	public ContactEmailMetadataHandler(MessageSource msg)
 	{
 		this.msg = msg;
 	}

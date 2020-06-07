@@ -8,7 +8,7 @@ package pl.edu.icm.unity.webui.confirmations;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
@@ -18,11 +18,11 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
  */
 public class EmailConfirmationConfigurationViewer extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Label msgTemplate;
 	private Label validityTime;
 
-	public EmailConfirmationConfigurationViewer(UnityMessageSource msg)
+	public EmailConfirmationConfigurationViewer(MessageSource msg)
 	{
 		super();
 		setSpacing(false);
@@ -34,7 +34,7 @@ public class EmailConfirmationConfigurationViewer extends VerticalLayout
 		addComponent(validityTime);
 	}
 
-	public EmailConfirmationConfigurationViewer(UnityMessageSource msg,
+	public EmailConfirmationConfigurationViewer(MessageSource msg,
 			EmailConfirmationConfiguration init)
 	{
 

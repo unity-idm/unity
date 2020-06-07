@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 import com.vaadin.event.selection.SingleSelectionEvent;
 import com.vaadin.ui.Button.ClickEvent;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameComparator;
@@ -27,15 +27,15 @@ import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameCompar
  */
 public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements GroupsSelection
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Set<Group> selectedWithNextChild;
 	
-	public OptionalGroupsSelection(UnityMessageSource msg)
+	public OptionalGroupsSelection(MessageSource msg)
 	{
 		this(msg, true);
 	}
 	
-	public OptionalGroupsSelection(UnityMessageSource msg, boolean multiSelectable)
+	public OptionalGroupsSelection(MessageSource msg, boolean multiSelectable)
 	{
 		super(group -> group.getDisplayedName().getValue(msg), group -> group.getDisplayedName().getValue(msg), true);	
 		this.msg = msg;

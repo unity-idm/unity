@@ -20,6 +20,7 @@ import com.vaadin.ui.Grid.SelectionMode;
 import io.imunity.webadmin.reg.invitations.InvitationEditor;
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webadmin.reg.invitations.InvitationSelectionListener;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -59,7 +59,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 public class InvitationsTable extends CustomComponent
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private Grid<InvitationEntry> invitationsTable;
 	private RegistrationsManagement registrationManagement;
 	private EnquiryManagement enquiryManagement;
@@ -74,7 +74,7 @@ public class InvitationsTable extends CustomComponent
 	private AttributeSupport attributeSupport;
 	
 	
-	public InvitationsTable(UnityMessageSource msg,
+	public InvitationsTable(MessageSource msg,
 			RegistrationsManagement registrationManagement,
 			EnquiryManagement enquiryManagement,
 			InvitationManagement invitationManagement,

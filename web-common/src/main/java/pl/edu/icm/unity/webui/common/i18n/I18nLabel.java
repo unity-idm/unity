@@ -16,7 +16,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.CustomField;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -35,20 +35,20 @@ public class I18nLabel extends CustomField<I18nString>
 {
 	private static final int MAX_LINE = 80;
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	private HPairLayout defaultTf;
 	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
 	private I18nString value;
 	
-	public I18nLabel(UnityMessageSource msg)
+	public I18nLabel(MessageSource msg)
 	{
 		this.msg = msg;
 		initUI();
 	}
 
-	public I18nLabel(UnityMessageSource msg, String caption)
+	public I18nLabel(MessageSource msg, String caption)
 	{
 		this(msg);
 		setCaption(caption);

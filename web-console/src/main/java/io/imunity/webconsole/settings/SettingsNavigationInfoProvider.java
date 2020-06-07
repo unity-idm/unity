@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
+import io.imunity.webconsole.spi.WebConsoleExtendableMenuElements;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -24,14 +25,13 @@ import pl.edu.icm.unity.webui.common.Images;
 @Component
 public class SettingsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 {
-	public static final String ID = "Settings";
+	public static final String ID = WebConsoleExtendableMenuElements.SETTINGS;
 
 	@Autowired
-	public SettingsNavigationInfoProvider(UnityMessageSource msg,
-			WebConsoleRootNavigationInfoProvider parent)
+	public SettingsNavigationInfoProvider(MessageSource msg)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
-				.withParent(parent.getNavigationInfo())
+				.withParent(WebConsoleRootNavigationInfoProvider.ID)
 				.withCaption(msg.getMessage("WebConsoleMenu.settings"))
 				.withIcon(Images.cogs.getResource()).withPosition(80).build());
 

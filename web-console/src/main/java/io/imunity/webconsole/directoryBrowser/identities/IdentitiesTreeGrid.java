@@ -50,13 +50,13 @@ import io.imunity.webadmin.identities.IdentityConfirmationResendHandler;
 import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import io.imunity.webadmin.identities.ResolvedEntity;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -96,7 +96,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private final AttributeSupport attributeSupport;
 	private final CredentialManagement credentialManagement;
 	private final IdentityTypeSupport idTypeSupport;
-	private final UnityMessageSource msg;
+	private final MessageSource msg;
 	private final EntitiesLoader entitiesLoader;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
 
@@ -131,7 +131,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	@SuppressWarnings("unchecked")
 	@Autowired
-	public IdentitiesTreeGrid(UnityMessageSource msg, AttributeSupport attributeSupport,
+	public IdentitiesTreeGrid(MessageSource msg, AttributeSupport attributeSupport,
 			IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
 			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan,
 			CredentialManagement credentialManagement, EntityDetailsHandler entityDetailsHandler,

@@ -7,9 +7,9 @@ package pl.edu.icm.unity.composite.password.web;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
@@ -25,12 +25,12 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 @Component
 class CompositePasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private CredentialManagement credMan;
 	private PamAuthenticatorEditorFactory pamFactory;
 	private LdapAuthenticatorEditorFactory ldapFactory;
 
-	CompositePasswordAuthenticatorEditorFactory(UnityMessageSource msg, CredentialManagement credMan,
+	CompositePasswordAuthenticatorEditorFactory(MessageSource msg, CredentialManagement credMan,
 			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
 	{
 		this.msg = msg;

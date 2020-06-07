@@ -26,8 +26,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.LdapCertVerificator;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
@@ -77,7 +77,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private String forType;
 	private List<String> registrationForms;
 
-	LdapAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
+	LdapAuthenticatorEditor(MessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory, List<String> registrationForms,
 			String forType) throws EngineException
 	{

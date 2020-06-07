@@ -11,9 +11,9 @@ import java.util.Set;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
@@ -24,12 +24,12 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
  */
 public class PreferencesComponent extends VerticalLayout
 {
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private PreferencesHandlerRegistry registry;
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan;
 
-	public PreferencesComponent(UnityMessageSource msg, PreferencesHandlerRegistry registry,
+	public PreferencesComponent(MessageSource msg, PreferencesHandlerRegistry registry,
 			PreferencesManagement prefMan, EndpointManagement endpMan)
 	{
 		super();

@@ -173,4 +173,12 @@ public class TranslationResult
 		}
 		return res;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "TranslationResult:\nattributes=" + attributes + "\nidentities=" + identities
+				+ "\nattributesToPersist=" + attributesToPersist + "\nidentitiesToPersist="
+				+ identitiesToPersist + "\nredirectURL=" + redirectURL;
+	}
 }

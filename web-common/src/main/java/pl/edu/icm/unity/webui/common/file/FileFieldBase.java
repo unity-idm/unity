@@ -23,8 +23,8 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
@@ -40,7 +40,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 {
 	private int maxFileSize;
 	
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 
 	private LocalOrRemoteResource value;
 	private TextField remoteUrl;
@@ -51,7 +51,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	private Upload upload;
 	
 
-	public FileFieldBase(UnityMessageSource msg, String mimeType, int maxFileSize)
+	public FileFieldBase(MessageSource msg, String mimeType, int maxFileSize)
 	{
 		this.msg = msg;
 		this.maxFileSize = maxFileSize;

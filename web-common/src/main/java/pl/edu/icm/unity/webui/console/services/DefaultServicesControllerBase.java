@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -26,10 +26,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public abstract class DefaultServicesControllerBase implements ServiceControllerBaseInt
 {
-	protected UnityMessageSource msg;
+	protected MessageSource msg;
 	protected EndpointManagement endpointMan;
 
-	public DefaultServicesControllerBase(UnityMessageSource msg, EndpointManagement endpointMan)
+	public DefaultServicesControllerBase(MessageSource msg, EndpointManagement endpointMan)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;

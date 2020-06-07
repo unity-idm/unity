@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -43,10 +43,10 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	
 	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client};
 	
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	
 	@Autowired
-	public OAuthSystemAttributesProvider(UnityMessageSource msg)
+	public OAuthSystemAttributesProvider(MessageSource msg)
 	{
 		this.msg = msg;
 		oauthAttributes.add(getAllowedGrantFlowsAT());

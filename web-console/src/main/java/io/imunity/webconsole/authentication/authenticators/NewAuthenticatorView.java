@@ -18,7 +18,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.ViewWithSubViewBase;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -37,7 +37,7 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 {
 	public static final String VIEW_NAME = "NewAuthenticator";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private AuthenticatorsController controller;
 	private MainAuthenticatorEditor editor;
 
@@ -46,7 +46,7 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	private String displayedName;
 	
 	@Autowired
-	NewAuthenticatorView(UnityMessageSource msg, AuthenticatorsController controller)
+	NewAuthenticatorView(MessageSource msg, AuthenticatorsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -119,11 +119,10 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	{
 
 		@Autowired
-		public NewAuthenticatorNavigationInfoProvider(AuthenticatorsNavigationInfoProvider parent,
-				ObjectFactory<NewAuthenticatorView> factory)
+		public NewAuthenticatorNavigationInfoProvider(ObjectFactory<NewAuthenticatorView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(AuthenticatorsNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}
 	}

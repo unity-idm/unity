@@ -62,7 +62,7 @@ public class NavigationHierarchyManager
 	private void initChildren(NavigationInfo view)
 	{
 		List<NavigationInfo> children = navigationMap.values().stream()
-				.filter(v -> v.parent != null && v.parent.id.equals(view.id))
+				.filter(v -> v.parent != null && v.parent.equals(view.id))
 				.collect(Collectors.toList());
 
 		if (!navigationChildren.containsKey(view.id))
@@ -106,7 +106,7 @@ public class NavigationHierarchyManager
 		ret.add(viewInfo);
 		if (viewInfo.parent == null)
 			return ret;
-		return getParentRecursive(viewInfo.parent, ret);
+		return getParentRecursive(navigationMap.get(viewInfo.parent), ret);
 	}
 
 	public List<NavigationInfo> getChildren(String viewName)

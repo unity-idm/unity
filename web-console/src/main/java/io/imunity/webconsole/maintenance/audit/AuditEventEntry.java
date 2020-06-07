@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
@@ -36,12 +36,12 @@ class AuditEventEntry implements FilterableEntry
 	final private List<AuditEventType> USERS_LOG = Arrays.asList(AuditEventType.ENTITY, AuditEventType.IDENTITY);
 
 	private AuditEvent auditEvent;
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private String formattedName;
 	private String formattedSubject;
 	private String formattedInitiator;
 
-	AuditEventEntry(UnityMessageSource msg, AuditEvent auditEvent)
+	AuditEventEntry(MessageSource msg, AuditEvent auditEvent)
 	{
 		this.auditEvent = auditEvent;
 		this.msg = msg;
@@ -140,12 +140,12 @@ class AuditEventEntry implements FilterableEntry
 		return DATETIME_FORMAT.format(auditEvent.getTimestamp());
 	}
 
-	private String formatSubject(UnityMessageSource msg) 
+	private String formatSubject(MessageSource msg) 
 	{
 		return formatEntity(msg, auditEvent.getSubject());
 	}
 
-	private String formatInitiator(UnityMessageSource msg) 
+	private String formatInitiator(MessageSource msg) 
 	{
 		return formatEntity(msg, auditEvent.getInitiator());
 	}
@@ -164,7 +164,7 @@ class AuditEventEntry implements FilterableEntry
 		return formatted.toString().substring(0, formatted.length()-2);
 	}
 
-	private String formatEntity(UnityMessageSource msg, AuditEntity entity) 
+	private String formatEntity(MessageSource msg, AuditEntity entity) 
 	{
 		if (isNull(entity))
 			return "";
@@ -175,7 +175,7 @@ class AuditEventEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		boolean isMatching = formattedName.toLowerCase().contains(searched.toLowerCase());
 
