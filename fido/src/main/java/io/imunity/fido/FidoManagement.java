@@ -4,10 +4,11 @@
  */
 package io.imunity.fido;
 
-import io.imunity.fido.credential.FidoCredentialInfo;
-import io.imunity.fido.service.FidoException;
+import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
+import pl.edu.icm.unity.fido.service.FidoException;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.function.Consumer;
 
 /**
  * FidoService exposing fido registration service to GUI.
@@ -54,5 +55,5 @@ public interface FidoManagement
 	 * @param jsonBody Authenticator response returned by navigator.credentials.get()
 	 * @throws FidoException In case of any authentication problems
 	 */
-	void verifyAuthentication(final String reqId, final String jsonBody) throws FidoException;
+	AuthenticationResult verifyAuthentication(final String reqId, final String jsonBody) throws FidoException;
 }

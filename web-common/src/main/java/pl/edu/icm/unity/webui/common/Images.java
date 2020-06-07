@@ -22,6 +22,7 @@ public enum Images
 	mobile_sms	(I.PB + "mobile-sms.png"),
 	certificate	(I.PB + "certificate.png"),
 	empty		(I.PB + "empty.png"),
+	fido		(I.PB + "fido.png"),
 
 	info		(VaadinIcons.INFO),
 	info_circle	(VaadinIcons.INFO_CIRCLE_O),

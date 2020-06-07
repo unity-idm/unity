@@ -9,9 +9,29 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.yubico.webauthn.*;
+import com.yubico.webauthn.AssertionRequest;
+import com.yubico.webauthn.AssertionResult;
+import com.yubico.webauthn.FinishAssertionOptions;
+import com.yubico.webauthn.FinishRegistrationOptions;
+import com.yubico.webauthn.RegisteredCredential;
+import com.yubico.webauthn.RegistrationResult;
+import com.yubico.webauthn.RelyingParty;
+import com.yubico.webauthn.StartAssertionOptions;
+import com.yubico.webauthn.StartRegistrationOptions;
 import com.yubico.webauthn.attestation.Attestation;
-import com.yubico.webauthn.data.*;
+import com.yubico.webauthn.data.AttestationConveyancePreference;
+import com.yubico.webauthn.data.AttestedCredentialData;
+import com.yubico.webauthn.data.AuthenticatorAssertionResponse;
+import com.yubico.webauthn.data.AuthenticatorAttestationResponse;
+import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
+import com.yubico.webauthn.data.ByteArray;
+import com.yubico.webauthn.data.ClientAssertionExtensionOutputs;
+import com.yubico.webauthn.data.ClientRegistrationExtensionOutputs;
+import com.yubico.webauthn.data.PublicKeyCredential;
+import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
+import com.yubico.webauthn.data.RelyingPartyIdentity;
+import com.yubico.webauthn.data.UserIdentity;
+import com.yubico.webauthn.data.UserVerificationRequirement;
 import com.yubico.webauthn.exception.AssertionFailedException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 import io.imunity.fido.FidoManagement;
@@ -20,14 +40,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import io.imunity.fido.credential.FidoCredentialInfo;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.fido.FidoManagement;
+import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
 
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Service for processing FIDO registration and authentication functionality.
@@ -39,9 +68,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author R. Ledzinski
  */
 @Component
+//class FidoManagementImpl extends AbstractVerificator implements FidoExchange, FidoManagement
 class FidoManagementImpl implements FidoManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoManagementImpl.class);
+	public static final String NAME = "fido";
+	public static final String DESC = "Verifies FIDO keys";
+
 	private final UnityFidoRegistrationStorage fidoStorage;
 
 	// JSON mapper
@@ -60,6 +93,7 @@ class FidoManagementImpl implements FidoManagement
 	@Autowired
 	public FidoManagementImpl(final MessageSource msg, final FidoEntityHelper entityHelper, final IdentityResolver identityResolver)
 	{
+//		super(NAME, DESC, FidoExchange.ID);
 		this.msg = msg;
 		this.entityHelper = entityHelper;
 		this.fidoStorage = new UnityFidoRegistrationStorage(entityHelper, identityResolver);
@@ -151,7 +185,10 @@ class FidoManagementImpl implements FidoManagement
 
 		// Check if user has FIDO2 credentials and UserHandle Identity
 		if (fidoStorage.getFidoCredentialInfoForUsername(resolvedUsername.getUsername()).isEmpty())
-			throw new FidoException(msg.getMessage("FidoExc.noFidoCredential"));
+		{
+			log.warn("No fido credential found for user {}", resolvedUsername.getUsername());
+			throw new FidoException(msg.getMessage("FidoExc.noEntityForName"));
+		}
 
 		String reqId = UUID.randomUUID().toString();
 		AssertionRequest authenticationRequest = getRelyingParty().startAssertion(
@@ -181,7 +218,7 @@ class FidoManagementImpl implements FidoManagement
 	 * @throws FidoException In case of any authentication problems
 	 */
 	@Override
-	public void verifyAuthentication(final String reqId, final String jsonBody) throws FidoException
+	public AuthenticationResult verifyAuthentication(final String reqId, final String jsonBody) throws FidoException
 	{
 		log.debug("Fido finalize authentication for reqId: {}", reqId);
 		AssertionResult result;
@@ -210,6 +247,13 @@ class FidoManagementImpl implements FidoManagement
 
 		if (!result.isSuccess())
 			throw new FidoException(msg.getMessage("FidoExc.authFailed"));
+
+		String username = authenticationRequest.getUsername().orElseThrow(() -> new FidoException(msg.getMessage("FidoExc.internalError")));
+		Identities resolvedUsername = entityHelper.resolveUsername(null, username);
+		AuthenticatedEntity ae = new AuthenticatedEntity(entityHelper.getEntityId(resolvedUsername.getEntityParam()), username, null);
+
+
+		return new AuthenticationResult(AuthenticationResult.Status.success, ae);
 	}
 
 	private FidoCredentialInfo createFidoCredentialInfo(PublicKeyCredentialCreationOptions request,
@@ -272,4 +316,34 @@ class FidoManagementImpl implements FidoManagement
 		log.debug("result.attestationType: {}", result.getAttestationType());
 		log.debug("attestationMetadata: {}", result.getAttestationMetadata());
 	}
+//
+//	@Override
+//	public AuthenticationResult verify()
+//	{
+//		log.debug("fido vierify()");
+//		return null;
+//	}
+//
+//	@Override
+//	public String getExchangeId()
+//	{
+//		return FidoExchange.ID;
+//	}
+//
+//	@Override
+//	public VerificatorType getType()
+//	{
+//		return VerificatorType.Local;
+//	}
+//
+//	@Override
+//	public String getSerializedConfiguration()
+//	{
+//		return "";
+//	}
+//
+//	@Override
+//	public void setSerializedConfiguration(String config)
+//	{
+//	}
 }

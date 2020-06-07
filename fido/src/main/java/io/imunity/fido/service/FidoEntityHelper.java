@@ -67,13 +67,9 @@ class FidoEntityHelper
 		{
 			log.error("Failed to get entity {} display name", identities.getEntityParam(), e);
 		}
-		try
-		{
-			return displayName.orElse("Entity [" + entityResolver.getEntityId(identities.getEntityParam()) + "]");
-		} catch (IllegalIdentityValueException e)
-		{
-			throw new FidoException(msg.getMessage(NO_ENTITY_MSG), e);
-		}
+
+
+		return displayName.orElse("Entity [" + getEntityId(identities.getEntityParam()) + "]");
 	}
 
 	Optional<String> getUserHandleForUsername(final String username)
@@ -161,6 +157,17 @@ class FidoEntityHelper
 		{
 			return Identities.builder().identities(identities).build();
 		} catch (IllegalArgumentException | NoSuchElementException e)
+		{
+			throw new FidoException(msg.getMessage(NO_ENTITY_MSG), e);
+		}
+	}
+
+	long getEntityId(final EntityParam entityParam)
+	{
+		try
+		{
+			return entityResolver.getEntityId(entityParam);
+		} catch (IllegalIdentityValueException e)
 		{
 			throw new FidoException(msg.getMessage(NO_ENTITY_MSG), e);
 		}

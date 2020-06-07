@@ -28,7 +28,7 @@ import static java.util.Objects.isNull;
  * @author R. Ledzinski
  */
 @PrototypeComponent
-public class FidoCredentialVerificator extends AbstractLocalVerificator
+public class FidoCredentialVerificator extends AbstractLocalVerificator implements FidoExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoCredentialVerificator.class);
 	public static final String NAME = "fido";
