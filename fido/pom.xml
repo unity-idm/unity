@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>pl.edu.icm.unity</groupId>
+		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
 		<version>3.3.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
@@ -29,22 +29,19 @@
 		</dependency>
 
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-std-plugins</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<!-- external dependencies -->

@@ -98,7 +98,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-fido</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -250,7 +250,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-fido</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>

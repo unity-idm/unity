@@ -58,14 +58,6 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- FIDO testing view purposes
-			FIXME Remove when testing view is removed-->
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-fido</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
 
 		<!-- compile -->
 		<dependency>
