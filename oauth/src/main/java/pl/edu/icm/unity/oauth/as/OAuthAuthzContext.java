@@ -14,7 +14,6 @@ import java.util.Set;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.translation.TranslationProfile;

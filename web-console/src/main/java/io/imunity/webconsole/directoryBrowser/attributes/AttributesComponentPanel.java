@@ -13,7 +13,6 @@ import io.imunity.webadmin.identities.EntityChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -45,14 +44,8 @@ public class AttributesComponentPanel extends SafePanel
 		setSizeFull();
 
 		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(new EventListener<EntityChangedEvent>()
-		{
-			@Override
-			public void handleEvent(EntityChangedEvent event)
-			{
-				setInput(event.getEntity() == null ? null : event.getEntity(), event.getGroup());
-			}
-		}, EntityChangedEvent.class);
+		bus.addListener(event -> setInput(event.getEntity() == null ? null : event.getEntity(), event.getGroup()), 
+				EntityChangedEvent.class);
 		setInput(null, "/");
 	}
 

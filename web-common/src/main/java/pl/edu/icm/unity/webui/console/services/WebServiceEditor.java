@@ -18,11 +18,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
-import pl.edu.icm.unity.webui.console.services.WebServiceEditorComponent;
 import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 

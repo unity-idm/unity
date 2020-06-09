@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webui.sessionscope;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.webui.sessionscope.WebSessionComponent;
-
 @WebSessionComponent
 class WebSessionTestBean
 {

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
@@ -44,8 +43,6 @@ public class GroupDetailsPanel extends SafePanel
 	private MessageSource msg;
 	private GroupsManagement groupsManagement;
 
-	private Label info;
-
 	private VerticalLayout main;
 	private AttributeStatementsComponent attrStatements;
 	private String group;
@@ -61,11 +58,9 @@ public class GroupDetailsPanel extends SafePanel
 		main.setMargin(false);
 		main.setSizeFull();
 
-		info = new Label();
-
 		attrStatements = new AttributeStatementsComponent(msg, controller);
 
-		main.addComponents(info, attrStatements);
+		main.addComponents(attrStatements);
 		main.setExpandRatio(attrStatements, 1);
 
 		setSizeFull();
@@ -96,7 +91,7 @@ public class GroupDetailsPanel extends SafePanel
 			GroupContents contents = groupsManagement.getContents(group, GroupContents.EVERYTHING);
 			Group rGroup = contents.getGroup();
 
-			info.setValue(msg.getMessage("GroupDetails.infoLabel",group,
+			setCaption(msg.getMessage("GroupDetails.infoLabel",group,
 					String.valueOf(contents.getMembers().size()),
 					String.valueOf(contents.getSubGroups().size())));
 			attrStatements.setInput(rGroup);

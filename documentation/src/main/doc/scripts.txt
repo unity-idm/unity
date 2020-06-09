@@ -74,7 +74,6 @@ The following table enumerates all available object:
 |attributeTypeManagement	| AttributeTypeManagement 	| Attribute types management 
 |authenticatorManagement	| AuthenticatorManagement 	| Authenticators management 
 |bulkProcessingManagement	| BulkProcessingManagement 	| Bulk processing management 
-|confirmationConfigurationManagement| ConfirmationConfigurationManagement | Confirmations management
 |credentialManagement		| CredentialManagement 		| Credential management
 |credentialRequirementManagement| CredentialRequirementManagement | Credential requirement management 
 |endpointManagement			| EndpointManagement 		| Endpoint management
@@ -94,6 +93,11 @@ The following table enumerates all available object:
 |msgSrc						| UnityMessageSource		| Allows for accessing Unity i18n message bundles 
 |attributeTypeSupport		| AttributeTypeSupport 		| Simplifies attribute type operations 
 |identityTypeSupport		| IdentityTypeSupport 		| Simplifies identity type operations 
+|groupDelegationConfigGenerator| GroupDelegationConfigGenerator | Simplifies generation of configuration items used when delegating group administration to UpMan - mostly creation of forms.
+|sessionManagement			| SessionManagement 		| Allows for managing login sessions of Unity clients
+|regTranslationActionGenerator| RegistrationFormTranslationActionGenerator | Simplifies creation of registration form automation actions
+|tokensManagement			| TokensManagement 			| Low-level manipulation of all sorts of tokens maintained by Unity: from OAuth to session
+|applicationContext			| ApplicationContext		| Low-level access to spring container, with all beans which are not exposed directly to the script (and enumerated in this table).
 |isColdStart				| boolean 					| Only for -init events is set to true when server was started on empty database 
 |log						| Logger 					| Allows for logging to Unity log file 
 |=== 

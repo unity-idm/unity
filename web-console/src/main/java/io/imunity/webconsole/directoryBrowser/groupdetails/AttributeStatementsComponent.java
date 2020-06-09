@@ -99,12 +99,13 @@ public class AttributeStatementsComponent extends CustomComponent
 		attrStatementsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		Toolbar<AttrStatementWithId> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.addStyleName("u-button-height-toolbar");
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
 		attrStatementsGridWithToolbar = new ComponentWithToolbar(attrStatementsGrid, toolbar,
 				Alignment.BOTTOM_LEFT);
 		attrStatementsGridWithToolbar.setSizeFull();
-		attrStatementsGridWithToolbar.setSpacing(false);
+		attrStatementsGridWithToolbar.setSpacing(true);
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(attrStatementsGridWithToolbar);

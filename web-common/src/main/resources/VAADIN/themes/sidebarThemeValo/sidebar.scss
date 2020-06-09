@@ -11,6 +11,12 @@ $narrow-bar-size: 50px;
 		width: auto !important;
 	}
 	
+	.v-panel-caption {
+		font-size: $v-font-size + 1;
+		font-weight: 300;
+		margin: 0px !important;
+	}
+	
 	.v-menubar-menuitem .v-icon {
 		color: $menubar-icon-color !important;
 	}
@@ -39,6 +45,10 @@ $narrow-bar-size: 50px;
 		color: $font-color-dark;
 		background-color: $hover-bg-color;
        	background-image: none;
+	}
+	
+	.u-button-height-toolbar > .v-horizontallayout {
+		height: $v-unit-size;
 	}
 	
 	.u-indentSmall {

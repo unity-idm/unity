@@ -127,7 +127,7 @@ public class IdentitiesPanel extends SafePanel
 
 		main.addComponents(toolbar, filtersBar, identitiesTable);
 		main.setExpandRatio(identitiesTable, 1);
-		main.setMargin(new MarginInfo(true, false));
+		main.setMargin(new MarginInfo(false, false, true, false));
 		main.setSpacing(false);
 		main.setSizeFull();
 

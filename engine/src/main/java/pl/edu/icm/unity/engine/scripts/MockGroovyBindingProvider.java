@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationContext;
 
 import groovy.lang.Binding;
 import pl.edu.icm.unity.MessageSource;
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
@@ -99,8 +101,8 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		NotificationsManagement notificationsManagement = mock(NotificationsManagement.class, 
 				withSettings().verboseLogging());
-		RealmsManagement realmsManagement = mock(RealmsManagement.class, 
-				withSettings().verboseLogging());
+		RealmsManagement realmsManagement = mock(RealmsManagement.class, withSettings().verboseLogging());
+		TokensManagement tokensManagement = mock(TokensManagement.class, withSettings().verboseLogging());
 		RegistrationsManagement registrationsManagement = mock(RegistrationsManagement.class, 
 				withSettings().verboseLogging());
 		TranslationProfileManagement translationProfileManagement = mock(TranslationProfileManagement.class, 
@@ -111,6 +113,7 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		RegistrationFormTranslationActionGenerator regTranslationActionGenerator = mock(
 				RegistrationFormTranslationActionGenerator.class, withSettings().verboseLogging());
+		ApplicationContext applicationContext = mock(ApplicationContext.class, withSettings().verboseLogging());
 		
 		Binding binding = new Binding();
 		binding.setVariable("config", config);
@@ -145,6 +148,8 @@ public class MockGroovyBindingProvider
 		binding.setVariable("context", event.getContents());
 		binding.setVariable("regTranslationActionGenerator", regTranslationActionGenerator);
 		binding.setVariable("log", LOG);
+		binding.setVariable("applicationContext", applicationContext);
+		binding.setVariable("tokensManagement", tokensManagement);
 		return binding;
 	}
 }

@@ -48,7 +48,7 @@ public class GroupBrowserPanel extends SafePanel
 		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, groupsTree.getToolbar(),
 				Alignment.BOTTOM_LEFT);
 		treeWithToolbar.setSizeFull();
-		wrapper.setMargin(new MarginInfo(true, false));
+		wrapper.setMargin(new MarginInfo(false, false, true, false));
 		wrapper.setSpacing(true);
 		wrapper.addComponent(treeWithToolbar);
 		
