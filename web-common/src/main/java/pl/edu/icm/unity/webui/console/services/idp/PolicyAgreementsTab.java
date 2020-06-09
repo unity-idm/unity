@@ -62,15 +62,27 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 
 	private void init()
 	{
+		PolicyAgreementConfigurationList list = new PolicyAgreementConfigurationList(msg,
+				() -> new PolicyAgreementConfigurationEditor(msg, policyDocuments));
+		
 		binder = new Binder<>(IdpPolicyAgreementsConfigurationVaadinBean.class);
 		I18nTextField title = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.title"));
 		title.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		binder.forField(title).asRequired().bind("title");
+		binder.forField(title).asRequired((v, c) -> {
+
+			if (!list.getValue().isEmpty() && (v == null || v.isEmpty()))
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			}
+
+			return ValidationResult.ok();
+
+		}).bind("title");
+		
 		I18nTextField info = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.info"));
 		info.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		binder.forField(info).bind("information");
-		PolicyAgreementConfigurationList list = new PolicyAgreementConfigurationList(msg,
-				() -> new PolicyAgreementConfigurationEditor(msg, policyDocuments));
+		
 		binder.forField(list).withValidator((v, c) -> {
 			for (PolicyAgreementConfiguration con : v)
 			{
