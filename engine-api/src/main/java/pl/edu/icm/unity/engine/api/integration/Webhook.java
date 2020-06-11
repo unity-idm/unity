@@ -23,12 +23,14 @@ public class Webhook implements IntegrationEventConfiguration
 	public final String url;
 	public final WebhookHttpMethod httpMethod;
 	public final String truststore;
+	public final String secret;
 
 	public Webhook(@JsonProperty("url") String url, @JsonProperty("httpMethod") WebhookHttpMethod httpMethod,
-			@JsonProperty("truststore") String truststore)
+			@JsonProperty("truststore") String truststore, @JsonProperty("secret") String secret)
 	{
 		this.url = url;
 		this.httpMethod = httpMethod;
 		this.truststore = truststore;
+		this.secret = secret;
 	}
 }

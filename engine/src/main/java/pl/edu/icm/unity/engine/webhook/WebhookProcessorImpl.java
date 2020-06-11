@@ -39,6 +39,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Component
 public class WebhookProcessorImpl implements WebhookProcessor
 {
+	private static String BEARER_AUTH = "Bearer ";
+	private static String AUTHORIZATION_HEADER = "Authorization";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, WebhookProcessorImpl.class);
 	private PKIManagement pkiMan;
 
@@ -72,6 +75,11 @@ public class WebhookProcessorImpl implements WebhookProcessor
 		URL url = urlBuilder.build().toURL();
 		HttpClient httpClient = getSSLClient(url.toString(), webhook.truststore);
 		HttpGet request = new HttpGet(url.toString());
+		if (webhook.secret != null && !webhook.secret.isEmpty())
+		{
+			request.setHeader(AUTHORIZATION_HEADER, BEARER_AUTH + webhook.secret);
+		}
+		
 		log.debug("Request GET to " + url.toString());
 		HttpResponse response = httpClient.execute(request);
 		return response;
@@ -86,6 +94,10 @@ public class WebhookProcessorImpl implements WebhookProcessor
 				postParameters.add(new BasicNameValuePair(k, v));
 		});
 		post.setEntity(new UrlEncodedFormEntity(postParameters));
+		if (webhook.secret != null && !webhook.secret.isEmpty())
+		{
+			post.setHeader(AUTHORIZATION_HEADER, BEARER_AUTH + webhook.secret);
+		}
 		HttpClient httpClient = getSSLClient(webhook.url, webhook.truststore);
 		log.debug("Request POST to " + webhook.url + " with entity: " + EntityUtils.toString(post.getEntity()));
 		HttpResponse response = httpClient.execute(post);
