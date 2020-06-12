@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
@@ -41,7 +42,7 @@ class OTPCredentialEditor implements CredentialEditor
 	@Override
 	public ComponentsContainer getViewer(String credentialInfo)
 	{
-		return new ComponentsContainer(new OTPVieverComponent());
+		return new ComponentsContainer(new OTPViewerComponent());
 	}
 	
 	@Override
@@ -53,6 +54,9 @@ class OTPCredentialEditor implements CredentialEditor
 	@Override
 	public void setCredentialError(EngineException error)
 	{
-		editor.setCredentialError(error);
+		if (error != null)
+			NotificationPopup.showError(msg, 
+				msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+				error);
 	}
 }

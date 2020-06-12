@@ -6,7 +6,7 @@ package io.imunity.otp;
 
 import com.vaadin.ui.CustomComponent;
 
-class OTPVieverComponent extends CustomComponent
+class OTPViewerComponent extends CustomComponent
 {
 
 }

@@ -4,6 +4,8 @@
  */
 package io.imunity.otp;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,5 +37,25 @@ class OTPGenerationParams
 	{
 		return String.format("OTPGenerationParams [codeLength=%s, hashFunction=%s, timeStepSeconds=%s]",
 				codeLength, hashFunction, timeStepSeconds);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(codeLength, hashFunction, timeStepSeconds);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OTPGenerationParams other = (OTPGenerationParams) obj;
+		return codeLength == other.codeLength && hashFunction == other.hashFunction
+				&& timeStepSeconds == other.timeStepSeconds;
 	}
 }

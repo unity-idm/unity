@@ -21,7 +21,6 @@ import com.vaadin.ui.VerticalLayout;
 import fi.jasoft.qrcode.QRCode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -96,12 +95,6 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		return JsonUtil.toJsonString(credential);
 	}
 
-	void setCredentialError(EngineException error)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
 	@Override
 	public void setLabel(String label)
 	{
