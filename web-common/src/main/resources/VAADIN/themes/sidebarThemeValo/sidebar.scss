@@ -98,7 +98,16 @@ $narrow-bar-size: 50px;
        	background-color: transparent;
        	text-decoration: none;
     }
-
+    
+    .u-highlightedLink {
+       	background-color: transparent;
+       	text-decoration-line: underline;
+    }
+    
+    .u-textMonospace {
+    	font-family: monospace;
+    }
+    
     .v-button-link:hover {
        background-color: transparent;
        color: $topMenuButton-hover-color

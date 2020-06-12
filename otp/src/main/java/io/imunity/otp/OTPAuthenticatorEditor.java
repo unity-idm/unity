@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
+package io.imunity.otp;
 
-package pl.edu.icm.unity.webui.authn.authenticators.sms;
-
-import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
@@ -15,47 +16,41 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseLocalAuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
-/**
- * SMS authenticator editor
- * 
- * @author P.Piernik
- *
- */
-class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
+@PrototypeComponent
+class OTPAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
-	private MessageSource msg;
-	private Binder<SMSConfiguration> configBinder;
-
-	SMSAuthenticatorEditor(MessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
-			throws EngineException
+	private Binder<OTPConfigurationBean> configBinder;
+	
+	@Autowired
+	OTPAuthenticatorEditor(MessageSource msg, CredentialManagement credMan) throws EngineException
 	{
-		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(SMSVerificator.NAME))
+		super(msg, credMan.getCredentialDefinitions().stream().filter(c -> c.getTypeId().equals(OTP.NAME))
 				.map(c -> c.getName()).collect(Collectors.toList()));
-		this.msg = msg;
 	}
 
 	@Override
-	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher switcher, boolean forceNameEditable)
+	public Component getEditor(AuthenticatorDefinition authenticator, SubViewSwitcher subViewSwitcher,
+			boolean forceNameEditable)
 	{
-		boolean editMode = init(msg.getMessage("SMSAuthenticatorEditor.defaultName"), toEdit,
+		boolean editMode = init(msg.getMessage("OTPAuthenticatorEditor.defaultName"), authenticator,
 				forceNameEditable);
 
-		configBinder = new Binder<>(SMSConfiguration.class);
+		configBinder = new Binder<>(OTPConfigurationBean.class);
 		
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.setMargin(true);
@@ -69,10 +64,10 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		main.addComponent(header);
 		main.addComponent(interactiveLoginSettings);
 
-		SMSConfiguration config = new SMSConfiguration();
+		OTPConfigurationBean config = new OTPConfigurationBean();
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg);
+			config.fromProperties(authenticator.configuration, msg);
 		}
 		configBinder.setBean(config);
 	
@@ -85,7 +80,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		interactiveLoginSettings.setMargin(false);
 		
 		I18nTextField retrievalName = new I18nTextField(msg);
-		retrievalName.setCaption(msg.getMessage("SMSAuthenticatorEditor.formName"));
+		retrievalName.setCaption(msg.getMessage("OTPAuthenticatorEditor.formName"));
 		configBinder.forField(retrievalName).bind("retrievalName");
 
 		interactiveLoginSettings.addComponents(retrievalName);
@@ -98,11 +93,10 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 	@Override
 	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{
-		return new AuthenticatorDefinition(getName(), SMSVerificator.NAME, getConfiguration(),
-				getLocalCredential());
-
+		return new AuthenticatorDefinition(getName(), OTP.NAME, getConfiguration(), getLocalCredential());
 	}
 
+	
 	private String getConfiguration() throws FormValidationException
 	{
 		if (configBinder.validate().hasErrors())
@@ -117,11 +111,11 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		}
 	}
 
-	public static class SMSConfiguration
+	public static class OTPConfigurationBean
 	{
 		private I18nString retrievalName;
 
-		public SMSConfiguration()
+		public OTPConfigurationBean()
 		{
 		}
 
@@ -138,22 +132,45 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		public String toProperties(MessageSource msg)
 		{
 			Properties raw = new Properties();
-
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						SMSRetrievalProperties.P + SMSRetrievalProperties.NAME, msg);
+						OTPRetrievalProperties.P + OTPRetrievalProperties.NAME, msg);
 			}
 
-			SMSRetrievalProperties prop = new SMSRetrievalProperties(raw);
+			OTPRetrievalProperties prop = new OTPRetrievalProperties(raw);
 			return prop.getAsString();
 		}
 
 		public void fromProperties(String properties, MessageSource msg)
 		{
 			Properties raw = UnityPropertiesHelper.parse(properties);
-			SMSRetrievalProperties smsRetrievalProperties = new SMSRetrievalProperties(raw);
-			setRetrievalName(smsRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg, SMSRetrievalProperties.NAME));
+			OTPRetrievalProperties retrievalProperties = new OTPRetrievalProperties(raw);
+			setRetrievalName(retrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg, OTPRetrievalProperties.NAME));
+		}
+	}
+	
+	@org.springframework.stereotype.Component
+	static class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+	{
+		private ObjectFactory<OTPAuthenticatorEditor> factory;
+
+		@Autowired
+		SMSAuthenticatorEditorFactory(ObjectFactory<OTPAuthenticatorEditor> factory)
+		{
+			this.factory = factory;
+		}
+
+		@Override
+		public String getSupportedAuthenticatorType()
+		{
+			return OTP.NAME;
+		}
+
+		@Override
+		public AuthenticatorEditor createInstance() throws EngineException
+		{
+			return factory.getObject();
 		}
 	}
 }

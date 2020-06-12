@@ -37,7 +37,7 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 		super.extend(component);
 	}
 
-	public static void buildForConsole(AbstractComponent component, String tooltipText)
+	public static void tooltipForConsole(AbstractComponent component, String tooltipText)
 	{
 		TooltipExtension te = new TooltipExtension();
 		te.getState().tooltipText = tooltipText == null ? "" : tooltipText;
@@ -48,6 +48,6 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 
 	public static void buildForConsoleDescriptionBased(AbstractComponent component)
 	{
-		buildForConsole(component, component.getDescription());
+		tooltipForConsole(component, component.getDescription());
 	}
 }

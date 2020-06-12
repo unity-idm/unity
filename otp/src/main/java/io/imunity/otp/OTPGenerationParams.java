@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package io.imunity.otp;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+/**
+ * THose parameters are required to generate OTP. Changing them requires update of the user credentials.
+ */
+@JsonAutoDetect(fieldVisibility = Visibility.ANY)
+class OTPGenerationParams
+{
+	final int codeLength;
+	final HashFunction hashFunction;
+	final int timeStepSeconds;
+
+	@JsonCreator
+	OTPGenerationParams(
+			@JsonProperty("codeLength") int codeLength, 
+			@JsonProperty("hashFunction") HashFunction hashFunction, 
+			@JsonProperty("timeStepSeconds") int timeStepSeconds)
+	{
+		this.codeLength = codeLength;
+		this.hashFunction = hashFunction;
+		this.timeStepSeconds = timeStepSeconds;
+	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("OTPGenerationParams [codeLength=%s, hashFunction=%s, timeStepSeconds=%s]",
+				codeLength, hashFunction, timeStepSeconds);
+	}
+}

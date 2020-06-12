@@ -25,7 +25,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement.AttributeUpdater;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
-import pl.edu.icm.unity.engine.session.LastAuthenticationAttributeTypeProvider;
 import pl.edu.icm.unity.engine.session.SessionManagementImpl.SessionExpiredException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;

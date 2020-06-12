@@ -39,6 +39,10 @@
 			<artifactId>vaadin-context-menu</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>qrcode</artifactId>
+		</dependency>
+		<dependency>
   			<groupId>com.github.vaadin4qbanos</groupId>
    			<artifactId>jsclipboard</artifactId>
 		</dependency>
