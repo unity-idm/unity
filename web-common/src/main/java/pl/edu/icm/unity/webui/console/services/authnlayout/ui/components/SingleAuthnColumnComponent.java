@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -17,21 +16,14 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.SingleAuthnConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBase;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class SingleAuthnColumnComponent extends ColumnComponentBase
 {
 	private AuthenticatorSupportService authenticatorSupport;
@@ -39,12 +31,12 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 
 	private ComboBox<AuthenticationOptionKey> valueComboField;
 	private Binder<AuthnOptionKeyBindingValue> binder;
+	private List<AuthenticationOptionKey> items;
 
 	public SingleAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
-
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.singleAuthn"), Images.sign_in, dragStart, dragStop,
 				removeElementListener);
 		this.authenticatorSupport = authenticatorSupport;
@@ -56,18 +48,15 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	private Component getContent()
 	{
 		binder = new Binder<>(AuthnOptionKeyBindingValue.class);
-		valueComboField = new ComboBox<AuthenticationOptionKey>();
+		valueComboField = new ComboBox<>();
 		valueComboField.setItemCaptionGenerator(i -> i.toGlobalKey());
 		valueComboField.setWidth(20, Unit.EM);
-		List<AuthenticationOptionKey> items = refreshItems();
-
-		binder.forField(valueComboField).withValidator((v, c) -> {
-			if (v == null || !authnOptionSupplier.get().contains(v.getAuthenticatorKey()))
-			{
-				return ValidationResult
-						.error(msg.getMessage("SingleAuthnColumnElement.invalidAuthnOption"));
-			}
-			return ValidationResult.ok();
+		refreshItems();
+		binder.forField(valueComboField).withValidator((v, c) -> 
+		{
+			return (v == null || !optionPresent(v)) ? 
+				ValidationResult.error(msg.getMessage("SingleAuthnColumnElement.invalidAuthnOption"))
+				: ValidationResult.ok();
 		}).bind("value");
 
 		binder.setBean(new AuthnOptionKeyBindingValue(items.size() > 0 ? items.get(0) : null));
@@ -75,19 +64,18 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 		return valueComboField;
 	}
 
-	private List<AuthenticationOptionKey> refreshItems()
+	private boolean optionPresent(AuthenticationOptionKey option)
 	{
-		List<AuthenticationOptionKey> items = new ArrayList<>();
-		try
-		{
-			items.addAll(AuthnColumnComponentHelper.getAvailableAuthnOptions(authenticatorSupport,
-					authnOptionSupplier.get(), false));
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("SingleAuthnColumnElement.cannotGetItems"), e);
-		}
+		return items.stream()
+				.filter(key -> key.equals(option))
+				.findAny().isPresent();
+	}
+	
+	private void refreshItems()
+	{
+		items = AuthnColumnComponentHelper.getSinglePickerCompatibleAuthnOptions(
+				authenticatorSupport, authnOptionSupplier.get());
 		valueComboField.setItems(items);
-		return items;
 	}
 
 	@Override

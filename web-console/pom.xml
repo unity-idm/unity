@@ -30,6 +30,11 @@
 		<!-- compile -->
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-web-vaadin-tooltip</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-console-spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
