@@ -5,89 +5,68 @@
 
 package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
-import com.google.common.collect.Lists;
-
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnProvidersMultiSelection;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class AuthnColumnComponentHelper
 {
-	public static List<AuthenticationOptionKey> getAvailableAuthnOptions(AuthenticatorSupportService authenticatorSupport,
-			List<String> availableOptions, boolean onlyGrid) throws EngineException
+	public static List<AuthenticationOptionKey> getSinglePickerCompatibleAuthnOptions(
+			AuthenticatorSupportService authenticatorSupport,
+			List<String> availableOptions)
 	{
-
-		List<AuthenticatorInstance> athenticators = authenticatorSupport
-				.getRemoteAuthenticators(VaadinAuthentication.NAME);
-		athenticators.addAll(authenticatorSupport.getLocalAuthenticators(VaadinAuthentication.NAME));
-
-		List<AuthenticationOptionKey> authnOptions = Lists.newArrayList();
-		for (AuthenticatorInstance authenticator : athenticators.stream()
-				.filter(a -> availableOptions.contains(a.getMetadata().getId()))
-				.collect(Collectors.toList()))
-		{
-			VaadinAuthentication vaadinRetrieval = (VaadinAuthentication) authenticator.getRetrieval();
-			List<VaadinAuthenticationUI> uiInstances = vaadinRetrieval
-					.createUIInstance(Context.LOGIN).stream().collect(Collectors.toList());
-
-			if (uiInstances.size() > 1)
-			{
-				for (VaadinAuthenticationUI uiInstance : uiInstances)
-				{
-					if (onlyGrid)
-					{
-						if (!isGridCompatible(uiInstance))
-							continue;
-					}
-						
-					String optionKey = uiInstance.getId();
-					authnOptions.add(new AuthenticationOptionKey(
-							authenticator.getMetadata().getId(), optionKey));
-				}
-			}
-			
-			if (uiInstances.size() == 1)
-			{
-				if (onlyGrid)
-				{
-					if (!isGridCompatible(uiInstances.get(0)))
-						continue;
-				}	
-			}
-
-			if (uiInstances.size() > 0)
-			{
-				authnOptions.add(new AuthenticationOptionKey(authenticator.getMetadata().getId(),
-						AuthenticationOptionKey.ALL_OPTS));
-			}
-
-		}
-		authnOptions.sort(new RemoteAuthnProvidersMultiSelection.AuthnOptionComparator());
-		return authnOptions;
+		return getCompatibleAuthnOptions(authenticatorSupport, availableOptions, ui -> true);
 	}
 
-	private static boolean isGridCompatible(VaadinAuthenticationUI ui)
+	public static List<AuthenticationOptionKey> getGridCompatibleAuthnOptions(AuthenticatorSupportService authenticatorSupport,
+			List<String> availableOptions)
 	{
-		try
-		{
-			ui.getGridCompatibleComponent();
-		} catch (UnsupportedOperationException e)
-		{
-			return false;
-		}
-		return true;
+		return getCompatibleAuthnOptions(authenticatorSupport, availableOptions, VaadinAuthentication::supportsGrid);
+	}
+
+	private static List<AuthenticationOptionKey> getCompatibleAuthnOptions(AuthenticatorSupportService authenticatorSupport,
+			List<String> availableOptions, Predicate<VaadinAuthentication> authnUIFilter)
+	{
+		List<AuthenticationFlow> enabledAuthenticationFlows = authenticatorSupport.resolveAuthenticationFlows(
+				availableOptions, VaadinAuthentication.NAME);
+
+		List<AuthenticationOptionKey> authnOptions = new ArrayList<>();
+		for (AuthenticationFlow flow: enabledAuthenticationFlows)
+			for (AuthenticatorInstance authenticator: flow.getFirstFactorAuthenticators())
+			{
+				VaadinAuthentication vaadinRetrieval = (VaadinAuthentication) authenticator.getRetrieval();
+				if (!authnUIFilter.test(vaadinRetrieval))
+					continue;
+				Collection<VaadinAuthenticationUI> uiInstances = vaadinRetrieval.createUIInstance(Context.LOGIN);
+
+				if (uiInstances.size() > 1)
+				{
+					for (VaadinAuthenticationUI uiInstance : uiInstances)
+					{
+						String optionKey = uiInstance.getId();
+						authnOptions.add(new AuthenticationOptionKey(
+								authenticator.getMetadata().getId(), optionKey));
+					}
+				}
+
+				if (uiInstances.size() > 0)
+				{
+					authnOptions.add(new AuthenticationOptionKey(authenticator.getMetadata().getId(),
+							AuthenticationOptionKey.ALL_OPTS));
+				}
+
+			}
+		authnOptions.sort(new RemoteAuthnProvidersMultiSelection.AuthnOptionComparator());
+		return authnOptions;
 	}
 }

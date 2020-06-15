@@ -25,7 +25,6 @@ public class GroupedValuesChipsWithDropdown extends ChipsWithDropdown<String>
 
 	public GroupedValuesChipsWithDropdown(Map<String, List<String>> groupsWithItems)
 	{
-		super();
 		this.groupsWithItems = groupsWithItems;
 		setComboStyleGenerator(v -> v.startsWith(LABEL_PREFIX) ? "inactive" : "");
 		List<String> items = new ArrayList<>();

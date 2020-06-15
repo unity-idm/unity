@@ -87,13 +87,13 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 		this.uriAccessService = uriAccessService;
 		this.serverConfiguration = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
-		this.flows = filterAuthenticationFlow(flows, authenticators, binding);
+		this.flows = filterBindingCompatibleAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
 		setCaption(msg.getMessage("ServiceEditorBase.authentication"));
 	}
 
-	public static List<String> filterAuthenticationFlow(List<AuthenticationFlowDefinition> flows,
+	public static List<String> filterBindingCompatibleAuthenticationFlow(List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, String binding)
 	{
 		List<String> filteredFlows = new ArrayList<>();
@@ -102,25 +102,21 @@ public class WebServiceAuthenticationTab extends CustomComponent implements Edit
 
 		for (AuthenticationFlowDefinition f : flows)
 		{
-			boolean add = true;
+			boolean supportsBinding = true;
 			for (String authenticatorName : f.getAllAuthenticators())
 			{
-				if (!(authenticatorsMap.get(authenticatorName)).getSupportedBindings()
-						.contains(binding))
+				if (!authenticatorsMap.get(authenticatorName).getSupportedBindings().contains(binding))
 				{
-					add = false;
-
+					supportsBinding = false;
+					break;
 				}
 			}
-			if (add)
-			{
+			if (supportsBinding)
 				filteredFlows.add(f.getName());
-			}
 		}
-
 		return filteredFlows;
-
 	}
+	
 
 	public void initUI(Binder<DefaultServiceDefinition> binder, Binder<ServiceWebConfiguration> webConfigBinder)
 	{
