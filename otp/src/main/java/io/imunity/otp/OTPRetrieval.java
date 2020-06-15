@@ -16,6 +16,7 @@ import java.util.Set;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Strings;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -24,7 +25,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -36,14 +36,15 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -57,7 +58,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements VaadinAuthentication
 {
 	public static final String NAME = "web-otp";
-	public static final String DESC = "WebOTPRetrievalFactory.desc";
+	public static final String DESC = "OTPRetrievalFactory.desc";
 	
 	private MessageSource msg;
 	private I18nString name;
@@ -89,12 +90,11 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 			OTPRetrievalProperties config = new OTPRetrievalProperties(properties);
 			name = config.getLocalizedString(msg, OTPRetrievalProperties.NAME);
 			if (name.isEmpty())
-				name = new I18nString("WebSMSRetrieval.title", msg);
+				name = new I18nString("OTPRetrieval.title", msg);
 	
 		} catch (Exception e)
 		{
-			throw new ConfigurationException("The configuration of the web-" +
-					"based SMS retrieval can not be parsed", e);
+			throw new ConfigurationException("The configuration of the OTP retrieval can not be parsed", e);
 		}
 	}
 	
@@ -117,26 +117,22 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 		private SandboxAuthnResultCallback sandboxCallback;
 		private TextField usernameField;
 		private HtmlLabel usernameLabel;
-		private TextField answerField;
+		private TextField codeField;
 		private int tabIndex;
-		private String username;
-		
-		private CaptchaComponent capcha;
-		private VerticalLayout capchaComponent;
-		private Label capchaInfoLabel;
+		private String presetUsername;
 		
 		private VerticalLayout mainLayout;
 		
 		private Button authenticateButton;
 
 		//TODO
-		private Button lostPhone;
-		private CredentialEditor credEditor;
-		private CredentialResetLauncher credResetLauncher;
+//		private Button lostPhone;
+//		private CredentialEditor credEditor;
+//		private CredentialResetLauncher credResetLauncher;
 		
 		public OTPRetrievalComponent(CredentialEditor credEditor)
 		{
-			this.credEditor = credEditor;
+//			this.credEditor = credEditor;
 			initUI();
 		}
 
@@ -156,29 +152,13 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 			mainLayout.addComponent(usernameLabel);
 			usernameLabel.setVisible(false);
 
-			capcha = new CaptchaComponent(msg, false);
-			capchaInfoLabel = new Label();
-			capchaComponent = new VerticalLayout();
-			capchaComponent.setMargin(false);
-			capchaComponent.addComponent(capchaInfoLabel);
-			capchaComponent.setComponentAlignment(capchaInfoLabel,
-					Alignment.MIDDLE_CENTER);
-			Component rCapchaComponent = capcha.getAsComponent(Alignment.MIDDLE_CENTER);
-			capchaComponent.addComponent(rCapchaComponent);
-			capchaComponent.setComponentAlignment(rCapchaComponent,
-					Alignment.MIDDLE_CENTER);
-			mainLayout.addComponent(capchaComponent);
-			capchaComponent.setVisible(false);
-		
-			answerField = new TextField();
-			answerField.setWidth(100, Unit.PERCENTAGE);
-			answerField.setPlaceholder(msg.getMessage("WebOTPRetrieval.code", 
-					credentialExchange.getCodeLength()));
-			answerField.setEnabled(false);
-			answerField.addStyleName("u-authnTextField");
-			answerField.addStyleName("u-otpCodeField");
-			mainLayout.addComponent(answerField);
-			mainLayout.setComponentAlignment(answerField, Alignment.MIDDLE_CENTER);
+			codeField = new TextField();
+			codeField.setWidth(100, Unit.PERCENTAGE);
+			codeField.setPlaceholder(msg.getMessage("OTPRetrieval.code", credentialExchange.getCodeLength()));
+			codeField.addStyleName("u-authnTextField");
+			codeField.addStyleName("u-otpCodeField");
+			mainLayout.addComponent(codeField);
+			mainLayout.setComponentAlignment(codeField, Alignment.MIDDLE_CENTER);
 
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			mainLayout.addComponent(authenticateButton);
@@ -188,10 +168,9 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 			});
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-otpSignInButton");
-			authenticateButton.setEnabled(false);
 
-			answerField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
-			answerField.addBlurListener(e -> authenticateButton.removeClickShortcut());
+			codeField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
+			codeField.addBlurListener(e -> authenticateButton.removeClickShortcut());
 
 			//TODO
 //			SMSCredentialRecoverySettings settings = new SMSCredentialRecoverySettings(
@@ -213,42 +192,45 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 
 		private void triggerAuthentication()
 		{
-			if (username == null || username.equals(""))
+			Optional<String> username = getUsername();
+			if (!username.isPresent())
 			{
-				setAuthenticationResult(new AuthenticationResult(
-						Status.notApplicable, null));
+				usernameField.focus();
+				NotificationPopup.showError(msg.getMessage("OTPRetrieval.missingUsername"), "");
 				return;
 			}
-			setAuthenticationResult(credentialExchange.verifyCode(
-					answerField.getValue(), username, sandboxCallback));
+			
+			String code = codeField.getValue();
+			if (Strings.isNullOrEmpty(code))
+			{
+				codeField.focus();
+				NotificationPopup.showError(msg.getMessage("OTPRetrieval.missingCode"), "");
+				return;
+			}
+				
+			AuthenticationResult authnResult = credentialExchange.verifyCode(code, username.get(), sandboxCallback);
+			setAuthenticationResult(authnResult);
 		}
 
 		private void setAuthenticationResult(AuthenticationResult authenticationResult)
 		{
+			clear();
 			if (authenticationResult.getStatus() == Status.success)
 			{
-				clear();
 				setEnabled(false);
 				callback.onCompletedAuthentication(authenticationResult);
-			} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal)
+			} else if (authenticationResult.getStatus() == Status.deny)
 			{
-				clear();
-				callback.onCompletedAuthentication(authenticationResult);
+				usernameField.focus();
+				String msgErr = msg.getMessage("OTPRetrieval.wrongCode");
+				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
 			} else
 			{
-				setError();
-				usernameField.focus();
-				String msgErr = msg.getMessage("WebOTPRetrieval.wrongCode");
-				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
+				throw new IllegalStateException("Got unsupported status from verificator: " 
+						+ authenticationResult.getStatus());
 			}
 		}
 		
-		private void setError()
-		{
-			usernameField.setValue("");
-			answerField.setValue("");
-		}
-//
 //		private void showResetDialog()
 //		{
 //			SMSCredentialResetController controller = new SMSCredentialResetController(msg,
@@ -260,8 +242,10 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 		@Override
 		public void focus()
 		{
-			if (username == null)
+			if (presetUsername == null)
 				usernameField.focus();
+			else
+				codeField.focus();
 		}
 
 		@Override
@@ -288,15 +272,15 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 
 		void setAuthenticatedIdentity(String authenticatedIdentity)
 		{
-			this.username = authenticatedIdentity;
-			mainLayout.removeComponent(usernameField);
-			mainLayout.removeComponent(usernameLabel); //TODO ??
+			this.presetUsername = authenticatedIdentity;
+			usernameField.setVisible(false);
+			usernameLabel.setVisible(true);
 		}
 
 		private void clear()
 		{
 			usernameField.setValue("");
-			answerField.setValue("");
+			codeField.setValue("");
 		}
 
 		void hideCredentialReset()
@@ -308,8 +292,18 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 
 		void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
 		{
-			this.credResetLauncher = credResetLauncher;
+//			this.credResetLauncher = credResetLauncher;
 			
+		}
+		
+		private Optional<String> getUsername()
+		{
+			if (!Strings.isNullOrEmpty(presetUsername))
+				return Optional.of(presetUsername);
+			String enteredUsername = usernameField.getValue();
+			if (!Strings.isNullOrEmpty(enteredUsername))
+				return Optional.of(enteredUsername);
+			return Optional.empty();
 		}
 	}
 
@@ -349,7 +343,7 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 		@Override
 		public Resource getImage()
 		{
-			return Images.mobile_sms.getResource();
+			return Images.otp.getResource();
 		}
 
 		@Override
@@ -384,12 +378,18 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 		public void presetEntity(Entity authenticatedEntity)
 		{
 			List<Identity> ids = authenticatedEntity.getIdentities();
-			for (Identity id : ids)
-				if (id.getTypeId().equals(UsernameIdentity.ID)) //FIXME also support email
-				{
-					theComponent.setAuthenticatedIdentity(id.getValue());
-					return;
-				}
+			Optional<Identity> userNameId = ids.stream().filter(id -> id.getTypeId().equals(UsernameIdentity.ID)).findAny();
+			if (userNameId.isPresent())
+			{
+				theComponent.setAuthenticatedIdentity(userNameId.get().getValue());
+				return;
+			}
+			Optional<Identity> emailId = ids.stream().filter(id -> id.getTypeId().equals(EmailIdentity.ID)).findAny();
+			if (emailId.isPresent())
+			{
+				theComponent.setAuthenticatedIdentity(emailId.get().getValue());
+				return;
+			}
 		}
 
 		@Override

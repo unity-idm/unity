@@ -194,7 +194,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		public VerificationComponent()
 		{
 			code = new TextField(); 
-			code.setPlaceholder(msg.getMessage("WebOTPRetrieval.code", 
+			code.setPlaceholder(msg.getMessage("OTPRetrieval.code", 
 					config.otpParams.codeLength));
 			code.addValueChangeListener(v -> code.setComponentError(null));
 			Button verify = new Button(msg.getMessage("OTPEditorComponent.verifyButton"));

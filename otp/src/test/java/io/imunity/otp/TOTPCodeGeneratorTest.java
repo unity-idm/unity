@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class TOTPValidatorTest
+public class TOTPCodeGeneratorTest
 {
 	private static final TestCaseSpec[] SHA1_CASES = 
 	{
@@ -127,7 +127,7 @@ public class TOTPValidatorTest
 		return Arrays.stream(SHA512_CASES);
 	}
 	
-	private static String hexToBase32(String hexValue)
+	static String hexToBase32(String hexValue)
 	{
 		try
 		{
@@ -138,7 +138,7 @@ public class TOTPValidatorTest
 		}
 	}
 	
-	private static class TestCaseSpec
+	static class TestCaseSpec
 	{
 		final long time;
 		final String code;
