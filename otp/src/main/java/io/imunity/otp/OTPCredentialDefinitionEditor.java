@@ -5,12 +5,13 @@
 
 package io.imunity.otp;
 
-import static io.imunity.tooltip.TooltipExtension.tooltipForConsole;
+import static io.imunity.tooltip.TooltipExtension.tooltip;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -42,29 +43,31 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder = new Binder<>(OTPDefinitionBean.class);
 		
 		TextField issuer = new TextField(msg.getMessage("OTPCredentialDefinitionEditor.issuer"));
-		tooltipForConsole(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip"));
+		tooltip(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip"));
 		binder.forField(issuer).asRequired().bind("issuerName");
 		
 		EnumComboBox<HashFunction> hashAlgorithm = new EnumComboBox<>(
 				msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm"), 
 				msg, "OTPCredentialDefinitionEditor.hashAlgorithm.", HashFunction.class, HashFunction.SHA1);
-		tooltipForConsole(hashAlgorithm, msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm.tip"));
+		tooltip(hashAlgorithm, msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm.tip"));
 		binder.forField(hashAlgorithm).asRequired().bind("hashFunction");
 		
 		IntStepper allowedTimeDrift = new IntStepper(msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift"));
-		tooltipForConsole(hashAlgorithm, msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip"));
+		allowedTimeDrift.setWidth(3, Unit.EM);
+		tooltip(allowedTimeDrift, msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip"));
 		allowedTimeDrift.setMinValue(0);
 		allowedTimeDrift.setMaxValue(2880);
 		binder.forField(allowedTimeDrift).asRequired().bind("allowedTimeDriftSteps");
 		
 		ComboBox<Integer> codeLength = new ComboBox<>(msg.getMessage("OTPCredentialDefinitionEditor.codeLength"));
-		tooltipForConsole(codeLength, msg.getMessage("OTPCredentialDefinitionEditor.codeLength.tip"));
+		tooltip(codeLength, msg.getMessage("OTPCredentialDefinitionEditor.codeLength.tip"));
 		codeLength.setItems(6, 8);
 		codeLength.setEmptySelectionAllowed(false);
 		binder.forField(codeLength).asRequired().bind("codeLength");
 		
 		IntStepper timeStep = new IntStepper(msg.getMessage("OTPCredentialDefinitionEditor.timeStep"));
-		tooltipForConsole(timeStep, msg.getMessage("OTPCredentialDefinitionEditor.timeStep.tip"));
+		timeStep.setWidth(3, Unit.EM);
+		tooltip(timeStep, msg.getMessage("OTPCredentialDefinitionEditor.timeStep.tip"));
 		timeStep.setMinValue(5);
 		timeStep.setMaxValue(180);
 		binder.forField(timeStep).asRequired().bind("timeStepSeconds");
