@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -52,7 +53,8 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder.forField(hashAlgorithm).asRequired().bind("hashFunction");
 		
 		IntStepper allowedTimeDrift = new IntStepper(msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift"));
-		tooltip(hashAlgorithm, msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip"));
+		allowedTimeDrift.setWidth(3, Unit.EM);
+		tooltip(allowedTimeDrift, msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip"));
 		allowedTimeDrift.setMinValue(0);
 		allowedTimeDrift.setMaxValue(2880);
 		binder.forField(allowedTimeDrift).asRequired().bind("allowedTimeDriftSteps");
@@ -64,6 +66,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder.forField(codeLength).asRequired().bind("codeLength");
 		
 		IntStepper timeStep = new IntStepper(msg.getMessage("OTPCredentialDefinitionEditor.timeStep"));
+		timeStep.setWidth(3, Unit.EM);
 		tooltip(timeStep, msg.getMessage("OTPCredentialDefinitionEditor.timeStep.tip"));
 		timeStep.setMinValue(5);
 		timeStep.setMaxValue(180);
