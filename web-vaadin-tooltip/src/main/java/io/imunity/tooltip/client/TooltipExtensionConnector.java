@@ -16,8 +16,8 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 {
 	private Widget baseWidget;
 	private String tooltipText;
-	private Integer topOffset;
 	private String vaadinIconHtml;
+	private String baseElementWidth;
 
 	public TooltipExtensionConnector()
 	{
@@ -33,8 +33,8 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 	protected void extend(ServerConnector target)
 	{
 		tooltipText = getState().tooltipText;
-		topOffset = getState().topOffset;
 		vaadinIconHtml = getState().vaadinIconHtml;
+		baseElementWidth = getState().baseElementWidth;
 		if (baseWidget == null)
 		{
 			baseWidget = ((AbstractComponentConnector) target).getWidget();
@@ -56,50 +56,39 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 
 	private void handleAttach()
 	{
-		Element element = baseWidget.getElement();
+		Element baseWidgetElement = baseWidget.getElement();
+		Element table = DOM.createTable();
+		Element parentElement = baseWidgetElement.getParentElement();
+		parentElement.replaceChild(table, baseWidgetElement);
+		
+		Element tdWithBaseWidget = DOM.createTD();
+		tdWithBaseWidget.appendChild(baseWidgetElement);
+		tdWithBaseWidget.getStyle().setProperty("width", baseElementWidth);
+		
 		String containerId = DOM.createUniqueId();
-		String fixedTooltipContent = createContentOfFixedTooltip(containerId);
-		attachFixedTooltip(element, topOffset, fixedTooltipContent);
-		attachNestedTooltip(containerId, tooltipText);
+		Element tooltipIcon = DOM.createDiv();
+		tooltipIcon.setInnerHTML(vaadinIconHtml);
+		tooltipIcon.setClassName("icon-container");
+		tooltipIcon.setId(containerId);
+		Element tdWithTooltip = DOM.createTD();
+		tdWithTooltip.appendChild(tooltipIcon);
+		
+		Element tableRow = DOM.createTR();
+		tableRow.appendChild(tdWithBaseWidget);
+		tableRow.appendChild(tdWithTooltip);
+		
+		table.setClassName("tooltipContentTable");
+		table.appendChild(tableRow);
+		table.setAttribute("cellspacing", "0");
+		
+		attachTooltip(containerId, tooltipText);
 	}
 	
-	private String createContentOfFixedTooltip(String id)
-	{
-		return "<div class=\"icon-container\" id=\"" + id + "\">" + vaadinIconHtml + "</div>";
-	}
-	
-	private native void attachFixedTooltip(Element target, int offset, String fixedContent) 
-	/*-{
-		$wnd.tippy(target, {
-		    arrow: false,
-		    theme: 'help',
-		    placement: 'right',
-		    allowHTML: true,
-		    showOnCreate: true,
-		    hideOnClick: false,
-		    trigger: 'manual',
-		    interactive: true,
-		    offset: [offset, -10],
-		    popperOptions: {
-		        modifiers: [
-		            {
-						name: 'flip',
-						options: {
-							fallbackPlacements: []
-						}
-		            }
-		        ]
-		    },
-		    content: fixedContent
-		});
-	}-*/;
-	
-	private native void attachNestedTooltip(String targetId, String tooltipContent) 
+	private native void attachTooltip(String targetId, String tooltipContent) 
 	/*-{
 		$wnd.tippy($wnd.document.getElementById(targetId), {
 		    placement: 'right',
 		    allowHTML: true,
-		    trigger: 'click',
 		    content: tooltipContent
 		});
 	}-*/;

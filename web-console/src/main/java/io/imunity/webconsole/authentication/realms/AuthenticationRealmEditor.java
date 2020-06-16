@@ -43,42 +43,42 @@ class AuthenticationRealmEditor extends CustomComponent
 	{
 		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
-		TooltipExtension.buildForConsole(name, msg.getMessage("AuthenticationRealm.name.tooltip"));
+		TooltipExtension.build(name, msg.getMessage("AuthenticationRealm.name.tooltip"));
 		
 		description = new DescriptionTextField(msg);
-		TooltipExtension.buildForConsole(description, msg.getMessage("AuthenticationRealm.description.tooltip"));
+		TooltipExtension.build(description, msg.getMessage("AuthenticationRealm.description.tooltip"));
 
 		blockAfterUnsuccessfulLogins = new IntStepper(
 				msg.getMessage("AuthenticationRealm.blockAfterUnsuccessfulLogins"));
 		blockAfterUnsuccessfulLogins.setMinValue(1);
 		blockAfterUnsuccessfulLogins.setMaxValue(999);
 		blockAfterUnsuccessfulLogins.setWidth(5, Unit.EM);
-		TooltipExtension.buildForConsole(blockAfterUnsuccessfulLogins, 
+		TooltipExtension.build(blockAfterUnsuccessfulLogins, 
 				msg.getMessage("AuthenticationRealm.blockAfterUnsuccessfulLogins.tooltip"));
 		
 		blockFor = new IntStepper(msg.getMessage("AuthenticationRealm.blockFor"));
 		blockFor.setMinValue(1);
 		blockFor.setMaxValue(999);
 		blockFor.setWidth(5, Unit.EM);
-		TooltipExtension.buildForConsole(blockFor, msg.getMessage("AuthenticationRealm.blockFor.tooltip"));
+		TooltipExtension.build(blockFor, msg.getMessage("AuthenticationRealm.blockFor.tooltip"));
 
 		rememberMePolicy = new ComboBox<>(msg.getMessage("AuthenticationRealm.rememberMePolicy"));
 		rememberMePolicy.setItems(RememberMePolicy.values());
 		rememberMePolicy.setEmptySelectionAllowed(false);
 		rememberMePolicy.setWidth(100, Unit.PERCENTAGE);
-		TooltipExtension.buildForConsole(rememberMePolicy, msg.getMessage("AuthenticationRealm.rememberMePolicy.tooltip"));
+		TooltipExtension.build(rememberMePolicy, msg.getMessage("AuthenticationRealm.rememberMePolicy.tooltip"));
 		
 		allowForRememberMeDays = new IntStepper(msg.getMessage("AuthenticationRealm.allowForRememberMeDays"));
 		allowForRememberMeDays.setMinValue(1);
 		allowForRememberMeDays.setMaxValue(999);
 		allowForRememberMeDays.setWidth(5, Unit.EM);
-		TooltipExtension.buildForConsole(allowForRememberMeDays, msg.getMessage("AuthenticationRealm.allowForRememberMeDays.tooltip"));
+		TooltipExtension.build(allowForRememberMeDays, msg.getMessage("AuthenticationRealm.allowForRememberMeDays.tooltip"));
 
 		maxInactivity = new IntStepper(msg.getMessage("AuthenticationRealm.maxInactivity"));
 		maxInactivity.setMinValue(1);
 		maxInactivity.setMaxValue(99999);
 		maxInactivity.setWidth(5, Unit.EM);
-		TooltipExtension.buildForConsole(maxInactivity, msg.getMessage("AuthenticationRealm.maxInactivity.tooltip"));
+		TooltipExtension.build(maxInactivity, msg.getMessage("AuthenticationRealm.maxInactivity.tooltip"));
 		
 		binder = new Binder<>(AuthenticationRealm.class);
 
