@@ -2,7 +2,3 @@
 	color: black;
 	padding-left: 5px;
 }
-
-.tippy-box[data-theme~='help'] {
-	background-color: transparent;
-}
