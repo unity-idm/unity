@@ -79,7 +79,7 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 		}
 
 		WebhookVaadinBean bean = binder.getBean();
-		return new Webhook(bean.getUrl(), bean.getHttpMethod(), bean.getTruststore());
+		return new Webhook(bean.getUrl(), bean.getHttpMethod(), bean.getTruststore(), bean.getSecret());
 	}
 
 	@Override
@@ -104,12 +104,18 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 		httpMethod.setCaption(msg.getMessage("WebhookEditor.httpMethod"));
 		binder.forField(httpMethod).asRequired().bind("httpMethod");
 		main.addComponent(httpMethod);
-
+		
 		ComboBox<String> httpsTruststore = new ComboBox<>(msg.getMessage("WebhookEditor.httpsTruststore"));
 		httpsTruststore.setItems(getTrustostores());
 		binder.forField(httpsTruststore).bind("truststore");
 		main.addComponent(httpsTruststore);
-
+		
+		TextField secret =  new TextField();
+		secret.setCaption(msg.getMessage("WebhookEditor.secret"));
+		secret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
+		binder.forField(secret).bind("secret");
+		main.addComponent(secret);
+		
 		TextField url = new TextField();
 		url.setCaption(msg.getMessage("WebhookEditor.url"));
 		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
@@ -217,6 +223,7 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 		private String url;
 		private WebhookHttpMethod httpMethod;
 		private String truststore;
+		private String secret;
 
 		public WebhookVaadinBean()
 		{
@@ -229,6 +236,7 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 			this.truststore = webhook.truststore;
 			this.url = webhook.url;
 			this.httpMethod = webhook.httpMethod;
+			this.secret = webhook.secret;
 		}
 
 		public String getUrl()
@@ -259,6 +267,16 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 		public void setTruststore(String httpsTruststore)
 		{
 			this.truststore = httpsTruststore;
+		}
+
+		public String getSecret()
+		{
+			return secret;
+		}
+
+		public void setSecret(String secret)
+		{
+			this.secret = secret;
 		}
 
 	}

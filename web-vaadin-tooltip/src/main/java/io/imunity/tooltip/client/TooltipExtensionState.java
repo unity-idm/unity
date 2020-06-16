@@ -6,5 +6,5 @@ public class TooltipExtensionState extends JavaScriptExtensionState
 {
 	public String tooltipText = "";
 	public String vaadinIconHtml = "";
-	public Integer topOffset = 0;
+	public String baseElementWidth = "";
 }
