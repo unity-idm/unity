@@ -29,7 +29,7 @@ public interface AuthenticatorInstance
 	 * verificators the verificator configuration is only set for the
 	 * underlying verificator, it is not exposed in the instanceDescription.
 	 */
-	void updateConfiguration(String vConfiguration, String localCredential);
+	void updateConfiguration(String vConfiguration, String retrievalConfiguration, String localCredential);
 
 	/**
 	 * Get authenticator retrieval

@@ -39,6 +39,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	private String secret;
 	private int tabIndex;
 	
+	private Label credentialName;
 	private QRCodeComponent qrCodeComponent;
 	private TextCodeComponent textCodeComponent;
 	private VerificationComponent verificationComponent;
@@ -52,6 +53,8 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		this.config = config;
 		secret = TOTPKeyGenerator.generateRandomBase32EncodedKey(config.otpParams.hashFunction);
 
+		credentialName = new Label(msg.getMessage("OTPEditorComponent.defaultCredentialSetupLead"));
+		
 		qrCodeComponent = new QRCodeComponent();
 		
 		textCodeComponent = new TextCodeComponent();
@@ -68,7 +71,10 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.addComponents(qrCodeComponent, textCodeComponent, switchCodeComponent, verificationComponent);
-		setCompositionRoot(main);
+		VerticalLayout mainWithSpacing = new VerticalLayout(credentialName, main);
+		mainWithSpacing.setSpacing(true);
+		mainWithSpacing.setMargin(false);
+		setCompositionRoot(mainWithSpacing);
 	}
 
 	private void switchCodeComponent()
@@ -98,8 +104,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	@Override
 	public void setLabel(String label)
 	{
-		// TODO Auto-generated method stub
-		
+		credentialName.setValue(label);
 	}
 
 	@Override
@@ -149,7 +154,6 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	{
 		TextCodeComponent()
 		{
-			
 			Label info = new Label(msg.getMessage("OTPEditorComponent.textCodeInfo"));
 			Label code = new Label(formatSecret(secret));
 			code.addStyleName("u-textMonospace");

@@ -51,7 +51,6 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
- * TODO - verify whether changing messages works - console + files
  * Retrieves OTP code using a Vaadin textfield
  */
 @PrototypeComponent
@@ -89,9 +88,6 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 			properties.load(new StringReader(configuration));
 			OTPRetrievalProperties config = new OTPRetrievalProperties(properties);
 			name = config.getLocalizedString(msg, OTPRetrievalProperties.NAME);
-			if (name.isEmpty())
-				name = new I18nString("OTPRetrieval.title", msg);
-	
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the OTP retrieval can not be parsed", e);
@@ -154,7 +150,10 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 
 			codeField = new TextField();
 			codeField.setWidth(100, Unit.PERCENTAGE);
-			codeField.setPlaceholder(msg.getMessage("OTPRetrieval.code", credentialExchange.getCodeLength()));
+			String codeLabel = name.isEmpty() ? 
+					msg.getMessage("OTPRetrieval.code", credentialExchange.getCodeLength()) : 
+					name.getValue(msg); 
+			codeField.setPlaceholder(codeLabel);
 			codeField.addStyleName("u-authnTextField");
 			codeField.addStyleName("u-otpCodeField");
 			mainLayout.addComponent(codeField);
@@ -337,7 +336,7 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 		@Override
 		public String getLabel()
 		{
-			return name.getValue(msg);
+			return name.getValue(msg); //not fully correct (no fallback to default) but we don't support grid so irrelevant.
 		}
 
 		@Override

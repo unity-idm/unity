@@ -88,8 +88,8 @@ public interface VaadinAuthentication extends BindingAuthn
 		void setSandboxAuthnCallback(SandboxAuthnResultCallback callback);
 		
 		/**
-		 * @return label for presentation in the user interface.
-		 * returns non null value.
+		 * @return label for presentation in the user interface, used for presentation in grid. 
+		 * Not used without grid.
 		 */
 		String getLabel();
 		
