@@ -54,4 +54,14 @@ public class ScrytpEncoderTest
 		assertThat(maxAllowedWorkFactor, is(21));
 	}
 
+	
+	@Test
+	public void shouldReturnMinWorkFactorFor250M_p1()
+	{
+		SCryptEncoder encoder = new SCryptEncoder(new ForkJoinPool(1), 250l*1024*1024);
+		
+		int maxAllowedWorkFactor = encoder.getMaxAllowedWorkFactor();
+		
+		assertThat(maxAllowedWorkFactor, is(ScryptParams.MIN_WORK_FACTOR));
+	}
 }
