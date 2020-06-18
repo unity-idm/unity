@@ -360,6 +360,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
 		enableSharedWidgets(true);
+		authNProgress.setInternalVisibility(false);
 		authNPanelInProgress = null;
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
 		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN);
