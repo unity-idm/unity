@@ -127,7 +127,10 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 		if (Strings.isNullOrEmpty(currentCredential))
 			return new CredentialPublicInformation(LocalCredentialState.notSet, "");
 		OTPCredentialDBState dbState = JsonUtil.parse(currentCredential, OTPCredentialDBState.class);
-		return new CredentialPublicInformation(dbState.outdated ? LocalCredentialState.outdated : LocalCredentialState.correct, "");
+		OTPExtraInfo extraInfo = new OTPExtraInfo(dbState.time);
+		String extraInfoStr = JsonUtil.toJsonString(extraInfo);
+		return new CredentialPublicInformation(dbState.outdated ? LocalCredentialState.outdated : LocalCredentialState.correct, 
+				extraInfoStr);
 	}
 
 	@Override

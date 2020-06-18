@@ -97,6 +97,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 			throw new MissingCredentialException(msg.getMessage("OTPEditorComponent.verificationRequired"));
 		}
 		
+		verificationComponent.setComponentError(null);
 		OTPCredential credential = new OTPCredential(secret, config.otpParams);
 		return JsonUtil.toJsonString(credential);
 	}
@@ -129,24 +130,44 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	private class QRCodeComponent extends CustomComponent
 	{
 		private static final int BASE_SIZE_ZOOM = 3;
+		private QRCode qr;
+		private TextField user;
 		
 		QRCodeComponent()
 		{
 			VerticalLayout main  = new VerticalLayout();
 			main.setMargin(false);
-			main.setSpacing(false);
+			main.setSpacing(true);
 			Label info = new Label(msg.getMessage("OTPEditorComponent.qrCodeInfo"));
-			QRCode qr = new QRCode();
+			user = new TextField(msg.getMessage("OTPEditorComponent.user"));
+			user.setValue(config.issuerName + " user");
+			user.setVisible(false);
+			
+			Button customizeUser = new Button(msg.getMessage("OTPEditorComponent.customizeUser"));
+			customizeUser.addStyleName(Styles.vButtonLink.toString());
+			customizeUser.addStyleName("u-highlightedLink");
+			customizeUser.addClickListener(e -> {customizeUser.setVisible(false); user.setVisible(true);});
+			
+			qr = new QRCode();
 			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
 			qr.setWidth(size, Unit.PIXELS);
 			qr.setHeight(size, Unit.PIXELS);			
-			//TODO user
-			String uri = TOTPKeyGenerator.generateTOTPURI(secret, config.issuerName + " user", 
+			updateQR();
+			user.addValueChangeListener(v -> updateQR());
+			main.addComponents(user, info, qr, customizeUser);
+			setCompositionRoot(main);
+		}
+		
+		private void updateQR()
+		{
+			String uri = TOTPKeyGenerator.generateTOTPURI(secret, user.getValue(), 
 					config.issuerName, config.otpParams);
 			qr.setValue(uri);
-			
-			main.addComponents(info, qr);
-			setCompositionRoot(main);
+		}
+		
+		void setReadOnly()
+		{
+			user.setReadOnly(true);
 		}
 	}
 	
@@ -200,7 +221,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 			code = new TextField(); 
 			code.setPlaceholder(msg.getMessage("OTPRetrieval.code", 
 					config.otpParams.codeLength));
-			code.addValueChangeListener(v -> code.setComponentError(null));
+			code.addValueChangeListener(v -> { code.setComponentError(null); setComponentError(null);});
 			Button verify = new Button(msg.getMessage("OTPEditorComponent.verifyButton"));
 			verify.addClickListener(e -> this.verify());
 			validationLayout = new HorizontalLayout();
@@ -229,6 +250,8 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 			{
 				validationLayout.setVisible(false);
 				confirmed.setVisible(true);
+				qrCodeComponent.setReadOnly();
+				code.setComponentError(null);
 			} else
 			{
 				code.setComponentError(new UserError(msg.getMessage("OTPEditorComponent.invalidCode")));
