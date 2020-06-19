@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 
@@ -19,6 +20,11 @@ public class IdpPolicyAgreementsConfiguration
 	public final I18nString information;
 	public final List<PolicyAgreementConfiguration> agreements;
 
+	public IdpPolicyAgreementsConfiguration(MessageSource msg)
+	{
+		this(msg.getI18nMessage("PolicyAgreementsConfiguration.defaultTitle"), null, new ArrayList<>());
+	}
+	
 	public IdpPolicyAgreementsConfiguration()
 	{
 		this(null, null, new ArrayList<>());

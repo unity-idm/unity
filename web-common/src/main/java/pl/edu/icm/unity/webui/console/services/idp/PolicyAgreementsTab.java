@@ -68,7 +68,7 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		binder = new Binder<>(IdpPolicyAgreementsConfigurationVaadinBean.class);
 		I18nTextField title = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.title"));
 		title.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		binder.forField(title).asRequired((v, c) -> {
+		binder.forField(title).withValidator((v, c) -> {
 
 			if (!list.getValue().isEmpty() && (v == null || v.isEmpty()))
 			{

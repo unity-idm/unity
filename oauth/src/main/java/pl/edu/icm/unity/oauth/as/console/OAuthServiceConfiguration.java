@@ -65,12 +65,12 @@ public class OAuthServiceConfiguration
 	private AccessTokenFormat accessTokenFormat;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 
-	public OAuthServiceConfiguration()
+	public OAuthServiceConfiguration(MessageSource msg)
 	{
-		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 	}
 
-	public OAuthServiceConfiguration(List<Group> allGroups)
+	public OAuthServiceConfiguration(MessageSource msg, List<Group> allGroups)
 	{
 		signingAlg = SigningAlgorithms.RS256;
 		idTokenExpiration = OAuthASProperties.DEFAULT_ID_TOKEN_VALIDITY;
@@ -89,7 +89,7 @@ public class OAuthServiceConfiguration
 		skipUserImport = false;
 		userImports = new ArrayList<>();
 		accessTokenFormat = AccessTokenFormat.PLAIN;
-		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 	}
 
 	public String toProperties(MessageSource msg)
