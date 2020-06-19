@@ -39,8 +39,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Component
 public class WebhookProcessorImpl implements WebhookProcessor
 {
-	private static String BEARER_AUTH = "Bearer ";
-	private static String AUTHORIZATION_HEADER = "Authorization";
+	private static final String BEARER_AUTH = "Bearer ";
+	private static final String AUTHORIZATION_HEADER = "Authorization";
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, WebhookProcessorImpl.class);
 	private PKIManagement pkiMan;

@@ -17,7 +17,7 @@ import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
 import io.imunity.webelements.navigation.UnityViewWithSubViews;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Breadcrumbs component
@@ -35,7 +35,7 @@ public class WebConsoleBreadCrumbs extends CustomComponent implements ViewChange
 		this.navMan = navMan;
 		main = new BreadcrumbsComponent();
 		setCompositionRoot(main);
-		setStyleName(SidebarStyles.breadcrumbs.toString());
+		setStyleName(Styles.breadcrumbs.toString());
 	}
 
 	public void adapt(ViewChangeEvent e, List<NavigationInfo> path)

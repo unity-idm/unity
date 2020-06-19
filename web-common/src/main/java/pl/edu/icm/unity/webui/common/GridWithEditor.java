@@ -252,7 +252,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		buttonBar.setWidth(100, Unit.PERCENTAGE);
 		buttonBar.setMargin(false);
 
-		Button add = new Button();
+		Button add = new Button(msg.getMessage("addNew"));
+		add.addStyleName(Styles.buttonAction.toString());
 		add.setIcon(Images.add.getResource());
 		add.addClickListener(e -> {
 			if (!grid.getEditor().isOpen())

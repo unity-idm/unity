@@ -73,7 +73,6 @@ import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -181,7 +180,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 				.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 		setSizeFull();
 		setColumnReorderingAllowed(true);
-		setStyleName(Styles.uDenseTreeGrid.toString());
+		setStyleName(Styles.denseTreeGrid.toString());
 		updateCredentialStatusColumns();
 
 		loadPreferences();
@@ -228,7 +227,6 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	{
 
 		HamburgerMenu<IdentityEntry> menu = new HamburgerMenu<IdentityEntry>();
-		menu.addStyleName(SidebarStyles.sidebar.toString());
 		menu.setTarget(target);
 		menu.addActionHandlers(Arrays.asList(entityDetailsHandler.getShowEntityAction(),
 				addToGroupHandler.getAction(),

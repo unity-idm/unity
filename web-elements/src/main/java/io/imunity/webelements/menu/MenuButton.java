@@ -9,7 +9,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Menu button
@@ -45,7 +45,7 @@ public class MenuButton extends Button implements MenuElement
 			withClickListener(clickListener);
 
 		}
-		setPrimaryStyleName(SidebarStyles.menuButton.toString());
+		setPrimaryStyleName(Styles.menuButton.toString());
 	}
 
 	public MenuButton withStyleName(String style)
@@ -75,7 +75,7 @@ public class MenuButton extends Button implements MenuElement
 
 	public MenuButton clickable()
 	{
-		withStyleName(SidebarStyles.menuButtonClickable.toString());
+		withStyleName(Styles.menuButtonClickable.toString());
 		return this;
 	}
 
@@ -149,7 +149,7 @@ public class MenuButton extends Button implements MenuElement
 
 	private boolean isActive()
 	{
-		return getStyleName().contains(SidebarStyles.menuButtonActive.toString());
+		return getStyleName().contains(Styles.menuButtonActive.toString());
 	}
 
 	@Override
@@ -159,10 +159,10 @@ public class MenuButton extends Button implements MenuElement
 		{
 			if (active)
 			{
-				addStyleName(SidebarStyles.menuButtonActive.toString());
+				addStyleName(Styles.menuButtonActive.toString());
 			} else
 			{
-				removeStyleName(SidebarStyles.menuButtonActive.toString());
+				removeStyleName(Styles.menuButtonActive.toString());
 			}
 		}
 	}

@@ -8,7 +8,7 @@ package io.imunity.webelements.menu;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Left menu combobox
@@ -39,7 +39,7 @@ public class MenuComoboBox extends ComboBox<String> implements MenuElement
 
 		withCaption(caption);
 		withIcon(icon);
-		setStyleName(SidebarStyles.menuCombo.toString());
+		setStyleName(Styles.menuCombo.toString());
 		
 	}
 

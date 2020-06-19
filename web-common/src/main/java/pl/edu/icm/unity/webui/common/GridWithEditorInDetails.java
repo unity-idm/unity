@@ -45,7 +45,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 	private Predicate<T> disableEdit;
 	private HorizontalLayout addButtonBar;
 	private Consumer<T> valueChangeListener;
-	
+	private MessageSource msg;
 	
 	public GridWithEditorInDetails(MessageSource msg, Class<T> type,
 			Supplier<EmbeddedEditor<T>> gridEditorSupplier, Predicate<T> disableEditAndRemove)
@@ -60,6 +60,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 	{
 		this.type = type;
 		this.disableEdit = disableEdit;
+		this.msg = msg;
 		
 		SingleActionHandler<T> remove = SingleActionHandler.builder4Delete(msg, type)
 				.withDisabledPredicate(disableRemove)
@@ -278,7 +279,8 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 		addButtonBar.setWidth(100, Unit.PERCENTAGE);
 		addButtonBar.setMargin(false);
 
-		Button add = new Button();
+		Button add = new Button(msg.getMessage("addNew"));
+		add.addStyleName(Styles.buttonAction.toString());
 		add.setIcon(Images.add.getResource());
 		add.addClickListener(e -> {
 

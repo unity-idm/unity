@@ -28,8 +28,8 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -62,8 +62,7 @@ class GroupsComponent extends CustomComponent
 
 		groupBrowser = new GroupsTree(msg, controller, rawActions, projectPath);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		hamburgerMenu.addStyleNames(Styles.indentSmall.toString());
 		
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
 
@@ -243,7 +242,7 @@ class GroupsComponent extends CustomComponent
 		protected Button createConfirmButton()
 		{
 			Button ok = super.createConfirmButton();
-			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			ok.addStyleName(Styles.buttonAction.toString());
 			return ok;
 		}
 		
@@ -323,7 +322,7 @@ class GroupsComponent extends CustomComponent
 		protected Button createConfirmButton()
 		{
 			Button ok = super.createConfirmButton();
-			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			ok.addStyleName(Styles.buttonAction.toString());
 			return ok;
 		}
 

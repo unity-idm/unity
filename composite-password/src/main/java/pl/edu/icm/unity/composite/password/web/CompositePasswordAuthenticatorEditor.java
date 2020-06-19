@@ -51,6 +51,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -352,9 +353,11 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			Button addPam = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addPam"));
 			addPam.addClickListener(getAddButtonClickListener(VerificatorTypes.pam));
 			addPam.setIcon(Images.add.getResource());
-
+			addPam.addStyleName(Styles.buttonAction.name());
+			
 			Button addLdap = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addLdap"));
 			addLdap.setIcon(Images.add.getResource());
+			addLdap.addStyleName(Styles.buttonAction.name());
 			addLdap.addClickListener(getAddButtonClickListener(VerificatorTypes.ldap));
 
 			HorizontalLayout buttons = new HorizontalLayout();

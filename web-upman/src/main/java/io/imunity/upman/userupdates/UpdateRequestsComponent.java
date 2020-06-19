@@ -24,8 +24,8 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -65,8 +65,7 @@ public class UpdateRequestsComponent extends CustomComponent
 		updateRequestGrid = new UpdateRequestsGrid(msg, commonActions, formatter);
 
 		HamburgerMenu<UpdateRequestEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		hamburgerMenu.addStyleNames(Styles.indentSmall.toString());
 		updateRequestGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);
