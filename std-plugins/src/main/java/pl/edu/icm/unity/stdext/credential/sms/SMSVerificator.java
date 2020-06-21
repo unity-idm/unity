@@ -225,7 +225,6 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	@Override
 	public SMSCredentialResetImpl getSMSCredentialResetBackend()
 	{
-
 		return new SMSCredentialResetImpl(notificationProducer, identityResolver, this,
 				credentialHelper, credentialName,
 				credential.getSerializedConfiguration(),

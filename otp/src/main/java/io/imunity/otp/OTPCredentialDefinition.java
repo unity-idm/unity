@@ -15,16 +15,19 @@ class OTPCredentialDefinition
 	final OTPGenerationParams otpParams;
 	final String issuerName;
 	final int allowedTimeDriftSteps;
+	final OTPResetSettings resetSettings;
 	
 	@JsonCreator
 	OTPCredentialDefinition(
 			@JsonProperty("otpParams") OTPGenerationParams otpParams, 
 			@JsonProperty("issuerName") String issuerName, 
-			@JsonProperty("allowedTimeDriftSteps") int allowedTimeDriftSeconds)
+			@JsonProperty("allowedTimeDriftSteps") int allowedTimeDriftSeconds,
+			@JsonProperty("resetSettings") OTPResetSettings resetSettings)
 	{
 		this.otpParams = otpParams;
 		this.issuerName = issuerName;
 		this.allowedTimeDriftSteps = allowedTimeDriftSeconds;
+		this.resetSettings = resetSettings;
 	}
 
 	@Override

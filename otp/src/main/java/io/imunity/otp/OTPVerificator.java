@@ -11,6 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 
 import pl.edu.icm.unity.JsonUtil;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -42,13 +44,15 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
 
 	private OTPCredentialDefinition credentialConfig;
-	private CredentialHelper credentialHelper;
+	private final CredentialHelper credentialHelper;
+	private final NotificationProducer notificationProducer;
 	
 	@Autowired
-	public OTPVerificator(CredentialHelper credentialHelper)
+	public OTPVerificator(CredentialHelper credentialHelper, NotificationProducer notificationProducer)
 	{
 		super(OTP.NAME, DESC, OTPExchange.ID, true);
 		this.credentialHelper = credentialHelper;
+		this.notificationProducer = notificationProducer;
 	}
 	
 	@Override
@@ -107,8 +111,13 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 	@Override
 	public OTPCredentialReset getCredentialResetBackend()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new OTPCredentialReset(notificationProducer, 
+				identityResolver, 
+				this, 
+				credentialHelper, 
+				credentialName, 
+				(ObjectNode) JsonUtil.toJsonNode(credentialConfig), 
+				credentialConfig.resetSettings);
 	}
 
 	@Override

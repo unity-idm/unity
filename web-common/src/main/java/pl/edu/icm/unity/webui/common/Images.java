@@ -155,7 +155,8 @@ public enum Images
 	coin_piles	(VaadinIcons.COIN_PILES),
 	check_square	(VaadinIcons.CHECK_SQUARE_O),
 	text_label	(VaadinIcons.TEXT_LABEL),
-	eraser		(VaadinIcons.ERASER);
+	eraser		(VaadinIcons.ERASER),
+	check		(VaadinIcons.CHECK);
 	
 	private final Resource resource;
 	private final String path;

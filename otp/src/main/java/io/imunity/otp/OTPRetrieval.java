@@ -29,6 +29,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.otp.reset.OTPCredentialResetController;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
@@ -41,6 +42,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.Images;
@@ -121,14 +123,13 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 		
 		private Button authenticateButton;
 
-		//TODO
-//		private Button lostPhone;
-//		private CredentialEditor credEditor;
-//		private CredentialResetLauncher credResetLauncher;
+		private Button lostDevice;
+		private CredentialEditor credEditor;
+		private CredentialResetLauncher credResetLauncher;
 		
 		public OTPRetrievalComponent(CredentialEditor credEditor)
 		{
-//			this.credEditor = credEditor;
+			this.credEditor = credEditor;
 			initUI();
 		}
 
@@ -171,20 +172,15 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 			codeField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
 			codeField.addBlurListener(e -> authenticateButton.removeClickShortcut());
 
-			//TODO
-//			SMSCredentialRecoverySettings settings = new SMSCredentialRecoverySettings(
-//					JsonUtil.parse(credentialExchange
-//							.getSMSCredentialResetBackend()
-//							.getSettings()));
-
-//			if (settings.isEnabled())
-//			{
-//				lostPhone = new Button(
-//						msg.getMessage("WebSMSRetrieval.lostPhone"));
-//				lostPhone.setStyleName(Styles.vButtonLink.toString());
-//				mainLayout.addComponent(new AuthNGridTextWrapper(lostPhone, Alignment.TOP_RIGHT));
-//				lostPhone.addClickListener(event -> showResetDialog());
-//			}
+			OTPResetSettings resetSettings = credentialExchange.getCredentialResetBackend().getResetSettings();
+			if (resetSettings.enabled)
+			{
+				lostDevice = new Button(
+						msg.getMessage("OTPRetrieval.lostDevice"));
+				lostDevice.setStyleName(Styles.vButtonLink.toString());
+				mainLayout.addComponent(new AuthNGridTextWrapper(lostDevice, Alignment.TOP_RIGHT));
+				lostDevice.addClickListener(event -> showResetDialog());
+			}
 			
 			setCompositionRoot(mainLayout);
 		}
@@ -230,13 +226,13 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 			}
 		}
 		
-//		private void showResetDialog()
-//		{
-//			SMSCredentialResetController controller = new SMSCredentialResetController(msg,
-//					credentialExchange.getSMSCredentialResetBackend(),
-//					credEditor, credResetLauncher.getConfiguration());
-//			credResetLauncher.startCredentialReset(controller.getInitialUI());
-//		}
+		private void showResetDialog()
+		{
+			OTPCredentialResetController controller = new OTPCredentialResetController(msg,
+					credentialExchange.getCredentialResetBackend(),
+					credEditor, credResetLauncher.getConfiguration());
+			credResetLauncher.startCredentialReset(controller.getInitialUI());
+		}
 
 		@Override
 		public void focus()
@@ -284,15 +280,13 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 
 		void hideCredentialReset()
 		{
-			//TODO
-//			if (lostPhone != null)
-//				lostPhone.setVisible(false);
+			if (lostDevice != null)
+				lostDevice.setVisible(false);
 		}
 
 		void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
 		{
-//			this.credResetLauncher = credResetLauncher;
-			
+			this.credResetLauncher = credResetLauncher;
 		}
 		
 		private Optional<String> getUsername()

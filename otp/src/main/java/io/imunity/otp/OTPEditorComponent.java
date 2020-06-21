@@ -9,6 +9,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
@@ -75,6 +77,14 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		mainWithSpacing.setSpacing(true);
 		mainWithSpacing.setMargin(false);
 		setCompositionRoot(mainWithSpacing);
+		
+		if (context.isCustomWidth())
+		{
+			setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			qrCodeComponent.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			textCodeComponent.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			verificationComponent.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		}
 	}
 
 	private void switchCodeComponent()
@@ -88,14 +98,11 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	
 	String getValue() throws MissingCredentialException
 	{
-		if (!context.isRequired() && !verificationComponent.isVerified())
+		if (!context.isRequired() && !verificationComponent.getVerificationStatus())
 			return null;
 		
-		if (context.isRequired() && !verificationComponent.isVerified())
-		{
-			verificationComponent.setComponentError(new UserError(msg.getMessage("OTPEditorComponent.verificationRequired")));
+		if (context.isRequired() && !verificationComponent.getVerificationStatus())
 			throw new MissingCredentialException(msg.getMessage("OTPEditorComponent.verificationRequired"));
-		}
 		
 		verificationComponent.setComponentError(null);
 		OTPCredential credential = new OTPCredential(secret, config.otpParams);
@@ -155,6 +162,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 			updateQR();
 			user.addValueChangeListener(v -> updateQR());
 			main.addComponents(user, info, qr, customizeUser);
+			main.setComponentAlignment(qr, Alignment.MIDDLE_CENTER);
 			setCompositionRoot(main);
 		}
 		
@@ -168,6 +176,14 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		void setReadOnly()
 		{
 			user.setReadOnly(true);
+		}
+		
+		@Override
+		public void setWidth(float width, Unit unit)
+		{
+			super.setWidth(width, unit);
+			if (user != null)
+				user.setWidth(width, unit);
 		}
 	}
 	
@@ -215,25 +231,46 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		private boolean validated;
 		private HorizontalLayout validationLayout;
 		private Label confirmed;
+		private VerticalLayout main;
 		
 		public VerificationComponent()
 		{
 			code = new TextField(); 
 			code.setPlaceholder(msg.getMessage("OTPRetrieval.code", 
 					config.otpParams.codeLength));
-			code.addValueChangeListener(v -> { code.setComponentError(null); setComponentError(null);});
-			Button verify = new Button(msg.getMessage("OTPEditorComponent.verifyButton"));
+			code.addValueChangeListener(v -> code.setComponentError(null));
+			code.addStyleName("u-otp-verification-code");
+			code.setWidthFull();
+			Button verify = new Button();
+			verify.setIcon(Images.check.getResource());
+			verify.setDescription(msg.getMessage("OTPEditorComponent.verifyButton"));
 			verify.addClickListener(e -> this.verify());
+			verify.addStyleName("u-otp-verification-button");
+			verify.setWidthUndefined();
 			validationLayout = new HorizontalLayout();
 			validationLayout.addComponents(code, verify);
-
+			validationLayout.setExpandRatio(code, 1.0f);
+			
 			confirmed = new Label(msg.getMessage("OTPEditorComponent.codeVerified"));
 			confirmed.addStyleName(Styles.success.name());
 			confirmed.setVisible(false);
-			VerticalLayout main = new VerticalLayout(validationLayout, confirmed);
+			main = new VerticalLayout(validationLayout, confirmed);
 			main.setMargin(new MarginInfo(true, false, false, false));
 			main.setSpacing(false);
 			setCompositionRoot(main);
+		}
+		
+		@Override
+		public void setWidth(float width, Unit unit)
+		{
+			super.setWidth(width, unit);
+			if (main != null)
+				main.setWidth(width, unit);
+			if (validationLayout != null)
+				validationLayout.setWidth(width, unit);
+			if (confirmed != null)
+				confirmed.setWidth(100, Unit.PERCENTAGE);
+
 		}
 		
 		@Override
@@ -258,8 +295,11 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 			}
 		}
 		
-		boolean isVerified()
+		boolean getVerificationStatus()
 		{
+			if (validated)
+				return true;
+			verify();
 			return validated;
 		}
 	}
