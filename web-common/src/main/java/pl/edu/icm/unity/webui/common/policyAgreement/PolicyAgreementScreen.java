@@ -45,6 +45,7 @@ public class PolicyAgreementScreen extends CustomComponent
 	private Label infoLabel;
 	private VerticalLayout contents;
 	private Runnable submitHandler;
+	private VerticalLayout mainCenter;
 
 	public PolicyAgreementScreen(MessageSource msg,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
@@ -87,6 +88,12 @@ public class PolicyAgreementScreen extends CustomComponent
 		return this;
 	}
 
+	public PolicyAgreementScreen withWidht(float width, String unit)
+	{
+		mainCenter.setWidth(width, Unit.getUnitFromSymbol(unit));
+		return this;
+	}
+	
 	public PolicyAgreementScreen withSubmitHandler(Runnable submitHandler)
 	{
 		this.submitHandler = submitHandler;
@@ -97,18 +104,17 @@ public class PolicyAgreementScreen extends CustomComponent
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
-		VerticalLayout mainCenter = new VerticalLayout();
+		mainCenter = new VerticalLayout();		
 		mainCenter.setMargin(false);
 		mainCenter.setSpacing(false);
 		contents = new VerticalLayout();
-		contents.addStyleName(Styles.maxWidthColumn.toString());
 		mainCenter.addComponent(contents);
 		mainCenter.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
 		titleLabel = new Label();
-		titleLabel.setStyleName(Styles.textXLarge.toString());
+		titleLabel.setStyleName(Styles.viewTitle.toString());
 		titleLabel.setVisible(false);
 		infoLabel = new Label();
-		infoLabel.setStyleName(Styles.textLarge.toString());
+		infoLabel.setStyleName(Styles.viewSubtitle.toString());
 		infoLabel.setVisible(false);
 		Label space = new Label();
 		contents.addComponent(titleLabel);
@@ -119,6 +125,7 @@ public class PolicyAgreementScreen extends CustomComponent
 		contents.setComponentAlignment(space, Alignment.MIDDLE_CENTER);
 		
 		submitButton = new Button(msg.getMessage("submit"));
+		submitButton.addStyleName(Styles.buttonAction.toString());
 		submitButton.addClickListener(e -> submit());
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setHeight(100, Unit.PERCENTAGE);

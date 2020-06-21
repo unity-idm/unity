@@ -66,6 +66,7 @@ public class PolicyAgreementRepresentation extends CustomComponent
 		
 		main.addComponent(decisionCheckBox);
 		main.addComponent(caption);
+		
 		main.setExpandRatio(decisionCheckBox, 0);
 		main.setExpandRatio(caption, 1);
 		

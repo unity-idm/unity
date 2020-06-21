@@ -1377,7 +1377,17 @@
        	border-bottom: 1px solid $menuTop-bottom-border;
         color: $menuTop-color;
      }
-        
+    
+    
+    .u-viewTitle {
+		font-size: $v-font-size + 4;
+		line-height: 1.2;
+	}
+	
+	.u-viewSubtitle {
+		font-size: $v-font-size + 2;
+		line-height: 1.4;
+	}
    
 }
 

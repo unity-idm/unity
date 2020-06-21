@@ -37,6 +37,10 @@ public class IdpPolicyAgreementsConfigurationParser
 		{
 			config.information.toProperties(ret, prefix + CommonIdPProperties.POLICY_AGREEMENTS_INFO, msg);
 		}
+	
+		ret.put(prefix + CommonIdPProperties.POLICY_AGREEMENTS_WIDTH, String.valueOf(config.width));
+		ret.put(prefix + CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT, config.widthUnit);
+		
 		for (PolicyAgreementConfiguration agreement : config.agreements)
 		{
 			ret.putAll(policyAgreementConfigurationtoProperties(msg,
@@ -54,6 +58,9 @@ public class IdpPolicyAgreementsConfigurationParser
 				CommonIdPProperties.POLICY_AGREEMENTS_TITLE);
 		I18nString information = properties.getLocalizedStringWithoutFallbackToDefault(msg,
 				CommonIdPProperties.POLICY_AGREEMENTS_INFO);
+		int width = properties.getIntValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH);
+		String widthUnit = properties.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT);
+		
 		List<PolicyAgreementConfiguration> agreements = new ArrayList<>();
 
 		for (String key : properties.getStructuredListKeys(CommonIdPProperties.POLICY_AGREEMENTS_PFX))
@@ -63,7 +70,7 @@ public class IdpPolicyAgreementsConfigurationParser
 			agreements.add(config);
 		}
 
-		return new IdpPolicyAgreementsConfiguration(title, information, agreements);
+		return new IdpPolicyAgreementsConfiguration(title, information, width, widthUnit, agreements);
 	}
 
 	private static PolicyAgreementConfiguration policyAgreementConfigurationfromProperties(MessageSource msg,

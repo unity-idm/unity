@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.GroupedValuesChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
@@ -205,6 +206,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 				gotoNew();
 			});
 			add.setIcon(Images.add.getResource());
+			add.setStyleName(Styles.buttonAction.toString());
 			main.addComponent(add);
 			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
 

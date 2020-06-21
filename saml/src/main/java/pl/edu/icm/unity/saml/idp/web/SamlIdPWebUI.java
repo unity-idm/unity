@@ -175,6 +175,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
 				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
 						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
+				.withWidht(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
+						config.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT))
 				.withAgreements(filterAgreementToPresent)
 				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
 	}
