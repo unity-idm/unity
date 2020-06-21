@@ -51,7 +51,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.groups.OptionalGroupsSelection;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -110,10 +110,10 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		HorizontalLayout header = new HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
-		name.addStyleName(SidebarStyles.viewHeader.toString());
+		name.addStyleName(Styles.viewHeader.toString());
 		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
 				Images.add.getResource());
-		addInvitationButton.addStyleName(SidebarStyles.buttonAction.toString());
+		addInvitationButton.addStyleName(Styles.buttonAction.toString());
 		addInvitationButton.addClickListener(e -> {
 
 			new NewInvitationDialog(msg, invitation -> {
@@ -189,7 +189,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		protected Button createConfirmButton()
 		{
 			Button ok = super.createConfirmButton();
-			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			ok.addStyleName(Styles.buttonAction.toString());
 			return ok;
 		}
 

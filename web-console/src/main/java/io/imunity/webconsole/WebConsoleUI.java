@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
  */
 @Component("WebConsoleUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("sidebarThemeValo")
+@Theme("unityThemeValo")
 public class WebConsoleUI extends UnityEndpointUIBase
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
@@ -111,7 +111,7 @@ public class WebConsoleUI extends UnityEndpointUIBase
 	
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
-		naviContent.setStyleName(SidebarStyles.contentBox.toString());
+		naviContent.setStyleName(Styles.contentBox.toString());
 		Navigator navigator = new Navigator(this, naviContent);
 		
 		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()

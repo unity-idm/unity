@@ -47,6 +47,8 @@ public class CommonIdPProperties
 	
 	public static final String POLICY_AGREEMENTS_TITLE = "policyAgreementsTitle";
 	public static final String POLICY_AGREEMENTS_INFO = "policyAgreementsInfo";
+	public static final String POLICY_AGREEMENTS_WIDTH = "policyAgreementsWidth";
+	public static final String POLICY_AGREEMENTS_WIDTH_UNIT = "policyAgreementsWidthUnit";
 	public static final String POLICY_AGREEMENTS_PFX = "policyAgreements.";
 	public static final String POLICY_AGREEMENT_DOCUMENTS = "policyDocuments";
 	public static final String POLICY_AGREEMENT_PRESENTATION_TYPE = "policyAgreementPresentationType";
@@ -115,6 +117,12 @@ public class CommonIdPProperties
 		
 		defaults.put(POLICY_AGREEMENTS_TITLE,
 				new PropertyMD().setCanHaveSubkeys().setDescription("Policy acceptanance view title"));
+		defaults.put(POLICY_AGREEMENTS_INFO, new PropertyMD().setCanHaveSubkeys()
+				.setDescription("Policy acceptanance view additional information"));
+		defaults.put(POLICY_AGREEMENTS_WIDTH,
+				new PropertyMD("40").setDescription("Policy acceptanance view widht"));
+		defaults.put(POLICY_AGREEMENTS_WIDTH_UNIT,
+				new PropertyMD("em").setDescription("Policy acceptanance view width unit"));
 		defaults.put(POLICY_AGREEMENTS_INFO, new PropertyMD().setCanHaveSubkeys()
 				.setDescription("Policy acceptanance view additional information"));
 		defaults.put(POLICY_AGREEMENTS_PFX, new PropertyMD().setStructuredList(true).setDescription(

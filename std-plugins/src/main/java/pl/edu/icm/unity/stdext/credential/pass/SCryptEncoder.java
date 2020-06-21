@@ -50,6 +50,8 @@ public class SCryptEncoder
 		
 		long reservedMemory = 500_000_000;
 		long availableMemory = maxMemory - reservedMemory;
+		if (availableMemory <= 0)
+			return ScryptParams.MIN_WORK_FACTOR;
 		long availablePerThread = availableMemory / parallelizm;
 		long maxCost = availablePerThread / 1024;
 		int maxWorkFactor = -1;

@@ -44,7 +44,6 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -135,7 +134,6 @@ public class AttributesGrid extends CustomComponent
 		attributesGrid.setSizeFull();
 
 		HamburgerMenu<AttributeExt> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getGlobalHamburgerHandlers());
 
 		attributesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());

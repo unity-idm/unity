@@ -13,7 +13,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.menu.MenuElement;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Simple left menu label
@@ -43,7 +43,7 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 		main.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
 		label.setSizeFull();
 		label.setCaptionAsHtml(true);
-		setStyleName(SidebarStyles.menuLabel.toString());
+		setStyleName(Styles.menuLabel.toString());
 		setCompositionRoot(main);
 	}
 

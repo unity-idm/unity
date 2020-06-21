@@ -97,6 +97,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 		main.addComponent(HtmlTag.horizontalLine());
 
 		addColumnButton = new Button();
+		addColumnButton.setStyleName(Styles.buttonAction.toString());
 		addColumnButton.setIcon(Images.add.getResource());
 		addColumnButton.setCaption(msg.getMessage("WebServiceAuthnScreenLayoutEditor.addColumn"));
 		addColumnButton.addClickListener(ev -> {

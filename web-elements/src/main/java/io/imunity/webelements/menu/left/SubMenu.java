@@ -17,7 +17,7 @@ import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Submenu component. Contains show/hide button and layout for submenu content.
@@ -68,7 +68,7 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.addComponents(button, content);
-		setStyleName(SidebarStyles.subMenu.toString());
+		setStyleName(Styles.subMenu.toString());
 		menuElements = new HashMap<>();
 		setCompositionRoot(main);
 	}
@@ -110,19 +110,19 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 
 	public SubMenu open()
 	{
-		addStyleName(SidebarStyles.subMenuOpen.toString());
+		addStyleName(Styles.subMenuOpen.toString());
 		return this;
 	}
 
 	public SubMenu close()
 	{
-		removeStyleName(SidebarStyles.subMenuOpen.toString());
+		removeStyleName(Styles.subMenuOpen.toString());
 		return this;
 	}
 
 	public boolean isOpen()
 	{
-		return getStyleName().contains(SidebarStyles.subMenuOpen.toString());
+		return getStyleName().contains(Styles.subMenuOpen.toString());
 	}
 
 	@Override

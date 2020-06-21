@@ -33,6 +33,8 @@ public class SmallGrid<T> extends Grid<T>
 	
 	private void setup()
 	{
-		addStyleName(Styles.uGridNoHorizontalLines.toString());
+		addStyleName(Styles.gridNoHorizontalLines.toString());
+		setStyleName(Styles.gridWithAction.toString());
+		addStyleName(Styles.smallGrid.toString());
 	}
 }

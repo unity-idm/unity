@@ -40,7 +40,7 @@ public class OAuthServiceConfigurationTest
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, defaults).get();
 		
-		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(Collections.emptyList());
+		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList());
 		String converted = processor.toProperties(msg);
@@ -59,7 +59,7 @@ public class OAuthServiceConfigurationTest
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(P, OAuthASProperties.defaults)
 				.get();
-		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(Collections.emptyList());
+		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList());
 		String converted = processor.toProperties(msg);
@@ -85,7 +85,7 @@ public class OAuthServiceConfigurationTest
 				.update("policyAgreements.1.policyAgreementPresentationType",
 						PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED.toString())
 				.get();
-		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(Collections.emptyList());
+		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList());
 		String converted = processor.toProperties(msg);

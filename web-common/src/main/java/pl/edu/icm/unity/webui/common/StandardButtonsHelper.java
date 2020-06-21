@@ -58,7 +58,7 @@ public class StandardButtonsHelper
 		layout.setWidth(100, Unit.PERCENTAGE);
 		Button button = new Button();
 		button.setCaption(caption);
-		button.addStyleName(Styles.vButtonLink.toString());
+		button.addStyleName(Styles.gridLinkButton.toString());
 		button.addStyleName(Styles.vBorderLess.toString());
 		button.addClickListener(clickListener);
 		layout.addComponent(button);

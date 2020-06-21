@@ -26,7 +26,6 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
@@ -70,7 +69,6 @@ class InvitationsGrid extends CustomComponent
 		invitationsGrid.setSizeFull();
 
 		HamburgerMenu<InvitationEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getHamburgerActionsHandlers());
 		invitationsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 

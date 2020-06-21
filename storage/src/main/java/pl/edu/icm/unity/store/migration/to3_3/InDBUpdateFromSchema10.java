@@ -6,17 +6,30 @@
 package pl.edu.icm.unity.store.migration.to3_3;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
+import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 
 /**
- * Empty update from schema version 9
+ * Update from schema version 10
  */
 @Component
 public class InDBUpdateFromSchema10 implements InDBContentsUpdater
 {
+	@Autowired
+	private ObjectStoreDAO genericObjectsDAO;
+	
+	
+	
 	@Override
 	public int getUpdatedVersion()
 	{
@@ -26,5 +39,21 @@ public class InDBUpdateFromSchema10 implements InDBContentsUpdater
 	@Override
 	public void update() throws IOException
 	{
+		updateEndpointConfiguration();
+	}
+	
+	private void updateEndpointConfiguration()
+	{
+		List<GenericObjectBean> endpoints = genericObjectsDAO.getObjectsOfType(EndpointHandler.ENDPOINT_OBJECT_TYPE);
+		for (GenericObjectBean endpoint : endpoints)
+		{
+			ObjectNode objContent = JsonUtil.parse(endpoint.getContents());
+			if (UpdateHelperTo11.updateEndpointConfiguration(objContent).isPresent())
+			{		
+				endpoint.setContents(JsonUtil.serialize2Bytes(objContent));
+				genericObjectsDAO.updateByKey(endpoint.getId(), endpoint);
+			}
+		}
+		
 	}
 }

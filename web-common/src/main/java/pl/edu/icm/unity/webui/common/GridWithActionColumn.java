@@ -81,7 +81,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		}
 
 		setSelectionMode(SelectionMode.NONE);
-		setStyleName("u-gridWithAction");
+		setStyleName(Styles.gridWithAction.toString());
 		refreshHeight();
 		filters = new ArrayList<>();
 		addColumnVisibilityChangeListener(event -> refreshActionColumn());
@@ -323,7 +323,6 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			HamburgerMenu<T> menu = new HamburgerMenu<T>();
 			menu.setTarget(target);
 			menu.addActionHandlers(hamburgerActionHandlers);
-			menu.addStyleName(SidebarStyles.sidebar.toString());
 			actions.addComponent(menu);
 		}
 

@@ -70,8 +70,11 @@ public enum Styles
 	indent("u-indent"),
 	link("u-link"),
 	hamburgerMenu("u-hamburgerMenu"),
-	uGridNoHorizontalLines("u-noGridHorizontalLines"),
-	uDenseTreeGrid("u-denseTreeGrid"),
+	gridNoHorizontalLines("u-noGridHorizontalLines"),
+	denseTreeGrid("u-denseTreeGrid"),
+	gridWithAction("u-gridWithAction"),
+	smallGrid("u-smallGrid"),
+	border("u-border"),
 	smallIconLabel("u-smallIconLabel"),
 	mediumIcon("u-mediumIcon"),
 	largeIcon("u-largeIcon"),
@@ -92,7 +95,32 @@ public enum Styles
 	narrowTable("u-narrowTable"),
 	borderBold("u-border-bold"),
 	borderBoldGreen("u-border-bold-green"),
-	readOnlyComboBox("u-readOnlyComboBox"),
+	readOnlyComboBox("u-readOnlyComboBox"),	
+	indentSmall("u-indentSmall"),	
+	buttonAction("u-button-action"),
+	fixedWidthCaptions("u-fixedWidthCaptions"),
+	fixedWidthShortCaptions("u-fixedWidthCaptionsSmall"),
+	gridLinkButton("u-button-grid-link"),
+	viewTitle("u-viewTitle"),
+	viewSubtitle("u-viewSubtitle"),
+	
+	//Sidebar
+	sidebar("u-sidebar"),
+	leftMenu("u-leftMenu"),
+	topRightMenu("u-topRightMenu"),
+	headerBar("u-headerBar"),
+	contentBox("u-contentBox"),
+	rootContent("u-rootContent"),
+	menuButton("u-menuButton"),
+	menuButtonClickable("u-clickable"),
+	menuButtonActive("u-active"),
+	menuLabel("u-menuLabel"),
+	menuCombo("u-menuCombo"),
+	subMenu("u-subMenu"),
+	subMenuOpen("u-open"),
+	tooltip("u-toolTip"),
+	breadcrumbs("u-breadcrumbs"),
+	viewHeader("u-viewHeader"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -113,6 +141,8 @@ public enum Styles
 	vDropLayout("drop-layout"),	
 	vGroupBrowser("v-tree8"),
 	vPanelBorderless(ValoTheme.PANEL_BORDERLESS);
+	
+	
 	
 	
 	/**

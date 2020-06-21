@@ -17,7 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Main layout of left sidebar like endpoint
@@ -35,7 +35,7 @@ public class SidebarLayout extends CustomComponent
 			Component topComponent)
 	{
 		setSizeFull();
-		setStyleName(SidebarStyles.sidebar.toString());
+		setStyleName(Styles.sidebar.toString());
 		this.topRightMenu = new TopRightMenu();
 		this.leftMenu = new LeftMenu(viewMan);
 
@@ -47,12 +47,12 @@ public class SidebarLayout extends CustomComponent
 		rootContent.setSizeFull();
 		rootContent.setMargin(false);
 		rootContent.setSpacing(false);
-		rootContent.setStyleName(SidebarStyles.rootContent.toString());
+		rootContent.setStyleName(Styles.rootContent.toString());
 
 		HorizontalLayout headerBar = new HorizontalLayout();
 		headerBar.setSpacing(false);
 		headerBar.setMargin(new MarginInfo(false, true));
-		headerBar.setStyleName(SidebarStyles.headerBar.toString());
+		headerBar.setStyleName(Styles.headerBar.toString());
 		headerBar.setWidth(100, Unit.PERCENTAGE);
 		headerBar.setHeightUndefined();
 

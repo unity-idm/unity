@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.data.Binder;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
@@ -19,12 +20,13 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
  * @author P.Piernik
  *
  */
-public class TextFieldWithChangeConfirmation<T extends CustomField<String>> extends CustomField<String>
+public class TextFieldWithChangeConfirmation<T extends AbstractField<String>> extends CustomField<String>
 {
 	private MessageSource msg;
 	private T field;
 	private boolean editMode;
 	private Binder<StringBindingValue> binder;
+	private String realValue;
 
 	public TextFieldWithChangeConfirmation(MessageSource msg, T content)
 	{
@@ -38,7 +40,7 @@ public class TextFieldWithChangeConfirmation<T extends CustomField<String>> exte
 	{
 		if (!editMode)
 		{
-			return field.getValue();
+			return realValue;
 		} else
 		{
 			return null;
@@ -75,6 +77,7 @@ public class TextFieldWithChangeConfirmation<T extends CustomField<String>> exte
 			}
 
 			editMode = false;
+			realValue = field.getValue();
 			fireEvent(new ValueChangeEvent<String>(this, field.getValue(), true));
 			field.setVisible(false);
 			change.setVisible(true);
@@ -107,7 +110,7 @@ public class TextFieldWithChangeConfirmation<T extends CustomField<String>> exte
 	@Override
 	protected void doSetValue(String value)
 	{
-
+		realValue = value;
 	}
 
 	@Override

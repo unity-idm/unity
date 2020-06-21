@@ -118,6 +118,8 @@ public class CredentialManagementImpl implements CredentialManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIsNotReadOnly(updated);
 		assertIsNotSystemCredential(updated.getName());
+		CredentialDefinition existing = credentialDB.get(updated.getName());
+		assertTypeUnchanged(updated, existing);
 		
 		CredentialHolder helper = new CredentialHolder(updated, localCredReg);
 		//get all cred reqs with it
@@ -150,6 +152,13 @@ public class CredentialManagementImpl implements CredentialManagement
 		credentialDB.updateControlled(updated, flags);
 		
 		authenticatorsService.refreshAuthenticatorsOfCredential(updated.getName());
+	}
+
+	private void assertTypeUnchanged(CredentialDefinition updated, CredentialDefinition existing)
+	{
+		if (!updated.getTypeId().equals(existing.getTypeId()))
+			throw new IllegalArgumentException("Credential '" + updated.getName() + 
+					"' can not have its type changed from " + existing.getTypeId());
 	}
 
 	private EnumSet<UpdateFlag> getUpdateFlags(CredentialDefinition updated)

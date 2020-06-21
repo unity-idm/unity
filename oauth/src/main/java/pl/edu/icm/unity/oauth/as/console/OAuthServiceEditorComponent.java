@@ -105,7 +105,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		registerTab(policyAgreementTab);
 
 		OAuthServiceDefinition oauthServiceToEdit;
-		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(allGroups);
+		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(msg, allGroups);
 		oauthConfig.setClientGroup(new GroupWithIndentIndicator(generatedClientsGroup, false));
 
 		DefaultServiceDefinition webAuthzService = new DefaultServiceDefinition(

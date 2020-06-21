@@ -17,10 +17,10 @@ public class FormLayoutWithFixedCaptionWidth extends FormLayout
 {
 	public FormLayoutWithFixedCaptionWidth()
 	{
-		this(SidebarStyles.fixedWidthCaptions);
+		this(Styles.fixedWidthCaptions);
 	}
 
-	private  FormLayoutWithFixedCaptionWidth(SidebarStyles style)
+	private  FormLayoutWithFixedCaptionWidth(Styles style)
 	{
 		addStyleName(style.toString());
 		setMargin(true);
@@ -28,7 +28,7 @@ public class FormLayoutWithFixedCaptionWidth extends FormLayout
 	
 	public static FormLayoutWithFixedCaptionWidth withShortCaptions()
 	{
-		return new FormLayoutWithFixedCaptionWidth(SidebarStyles.fixedWidthShortCaptions);
+		return new FormLayoutWithFixedCaptionWidth(Styles.fixedWidthShortCaptions);
 	}
 
 }

@@ -40,7 +40,7 @@ class UpManServiceController extends WebServiceControllerBase
 	{
 		super(UpManEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
 				uriAccessService, imageAccessService, fileStorageService, serverConfig, authenticatorSupportService, networkServer,
-				ThemeConstans.sidebarTheme);
+				ThemeConstans.unityTheme);
 	}
 
 }

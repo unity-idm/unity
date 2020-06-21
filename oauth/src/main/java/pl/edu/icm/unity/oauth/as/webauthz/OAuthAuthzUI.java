@@ -81,14 +81,13 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
-	
+
 	@Autowired
-	public OAuthAuthzUI(MessageSource msg, OAuthProcessor oauthProcessor,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
-			EnquiresDialogLauncher enquiryDialogLauncher, IdentityTypeSupport idTypeSupport,
-			AttributeTypeSupport aTypeSupport, SessionManagement sessionMan,
-			PolicyAgreementManagement policyAgreementsMan,
+	public OAuthAuthzUI(MessageSource msg, OAuthProcessor oauthProcessor, AttributeHandlerRegistry handlersRegistry,
+			PreferencesManagement preferencesMan, StandardWebAuthenticationProcessor authnProcessor,
+			IdPEngine idpEngine, EnquiresDialogLauncher enquiryDialogLauncher,
+			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
+			SessionManagement sessionMan, PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
 	{
 		super(msg, enquiryDialogLauncher);
@@ -135,7 +134,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		}
 		return filterAgreementToPresent;
 	}
-	
+
 	private void policyAgreementsStage(OAuthAuthzContext ctx, OAuthASProperties config,
 			List<PolicyAgreementConfiguration> filterAgreementToPresent)
 	{
@@ -145,12 +144,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
 						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
 				.withAgreements(filterAgreementToPresent)
+				.withWidht(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
+						config.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT))
 				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
 	}
-	
+
 	private void activeValueSelectionAndConsentStage(OAuthAuthzContext ctx, OAuthASProperties config)
 	{
-		
+
 		TranslationResult translationResult;
 		try
 		{

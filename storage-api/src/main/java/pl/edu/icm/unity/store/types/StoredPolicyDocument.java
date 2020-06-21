@@ -47,6 +47,7 @@ public class StoredPolicyDocument implements NamedObject
 	public StoredPolicyDocument()
 	{
 		contentType = PolicyDocumentContentType.EMBEDDED;
+		revision = 1;
 	}
 
 	@JsonCreator

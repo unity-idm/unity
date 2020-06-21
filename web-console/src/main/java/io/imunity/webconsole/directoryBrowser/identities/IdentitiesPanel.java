@@ -56,7 +56,6 @@ import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -225,7 +224,6 @@ public class IdentitiesPanel extends SafePanel
 			IdentityConfirmHandler confirmHandler, EntityMergeHandler entityMergeHandler)
 	{
 		HamburgerMenu<IdentityEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		identitiesTable.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		SingleActionHandler<IdentityEntry> entityCreationAction = entityCreationDialogHandler

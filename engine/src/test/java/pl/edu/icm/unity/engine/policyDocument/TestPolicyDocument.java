@@ -60,7 +60,7 @@ public class TestPolicyDocument extends DBIntegrationTestBase
 		assertThat(docRet.content, is(new I18nString("contu")));
 		assertThat(docRet.contentType, is(PolicyDocumentContentType.LINK));
 		assertThat(docRet.mandatory, is(false));
-		assertThat(docRet.revision, is(1));
+		assertThat(docRet.revision, is(2));
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class TestPolicyDocument extends DBIntegrationTestBase
 		assertThat(docRet.content, is(new I18nString("contu")));
 		assertThat(docRet.contentType, is(PolicyDocumentContentType.LINK));
 		assertThat(docRet.mandatory, is(false));
-		assertThat(docRet.revision, is(0));
+		assertThat(docRet.revision, is(1));
 	}
 
 	@Test

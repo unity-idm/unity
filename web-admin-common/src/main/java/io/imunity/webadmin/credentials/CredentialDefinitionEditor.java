@@ -102,6 +102,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		if (initial != null)
 		{
 			name.setReadOnly(true);
+			credentialType.setReadOnly(true);
 			setCredentialEditor(initial.getConfiguration(), initial.getTypeId());
 		} else
 			setCredentialEditor(null, firstType);

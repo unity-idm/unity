@@ -5,24 +5,30 @@
 
 package pl.edu.icm.unity.store.migration.to3_3;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.JsonDumpUpdate;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 
 /**
- * Update JSon dump adding an empty policyDocumentsarrays if header not contain
+ * Update JSon dump adding an empty policyDocuments arrays if header not contain
  * dumpElements.
  * 
  * @author P.Piernik
@@ -48,6 +54,8 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 
 		ObjectNode contents = (ObjectNode) root.get("contents");
+		updateEndpointConfiguration(contents);
+		
 		JsonNode dumpElements = root.get("dumpElements");
 		if (dumpElements == null)
 		{
@@ -75,5 +83,29 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 			}
 		}
 		return newContents;
+	}
+	
+	private void updateEndpointConfiguration(ObjectNode contents)
+	{
+		for (ObjectNode objContent : getGenericContent(contents,
+				EndpointHandler.ENDPOINT_OBJECT_TYPE))
+		{
+			UpdateHelperTo11.updateEndpointConfiguration(objContent);
+		}
+
+	}
+	
+	private Set<ObjectNode> getGenericContent(ObjectNode contents, String type)
+	{
+		Set<ObjectNode> ret = new HashSet<>();
+		ArrayNode generics = (ArrayNode) contents.get(type);
+		if (generics != null)
+		{
+			for (JsonNode obj : generics)
+			{
+				ret.add((ObjectNode) obj.get("obj"));
+			}
+		}
+		return ret;
 	}
 }

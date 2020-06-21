@@ -23,7 +23,6 @@ import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -55,7 +54,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 		main = new VerticalLayout();
 		setWidth(250, Unit.PIXELS);
 		setHeight(100, Unit.PERCENTAGE);
-		setStyleName(SidebarStyles.leftMenu.toString());
+		setStyleName(Styles.leftMenu.toString());
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);
