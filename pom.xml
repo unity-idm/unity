@@ -24,6 +24,7 @@
 		<apacheds.version>2.0.0-M24</apacheds.version>
 		<bc.version>1.65</bc.version>
 		<selenium.version>3.14.0</selenium.version>
+		<junit5.version>5.6.2</junit5.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -73,6 +74,7 @@
 		<module>ldap</module>
 		<module>oauth</module>
 		<module>pam</module>
+		<module>otp</module>
 		<module>integration-tests</module>
 		<module>distribution</module>
 		<module>documentation</module>
@@ -292,6 +294,18 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>${junit5.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-params</artifactId>
+				<version>${junit5.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -531,6 +545,11 @@
 				<version>${vaadin.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.vaadin.addons</groupId>
+				<artifactId>qrcode</artifactId>
+				<version>2.1</version>
+			</dependency>			
+			<dependency>
 				<groupId>edu.vt.middleware</groupId>
 				<artifactId>vt-password</artifactId>
 				<version>3.1.2</version>
@@ -625,6 +644,11 @@
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
 				<version>1.6</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.13</version>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>

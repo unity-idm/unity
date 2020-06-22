@@ -52,7 +52,6 @@ public class PasswordFieldsComponent extends CustomComponent
 	public PasswordFieldsComponent(MessageSource msg, CredentialEditorContext context, 
 			PasswordCredential config, Consumer<String> onPasswordChangeListener)
 	{
-		super();
 		this.msg = msg;
 		this.config = config;
 		this.context = context;

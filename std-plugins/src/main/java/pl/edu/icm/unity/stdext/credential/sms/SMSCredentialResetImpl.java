@@ -54,6 +54,5 @@ public class SMSCredentialResetImpl extends CredentialResetBase
 	public void setSubject(IdentityTaV subject)
 	{
 		super.setSubject(subject, SMSVerificator.IDENTITY_TYPES);
-		
 	}
 }

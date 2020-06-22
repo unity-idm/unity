@@ -29,7 +29,7 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 		super.extend(component);
 	}
 
-	public static void build(AbstractComponent component, String tooltipText)
+	public static void tooltip(AbstractComponent component, String tooltipText)
 	{
 		TooltipExtension te = new TooltipExtension();
 		te.getState().tooltipText = tooltipText == null ? "" : tooltipText;
@@ -41,8 +41,8 @@ public class TooltipExtension extends AbstractJavaScriptExtension
 		te.extend(component);
 	}
 
-	public static void buildDescriptionBased(AbstractComponent component)
+	public static void tooltip(AbstractComponent component)
 	{
-		build(component, component.getDescription());
+		tooltip(component, component.getDescription());
 	}
 }

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.config;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -250,5 +251,18 @@ public class UnityPropertiesHelper extends PropertiesHelper
 			throw new InternalException("Can not save properties to string");
 		}
 		return writer.getBuffer().toString();
+	}
+	
+	public static Properties parse(String properties)
+	{
+		Properties raw = new Properties();
+		try
+		{
+			raw.load(new StringReader(properties));
+		} catch (IOException e)
+		{
+			throw new InternalException("Can not parse proeprties", e);
+		}
+		return raw;
 	}
 }

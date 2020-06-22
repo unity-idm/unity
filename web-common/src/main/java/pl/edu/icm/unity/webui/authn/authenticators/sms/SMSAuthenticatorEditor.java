@@ -5,8 +5,6 @@
 
 package pl.edu.icm.unity.webui.authn.authenticators.sms;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -17,8 +15,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
@@ -153,15 +151,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 
 		public void fromProperties(String properties, MessageSource msg)
 		{
-			Properties raw = new Properties();
-			try
-			{
-				raw.load(new StringReader(properties));
-			} catch (IOException e)
-			{
-				throw new InternalException("Invalid configuration of the sms verificator", e);
-			}
-
+			Properties raw = UnityPropertiesHelper.parse(properties);
 			SMSRetrievalProperties smsRetrievalProperties = new SMSRetrievalProperties(raw);
 			setRetrievalName(smsRetrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg, SMSRetrievalProperties.NAME));
 		}

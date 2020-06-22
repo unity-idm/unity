@@ -151,11 +151,11 @@ public class AuthenticatorLoader
 			CredentialHolder credential = new CredentialHolder(credDef, localCredReg);
 			String localCredentialConfig = credential.getCredentialDefinition()
 					.getConfiguration();
-			return authenticatorFactory.restoreLocalAuthenticator(
+			return authenticatorFactory.createLocalAuthenticator(
 					authnConfiguration, localCredentialConfig, binding);
 		} else
 		{
-			return authenticatorFactory.restoreRemoteAuthenticator(	authnConfiguration, binding);
+			return authenticatorFactory.createRemoteAuthenticator(	authnConfiguration, binding);
 		}
 	}
 	

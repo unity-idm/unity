@@ -30,7 +30,6 @@ public class PasswordEditorComponent extends CustomComponent implements Componen
 	
 	public PasswordEditorComponent(MessageSource msg, CredentialEditorContext context, PasswordCredential config)
 	{
-		super();
 		qualityComponent = new PasswordQualityComponent(msg, config, context);
 		fieldsComponent = new PasswordFieldsComponent(msg, context, config, qualityComponent::onNewPassword);
 		
