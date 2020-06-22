@@ -129,7 +129,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		{
 			binder.setBean(new OTPDefinitionBean());
 		}
-		FormLayout form = new FormLayout(issuer, codeLength, allowedTimeDrift, timeStep, hashAlgorithm,  
+		FormLayout form = new FormLayout(issuer, allowedTimeDrift, timeStep, codeLength, hashAlgorithm,  
 				enableReset, confirmationMode, resetCodeLength, 
 				resetEmailMsgTemplateCombo, resetSMSCodeTemplateCombo);
 		form.setSpacing(true);

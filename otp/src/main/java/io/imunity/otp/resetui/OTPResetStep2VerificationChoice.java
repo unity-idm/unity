@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.otp.reset;
+package io.imunity.otp.resetui;
 
 import java.util.function.Consumer;
 
@@ -12,7 +12,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.otp.reset.OTPCredentialResetController.VerificationMethod;
+import io.imunity.otp.resetui.OTPCredentialResetController.VerificationMethod;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
