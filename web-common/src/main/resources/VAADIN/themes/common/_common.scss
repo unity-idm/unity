@@ -705,8 +705,14 @@
 	.u-veryLargeIcon .v-icon {
 		font-size : 34px;
 	}
+	
 	.u-signInButton {
+		@extend .u-button-action;
 		width: 100%;
+		
+		&:hover {
+   			@extend .u-button-action:hover
+  		}
 	}
 
 	.u-signInButton .v-button-wrap img {
