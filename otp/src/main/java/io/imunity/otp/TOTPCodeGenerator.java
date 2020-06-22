@@ -25,12 +25,12 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base32;
 import org.bouncycastle.util.encoders.Hex;
 
-public class TOTPCodeGenerator
+class TOTPCodeGenerator
 {
 	private static final int[] DIGITS_POWER = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 	private static final Base32 BASE32_ENCODER = new Base32();
 	
-	public static String generateTOTP(String keyBase32, long timestampSec, OTPGenerationParams params)
+	static String generateTOTP(String keyBase32, long timestampSec, OTPGenerationParams params)
 	{
 		String time = getTimeStepHexEncoded(timestampSec, params.timeStepSeconds);
 		byte[] msg = Hex.decode(time);

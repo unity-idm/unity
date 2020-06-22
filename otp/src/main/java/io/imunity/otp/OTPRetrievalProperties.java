@@ -16,7 +16,7 @@ import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
-public class OTPRetrievalProperties extends UnityPropertiesHelper
+class OTPRetrievalProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OTPRetrievalProperties.class);
 
@@ -35,7 +35,7 @@ public class OTPRetrievalProperties extends UnityPropertiesHelper
 						+ "Can have multiple language variants defined with subkeys."));
 	}
 	
-	public OTPRetrievalProperties(Properties properties)
+	OTPRetrievalProperties(Properties properties)
 	{
 		super(P, properties, defaults, log);
 	}

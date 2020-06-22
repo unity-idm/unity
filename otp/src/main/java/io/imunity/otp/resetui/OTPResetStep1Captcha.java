@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.CaptchaComponent;
 /**
  * Bootstraps OTP credential reset pipeline: captcha and username.
  */
-public class OTPResetStep1Captcha extends CredentialResetLayout
+class OTPResetStep1Captcha extends CredentialResetLayout
 {
 	private MessageSource msg;
 	
@@ -32,7 +32,7 @@ public class OTPResetStep1Captcha extends CredentialResetLayout
 
 	private boolean compactLayout;
 	
-	public OTPResetStep1Captcha(CredentialResetFlowConfig credResetConfig, Consumer<String> proceedCallback)
+	OTPResetStep1Captcha(CredentialResetFlowConfig credResetConfig, Consumer<String> proceedCallback)
 	{
 		super(credResetConfig);
 		this.msg = credResetConfig.msg;

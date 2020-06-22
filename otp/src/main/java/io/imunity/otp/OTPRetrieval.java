@@ -56,10 +56,10 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  * Retrieves OTP code using a Vaadin textfield
  */
 @PrototypeComponent
-public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements VaadinAuthentication
+class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements VaadinAuthentication
 {
-	public static final String NAME = "web-otp";
-	public static final String DESC = "OTPRetrievalFactory.desc";
+	static final String NAME = "web-otp";
+	static final String DESC = "OTPRetrievalFactory.desc";
 	
 	private MessageSource msg;
 	private I18nString name;
@@ -399,10 +399,10 @@ public class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> imple
 	}
 
 	@org.springframework.stereotype.Component
-	public static class Factory extends AbstractCredentialRetrievalFactory<OTPRetrieval>
+	static class Factory extends AbstractCredentialRetrievalFactory<OTPRetrieval>
 	{
 		@Autowired
-		public Factory(ObjectFactory<OTPRetrieval> factory)
+		Factory(ObjectFactory<OTPRetrieval> factory)
 		{
 			super(NAME, DESC, VaadinAuthentication.NAME, factory, OTPExchange.ID);
 		}

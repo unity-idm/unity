@@ -4,7 +4,7 @@
  */
 package io.imunity.otp;
 
-public enum HashFunction 
+enum HashFunction 
 {
 	SHA1("HmacSHA1", 160),
 	SHA256("HmacSHA256", 256), 

@@ -4,9 +4,9 @@
  */
 package io.imunity.otp;
 
-public class TOTPCodeVerificator
+class TOTPCodeVerificator
 {
-	public static boolean verifyCode(String code, String secret, OTPGenerationParams params, int allowedDriftSteps)
+	static boolean verifyCode(String code, String secret, OTPGenerationParams params, int allowedDriftSteps)
 	{
 		long currentTime = System.currentTimeMillis();
 		return verifyCode(code, secret, currentTime, params, allowedDriftSteps);

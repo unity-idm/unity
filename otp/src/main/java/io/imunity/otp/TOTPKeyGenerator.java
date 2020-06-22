@@ -23,12 +23,12 @@ import java.security.SecureRandom;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.http.client.utils.URIBuilder;
 
-public class TOTPKeyGenerator
+class TOTPKeyGenerator
 {
 	private static final SecureRandom RNG = new SecureRandom();
 	private static final Base32 BASE32_ENCODER = new Base32();
 	
-	public static String generateTOTPURI(String secretBase32, String label, String issuer, OTPGenerationParams otpParams)
+	static String generateTOTPURI(String secretBase32, String label, String issuer, OTPGenerationParams otpParams)
 	{
 		if (issuer.contains(":"))
 			throw new IllegalArgumentException("Issuer can not contain colon");
@@ -50,7 +50,7 @@ public class TOTPKeyGenerator
 		}
 	}
 	
-	public static String generateRandomBase32EncodedKey(HashFunction hashFunction)
+	static String generateRandomBase32EncodedKey(HashFunction hashFunction)
 	{
 		int bytes = hashFunction.bitLength / 8;
 		byte[] key = new byte[bytes];

@@ -48,7 +48,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 	private final NotificationProducer notificationProducer;
 	
 	@Autowired
-	public OTPVerificator(CredentialHelper credentialHelper, NotificationProducer notificationProducer)
+	OTPVerificator(CredentialHelper credentialHelper, NotificationProducer notificationProducer)
 	{
 		super(OTP.NAME, DESC, OTPExchange.ID, true);
 		this.credentialHelper = credentialHelper;
