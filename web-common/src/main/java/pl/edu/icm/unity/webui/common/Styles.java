@@ -103,6 +103,7 @@ public enum Styles
 	gridLinkButton("u-button-grid-link"),
 	viewTitle("u-viewTitle"),
 	viewSubtitle("u-viewSubtitle"),
+	policyAgreementItem("u-policyagreement-item"),
 	
 	//Sidebar
 	sidebar("u-sidebar"),
