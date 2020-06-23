@@ -1291,6 +1291,11 @@
 		background-color: $content-bg-color;
 	}
 	
+	.u-denseTreeGrid .v-treegrid-row > td:first-child {
+    	padding-left: 6px;
+   		width: 28px !important;
+	}
+	
 	.u-denseTreeGrid .v-treegrid-row-stripe {
 		background-color : $content-bg-color;
 	}
@@ -1326,6 +1331,11 @@
 	   	padding-left: 6px;
 	   	transform: none !important	
 	}
+	
+//	.u-denseTreeGrid .v-treegrid-header th:nth-child(2) {
+//		padding-left: 26px;
+//		transform: none !important;
+//	}
           
     .u-denseTreeGrid .v-treegrid-row-focused::before {
        	border: none;
