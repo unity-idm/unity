@@ -1079,6 +1079,16 @@
 		opacity: 1;		
 	}
 	
+	.u-showHideButton:hover:after {
+		background-color: transparent !important;
+		background: transparent !important;
+	}
+	
+	.u-showHideButton:active:after {
+		background-color: transparent !important;
+		background: transparent !important;
+	}
+	
 	.u-imagePreview {
 		max-height : 15em;
 		max-width : 15em;
@@ -1213,6 +1223,7 @@
 		font-weight : unset;
        	background-color: transparent;
        	text-decoration: none;
+       	padding-left: 0px;
     }
 
     .u-button-grid-link:hover {
