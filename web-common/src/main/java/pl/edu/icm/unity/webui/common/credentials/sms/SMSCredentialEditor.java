@@ -9,13 +9,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
@@ -255,19 +258,20 @@ public class SMSCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getViewer(String credentialInfo)
+	public Optional<Component> getViewer(String credentialInfo)
 	{
-		ComponentsContainer ret = new ComponentsContainer();
+		VerticalLayout ret = new VerticalLayout();
+		ret.setMargin(false);
 
 		SMSCredentialExtraInfo pei = SMSCredentialExtraInfo.fromJson(credentialInfo);
 		if (pei.getLastChange() == null)
-			return ret;
+			return Optional.empty();
 
-		ret.add(new Label(msg.getMessage("SMSCredentialEditor.lastModification",
+		ret.addComponent(new Label(msg.getMessage("SMSCredentialEditor.lastModification",
 				pei.getLastChange())));
-		ret.add(new Label(msg.getMessage("SMSCredentialEditor.selectedMobileNumber",
+		ret.addComponent(new Label(msg.getMessage("SMSCredentialEditor.selectedMobileNumber",
 				hideMobile(pei.getMobile()))));
-		return ret;
+		return Optional.of(ret);
 	}
 	
 	private String hideMobile(String mobile)

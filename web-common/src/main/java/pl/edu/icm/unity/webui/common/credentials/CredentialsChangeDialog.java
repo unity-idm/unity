@@ -58,7 +58,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 		this.credMan = credMan;
 		this.authnFlowMan = authnFlowMan;
 		this.tokenMan = tokenMan;
-		setSizeEm(45, 55);
+		setSizeEm(49, 55);
 	}
 
 	public CredentialsChangeDialog init(long entityId, boolean simpleMode, Callback callback)

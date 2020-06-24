@@ -5,9 +5,12 @@
 
 package io.imunity.otp;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Strings;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.JsonUtil;
@@ -43,14 +46,14 @@ class OTPCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getViewer(String credentialInfo)
+	public Optional<Component> getViewer(String credentialInfo)
 	{
 		if (Strings.isNullOrEmpty(credentialInfo))
-			return new ComponentsContainer();
+			return Optional.empty();
 		OTPExtraInfo extraInfo = JsonUtil.parse(credentialInfo, OTPExtraInfo.class);
 		Label lastChange = new Label(msg.getMessage("OTPCredentialEditor.lastModification", 
 				extraInfo.lastModification));
-		return new ComponentsContainer(lastChange);
+		return Optional.of(lastChange);
 	}
 	
 	@Override
