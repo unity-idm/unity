@@ -8,7 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
-import io.imunity.fido.FidoManagement;
+import io.imunity.fido.FidoRegistration;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -42,13 +42,16 @@ class FidoEditorComponent extends CustomComponent
 	private final FidoComponent fidoComponent;
 	private final VerticalLayout credentialsLayout;
 
-	public FidoEditorComponent(final FidoManagement fidoService, final CredentialEditorContext context, final MessageSource msg)
+	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, final MessageSource msg)
 	{
 		this.msg = msg;
 
-		fidoComponent = FidoComponent.builder(fidoService ,msg)
+		fidoComponent = FidoComponent.builder(msg)
+				.fidoRegistration(fidoRegistration)
 				.showSuccessNotification(false)
 				.entityId(context.getEntityId())
+				.credentialName(context.getCredentialName())
+				.credentialConfiguration(context.getCredentialConfiguration())
 				.newCredentialListener(this::addNewCredential)
 				.build();
 

@@ -6,16 +6,14 @@ package io.imunity.fido.component;
 
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.ui.AbstractJavaScriptComponent;
-import io.imunity.fido.FidoManagement;
+import io.imunity.fido.FidoExchange;
+import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.fido.FidoManagement;
-import pl.edu.icm.unity.fido.credential.FidoCredentialInfo;
-import pl.edu.icm.unity.fido.service.FidoException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import java.util.AbstractMap;
@@ -34,27 +32,36 @@ public class FidoComponent extends AbstractJavaScriptComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoComponent.class);
 
-	private final FidoManagement fidoManagement;
+	private final FidoRegistration fidoRegistration;
+	private final FidoExchange fidoExchange;
 	private final MessageSource msg;
 
 	private final Long entityId;
 	private final String userName;
+	private final String credentialConfiguration;
+	private final String credentialName;
 	private final boolean showSuccessNotification;
 	private final Consumer<FidoCredentialInfo> newCredentialListener;
 	private Consumer<AuthenticationResult> authenticationResultListener;
 
-	private FidoComponent(final FidoManagement fidoManagement,
+	private FidoComponent(final FidoRegistration fidoRegistration,
+						  final FidoExchange fidoExchange,
 						  final MessageSource msg,
 						  final Long entityId,
 						  final String userName,
+						  final String credentialConfiguration,
+						  final String credentialName,
 						  final boolean showSuccessNotification,
 						  final Consumer<FidoCredentialInfo> newCredentialListener,
 						  final Consumer<AuthenticationResult> authenticationResultListener)
 	{
-		this.fidoManagement = fidoManagement;
+		this.fidoRegistration = fidoRegistration;
+		this.fidoExchange = fidoExchange;
 		this.msg = msg;
 		this.entityId = entityId;
 		this.userName = userName;
+		this.credentialConfiguration = credentialConfiguration;
+		this.credentialName = credentialName;
 		this.showSuccessNotification = showSuccessNotification;
 		this.newCredentialListener = newCredentialListener;
 		this.authenticationResultListener = authenticationResultListener;
@@ -71,7 +78,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				log.info("Invoke finalize registration for reqId={}", arguments.getString(0));
 				try
 				{
-					FidoCredentialInfo newCred = fidoManagement.createFidoCredentials(arguments.getString(0), arguments.getString(1));
+					FidoCredentialInfo newCred = fidoRegistration.createFidoCredentials(credentialName, credentialConfiguration,
+							arguments.getString(0), arguments.getString(1));
 					if (newCredentialListener != null)
 					{
 						newCredentialListener.accept(newCred);
@@ -94,7 +102,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				log.info("Invoke finalize authentication for reqId={}", arguments.getString(0));
 				try
 				{
-					AuthenticationResult result = fidoManagement.verifyAuthentication(arguments.getString(0), arguments.getString(1));
+					AuthenticationResult result = fidoExchange.verifyAuthentication(arguments.getString(0), arguments.getString(1));
 
 					if (nonNull(authenticationResultListener))
 						authenticationResultListener.accept(result);
@@ -151,7 +159,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 	{
 		try
 		{
-			AbstractMap.SimpleEntry<String, String> options = fidoManagement.getRegistrationOptions(entityId, username);
+			AbstractMap.SimpleEntry<String, String> options = fidoRegistration.getRegistrationOptions(credentialName, credentialConfiguration, entityId, username);
 			log.debug("reqId={}", options.getKey());
 			callFunction("createCredentials", options.getKey(), options.getValue());
 		} catch (FidoException e)
@@ -164,7 +172,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 	{
 		try
 		{
-			AbstractMap.SimpleEntry<String, String> options = fidoManagement.getAuthenticationOptions(entityId, username);
+			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(entityId, username);
 			log.debug("reqId={}", options.getKey());
 			callFunction("getCredentials", options.getKey(), options.getValue());
 		} catch (FidoException e)
@@ -176,26 +184,39 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		}
 	}
 
-	public static FidoComponentBuilder builder(final FidoManagement fidoManagement, final MessageSource msg)
+	public static FidoComponentBuilder builder(final MessageSource msg)
 	{
-		return new FidoComponentBuilder(fidoManagement, msg);
+		return new FidoComponentBuilder(msg);
 	}
 
 	public static final class FidoComponentBuilder
 	{
-
-		private final FidoManagement fidoService;
 		private final MessageSource msg;
+		private FidoRegistration fidoRegistration;
+		private FidoExchange fidoExchange;
 		private boolean showSuccessNotification = true;
 		private Long entityId;
 		private String userName;
+		private String credentialConfiguration;
+		private String credentialName;
 		private Consumer<FidoCredentialInfo> newCredentialListener;
 		private Consumer<AuthenticationResult> authenticationResultListener;
 
-		private FidoComponentBuilder(final FidoManagement fidoManagement, final MessageSource msg)
+		private FidoComponentBuilder(final MessageSource msg)
 		{
-			this.fidoService = fidoManagement;
 			this.msg = msg;
+		}
+
+		public FidoComponentBuilder fidoRegistration(FidoRegistration fidoRegistration)
+		{
+			this.fidoRegistration = fidoRegistration;
+			return this;
+		}
+
+		public FidoComponentBuilder fidoExchange(FidoExchange fidoExchange)
+		{
+			this.fidoExchange = fidoExchange;
+			return this;
 		}
 
 		public FidoComponentBuilder showSuccessNotification(boolean showSuccessNotification)
@@ -216,6 +237,18 @@ public class FidoComponent extends AbstractJavaScriptComponent
 			return this;
 		}
 
+		public FidoComponentBuilder credentialConfiguration(String credentialConfiguration)
+		{
+			this.credentialConfiguration = credentialConfiguration;
+			return this;
+		}
+
+		public FidoComponentBuilder credentialName(String credentialName)
+		{
+			this.credentialName = credentialName;
+			return this;
+		}
+
 		public FidoComponentBuilder newCredentialListener(Consumer<FidoCredentialInfo> newCredentialListener)
 		{
 			this.newCredentialListener = newCredentialListener;
@@ -230,10 +263,16 @@ public class FidoComponent extends AbstractJavaScriptComponent
 
 		public FidoComponent build()
 		{
-			return new FidoComponent(fidoService,
+			if (isNull(fidoExchange) && isNull(fidoRegistration))
+				throw new IllegalArgumentException("Cannot create FidoComponent. At least one FidoRegistration or FidoExchange has to be provided");
+
+			return new FidoComponent(fidoRegistration,
+					fidoExchange,
 					msg,
 					entityId,
 					userName,
+					credentialConfiguration,
+					credentialName,
 					showSuccessNotification,
 					newCredentialListener,
 					authenticationResultListener);

@@ -8,17 +8,21 @@ import com.yubico.webauthn.CredentialRepository;
 import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
+import io.imunity.fido.credential.FidoCredentialInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
-import io.imunity.fido.credential.FidoCredentialInfo;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -32,13 +36,15 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 {
 	private static final org.apache.logging.log4j.Logger log = Log.getLogger(Log.U_SERVER_FIDO, UnityFidoRegistrationStorage.class);
 
-	private FidoEntityHelper entityHelper;
-	private IdentityResolver identityResolver;
+	private final FidoEntityHelper entityHelper;
+	private final IdentityResolver identityResolver;
+	private final String credentialName;
 
-	public UnityFidoRegistrationStorage(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver)
+	public UnityFidoRegistrationStorage(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver, final String credentialName)
 	{
 		this.entityHelper = entityHelper;
 		this.identityResolver = identityResolver;
+		this.credentialName = credentialName;
 	}
 
 	@Override
@@ -100,7 +106,7 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 		{
 			entity = identityResolver.resolveIdentity(entityParam.getIdentity().getValue(),
 					new String[]{entityParam.getIdentity().getTypeId()},
-			"fido"); // FIXME
+					credentialName);
 		} catch (EngineException e)
 		{
 			log.error("Failed to resolve identity", e);
@@ -126,6 +132,29 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 		log.debug("Enter lookupAll()");
 		// FIXME used to make sure no other credential with given ID exists
 		return Collections.emptySet();
+	}
+
+	/**
+	 * Factory and cache that creates Fido registration storage used mainly by Yubico library.
+	 */
+	@Component
+	public static class UnityFidoRegistrationStorageCache
+	{
+		private Map<String, UnityFidoRegistrationStorage> cache = new ConcurrentHashMap<>();
+		private FidoEntityHelper entityHelper;
+		private IdentityResolver identityResolver;
+
+		@Autowired
+		public UnityFidoRegistrationStorageCache(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver)
+		{
+			this.entityHelper = entityHelper;
+			this.identityResolver = identityResolver;
+		}
+
+		UnityFidoRegistrationStorage getInstance(final String credentialName)
+		{
+			return cache.computeIfAbsent(credentialName, (name) -> new UnityFidoRegistrationStorage(entityHelper, identityResolver, credentialName));
+		}
 	}
 
 }

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -130,7 +131,7 @@ class FidoEntityHelper
 			if (ret.isEmpty())
 				return identityResolver.getIdentitiesForEntity(new EntityParam(new IdentityParam(EmailIdentity.ID, username)));
 			return ret;
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalIdentityValueException | UnknownIdentityException e)
 		{
 			return Collections.emptyList();
 		}

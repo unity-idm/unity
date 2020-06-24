@@ -4,7 +4,7 @@
  */
 package io.imunity.fido.web;
 
-import io.imunity.fido.FidoManagement;
+import io.imunity.fido.FidoRegistration;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -22,21 +22,21 @@ import static java.util.Objects.nonNull;
  */
 class FidoCredentialEditor implements CredentialEditor
 {
-	private FidoManagement fidoService;
+	private FidoRegistration fidoRegistration;
 	private FidoEditorComponent editorComponent;
 	private MessageSource msg;
 
-	public FidoCredentialEditor(final MessageSource msg, final FidoManagement fidoService)
+	public FidoCredentialEditor(final MessageSource msg, final FidoRegistration fidoRegistration)
 	{
 		this.msg = msg;
-		this.fidoService = fidoService;
+		this.fidoRegistration = fidoRegistration;
 	}
 
 	@Override
 	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
 		if (isNull(editorComponent))
-			editorComponent = new FidoEditorComponent(fidoService, context, msg);
+			editorComponent = new FidoEditorComponent(fidoRegistration, context, msg);
 
 		return new ComponentsContainer(editorComponent);
 	}

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.fido.service;
+package io.imunity.fido.web;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -14,21 +14,20 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.fido.FidoExchange;
+import io.imunity.fido.component.FidoComponent;
+import io.imunity.fido.service.FidoCredentialVerificator;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.fido.FidoManagement;
-import pl.edu.icm.unity.fido.component.FidoComponent;
-import pl.edu.icm.unity.fido.credential.FidoCredentialVerificator;
-import pl.edu.icm.unity.fido.credential.FidoExchange;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -62,19 +61,17 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 	public static final String NAME = "web-fido";
 	public static final String DESC = "fido.desc";
 
-	private UnityMessageSource msg;
+	private MessageSource msg;
 	private I18nString name;
 	private CredentialEditorRegistry credEditorReg;
 	private String configuration;
-	private FidoManagement fidoManagement;
 
 	@Autowired
-	public FidoRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg, FidoManagement fidoManagement)
+	public FidoRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
-		this.fidoManagement = fidoManagement;
 	}
 	
 	@Override
@@ -118,12 +115,10 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 	private class FidoRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		private TextField usernameField;
 		private int tabIndex;
 		private String username;
 		private VerticalLayout mainLayout;
-		private Button authenticateButton;
 		private FidoComponent fidoComponent;
 		
 		public FidoRetrievalComponent(CredentialEditor credEditor)
@@ -135,21 +130,25 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		{
 			mainLayout = new VerticalLayout();
 			mainLayout.setMargin(false);
+			mainLayout.setSpacing(false);
 
-			fidoComponent = FidoComponent.builder(fidoManagement ,msg)
+			fidoComponent = FidoComponent.builder(msg)
+					.fidoExchange(credentialExchange)
 					.showSuccessNotification(false)
 					.authenticationResultListener(this::setAuthenticationResult)
 					.build();
+
+			fidoComponent.setHeight(1, Unit.PIXELS); // no UI but Vaadin allocates a lot of space for it
 			mainLayout.addComponent(fidoComponent);
 
 			usernameField = new TextField();
 			usernameField.setWidth(100, Unit.PERCENTAGE);
 			usernameField.setPlaceholder(msg.getMessage("AuthenticationUI.username"));
 			usernameField.addStyleName("u-authnTextField");
-			usernameField.addStyleName("u-passwordUsernameFieldd");
+			usernameField.addStyleName("u-passwordUsernameField");
 			mainLayout.addComponent(usernameField);
 
-			authenticateButton = new Button(msg.getMessage("Fido.WebRetrieval.signIn"));
+			Button authenticateButton = new Button(msg.getMessage("Fido.WebRetrieval.signIn"));
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-passwordSignInButton");
@@ -221,11 +220,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			this.callback = callback;
 		}
 
-		public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
-		{
-			this.sandboxCallback = sandboxCallback;
-		}
-
 		void setAuthenticatedIdentity(String authenticatedIdentity)
 		{
 			this.username = authenticatedIdentity;
@@ -291,13 +285,13 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		@Override
 		public void refresh(VaadinRequest request)
 		{
-			// nop
+			// not used
 		}
 
 		@Override
 		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
 		{
-			theComponent.setSandboxCallback(callback);
+			// not used
 		}
 
 		/**

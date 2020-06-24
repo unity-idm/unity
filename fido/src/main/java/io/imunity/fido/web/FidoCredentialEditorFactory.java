@@ -4,8 +4,8 @@
  */
 package io.imunity.fido.web;
 
-import io.imunity.fido.FidoManagement;
-import io.imunity.fido.credential.FidoCredentialVerificator;
+import io.imunity.fido.FidoRegistration;
+import io.imunity.fido.service.FidoCredentialVerificator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
@@ -23,13 +23,13 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 public class FidoCredentialEditorFactory implements CredentialEditorFactory
 {
 	private MessageSource msg;
-	private FidoManagement fidoService;
+	private FidoRegistration fidoRegistration;
 
 	@Autowired
-	public FidoCredentialEditorFactory(final MessageSource msg, final FidoManagement fidoService)
+	public FidoCredentialEditorFactory(final MessageSource msg, final FidoRegistration fidoRegistration)
 	{
 		this.msg = msg;
-		this.fidoService = fidoService;
+		this.fidoRegistration = fidoRegistration;
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class FidoCredentialEditorFactory implements CredentialEditorFactory
 	@Override
 	public CredentialEditor createCredentialEditor()
 	{
-		return new FidoCredentialEditor(msg, fidoService);
+		return new FidoCredentialEditor(msg, fidoRegistration);
 	}
 
 	@Override

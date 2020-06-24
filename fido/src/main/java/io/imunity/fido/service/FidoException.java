@@ -19,6 +19,4 @@ public class FidoException extends RuntimeException
 	{
 		super(msg);
 	}
-
-	//TODO implement getLocalizedMessage()
 }

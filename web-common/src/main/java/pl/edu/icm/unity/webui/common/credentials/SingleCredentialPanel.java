@@ -111,6 +111,7 @@ public class SingleCredentialPanel extends VerticalLayout
 
 		credEditorComp = credEditor.getEditor(CredentialEditorContext.builder()
 				.withConfiguration(toEdit.getConfiguration())
+				.withCredentialName(toEdit.getName())
 				.withRequired(true)
 				.withEntityId(entityId)
 				.withExtraInformation(credPublicInfo.getExtraInformation())
