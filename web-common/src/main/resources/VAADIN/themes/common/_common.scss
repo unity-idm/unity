@@ -7,6 +7,38 @@
 	background-origin: content-box;
 }
 
+@mixin action-button {
+	background-image: none; 
+	background-color: $button-action-bg-color;
+	color: $button-action-color;
+	border-color: $button-border-color;
+	box-shadow: none;
+
+	&:hover {
+		background-color: $button-action-hover-bg-color !important;
+		color: $button-action-color !important;
+	}
+}
+
+@mixin signin-button {
+	@include action-button;
+		
+	width: 100%;
+	color: white;
+	font-weight: 400;
+		
+	&:hover {
+		color: white !important;
+	}
+}
+
+@mixin std-focus {
+       	border-color: $color-primary-2;
+       	border-width: 2px;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+}
+
 @mixin unityCommon {
 
 	&.v-app { 
@@ -21,6 +53,10 @@
 	.v-tabsheet-tabitemcell .v-caption.v-caption:hover {
     	color: $color-primary-2;
 	}
+ 	
+ 	.v-grid-cell-focused::before {
+ 		@include std-focus;
+ 	}
  	
  	.v-button { 
 		background-image: none; 
@@ -87,6 +123,17 @@
 	.v-filterselect-item-inactive:hover{
     	 background: transparent;
     }
+
+	.v-filterselect-no-input [class*="input"] {
+		background: none;
+		background-color: white;
+		box-shadow: none;
+		-webkit-box-shadow: none;
+		
+		&:focus {
+			@include std-focus;
+		}
+	}
 
 	.v-ddwrapper-u-trueCondition-bg {
 		.v-textfield {
@@ -232,16 +279,7 @@
 	}
 	
 	.v-button-primary {
-		background-image: none; 
-		background-color: $button-action-bg-color;
-		color: $button-action-color;
-		border-color: $button-border-color;
-		box-shadow: none;
-
-		&:hover {
-			background-color: $button-action-hover-bg-color !important;
-			color: $button-action-color !important;
-		}
+		@include action-button;
 	}
 	
 	
@@ -705,25 +743,6 @@
 	.u-veryLargeIcon .v-icon {
 		font-size : 34px;
 	}
-	
-	.u-signInButton {
-		@extend .u-button-action;
-		width: 100%;
-		
-		&:hover {
-   			@extend .u-button-action:hover
-  		}
-	}
-
-	.u-signInButton .v-button-wrap img {
-		padding: 4px 0px 0px 2px;
-		height: $v-unit-size - 8;
-		vertical-align: top;
-	}
-
-	.u-signUpButton {
-		width: 100%;
-	}
 
 	.u-authn-component {
 	}
@@ -769,7 +788,7 @@
 	}
 
 	.u-authnGrid .v-grid-cell {
-		padding: 0px 0px 0px 0px;
+		padding: 0px 4px 0px 0px;
 	}
 
 	.u-authnGrid .v-grid-row > td {
@@ -786,16 +805,28 @@
 		max-width: 90%;
 	}
 
-	.u-externalSignInButton {
-		background-color: #53A0C6;
-		text-decoration: none;
-		color: white;
-		font-weight: bold;
+	.u-signInButton {
+		@include signin-button;
+	}
+
+	.u-signInButton .v-button-wrap img {
+		padding: 4px 0px 0px 2px;
+		height: $v-unit-size - 8;
+		vertical-align: top;
+	}
+
+	.u-signUpButton {
 		width: 100%;
+	}
+
+	.u-externalSignInButton {
+		@include signin-button;
+
 		height: $v-unit-size;
 		text-align: left;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		text-decoration: none;
 	}
 
 	.u-externalSignInButton:hover {
@@ -804,12 +835,15 @@
 	}
 
 	.u-externalGridSignInButton {
-		@extend .u-externalSignInButton
+		@extend .u-externalSignInButton;
+		padding-left: 4px;
 	}
 
 	.u-externalGridSignInButton:hover {
 		@extend .u-externalSignInButton:hover
 	}
+
+	
 	
 	.u-outdatedcred-info {
 		padding-top: round($v-unit-size / 3);
@@ -1232,10 +1266,16 @@
     }
         
     .v-button:focus::after {
-       	border-color: none;
-		-webkit-box-shadow: none;
-		box-shadow: none;
+       	@include std-focus;
     }
+	
+	.v-textfield:focus {
+       	@include std-focus;
+    }
+	
+	*:focus {
+ 		 outline:none;
+	}
 	
 	.u-button-action {
 		background-image: none; 
@@ -1279,10 +1319,6 @@
 		&:hover {
 			color: $font-color-dark;
 		}
-	}
-	
-	*:focus {
- 		 outline:none;
 	}
         	
 	.u-denseTreeGrid td {
