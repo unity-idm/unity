@@ -22,7 +22,7 @@ public enum LocalCredentialState
 	notSet,
 	
 	/**
-	 * the credential is defined but is invalid. E.g. it is not fullfilling the new restrictions or
+	 * the credential is defined but is invalid. E.g. it is not fulfilling the new restrictions or
 	 * is outdated.
 	 */
 	outdated
