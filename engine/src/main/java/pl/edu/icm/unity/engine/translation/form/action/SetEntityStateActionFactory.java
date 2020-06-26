@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.engine.translation.form.action;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -20,6 +22,7 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 @Component
 public class SetEntityStateActionFactory extends AbstractRegistrationTranslationActionFactory
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, SetEntityStateActionFactory.class);
 	public static final String NAME = "setState";
 
 	/**
@@ -58,6 +61,7 @@ public class SetEntityStateActionFactory extends AbstractRegistrationTranslation
 				String currentProfile) throws EngineException
 		{
 			state.setEntityState(this.state);
+			log.debug("Will set user's MFA preference to: {}", state);
 		}
 		
 		private void setParameters(String[] parameters)

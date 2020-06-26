@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -98,11 +99,13 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationConfirmationSupport confirmationsSupport,
 			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport,
 			InvitationDB invitationDB,
-			GroupDAO groupDB, PolicyAgreementManagement policyAgreementManagement)
+			GroupDAO groupDB, PolicyAgreementManagement policyAgreementManagement,
+			AuthenticationFlowManagement authnFlowManagement)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
-				entityCredentialsHelper, facilitiesManagement, invitationDB, policyAgreementManagement);
+				entityCredentialsHelper, facilitiesManagement, invitationDB, policyAgreementManagement,
+				authnFlowManagement);
 		this.requestDB = requestDB;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;
@@ -117,14 +120,6 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	/**
 	 * Accepts a registration request applying all its settings. The method operates on a result 
 	 * of the form's translation profile, rather then on the original request. 
-	 * @param form
-	 * @param currentRequest
-	 * @param publicComment
-	 * @param internalComment
-	 * @param rewriteConfirmationToken
-	 * @param sql
-	 * @return
-	 * @throws EngineException
 	 */
 	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
 			AdminComment publicComment, AdminComment internalComment,
@@ -180,6 +175,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, toAdd, null);
 		applyRequestedAttributeClasses(translatedRequest.getAttributeClasses(), initial.getEntityId());		
 		applyRequestedCredentials(currentRequest, initial.getEntityId());
+		applyMFAStatus(initial.getEntityId(), translatedRequest.getMfaPreferenceStatus());
 		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(), currentRequest,
@@ -197,7 +193,6 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		
 		return initial.getEntityId();
 	}
-	
 
 	public void dropRequest(String id) throws EngineException
 	{
