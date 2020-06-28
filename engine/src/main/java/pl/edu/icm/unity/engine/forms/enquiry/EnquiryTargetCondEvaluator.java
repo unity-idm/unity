@@ -36,24 +36,21 @@ public class EnquiryTargetCondEvaluator
 			CredentialInfo credentialInfo, Set<String> groups, Collection<AttributeExt> attributes)
 	{
 		if (!groups.stream().anyMatch(Arrays.asList(form.getTargetGroups())::contains))
-		{
 			return false;
-		}
-		
 		
 		if (form.getTargetCondition() == null || form.getTargetCondition().isEmpty())
-		{
 			return true;
-		}
-
+		
 		Map<String, Object> context = EntityMVELContextBuilder.getContext(identities, entityStatus,
 				credentialInfo, groups, attributes);
 
 		TranslationCondition condition = new TranslationCondition(form.getTargetCondition());
 		try
 		{
-			return condition.evaluate(context);
-
+			boolean ret = condition.evaluate(context);
+			log.debug("Enquiry {} condition '{}' evaluated to {}", form.getName(), 
+					form.getTargetCondition(), ret);
+			return ret;
 		} catch (EngineException e)
 		{
 			log.error("Cannot evaluate enquriy form target condition" + form.getTargetCondition()

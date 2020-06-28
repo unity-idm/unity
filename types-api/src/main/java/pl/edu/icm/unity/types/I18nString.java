@@ -140,6 +140,12 @@ public class I18nString
 	{
 		return (defaultValue == null || defaultValue.isEmpty()) && values.isEmpty();
 	}
+
+	public boolean hasNonDefaultValue()
+	{
+		return !values.isEmpty();
+	}
+
 	
 	@Override
 	public String toString()
