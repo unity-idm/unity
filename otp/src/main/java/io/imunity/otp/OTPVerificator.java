@@ -191,7 +191,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 		@Autowired
 		public Factory(ObjectFactory<OTPVerificator> factory)
 		{
-			super(OTP.NAME, DESC, false, factory);
+			super(OTP.NAME, DESC, true, factory);
 		}
 	}
 }
