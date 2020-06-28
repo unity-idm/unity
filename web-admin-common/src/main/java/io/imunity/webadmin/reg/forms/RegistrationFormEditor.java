@@ -317,7 +317,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		FormLayout main = new CompactFormLayout();
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));		
-		main.addComponents(registrationCode, collectComments);
+		main.addComponents(registrationCode, collectComments, checkIdentityOnSubmit);
 
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
 		Component remoteSignUpMetnodsTab = createRemoteSignupMethodsTab();

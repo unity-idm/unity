@@ -15,13 +15,13 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 
 /**
  * Dialog allowing to fill a registration form. It takes an editor component as argument.
@@ -124,9 +124,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 			}
 		} catch (Exception e) 
 		{
-			if (e instanceof IllegalFormContentsException)
-				editor.markErrorsFromException((IllegalFormContentsException) e);
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
 		}
 	}
 	

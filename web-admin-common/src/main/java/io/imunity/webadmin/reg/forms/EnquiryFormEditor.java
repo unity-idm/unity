@@ -266,7 +266,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	{
 		FormLayout main = new CompactFormLayout();
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
-		main.addComponents(collectComments);
+		main.addComponents(collectComments, checkIdentityOnSubmit);
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
 		

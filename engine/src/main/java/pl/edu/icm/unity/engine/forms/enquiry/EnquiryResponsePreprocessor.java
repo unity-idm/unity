@@ -28,54 +28,58 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 
 /**
  * Helper component with methods to validate {@link EnquiryResponse}.
- * 
- * @author K. Benedyczak
  */
 @Component
-public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
+public class EnquiryResponsePreprocessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
 			EnquiryResponsePreprocessor.class);
 	
+	private final PolicyAgreementsValidator agreementValidator;
+	private final BaseRequestPreprocessor basePreprocessor;
+	
 	@Autowired
-	private PolicyAgreementsValidator agreementValidator;
-	
-	
+	public EnquiryResponsePreprocessor(PolicyAgreementsValidator agreementValidator,
+			BaseRequestPreprocessor baseRequestPreprocessor)
+	{
+		this.agreementValidator = agreementValidator;
+		this.basePreprocessor = baseRequestPreprocessor;
+	}
+
 	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponseState response,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{	
 		InvitationPrefillInfo invitationInfo = getInvitationPrefillInfo(form, response.getRequest());
 
-		super.validateSubmittedRequest(form, response.getRequest(), doCredentialCheckAndUpdate);
+		basePreprocessor.validateSubmittedRequest(form, response.getRequest(), doCredentialCheckAndUpdate);
 		agreementValidator.validate(new EntityParam(response.getEntityId()), form, response.getRequest());
 		
 		if (invitationInfo.isByInvitation())
 		{
 			String code = response.getRequest().getRegistrationCode();
 			log.debug("Received enquiry response for invitation " + code + ", removing it");
-			removeInvitation(code);
+			basePreprocessor.removeInvitation(code);
 		}
 	}
 
 	public void validateTranslatedRequest(EnquiryForm form, EnquiryResponse response, 
 			TranslatedRegistrationRequest request) throws EngineException
 	{
-		validateFinalAttributes(request.getAttributes());
-		validateFinalCredentials(response.getCredentials());
+		basePreprocessor.validateFinalAttributes(request.getAttributes());
+		basePreprocessor.validateFinalCredentials(response.getCredentials());
 		validateFinalIdentities(request.getIdentities());
-		validateFinalGroups(request.getGroups());
+		basePreprocessor.validateFinalGroups(request.getGroups());
 	}
 
-	@Override
-	protected void validateFinalIdentities(Collection<IdentityParam> identities) 
+	private void validateFinalIdentities(Collection<IdentityParam> identities) 
 			throws EngineException
 	{
 		for (IdentityParam idParam: identities)
 		{
 			if (idParam.getTypeId() == null || idParam.getValue() == null)
 				throw new WrongArgumentException("Identity " + idParam + " contains null values");
-			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
-			checkIdentityIsNotPresent(idParam);
+			basePreprocessor.identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
+			basePreprocessor.assertIdentityIsNotPresentOnConfirm(idParam);
 		}
 	}
 	
@@ -83,11 +87,9 @@ public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 			throws IllegalFormContentsException
 	{
 		if (code == null)
-		{
 			return null;
-		}
 			
-		InvitationParam invitation = getInvitation(code).getInvitation();
+		InvitationParam invitation = basePreprocessor.getInvitation(code).getInvitation();
 		
 		if (!invitation.getFormId().equals(formId))
 			throw new IllegalFormContentsException("The invitation is for different enquiry form");
@@ -111,13 +113,13 @@ public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 		}
 		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
 		
-		InvitationParam invitation = getInvitation(codeFromRequest).getInvitation();
-		processInvitationElements(form.getIdentityParams(), response.getIdentities(), 
+		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
+		basePreprocessor.processInvitationElements(form.getIdentityParams(), response.getIdentities(), 
 				invitation.getIdentities(), "identity");
-		processInvitationElements(form.getAttributeParams(), response.getAttributes(), 
+		basePreprocessor.processInvitationElements(form.getAttributeParams(), response.getAttributes(), 
 				invitation.getAttributes(), "attribute");
-		processInvitationElements(form.getGroupParams(), response.getGroupSelections(), 
-				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
+		basePreprocessor.processInvitationElements(form.getGroupParams(), response.getGroupSelections(), 
+				basePreprocessor.filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
 				"group");
 		return invitationInfo;
 	}

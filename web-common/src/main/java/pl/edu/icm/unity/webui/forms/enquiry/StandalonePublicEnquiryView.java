@@ -33,7 +33,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -46,7 +45,6 @@ import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
@@ -361,9 +359,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			return editorController.submitted(request, form, TriggeringMode.manualStandalone);
 		} catch (WrongArgumentException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-			if (e instanceof IllegalFormContentsException)
-				editor.markErrorsFromException((IllegalFormContentsException) e);
+			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
 			return null;
 		}
 	}

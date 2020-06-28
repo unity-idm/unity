@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -78,7 +77,6 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 
 	@Override
 	public String getComparableValue(String from, String realm, String target)
-			throws IllegalIdentityValueException
 	{
 		return Escaper.encode(realm, target, from);
 	}
