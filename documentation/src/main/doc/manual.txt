@@ -30,6 +30,8 @@ include::registration-forms.txt[]
 
 include::enquiry-forms.txt[]
 
+include::policy-documents.txt[]
+
 include::scripts.txt[]
 
 include::branding.txt[]

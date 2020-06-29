@@ -102,4 +102,21 @@ is to login to the legacy Admin UI, and deploy the Console endpoint from the Sys
 Afterwards Admin UI can be dropped or used in parallel with Console.
  
 
+==== From 3.0 to 3.1 or 3.2
+
+No special considerations, besides the generic ones.
+
+==== From 3.2 to 3.3
+
+In version 3.0-3.2 Unity was using under the hood two themes: sidebarTheme and unityThemeValo. The former one was used
+by UpMan and Console endpoints. In version 3.3.0 the styles were unified, and all endpoints are using unityThemeValo.
+The sidebarTheme was dropped.
+
+Those changes most likely won't require any action, unless sidebarTheme was used as a base theme for customizations.
+In such case customized theme needs to be modified to be based on unityThemeValo (although we advise to always depend
+on the +common+ mixin, which contains almost everything the unityThemeValo has.
+
+Also note that a new unified look and feel across all endpoints is now adopted, what changes default appearance of 
+many user facing UI views, in the first place the authentication screen.  
+
 
