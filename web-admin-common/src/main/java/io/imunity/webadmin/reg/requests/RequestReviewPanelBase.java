@@ -231,7 +231,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		optinsP.setVisible(!optins.getElements().isEmpty());
 		
 		policyAgreements.clearContents();
-		for (int i = 0; i < form.getPolicyAgreements().size(); i++)
+		for (int i = 0; i < request.getPolicyAgreements().size(); i++)
 		{
 			PolicyAgreementDecision policyAgreementDecision = request.getPolicyAgreements().get(i);
 			if (form.getPolicyAgreements().size() <= i)
