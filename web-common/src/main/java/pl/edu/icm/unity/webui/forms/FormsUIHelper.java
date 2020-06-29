@@ -11,12 +11,15 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException.OccupiedIdentityUsedInRequest;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Provides common components used in registration and enquiry forms uis
  * @author P.Piernik
- *
  */
 public class FormsUIHelper
 {
@@ -38,5 +41,24 @@ public class FormsUIHelper
 		cancelButton.addStyleName("u-reg-cancel");
 		cancelButton.setWidth(100, Unit.PERCENTAGE);
 		return cancelButton;
+	}
+	
+	public static void handleFormSubmissionError(Exception e, MessageSource msg, BaseRequestEditor<?> editor)
+	{
+		if (e instanceof IllegalFormContentsException)
+		{
+			editor.markErrorsFromException((IllegalFormContentsException) e);
+			if (e instanceof OccupiedIdentityUsedInRequest)
+			{
+				String identity = ((OccupiedIdentityUsedInRequest) e).occupiedIdentity.getValue();
+				NotificationPopup.showError(msg.getMessage("FormRequest.occupiedIdentity", identity), "");
+			} else
+			{
+				NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			}
+		} else
+		{
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+		}
 	}
 }

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.bulkops.EntityMVELContextBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -32,28 +33,24 @@ public class EnquiryTargetCondEvaluator
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EnquiryTargetCondEvaluator.class);
 	
 	public static boolean evaluateTargetCondition(EnquiryForm form, List<Identity> identities, String entityStatus,
-			String credentialReq, Set<String> groups, Collection<AttributeExt> attributes)
+			CredentialInfo credentialInfo, Set<String> groups, Collection<AttributeExt> attributes)
 	{
-
 		if (!groups.stream().anyMatch(Arrays.asList(form.getTargetGroups())::contains))
-		{
 			return false;
-		}
-		
 		
 		if (form.getTargetCondition() == null || form.getTargetCondition().isEmpty())
-		{
 			return true;
-		}
-
+		
 		Map<String, Object> context = EntityMVELContextBuilder.getContext(identities, entityStatus,
-				credentialReq, groups, attributes);
+				credentialInfo, groups, attributes);
 
 		TranslationCondition condition = new TranslationCondition(form.getTargetCondition());
 		try
 		{
-			return condition.evaluate(context);
-
+			boolean ret = condition.evaluate(context);
+			log.debug("Enquiry {} condition '{}' evaluated to {}", form.getName(), 
+					form.getTargetCondition(), ret);
+			return ret;
 		} catch (EngineException e)
 		{
 			log.error("Cannot evaluate enquriy form target condition" + form.getTargetCondition()

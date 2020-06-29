@@ -46,6 +46,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -919,8 +920,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				.build());
 		if (param.getLabel() != null)
 			editorUI.setLabel(param.getLabel());
-		else
-			editorUI.setLabel(credDefinition.getDisplayedName().getValue(msg));
+		else 
+		{
+			I18nString displayedName = credDefinition.getDisplayedName();
+			if (displayedName.hasNonDefaultValue())
+				editorUI.setLabel(displayedName.getValue(msg));
+		}
 		if (param.getDescription() != null)
 			editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(param.getDescription()));
 		else if (!credDefinition.getDescription().isEmpty())

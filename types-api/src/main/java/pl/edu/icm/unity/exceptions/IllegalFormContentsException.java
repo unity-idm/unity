@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.exceptions;
 
+import pl.edu.icm.unity.types.basic.IdentityParam;
+
 /**
  * Thrown when there is problem with submitted form (enquiry, registration etc).
  * Provides details useful for UI to mark wrong field. 
@@ -48,5 +50,17 @@ public class IllegalFormContentsException extends WrongArgumentException
 	public Category getCategory()
 	{
 		return category;
+	}
+	
+	
+	public static class OccupiedIdentityUsedInRequest extends IllegalFormContentsException
+	{
+		public final IdentityParam occupiedIdentity;
+
+		public OccupiedIdentityUsedInRequest(IdentityParam occupiedIdentity, int position)
+		{
+			super("The identity " + occupiedIdentity.getValue() + " is reserved.", position, Category.IDENTITY);
+			this.occupiedIdentity = occupiedIdentity;
+		}
 	}
 }

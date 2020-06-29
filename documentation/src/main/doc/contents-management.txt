@@ -307,6 +307,7 @@ for instance confirmation status of an email.
 . +groups+ List of all groups where entity is a member. 
 . +status+ Current status of the entity.
 . +credReq+ credential requirement id of the entity.
+. +credStatus+ Map indexed with credentials available for the entity. Value is one of: +correct+, +notSet+ or +outdated+.
 
 Example condition selecting all disabled entities:
 

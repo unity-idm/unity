@@ -55,7 +55,8 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		this.config = config;
 		secret = TOTPKeyGenerator.generateRandomBase32EncodedKey(config.otpParams.hashFunction);
 
-		credentialName = new Label(msg.getMessage("OTPEditorComponent.defaultCredentialSetupLead"));
+		credentialName = new Label();
+		credentialName.setVisible(false);
 		
 		qrCodeComponent = new QRCodeComponent();
 		
@@ -113,6 +114,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	public void setLabel(String label)
 	{
 		credentialName.setValue(label);
+		credentialName.setVisible(!label.isEmpty());
 	}
 
 	@Override

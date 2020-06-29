@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
@@ -33,6 +34,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -40,7 +42,6 @@ import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
@@ -64,30 +65,38 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
  * Helper component with methods to validate {@link BaseRegistrationInput}. 
  * @author K. Benedyczak
  */
+@Component
 public class BaseRequestPreprocessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
-			BaseRequestPreprocessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, BaseRequestPreprocessor.class);
 	
+	private final CredentialRepository credentialRepository;
+	private final AttributeTypeDAO dbAttributes;
+	private final GroupDAO dbGroups;
+	private final AttributesHelper attributesHelper;
+	private final AttributeTypeHelper attributeTypesHelper;
+	private final EntityResolver idResolver;
+	public final IdentityTypesRegistry identityTypesRegistry;
+	private final LocalCredentialsRegistry authnRegistry;
+	private final InvitationDB invitationDB;
+
 	@Autowired
-	private CredentialRepository credentialRepository;
-	@Autowired
-	private AttributeTypeDAO dbAttributes;
-	@Autowired
-	protected GroupDAO dbGroups;
-	@Autowired
-	private AttributesHelper attributesHelper;
-	@Autowired
-	private AttributeTypeHelper attributeTypesHelper;
-	@Autowired
-	private EntityResolver idResolver;
-	@Autowired
-	protected IdentityTypesRegistry identityTypesRegistry;
-	@Autowired
-	private LocalCredentialsRegistry authnRegistry;
-	@Autowired
-	private InvitationDB invitationDB;
-	
+	public BaseRequestPreprocessor(CredentialRepository credentialRepository, AttributeTypeDAO dbAttributes,
+			GroupDAO dbGroups, AttributesHelper attributesHelper, AttributeTypeHelper attributeTypesHelper,
+			EntityResolver idResolver, IdentityTypesRegistry identityTypesRegistry,
+			LocalCredentialsRegistry authnRegistry, InvitationDB invitationDB)
+	{
+		this.credentialRepository = credentialRepository;
+		this.dbAttributes = dbAttributes;
+		this.dbGroups = dbGroups;
+		this.attributesHelper = attributesHelper;
+		this.attributeTypesHelper = attributeTypesHelper;
+		this.idResolver = idResolver;
+		this.identityTypesRegistry = identityTypesRegistry;
+		this.authnRegistry = authnRegistry;
+		this.invitationDB = invitationDB;
+	}
+
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{
@@ -180,7 +189,7 @@ public class BaseRequestPreprocessor
 		}
 	}
 	
-	protected void validateFinalAttributes(Collection<Attribute> attributes) 
+	public void validateFinalAttributes(Collection<Attribute> attributes) 
 			throws EngineException
 	{
 		Map<String, AttributeType> atMap = dbAttributes.getAllAsMap();
@@ -201,7 +210,7 @@ public class BaseRequestPreprocessor
 		}
 	}
 
-	protected void validateFinalIdentities(Collection<IdentityParam> identities) 
+	public void validateFinalIdentities(Collection<IdentityParam> identities) 
 			throws EngineException
 	{
 		boolean identitiesFound = false;
@@ -211,14 +220,14 @@ public class BaseRequestPreprocessor
 				throw new WrongArgumentException("Identity " + idParam + " contains null values");
 			identityTypesRegistry.getByName(idParam.getTypeId()).validate(idParam.getValue());
 			identitiesFound = true;
-			checkIdentityIsNotPresent(idParam);
+			assertIdentityIsNotPresentOnConfirm(idParam);
 		}
 		if (!identitiesFound)
 			throw new WrongArgumentException("At least one identity must be defined in the "
 					+ "registration request.");
 	}
 
-	protected void validateFinalGroups(Collection<GroupParam> groups) 
+	public void validateFinalGroups(Collection<GroupParam> groups) 
 			throws EngineException
 	{
 		Map<String, Group> allAsMap = dbGroups.getAllAsMap();
@@ -231,7 +240,7 @@ public class BaseRequestPreprocessor
 		}
 	}
 	
-	protected void validateFinalCredentials(List<CredentialParamValue> credentials) 
+	public void validateFinalCredentials(List<CredentialParamValue> credentials) 
 			throws EngineException
 	{
 		for (CredentialParamValue credentialParam: credentials)
@@ -304,7 +313,35 @@ public class BaseRequestPreprocessor
 						+ form.getIdentityParams().get(i).getIdentityType() + 
 						" type, but is " + idParam, i, Category.IDENTITY);
 			forceConfirmationStateOfIdentity(formParam, i, idParam);
+			
+			if (form.isCheckIdentityOnSubmit())
+				assertIdentityIsNotPresentOnSubmit(idParam, i);
 		}
+	}
+	
+	private boolean isIdentityPresent(IdentityParam idParam)
+	{
+		try
+		{
+			idResolver.getFullIdentity(idParam);
+			return true;
+		} catch (UnknownIdentityException e)
+		{
+			return false;
+		}
+	}
+
+	public void assertIdentityIsNotPresentOnConfirm(IdentityParam idParam) throws IdentityExistsException
+	{
+		if (isIdentityPresent(idParam))
+			throw new IdentityExistsException("The user with the given identity is already present.");
+	}
+
+	
+	public void assertIdentityIsNotPresentOnSubmit(IdentityParam idParam, int position) throws IllegalFormContentsException
+	{
+		if (isIdentityPresent(idParam))
+			throw new IllegalFormContentsException.OccupiedIdentityUsedInRequest(idParam, position);
 	}
 	
 	private void forceConfirmationStateOfIdentity(IdentityRegistrationParam formParam, int i, 
@@ -321,19 +358,6 @@ public class BaseRequestPreprocessor
 					formParam.getConfirmationMode() == ConfirmationMode.CONFIRMED;
 			idParam.setConfirmationInfo(new ConfirmationInfo(initiallyConfirmed));
 		}
-	}
-	
-	protected void checkIdentityIsNotPresent(IdentityParam idParam) throws IdentityExistsException
-	{
-		try
-		{
-			idResolver.getEntityId(new EntityParam(idParam));
-		} catch (Exception e)
-		{
-			//OK
-			return;
-		}
-		throw new IdentityExistsException("The user with the given identity is already present.");
 	}
 	
 	private void validateRequestCredentials(BaseForm form, BaseRegistrationInput request,
@@ -387,7 +411,7 @@ public class BaseRequestPreprocessor
 						+ " of " + info + " is required", i, category);
 	}
 	
-	protected InvitationWithCode getInvitation(String codeFromRequest) throws IllegalFormContentsException
+	public InvitationWithCode getInvitation(String codeFromRequest) throws IllegalFormContentsException
 	{
 		try
 		{
@@ -398,12 +422,12 @@ public class BaseRequestPreprocessor
 		}
 	}
 	
-	protected void removeInvitation(String codeFromRequest)
+	public void removeInvitation(String codeFromRequest)
 	{	
 		 invitationDB.delete(codeFromRequest);	
 	}
 	
-	protected <T> void processInvitationElements(List<? extends RegistrationParam> paramDef,
+	public <T> void processInvitationElements(List<? extends RegistrationParam> paramDef,
 			List<T> requested, Map<Integer, PrefilledEntry<T>> fromInvitation, String elementName) 
 					throws IllegalFormContentsException
 	{
@@ -460,5 +484,4 @@ public class BaseRequestPreprocessor
 
 		return ret;
 	}
-	
 }

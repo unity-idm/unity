@@ -69,7 +69,6 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	
 	@Override
 	public String getComparableValue(String from, String realm, String target)
-			throws IllegalIdentityValueException
 	{
 		return new VerifiableEmail(from).getComparableValue();
 	}

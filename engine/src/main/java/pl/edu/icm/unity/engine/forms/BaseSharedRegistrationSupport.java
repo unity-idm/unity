@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RegistrationWithCommentsTemplateDef;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -66,13 +67,15 @@ public class BaseSharedRegistrationSupport
 	protected InternalFacilitiesManagement facilitiesManagement;
 	private InvitationDB invitationDB;
 	protected PolicyAgreementManagement policyAgreementManagement;
+	private final AuthenticationFlowManagement authnFlowManagement;
 
 	public BaseSharedRegistrationSupport(MessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
 			InternalFacilitiesManagement facilitiesManagement,
-			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement)
+			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement,
+			AuthenticationFlowManagement authnFlowManagement)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -82,6 +85,7 @@ public class BaseSharedRegistrationSupport
 		this.facilitiesManagement = facilitiesManagement;
 		this.invitationDB =  invitationDB;
 		this.policyAgreementManagement = policyAgreementManagement;
+		this.authnFlowManagement = authnFlowManagement;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
@@ -155,6 +159,12 @@ public class BaseSharedRegistrationSupport
 		}
 	}
 
+	protected void applyMFAStatus(long entityId, Boolean mfaPreferenceStatus) throws EngineException
+	{
+		if (mfaPreferenceStatus != null)
+			authnFlowManagement.setUserMFAOptIn(entityId, mfaPreferenceStatus);
+	}
+	
 	protected void addAttributeToGroupsMap(Attribute a, List<Attribute> rootAttributes,
 			Map<String, List<Attribute>> remainingAttributesByGroup)
 	{

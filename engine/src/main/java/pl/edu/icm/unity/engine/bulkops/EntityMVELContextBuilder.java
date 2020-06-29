@@ -10,11 +10,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.types.authn.CredentialInfo;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -22,16 +25,14 @@ import pl.edu.icm.unity.types.basic.Identity;
  * Helper responsible for build or print entity related MVEL context
  * 
  * @author P.Piernik
- *
  */
-
 public class EntityMVELContextBuilder
 {
 	private static final Set<String> SENSITIVE = Sets.newHashSet("hash", "cred", "pass");
 
 	public enum ContextKey
 	{
-		idsByType, idsByTypeObj, attrs, attr, groups, status, credReq
+		idsByType, idsByTypeObj, attrs, attr, groups, status, credReq, credStatus
 	}
 
 	public static String ctx2ReadableString(Object context, String pfx)
@@ -63,12 +64,12 @@ public class EntityMVELContextBuilder
 	public static Map<String, Object> getContext(EntityInGroupData membershipInfo)
 	{
 		return getContext(membershipInfo.entity.getIdentities(), membershipInfo.entity.getState().toString(),
-				membershipInfo.entity.getCredentialInfo().getCredentialRequirementId(), membershipInfo.groups,
+				membershipInfo.entity.getCredentialInfo(), membershipInfo.groups,
 				membershipInfo.groupAttributesByName.values());
 	}
 
 	public static Map<String, Object> getContext(List<Identity> identities, String entityStatus,
-			String credentialReq, Set<String> groups, Collection<AttributeExt> attributes)
+			CredentialInfo credentialInfo, Set<String> groups, Collection<AttributeExt> attributes)
 	{
 		Map<String, Object> ctx = new HashMap<>();
 
@@ -109,7 +110,13 @@ public class EntityMVELContextBuilder
 		ctx.put(ContextKey.idsByType.name(), idsByType);
 		ctx.put(ContextKey.idsByTypeObj.name(), idsByTypeObj);
 		ctx.put(ContextKey.status.name(), entityStatus);
-		ctx.put(ContextKey.credReq.name(), credentialReq);
+		ctx.put(ContextKey.credReq.name(), credentialInfo.getCredentialRequirementId());
+
+		Map<String, CredentialPublicInformation> credentialsInfo = credentialInfo.getCredentialsState();
+		Map<String, String> credentialsStatus = new HashMap<>();
+		for (Entry<String, CredentialPublicInformation> entry : credentialsInfo.entrySet())
+			credentialsStatus.put(entry.getKey(), entry.getValue().getState().name());
+		ctx.put(ContextKey.credStatus.name(), credentialsStatus);
 
 		return ctx;
 	}

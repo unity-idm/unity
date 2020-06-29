@@ -19,7 +19,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -27,9 +26,9 @@ import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
@@ -152,9 +151,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			return editorController.submitted(request, form, TriggeringMode.manualStandalone);
 		} catch (WrongArgumentException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-			if (e instanceof IllegalFormContentsException)
-				editor.markErrorsFromException((IllegalFormContentsException) e);
+			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
 			return null;
 		}
 	}

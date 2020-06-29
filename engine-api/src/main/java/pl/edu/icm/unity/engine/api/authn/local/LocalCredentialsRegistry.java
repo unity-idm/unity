@@ -47,7 +47,7 @@ public class LocalCredentialsRegistry
 
 	public Set<CredentialType> getLocalCredentialTypes()
 	{
-		Set<CredentialType> ret = new HashSet<CredentialType>();
+		Set<CredentialType> ret = new HashSet<>();
 		
 		for (LocalCredentialVerificatorFactory fact: localCredentialVerificatorFactories.values())
 		{
