@@ -112,6 +112,7 @@ public class RuleComponent extends CustomComponent
 		dragImg.setStyleName(Styles.vButtonLink.toString());
 		dragImg.addStyleName(Styles.vButtonBorderless.toString());
 		dragImg.addStyleName(Styles.link.toString());
+		dragImg.addStyleName(Styles.dragButton.toString());
 		
 		DragSourceExtension<Button> dragSource = new DragSourceExtension<>(dragImg);
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);

@@ -1455,6 +1455,23 @@
 	.u-policyagreement-item{
 	}
 	
-   
+	.u-content-backgroud{
+		background: $content-bg-color;
+    }
+    
+    .u-content-backgroud .v-panel{
+		background: $content-bg-color;
+    }
+    
+    .u-dragButton.v-disabled{
+    	color : $color-primary-0;
+    	opacity: 1;
+    }
+    
+    .u-dragButton:hover{
+    	background: $content-bg-color;
+    	color : $color-primary-0;
+    }
+    
 }
 

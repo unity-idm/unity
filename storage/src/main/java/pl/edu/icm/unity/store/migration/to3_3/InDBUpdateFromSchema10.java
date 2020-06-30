@@ -48,7 +48,7 @@ public class InDBUpdateFromSchema10 implements InDBContentsUpdater
 		for (GenericObjectBean endpoint : endpoints)
 		{
 			ObjectNode objContent = JsonUtil.parse(endpoint.getContents());
-			if (UpdateHelperTo11.updateEndpointConfiguration(objContent).isPresent())
+			if (UpdateHelperTo11.replaceSidebarThemeWithUnityTheme(objContent).isPresent())
 			{		
 				endpoint.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(endpoint.getId(), endpoint);

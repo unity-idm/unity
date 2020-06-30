@@ -7,9 +7,10 @@
 	<version>3.4.0-SNAPSHOT</version>
 	<name>UNITY aggregation and parent module</name>
 	<description>UNITY aggregation and parent module</description>
+	<url>https://unity-idm.eu</url>
 	<organization>
 		<name>Unity</name>
-		<url>http://unity-idm.eu</url>
+		<url>https://unity-idm.eu</url>
 	</organization>
 
 	<properties>

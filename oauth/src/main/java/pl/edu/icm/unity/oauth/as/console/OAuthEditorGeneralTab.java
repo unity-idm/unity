@@ -460,7 +460,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),
 				s -> s != null && s.getName() != null
-						&& s.getName().equals(OIDCScopeValue.OPENID.toString()));
+						&& s.getName().equals(OIDCScopeValue.OPENID.toString()), true);
 		scopesGrid.addGotoEditColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
 		scopesGrid.addTextColumn(s -> s.getDescription(),
 				msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);

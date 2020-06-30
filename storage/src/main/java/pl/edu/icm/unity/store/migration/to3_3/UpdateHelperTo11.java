@@ -29,7 +29,7 @@ public class UpdateHelperTo11
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperTo11.class);
 
-	public static Optional<ObjectNode> updateEndpointConfiguration(ObjectNode objContent)
+	public static Optional<ObjectNode> replaceSidebarThemeWithUnityTheme(ObjectNode objContent)
 	{
 		String endpointName = objContent.get("name").asText(); 
 		ObjectNode endpoint = (ObjectNode) objContent.get("configuration");

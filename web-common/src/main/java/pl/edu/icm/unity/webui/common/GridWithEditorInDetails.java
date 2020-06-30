@@ -48,15 +48,15 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 	private MessageSource msg;
 	
 	public GridWithEditorInDetails(MessageSource msg, Class<T> type,
-			Supplier<EmbeddedEditor<T>> gridEditorSupplier, Predicate<T> disableEditAndRemove)
+			Supplier<EmbeddedEditor<T>> gridEditorSupplier, Predicate<T> disableEditAndRemove, boolean enableDrag)
 	
 	{
-		this(msg, type, gridEditorSupplier, disableEditAndRemove, disableEditAndRemove);		
+		this(msg, type, gridEditorSupplier, disableEditAndRemove, disableEditAndRemove, enableDrag);		
 	}
 	
 	public GridWithEditorInDetails(MessageSource msg, Class<T> type,
 			Supplier<EmbeddedEditor<T>> gridEditorSupplier, 
-			Predicate<T> disableEdit,  Predicate<T> disableRemove)
+			Predicate<T> disableEdit,  Predicate<T> disableRemove, boolean enableDrag)
 	{
 		this.type = type;
 		this.disableEdit = disableEdit;
@@ -78,7 +78,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 				.withDisabledPredicate(
 						t -> grid.isDetailsVisible(t) || disableEdit.test(t))
 				.withHandler(r -> edit(r.iterator().next())).build();
-		grid = new GridWithActionColumn<>(msg, new ArrayList<>(Arrays.asList(edit, remove)));
+		grid = new GridWithActionColumn<>(msg, new ArrayList<>(Arrays.asList(edit, remove)), enableDrag);
 		grid.setDetailsGenerator(t -> {
 			VerticalLayout wrapper = new VerticalLayout();
 			wrapper.setMargin(false);

@@ -54,7 +54,7 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 
 		ObjectNode contents = (ObjectNode) root.get("contents");
-		updateEndpointConfiguration(contents);
+		replaceSidebarThemeWithUnityThemeInEndpointConfig(contents);
 		
 		JsonNode dumpElements = root.get("dumpElements");
 		if (dumpElements == null)
@@ -85,12 +85,12 @@ public class JsonDumpUpdateFromV10 implements JsonDumpUpdate
 		return newContents;
 	}
 	
-	private void updateEndpointConfiguration(ObjectNode contents)
+	private void replaceSidebarThemeWithUnityThemeInEndpointConfig(ObjectNode contents)
 	{
 		for (ObjectNode objContent : getGenericContent(contents,
 				EndpointHandler.ENDPOINT_OBJECT_TYPE))
 		{
-			UpdateHelperTo11.updateEndpointConfiguration(objContent);
+			UpdateHelperTo11.replaceSidebarThemeWithUnityTheme(objContent);
 		}
 
 	}
