@@ -88,6 +88,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 
 		SearchField search = FilterableGridHelper.getRowSearchField(msg);
+		search.setSearchTextWidth(10, Unit.EM);
 		search.addValueChangeListener(event -> {
 			deselectAll();
 			String searched = event.getValue();

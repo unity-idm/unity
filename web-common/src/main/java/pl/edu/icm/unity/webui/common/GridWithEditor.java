@@ -57,6 +57,12 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		}).build();
 
 		grid = new GridWithActionColumn<>(msg, Arrays.asList(remove));
+		grid.getRowDragger().getGridDragSource().addDragStartListener(e -> {
+			if (isEditMode())
+			{
+				grid.getEditor().cancel();
+			}
+		});
 		grid.setMinHeightByRow(3);
 		grid.getEditor().addSaveListener(e -> {
 			fireChange();
@@ -71,6 +77,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 			resetNewElement();
 		});
 		grid.getEditor().setBinder(new Binder<>(type));
+		
 	}
 
 	private void resetNewElement()

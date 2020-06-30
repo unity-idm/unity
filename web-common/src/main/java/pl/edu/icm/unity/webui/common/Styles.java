@@ -104,6 +104,7 @@ public enum Styles
 	viewTitle("u-viewTitle"),
 	viewSubtitle("u-viewSubtitle"),
 	policyAgreementItem("u-policyagreement-item"),
+	dragButton("u-dragButton"),
 	
 	//Sidebar
 	sidebar("u-sidebar"),
@@ -122,6 +123,7 @@ public enum Styles
 	tooltip("u-toolTip"),
 	breadcrumbs("u-breadcrumbs"),
 	viewHeader("u-viewHeader"),
+	contentBackgroud("u-content-backgroud"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
