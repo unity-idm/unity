@@ -5,12 +5,14 @@
 
 package io.imunity.otp;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static io.imunity.tooltip.TooltipExtension.tooltip;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.Validator;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -108,14 +110,22 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 				EmailPasswordResetTemplateDef.NAME, msgTplManagement);
 		resetEmailMsgTemplateCombo.setDefaultValue();
 		resetEmailMsgTemplateCombo.setCaption(msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate"));
-		binder.forField(resetEmailMsgTemplateCombo).asRequired().bind("emailSecurityCodeMsgTemplate");
+		binder.forField(resetEmailMsgTemplateCombo)
+			.asRequired(Validator.from(arg -> !(isNullOrEmpty(arg) && enableReset.getValue() 
+						&& confirmationMode.getValue().requiresEmailConfirmation()), 
+				msg.getMessage("fieldRequired")))
+			.bind("emailSecurityCodeMsgTemplate");
 		resetEmailMsgTemplateCombo.setWidth(WIDE_FIELD_SIZE_EM, Unit.EM);
 
 		resetSMSCodeTemplateCombo = new CompatibleTemplatesComboBox(
 				MobilePasswordResetTemplateDef.NAME, msgTplManagement);
 		resetSMSCodeTemplateCombo.setDefaultValue();
 		resetSMSCodeTemplateCombo.setCaption(msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate"));
-		binder.forField(resetSMSCodeTemplateCombo).asRequired().bind("mobileSecurityCodeMsgTemplate");
+		binder.forField(resetSMSCodeTemplateCombo)
+			.asRequired(Validator.from(arg -> !(isNullOrEmpty(arg) && enableReset.getValue() 
+					&& confirmationMode.getValue().requiresMobileConfirmation()), 
+			msg.getMessage("fieldRequired")))
+			.bind("mobileSecurityCodeMsgTemplate");
 		resetSMSCodeTemplateCombo.setWidth(WIDE_FIELD_SIZE_EM, Unit.EM);
 		
 		updateResetState();
