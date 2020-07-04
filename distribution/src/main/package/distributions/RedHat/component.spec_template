@@ -11,6 +11,7 @@ Requires: java >= 1.8.0 findutils bash
 BuildArch: @component-architecture@
 Packager: Krzysztof Benedyczak <unity-idm-discuss@lists.sourceforge.net> 
 Autoreq: 0
+Autoprov: 0
 
 @preamble@
 
