@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
+import io.imunity.webconsole.spi.WebConsoleExtendableMenuElements;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.MessageSource;
@@ -24,7 +25,7 @@ import pl.edu.icm.unity.webui.common.Images;
 @Component
 public class MaintenanceNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 {
-	public static final String ID = "Maintenance";
+	public static final String ID = WebConsoleExtendableMenuElements.MAINTENANCE;
 
 	@Autowired
 	public MaintenanceNavigationInfoProvider(MessageSource msg)

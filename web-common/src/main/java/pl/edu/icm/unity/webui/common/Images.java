@@ -139,6 +139,7 @@ public enum Images
 	tags		(VaadinIcons.TAGS),
 	clipboard_user	(VaadinIcons.CLIPBOARD_USER),
 	archives	(VaadinIcons.ARCHIVES),
+	archive		(VaadinIcons.ARCHIVE),
 	calendar_user   (VaadinIcons.CALENDAR_USER),
 	cogs		(VaadinIcons.COGS),
 	diploma		(VaadinIcons.DIPLOMA),
