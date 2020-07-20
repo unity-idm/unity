@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 /**
  * Stores information about authenticated entity during the authentication.
@@ -22,16 +24,22 @@ public class AuthenticatedEntity
 	private List<String> authenticatedWith;
 	private String remoteIdP;
 
+	public AuthenticatedEntity(Long entityId, AuthenticationSubject authnSubject, String outdatedCredentialId)
+	{
+		this(entityId, authnSubject.identity == null ? 
+				Collections.emptySet() : Collections.singleton(authnSubject.identity), 
+				outdatedCredentialId);
+	}
+	
 	public AuthenticatedEntity(Long entityId, String info, String outdatedCredentialId)
 	{
-		this(entityId, new HashSet<>(), outdatedCredentialId);
-		authenticatedWith.add(info);
+		this(entityId, Sets.newHashSet(info), outdatedCredentialId);
 	}
 
 	public AuthenticatedEntity(Long entityId, Set<String> info, String outdatedCredentialId)
 	{
 		this.entityId = entityId;
-		this.authenticatedWith = new ArrayList<String>(4);
+		this.authenticatedWith = new ArrayList<>(4);
 		authenticatedWith.addAll(info);
 		this.setOutdatedCredentialId(outdatedCredentialId);
 	}
