@@ -8,7 +8,6 @@ package io.imunity.otp;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -35,13 +34,11 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -117,7 +114,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		private HtmlLabel usernameLabel;
 		private TextField codeField;
 		private int tabIndex;
-		private String presetUsername;
+		private Entity presetEntity;
 		
 		private VerticalLayout mainLayout;
 		
@@ -187,8 +184,8 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 
 		private void triggerAuthentication()
 		{
-			Optional<String> username = getUsername();
-			if (!username.isPresent())
+			Optional<AuthenticationSubject> subject = getAuthenticationSubject();
+			if (!subject.isPresent())
 			{
 				usernameField.focus();
 				NotificationPopup.showError(msg.getMessage("OTPRetrieval.missingUsername"), "");
@@ -203,7 +200,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 				return;
 			}
 				
-			AuthenticationResult authnResult = credentialExchange.verifyCode(code, username.get(), sandboxCallback);
+			AuthenticationResult authnResult = credentialExchange.verifyCode(code, subject.get(), sandboxCallback);
 			setAuthenticationResult(authnResult);
 		}
 
@@ -237,7 +234,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		@Override
 		public void focus()
 		{
-			if (presetUsername == null)
+			if (presetEntity == null)
 				usernameField.focus();
 			else
 				codeField.focus();
@@ -265,9 +262,9 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			this.sandboxCallback = sandboxCallback;
 		}
 
-		void setAuthenticatedIdentity(String authenticatedIdentity)
+		void setAuthenticatedEntity(Entity authenticatedEntity)
 		{
-			this.presetUsername = authenticatedIdentity;
+			this.presetEntity = authenticatedEntity;
 			usernameField.setVisible(false);
 			usernameLabel.setVisible(true);
 		}
@@ -289,13 +286,13 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			this.credResetLauncher = credResetLauncher;
 		}
 		
-		private Optional<String> getUsername()
+		private Optional<AuthenticationSubject> getAuthenticationSubject()
 		{
-			if (!Strings.isNullOrEmpty(presetUsername))
-				return Optional.of(presetUsername);
+			if (presetEntity != null)
+				return Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
 			String enteredUsername = usernameField.getValue();
 			if (!Strings.isNullOrEmpty(enteredUsername))
-				return Optional.of(enteredUsername);
+				return Optional.of(AuthenticationSubject.identityBased(enteredUsername));
 			return Optional.empty();
 		}
 	}
@@ -370,19 +367,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		@Override
 		public void presetEntity(Entity authenticatedEntity)
 		{
-			List<Identity> ids = authenticatedEntity.getIdentities();
-			Optional<Identity> userNameId = ids.stream().filter(id -> id.getTypeId().equals(UsernameIdentity.ID)).findAny();
-			if (userNameId.isPresent())
-			{
-				theComponent.setAuthenticatedIdentity(userNameId.get().getValue());
-				return;
-			}
-			Optional<Identity> emailId = ids.stream().filter(id -> id.getTypeId().equals(EmailIdentity.ID)).findAny();
-			if (emailId.isPresent())
-			{
-				theComponent.setAuthenticatedIdentity(emailId.get().getValue());
-				return;
-			}
+			theComponent.setAuthenticatedEntity(authenticatedEntity);
 		}
 
 		@Override

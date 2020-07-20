@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
@@ -62,25 +63,24 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 	}
 
 	@Override
-	public AuthenticationResult verifyCode(String codeFromUser, String username,
+	public AuthenticationResult verifyCode(String codeFromUser, AuthenticationSubject subject,
 			SandboxAuthnResultCallback sandboxCallback)
 	{
-		AuthenticationResult authenticationResult = checkCode(username, codeFromUser);
+		AuthenticationResult authenticationResult = checkCode(subject, codeFromUser);
 		if (sandboxCallback != null)
 			sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(authenticationResult));
 		return authenticationResult;
 	}
 
-	private AuthenticationResult checkCode(String username, String code)
+	private AuthenticationResult checkCode(AuthenticationSubject subject, String code)
 	{
 		EntityWithCredential resolved;
 		try
 		{
-			resolved = identityResolver.resolveIdentity(username, 
-					IDENTITY_TYPES, credentialName);
+			resolved = identityResolver.resolveSubject(subject, IDENTITY_TYPES, credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for OTP authN can not be found: " + username, e);
+			log.debug("The user for OTP authN can not be found: " + subject, e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 		
@@ -94,15 +94,15 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			
 			if (!valid)
 			{
-				log.debug("Code provided by {} is invalid", username);
+				log.debug("Code provided by {} is invalid", subject);
 				return new AuthenticationResult(Status.deny, null);
 			}
-			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, 
+			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, 
 					credState.outdated ? resolved.getCredentialName() : null);
 			return new AuthenticationResult(Status.success, ae);
 		} catch (Exception e)
 		{
-			log.debug("Error during TOTP verification for " + username, e);
+			log.debug("Error during TOTP verification for " + subject, e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 	}

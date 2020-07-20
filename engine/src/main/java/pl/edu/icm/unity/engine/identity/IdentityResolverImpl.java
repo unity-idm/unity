@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
@@ -19,7 +20,9 @@ import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -62,6 +65,13 @@ public class IdentityResolverImpl implements IdentityResolver
 			String credentialName) throws EngineException
 	{
 		long entityId = getEntity(identity, identityTypes, null, null, true);
+		return resolveEntity(entityId, credentialName);
+	}
+
+	@Override
+	@Transactional
+	public EntityWithCredential resolveEntity(long entityId, String credentialName) throws EngineException
+	{
 		if (!isEntityEnabled(entityId))
 			throw new IllegalIdentityValueException("Authentication is disabled for this entity");		
 		EntityWithCredential ret = new EntityWithCredential();
@@ -105,6 +115,16 @@ public class IdentityResolverImpl implements IdentityResolver
 		return getEntity(identity, identityTypes, target, realm, false);
 	}
 	
+	@Override
+	@Transactional
+	public EntityWithCredential resolveSubject(AuthenticationSubject subject, String[] identityTypes, String credentialName)
+			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException
+	{
+		return subject.entityId == null ? 
+				resolveIdentity(subject.identity, identityTypes, credentialName) : 
+				resolveEntity(subject.entityId, credentialName);
+	}
+	
 	private long getEntity(String identity, String[] identityTypes, String target, String realm, 
 			boolean requireConfirmed) 
 			throws IllegalIdentityValueException
@@ -144,6 +164,5 @@ public class IdentityResolverImpl implements IdentityResolver
 	{
 		EntityState entityState = dbIdentities.getByKey(entity).getEntityState();
 		return entityState != EntityState.authenticationDisabled && entityState != EntityState.disabled;
-	}
-	
+	}	
 }
