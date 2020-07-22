@@ -77,7 +77,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 			ui = new CredentialsPanel(additionalAuthnHandler, msg,  entityId,  credMan, 
 					 ecredMan,  entityMan,
 					 credReqMan,
-					 credEditorReg, authnFlowMan, tokenMan, simpleMode);
+					 credEditorReg, authnFlowMan, tokenMan, simpleMode, false);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);

@@ -60,6 +60,7 @@ public class CredentialsPanel extends VerticalLayout
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	private final long entityId;
 	private final boolean enableAdminActions;
+	private final boolean disable2ndFactorOptIn;
 	
 	private Map<String, CredentialDefinition> credentials;
 	private List<SingleCredentialPanel> panels;
@@ -73,7 +74,7 @@ public class CredentialsPanel extends VerticalLayout
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan,TokensManagement tokenMan,
-			boolean disableAdminActions) 
+			boolean disableAdminActions, boolean disable2ndFactorOptIn) 
 					throws Exception
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;
@@ -84,6 +85,7 @@ public class CredentialsPanel extends VerticalLayout
 		this.entityMan = entityMan;
 		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
+		this.disable2ndFactorOptIn = disable2ndFactorOptIn;
 		this.enableAdminActions = !disableAdminActions;
 		this.flowMan = flowMan;
 		this.tokenMan = tokenMan;
@@ -93,16 +95,8 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void init() throws Exception
 	{
-		userOptInCheckBox = new CheckBox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
-		userOptInCheckBox.setDescription(msg.getMessage("CredentialChangeDialog.userMFAOptinDesc"));
-		FormLayout wrapper = new FormLayout();
-		wrapper.setSpacing(false);
-		wrapper.addComponent(userOptInCheckBox);
-		addComponent(wrapper);
-		addComponent(HtmlTag.horizontalLine());
-		
-		userOptInCheckBox.addValueChangeListener(e -> setUserMFAOptin(e.getValue()));
-		userOptInCheckBox.setValue(getUserOptInAttribute());
+		if (!disable2ndFactorOptIn)
+			add2ndFactorOptInCompnent();
 		
 		loadCredentials();
 		if (credentials.size() == 0)
@@ -141,6 +135,18 @@ public class CredentialsPanel extends VerticalLayout
 		setSizeFull();
 	}
 
+	private void add2ndFactorOptInCompnent()
+	{
+		userOptInCheckBox = new CheckBox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
+		userOptInCheckBox.setDescription(msg.getMessage("CredentialChangeDialog.userMFAOptinDesc"));
+		FormLayout wrapper = new FormLayout();
+		wrapper.setSpacing(false);
+		wrapper.addComponent(userOptInCheckBox);
+		addComponent(wrapper);
+		addComponent(HtmlTag.horizontalLine());
+		userOptInCheckBox.addValueChangeListener(e -> setUserMFAOptin(e.getValue()));
+		userOptInCheckBox.setValue(getUserOptInAttribute());
+	}
 	
 	private Component getTrustedDevicesComponent()
 	{	
@@ -183,6 +189,8 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void updateUserOptInCheckbox()
 	{
+		if (disable2ndFactorOptIn)
+			return;
 		int setCredentialSize = 0;
 
 		for (SingleCredentialPanel panel : panels)
