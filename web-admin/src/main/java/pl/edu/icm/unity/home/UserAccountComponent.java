@@ -164,7 +164,7 @@ public class UserAccountComponent extends VerticalLayout
 			addUserInfo(tabPanel, theUser, config, disabled);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.credentialTab.toString()))
-			addCredentials(tabPanel, theUser);
+			addCredentials(tabPanel, theUser, config.getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN));
 
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
@@ -260,13 +260,14 @@ public class UserAccountComponent extends VerticalLayout
 		}
 	}
 	
-	private void addCredentials(BigTabPanel tabPanel, LoginSession theUser)
+	private void addCredentials(BigTabPanel tabPanel, LoginSession theUser, boolean disable2ndFactorOptIn)
 	{
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(additionalAuthnHandler, 
 					msg, theUser.getEntityId(), 
-					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, tokenMan, true);
+					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, tokenMan, 
+					true, disable2ndFactorOptIn);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key_o, credentialsPanel);

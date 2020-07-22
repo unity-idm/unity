@@ -52,6 +52,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	public static final String GWA_EDITABLE = "editable";
 	public static final String REMOVAL_MODE = "selfRemovalMode";
 	public static final String DISABLE_REMOVAL_SCHEDULE = "disableSelfRemovalScheduling";
+	public static final String DISABLE_2ND_FACTOR_OPT_IN = "disable2ndFactorOptIn";
 	public static final String ENABLE_PROJECT_MANAGEMENT_LINK = "enableProjectManagementLink";
 	public static final String PROJECT_MANAGEMENT_ENDPOINT = "projectManagementEndpoint";
 	
@@ -70,6 +71,9 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 				setDescription("If set to true then user won't be presented with an "
 						+ "option to schedule account removal with grace period. "
 						+ "At the same time this enables " + REMOVAL_MODE));
+		META.put(DISABLE_2ND_FACTOR_OPT_IN, new PropertyMD("false").
+				setDescription("If set to true then user won't be able to change setting "
+						+ "of 2nd factor opt-in setting on the credentials panel."));
 		META.put(ATTRIBUTES, new PropertyMD().setStructuredList(true).
 				setDescription("Prefix under which it is possible to define attributes "
 				+ "which should be either presented or made editable on the User Home UI."));

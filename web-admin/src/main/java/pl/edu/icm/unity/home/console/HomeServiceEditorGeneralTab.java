@@ -110,8 +110,7 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 
 		allowRemovalSheduling = new CheckBox();
 		allowRemovalSheduling.setEnabled(false);
-		allowRemovalSheduling
-				.setCaption(msg.getMessage("HomeServiceEditorComponent.enableSelfRemovalScheduling"));
+		allowRemovalSheduling.setCaption(msg.getMessage("HomeServiceEditorComponent.enableSelfRemovalScheduling"));
 		homeBinder.forField(allowRemovalSheduling).bind("allowRemovalSheduling");
 		main.addComponent(allowRemovalSheduling);
 
@@ -137,8 +136,12 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 		allowRemovalSheduling.addValueChangeListener(
 				e -> removalMode.setEnabled(isAccountRemovalEnabled() && e.getValue()));
 
+		CheckBox allow2ndFactorOptIn = new CheckBox();
+		allow2ndFactorOptIn.setCaption(msg.getMessage("HomeServiceEditorComponent.allow2ndFactorOptIn"));
+		homeBinder.forField(allow2ndFactorOptIn).bind("allow2ndFactorOptIn");
+		main.addComponent(allow2ndFactorOptIn);
+		
 		CheckBox enableUpMan = new CheckBox();
-
 		enableUpMan.setCaption(msg.getMessage("HomeServiceEditorComponent.enableUpMan"));
 		homeBinder.forField(enableUpMan).bind("enableUpMan");
 		main.addComponent(enableUpMan);
