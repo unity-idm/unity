@@ -10,10 +10,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
@@ -99,6 +103,8 @@ public class AttributeStatementComponent extends CustomComponent
 		extraAttributesGroupCB.addValueChangeListener((e) -> {
 			extraAttributesGroupCombo.setEnabled(extraAttributesGroupCB.getValue());
 			extraAttributesGroupCombo.setRequiredIndicatorVisible(extraAttributesGroupCB.getValue());
+			if (extraAttributesGroupCB.getValue() && extraAttributesGroupCombo.getValue() == null && !groups.isEmpty())
+				extraAttributesGroupCombo.setValue(extraAttributesGroupCombo.getAllGroups().get(0));
 		});
 		extraAttributesGroupCB.setDescription(
 				msg.getMessage("AttributeStatementComponent.extraGroupCBDesc"));
@@ -166,7 +172,6 @@ public class AttributeStatementComponent extends CustomComponent
 
 		binder.forField(extraAttributesGroupCombo)
 				.asRequired(msg.getMessage("fieldRequired"))
-				.withNullRepresentation(extraAttributesGroupCombo.getValue())
 				.bind("extraAttributesGroup");
 		condition.configureBinding(binder, "condition", true);
 		binder.forField(fixedAttribute).asRequired(msg.getMessage("fieldRequired"))
@@ -174,8 +179,18 @@ public class AttributeStatementComponent extends CustomComponent
 		Map<String, AttributeType> typesMap = attributeTypes.stream()
 				.collect(Collectors.toMap(t -> t.getName(), t -> t));
 		binder.forField(dynamicAttributeName)
-				.withConverter(d -> d.getName(), d -> typesMap.get(d))
-				.asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(d -> d != null ? d.getName() : "", d -> typesMap.get(d), "FOO")
+				.asRequired(new Validator<String>()
+				{
+					@Override
+					public ValidationResult apply(String value, ValueContext context)
+					{
+						if (StringUtils.isBlank(value) && assignMode.getValue().equals(MODE_DYNAMIC))
+							return ValidationResult.error(msg.getMessage("fieldRequired"));
+						else
+							return ValidationResult.ok();
+					}
+				})
 				.bind("dynamicAttributeType");
 		dynamicAttributeValue.configureBinding(binder,"dynamicAttributeExpression", true);	
 		binder.forField(conflictResolution).asRequired(msg.getMessage("fieldRequired"))
