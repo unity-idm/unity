@@ -57,4 +57,12 @@ public class TestEmailUtils
 		
 		assertThat(email, equalTo(new VerifiableEmail(" a+tag1@ex.com ")));
 	}
+	
+	@Test
+	public void shouldValidateEmailWithNewTLD()
+	{
+		String status = EmailUtils.validate("some@some.inc");
+		
+		assertThat(status, equalTo(null));
+	}
 }

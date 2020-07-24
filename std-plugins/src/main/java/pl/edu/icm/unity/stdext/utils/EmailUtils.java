@@ -6,6 +6,8 @@ package pl.edu.icm.unity.stdext.utils;
 
 import java.util.List;
 
+import org.apache.commons.validator.routines.DomainValidator;
+import org.apache.commons.validator.routines.DomainValidator.ArrayType;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
@@ -19,6 +21,56 @@ public class EmailUtils
 {
 	private static final int MAX_LENGTH = 80;
 	
+	private static final EmailValidator VALIDATOR;
+	
+	//Delta with Version 2020072301, Last Updated Fri Jul 24 07:07:01 2020 UTC
+	private static final String[] ADDITIONAL_TLDS = new String[] {
+			"africa",
+			"amazon",
+			"arab",
+			"charity",
+			"cpa",
+			"etisalat",
+			"gay",
+			"grocery",
+			"hotels",
+			"inc",
+			"llc",
+			"llp",
+			"map",
+			"merckmsd",
+			"phd",
+			"rugby",
+			"search",
+			"sport",
+			"ss",
+			"xn--2scrj9c",
+			"xn--3hcrj9c",
+			"xn--45br5cyl",
+			"xn--cckwcxetd",
+			"xn--h2breg3eve",
+			"xn--h2brj9c8c",
+			"xn--jlq480n2rg",
+			"xn--mgbaakc7dvf",
+			"xn--mgbah1a3hjkrd",
+			"xn--mgbai9azgqp6j",
+			"xn--mgbbh1a",
+			"xn--mgbcpq6gpa1a",
+			"xn--mgbgu82a",
+			"xn--ngbrx",
+			"xn--otu796d",
+			"xn--q7ce6a",
+			"xn--qxa6a",
+			"xn--rvc1e0am3e"
+	};
+
+	
+	static 
+	{
+		DomainValidator.updateTLDOverride(ArrayType.GENERIC_PLUS, ADDITIONAL_TLDS);
+		VALIDATOR = EmailValidator.getInstance();
+	}
+	
 	/**
 	 * @param value
 	 * @return null if ok, error string otherwise
@@ -30,7 +82,7 @@ public class EmailUtils
 		if (value.length() > MAX_LENGTH)
 			return "Value length (" + value.length() 
 					+ ") is too big, must be not greater than " + MAX_LENGTH;
-		if (!EmailValidator.getInstance().isValid(value))
+		if (!VALIDATOR.isValid(value))
 			return "Value is not a valid email address";
 		if (value.startsWith("+"))
 			return "Value must not start with '+', which is used to separate email tags";
