@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn.credreset.password;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
@@ -11,6 +13,7 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -18,8 +21,6 @@ import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFinalMessage;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
@@ -46,6 +47,7 @@ public class PasswordCredentialResetController
 	private PasswordCredentialResetSettings settings;
 	private CredentialResetScreen mainWrapper;
 	private CredentialResetFlowConfig credResetUIConfig;
+	private Optional<AuthenticationSubject> presetEntity;
 	
 	public PasswordCredentialResetController(MessageSource msg, CredentialReset backend,
 			CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig credResetConfig)
@@ -58,8 +60,9 @@ public class PasswordCredentialResetController
 				credResetConfig.infoWidth, credResetConfig.contentsWidth, credResetConfig.compactLayout);
 	}
 
-	public Component getInitialUI()
+	public Component getInitialUI(Optional<AuthenticationSubject> presetEntity)
 	{
+		this.presetEntity = presetEntity;
 		CredentialResetStateVariable.reset();
 		mainWrapper = new CredentialResetScreen();
 		mainWrapper.setContents(new PasswordResetStep1Captcha(credResetUIConfig, this::onUsernameCollected));
@@ -74,7 +77,8 @@ public class PasswordCredentialResetController
 	
 	private void onUsernameCollected(String username)
 	{
-		backend.setSubject(new IdentityTaV(UsernameIdentity.ID, username));
+		AuthenticationSubject subject = presetEntity.orElse(AuthenticationSubject.identityBased(username));
+		backend.setSubject(subject);
 		this.settings = new PasswordCredentialResetSettings(JsonUtil.parse(backend.getSettings()));
 		
 		PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(JsonUtil.parse(backend.getSettings()));
@@ -83,7 +87,7 @@ public class PasswordCredentialResetController
 		if (settings.isRequireSecurityQuestion())
 		{
 			PasswordResetStep2Question securityQuestionUI = new PasswordResetStep2Question(credResetUIConfig,
-					backend.getSecurityQuestion(), username, 
+					backend.getSecurityQuestion(),  
 					this::onSecurityAnswerCollected);
 			mainWrapper.setContents(securityQuestionUI);
 		} else 

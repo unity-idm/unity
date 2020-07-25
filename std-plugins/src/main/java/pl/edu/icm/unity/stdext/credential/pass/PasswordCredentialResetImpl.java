@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
@@ -19,7 +20,6 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.CredentialResetBase;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Password reset implementation of {@link CredentialReset}. This implementation is stateful, i.e. from creation it
@@ -76,7 +76,7 @@ public class PasswordCredentialResetImpl extends CredentialResetBase
 	private String getFakeQuestion()
 	{
 		List<String> questions = settings.getQuestions();
-		int hash = requestedSubject.getValue().hashCode();
+		int hash = getRequestedSubject().hashCode();
 		int num = (hash < 0 ? -hash : hash) % questions.size();
 		return questions.get(num);
 	}
@@ -103,7 +103,7 @@ public class PasswordCredentialResetImpl extends CredentialResetBase
 	}
 
 	@Override
-	public void setSubject(IdentityTaV subject)
+	public void setSubject(AuthenticationSubject subject)
 	{
 		super.setSubject(subject, PasswordVerificator.IDENTITY_TYPES);
 		

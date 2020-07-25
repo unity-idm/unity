@@ -375,7 +375,9 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			SMSCredentialResetController controller = new SMSCredentialResetController(msg,
 					credentialExchange.getSMSCredentialResetBackend(),
 					credEditor, credResetLauncher.getConfiguration());
-			credResetLauncher.startCredentialReset(controller.getInitialUI());
+			Optional<AuthenticationSubject> presetSubject = presetEntity == null ? 
+					Optional.empty() : Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
+			credResetLauncher.startCredentialReset(controller.getInitialUI(presetSubject));
 		}
 
 		private Optional<AuthenticationSubject> getAuthenticationSubject()

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -29,7 +30,6 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordEngine;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Composite password reset implementation of {@link CredentialReset}. This
@@ -83,20 +83,19 @@ public class CompositePasswordResetImpl  implements CredentialReset
 	}
 
 	@Override
-	public void setSubject(IdentityTaV subject)
+	public void setSubject(AuthenticationSubject subject)
 	{
+		Optional<EntityWithCredential> resolvedEntity = CompositePasswordHelper.getLocalEntity(
+				identityResolver, subject);
 
-		Optional<EntityWithCredential> resolveIdentity = CompositePasswordHelper
-				.getLocalEntity(identityResolver, subject.getValue());
-
-		if (resolveIdentity.isPresent())
+		if (resolvedEntity.isPresent())
 		{
 			for (LocalCredentialVerificator localVerificator : localVerificators)
 			{
 
 				boolean isCredSet = CompositePasswordHelper.checkIfUserHasCredential(
 						localVerificator,
-						resolveIdentity.get().getEntityId());
+						resolvedEntity.get().getEntityId());
 				if (!isCredSet)
 					continue;
 

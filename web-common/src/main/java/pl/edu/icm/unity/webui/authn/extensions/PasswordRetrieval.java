@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
@@ -268,7 +269,9 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			PasswordCredentialResetController passReset = new PasswordCredentialResetController(msg, 
 					credentialExchange.getCredentialResetBackend(), credEditor, 
 					credResetLauncher.getConfiguration());
-			credResetLauncher.startCredentialReset(passReset.getInitialUI());
+			AuthenticationSubject subject = presetAuthenticatedIdentity == null ? 
+					null : AuthenticationSubject.identityBased(presetAuthenticatedIdentity);
+			credResetLauncher.startCredentialReset(passReset.getInitialUI(Optional.ofNullable(subject)));
 		}
 
 		@Override

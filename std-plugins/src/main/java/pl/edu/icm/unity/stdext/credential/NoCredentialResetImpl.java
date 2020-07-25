@@ -8,13 +8,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class NoCredentialResetImpl implements CredentialReset
 {
@@ -33,7 +33,7 @@ public class NoCredentialResetImpl implements CredentialReset
 	}
 
 	@Override
-	public void setSubject(IdentityTaV subject)
+	public void setSubject(AuthenticationSubject subject)
 	{
 	}
 

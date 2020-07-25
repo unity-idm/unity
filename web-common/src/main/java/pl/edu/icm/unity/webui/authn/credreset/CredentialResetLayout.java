@@ -72,6 +72,7 @@ public abstract class CredentialResetLayout extends CustomComponent
 		proceed.addClickListener(e -> onConfirm.run());
 		proceed.setWidth(100, Unit.PERCENTAGE);
 		proceed.setClickShortcut(KeyCode.ENTER);
+		proceed.addStyleName(Styles.buttonAction.toString());
 		proceed.addStyleName("u-cred-reset-proceed");
 		
 		Button cancel = new Button(cancelLabel);

@@ -10,6 +10,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Allows for resolving an identity into entity, returning also its credential.
@@ -55,4 +56,6 @@ public interface IdentityResolver
 	
 	
 	boolean isEntityEnabled(long entity);
+	
+	String getDisplayedUserName(EntityParam entity) throws EngineException;
 }

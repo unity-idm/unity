@@ -31,10 +31,13 @@ class OTPResetStep1Captcha extends CredentialResetLayout
 	private Runnable cancelCallback;
 
 	private boolean compactLayout;
+
+	private boolean collectUsername;
 	
-	OTPResetStep1Captcha(CredentialResetFlowConfig credResetConfig, Consumer<String> proceedCallback)
+	OTPResetStep1Captcha(CredentialResetFlowConfig credResetConfig, boolean collectUsername, Consumer<String> proceedCallback)
 	{
 		super(credResetConfig);
+		this.collectUsername = collectUsername;
 		this.msg = credResetConfig.msg;
 		this.proceedCallback = proceedCallback;
 		this.cancelCallback = credResetConfig.cancelCallback;
@@ -62,19 +65,25 @@ class OTPResetStep1Captcha extends CredentialResetLayout
 		
 		narrowCol.addComponent(buttons);
 		narrowCol.setComponentAlignment(buttons, Alignment.TOP_CENTER);
+		
+		if (!collectUsername)
+			username.setVisible(false);
 		return narrowCol;
 	}
 
 	private void onConfirm()
 	{
-		String user = username.getValue();
-		if (user == null || user.equals(""))
+		String user = null;
+		if (collectUsername)
 		{
-			username.setComponentError(new UserError(msg.getMessage("fieldRequired")));
-			return;
+			user = username.getValue();
+			if (user == null || user.equals(""))
+			{
+				username.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+				return;
+			}
+			username.setComponentError(null);
 		}
-		username.setComponentError(null);
-
 		try
 		{
 			captcha.verify();

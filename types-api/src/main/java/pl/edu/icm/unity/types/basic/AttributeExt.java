@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.types.basic.Attribute;
-
 /**
  * Extends the basic {@link Attribute} with metadata which is set by the server when returning 
  * attributes. 

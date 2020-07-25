@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
@@ -222,8 +223,8 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 	public AuthenticationResult checkPassword(String username, String password,
 			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException
 	{
-
-		Optional<EntityWithCredential> resolveIdentity = CompositePasswordHelper.getLocalEntity(identityResolver, username);
+		Optional<EntityWithCredential> resolveIdentity = CompositePasswordHelper.getLocalEntity(identityResolver, 
+				AuthenticationSubject.identityBased(username));
 		if (resolveIdentity.isPresent())
 		{
 			for (LocalCredentialVerificator localVerificator : localVerificators)
