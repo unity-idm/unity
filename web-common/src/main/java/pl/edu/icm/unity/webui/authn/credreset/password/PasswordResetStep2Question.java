@@ -43,7 +43,7 @@ class PasswordResetStep2Question extends CredentialResetLayout
 	private CredentialResetFlowConfig credResetConfig;
 	
 	PasswordResetStep2Question(CredentialResetFlowConfig credResetConfig, String question, 
-			String username, AnswerConsumer proceedCallback)
+			AnswerConsumer proceedCallback)
 	{
 		super(credResetConfig);
 		this.credResetConfig = credResetConfig;
@@ -51,10 +51,10 @@ class PasswordResetStep2Question extends CredentialResetLayout
 		this.proceedCallback = proceedCallback;
 		this.cancelCallback = credResetConfig.cancelCallback;
 
-		initUI(question, getContents(username));
+		initUI(question, getContents());
 	}
 
-	private Component getContents(String username)
+	private Component getContents()
 	{
 		answer = new TextFieldWithContextLabel(credResetConfig.compactLayout);
 		answer.setLabel(msg.getMessage("CredentialReset.answer"));

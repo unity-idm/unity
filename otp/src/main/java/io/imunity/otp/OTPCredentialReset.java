@@ -7,12 +7,12 @@ package io.imunity.otp;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.stdext.credential.CredentialResetBase;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class OTPCredentialReset extends CredentialResetBase
 {
@@ -29,7 +29,7 @@ public class OTPCredentialReset extends CredentialResetBase
 	}
 
 	@Override
-	public void setSubject(IdentityTaV subject)
+	public void setSubject(AuthenticationSubject subject)
 	{
 		super.setSubject(subject, OTPVerificator.IDENTITY_TYPES);
 	}

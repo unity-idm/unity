@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-
 
 /**
  * Builder of {@link EnquiryResponse}

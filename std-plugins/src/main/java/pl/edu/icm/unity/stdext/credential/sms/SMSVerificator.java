@@ -8,17 +8,14 @@ package pl.edu.icm.unity.stdext.credential.sms;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
@@ -39,12 +36,9 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * Ordinary sms credential verificator.
@@ -64,24 +58,20 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	public static final String NAME = "sms";
 	public static final String DESC = "Verifies sms";
 	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
-	public static final String[] TEMPLATE_IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID, X500Identity.ID};
 	
 	private SMSCredential credential = new SMSCredential();
 	private NotificationProducer notificationProducer;
 	private CredentialHelper credentialHelper;
 	private AuthnSMSCounter smslimitCache;
-	private EntityManagement entityMan;
 
 	@Autowired
 	public SMSVerificator(NotificationProducer notificationProducer,
-			CredentialHelper credentialHelper, AuthnSMSCounter smslimitCache,
-			@Qualifier("insecure") EntityManagement entityMan)
+			CredentialHelper credentialHelper, AuthnSMSCounter smslimitCache)
 	{
 		super(NAME, DESC, SMSExchange.ID, true);
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
 		this.smslimitCache = smslimitCache;
-		this.entityMan = entityMan;
 	}
 
 	@Override
@@ -169,7 +159,8 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		String code = CodeGenerator.generateNumberCode(credential.getCodeLength());
 		Map<String, String> params = new HashMap<>();
 		params.put(SMSAuthnTemplateDef.VAR_CODE, code);
-		params.put(SMSAuthnTemplateDef.VAR_USER, getIdentity(subject));
+		params.put(SMSAuthnTemplateDef.VAR_USER, identityResolver.getDisplayedUserName(
+				new EntityParam(resolved.getEntityId())));
 		Locale currentLocale = LocaleHelper.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 
@@ -182,19 +173,6 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 				code, credState.getValue());
 	}
 
-	private String getIdentity(AuthenticationSubject subject) throws EngineException
-	{
-		if (subject.identity != null)
-			return subject.identity;
-		Entity resolved = entityMan.getEntity(new EntityParam(subject.entityId));
-		Map<String, Identity> identitiesMap = resolved.getIdentities().stream()
-				.collect(Collectors.toMap(id -> id.getTypeId(), id -> id));
-		for (String master: IDENTITY_TYPES)
-			if (identitiesMap.containsKey(master))
-				return identitiesMap.get(master).getValue();
-		return null;
-	}
-	
 	@Override
 	public AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser,
 			AuthenticationSubject subject, SandboxAuthnResultCallback sandboxCallback)

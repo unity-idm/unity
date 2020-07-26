@@ -5,12 +5,16 @@
 package pl.edu.icm.unity.engine.identity;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
@@ -23,11 +27,16 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -40,23 +49,27 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class IdentityResolverImpl implements IdentityResolver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityResolverImpl.class);
+	private static final String[] HUMAN_READABLE_IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID, X500Identity.ID};
+
 	private IdentityTypeHelper idTypeHelper;
 	private EntityDAO dbIdentities;
 	private EntityResolver dbResolver;
 	private AttributesHelper attributeHelper;
 	private CredentialReqRepository credReqRepository;
-	
+	private final EntityManagement entityManagement;
 	
 	@Autowired
 	public IdentityResolverImpl(IdentityTypeHelper idTypeHelper, EntityDAO dbIdentities,
 			EntityResolver dbResolver, AttributesHelper attributeHelper,
-			CredentialReqRepository credReqRepository)
+			CredentialReqRepository credReqRepository,
+			@Qualifier("insecure") EntityManagement entityManagement)
 	{
 		this.idTypeHelper = idTypeHelper;
 		this.dbIdentities = dbIdentities;
 		this.dbResolver = dbResolver;
 		this.attributeHelper = attributeHelper;
 		this.credReqRepository = credReqRepository;
+		this.entityManagement = entityManagement;
 	}
 
 	@Override
@@ -164,5 +177,22 @@ public class IdentityResolverImpl implements IdentityResolver
 	{
 		EntityState entityState = dbIdentities.getByKey(entity).getEntityState();
 		return entityState != EntityState.authenticationDisabled && entityState != EntityState.disabled;
+	}
+
+	@Override
+	public String getDisplayedUserName(EntityParam entity) throws EngineException
+	{
+		String label = entityManagement.getEntityLabel(entity);
+		if (label != null)
+			return label;
+		
+		Entity resolved = entityManagement.getEntity(entity);
+		Map<String, Identity> identitiesMap = resolved.getIdentities().stream()
+				.collect(Collectors.toMap(id -> id.getTypeId(), id -> id));
+
+		for (String master: HUMAN_READABLE_IDENTITY_TYPES)
+			if (identitiesMap.containsKey(master))
+				return identitiesMap.get(master).getValue();
+		return null;
 	}	
 }

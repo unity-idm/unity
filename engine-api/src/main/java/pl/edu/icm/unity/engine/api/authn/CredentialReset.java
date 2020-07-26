@@ -8,7 +8,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Implementations provide a credential reset functionality. Typically are bound
@@ -26,12 +25,10 @@ public interface CredentialReset
 
 	/**
 	 * Sets the subject for which the operations are made.
-	 * @param subject
 	 */
-	void setSubject(IdentityTaV subject);
+	void setSubject(AuthenticationSubject subject);
 	
 	/**
-	 * 
 	 * @return the question for the subject, which must be set before. If the question is
 	 * not defined, a random question is returned, from the configured ones.
 	 */

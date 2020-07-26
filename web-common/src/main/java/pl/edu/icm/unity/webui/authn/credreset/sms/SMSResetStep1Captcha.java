@@ -35,11 +35,14 @@ public class SMSResetStep1Captcha extends CredentialResetLayout
 	private boolean requireCaptcha;
 
 	private boolean compactLayout;
+
+	private boolean collectUsername;
 	
 	public SMSResetStep1Captcha(CredentialResetFlowConfig credResetConfig, boolean requireCaptcha, 
-			Consumer<String> proceedCallback)
+			Consumer<String> proceedCallback, boolean collectUsername)
 	{
 		super(credResetConfig);
+		this.collectUsername = collectUsername;
 		this.msg = credResetConfig.msg;
 		this.requireCaptcha = requireCaptcha;
 		this.proceedCallback = proceedCallback;
@@ -70,18 +73,24 @@ public class SMSResetStep1Captcha extends CredentialResetLayout
 		
 		narrowCol.addComponent(buttons);
 		narrowCol.setComponentAlignment(buttons, Alignment.TOP_CENTER);
+		if (!collectUsername)
+			username.setVisible(false);
 		return narrowCol;
 	}
 
 	private void onConfirm()
 	{
-		String user = username.getValue();
-		if (user == null || user.equals(""))
+		String user = null;
+		if (collectUsername)
 		{
-			username.setComponentError(new UserError(msg.getMessage("fieldRequired")));
-			return;
+			user = username.getValue();
+			if (user == null || user.equals(""))
+			{
+				username.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+				return;
+			}
+			username.setComponentError(null);
 		}
-		username.setComponentError(null);
 		if (requireCaptcha)
 		{
 			try

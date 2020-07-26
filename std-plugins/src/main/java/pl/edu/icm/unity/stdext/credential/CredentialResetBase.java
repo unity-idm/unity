@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -27,7 +28,6 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Base for credential reset implementation of {@link CredentialReset}. This implementation is stateful, i.e. from creation it
@@ -46,7 +46,6 @@ public abstract class CredentialResetBase implements CredentialReset
 	private CredentialHelper credentialHelper;
 	private LocalCredentialVerificator localCredentialHandler;
 	
-	protected IdentityTaV requestedSubject;
 	protected EntityWithCredential resolved;
 
 	private String credentialId;
@@ -56,6 +55,7 @@ public abstract class CredentialResetBase implements CredentialReset
 	private long codeValidityEnd;
 	private int dynamicAnswerAttempts = 0;
 	private int codeSendingAttempts = 0;
+	private AuthenticationSubject requestedSubject;
 	
 	public CredentialResetBase(NotificationProducer notificationProducer,
 			IdentityResolver identityResolver,
@@ -72,14 +72,13 @@ public abstract class CredentialResetBase implements CredentialReset
 		this.completeCredentialConfiguration = completeCredentialConfiguration;
 	}
 
-	public void setSubject(IdentityTaV subject, String[] idTypes)
+	public void setSubject(AuthenticationSubject subject, String[] idTypes)
 	{
 		this.requestedSubject = subject;
 		try
 		{
-			resolved = identityResolver.resolveIdentity(subject.getValue(), 
-					idTypes, credentialId);
-		} catch(IllegalIdentityValueException e)
+			resolved = identityResolver.resolveSubject(subject, idTypes, credentialId);
+		} catch (IllegalIdentityValueException e)
 		{
 			//OK - can happen, we can ignore
 		} catch (Exception e)
@@ -108,6 +107,11 @@ public abstract class CredentialResetBase implements CredentialReset
 
 	protected abstract String getCredentialSettings();
 
+	protected AuthenticationSubject getRequestedSubject()
+	{
+		return requestedSubject;
+	}
+	
 	@Override
 	public String getSecurityQuestion()
 	{
@@ -147,13 +151,14 @@ public abstract class CredentialResetBase implements CredentialReset
 		if (codeSent == null)
 			createCode(onlyNumberCode);
 
+		String username = identityResolver.getDisplayedUserName(new EntityParam(resolved.getEntityId()));
 		Map<String, String> params = new HashMap<>();
 		params.put(CredentialResetTemplateDefBase.VAR_CODE, codeSent);
-		params.put(CredentialResetTemplateDefBase.VAR_USER, requestedSubject.getValue());
+		params.put(CredentialResetTemplateDefBase.VAR_USER, username);
 		Locale currentLocale = LocaleHelper.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 		notificationProducer.sendNotification(new EntityParam(resolved.getEntityId()), 
-				msgTemplate, params, locale, requestedSubject.getValue(), true);
+				msgTemplate, params, locale, username, true);
 	}
 	
 	@Override

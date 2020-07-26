@@ -228,7 +228,9 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			OTPCredentialResetController controller = new OTPCredentialResetController(msg,
 					credentialExchange.getCredentialResetBackend(),
 					credEditor, credResetLauncher.getConfiguration());
-			credResetLauncher.startCredentialReset(controller.getInitialUI());
+			Optional<AuthenticationSubject> presetSubject = presetEntity == null ? 
+					Optional.empty() : Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
+			credResetLauncher.startCredentialReset(controller.getInitialUI(presetSubject));
 		}
 
 		@Override
