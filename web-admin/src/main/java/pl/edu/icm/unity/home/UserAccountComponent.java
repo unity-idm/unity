@@ -23,7 +23,6 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -96,7 +95,6 @@ public class UserAccountComponent extends VerticalLayout
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
 	private HomeUITabProvider tabProvider;
-	private AuthenticationFlowManagement authnFlowMan;
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	private EnquiryResponseEditorController enquiryResController;
@@ -113,7 +111,7 @@ public class UserAccountComponent extends VerticalLayout
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
-			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
+			HomeUITabProvider tabProvider, 
 			TokensManagement tokenMan,
 			AdditionalAuthnHandler additionalAuthnHandler,
 			EnquiryResponseEditorController enquiryResController)
@@ -136,7 +134,6 @@ public class UserAccountComponent extends VerticalLayout
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
 		this.tabProvider = tabProvider;
-		this.authnFlowMan = authnFlowMan;
 		this.tokenMan = tokenMan;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.enquiryResController = enquiryResController;
@@ -266,7 +263,7 @@ public class UserAccountComponent extends VerticalLayout
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(additionalAuthnHandler, 
 					msg, theUser.getEntityId(), 
-					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, tokenMan, 
+					credMan, ecredMan, idsMan, credReqMan, credEditorReg, tokenMan, 
 					true, disable2ndFactorOptIn);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 

@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -42,6 +41,7 @@ import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
+import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
@@ -100,12 +100,12 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport,
 			InvitationDB invitationDB,
 			GroupDAO groupDB, PolicyAgreementManagement policyAgreementManagement,
-			AuthenticationFlowManagement authnFlowManagement)
+			SecondFactorOptInService secondFactorOptInService)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper, facilitiesManagement, invitationDB, policyAgreementManagement,
-				authnFlowManagement);
+				secondFactorOptInService);
 		this.requestDB = requestDB;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;

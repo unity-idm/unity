@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RegistrationWithCommentsTemplateDef;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.group.GroupHelper;
+import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -67,7 +67,7 @@ public class BaseSharedRegistrationSupport
 	protected InternalFacilitiesManagement facilitiesManagement;
 	private InvitationDB invitationDB;
 	protected PolicyAgreementManagement policyAgreementManagement;
-	private final AuthenticationFlowManagement authnFlowManagement;
+	private final SecondFactorOptInService secondFactorOptInService;
 
 	public BaseSharedRegistrationSupport(MessageSource msg,
 			NotificationProducer notificationProducer,
@@ -75,7 +75,7 @@ public class BaseSharedRegistrationSupport
 			EntityCredentialsHelper entityCredentialsHelper,
 			InternalFacilitiesManagement facilitiesManagement,
 			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement,
-			AuthenticationFlowManagement authnFlowManagement)
+			SecondFactorOptInService secondFactorOptInService)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -85,7 +85,7 @@ public class BaseSharedRegistrationSupport
 		this.facilitiesManagement = facilitiesManagement;
 		this.invitationDB =  invitationDB;
 		this.policyAgreementManagement = policyAgreementManagement;
-		this.authnFlowManagement = authnFlowManagement;
+		this.secondFactorOptInService = secondFactorOptInService;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
@@ -162,7 +162,7 @@ public class BaseSharedRegistrationSupport
 	protected void applyMFAStatus(long entityId, Boolean mfaPreferenceStatus) throws EngineException
 	{
 		if (mfaPreferenceStatus != null)
-			authnFlowManagement.setUserMFAOptIn(entityId, mfaPreferenceStatus);
+			secondFactorOptInService.setUserMFAOptIn(entityId, mfaPreferenceStatus);
 	}
 	
 	protected void addAttributeToGroupsMap(Attribute a, List<Attribute> rootAttributes,

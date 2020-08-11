@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -26,6 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
+import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -43,16 +43,16 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
 	
-	private AuthenticationFlowManagement authFlowMan;
+	private final SecondFactorOptInService secondFactorOptInService;
 	private LocalCredentialsRegistry localCred;
 	private CredentialRepository credRepo;
 	
 	@Autowired
 	public AuthenticationProcessorImpl(
-			AuthenticationFlowManagement authFlowMan,
+			SecondFactorOptInService secondFactorOptInService,
 			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
 	{
-		this.authFlowMan = authFlowMan;
+		this.secondFactorOptInService = secondFactorOptInService;
 		this.localCred = localCred;
 		this.credRepo = credRepo;
 	}
@@ -61,11 +61,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	 * Starting point: the result of the primary authenticator is verified. If the authentication failed
 	 * then an exception is thrown. Otherwise it is checked whether, according to the 
 	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
-	 * @param result
-	 * @param authenticationFlow
-	 * @param authnOptionId
-	 * @return
-	 * @throws AuthenticationException
 	 */
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
@@ -118,7 +113,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	{
 		try
 		{
-			return authFlowMan.getUserMFAOptIn(entityId);
+			return secondFactorOptInService.getUserOptin(entityId);
 		} catch (EngineException e)
 		{
 			log.debug("Can not get user optin attribute for entity " + entityId);
