@@ -45,5 +45,9 @@ public interface EntityCredentialManagement
 	 */
 	void setEntityCredentialStatus(EntityParam entity, String credentialId,  
 			LocalCredentialState desiredCredentialState) throws EngineException;
+
+	void setUserMFAOptIn(EntityParam entity, boolean value) throws EngineException;
+
+	boolean getUserMFAOptIn(EntityParam entity) throws EngineException;
 }
 

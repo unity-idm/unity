@@ -23,7 +23,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -53,7 +52,6 @@ public class CredentialsPanel extends VerticalLayout
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
-	private AuthenticationFlowManagement flowMan;	
 	private TokensManagement tokenMan;
 	private MessageSource msg;
 	private Entity entity;
@@ -73,7 +71,7 @@ public class CredentialsPanel extends VerticalLayout
 	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan,TokensManagement tokenMan,
+			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan,
 			boolean disableAdminActions, boolean disable2ndFactorOptIn) 
 					throws Exception
 	{
@@ -87,7 +85,6 @@ public class CredentialsPanel extends VerticalLayout
 		this.credEditorReg = credEditorReg;
 		this.disable2ndFactorOptIn = disable2ndFactorOptIn;
 		this.enableAdminActions = !disableAdminActions;
-		this.flowMan = flowMan;
 		this.tokenMan = tokenMan;
 		init();
 	}
@@ -213,7 +210,7 @@ public class CredentialsPanel extends VerticalLayout
 	{
 		try
 		{
-			flowMan.setUserMFAOptIn(entityId, value);
+			ecredMan.setUserMFAOptIn(new EntityParam(entityId), value);
 		} catch (EngineException e)
 		{
 			log.debug("Can not set user MFA optin attribute", e);
@@ -226,7 +223,7 @@ public class CredentialsPanel extends VerticalLayout
 	{
 		try
 		{
-			return flowMan.getUserMFAOptIn(entityId);
+			return ecredMan.getUserMFAOptIn(new EntityParam(entityId));
 		} catch (EngineException e)
 		{
 			log.debug("Can not get user MFA optin attribute", e);

@@ -46,17 +46,4 @@ public interface AuthenticationFlowManagement
 	 * Update existing authentication flow
 	 */
 	void updateAuthenticationFlow(AuthenticationFlowDefinition authFlowdef) throws EngineException;
-	
-	/**
-	 * Get user multifactor optin attribute
-	 */
-	boolean getUserMFAOptIn(long entityId) throws EngineException;
-	
-	/**
-	 * Set user multifactor optin attribute
-	 */
-	void setUserMFAOptIn(long entityId, boolean value) throws EngineException;
-	
-	
-	
 }
