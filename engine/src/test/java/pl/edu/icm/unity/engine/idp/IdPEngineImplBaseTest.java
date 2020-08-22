@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
@@ -44,6 +45,7 @@ public class IdPEngineImplBaseTest
 	public void shouldExposeImportStatusToProfile_EarlyImport() throws EngineException
 	{
 		AttributesManagement attributesMan = mock(AttributesManagement.class);
+		GroupsManagement groupMan = mock(GroupsManagement.class);
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		UserImportSerivce userImportService = mock(UserImportSerivce.class);
 		OutputProfileExecutor outputProfileExecutor = mock(OutputProfileExecutor.class);
@@ -54,7 +56,7 @@ public class IdPEngineImplBaseTest
 					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
-				identitiesMan, userImportService, outputProfileExecutor);
+				identitiesMan, userImportService, outputProfileExecutor, groupMan);
 		
 		
 		tested.obtainUserInformationWithEarlyImport(
@@ -80,6 +82,7 @@ public class IdPEngineImplBaseTest
 	public void shouldExposeImportStatusToProfile_LateImport() throws EngineException
 	{
 		AttributesManagement attributesMan = mock(AttributesManagement.class);
+		GroupsManagement groupMan = mock(GroupsManagement.class);
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		UserImportSerivce userImportService = mock(UserImportSerivce.class);
 		OutputProfileExecutor outputProfileExecutor = mock(OutputProfileExecutor.class);
@@ -92,7 +95,7 @@ public class IdPEngineImplBaseTest
 					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
-				identitiesMan, userImportService, outputProfileExecutor);
+				identitiesMan, userImportService, outputProfileExecutor, groupMan);
 		
 		tested.obtainUserInformationWithEnrichingImport(
 				new EntityParam(1l), 
@@ -117,6 +120,7 @@ public class IdPEngineImplBaseTest
 	public void shouldExposeRequesterAttributesToProfile_LateImport() throws EngineException
 	{
 		AttributesManagement attributesMan = mock(AttributesManagement.class);
+		GroupsManagement groupMan = mock(GroupsManagement.class);
 		AttributesManagement insecureAttributesMan = mock(AttributesManagement.class);
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		UserImportSerivce userImportService = mock(UserImportSerivce.class);
@@ -138,7 +142,7 @@ public class IdPEngineImplBaseTest
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, 
 				insecureAttributesMan, identitiesMan, 
-				userImportService, outputProfileExecutor);
+				userImportService, outputProfileExecutor, groupMan);
 		
 		tested.obtainUserInformationWithEnrichingImport(
 				new EntityParam(1l), 

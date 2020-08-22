@@ -13,6 +13,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
@@ -32,6 +33,7 @@ public class IdPEngineImpl extends IdPEngineImplBase
 	@Autowired
 	public IdPEngineImpl(AttributesManagement attributesMan, 
 			@Qualifier("insecure") AttributesManagement insecureAttributesMan,
+			@Qualifier("insecure") GroupsManagement groupMan,
 			EntityManagement identitiesMan,
 			OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
@@ -43,6 +45,6 @@ public class IdPEngineImpl extends IdPEngineImplBase
 		super(attributesMan, insecureAttributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg));
+						attrValueConverter, msg), groupMan);
 	}
 }

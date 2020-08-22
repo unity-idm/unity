@@ -98,6 +98,12 @@ public class I18nString
 			defaultValue;
 	}
 
+	public String getValue(String locale)
+	{
+		return (locale != null && values.containsKey(locale)) ? values.get(locale) : 
+			defaultValue;
+	}
+	
 	public String getValueRaw(String locale)
 	{
 		return values.get(locale);
