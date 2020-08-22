@@ -4,23 +4,28 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -54,11 +59,16 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.CredentialInfo;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
@@ -75,7 +85,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * Integration and engine related part tests of the subsystem mapping the remote data to the unity's representation. 
  * @author K. Benedyczak
  */
-public class TestOutputTranslationProfiles extends DBIntegrationTestBase
+public class OutputTranslationProfileITest extends DBIntegrationTestBase
 {
 	@Autowired
 	private TranslationProfileManagement tprofMan;
@@ -165,8 +175,8 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		getUser();
 		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
-		TranslationInput input = new TranslationInput(new ArrayList<Attribute>(), userE, 
-				"/", Collections.singleton("/"),
+		TranslationInput input = new TranslationInput(new ArrayList<>(), userE, 
+				"/", Collections.singleton(new Group("/")),
 				"req", Collections.emptyList(), 
 				"proto", "subProto", Collections.emptyMap());
 
@@ -239,7 +249,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 					VerifiableEmailAttribute.of("e", "/", "email@example.com"),
 					FloatingPointAttribute.of("f", "/", 123d)), 
 				userE, 
-				"/", Collections.singleton("/"),
+				"/", Collections.singleton(new Group("/")),
 				"req", Collections.emptyList(),
 				"proto", "subProto", Collections.emptyMap());
 		
@@ -311,7 +321,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				Lists.newArrayList(StringAttribute.of("o", "/", "v1"),
 						VerifiableEmailAttribute.of("e", "/",
 								"email@example.com")),
-				userE, "/", Collections.singleton("/"), 
+				userE, "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto", "subProto", 
 				Collections.emptyMap());
@@ -376,7 +386,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		
 		TranslationInput input = new TranslationInput(
 				Lists.newArrayList(),
-				userE, "/", Collections.singleton("/"), 
+				userE, "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto", "subProto", 
 				Collections.emptyMap());
@@ -420,7 +430,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(
 				Lists.newArrayList(StringAttribute.of("o", "/", "v1"),
 						StringAttribute.of("e", "/", "v2")),
-				getUser(), "/", Collections.singleton("/"), 
+				getUser(), "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto",
 				"subProto", Collections.emptyMap());
@@ -459,7 +469,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(
 				Lists.newArrayList(VerifiableEmailAttribute.of("e", "/",
 						"email@example.com")),
-				getUser(), "/", Collections.singleton("/"), 
+				getUser(), "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto", "subProto", Collections.emptyMap());
 
@@ -508,7 +518,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		Entity e = getUser();
 
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), e, "/",
-				Collections.singleton("/"), "req", Collections.emptyList(),
+				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
 				Collections.emptyMap());
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
@@ -542,7 +552,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		Entity e = getUser();
 
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), e, "/",
-				Collections.singleton("/"), "req", Collections.emptyList(),
+				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
 				Collections.emptyMap());
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
@@ -559,7 +569,6 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				assertThat(id.getValue(), is("x"));
 
 		}
-
 	}
 	
 	@Test
@@ -582,7 +591,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 				rules);
 
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), getUser(), "/",
-				Collections.singleton("/"), "req", Collections.emptyList(),
+				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
 				Collections.emptyMap());
 
@@ -610,7 +619,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		TranslationProfile tp2Cfg = new TranslationProfile("tp1", "", ProfileType.OUTPUT,
 				rules);
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), getUser(), "/",
-				Collections.singleton("/"), "req", Collections.emptyList(),
+				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
 				Collections.emptyMap());
 		aTypeMan.removeAttributeType("o", true);	
@@ -629,6 +638,42 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		
 	}
 
+	@Test
+	public void profileShouldExposeGroupDisplayedName() throws Exception
+	{
+		Entity userE = new Entity(Collections.singletonList(new Identity("typ", "val", 1, "cmpval")), 
+				new EntityInformation(), 
+				new CredentialInfo("credReqId", ImmutableMap.of("cred1", 
+						new CredentialPublicInformation(LocalCredentialState.correct, ""))));
+		
+		List<TranslationRule> rules = new ArrayList<>();
+		TranslationAction action1 = new TranslationAction(
+				CreatePersistentIdentityActionFactory.NAME, new String[] {
+						UsernameIdentity.ID, 
+						"groupsObj['/foo'].getDisplayedName().getValue('en')"});
+		rules.add(new TranslationRule("true", action1));
+		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
+		
+		Group foo = new Group("/foo");
+		foo.setDisplayedName(new I18nString("FOO"));
+		TranslationInput input = new TranslationInput(new ArrayList<>(), userE, 
+				"/", Arrays.asList(new Group("/"), foo),
+				"req", Collections.emptyList(), 
+				"proto", "subProto", Collections.emptyMap());
+
+		OutputTranslationProfile tp1 = new OutputTranslationProfile(
+				tp1Cfg, 
+				mock(OutputTranslationProfileRepository.class), 
+				outtactionReg, 
+				mock(AttributeValueConverter.class));
+		TranslationResult result = tp1.translate(input);
+
+		assertThat(result.getIdentities()).hasSize(2);
+		assertThat(result.getIdentities())
+			.extracting(id -> id.getTypeId(), id -> id.getValue())
+			.contains(new Tuple(UsernameIdentity.ID, "FOO"));
+	}
+	
 	private Entity getUser() throws Exception
 	{
 		setupPasswordAuthn();

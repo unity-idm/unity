@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -19,6 +20,7 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
@@ -32,6 +34,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -53,18 +56,21 @@ class IdPEngineImplBase implements IdPEngine
 	private UserImportSerivce userImportService;
 	private OutputProfileExecutor outputProfileExecutor;
 	private AttributesManagement alwaysInsecureAttributesMan;
+	private GroupsManagement groupManagement;
 	
 	IdPEngineImplBase(AttributesManagement attributesMan,
 			AttributesManagement alwaysInsecureAttributesMan, 
 			EntityManagement identitiesMan,
 			UserImportSerivce userImportService,
-			OutputProfileExecutor outputProfileExecutor)
+			OutputProfileExecutor outputProfileExecutor,
+			GroupsManagement groupManagement)
 	{
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
 		this.userImportService = userImportService;
 		this.outputProfileExecutor = outputProfileExecutor;
 		this.alwaysInsecureAttributesMan = alwaysInsecureAttributesMan;
+		this.groupManagement = groupManagement;
 	}
 
 	@Override
@@ -125,7 +131,10 @@ class IdPEngineImplBase implements IdPEngine
 			String protocol, String protocolSubType,
 			Map<String, Status> importStatus) throws EngineException
 	{
-		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
+		Set<String> allGroups = identitiesMan.getGroups(entity).keySet();
+		List<Group> resolvedGroups = groupManagement.getGroupsByWildcard("/**").stream()
+				.filter(grp -> allGroups.contains(grp.getName()))
+				.collect(Collectors.toList());
 		Collection<AttributeExt> allAttributes = attributesMan.getAttributes(
 				entity, group, null);
 		if (log.isTraceEnabled())
@@ -136,7 +145,7 @@ class IdPEngineImplBase implements IdPEngine
 			alwaysInsecureAttributesMan.getAttributes(requesterEntity.get().entityParam, 
 					requesterEntity.get().group, null) :
 			Collections.emptyList();
-		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, allGroups, 
+		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, resolvedGroups, 
 				requester, requesterAttributes, protocol, protocolSubType, importStatus);
 		return outputProfileExecutor.execute(profile, input);
 	}

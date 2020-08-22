@@ -12,6 +12,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
@@ -34,6 +35,7 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 	@Autowired
 	public IdPEngineImplNoAuthz(@Qualifier("insecure") AttributesManagement attributesMan, 
 			@Qualifier("insecure") EntityManagement identitiesMan,
+			@Qualifier("insecure") GroupsManagement groupMan,
 			OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
@@ -44,6 +46,6 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 		super(attributesMan, attributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg));
+						attrValueConverter, msg), groupMan);
 	}
 }
