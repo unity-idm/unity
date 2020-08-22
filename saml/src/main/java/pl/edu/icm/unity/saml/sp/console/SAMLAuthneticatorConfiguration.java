@@ -51,7 +51,6 @@ public class SAMLAuthneticatorConfiguration
 	private boolean requireSignedAssertion;
 	private boolean defSignRequest;
 	private List<String> defaultRequestedNameFormat;
-	private String registrationForm;
 	private boolean defAccountAssociation;
 	private List<SAMLAuthnTrustedFederationConfiguration> trustedFederations;
 	private List<SAMLIndividualTrustedSamlIdpConfiguration> individualTrustedIdps;
@@ -98,11 +97,6 @@ public class SAMLAuthneticatorConfiguration
 		{
 			defaultRequestedNameFormat.stream().forEach(d -> raw
 					.put(SAMLSPProperties.P + SAMLSPProperties.DEF_REQUESTED_NAME_FORMAT, d));
-		}
-
-		if (getRegistrationForm() != null)
-		{
-			raw.put(SAMLSPProperties.P + CommonWebAuthnProperties.REGISTRATION_FORM, getRegistrationForm());
 		}
 
 		raw.put(SAMLSPProperties.P + CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION,
@@ -185,7 +179,6 @@ public class SAMLAuthneticatorConfiguration
 		setDefSignRequest(samlSpProp.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
 		String defNameFormat = samlSpProp.getValue(SAMLSPProperties.DEF_REQUESTED_NAME_FORMAT);
 		setDefaultRequestedNameFormat(defNameFormat != null ? Arrays.asList(defNameFormat) : null);
-		setRegistrationForm(samlSpProp.getValue(CommonWebAuthnProperties.REGISTRATION_FORM));
 		if (samlSpProp.isSet(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION))
 		{
 			setDefAccountAssociation(
@@ -342,16 +335,6 @@ public class SAMLAuthneticatorConfiguration
 	public void setDefaultRequestedNameFormat(List<String> defaultRequestedNameFormat)
 	{
 		this.defaultRequestedNameFormat = defaultRequestedNameFormat;
-	}
-
-	public String getRegistrationForm()
-	{
-		return registrationForm;
-	}
-
-	public void setRegistrationForm(String registrationForm)
-	{
-		this.registrationForm = registrationForm;
 	}
 
 	public boolean isDefAccountAssociation()
