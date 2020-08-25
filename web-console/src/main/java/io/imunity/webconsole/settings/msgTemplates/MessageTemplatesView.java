@@ -48,7 +48,6 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -124,7 +123,6 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		});
 
 		HamburgerMenu<MessageTemplateEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getGlobalHamburgerHandlers());
 		messageTemplateGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 

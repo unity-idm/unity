@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
@@ -57,7 +58,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	public static final String NAME = "sms";
 	public static final String DESC = "Verifies sms";
 	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
-
+	
 	private SMSCredential credential = new SMSCredential();
 	private NotificationProducer notificationProducer;
 	private CredentialHelper credentialHelper;
@@ -116,32 +117,32 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	@Override
-	public SMSCode sendCode(String username, boolean force) throws EngineException
+	public SMSCode sendCode(AuthenticationSubject subject, boolean force) throws EngineException
 	{
 
-		if (isAuthSMSLimitExceeded(username))
+		if (isAuthSMSLimitExceeded(subject))
 		{
 			if (force)
 			{
-				log.debug("Forcing sending authn sms code to the user " + username
+				log.debug("Forcing sending authn sms code to the user " + subject
 						+ ", but authn sms limit is exceeded");
 			} else
 			{
-				log.debug("Authn sms limit to the user " + username
+				log.debug("Authn sms limit to the user " + subject
 						+ " is exceeded, skipping send authn sms");
 				return null;
 			}
 		}
 
-		smslimitCache.incValue(username);
+		smslimitCache.incValue(subject);
 		EntityWithCredential resolved = null;
 		try
 		{
-			resolved = identityResolver.resolveIdentity(username, IDENTITY_TYPES,
+			resolved = identityResolver.resolveSubject(subject, IDENTITY_TYPES,
 					credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for sms authN can not be found: " + username, e);
+			log.debug("The user for sms authN can not be found: " + subject, e);
 			return null;
 		}
 
@@ -149,7 +150,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		if (credentialValue == null)
 		{
 			log.debug("The user {} does not have {} credential defined, skipping sending authentication code",
-					username, credentialName);
+					subject, credentialName);
 			return null;
 		}
 			
@@ -158,7 +159,8 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		String code = CodeGenerator.generateNumberCode(credential.getCodeLength());
 		Map<String, String> params = new HashMap<>();
 		params.put(SMSAuthnTemplateDef.VAR_CODE, code);
-		params.put(SMSAuthnTemplateDef.VAR_USER, username);
+		params.put(SMSAuthnTemplateDef.VAR_USER, identityResolver.getDisplayedUserName(
+				new EntityParam(resolved.getEntityId())));
 		Locale currentLocale = LocaleHelper.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 
@@ -173,10 +175,10 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 
 	@Override
 	public AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser,
-			String username, SandboxAuthnResultCallback sandboxCallback)
+			AuthenticationSubject subject, SandboxAuthnResultCallback sandboxCallback)
 	{
 		AuthenticationResult authenticationResult = verifyCodeInternal(sentCode,
-				codeFromUser, username);
+				codeFromUser, subject);
 		if (sandboxCallback != null)
 			sandboxCallback.sandboxedAuthenticationDone(
 					new LocalSandboxAuthnContext(authenticationResult));
@@ -184,7 +186,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	private AuthenticationResult verifyCodeInternal(SMSCode sentCode, String codeFromUser,
-			String username)
+			AuthenticationSubject subject)
 	{
 		if (sentCode == null)
 		{
@@ -194,11 +196,11 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		EntityWithCredential resolved;
 		try
 		{
-			resolved = identityResolver.resolveIdentity(username, IDENTITY_TYPES,
+			resolved = identityResolver.resolveSubject(subject, IDENTITY_TYPES,
 					credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for sms authN can not be found: " + username, e);
+			log.debug("The user for sms authN can not be found: " + subject, e);
 			return new AuthenticationResult(Status.deny, null);
 
 		}
@@ -206,26 +208,25 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		if (System.currentTimeMillis() > sentCode.getValidTo())
 		{
 
-			log.debug("SMS code provided by " + username + " is invalid");
+			log.debug("SMS code provided by " + subject + " is invalid");
 			return new AuthenticationResult(Status.deny, null);
 		}
 
 		if (codeFromUser == null || !sentCode.getValue().equals(codeFromUser))
 		{
-			log.debug("SMS code provided by " + username + " is incorrect");
+			log.debug("SMS code provided by " + subject + " is incorrect");
 			return new AuthenticationResult(Status.deny, null);
 		}
 
-		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username,
+		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject,
 				null);
-		smslimitCache.reset(username);
+		smslimitCache.reset(subject);
 		return new AuthenticationResult(Status.success, ae);
 	}
 
 	@Override
 	public SMSCredentialResetImpl getSMSCredentialResetBackend()
 	{
-
 		return new SMSCredentialResetImpl(notificationProducer, identityResolver, this,
 				credentialHelper, credentialName,
 				credential.getSerializedConfiguration(),
@@ -234,9 +235,8 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 
 
 	@Override
-	public boolean isAuthSMSLimitExceeded(String username)
+	public boolean isAuthSMSLimitExceeded(AuthenticationSubject username)
 	{
-		
 		return smslimitCache.getValue(username) >= credential.getAuthnSMSLimit();
 	}
 	

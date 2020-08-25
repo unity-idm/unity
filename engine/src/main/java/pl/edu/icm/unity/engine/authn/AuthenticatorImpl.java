@@ -35,13 +35,13 @@ class AuthenticatorImpl implements AuthenticatorInstance
 	 * exposed in the instanceDescription. 
 	 */
 	@Override
-	public void updateConfiguration(String configuration, String localCredential)
+	public void updateConfiguration(String verificatorConfiguration, String retrievalConfiguration, String localCredential)
 	{
-		retrieval.setSerializedConfiguration(configuration);
-		verificator.setSerializedConfiguration(configuration);
+		retrieval.setSerializedConfiguration(retrievalConfiguration);
+		verificator.setSerializedConfiguration(verificatorConfiguration);
 		if (!(verificator.getType().equals(VerificatorType.Local)))
 		{
-			instanceDescription.setConfiguration(configuration);
+			instanceDescription.setConfiguration(verificatorConfiguration);
 		} else 
 		{
 			instanceDescription.setConfiguration(null);

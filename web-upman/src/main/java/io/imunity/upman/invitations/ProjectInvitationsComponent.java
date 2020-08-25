@@ -20,8 +20,8 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -59,8 +59,7 @@ public class ProjectInvitationsComponent extends CustomComponent
 		invitationsGrid = new ProjectInvitationsGrid(msg, commonActions);
 
 		HamburgerMenu<ProjectInvitationEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		hamburgerMenu.addStyleNames(Styles.indentSmall.toString());
 		invitationsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);

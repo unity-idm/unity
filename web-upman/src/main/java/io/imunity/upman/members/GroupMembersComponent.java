@@ -37,8 +37,8 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
@@ -88,8 +88,7 @@ class GroupMembersComponent extends CustomComponent
 		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions, additionalProjectAttributes, formatter);
 
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		hamburgerMenu.addStyleNames(Styles.indentSmall.toString());
 		groupMemebersGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);
@@ -337,7 +336,7 @@ class GroupMembersComponent extends CustomComponent
 		protected Button createConfirmButton()
 		{
 			Button ok = super.createConfirmButton();
-			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			ok.addStyleName(Styles.buttonAction.toString());
 			return ok;
 		}
 		

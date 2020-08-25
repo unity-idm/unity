@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class ScryptParams
 {
-	public static final int MIN_WORK_FACTOR = 10;
+	public static final int MIN_WORK_FACTOR = 6;
 	public static final int MAX_WORK_FACTOR = 23;
 	
 	private int workFactor;

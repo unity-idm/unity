@@ -34,7 +34,6 @@ import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -345,9 +344,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			
 		} catch (WrongArgumentException e)
 		{
-			if (e instanceof IllegalFormContentsException)
-				editor.markErrorsFromException((IllegalFormContentsException) e);
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
 			return;
 		} catch (Exception e)
 		{

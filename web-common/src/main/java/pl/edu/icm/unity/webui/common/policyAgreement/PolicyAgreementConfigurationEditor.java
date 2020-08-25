@@ -18,6 +18,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
@@ -64,10 +65,16 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 		buttons = new ArrayList<>();
 		main = new FormLayout();
 
+		Label emptyPolicyToAccept = new Label();
+		emptyPolicyToAccept.setCaption(msg.getMessage("PolicyAgreementConfigEditor.documentsToAccept"));
+		emptyPolicyToAccept.setVisible(policyDocuments.isEmpty());
+		emptyPolicyToAccept.setValue(msg.getMessage("PolicyAgreementConfigEditor.noPolicyDocuments"));
+		
 		policyToAccept = new ChipsWithDropdown<>(p -> p.name, true);
 		policyToAccept.setCaption(msg.getMessage("PolicyAgreementConfigEditor.documentsToAccept"));
 		policyToAccept.setItems(policyDocuments.stream().collect(Collectors.toList()));
-
+		policyToAccept.setVisible(!policyDocuments.isEmpty());
+		
 		EnumComboBox<PolicyAgreementPresentationType> presentationType = new EnumComboBox<PolicyAgreementPresentationType>(
 				msg, "PolicyAgreementPresentationType.", PolicyAgreementPresentationType.class,
 				PolicyAgreementPresentationType.INFORMATIVE_ONLY);
@@ -107,7 +114,7 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 				buttons.add(b);
 			});
 		});
-
+		main.addComponent(emptyPolicyToAccept);
 		main.addComponent(policyToAccept);
 		main.addComponent(presentationType);
 		main.addComponent(buttonsWrapper);

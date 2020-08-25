@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn.credreset.sms;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
@@ -11,13 +13,12 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredentialRecoverySettings;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFinalMessage;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
@@ -43,6 +44,8 @@ public class SMSCredentialResetController
 	private SMSCredentialRecoverySettings settings;
 	private CredentialResetScreen mainWrapper;
 	private CredentialResetFlowConfig credResetUIConfig;
+
+	private Optional<AuthenticationSubject> presetEntity;
 	
 	public SMSCredentialResetController(MessageSource msg, CredentialReset backend,
 			CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig config)
@@ -55,13 +58,14 @@ public class SMSCredentialResetController
 				config.infoWidth, config.contentsWidth, config.compactLayout);
 	}
 
-	public Component getInitialUI()
+	public Component getInitialUI(Optional<AuthenticationSubject> presetEntity)
 	{
+		this.presetEntity = presetEntity;
 		CredentialResetStateVariable.reset();
 		this.settings = new SMSCredentialRecoverySettings(JsonUtil.parse(backend.getSettings()));
 		mainWrapper = new CredentialResetScreen();
 		mainWrapper.setContents(new SMSResetStep1Captcha(credResetUIConfig, settings.isCapchaRequire(),
-				this::onUsernameCollected));
+				this::onUsernameCollected, !presetEntity.isPresent()));
 		return mainWrapper;
 	}
 	
@@ -73,7 +77,8 @@ public class SMSCredentialResetController
 	
 	private void onUsernameCollected(String username)
 	{
-		backend.setSubject(new IdentityTaV(UsernameIdentity.ID, username));
+		AuthenticationSubject subject = presetEntity.orElse(AuthenticationSubject.identityBased(username));
+		backend.setSubject(subject);
 		
 		CredentialResetStateVariable.record(ResetPrerequisite.CAPTCHA_PROVIDED);
 

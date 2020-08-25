@@ -1,6 +1,7 @@
 @import "../valo/valo.scss";
 @import "../../addons/stepper/stepper.scss";
 @import "../common/common.scss";
+@import "sidebar.scss";
 
 @mixin unityThemeValo {
 
@@ -11,4 +12,11 @@
 	@include vaadin-icons;	
 	
 	@include unityCommon;
+	
+	@include sidebar;
 }
+
+body {
+	font-family: $font;
+}
+

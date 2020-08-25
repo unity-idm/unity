@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.cert;
 
+import java.util.Optional;
+
+import com.vaadin.ui.Component;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -34,9 +38,9 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getViewer(String credentialConfiguration)
+	public Optional<Component> getViewer(String credentialConfiguration)
 	{
-		return new ComponentsContainer();
+		return Optional.empty();
 	}
 
 	@Override

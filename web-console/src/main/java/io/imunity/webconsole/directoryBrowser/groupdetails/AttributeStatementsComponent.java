@@ -36,7 +36,6 @@ import pl.edu.icm.unity.webui.common.DnDGridUtils;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -94,7 +93,6 @@ public class AttributeStatementsComponent extends CustomComponent
 		});
 
 		HamburgerMenu<AttrStatementWithId> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getGlobalHamburgerActionsHandlers());
 		attrStatementsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 

@@ -47,6 +47,7 @@ public class TranslatedRegistrationRequest
 	private String redirectURL = null;
 	private I18nMessage postSubmitMessage;
 	private AutomaticInvitationProcessingParam invitationProcessing;
+	private Boolean mfaPreferenceStatus;
 	
 	public TranslatedRegistrationRequest(String credentialRequirement)
 	{
@@ -180,5 +181,15 @@ public class TranslatedRegistrationRequest
 	public void setInvitationProcessing(AutomaticInvitationProcessingParam invitationProcessing)
 	{
 		this.invitationProcessing = invitationProcessing;
+	}
+
+	public Boolean getMfaPreferenceStatus()
+	{
+		return mfaPreferenceStatus;
+	}
+
+	public void setMfaPreferenceStatus(boolean mfaPreferenceStatus)
+	{
+		this.mfaPreferenceStatus = mfaPreferenceStatus;
 	}
 }

@@ -8,12 +8,18 @@ package pl.edu.icm.unity.webui.console.services.idp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
+
+import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
@@ -23,6 +29,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationEditor;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList;
@@ -62,15 +69,40 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 
 	private void init()
 	{
+		PolicyAgreementConfigurationList list = new PolicyAgreementConfigurationList(msg,
+				() -> new PolicyAgreementConfigurationEditor(msg, policyDocuments));
+
 		binder = new Binder<>(IdpPolicyAgreementsConfigurationVaadinBean.class);
 		I18nTextField title = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.title"));
 		title.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		binder.forField(title).asRequired().bind("title");
+		binder.forField(title).withValidator((v, c) -> {
+
+			if (!list.getValue().isEmpty() && (v == null || v.isEmpty()))
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			}
+
+			return ValidationResult.ok();
+
+		}).bind("title");
+
 		I18nTextField info = new I18nTextField(msg, msg.getMessage("PolicyAgreementTab.info"));
 		info.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		binder.forField(info).bind("information");
-		PolicyAgreementConfigurationList list = new PolicyAgreementConfigurationList(msg,
-				() -> new PolicyAgreementConfigurationEditor(msg, policyDocuments));
+
+		IntStepper width = new IntStepper();
+		width.setWidth(3, Unit.EM);
+		width.setStyleName("u-maxWidth3");
+		width.setMinValue(1);
+		
+		ComboBox<String> widthUnit = new NotNullComboBox<>();
+		widthUnit.setWidth (6, Unit.EM);
+		
+		widthUnit.setItems(Stream.of(Unit.values()).map(Unit::toString));
+		binder.forField(width)
+				.bind("width");
+		binder.forField(widthUnit).bind("widthUnit");
+
 		binder.forField(list).withValidator((v, c) -> {
 			for (PolicyAgreementConfiguration con : v)
 			{
@@ -84,6 +116,15 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		header.setMargin(false);
 		header.addComponent(title);
 		header.addComponent(info);
+		
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.setMargin(false);
+		wrapper.setCaption(msg.getMessage("PolicyAgreementTab.width"));
+		wrapper.addComponent(width);
+		wrapper.addComponent(widthUnit);
+		wrapper.setComponentAlignment(width, Alignment.MIDDLE_CENTER);
+		wrapper.setComponentAlignment(widthUnit, Alignment.MIDDLE_CENTER);
+		header.addComponent(wrapper);
 		main.addComponent(header);
 		main.addComponent(list);
 		binder.addValueChangeListener(e -> fireEvent(new ValueChangeEvent<>(this, getValue(), true)));
@@ -97,8 +138,8 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		IdpPolicyAgreementsConfigurationVaadinBean bean = binder.getBean();
 		if (bean == null)
 			return null;
-		return new IdpPolicyAgreementsConfiguration(bean.getTitle(), bean.getInformation(),
-				bean.getAgreements());
+		return new IdpPolicyAgreementsConfiguration(bean.getTitle(), bean.getInformation(), bean.getWidth(),
+				bean.getWidthUnit(), bean.getAgreements());
 	}
 
 	@Override
@@ -124,6 +165,8 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		private I18nString title;
 		private I18nString information;
 		private List<PolicyAgreementConfiguration> agreements;
+		private int width;
+		private String widthUnit;
 
 		public IdpPolicyAgreementsConfigurationVaadinBean()
 		{
@@ -138,6 +181,8 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 			this.agreements.addAll(source.agreements);
 			this.title = source.title;
 			this.information = source.information;
+			this.width = source.width;
+			this.widthUnit = source.widthUnit;
 		}
 
 		public I18nString getTitle()
@@ -168,6 +213,26 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 		public void setInformation(I18nString information)
 		{
 			this.information = information;
+		}
+
+		public int getWidth()
+		{
+			return width;
+		}
+
+		public void setWidth(int width)
+		{
+			this.width = width;
+		}
+
+		public String getWidthUnit()
+		{
+			return widthUnit;
+		}
+
+		public void setWidthUnit(String widthUnit)
+		{
+			this.widthUnit = widthUnit;
 		}
 	}
 }

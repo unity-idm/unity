@@ -15,6 +15,7 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -57,6 +58,12 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		}).build();
 
 		grid = new GridWithActionColumn<>(msg, Arrays.asList(remove));
+		grid.getRowDragger().getGridDragSource().addDragStartListener(e -> {
+			if (isEditMode())
+			{
+				grid.getEditor().cancel();
+			}
+		});
 		grid.setMinHeightByRow(3);
 		grid.getEditor().addSaveListener(e -> {
 			fireChange();
@@ -71,11 +78,13 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 			resetNewElement();
 		});
 		grid.getEditor().setBinder(new Binder<>(type));
+		
 	}
 
 	private void resetNewElement()
 	{
 		newElement = null;
+		setComponentError(null);
 	}
 
 	private void fireChange()
@@ -252,9 +261,11 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		buttonBar.setWidth(100, Unit.PERCENTAGE);
 		buttonBar.setMargin(false);
 
-		Button add = new Button();
+		Button add = new Button(msg.getMessage("addNew"));
+		add.addStyleName(Styles.buttonAction.toString());
 		add.setIcon(Images.add.getResource());
 		add.addClickListener(e -> {
+			grid.setComponentError(null);
 			if (!grid.getEditor().isOpen())
 			{
 				newElement = newInstance(type);
@@ -281,6 +292,18 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	}
 
+	@Override
+	public void setComponentError(ErrorMessage componentError)
+	{	
+		if (grid != null)
+		{
+			grid.setComponentError(componentError);
+		}else
+		{
+			super.setComponentError(componentError);
+		}
+	}
+	
 	public Editor<T> getEditor()
 	{
 		return grid.getEditor();
@@ -290,4 +313,6 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 		return grid.getEditor().isOpen();
 	}
+	
+	
 }

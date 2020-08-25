@@ -31,4 +31,10 @@ public class TimeUtil
 		return Constants.DT_FORMATTER_STANDARD.format(
 				LocalDateTime.ofInstant(instant, ZoneId.systemDefault()));
 	}
+	
+	public static String formatStandardInstantWithNano(Instant instant)
+	{
+		return Constants.DT_FORMATTER_STANDARD_NANO.format(
+				LocalDateTime.ofInstant(instant, ZoneId.systemDefault()));
+	}
 }

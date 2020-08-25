@@ -246,7 +246,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 			if (EnquiryTargetCondEvaluator.evaluateTargetCondition(enqForm,
 							data.entitiesData.getIdentities().get(e),
 							data.entitiesData.getEntityInfo().get(e).getEntityState().toString(),
-							credentialInfo.getCredentialRequirementId(),
+							credentialInfo,
 							data.entitiesData.getMemberships().get(e),
 							data.entitiesData.getDirectAttributes().get(e).get("/").values()))
 				forms.add(enqForm.getName());

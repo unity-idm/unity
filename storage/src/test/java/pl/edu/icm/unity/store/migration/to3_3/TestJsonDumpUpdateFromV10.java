@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.migration.to3_3;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedInputStream;
@@ -19,8 +21,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.DBDumpContentElements;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -34,6 +38,10 @@ public class TestJsonDumpUpdateFromV10
 	
 	@Autowired
 	protected ImportExport ie;
+	
+	@Autowired
+	private EndpointDB endpointDAO;
+	
 	
 	@Before
 	public void cleanDB()
@@ -56,6 +64,19 @@ public class TestJsonDumpUpdateFromV10
 				e.printStackTrace();
 				fail("Import failed " + e);
 			}
+			
+			checkEndpointConfiguration();
 		});
+		
+		
+	}
+	
+	private void checkEndpointConfiguration()
+	{
+		assertThat(endpointDAO.getAll().size(), is(10));
+		Endpoint endpoint = endpointDAO.get("UNITY console administration interface");
+		assertThat(endpoint.getConfiguration().getConfiguration().contains("sidebarThemeValo"), is(false));
+		endpoint = endpointDAO.get("UNITY project management");
+		assertThat(endpoint.getConfiguration().getConfiguration().contains("sidebarThemeValo"), is(false));
 	}
 }

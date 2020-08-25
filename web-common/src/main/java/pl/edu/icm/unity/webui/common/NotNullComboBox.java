@@ -25,6 +25,11 @@ public class NotNullComboBox<T> extends ComboBox<T>
 		super(caption);
 		init();
 	}
+	
+	public NotNullComboBox()
+	{
+		init();
+	}
 
 	protected final void init()
 	{

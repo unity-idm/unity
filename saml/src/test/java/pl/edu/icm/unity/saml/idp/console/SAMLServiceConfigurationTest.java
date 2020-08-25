@@ -56,7 +56,7 @@ public class SAMLServiceConfigurationTest
 				.update("defaultGroup", "/foo1")
 				.update("groupMapping.1.mappingGroup", "/foo2")
 				.get();
-		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
+		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, imageAccessSrv, pkiMan, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
@@ -83,7 +83,7 @@ public class SAMLServiceConfigurationTest
 				.update("defaultGroup", "/foo1")
 				.update("groupMapping.1.mappingGroup", "/foo2")
 				.get();
-		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
+		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, 
 				imageAccessSrv, pkiMan, Lists.newArrayList());
@@ -114,7 +114,7 @@ public class SAMLServiceConfigurationTest
 				.update("policyAgreements.1.policyDocuments", "1")
 				.update("policyAgreements.1.policyAgreementPresentationType", PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED.toString())
 				.get();
-		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(Collections.emptyList());
+		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, 
 				imageAccessSrv, pkiMan, Lists.newArrayList());

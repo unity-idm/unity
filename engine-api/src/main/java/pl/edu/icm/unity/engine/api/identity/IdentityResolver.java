@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.identity;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -34,26 +35,33 @@ public interface IdentityResolver
 	 * credential is set in the returned object.
 	 * @return the entity info with the credential value
 	 * @throws IllegalIdentityValueException if the given identity is not present in the db
-	 * @throws IllegalGroupValueException 
-	 * @throws IllegalTypeException 
-	 * @throws EngineException 
 	 */
 	EntityWithCredential resolveIdentity(String identity, String[] identityTypes, String credentialName)
-		throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
+		throws EngineException;
+
+	/**
+	 * Provides information about entity including its credential 
+	 */
+	EntityWithCredential resolveEntity(long entityId, String credentialName)
+			throws EngineException;
+	
+	/**
+	 * Provides information about subject including its credential 
+	 */
+	EntityWithCredential resolveSubject(AuthenticationSubject subject, String[] identityTypes, String credentialName)
+			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
 
 	/**
 	 * Simple version that only resolves, but doesn't establish any local credential. Useful for remote 
 	 * verificators.
-	 * @param identity
-	 * @param identityTypes
-	 * @return
-	 * @throws EngineException
 	 */
 	long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws EngineException;
 	
 	
 	boolean isEntityEnabled(long entity);
+	
+	String getDisplayedUserName(EntityParam entity) throws EngineException;
 
 	/**
 	 * Resolves {@link EntityParam} to list of all Identities, if missing throws exception

@@ -112,25 +112,6 @@ public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportServ
 	}
 	
 	@Override
-	@Transactional
-	public List<AuthenticatorInstance> getLocalAuthenticators(String bindingId) throws EngineException
-	{
-		ArrayList<AuthenticatorInstance> ret = new ArrayList<>();
-
-		Collection<AuthenticatorInstance> authnInstances = authnLoader.getAuthenticators(bindingId);
-		for (AuthenticatorInstance authenticator : authnInstances)
-		{
-			if (authenticator.getMetadata().getLocalCredentialName() != null)
-			{
-				ret.add(authnLoader.getAuthenticator(authenticator.getMetadata().getId(), 
-						bindingId));
-			}
-		}
-		return ret;
-	}
-
-
-	@Override
 	public void refreshAuthenticatorsOfCredential(String credential) throws EngineException
 	{
 		tx.runInTransaction(() -> 

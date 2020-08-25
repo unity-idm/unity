@@ -67,7 +67,7 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 		registerTab(authTab);
 
 		DefaultServiceDefinition serviceBean = new DefaultServiceDefinition(type.getName());
-		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(allGroups);
+		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(msg, allGroups);
 
 		if (editMode)
 		{

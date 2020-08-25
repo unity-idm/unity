@@ -74,10 +74,8 @@ public interface IdentityTypeDefinition
 	 * @param realm realm value, can be null
 	 * @param target target for which the identity is going to be used, can be null
 	 * @return comparable value of the string
-	 * @throws IllegalIdentityValueException if some parameters are null and the implementation 
-	 * requires them to create a comparable value.
 	 */
-	String getComparableValue(String from, String realm, String target) throws IllegalIdentityValueException;
+	String getComparableValue(String from, String realm, String target);
 	
 	/**
 	 * Similar to {@link #toString()}, but allows for less verbose

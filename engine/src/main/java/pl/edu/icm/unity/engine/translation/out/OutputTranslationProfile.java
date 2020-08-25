@@ -154,13 +154,17 @@ public class OutputTranslationProfile
 		ret.put("importStatus", input.getImportStatus().entrySet().stream()
 		                  .collect(Collectors.toMap(Entry::getKey, e -> String.valueOf(e.getValue()))));
 		
-		ret.put("groups", new ArrayList<>(input.getGroups()));
+		List<String> groupNames = input.getGroups().stream()
+				.map(group -> group.getName())
+				.collect(Collectors.toList());
+		
+		ret.put("groups", groupNames);
 
 		ret.put("usedGroup", input.getChosenGroup());
 
 		Group main = new Group(input.getChosenGroup());
 		List<String> subgroups = new ArrayList<String>();
-		for (String group : input.getGroups())
+		for (String group : groupNames)
 		{
 			Group g = new Group(group);
 			if (g.isChild(main))
@@ -168,6 +172,12 @@ public class OutputTranslationProfile
 		}
 		ret.put("subGroups", subgroups);
 
+		
+		Map<String, Group> groupsObj = input.getGroups().stream()
+				.collect(Collectors.toMap(group -> group.getName(), 
+						group -> group));
+		ret.put("groupsObj", groupsObj);
+		
 		if (InvocationContext.hasCurrent())
 		{
 			LoginSession loginSession = InvocationContext.getCurrent()
@@ -233,7 +243,7 @@ public class OutputTranslationProfile
 		if (translationProfile == null)
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
-		OutputTranslationProfile profileInstance = new OutputTranslationProfile(
+		OutputTranslationProfile profileInstance = new OutputTranslationProfile( 
 				translationProfile, profileRepo, registry, attrConverter);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;

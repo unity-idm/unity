@@ -41,6 +41,7 @@ import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationConfirmationRewriteSupport;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
+import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
@@ -91,10 +92,11 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			EnquiryResponsePreprocessor responseValidator, AttributeTypeHelper atHelper,
 			RegistrationConfirmationSupport confirmationsSupport, InvitationDB invitationDB, GroupDAO groupDB,
-			PolicyAgreementManagement policyAgreementManagement)
+			PolicyAgreementManagement policyAgreementManagement,
+			SecondFactorOptInService secondFactorOptInService)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper, entityCredentialsHelper,
-				facilitiesManagement, invitationDB, policyAgreementManagement);
+				facilitiesManagement, invitationDB, policyAgreementManagement, secondFactorOptInService);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
@@ -109,14 +111,6 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	 * Accepts a enquiry response applying all enquiry form rules. The
 	 * method operates on a result of the form's translation profile, rather
 	 * then on the original request.
-	 * 
-	 * @param form
-	 * @param currentRequest
-	 * @param publicComment
-	 * @param internalComment
-	 * @param rewriteConfirmationToken
-	 * @param sql
-	 * @throws EngineException
 	 */
 	public void acceptEnquiryResponse(EnquiryForm form, EnquiryResponseState currentRequest,
 			AdminComment publicComment, AdminComment internalComment, boolean rewriteConfirmationToken)
@@ -156,7 +150,9 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		applyRequestedAttributeClasses(translatedRequest.getAttributeClasses(), entityId);
 
 		applyRequestedCredentials(currentRequest, entityId);
-
+		
+		applyMFAStatus(entityId, translatedRequest.getMfaPreferenceStatus());
+		
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		String templateId = notificationsCfg.getAcceptedTemplate();
 		String requesterAddress = getRequesterAddress(currentRequest, templateId);

@@ -24,22 +24,15 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.GridConfig;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBase;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public class GridAuthnColumnComponent extends ColumnComponentBase
 {
 	private AuthenticatorSupportService authenticatorSupport;
@@ -47,12 +40,12 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 
 	private ChipsWithDropdown<AuthenticationOptionKey> valueComboField;
 	private Binder<GridStateBindingValue> binder;
+	private List<AuthenticationOptionKey> items;
 
 	public GridAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
-
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.gridAuthn"), Images.grid_v, dragStart, dragStop,
 				removeElementListener);
 		this.authenticatorSupport = authenticatorSupport;
@@ -68,18 +61,13 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		valueComboField = new ChipsWithDropdown<AuthenticationOptionKey>(i -> i.toGlobalKey(), true);
 		valueComboField.setSkipRemoveInvalidSelections(true);
 		valueComboField.setWidth(20, Unit.EM);
-		List<AuthenticationOptionKey> items = refreshItems();
+		refreshItems();
 
-		binder.forField(valueComboField).withValidator((v, c) -> {
-			Set<String> keys = v != null
-					? v.stream().map(k -> k.getAuthenticatorKey()).collect(Collectors.toSet())
-					: new HashSet<>();
-			if (v == null || !authnOptionSupplier.get().containsAll(keys))
-			{
-				return ValidationResult
-						.error(msg.getMessage("GridAuthnColumnElement.invalidAuthnOption"));
-			}
-			return ValidationResult.ok();
+		binder.forField(valueComboField).withValidator((v, c) -> 
+		{
+			return (v == null || !allOptionsPresent(v)) ? 
+				ValidationResult.error(msg.getMessage("GridAuthnColumnElement.invalidAuthnOption")) :
+				ValidationResult.ok();
 		}).bind("value");
 
 		FormLayout wrapper = new FormLayout();
@@ -101,18 +89,19 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		return main;
 	}
 
-	private List<AuthenticationOptionKey> refreshItems()
+	private boolean allOptionsPresent(List<AuthenticationOptionKey> options)
 	{
-		List<AuthenticationOptionKey> items = new ArrayList<>();
-		try
-		{
-			items.addAll(AuthnColumnComponentHelper.getAvailableAuthnOptions(authenticatorSupport, authnOptionSupplier.get(), true));
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("GridAuthnColumnElement.cannotGetItems"), e);
-		}
+		Set<AuthenticationOptionKey> availableSet = new HashSet<>(items);
+		return !options.stream()
+				.filter(key -> !availableSet.contains(key))
+				.findAny().isPresent();
+	}
+	
+	private void refreshItems()
+	{
+		items = AuthnColumnComponentHelper.getGridCompatibleAuthnOptions(
+					authenticatorSupport, authnOptionSupplier.get());
 		valueComboField.setItems(items);
-		return items;
 	}
 
 	@Override

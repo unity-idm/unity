@@ -23,6 +23,7 @@ public class Log
 	public static final String U_SERVER_WS = "unity.server.ws";
 	public static final String U_SERVER_REST = "unity.server.rest";
 	public static final String U_SERVER_PAM = "unity.server.pam";
+	public static final String U_SERVER_OTP = "unity.server.otp";
 	public static final String U_SERVER_TRANSLATION = "unity.server.externaltranslation";
 	public static final String U_SERVER_FIDO = "unity.server.fido";
 	public static final String SECURITY = "unicore.security"; //legacy

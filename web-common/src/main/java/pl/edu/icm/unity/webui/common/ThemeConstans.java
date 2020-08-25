@@ -14,5 +14,4 @@ package pl.edu.icm.unity.webui.common;
 public class ThemeConstans
 {
 	public static final String unityTheme = "unityThemeValo";
-	public static final String sidebarTheme = "sidebarThemeValo";
 }

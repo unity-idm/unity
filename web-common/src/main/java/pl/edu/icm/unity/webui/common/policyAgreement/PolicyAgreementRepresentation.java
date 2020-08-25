@@ -16,6 +16,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Represents single policy agreement. Shows single checkbox if needed and policy agreement text.
@@ -51,6 +52,7 @@ public class PolicyAgreementRepresentation extends CustomComponent
 		Label caption = new Label();
 		caption.setWidth(100, Unit.PERCENTAGE);
 		caption.setValue(representation);
+		caption.addStyleName(Styles.policyAgreementItem.toString());
 		caption.setContentMode(ContentMode.HTML);
 		setCaptionAsHtml(true);
 
@@ -66,6 +68,7 @@ public class PolicyAgreementRepresentation extends CustomComponent
 		
 		main.addComponent(decisionCheckBox);
 		main.addComponent(caption);
+		
 		main.setExpandRatio(decisionCheckBox, 0);
 		main.setExpandRatio(caption, 1);
 		

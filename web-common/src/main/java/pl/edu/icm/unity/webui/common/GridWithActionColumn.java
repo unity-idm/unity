@@ -48,6 +48,8 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private boolean heightByRows;
 	private int minHeightByRow = 2;
 	private boolean hideActionColumn = false;
+	private GridRowDragger<T> rowDragger;
+	private boolean enableDrag;
 	
 
 	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers)
@@ -68,7 +70,8 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		this.actionHandlers = actionHandlers;
 		this.hamburgerActionHandlers = new ArrayList<>();
 		this.heightByRows = heightByRows;
-
+		this.enableDrag = enableDrag;
+		
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
@@ -77,11 +80,11 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		refreshActionColumn();
 		if (enableDrag)
 		{
-			new GridRowDragger<>(this);
+			rowDragger = new GridRowDragger<>(this);
 		}
 
 		setSelectionMode(SelectionMode.NONE);
-		setStyleName("u-gridWithAction");
+		setStyleName(Styles.gridWithAction.toString());
 		refreshHeight();
 		filters = new ArrayList<>();
 		addColumnVisibilityChangeListener(event -> refreshActionColumn());
@@ -306,6 +309,16 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		wrapper.setWidth(100, Unit.PERCENTAGE);
 		wrapper.setHeight(100, Unit.PERCENTAGE);
 		
+		if (enableDrag)
+		{
+			Button dragImg = new Button(Images.resize.getResource());
+			dragImg.setEnabled(false);
+			dragImg.setStyleName(Styles.vButtonSmall.toString());
+			dragImg.addStyleName(Styles.vButtonBorderless.toString());
+			dragImg.addStyleName(Styles.link.toString());
+			dragImg.addStyleName(Styles.dragButton.toString());
+			actions.addComponent(dragImg);
+		}
 		
 		for (SingleActionHandler<T> handler : actionHandlers)
 		{
@@ -323,7 +336,6 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			HamburgerMenu<T> menu = new HamburgerMenu<T>();
 			menu.setTarget(target);
 			menu.addActionHandlers(hamburgerActionHandlers);
-			menu.addStyleName(SidebarStyles.sidebar.toString());
 			actions.addComponent(menu);
 		}
 
@@ -367,5 +379,10 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	{
 		hideActionColumn = hidden;
 		refreshActionColumn();
+	}
+
+	public GridRowDragger<T> getRowDragger()
+	{
+		return rowDragger;
 	}
 }

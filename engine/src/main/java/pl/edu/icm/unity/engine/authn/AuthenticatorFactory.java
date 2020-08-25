@@ -13,20 +13,12 @@ import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
- * Instantiation can be done in two scenarios, each in two variants:
- * <ul>
- * <li>either a constructor is called with a state loaded previously from persisted storage and provided in    
- * {@link AuthenticatorFactory#setAuthenticatorInstance(AuthenticatorInstanceMetadata)}. If the authenticator is local, 
- * then the local credential must be separately given.
- * <li> Otherwise a full constructor is called to initialize the object completely. In case of a local authenticator
- * a local credential name and its configuration must be provided.
- * </ul>
+ * Instantiation can be done in two variants for local and remote authenticators.
  */
 @Component
 class AuthenticatorFactory
@@ -41,38 +33,7 @@ class AuthenticatorFactory
 		this.identitiesResolver = identitiesResolver;
 	}
 
-	/**
-	 * For initial object creation in case of local authenticator.
-	 */
-	AuthenticatorInstance createNewLocalAuthenticator(String name, String typeId, String localCredentialName, 
-			String localCredentialconfiguration, String binding) throws WrongArgumentException
-	{
-		CredentialVerificator verificator = createVerificator(typeId, name);
-		CredentialRetrieval retrieval = createRetrieval(verificator, name, binding);
-		AuthenticatorInstanceMetadata metadata = createMetadata(name, 0, verificator, true);
-		AuthenticatorImpl ret = new AuthenticatorImpl(retrieval, verificator, metadata);
-		ret.updateConfiguration(localCredentialconfiguration, localCredentialName);
-		return ret;
-	}
-	
-	/**
-	 * For initial object creation in case of remote authenticator.
-	 */
-	AuthenticatorInstance createNewRemoteAuthenticator(String name, String typeId, String configuration, String binding)
-					throws WrongArgumentException
-	{
-		CredentialVerificator verificator = createVerificator(typeId, name);
-		CredentialRetrieval retrieval = createRetrieval(verificator, name, binding);
-		AuthenticatorInstanceMetadata metadata = createMetadata(name, 0, verificator, false);
-		AuthenticatorImpl ret = new AuthenticatorImpl(retrieval, verificator, metadata);
-		ret.updateConfiguration(configuration, null);
-		return ret;
-	}	
-	
-	/**
-	 * Used when the state is initialized from persisted storage, for the remote authenticators.
-	 */
-	AuthenticatorInstance restoreRemoteAuthenticator(AuthenticatorConfiguration deserialized, String binding)
+	AuthenticatorInstance createRemoteAuthenticator(AuthenticatorConfiguration deserialized, String binding)
 	{
 		CredentialVerificator verificator = createVerificator(deserialized.getVerificationMethod(), 
 				deserialized.getName());
@@ -80,14 +41,11 @@ class AuthenticatorFactory
 		AuthenticatorInstanceMetadata metadata = createMetadata(deserialized.getName(), deserialized.getRevision(), 
 				verificator, false);
 		AuthenticatorImpl ret = new AuthenticatorImpl(retrieval, verificator, metadata);
-		ret.updateConfiguration(deserialized.getConfiguration(), null);
+		ret.updateConfiguration(deserialized.getConfiguration(), deserialized.getConfiguration(), null);
 		return ret;
 	}
 	
-	/**
-	 * Used when the state is initialized from persisted storage, for the local authenticators.
-	 */
-	AuthenticatorInstance restoreLocalAuthenticator(
+	AuthenticatorInstance createLocalAuthenticator(
 			AuthenticatorConfiguration deserialized, String localCredentialConfiguration, String binding)
 	{
 		CredentialVerificator verificator = createVerificator(deserialized.getVerificationMethod(), 
@@ -95,7 +53,7 @@ class AuthenticatorFactory
 		CredentialRetrieval retrieval = createRetrieval(verificator, deserialized.getName(), binding);
 		AuthenticatorInstanceMetadata metadata = createMetadata(deserialized.getName(), deserialized.getRevision(), verificator, true);
 		AuthenticatorImpl ret = new AuthenticatorImpl(retrieval, verificator, metadata);
-		ret.updateConfiguration(localCredentialConfiguration, deserialized.getLocalCredentialName());
+		ret.updateConfiguration(localCredentialConfiguration, deserialized.getConfiguration(), deserialized.getLocalCredentialName());
 		return ret;
 	}
 	

@@ -21,8 +21,9 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -77,7 +78,7 @@ class OAuthTokenGrid extends CustomComponent
 		tokensGrid.setSizeFull();
 
 		HamburgerMenu<OAuthTokenBean> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		hamburgerMenu.addStyleName(Styles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(Arrays.asList(getDeleteAction()));
 		tokensGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 

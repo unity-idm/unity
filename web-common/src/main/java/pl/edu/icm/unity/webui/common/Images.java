@@ -20,6 +20,7 @@ public enum Images
 	loader		(I.PB + "loader.gif"),
 	password	(I.PB + "password.png"),
 	mobile_sms	(I.PB + "mobile-sms.png"),
+	otp		(I.PB + "mobile-sms.png"),
 	certificate	(I.PB + "certificate.png"),
 	empty		(I.PB + "empty.png"),
 	fido		(I.PB + "fido.png"),
@@ -140,6 +141,7 @@ public enum Images
 	tags		(VaadinIcons.TAGS),
 	clipboard_user	(VaadinIcons.CLIPBOARD_USER),
 	archives	(VaadinIcons.ARCHIVES),
+	archive		(VaadinIcons.ARCHIVE),
 	calendar_user   (VaadinIcons.CALENDAR_USER),
 	cogs		(VaadinIcons.COGS),
 	diploma		(VaadinIcons.DIPLOMA),
@@ -156,7 +158,8 @@ public enum Images
 	coin_piles	(VaadinIcons.COIN_PILES),
 	check_square	(VaadinIcons.CHECK_SQUARE_O),
 	text_label	(VaadinIcons.TEXT_LABEL),
-	eraser		(VaadinIcons.ERASER);
+	eraser		(VaadinIcons.ERASER),
+	check		(VaadinIcons.CHECK);
 	
 	private final Resource resource;
 	private final String path;

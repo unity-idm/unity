@@ -41,14 +41,22 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
+public class RegistrationRequestPreprocessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
 			RegistrationRequestPreprocessor.class);
 	
-	@Autowired
-	private PolicyAgreementsValidator agreementValidator;
+	private final PolicyAgreementsValidator agreementValidator;
+	private final BaseRequestPreprocessor basePreprocessor;
 	
+	@Autowired
+	public RegistrationRequestPreprocessor(PolicyAgreementsValidator agreementValidator,
+			BaseRequestPreprocessor basePreprocessor)
+	{
+		this.agreementValidator = agreementValidator;
+		this.basePreprocessor = basePreprocessor;
+	}
+
 	public void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate) throws EngineException
 	{
@@ -66,7 +74,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 	{
 		InvitationPrefillInfo invitationInfo = processInvitationAndValidateCode(form, request);
 		
-		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, skipCredentialsValidation);
+		basePreprocessor.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, skipCredentialsValidation);
 		agreementValidator.validate(form, request);
 		
 		applyContextGroupsToAttributes(form, request);
@@ -75,17 +83,17 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		{
 			String code = request.getRegistrationCode();
 			log.debug("Received registration request for invitation {}, removing it", code);
-			removeInvitation(code);
+			basePreprocessor.removeInvitation(code);
 		}
 	}
 
 	public void validateTranslatedRequest(RegistrationForm form, RegistrationRequest originalRequest, 
 			TranslatedRegistrationRequest request) throws EngineException
 	{
-		validateFinalAttributes(request.getAttributes());
-		validateFinalCredentials(originalRequest.getCredentials());
-		validateFinalIdentities(request.getIdentities());
-		validateFinalGroups(request.getGroups());
+		basePreprocessor.validateFinalAttributes(request.getAttributes());
+		basePreprocessor.validateFinalCredentials(originalRequest.getCredentials());
+		basePreprocessor.validateFinalIdentities(request.getIdentities());
+		basePreprocessor.validateFinalGroups(request.getGroups());
 	}
 
 	private void applyContextGroupsToAttributes(RegistrationForm form, RegistrationRequest request) 
@@ -152,7 +160,7 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 			return new InvitationPrefillInfo();
 		}
 				
-		InvitationParam invitation = getInvitation(codeFromRequest).getInvitation();
+		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
 		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
 		
 		if (!invitation.getFormId().equals(form.getName()))
@@ -163,12 +171,12 @@ public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 		
 		log.debug("Will apply invitation parameter to the request:\n{}", serializeHumanReadable(invitation.toJson()));
 		log.debug("Request before applying the invitation:\n{}", serializeHumanReadable(request.toJson()));
-		processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
+		basePreprocessor.processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
 				invitation.getIdentities(), "identity");
-		processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
+		basePreprocessor.processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
 				invitation.getAttributes(), "attribute");
-		processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
-				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
+		basePreprocessor.processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
+				basePreprocessor.filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
 				"group");
 		return invitationInfo;
 	}

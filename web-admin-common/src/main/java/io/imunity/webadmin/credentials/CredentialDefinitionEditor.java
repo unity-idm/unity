@@ -12,6 +12,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
+import io.imunity.tooltip.TooltipExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.I18nString;
@@ -69,6 +70,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		main.addComponent(name);
 
 		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
+		TooltipExtension.tooltip(displayedName, msg.getMessage("CredentialDefinition.displayedNameDescription"));
 		main.addComponent(displayedName);
 		
 		description = new I18nTextArea(msg, msg.getMessage("descriptionF"));
@@ -100,6 +102,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		if (initial != null)
 		{
 			name.setReadOnly(true);
+			credentialType.setReadOnly(true);
 			setCredentialEditor(initial.getConfiguration(), initial.getTypeId());
 		} else
 			setCredentialEditor(null, firstType);

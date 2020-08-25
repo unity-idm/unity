@@ -39,7 +39,7 @@ public class SearchField extends CustomComponent
 		
 		searchText = new TextField();
 		searchText.addStyleName(Styles.vSmall.toString());
-		searchText.setWidth(10, Unit.EM);
+		searchText.setWidth(14, Unit.EM);
 		searchText.setPlaceholder(msg.getMessage("search"));
 		searchText.addValueChangeListener(e -> {
 			clear.setVisible(e.getValue() != null && !e.getValue().isEmpty());
@@ -59,5 +59,10 @@ public class SearchField extends CustomComponent
 	public void clear()
 	{
 		searchText.setValue("");
+	}
+	
+	public void setSearchTextWidth(float width, Unit unit)
+	{
+		searchText.setWidth(width, unit);
 	}
 }

@@ -74,6 +74,8 @@ objects with attribute-type specific contents. Useful for inspecting complex typ
 if it is represented by an entity in Unity. This is the case for OAuth authentication.
 . +idsByType+ Map of identity values indexed by type.
 . +groups+ List of all groups the user is a member. 
+. +groupsObj+ Map indexed with names of all groups the user is a member. Value of each map entry is complete group object.
+See examples below for example usage examples.
 . +authenticatedWith+ List of identities that were used to authenticate the user. 
 If remote authentication was used the list contains a single identity that was used 
 to map the remote user to the local entity (as chosen by the input translation profile). 
@@ -105,3 +107,16 @@ The second rule hides the email attribute unconditionally.
 
 Additional examples of expressions and conditions can be found in the <<input-translation>> above. Note however
 that only the variables from the output MVEL context can be used.
+
+Example: obtaining group's details from groupsObj
+
+------
+groupsObj['/my-grp'].getDisplayedName().getValue('en')
+groupsObj['/my-grp'].getDescription().getValue('en')
+groupsObj['/my-grp'].isPublic()
+------
+
+The above expressions in order: retrieve English displayed name of the '/my-grp' group, then description of the group
+and finally boolean status of the group being public or private. 
+
+

@@ -35,6 +35,7 @@ public class HomeServiceConfiguration
 	private List<String> enabledUserDetailsControls;
 	private List<ExposedAttribute> exposedAttributes;
 	private boolean allowRemovalSheduling;
+	private boolean allow2ndFactorOptIn;
 	private RemovalModes removalMode;
 	private boolean enableUpMan;
 	private String upManService;
@@ -46,6 +47,7 @@ public class HomeServiceConfiguration
 		enabledUserDetailsControls = new ArrayList<>();
 		exposedAttributes = new ArrayList<>();
 		allowRemovalSheduling = true;
+		allow2ndFactorOptIn = false;
 		removalMode = RemovalModes.remove;
 		enquiryForms = new ArrayList<>();
 	}
@@ -105,6 +107,9 @@ public class HomeServiceConfiguration
 			}
 		}
 
+		raw.put(HomeEndpointProperties.PREFIX + HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN,
+				String.valueOf(!allow2ndFactorOptIn));
+
 		if (!enquiryForms.isEmpty())
 		{
 			enquiryForms.forEach(c -> raw.put(HomeEndpointProperties.PREFIX
@@ -161,6 +166,8 @@ public class HomeServiceConfiguration
 				HomeEndpointProperties.RemovalModes.class);
 		allowRemovalSheduling = !homeProperties
 				.getBooleanValue(HomeEndpointProperties.DISABLE_REMOVAL_SCHEDULE);
+		allow2ndFactorOptIn = !homeProperties
+				.getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN);
 
 		enableUpMan = homeProperties
 				.getBooleanValue(HomeEndpointProperties.ENABLE_PROJECT_MANAGEMENT_LINK);
@@ -207,6 +214,16 @@ public class HomeServiceConfiguration
 	public void setAllowRemovalSheduling(boolean allowRemovalSheduling)
 	{
 		this.allowRemovalSheduling = allowRemovalSheduling;
+	}
+
+	public boolean isAllow2ndFactorOptIn()
+	{
+		return allow2ndFactorOptIn;
+	}
+
+	public void setAllow2ndFactorOptIn(boolean allow2ndFactorOptIn)
+	{
+		this.allow2ndFactorOptIn = allow2ndFactorOptIn;
 	}
 
 	public RemovalModes getRemovalMode()

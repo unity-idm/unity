@@ -252,7 +252,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		
 		targetCondition = new MVELExpressionField(msg, msg.getMessage("EnquiryFormEditor.targetCondition"),
 				msg.getMessage("EnquiryFormEditor.targetConditionDesc"));
-		
+		targetCondition.setWidth(100, Unit.PERCENTAGE);
 		targetCondition.configureBinding(binder, "targetCondition", false);
 		
 		byInvitationOnly = new CheckBox(msg.getMessage("RegistrationFormEditor.byInvitationOnly"));
@@ -266,7 +266,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	{
 		FormLayout main = new CompactFormLayout();
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
-		main.addComponents(collectComments);
+		main.addComponents(collectComments, checkIdentityOnSubmit);
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
 		

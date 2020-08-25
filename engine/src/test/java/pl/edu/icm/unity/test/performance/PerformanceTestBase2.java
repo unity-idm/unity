@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
@@ -88,8 +87,6 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	protected AttributeTypeManagement attrTypesMan;
 	@Autowired
 	protected SessionManagement sessionMan;
-	@Autowired
-	protected IdentityResolver identityResolver;
 	
 	@Before
 	@Override

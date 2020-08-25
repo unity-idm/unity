@@ -76,7 +76,7 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		
 		DefaultServiceDefinition serviceBean = new DefaultServiceDefinition(type.getName());
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
-		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(allGroups);
+		SAMLServiceConfiguration samlConfig = new SAMLServiceConfiguration(msg, allGroups);
 
 		if (editMode)
 		{

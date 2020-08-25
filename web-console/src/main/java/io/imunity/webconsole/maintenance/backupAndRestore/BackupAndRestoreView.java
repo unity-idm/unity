@@ -80,7 +80,7 @@ class BackupAndRestoreView extends CustomComponent implements UnityView
 					.withParent(MaintenanceNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.backupAndRestore"))
 					.withIcon(Images.cloud_download.getResource())
-					.withPosition(10).build());
+					.withPosition(20).build());
 
 		}
 	}

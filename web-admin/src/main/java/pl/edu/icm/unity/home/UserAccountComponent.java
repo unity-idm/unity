@@ -23,7 +23,6 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -96,7 +95,6 @@ public class UserAccountComponent extends VerticalLayout
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
 	private HomeUITabProvider tabProvider;
-	private AuthenticationFlowManagement authnFlowMan;
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	private EnquiryResponseEditorController enquiryResController;
@@ -113,7 +111,7 @@ public class UserAccountComponent extends VerticalLayout
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
-			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
+			HomeUITabProvider tabProvider, 
 			TokensManagement tokenMan,
 			AdditionalAuthnHandler additionalAuthnHandler,
 			EnquiryResponseEditorController enquiryResController)
@@ -136,7 +134,6 @@ public class UserAccountComponent extends VerticalLayout
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
 		this.tabProvider = tabProvider;
-		this.authnFlowMan = authnFlowMan;
 		this.tokenMan = tokenMan;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.enquiryResController = enquiryResController;
@@ -164,7 +161,7 @@ public class UserAccountComponent extends VerticalLayout
 			addUserInfo(tabPanel, theUser, config, disabled);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.credentialTab.toString()))
-			addCredentials(tabPanel, theUser);
+			addCredentials(tabPanel, theUser, config.getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN));
 
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
@@ -260,13 +257,14 @@ public class UserAccountComponent extends VerticalLayout
 		}
 	}
 	
-	private void addCredentials(BigTabPanel tabPanel, LoginSession theUser)
+	private void addCredentials(BigTabPanel tabPanel, LoginSession theUser, boolean disable2ndFactorOptIn)
 	{
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(additionalAuthnHandler, 
 					msg, theUser.getEntityId(), 
-					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, tokenMan, true);
+					credMan, ecredMan, idsMan, credReqMan, credEditorReg, tokenMan, 
+					true, disable2ndFactorOptIn);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key_o, credentialsPanel);

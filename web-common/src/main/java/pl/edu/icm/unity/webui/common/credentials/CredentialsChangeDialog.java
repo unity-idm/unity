@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -34,7 +33,6 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private CredentialRequirementManagement credReqMan;
-	private AuthenticationFlowManagement authnFlowMan;
 	private TokensManagement tokenMan;
 	
 	private Callback callback;
@@ -46,7 +44,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	@Autowired
 	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialRequirementManagement credReqMan,AuthenticationFlowManagement authnFlowMan, 
+			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
@@ -56,9 +54,8 @@ public class CredentialsChangeDialog extends AbstractDialog
 		this.credEditorReg = credEditorReg;
 		this.credReqMan = credReqMan;
 		this.credMan = credMan;
-		this.authnFlowMan = authnFlowMan;
 		this.tokenMan = tokenMan;
-		setSizeEm(45, 55);
+		setSizeEm(49, 55);
 	}
 
 	public CredentialsChangeDialog init(long entityId, boolean simpleMode, Callback callback)
@@ -77,7 +74,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 			ui = new CredentialsPanel(additionalAuthnHandler, msg,  entityId,  credMan, 
 					 ecredMan,  entityMan,
 					 credReqMan,
-					 credEditorReg, authnFlowMan, tokenMan, simpleMode);
+					 credEditorReg, tokenMan, simpleMode, false);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);

@@ -12,12 +12,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 
 /**
  * Dialog allowing to fill an enquiry or registration form. Intended to be used from the AdminUI.
@@ -91,9 +90,7 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 			close();
 		} catch (Exception e) 
 		{
-			if (e instanceof IllegalFormContentsException)
-				editor.markErrorsFromException((IllegalFormContentsException) e);
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
 			return;
 		}
 	}

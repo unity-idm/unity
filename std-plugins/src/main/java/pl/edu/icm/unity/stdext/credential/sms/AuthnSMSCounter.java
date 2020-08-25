@@ -14,6 +14,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 
 /**
@@ -43,7 +44,7 @@ public class AuthnSMSCounter
 		smsReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
 	}
 
-	public synchronized void incValue(String username)
+	public synchronized void incValue(AuthenticationSubject username)
 	{
 		Element element = smsReqCache.get(username);
 		int value = 1;
@@ -55,12 +56,12 @@ public class AuthnSMSCounter
 		smsReqCache.put(new Element(username, value));
 	}
 
-	public synchronized boolean reset(String username)
+	public synchronized boolean reset(AuthenticationSubject username)
 	{
 		return smsReqCache.remove(username);
 	}
 	
-	public synchronized int getValue(String username)
+	public synchronized int getValue(AuthenticationSubject username)
 	{
 		Element element = smsReqCache.get(username);
 		if (element != null && element.getObjectValue() != null)

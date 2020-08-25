@@ -272,6 +272,13 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		return (T) this;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public T withCheckIdentityOnSubmit(boolean checkIdentityOnSubmit)
+	{
+		instance.setCheckIdentityOnSubmit(checkIdentityOnSubmit);
+		return (T)this;
+	}
+	
 	private FormLayoutSettings getDefaultRegFormLayoutSettings(String logo)
 	{
 		FormLayoutSettings lsettings = new FormLayoutSettings();

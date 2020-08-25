@@ -82,6 +82,7 @@ public class BaseFormEditor extends VerticalLayout
 	
 	protected TextField name;
 	protected DescriptionTextField description;
+	protected CheckBox checkIdentityOnSubmit;
 	
 	protected I18nTextField displayedName;
 	protected I18nTextArea formInformation;
@@ -151,6 +152,7 @@ public class BaseFormEditor extends VerticalLayout
 		if (toEdit.getPageTitle() != null)
 			pageTitle.setValue(toEdit.getPageTitle());
 		policyAgreements.setValue(toEdit.getPolicyAgreements());
+		checkIdentityOnSubmit.setValue(toEdit.isCheckIdentityOnSubmit());
 	}
 	
 	protected void buildCommon(BaseFormBuilder<?> builder) throws FormValidationException
@@ -174,6 +176,7 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withPageTitle(pageTitle.getValue());
 		policyAgreements.validate();
 		builder.withPolicyAgreements(policyAgreements.getValue());
+		builder.withCheckIdentityOnSubmit(checkIdentityOnSubmit.getValue());
 	}
 		
 	protected void initNameAndDescFields(String defaultName) throws EngineException
@@ -181,6 +184,8 @@ public class BaseFormEditor extends VerticalLayout
 		name = new TextField(msg.getMessage("RegistrationFormEditor.name"));
 		name.setValue(defaultName);
 		description = new DescriptionTextField(msg);
+		
+		checkIdentityOnSubmit = new CheckBox(msg.getMessage("RegistrationFormEditor.checkIdentityOnSubmit"));
 	}
 	
 	protected void initCommonDisplayedFields()

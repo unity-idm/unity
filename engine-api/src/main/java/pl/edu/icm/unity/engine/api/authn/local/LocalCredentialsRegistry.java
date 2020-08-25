@@ -39,7 +39,7 @@ public class LocalCredentialsRegistry
 	@Autowired
 	public LocalCredentialsRegistry(Optional<List<LocalCredentialVerificatorFactory>> verificatorFactories)
 	{
-		localCredentialVerificatorFactories = new HashMap<String, LocalCredentialVerificatorFactory>();
+		localCredentialVerificatorFactories = new HashMap<>();
 		
 		for (LocalCredentialVerificatorFactory f: verificatorFactories.orElseGet(ArrayList::new))
 			localCredentialVerificatorFactories.put(f.getName(), (LocalCredentialVerificatorFactory) f);	
@@ -47,7 +47,7 @@ public class LocalCredentialsRegistry
 
 	public Set<CredentialType> getLocalCredentialTypes()
 	{
-		Set<CredentialType> ret = new HashSet<CredentialType>();
+		Set<CredentialType> ret = new HashSet<>();
 		
 		for (LocalCredentialVerificatorFactory fact: localCredentialVerificatorFactories.values())
 		{

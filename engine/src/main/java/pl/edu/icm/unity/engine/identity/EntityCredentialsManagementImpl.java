@@ -63,13 +63,15 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	private EntityCredentialsHelper credHelper;
 	private AdditionalAuthenticationService repeatedAuthnService;
 	private AuditPublisher audit;
+	private final SecondFactorOptInService secondFactorOptInService;
 
 	@Autowired
 	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityCredentialsHelper credHelper,
 			AdditionalAuthenticationService repeatedAuthnService,
-			AuditPublisher audit)
+			AuditPublisher audit,
+			SecondFactorOptInService secondFactorOptInService)
 	{
 		this.idResolver = idResolver;
 		this.attributeDAO = attributeDAO;
@@ -78,6 +80,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 		this.credHelper = credHelper;
 		this.repeatedAuthnService = repeatedAuthnService;
 		this.audit = audit;
+		this.secondFactorOptInService = secondFactorOptInService;
 	}
 
 	@Override
@@ -213,5 +216,25 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 					.details(ImmutableMap.of("state", "outdated"))
 					.tags(AUTHN));
 		}
+	}
+	
+	@Override
+	@Transactional
+	public boolean getUserMFAOptIn(EntityParam entity) throws EngineException
+	{
+		entity.validateInitialization();
+		long entityId = idResolver.getEntityId(entity);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		return secondFactorOptInService.getUserOptin(entityId);
+	}
+
+	@Override
+	@Transactional
+	public void setUserMFAOptIn(EntityParam entity, boolean value) throws EngineException
+	{
+		entity.validateInitialization();
+		long entityId = idResolver.getEntityId(entity);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.credentialModify);
+		secondFactorOptInService.setUserMFAOptIn(entityId, value);
 	}
 }

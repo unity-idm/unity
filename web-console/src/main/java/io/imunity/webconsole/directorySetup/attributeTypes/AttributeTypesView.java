@@ -44,7 +44,6 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -126,7 +125,6 @@ class AttributeTypesView extends CustomComponent implements UnityView
 		attrTypesGrid.sort("name");
 		
 		HamburgerMenu<AttributeTypeEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getHamburgerCommonHandlers());
 		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());		
 		

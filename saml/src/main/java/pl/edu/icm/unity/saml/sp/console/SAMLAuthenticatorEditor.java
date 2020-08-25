@@ -81,7 +81,6 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private SubViewSwitcher subViewSwitcher;
 
 	private Set<String> credentials;
-	private List<String> registrationForms;
 	private Set<String> realms;
 	private List<String> idTypes;
 
@@ -105,8 +104,6 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		this.registrationMan = registrationMan;
 		this.imageAccessService = imageAccessService;
 		this.credentials = pkiMan.getCredentialNames();
-		this.registrationForms = registrationMan.getForms().stream().map(f -> f.getName())
-				.collect(Collectors.toList());
 		this.realms = realmMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toSet());
 		this.idTypes = idTypesReg.getAll().stream().map(i -> i.getId()).collect(Collectors.toList());
 
@@ -197,12 +194,6 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		defaultRequestedNameFormat.setMaxSelection(1);
 		header.addComponent(defaultRequestedNameFormat);
 		configBinder.forField(defaultRequestedNameFormat).bind("defaultRequestedNameFormat");
-
-		ComboBox<String> registrationForm = new ComboBox<>(
-				msg.getMessage("SAMLAuthenticatorEditor.registrationForm"));
-		registrationForm.setItems(registrationForms);
-		header.addComponent(registrationForm);
-		configBinder.forField(registrationForm).bind("registrationForm");
 
 		CheckBox defAccountAssociation = new CheckBox(
 				msg.getMessage("SAMLAuthenticatorEditor.defAccountAssociation"));

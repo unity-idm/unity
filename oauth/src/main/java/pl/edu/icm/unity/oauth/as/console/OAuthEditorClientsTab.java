@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.GroupedValuesChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
@@ -83,7 +84,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		this.allRealms = allRealms;
-		this.flows = WebServiceAuthenticationTab.filterAuthenticationFlow(flows, authenticators, binding);
+		this.flows = WebServiceAuthenticationTab.filterBindingCompatibleAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
 		this.allUsernames = allUsernames;
@@ -205,6 +206,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 				gotoNew();
 			});
 			add.setIcon(Images.add.getResource());
+			add.setStyleName(Styles.buttonAction.toString());
 			main.addComponent(add);
 			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
 

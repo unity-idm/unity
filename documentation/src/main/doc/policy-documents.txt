@@ -1,0 +1,24 @@
+== Policy documents and agreements
+
+Unity supports management and presentation of various policy documents like terms of use (ToU), EULA, marketing agreements 
+and similar.
+
+Documents are defined centrally in Admin Console -> Settings -> Policy documents. Documents are versioned, 
+can be mandatory or optional. Documents may be also stored externally, or embedded.
+
+Once a policy document is defined it can be used in various places of the system:
+
+* In registration forms, to show agreement as a part of new user signup.
+* In enquiry forms, to selectively prompt users to agree on a document.
+* On Identity Provider endpoints, to show policy document acceptance view as a part of login flow,
+from a service using Unity as an IdP.
+
+In each case Unity stores result of policy acceptance (or disagreement, possible in case of optional documents) 
+as an attribute of a user who took action on document. Such attribute can be viewed among regular attributes 
+of the user.
+
+Admin Console permits for changes of the document with and without revision change.    
+User who has accepted a policy document won't be presented with it again, until it is modified with revision change. 
+In other words update of a policy document will require re-confirmation only when document revision is increased. 
+ 
+ 

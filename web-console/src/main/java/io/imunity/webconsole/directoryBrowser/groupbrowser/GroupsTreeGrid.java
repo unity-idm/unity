@@ -52,7 +52,6 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -89,6 +88,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 
 		SearchField search = FilterableGridHelper.getRowSearchField(msg);
+		search.setSearchTextWidth(10, Unit.EM);
 		search.addValueChangeListener(event -> {
 			deselectAll();
 			String searched = event.getValue();
@@ -111,7 +111,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 		SingleActionHandler<TreeNode> refreshAction = getRefreshAction();
 
-		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandler(expandAllAction);
 		hamburgerMenu.addActionHandler(collapseAllAction);
 		hamburgerMenu.addActionHandler(refreshAction);
@@ -169,7 +168,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		menu.setTarget(Sets.newHashSet(target));
 		menu.addActionHandlers(Arrays.asList(addAction, expandAllAction, collapseAllAction, 
 				deleteAction, editAction, editACAction, editDelegationConfigAction));
-		menu.addStyleName(SidebarStyles.sidebar.toString());
 		
 		menu.setVisible(menuVisibleOnSelection(getSelectedItems(), target));
 		((MultiSelectionModel<TreeNode>)getSelectionModel()).addMultiSelectionListener(

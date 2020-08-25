@@ -24,4 +24,7 @@ public class Constants
 	
 	public static final DateTimeFormatter DT_FORMATTER_STANDARD = 
 			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	
+	public static final DateTimeFormatter DT_FORMATTER_STANDARD_NANO = 
+			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 }

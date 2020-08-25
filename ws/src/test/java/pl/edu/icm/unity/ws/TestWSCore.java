@@ -13,6 +13,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -22,6 +23,7 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -30,6 +32,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
@@ -48,6 +51,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	@Autowired
 	private AuthenticatorManagement authnMan;
 	
+	@Autowired
+	private @Qualifier("insecure") EntityCredentialManagement ecredMan;
+
 	@Autowired
 	private AuthenticationFlowManagement authnFlowMan;
 	
@@ -132,7 +138,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setHttpAuthn(true);
 		EntityWithCredential entity = identityResolver.resolveIdentity(DEF_USER, new String[] {UsernameIdentity.ID}, 
 				MockPasswordVerificatorFactory.ID);
-		authnFlowMan.setUserMFAOptIn(entity.getEntityId(), true);
+		ecredMan.setUserMFAOptIn(new EntityParam(entity.getEntityId()), true);
 		
 		try
 		{
@@ -146,7 +152,7 @@ public class TestWSCore extends DBIntegrationTestBase
 			//ok
 		}
 		
-		authnFlowMan.setUserMFAOptIn(entity.getEntityId(), false);
+		ecredMan.setUserMFAOptIn(new EntityParam(entity.getEntityId()), false);
 		
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());	

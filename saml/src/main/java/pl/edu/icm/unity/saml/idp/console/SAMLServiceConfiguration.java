@@ -84,7 +84,7 @@ public class SAMLServiceConfiguration
 	private boolean skipUserImport;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	
-	public SAMLServiceConfiguration(List<Group> allGroups)
+	public SAMLServiceConfiguration(MessageSource msg, List<Group> allGroups)
 	{
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
 		usersGroup = new GroupWithIndentIndicator(root, false);
@@ -111,7 +111,7 @@ public class SAMLServiceConfiguration
 		autoGenerateMetadata = true;
 		userImports = new ArrayList<>();
 		skipUserImport = false;
-		policyAgreementConfig = new IdpPolicyAgreementsConfiguration();
+		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 	}
 
 	public String toProperties(PKIManagement pkiManagement, MessageSource msg, FileStorageService fileService,

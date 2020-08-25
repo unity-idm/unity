@@ -160,6 +160,7 @@ class PolicyDocumentEditor extends CustomComponent
 		public PolicyDocumentVaadinBean()
 		{
 			contentType = PolicyDocumentContentType.EMBEDDED;
+			revision = 1;
 		}
 
 		public PolicyDocumentVaadinBean(PolicyDocumentWithRevision bean)

@@ -217,16 +217,12 @@ public class AuthnLayoutColumn extends CustomComponent
 		dropElements.add(drop);
 		elementsLayout.addComponent(drop);
 
-		if (elements.size() == 0)
+		for (int pos=0; pos<elements.size(); pos++)
 		{
-			return;
-		}
-
-		for (ColumnComponent r : elements)
-		{
-			r.refresh();
-			elementsLayout.addComponent(r);
-			drop = getDropElement(elements.indexOf(r) + 1);
+			ColumnComponent columnComponent = elements.get(pos);
+			columnComponent.refresh();
+			elementsLayout.addComponent(columnComponent);
+			drop = getDropElement(pos + 1);
 			dropElements.add(drop);
 			elementsLayout.addComponent(drop);
 		}
@@ -243,34 +239,39 @@ public class AuthnLayoutColumn extends CustomComponent
 		dropTarget.setDropEffect(DropEffect.MOVE);
 		dropTarget.addDropListener(event -> {
 			Optional<AbstractComponent> dragSource = event.getDragSourceComponent();
-			if (dragSource.isPresent())
+			if (!dragSource.isPresent())
+				return;
+			AbstractComponent dragged = dragSource.get();
+			if (dragged instanceof PaletteButton)
 			{
-				if (dragSource.get() instanceof PaletteButton)
+				event.getDragData().ifPresent(data -> {
+					Supplier<?> sup = (Supplier<?>) data;
+					elements.add(pos, (ColumnComponent) sup.get());
+					refreshElements();
+
+				});
+			} else if (dragged instanceof ColumnComponent)
+			{
+				event.getDragData().ifPresent(data -> 
 				{
-					event.getDragData().ifPresent(data -> {
-						Supplier<?> sup = (Supplier<?>) data;
-						elements.add(pos, (ColumnComponent) sup.get());
-						refreshElements();
+					ColumnComponent e = (ColumnComponent) data;
 
-					});
-				} else if (dragSource.get() instanceof ColumnComponent)
-				{
-					event.getDragData().ifPresent(data -> {
-						ColumnComponent e = (ColumnComponent) data;
+					int indexOfDragged = elements.indexOf(e);
+					boolean moveUp = true;
+					if (indexOfDragged != -1)
+					{
+						elements.remove(e);
+						moveUp = indexOfDragged >= pos;
+					} else
+					{
+						removeElementListener.accept(e);
+					}
 
-						if (elements.contains(e))
-						{
-							elements.remove(e);
-						} else
-						{
-							removeElementListener.accept(e);
-						}
+					int targetPosition = moveUp ? pos : pos - 1;
+					elements.add(targetPosition, e);
+					refreshElements();
 
-						elements.add(pos, e);
-						refreshElements();
-
-					});
-				}
+				});
 			}
 		});
 

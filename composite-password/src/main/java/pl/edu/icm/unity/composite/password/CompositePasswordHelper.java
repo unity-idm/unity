@@ -7,6 +7,7 @@ package pl.edu.icm.unity.composite.password;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
@@ -43,15 +44,14 @@ public class CompositePasswordHelper
 	}
 
 	public static Optional<EntityWithCredential> getLocalEntity(
-			IdentityResolver identityResolver, String username)
+			IdentityResolver identityResolver, AuthenticationSubject subject)
 	{
 		try
 		{
-			return Optional.of(identityResolver.resolveIdentity(username,
+			return Optional.of(identityResolver.resolveSubject(subject,
 					PasswordVerificator.IDENTITY_TYPES, null));
 		} catch (IllegalIdentityValueException e)
 		{
-
 			// ok, maybe we have remote authn
 		} catch (EngineException e)
 		{

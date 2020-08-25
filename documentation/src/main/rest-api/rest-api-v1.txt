@@ -495,6 +495,33 @@ For the password credential the complete value could be (with a selected securit
 ]
 ----
 
+=== Set credential status
+
++@Path("/entity/{entityId}/credential/{credential}/status/{status}")+ +
++@QueryParam("identityType")+ +
++@PUT+ +
+
+Sets a given credential status for the user. Allowed status is either +notSet+ (clears the credential) or +outdated+ 
+(invalidated existing credential, user will need to change it after the next interactive login).  
+
+
+=== Set 2nd factor (2FA) opt-in for entity
+
++@Path("/entity/{entityId}/2f-optin/{status}")+ +
++@QueryParam("identityType")+ +
++@PUT+ +
+
+Sets the status of 2nd factor use opt in for an entity. Status can be +true+ or +false+.
+
+=== Get 2nd factor (2FA) opt-in of entity
+
++@Path("/entity/{entityId}/2f-optin")+ +
++@QueryParam("identityType")+ +
++@GET+ +
+
+Returns string with the status of 2nd factor use opt-in of a given entity.
+
+
 === Get attribute types
 
 +@Path("/attributeTypes")+ +

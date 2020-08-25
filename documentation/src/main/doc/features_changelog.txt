@@ -28,7 +28,7 @@
 |Password						| icon:check[role="green"]		|
 |Certificate					| icon:check[role="green"]		| Pseudo credential allowing for X.509 certificate login
 |SMS code authN					| icon:check[role="green"]		|
-|One Time Passwords				| icon:exclamation[role="red"]	| Not yet available
+|One Time Passwords				| icon:check[role="green"]	    | 
 |===
 
 
@@ -75,7 +75,7 @@
 |Enumeration					| icon:check[role="green"]		|
 |Integer number					| icon:check[role="green"]		|
 |Floating point number			| icon:check[role="green"]		|
-|JPEG image						| icon:check[role="green"]		|
+|Web images image				| icon:check[role="green"]		|
 |Date & time					| icon:check[role="green"]		| There are variants for date, time and date+time
 |===
 

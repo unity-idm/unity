@@ -53,6 +53,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private List<RegistrationWrapUpConfig> wrapUpConfig = new ArrayList<>();
 	private List<PolicyAgreementConfiguration> policyAgreements = new ArrayList<>();
 	private boolean byInvitationOnly;
+	private boolean checkIdentityOnSubmit;
 	
 	@JsonCreator
 	BaseForm(ObjectNode json)
@@ -136,6 +137,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("WrapUpConfig", jsonMapper.valueToTree(getWrapUpConfig()));
 		root.put("ByInvitationOnly", isByInvitationOnly());
 		root.set("PolicyAgreements", jsonMapper.valueToTree(getPolicyAgreements()));
+		root.put("CheckIdentityOnSubmit", isCheckIdentityOnSubmit());
 		return root;
 	}
 
@@ -229,6 +231,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			n = root.get("PolicyAgreements");
 			if (n != null && !n.isNull())
 				setPolicyAgreements(jsonMapper.convertValue(n, new TypeReference<List<PolicyAgreementConfiguration>>(){}));
+			
+			n = root.get("CheckIdentityOnSubmit");
+			if (n != null && !n.isNull())
+				setCheckIdentityOnSubmit(n.asBoolean());
 			
 		} catch (Exception e)
 		{
@@ -460,6 +466,16 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		this.policyAgreements = policyAgreements;
 	}
 	
+	public boolean isCheckIdentityOnSubmit()
+	{
+		return checkIdentityOnSubmit;
+	}
+
+	public void setCheckIdentityOnSubmit(boolean checkIdentityOnSubmit)
+	{
+		this.checkIdentityOnSubmit = checkIdentityOnSubmit;
+	}
+
 	public abstract BaseFormNotifications getNotificationsConfiguration();
 	
 	@Override
@@ -484,6 +500,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				&& Objects.equals(translationProfile, castOther.translationProfile)
 				&& Objects.equals(layoutSettings, castOther.layoutSettings)
 				&& Objects.equals(wrapUpConfig, castOther.wrapUpConfig)
+				&& Objects.equals(checkIdentityOnSubmit, castOther.checkIdentityOnSubmit)
 				&& Objects.equals(byInvitationOnly, castOther.byInvitationOnly);
 	}
 
@@ -492,6 +509,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	{
 		return Objects.hash(super.hashCode(), identityParams, attributeParams, groupParams, credentialParams,
 				agreements, policyAgreements, collectComments, displayedName, formInformation, translationProfile, 
-				layoutSettings, wrapUpConfig, byInvitationOnly);
+				layoutSettings, wrapUpConfig, byInvitationOnly, checkIdentityOnSubmit);
 	}
 }

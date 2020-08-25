@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -26,7 +27,7 @@ public class TranslationInput
 	private Collection<Attribute> attributes;
 	private Entity entity;
 	private String chosenGroup;
-	private Set<String> groups;
+	private Set<Group> groups;
 	private String requester;
 	private Collection<Attribute> requesterAttributes;
 	private String protocol;
@@ -34,7 +35,7 @@ public class TranslationInput
 	private Map<String, Status> importStatus;
 	
 	public TranslationInput(Collection<? extends Attribute> attributes, Entity entity, String chosenGroup,
-			Collection<String> groups, 
+			Collection<Group> groups, 
 			String requester, Collection<? extends Attribute> requesterAttributes,
 			String protocol,
 			String protocolSubType, Map<String, Status> importStatus)
@@ -59,7 +60,7 @@ public class TranslationInput
 	{
 		return entity;
 	}
-	public Set<String> getGroups()
+	public Set<Group> getGroups()
 	{
 		return groups;
 	}

@@ -126,7 +126,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 		setSizeFull();
 		setColumnReorderingAllowed(true);
-		setStyleName(Styles.uDenseTreeGrid.toString());
+		setStyleName(Styles.denseTreeGrid.toString());
 		
 		updateCredentialStatusColumns();
 		

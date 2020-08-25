@@ -44,7 +44,7 @@ public class AuthenticationTab extends CustomComponent implements EditorTab
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
-		this.flows = WebServiceAuthenticationTab.filterAuthenticationFlow(flows, authenticators, binding);
+		this.flows = WebServiceAuthenticationTab.filterBindingCompatibleAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
 	}

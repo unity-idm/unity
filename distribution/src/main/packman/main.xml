@@ -378,7 +378,7 @@
 		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
 			<localRepository refid="local.repo" />
 			<arg value="dependency:unpack" />
-			<arg value="-Dartifact=pl.edu.icm.unity:unity-server-web-common:${mypom.version}:zip:webResources" />
+			<arg value="-Dartifact=io.imunity:unity-server-web-common:${mypom.version}:zip:webResources" />
 			<arg value="-DoutputDirectory=${webContents}" />
 		</mvn:mvn>
 	</target>
@@ -393,7 +393,7 @@
 			<localRepository refid="local.repo" />
 			<arg value="dependency:unpack-dependencies" />
 			<arg value="-Dclassifier=i18n" />
-			<arg value="-DincludeGroupIds=pl.edu.icm.unity" />
+			<arg value="-DincludeGroupIds=io.imunity" />
 			<arg value="-DoutputDirectory=${i18n}" />
 		</mvn:mvn>
 	</target>
@@ -408,7 +408,7 @@
 			<localRepository refid="local.repo" />
 			<arg value="dependency:unpack-dependencies" />
 			<arg value="-Dclassifier=scripts" />
-			<arg value="-DincludeGroupIds=pl.edu.icm.unity" />
+			<arg value="-DincludeGroupIds=io.imunity" />
 			<arg value="-DoutputDirectory=${scripts}" />
 		</mvn:mvn>
 	</target>

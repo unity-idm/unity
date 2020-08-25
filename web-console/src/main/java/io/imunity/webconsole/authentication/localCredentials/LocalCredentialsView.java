@@ -63,7 +63,6 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 		this.controller = controller;
 		this.msg = msg;
 		this.bus = WebSession.getCurrent().getEventBus();
-
 	}
 
 	@Override

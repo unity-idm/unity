@@ -70,15 +70,16 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
@@ -399,6 +400,41 @@ public class RESTAdmin implements RESTAdminHandler
 			throw new JSONParsingException("Request body must be a JSON array");
 		}
 	}
+
+	@Path("/entity/{entityId}/credential/{credential}/status/{status}")
+	@PUT
+	public void setCredentialStatus(@PathParam("entityId") String entityId, 
+			@PathParam("credential") String credential, 
+			@QueryParam("identityType") String idType,
+			@PathParam("status") String status) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("setCredential {} status for {} to {}", credential, entityId, status);
+		LocalCredentialState desiredCredentialState = LocalCredentialState.valueOf(status);
+		entityCredMan.setEntityCredentialStatus(getEP(entityId, idType), credential, desiredCredentialState);
+	}
+
+	@Path("/entity/{entityId}/2f-optin/{status}")
+	@PUT
+	public void set2ndFactorOptIn(@PathParam("entityId") String entityId, 
+			@PathParam("status") boolean status, 
+			@QueryParam("identityType") String idType) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("set2ndFactorOptIn for {} to {}", entityId, status);
+		entityCredMan.setUserMFAOptIn(getEP(entityId, idType), status);
+	}	
+
+	@Path("/entity/{entityId}/2f-optin")
+	@GET
+	public String get2ndFactorOptIn(@PathParam("entityId") String entityId, 
+			@QueryParam("identityType") String idType) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("get2ndFactorOptIn for {}", entityId);
+		boolean userMFAOptIn = entityCredMan.getUserMFAOptIn(getEP(entityId, idType));
+		return String.valueOf(userMFAOptIn);
+	}	
 
 	
 	@Path("/group/{groupPath}")

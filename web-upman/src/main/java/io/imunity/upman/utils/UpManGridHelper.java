@@ -19,7 +19,6 @@ import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
@@ -42,7 +41,6 @@ public class UpManGridHelper
 			target.add(t);
 			menu.setTarget(target);
 			menu.addActionHandlers(rowActionHandlers);
-			menu.addStyleName(SidebarStyles.sidebar.toString());
 			return menu;
 
 		}).setCaption(caption).setWidth(80).setResizable(false).setSortable(false);

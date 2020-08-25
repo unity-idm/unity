@@ -228,10 +228,10 @@ public class RequestReviewPanelBase extends CustomComponent
 					agreementTextStr.substring(0, MAX_TEXT_LENGHT) + "[...]" : agreementTextStr;
 			optins.addEntry(info + ": " +  aText);
 		}
-		optinsP.setVisible(optins.getComponentCount() > 0);
+		optinsP.setVisible(!optins.getElements().isEmpty());
 		
 		policyAgreements.clearContents();
-		for (int i = 0; i < form.getPolicyAgreements().size(); i++)
+		for (int i = 0; i < request.getPolicyAgreements().size(); i++)
 		{
 			PolicyAgreementDecision policyAgreementDecision = request.getPolicyAgreements().get(i);
 			if (form.getPolicyAgreements().size() <= i)

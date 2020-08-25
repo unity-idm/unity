@@ -144,4 +144,9 @@ public class JsonUtil
 			throw new InternalException("Can't perform JSON serialization", e);
 		}
 	}
+	
+	public static JsonNode toJsonNode(Object value)
+	{
+		return Constants.MAPPER.convertValue(value, JsonNode.class);
+	}
 }

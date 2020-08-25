@@ -21,7 +21,7 @@ public interface EntityResolver
 	 * @return 
 	 * @throws IllegalIdentityValueException
 	 */
-	Identity getFullIdentity(IdentityTaV entity) throws IllegalIdentityValueException;
+	Identity getFullIdentity(IdentityTaV entity);
 	
 	/**
 	 * Resolves {@link IdentityTaV}, if missing throws exception

@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.group.GroupHelper;
+import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
@@ -66,13 +67,15 @@ public class BaseSharedRegistrationSupport
 	protected InternalFacilitiesManagement facilitiesManagement;
 	private InvitationDB invitationDB;
 	protected PolicyAgreementManagement policyAgreementManagement;
+	private final SecondFactorOptInService secondFactorOptInService;
 
 	public BaseSharedRegistrationSupport(MessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
 			InternalFacilitiesManagement facilitiesManagement,
-			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement)
+			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement,
+			SecondFactorOptInService secondFactorOptInService)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -82,6 +85,7 @@ public class BaseSharedRegistrationSupport
 		this.facilitiesManagement = facilitiesManagement;
 		this.invitationDB =  invitationDB;
 		this.policyAgreementManagement = policyAgreementManagement;
+		this.secondFactorOptInService = secondFactorOptInService;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
@@ -155,6 +159,12 @@ public class BaseSharedRegistrationSupport
 		}
 	}
 
+	protected void applyMFAStatus(long entityId, Boolean mfaPreferenceStatus) throws EngineException
+	{
+		if (mfaPreferenceStatus != null)
+			secondFactorOptInService.setUserMFAOptIn(entityId, mfaPreferenceStatus);
+	}
+	
 	protected void addAttributeToGroupsMap(Attribute a, List<Attribute> rootAttributes,
 			Map<String, List<Attribute>> remainingAttributesByGroup)
 	{
