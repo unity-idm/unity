@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
@@ -28,10 +29,12 @@ public class DelegatedGroupsHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, DelegatedGroupsHelper.class);
 	private DelegatedGroupManagement delGroupMan;
+	private MessageSource msg;
 
-	public DelegatedGroupsHelper(DelegatedGroupManagement delGroupMan)
+	public DelegatedGroupsHelper(DelegatedGroupManagement delGroupMan, MessageSource msg)
 	{
 		this.delGroupMan = delGroupMan;
+		this.msg = msg;
 	}
 
 	public List<DelegatedGroup> getProjectGroups(String projectPath) throws EngineException
@@ -49,9 +52,12 @@ public class DelegatedGroupsHelper
 			{
 				con = delGroupMan.getContents(project, path);
 				groups.add(con.group.displayedName);
-			} catch (EngineException e)
+			} catch (IllegalArgumentException e)
 			{
-				log.debug("Can not get delegated group displayed name", e);
+				groups.add(msg.getMessage("DelegatedGroupsHelper.removedGroup"));
+			} catch (Exception e)
+			{
+				log.error("Can not get delegated group displayed name", e);
 			}
 		}
 		return groups;
