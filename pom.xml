@@ -29,9 +29,8 @@
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-	    <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
-		<sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 		<sonar.language>java</sonar.language>
+		<sonar.java.source>8</sonar.java.source>
 		<sonar.sources>src/main/java</sonar.sources>
 	</properties>
 
@@ -143,7 +142,7 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.4.0.905</version>
+					<version>3.7.0.1746</version>
 				</plugin>
 				<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -208,7 +207,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.9</version>
+					<version>0.8.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -764,10 +763,12 @@
 								<goals>
 									<goal>prepare-agent</goal>
 								</goals>
-								<configuration>
-					                <append>true</append>
-									<destFile>${sonar.jacoco.reportPaths}</destFile>
-								</configuration>
+							</execution>
+							<execution>
+								<id>report</id>
+								<goals>
+									<goal>report</goal>
+								</goals>
 							</execution>
 						</executions>
 					</plugin>
