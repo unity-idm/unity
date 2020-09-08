@@ -5,15 +5,20 @@
 package io.imunity.fido.web;
 
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import io.imunity.fido.FidoRegistration;
+import io.imunity.fido.credential.FidoCredentialInfo;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordExtraInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
@@ -54,13 +59,25 @@ class FidoCredentialEditor implements CredentialEditor
 	@Override
 	public Optional<Component> getViewer(String credentialInfo)
 	{
-		// Viewer is empty - editor handles both functions.
-		// Make sure editor is reloaded when needed.
+		if (isNull(credentialInfo))
+		{
+			return Optional.empty();
+		}
 		if (nonNull(editorComponent))
 		{
 			editorComponent.initUI(credentialInfo);
 		}
-		return Optional.empty();
+		List<FidoCredentialInfo> keys = FidoCredentialInfo.deserializeList(credentialInfo);
+		if (keys.size() == 0)
+		{
+			return Optional.empty();
+		}
+		VerticalLayout ret = new VerticalLayout();
+		ret.setMargin(false);
+
+		ret.addComponent(new Label(msg.getMessage("Fido.viewerInfo",
+				keys.size())));
+		return Optional.of(ret);
 	}
 
 	@Override

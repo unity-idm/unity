@@ -9,16 +9,17 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 import io.imunity.fido.FidoRegistration;
+import io.imunity.fido.component.FidoComponent;
+import io.imunity.fido.credential.FidoCredentialInfo;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import io.imunity.fido.component.FidoComponent;
-import io.imunity.fido.credential.FidoCredentialInfo;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
+import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 import java.util.ArrayList;
@@ -41,10 +42,13 @@ class FidoEditorComponent extends CustomComponent
 	private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
 	private final FidoComponent fidoComponent;
 	private final VerticalLayout credentialsLayout;
+	private final boolean adminMode;
+	private Button addButton;
 
 	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, final MessageSource msg)
 	{
 		this.msg = msg;
+		this.adminMode = context.isAdminMode();
 
 		fidoComponent = FidoComponent.builder(msg)
 				.fidoRegistration(fidoRegistration)
@@ -54,12 +58,15 @@ class FidoEditorComponent extends CustomComponent
 				.credentialConfiguration(context.getCredentialConfiguration())
 				.newCredentialListener(this::addNewCredential)
 				.build();
+		fidoComponent.setHeight(1, Unit.PIXELS);
 
-		Button addButton = new Button();
+		addButton = new Button();
 		addButton.setDescription(msg.getMessage("Fido.newRegistration"));
-		addButton.setIcon(Images.add.getResource());
-		addButton.addStyleName(Styles.vButtonLink.toString());
-		addButton.addStyleName(Styles.toolbarButton.toString());
+		addButton.setCaption(msg.getMessage("Fido.register"));
+		addButton.setIcon(Images.fido.getResource());
+		addButton.addStyleName(Styles.signInButton.toString());
+		addButton.addStyleName("u-passwordSignInButton");
+		addButton.setWidth("100%");
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration());
 
 		VerticalLayout root = new VerticalLayout();
@@ -70,7 +77,7 @@ class FidoEditorComponent extends CustomComponent
 		credentialsLayout.setMargin(false);
 		credentialsLayout.setSpacing(false);
 
-		root.addComponents(fidoComponent, addButton, credentialsLayout);
+		root.addComponents(fidoComponent, credentialsLayout, addButton);
 
 		setCompositionRoot(root);
 
@@ -102,6 +109,7 @@ class FidoEditorComponent extends CustomComponent
 		credentialsLayout.removeAllComponents();
 
 		credentials.stream()
+				.filter(info -> info.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED)
 				.map(info -> (Component) new FidoPreviewComponent(msg, info, this::reload))
 				.forEach(comp ->
 				{
@@ -117,12 +125,16 @@ class FidoEditorComponent extends CustomComponent
 
 	private void addNewCredential(final FidoCredentialInfo credential)
 	{
+		credential.setDescription(msg.getMessage("FidoExc.defaultKeyDesc", credentials.size() + 1));
 		credentials.add(new FidoCredentialInfoWrapper(FidoCredentialInfoWrapper.CredentialState.NEW, credential));
 		reload();
 	}
 
 	public String getValue() throws IllegalCredentialException
 	{
+		if (credentials.stream().noneMatch(c -> c.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED))
+			throw new MissingCredentialException(msg.getMessage("FidoExc.noKeysToStore"));
+
 		return FidoCredentialInfo.serializeList(credentials.stream()
 				.filter(info -> info.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED)
 				.map(FidoCredentialInfoWrapper::getCredential)

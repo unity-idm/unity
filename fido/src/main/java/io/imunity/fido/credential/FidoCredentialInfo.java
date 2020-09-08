@@ -51,10 +51,6 @@ public class FidoCredentialInfo
 	 * Encoded public key
 	 */
 	private ByteArray publicKeyCose;
-	/**
-	 * Number of times private key was used to sign challenge - stored also on Authenticator
-	 */
-	private long signatureCount;
 
 	// Registration details
 	/**
@@ -72,7 +68,7 @@ public class FidoCredentialInfo
 	/**
 	 * Fido 2  Authenticator Attestation GUID - identifies model of authenticator. null if NONE authenticationType
 	 */
-	private ByteArray aaguid;
+	private String aaguid;
 
 	// FIXME investigate if provided data are sufficient. Maybe better to store whole attestation raw data (byte array received from authenticator)
 	// Attestation properties
@@ -91,6 +87,16 @@ public class FidoCredentialInfo
 	 */
 	private Set<Transport> transports;
 
+	// Mutable fields
+	/**
+	 * Number of times private key was used to sign challenge - stored also on Authenticator
+	 */
+	private long signatureCount;
+	/**
+	 * Human readable description.
+	 */
+	private String description;
+
 	public long getRegistrationTimestamp()
 	{
 		return registrationTimestamp;
@@ -106,11 +112,6 @@ public class FidoCredentialInfo
 		return publicKeyCose;
 	}
 
-	public long getSignatureCount()
-	{
-		return signatureCount;
-	}
-
 	public boolean isUserPresent()
 	{
 		return userPresent;
@@ -121,7 +122,7 @@ public class FidoCredentialInfo
 		return userVerified;
 	}
 
-	public ByteArray getAaguid()
+	public String getAaguid()
 	{
 		return aaguid;
 	}
@@ -154,6 +155,26 @@ public class FidoCredentialInfo
 	public Set<Transport> getTransports()
 	{
 		return transports;
+	}
+
+	public long getSignatureCount()
+	{
+		return signatureCount;
+	}
+
+	public void setSignatureCount(long signatureCount)
+	{
+		this.signatureCount = signatureCount;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
 	}
 
 	@JsonIgnore
@@ -225,7 +246,8 @@ public class FidoCredentialInfo
 		private boolean userPresent;
 		private boolean userVerified;
 		private String attestationFormat;
-		private ByteArray aaguid;
+		private String aaguid;
+		private String description;
 
 		Attestation attestationMetadata;
 
@@ -286,9 +308,15 @@ public class FidoCredentialInfo
 			return this;
 		}
 
-		public FidoCredentialInfoBuilder aaguid(ByteArray aaguid)
+		public FidoCredentialInfoBuilder aaguid(String aaguid)
 		{
 			this.aaguid = aaguid;
+			return this;
+		}
+
+		public FidoCredentialInfoBuilder description(String description)
+		{
+			this.description = description;
 			return this;
 		}
 
@@ -318,6 +346,7 @@ public class FidoCredentialInfo
 				info.deviceProperties = attestationMetadata.getDeviceProperties().orElse(null);
 				info.transports = attestationMetadata.getTransports().orElse(null);
 			}
+			info.description = this.description;
 
 			return info;
 		}

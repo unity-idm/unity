@@ -19,6 +19,7 @@ public class FidoCredential
 {
 	private String attestationConveyance = AttestationConveyancePreference.DIRECT.toString();
 	private String userVerification = UserVerificationRequirement.REQUIRED.toString();
+	private String hostName = "Unity";
 
 	public String getAttestationConveyance()
 	{
@@ -38,6 +39,16 @@ public class FidoCredential
 	public void setUserVerification(String userVerification)
 	{
 		this.userVerification = userVerification;
+	}
+
+	public String getHostName()
+	{
+		return hostName;
+	}
+
+	public void setHostName(String hostName)
+	{
+		this.hostName = hostName;
 	}
 
 	public String serialize()

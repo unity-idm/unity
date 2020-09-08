@@ -45,6 +45,16 @@ class FidoCredentialInfoWrapper
 		return new Date(credential.getRegistrationTimestamp());
 	}
 
+	public void setDescription(String description)
+	{
+		credential.setDescription(description);
+	}
+
+	public boolean isDeleted()
+	{
+		return CredentialState.DELETED == state;
+	}
+
 	enum CredentialState
 	{
 		STORED,

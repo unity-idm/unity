@@ -49,7 +49,7 @@ class Identities
 	{
 		return identities.stream()
 				.filter(id -> id.getTypeId().equals(FidoUserHandleIdentity.ID))
-				.map(Identity::getName)
+				.map(Identity::getValue)
 				.findAny();
 	}
 

@@ -222,7 +222,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 		return RelyingParty.builder()
 				.identity(RelyingPartyIdentity.builder()
 						.id(hostName)
-						.name(hostName) // FIXME where to define it?
+						.name(credentialConfiguration.getHostName())
 						.build())
 				.credentialRepository(storage)
 				.attestationConveyancePreference(AttestationConveyancePreference.valueOf(credentialConfiguration.getAttestationConveyance()))

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TextField;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
 import io.imunity.fido.credential.FidoCredential;
@@ -31,6 +32,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 
 	private ComboBox<AttestationConveyancePreference> attestationConveyance;
 	private ComboBox<UserVerificationRequirement> userVerification;
+	private TextField hostName;
 
 	public FidoCredentialDefinitionEditor(MessageSource msg)
 	{
@@ -48,8 +50,9 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		userVerification.setItems(UserVerificationRequirement.values());
 		userVerification.setEmptySelectionAllowed(false);
 		userVerification.setTextInputAllowed(false);
+		hostName = new TextField(msg.getMessage("Fido.credEditor.hostName"));
 
-		FormLayout ret = new CompactFormLayout(attestationConveyance, userVerification);
+		FormLayout ret = new CompactFormLayout(attestationConveyance, userVerification, hostName);
 		ret.setSpacing(true);
 		ret.setMargin(true);
 
@@ -63,6 +66,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 	{
 		attestationConveyance.setValue(AttestationConveyancePreference.valueOf(credential.getAttestationConveyance()));
 		userVerification.setValue(UserVerificationRequirement.valueOf(credential.getUserVerification()));
+		hostName.setValue(credential.getHostName());
 	}
 
 	@Override
@@ -88,6 +92,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		FidoCredential credential = new FidoCredential();
 		credential.setAttestationConveyance(attestationConveyance.getValue().toString());
 		credential.setUserVerification(userVerification.getValue().toString());
+		credential.setHostName(hostName.getValue());
 		return credential;
 	}
 }

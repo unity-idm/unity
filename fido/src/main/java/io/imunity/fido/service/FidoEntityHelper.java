@@ -147,7 +147,7 @@ class FidoEntityHelper
 				identities = identityResolver.getIdentitiesForEntity(new EntityParam(entityId));
 			} catch (IllegalIdentityValueException e)
 			{
-				throw new FidoException(msg.getMessage(NO_ENTITY_MSG));
+				throw new NoEntityException(msg.getMessage(NO_ENTITY_MSG));
 			}
 		} else
 		{
@@ -159,7 +159,7 @@ class FidoEntityHelper
 			return Identities.builder().identities(identities).build();
 		} catch (IllegalArgumentException | NoSuchElementException e)
 		{
-			throw new FidoException(msg.getMessage(NO_ENTITY_MSG), e);
+			throw new NoEntityException(msg.getMessage(NO_ENTITY_MSG), e);
 		}
 	}
 
