@@ -291,9 +291,11 @@ Output structure:
 === Create group
 
 +@Path("/group/{groupPath}")+ +
++@QueryParam("displayedName")+ +
 +@POST+ +
 
-Creates a new group. The created group will be empty.
+Creates a new group. The created group will be empty. The optional +displayedName+ query parameter can be use to
+set group's default displayed name.
 
 
 === Delete groups
