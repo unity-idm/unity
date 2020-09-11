@@ -429,10 +429,11 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/group/{groupPath}")
 	@POST
-	public void addGroup(@PathParam("groupPath") String group) throws EngineException, JsonProcessingException
+	public void addGroup(@PathParam("groupPath") String group,
+		 @QueryParam("displayedName") String displayedName) throws EngineException, JsonProcessingException
 	{
 		log.debug("addGroup " + group);
-		Group toAdd = new Group(group);
+		Group toAdd = new Group(group, displayedName);
 		groupsMan.addGroup(toAdd);
 	}
 

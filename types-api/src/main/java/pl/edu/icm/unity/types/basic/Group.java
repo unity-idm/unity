@@ -69,8 +69,15 @@ public class Group extends I18nDescribedObject implements NamedObject
 
 	public Group(String path)
 	{
+		this(path, null);
+    }
+
+	public Group(String path, String requestedDisplayedName)
+	{
 		setPath(path);
 		displayedName = new I18nString(toString());
+		if (requestedDisplayedName != null)
+			displayedName.addValue("en", requestedDisplayedName);
 		description = new I18nString();
 		delegationConfiguration = new GroupDelegationConfiguration(false);
 		publicGroup = false;
