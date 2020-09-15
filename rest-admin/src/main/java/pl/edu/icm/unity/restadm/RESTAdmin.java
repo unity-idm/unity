@@ -436,6 +436,18 @@ public class RESTAdmin implements RESTAdminHandler
 		return String.valueOf(userMFAOptIn);
 	}	
 
+
+	@Path("/group/{groupPath}/meta")
+	@GET
+	public String getGroupMeta(@PathParam("groupPath") String group) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("getGroupMeta query for {}", group);
+		if (!group.startsWith("/"))
+			group = "/" + group;
+		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
+		return mapper.writeValueAsString(contents.getGroup());
+	}
 	
 	@Path("/group/{groupPath}")
 	@GET
@@ -461,7 +473,24 @@ public class RESTAdmin implements RESTAdminHandler
 		log.debug("removeGroup " + group + (recursive ? " [recursive]" : ""));
 		groupsMan.removeGroup(group, recursive);
 	}
-	
+
+	@Path("/group")
+	@POST
+	public void addInitializedGroup(String groupJson) throws EngineException, JsonProcessingException
+	{
+		log.debug("addInitializedGroup {}", groupJson);
+		Group parsedGroup = JsonUtil.parse(groupJson, Group.class);
+		groupsMan.addGroup(parsedGroup);
+	}
+
+	@Path("/group")
+	@PUT
+	public void updateGroup(String groupJson) throws EngineException, JsonProcessingException
+	{
+		log.debug("updateGroup {}", groupJson);
+		Group parsedGroup = JsonUtil.parse(groupJson, Group.class);
+		groupsMan.updateGroup(parsedGroup.getName(), parsedGroup);
+	}
 	
 	@Path("/group/{groupPath}")
 	@POST
