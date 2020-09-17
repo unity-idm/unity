@@ -99,7 +99,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			{
 				try
 				{
-					updatePKICerts(certs, entityId, IDP_META_CERT );
+					updatePKICerts(certs, entityId, IDP_META_CERT);
 				} catch (EngineException e)
 				{
 					log.error("Adding remote SPs certs to local certs store failed, "

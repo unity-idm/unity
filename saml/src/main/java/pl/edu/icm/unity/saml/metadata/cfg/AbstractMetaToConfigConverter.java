@@ -171,15 +171,20 @@ public abstract class AbstractMetaToConfigConverter
 				String pkiKey = getCertificateKey(cert, entityId, prefix);
 				try
 				{
-					X509Certificate existingCert = pkiManagement
-							.getCertificate(pkiKey).value;
+					X509Certificate existingCert = pkiManagement.getCertificate(pkiKey).value;
 					if (!existingCert.equals(cert))
 					{
 						pkiManagement.updateCertificate(new NamedCertificate(pkiKey, cert));
+						log.debug("Updated already installed certificate of SAML entity {}, DN: {}, serial: {}",
+								entityId, cert.getSubjectX500Principal().getName(), 
+								cert.getSerialNumber());
 					}
 				} catch (IllegalArgumentException e)
 				{
 					pkiManagement.addVolatileCertificate(pkiKey, cert);
+					log.debug("Installed a new certificate for SAML entity {}, DN: {}, serial: {}",
+							entityId, cert.getSubjectX500Principal().getName(), 
+							cert.getSerialNumber());
 				}
 			}
 		}
@@ -187,9 +192,9 @@ public abstract class AbstractMetaToConfigConverter
 
 	protected String getCertificateKey(X509Certificate cert, String entityId, String prefix)
 	{
-		String dn = X500NameUtils.getComparableForm(cert.getSubjectX500Principal()
-				.getName());
-		String key = prefix + DigestUtils.md5Hex(entityId) + "#" + DigestUtils.md5Hex(dn);
+		String dn = X500NameUtils.getComparableForm(cert.getSubjectX500Principal().getName());
+		String serial = cert.getSerialNumber().toString();
+		String key = prefix + DigestUtils.md5Hex(entityId) + "#" + DigestUtils.md5Hex(dn) + "#" + serial;
 		return key;
 	}
 
