@@ -14,6 +14,8 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -184,13 +186,16 @@ public class TestMigrationFrom2_6
 		List<InvitationWithCode> all = invitationDB.getAll();
 		assertThat(all.size(), is(2));
 		
-		InvitationWithCode i = all.get(0);
+		Map<String, InvitationWithCode> byCode = all.stream()
+				.collect(Collectors.toMap(i -> i.getRegistrationCode(), i->i));
+		
+		InvitationWithCode i = byCode.get("1e46b209-92ac-4f2d-a4b8-475bbe956424");
 		InvitationParam i1 = i.getInvitation();
 		assertThat(i1.getGroupSelections().size(), is(2));
 		assertThat(i1.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
 		assertThat(i1.getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B/C")));
 
-		i = all.get(1);
+		i = byCode.get("7e8d72a8-22e1-40c7-872c-dcb8a85e40cc");
 		InvitationParam i2 = i.getInvitation();
 		assertThat(i2.getGroupSelections().size(), is(2));
 		assertThat(i2.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
