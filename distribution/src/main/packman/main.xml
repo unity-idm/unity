@@ -217,12 +217,10 @@
 	<!-- Note: this target is called also for POM packaging, as it also fetches endorsed libraries (if used) -->
 	<target name="build-artifact">
 		<echo message="Building local artifact" />
-		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
-			<localRepository refid="local.repo" />
+		<exec executable="mvn">
 			<arg value="package" />
-			<arg value="-DskipTests" />
-			<arg value="-Dmaven.repo.local=${maven.repo.local}" />
-		</mvn:mvn>
+			<arg value="-DskipTests" />			
+		</exec>
 		<condition property="endorsedPresent">
 			<and>
 				<not>
@@ -358,59 +356,54 @@
 		<antcall target="copy-main-artifact" />
 		<antcall target="copy-endorsed-jars" />
 		<echo message="Updating jar files,download from maven repo" />
-		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
-		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
-		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
-			<localRepository refid="local.repo" />
+		<exec executable="mvn">
+			<arg value="-f" />
+			<arg value="${main.dir}/pom.xml" />
 			<arg value="dependency:copy-dependencies" />
 			<arg value="-DincludeScope=runtime" />
 			<arg value="-DoutputDirectory=${libs}" />
-			<!--<arg value="-Dmaven.repo.local=${maven.repo.local}" /> -->
-		</mvn:mvn>
+		</exec>
 	</target>
 
 	<target name="update-webContents" unless="skip.copy.jars">
 		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
 		<mkdir dir="${webContents}" />
 		<echo message="Updating web contents, download from maven repo" />
-		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
-		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
-		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
-			<localRepository refid="local.repo" />
+		<exec executable="mvn">
+			<arg value="-f" />
+			<arg value="${main.dir}/pom.xml" />
 			<arg value="dependency:unpack" />
 			<arg value="-Dartifact=io.imunity:unity-server-web-common:${mypom.version}:zip:webResources" />
 			<arg value="-DoutputDirectory=${webContents}" />
-		</mvn:mvn>
+		</exec>
 	</target>
 
 	<target name="update-i18n" unless="skip.copy.jars">
 		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
 		<mkdir dir="${i18n}" />
 		<echo message="Updating message bundles, download from maven repo" />
-		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
-		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
-		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
-			<localRepository refid="local.repo" />
+		<exec executable="mvn">
+			<arg value="-f" />
+			<arg value="${main.dir}/pom.xml" />
 			<arg value="dependency:unpack-dependencies" />
 			<arg value="-Dclassifier=i18n" />
 			<arg value="-DincludeGroupIds=io.imunity" />
 			<arg value="-DoutputDirectory=${i18n}" />
-		</mvn:mvn>
+		</exec>
 	</target>
 	
 	<target name="update-scripts" unless="skip.copy.jars">
 		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
 		<mkdir dir="${scripts}" />
 		<echo message="Updating scripts, download from maven repo" />
-		<mvn:remoteRepository id="vsgc-public" url="${maven.repo.url}" />
-		<mvn:localRepository id="local.repo" path="${maven.repo.local}" />
-		<mvn:mvn pom="${main.dir}/pom.xml" fork="true" mavenVersion="${maven.version}">
-			<localRepository refid="local.repo" />
+		<exec executable="mvn">
+			<arg value="-f" />
+			<arg value="${main.dir}/pom.xml" />
 			<arg value="dependency:unpack-dependencies" />
 			<arg value="-Dclassifier=scripts" />
 			<arg value="-DincludeGroupIds=io.imunity" />
 			<arg value="-DoutputDirectory=${scripts}" />
-		</mvn:mvn>
+		</exec>
 	</target>
 
 	<target name="index-jars" if="indexJars" unless="skip.copy.jars">
