@@ -21,7 +21,7 @@ public class TestImageAttribute
 	@Test
 	public void test() throws Exception
 	{
-		JpegImageAttributeSyntax ias = new JpegImageAttributeSyntax();
+		ImageAttributeSyntax ias = new ImageAttributeSyntax();
 		ias.getConfig().setMaxHeight(100);
 		ias.getConfig().setMaxWidth(100);
 		ias.getConfig().setMaxSize(20000);
@@ -57,7 +57,7 @@ public class TestImageAttribute
 		
 		
 		JsonNode cfg = ias.getSerializedConfiguration();
-		JpegImageAttributeSyntax ias2 = new JpegImageAttributeSyntax();
+		ImageAttributeSyntax ias2 = new ImageAttributeSyntax();
 		ias2.setSerializedConfiguration(cfg);
 		assertEquals(ias2.getConfig().getMaxWidth(), 15);
 		assertEquals(ias2.getConfig().getMaxHeight(), 16);

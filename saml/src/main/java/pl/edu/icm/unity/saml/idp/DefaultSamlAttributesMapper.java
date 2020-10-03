@@ -14,10 +14,11 @@ import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
 
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -40,7 +41,7 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 				new EmailValueToSamlConverter(),
 				new IntegerValueToSamlConverter(),
 				new FloatingValueToSamlConverter(),
-				new JpegValueToSamlConverter()
+				new ImageValueToSamlConverter()
 		};
 
 		for (ValueToSamlConverter conv: converters)
@@ -161,20 +162,24 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		}
 	}
 
-	private static class JpegValueToSamlConverter implements ValueToSamlConverter
+	private static class ImageValueToSamlConverter implements ValueToSamlConverter
 	{
+		private static final ImageAttributeSyntax syntax = new ImageAttributeSyntax();
+		
 		@Override
 		public XmlObject convertValueToSaml(String value)
 		{
+			UnityImage decoded = syntax.convertFromString(value);
+			byte[] octets = decoded.getImage();
 			XmlBase64Binary v = XmlBase64Binary.Factory.newInstance();
-			v.setStringValue(value);
+			v.setByteArrayValue(octets);
 			return v;
 		}
 
 		@Override
 		public String[] getSupportedSyntaxes()
 		{
-			return new String[] {JpegImageAttributeSyntax.ID};
+			return new String[] {ImageAttributeSyntax.ID};
 		}
 	}
 }

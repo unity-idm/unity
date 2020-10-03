@@ -25,6 +25,8 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.engine.SecuredDBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -37,14 +39,14 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttribute;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -379,8 +381,8 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 
 		for (int i = 0; i < n; i++)
 		{
-			AttributeType type = new AttributeType("jpeg_" + i,
-					JpegImageAttributeSyntax.ID);
+			AttributeType type = new AttributeType("img_" + i,
+					ImageAttributeSyntax.ID);
 			attrTypesMan.addAttributeType(type);
 		}
 		
@@ -421,9 +423,8 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 		for (int i = 0; i < imageAttr; i++)
 		{
 			BufferedImage im = new BufferedImage(1000, 1000, 1);
-			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = JpegImageAttributeCreator.of(typeName, enInGroup.get(i%NU),
-					Collections.singletonList(im));
+			String typeName = "img_" + r.nextInt((nDefAttr / 4) - 2);
+			Attribute a = ImageAttribute.of(typeName, enInGroup.get(i%NU), new UnityImage(im, ImageType.JPG));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a);
 			op++;

@@ -37,14 +37,17 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttribute;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -52,7 +55,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -85,7 +87,7 @@ public class TestWrite extends RESTAdminTestBase
 		AttributeType email =  new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID);
 		email.setMaxElements(2);
 		aTypeMan.addAttributeType(email);
-		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("jpegA", ImageAttributeSyntax.ID));
 		
 		setSingleAttribute(entityId, StringAttribute.of("stringA", "/", "value1"));
 
@@ -100,8 +102,7 @@ public class TestWrite extends RESTAdminTestBase
 				new VerifiableEmail("some2@example.com", new ConfirmationInfo(true))));
 		
 		BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-		setSingleAttribute(entityId, JpegImageAttributeCreator.of(
-				"jpegA", "/", image));
+		setSingleAttribute(entityId,ImageAttribute.of("jpegA", "/", new UnityImage(image, ImageType.JPG)));
 
 		HttpDelete removeAttribute = new HttpDelete("/restadm/v1/entity/" + entityId + "/attribute/stringA");
 		HttpResponse response = client.execute(host, removeAttribute, localcontext);
@@ -125,7 +126,7 @@ public class TestWrite extends RESTAdminTestBase
 		AttributeType email =  new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID);
 		email.setMaxElements(2);
 		aTypeMan.addAttributeType(email);
-		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("jpegA", ImageAttributeSyntax.ID));
 		
 
 		

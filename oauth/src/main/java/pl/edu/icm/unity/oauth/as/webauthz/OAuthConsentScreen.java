@@ -32,7 +32,7 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -137,9 +137,9 @@ class OAuthConsentScreen extends CustomComponent
 
 		Resource clientLogo = null;
 		Attribute logoAttr = oauthCtx.getClientLogo();
-		if (logoAttr != null && JpegImageAttributeSyntax.ID.equals(logoAttr.getValueSyntax()))
+		if (logoAttr != null && ImageAttributeSyntax.ID.equals(logoAttr.getValueSyntax()))
 		{
-			JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
+			ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
 			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
 			clientLogo = new SimpleImageSource(image).getResource();
 		}

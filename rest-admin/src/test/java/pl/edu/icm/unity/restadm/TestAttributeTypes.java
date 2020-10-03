@@ -37,8 +37,8 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -136,7 +136,7 @@ public class TestAttributeTypes extends TestRESTBase
 		AttributeType enumAT = new AttributeType("enumA", EnumAttributeSyntax.ID);
 		enumAT.setValueSyntaxConfiguration(enumSyntax.getSerializedConfiguration());
 		aTypeMan.addAttributeType(enumAT);
-		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("jpegA", ImageAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 	}
 	

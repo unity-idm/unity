@@ -60,11 +60,11 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttribute;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -504,13 +504,12 @@ class OAuthServiceController implements IdpServiceController
 
 	private void updateLogo(EntityParam entity, String group, byte[] value) throws EngineException
 	{
-		JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) attrTypeSupport
+		ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport
 				.getSyntax(attrTypeSupport.getType(OAuthSystemAttributesProvider.CLIENT_LOGO));
 		UnityImage image = new UnityImage(value, ImageType.JPG);
 		image.scaleDown(syntax.getConfig().getMaxWidth(), syntax.getConfig().getMaxHeight());
 
-		Attribute logoAttr = JpegImageAttributeCreator.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group,
-				image.getBufferedImage());
+		Attribute logoAttr = ImageAttribute.of(OAuthSystemAttributesProvider.CLIENT_LOGO, group, image);
 		attrMan.setAttribute(entity, logoAttr);
 	}
 
@@ -612,7 +611,7 @@ class OAuthServiceController implements IdpServiceController
 		{
 
 			Attribute logo = attrs.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
-			JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) attrTypeSupport.getSyntax(logo);
+			ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport.getSyntax(logo);
 			UnityImage image = syntax.convertFromString(logo.getValues().get(0));
 
 			LocalOrRemoteResource lrLogo = new LocalOrRemoteResource();
