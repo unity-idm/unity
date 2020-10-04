@@ -105,7 +105,13 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 	{
 		return false;
 	}
-	
+
+	@Override
+	public boolean isMultiOption()
+	{
+		return false;
+	}
+
 	private class OTPRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private AuthenticationCallback callback;

@@ -49,7 +49,7 @@ public class AuthnColumnComponentHelper
 					continue;
 				Collection<VaadinAuthenticationUI> uiInstances = vaadinRetrieval.createUIInstance(Context.LOGIN);
 
-				if (uiInstances.size() > 1)
+				if (vaadinRetrieval.isMultiOption())
 				{
 					for (VaadinAuthenticationUI uiInstance : uiInstances)
 					{

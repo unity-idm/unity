@@ -118,6 +118,12 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	}
 
 	@Override
+	public boolean isMultiOption()
+	{
+		return true;
+	}
+
+	@Override
 	public boolean requiresRedirect()
 	{
 		return true;

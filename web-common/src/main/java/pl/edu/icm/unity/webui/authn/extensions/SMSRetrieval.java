@@ -123,7 +123,13 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	{
 		return false;
 	}
-	
+
+	@Override
+	public boolean isMultiOption()
+	{
+		return false;
+	}
+
 	private class SMSRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
