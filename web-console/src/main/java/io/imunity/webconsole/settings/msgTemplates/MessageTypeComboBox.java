@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.msgtemplate;
+package io.imunity.webconsole.settings.msgTemplates;
 
 import java.util.Locale;
 import java.util.function.Function;
@@ -32,14 +32,14 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview.PreviewWindow;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class MessageTypeComboBox extends CustomField<MessageType>
+class MessageTypeComboBox extends CustomField<MessageType>
 {
 	private MessageSource msg;
 	private Function<String, String> i18nTextProvider;
 	private ComboBox<MessageType> bodyType;
 	private Component main;
 	
-	public MessageTypeComboBox(MessageSource msg, Function<String, String> i18nTextProvider)
+	MessageTypeComboBox(MessageSource msg, Function<String, String> i18nTextProvider)
 	{
 		this.msg = msg;
 		this.i18nTextProvider = i18nTextProvider;

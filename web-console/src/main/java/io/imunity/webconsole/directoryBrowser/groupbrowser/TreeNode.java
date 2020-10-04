@@ -2,18 +2,14 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.groupbrowser;
+package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import com.vaadin.data.TreeData;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 
-/**
- * 
- * @author K. Benedyczak
- */
-public class TreeNode
+class TreeNode
 {
 	private String name;
 	private String path;
@@ -22,12 +18,12 @@ public class TreeNode
 	private MessageSource msg;
 	private String icon;
 
-	public TreeNode(MessageSource msg, Group group, String icon)
+	TreeNode(MessageSource msg, Group group, String icon)
 	{
 		this(msg, group, icon, null);
 	}
 
-	public TreeNode(MessageSource msg, Group group, String icon, TreeNode parent)
+	TreeNode(MessageSource msg, Group group, String icon, TreeNode parent)
 	{
 		this.msg = msg;
 		this.path = group.toString();
@@ -36,7 +32,7 @@ public class TreeNode
 		setGroupMetadata(group);
 	}
 
-	public void setGroupMetadata(Group group)
+	void setGroupMetadata(Group group)
 	{
 		if (group.isTopLevel())
 		{
@@ -54,37 +50,37 @@ public class TreeNode
 		}
 	}
 
-	public String getIcon()
+	String getIcon()
 	{
 		return icon;
 	}
 
-	public void setIcon(String icon)
+	void setIcon(String icon)
 	{
 		this.icon = icon;
 	}
 
-	public TreeNode getParentNode()
+	TreeNode getParentNode()
 	{
 		return parent;
 	}
 
-	public boolean isContentsFetched()
+	boolean isContentsFetched()
 	{
 		return contentsFetched;
 	}
 
-	public void setContentsFetched(boolean contentsFetched)
+	void setContentsFetched(boolean contentsFetched)
 	{
 		this.contentsFetched = contentsFetched;
 	}
 
-	public String getPath()
+	String getPath()
 	{
 		return path;
 	}
 
-	public void setPath(String path)
+	void setPath(String path)
 	{
 		this.path = path;
 	}
@@ -112,7 +108,7 @@ public class TreeNode
 		return false;
 	}
 
-	public boolean anyFieldsOrChildContains(String searched, MessageSource msg, TreeData<TreeNode> treeData)
+	boolean anyFieldsOrChildContains(String searched, MessageSource msg, TreeData<TreeNode> treeData)
 	{
 		String textLower = searched.toLowerCase();
 
@@ -132,7 +128,7 @@ public class TreeNode
 		return anyChildContains;
 	}
 
-	public boolean isChild(TreeNode parent)
+	boolean isChild(TreeNode parent)
 	{
 		return Group.isChild(getPath(), parent.path);
 	}

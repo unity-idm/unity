@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.importExport;
+package io.imunity.webconsole.maintenance.backupAndRestore;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -57,7 +57,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class ImportExportComponent extends VerticalLayout
+class ImportExportComponent extends VerticalLayout
 {
 	private static final int MAX_SIZE = 50000000;
 	private final MessageSource msg;
@@ -66,7 +66,7 @@ public class ImportExportComponent extends VerticalLayout
 	private DumpUploader uploader;
 
 	@Autowired
-	public ImportExportComponent(MessageSource msg, ServerManagement serverManagement,
+	ImportExportComponent(MessageSource msg, ServerManagement serverManagement,
 			UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;

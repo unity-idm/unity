@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.attributeStatment;
+package io.imunity.webconsole.directoryBrowser.groupdetails;
 
 import java.util.UUID;
 
@@ -14,18 +14,18 @@ import pl.edu.icm.unity.types.basic.AttributeStatement;
  * 
  * @author K. Benedyczak
  */
-public class AttrStatementWithId
+class AttrStatementWithId
 {
 	public final AttributeStatement statement;
 	public final String id;
 	
-	public AttrStatementWithId(AttributeStatement statement)
+	AttrStatementWithId(AttributeStatement statement)
 	{
 		this.statement = statement;
 		this.id = UUID.randomUUID().toString();
 	}
 
-	public String toShortString()
+	String toShortString()
 	{
 		return "Assign " + (statement.dynamicAttributeMode() ? 
 				statement.getDynamicAttributeType() :

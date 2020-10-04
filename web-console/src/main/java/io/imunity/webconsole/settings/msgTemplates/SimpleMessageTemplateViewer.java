@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.msgtemplate;
+package io.imunity.webconsole.settings.msgTemplates;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview;
  * 
  * @author P. Piernik
  */
-public class SimpleMessageTemplateViewer extends CustomComponent
+class SimpleMessageTemplateViewer extends CustomComponent
 {
 	private MessageSource msg;
 	private FormLayout main;
@@ -30,7 +30,7 @@ public class SimpleMessageTemplateViewer extends CustomComponent
 
 	private MessageTemplateConsumersRegistry registry;
 
-	public SimpleMessageTemplateViewer(MessageSource msg, MessageTemplateConsumersRegistry registry)
+	SimpleMessageTemplateViewer(MessageSource msg, MessageTemplateConsumersRegistry registry)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -51,7 +51,7 @@ public class SimpleMessageTemplateViewer extends CustomComponent
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer"));
 	}
 
-	public void setInput(MessageTemplate template)
+	void setInput(MessageTemplate template)
 	{
 		main.removeAllComponents();
 		if (template == null)

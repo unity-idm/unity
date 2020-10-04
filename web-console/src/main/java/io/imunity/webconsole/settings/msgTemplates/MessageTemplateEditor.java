@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.msgtemplate;
+package io.imunity.webconsole.settings.msgTemplates;
 
 import static pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
 
@@ -59,7 +59,7 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  * @author P. Piernik
  * 
  */
-public class MessageTemplateEditor extends CompactFormLayout
+class MessageTemplateEditor extends CompactFormLayout
 {
 	private MessageSource msg;
 	private MessageTemplateConsumersRegistry registry;
@@ -85,7 +85,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private Label externalTemplateInfo;
 	private ChipsWithTextfield customVariablesPicker;
 
-	public MessageTemplateEditor(MessageSource msg,
+	MessageTemplateEditor(MessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
 			MessageTemplateManagement msgTemplateMgr,  NotificationsManagement notChannelsMan)
 	{
@@ -294,7 +294,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		return value != null ? value : "";
 	}
 	
-	public MessageTemplate getTemplate()
+	MessageTemplate getTemplate()
 	{
 		if (!binder.isValid())
 		{	

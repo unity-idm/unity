@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.groupbrowser;
+package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.CheckBox;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
  * Asks about group name and description, returns output in the callback. Useful for group creation and editing.
  * @author K. Benedyczak
  */
-public class GroupEditDialog extends AbstractDialog
+class GroupEditDialog extends AbstractDialog
 {
 	private static final long serialVersionUID = 1L;
 	private Callback callback;
@@ -38,7 +38,7 @@ public class GroupEditDialog extends AbstractDialog
 	private boolean originalIsPublic;
 	
 
-	public GroupEditDialog(MessageSource msg, Group group, boolean edit, Callback callback) 
+	GroupEditDialog(MessageSource msg, Group group, boolean edit, Callback callback) 
 	{
 		super(msg, edit ? msg.getMessage("GroupEditDialog.editCaption") : 
 					msg.getMessage("GroupEditDialog.createCaption"),
@@ -111,7 +111,7 @@ public class GroupEditDialog extends AbstractDialog
 		}
 	}
 	
-	public interface Callback 
+	interface Callback 
 	{
 		public void onConfirm(Group newGroup);
 	}

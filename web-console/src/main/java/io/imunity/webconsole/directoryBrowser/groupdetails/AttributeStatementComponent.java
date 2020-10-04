@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.attributeStatment;
+package io.imunity.webconsole.directoryBrowser.groupdetails;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
  * Editing of a single {@link AttributeStatement}.
  * @author K. Benedyczak
  */
-public class AttributeStatementComponent extends CustomComponent
+class AttributeStatementComponent extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributeStatementComponent.class);
 	private static final String MODE_FIXED = "fixed";
@@ -67,7 +67,7 @@ public class AttributeStatementComponent extends CustomComponent
 	private Binder<AttributeStatement> binder;
 	
 	
-	public AttributeStatementComponent(MessageSource msg, GroupsManagement groupsMan,
+	AttributeStatementComponent(MessageSource msg, GroupsManagement groupsMan,
 			Collection<AttributeType> attributeTypes,
 			AttributeHandlerRegistry attrHandlerRegistry, String group)
 	{
@@ -205,7 +205,7 @@ public class AttributeStatementComponent extends CustomComponent
 
 	}
 
-	public void setInitialData(AttributeStatement initial)
+	void setInitialData(AttributeStatement initial)
 	{
 		binder.setBean(initial);
 		extraAttributesGroupCB.setValue(initial.getExtraAttributesGroup() != null);
@@ -218,7 +218,7 @@ public class AttributeStatementComponent extends CustomComponent
 			throw new FormValidationException();
 	}
 	
-	public AttributeStatement getStatementFromComponent() throws FormValidationException
+	AttributeStatement getStatementFromComponent() throws FormValidationException
 	{
 		AttributeStatement ret = binder.getBean();
 

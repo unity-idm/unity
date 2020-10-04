@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.attributeStatment;
+package io.imunity.webconsole.directoryBrowser.groupdetails;
 
 import java.util.Collection;
 
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  * Allows to create/edit/view an attribute statement of a group.
  * @author K. Benedyczak
  */
-public class AttributeStatementEditDialog extends AbstractDialog
+class AttributeStatementEditDialog extends AbstractDialog
 {
 	private AttributeStatement statement;
 	private AttributeTypeManagement attrsMan;
@@ -39,7 +39,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	 * @param attributeStatement attribute statement to be displayed initially or 
 	 * null when a new statement should be created
 	 */
-	public AttributeStatementEditDialog(MessageSource msg, AttributeStatement attributeStatement,
+	AttributeStatementEditDialog(MessageSource msg, AttributeStatement attributeStatement,
 			AttributeTypeManagement attrsMan, String group, AttributeHandlerRegistry attrHandlerRegistry, 
 			GroupsManagement groupsMan, Callback callback)
 	{
@@ -98,7 +98,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 	}
 
 	
-	public interface Callback
+	interface Callback
 	{
 		public void onConfirm(AttributeStatement newStatement);
 	}

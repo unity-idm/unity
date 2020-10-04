@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
-import io.imunity.webadmin.attributeStatment.AttributeStatementEditDialog;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

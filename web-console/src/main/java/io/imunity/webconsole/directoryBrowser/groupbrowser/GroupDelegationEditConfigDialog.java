@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webadmin.groupbrowser;
+package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import java.util.Collection;
 import java.util.List;
@@ -57,7 +57,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
  * @author P.Piernik
  *
  */
-public class GroupDelegationEditConfigDialog extends AbstractDialog
+class GroupDelegationEditConfigDialog extends AbstractDialog
 {
 	private Consumer<GroupDelegationConfiguration> callback;
 	private GroupDelegationConfiguration toEdit;
@@ -79,7 +79,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	private EventsBus bus;
 	private GroupDelegationConfigGenerator configGenerator;
 
-	public GroupDelegationEditConfigDialog(MessageSource msg, RegistrationsManagement registrationMan,
+	GroupDelegationEditConfigDialog(MessageSource msg, RegistrationsManagement registrationMan,
 			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan,
 			ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
 			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory, EventsBus bus,
