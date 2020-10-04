@@ -33,13 +33,6 @@
 			<artifactId>unity-server-web-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-admin-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
 	</dependencies>
 	
 	<build>

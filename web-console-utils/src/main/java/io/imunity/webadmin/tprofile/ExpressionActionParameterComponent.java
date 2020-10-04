@@ -10,7 +10,6 @@ import com.vaadin.data.Binder;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
-import io.imunity.webadmin.tprofile.wizard.DragDropBean;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;

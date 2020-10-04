@@ -17,6 +17,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.GridDragSource;
 
+import io.imunity.webadmin.tprofile.DragDropBean;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;

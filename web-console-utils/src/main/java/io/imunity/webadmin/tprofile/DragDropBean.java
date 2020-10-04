@@ -2,12 +2,10 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.tprofile.wizard;
+package io.imunity.webadmin.tprofile;
 
 import java.io.Serializable;
 
-import io.imunity.webadmin.tprofile.RuleComponent;
-import io.imunity.webadmin.tprofile.StringValueBean;
 
 /**
  * Drag'n'Drop bean - dragged from {@link ProfileStepComponent} to {@link RuleComponent}.
