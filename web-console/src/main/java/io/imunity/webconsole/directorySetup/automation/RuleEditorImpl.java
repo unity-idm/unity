@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.bulk;
+package io.imunity.webconsole.directorySetup.automation;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.CustomComponent;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
  * Edit component of an immediate {@link ProcessingRule}
  * @author K. Benedyczak
  */
-public class RuleEditorImpl extends CustomComponent implements RuleEditor<TranslationRule>
+class RuleEditorImpl extends CustomComponent implements RuleEditor<TranslationRule>
 {
 	protected MessageSource msg;
 
@@ -28,14 +28,14 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Transl
 	
 	private FormLayout main;
 	
-	public RuleEditorImpl(MessageSource msg, ActionEditor actionEditor)
+	RuleEditorImpl(MessageSource msg, ActionEditor actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;
 		initUI();
 	}
 	
-	public void setInput(TranslationRule rule)
+	void setInput(TranslationRule rule)
 	{
 		binder.setBean(rule);
 		actionEditor.setInput(rule.getAction());

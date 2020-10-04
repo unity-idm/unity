@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.identitytype;
+package io.imunity.webconsole.directorySetup.identityTypes;
 
 import java.util.Collection;
 
@@ -13,16 +13,16 @@ import pl.edu.icm.unity.webui.bus.Event;
  * Notifies that the identity types where updated
  * @author K. Benedyczak
  */
-public class IdentityTypesUpdatedEvent implements Event
+class IdentityTypesUpdatedEvent implements Event
 {
 	private Collection<IdentityType> identityTypes;
 
-	public IdentityTypesUpdatedEvent(Collection<IdentityType> identityTypes)
+	IdentityTypesUpdatedEvent(Collection<IdentityType> identityTypes)
 	{
 		this.identityTypes = identityTypes;
 	}
 
-	public Collection<IdentityType> getIdentityTypes()
+	Collection<IdentityType> getIdentityTypes()
 	{
 		return identityTypes;
 	}

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.credentials;
+package io.imunity.webconsole.authentication.localCredentials;
 
 import com.vaadin.ui.Label;
 
@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * Shows a single {@link CredentialDefinition}
  * @author K. Benedyczak
  */
-public class CredentialDefinitionViewer extends CompactFormLayout
+class CredentialDefinitionViewer extends CompactFormLayout
 {
 	private MessageSource msg;
 	
@@ -27,7 +27,7 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 	private Label type;
 	private SafePanel typeSpecific;
 	
-	public CredentialDefinitionViewer(MessageSource msg)
+	 CredentialDefinitionViewer(MessageSource msg)
 	{
 		super();
 		this.msg = msg;
@@ -56,7 +56,7 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 		typeSpecific.setVisible(how);
 	}
 	
-	public void setInput(CredentialDefinition cd, CredentialEditorFactory cdFactory)
+	void setInput(CredentialDefinition cd, CredentialEditorFactory cdFactory)
 	{
 		if (cd == null)
 		{

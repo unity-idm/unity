@@ -18,21 +18,21 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
  * 
  * @author Roman Krysinski
  */
-public class DryRunStep implements WizardStep 
+class DryRunStep implements WizardStep 
 {
 
 	private MessageSource msg;
 	private DryRunStepComponent dryRunComponent;
 
 	
-	public DryRunStep(MessageSource msg, String sandboxURL, 
+	DryRunStep(MessageSource msg, String sandboxURL, 
 			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
 	{
 		this.msg = msg;
 		dryRunComponent = new DryRunStepComponent(msg, sandboxURL, tpMan, taRegistry);
 	}
 
-	public void handle(SandboxAuthnEvent event) 
+	void handle(SandboxAuthnEvent event) 
 	{
 		dryRunComponent.handle(event);
 	}

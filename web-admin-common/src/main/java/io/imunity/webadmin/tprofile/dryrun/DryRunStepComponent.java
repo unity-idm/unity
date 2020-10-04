@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
  * 
  * @author Roman Krysinski
  */
-public class DryRunStepComponent extends CustomComponent 
+class DryRunStepComponent extends CustomComponent 
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DryRunStepComponent.class);
 	
@@ -67,7 +67,7 @@ public class DryRunStepComponent extends CustomComponent
 	 * @param msg 
 	 * @param sandboxURL 
 	 */
-	public DryRunStepComponent(MessageSource msg, String sandboxURL, 
+	DryRunStepComponent(MessageSource msg, String sandboxURL, 
 			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
 	{
 		this.msg = msg;
@@ -91,7 +91,7 @@ public class DryRunStepComponent extends CustomComponent
 		indicateProgress();
 	}
 
-	public void handle(SandboxAuthnEvent event) 
+	void handle(SandboxAuthnEvent event) 
 	{
 		RemoteSandboxAuthnContext ctx = (RemoteSandboxAuthnContext) event.getCtx();
 		if (ctx.getAuthnException() == null)
@@ -129,7 +129,7 @@ public class DryRunStepComponent extends CustomComponent
 		hideProgressShowResult();
 	}
 
-	public void indicateProgress()
+	void indicateProgress()
 	{
 		resultWrapper.setVisible(false);
 		progressWrapper.setVisible(true);

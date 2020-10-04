@@ -33,13 +33,13 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentati
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class RegistrationReviewPanel extends RequestReviewPanelBase
+class RegistrationReviewPanel extends RequestReviewPanelBase
 {
 	private RegistrationRequestState requestState;
 	private Label code;
 	
 	@Autowired
-	public RegistrationReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	RegistrationReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
 			PolicyDocumentManagement policyDocMan,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
@@ -64,7 +64,7 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 		setCompositionRoot(main);
 	}
 	
-	public RegistrationRequest getUpdatedRequest()
+	RegistrationRequest getUpdatedRequest()
 	{
 		RegistrationRequest ret = new RegistrationRequest();
 		fillRequest(ret);
@@ -73,7 +73,7 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 		return ret;
 	}
 	
-	public void setInput(RegistrationRequestState requestState, RegistrationForm form)
+	void setInput(RegistrationRequestState requestState, RegistrationForm form)
 	{
 		this.requestState = requestState;
 		super.setInput(requestState, form);

@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.bulk;
+package io.imunity.webconsole.directorySetup.automation;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.CustomComponent;
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.mvel.MVELExpressionArea;
  * Edit component of a {@link ScheduledProcessingRuleParam}
  * @author K. Benedyczak
  */
-public class ScheduledRuleParamEditorImpl extends CustomComponent implements RuleEditor<ScheduledProcessingRuleParam>
+class ScheduledRuleParamEditorImpl extends CustomComponent implements RuleEditor<ScheduledProcessingRuleParam>
 {
 	protected MessageSource msg;
 
@@ -31,14 +31,14 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	private FormLayout main;
 	
 	
-	public ScheduledRuleParamEditorImpl(MessageSource msg, ActionEditor actionEditor)
+	ScheduledRuleParamEditorImpl(MessageSource msg, ActionEditor actionEditor)
 	{
 		this.msg = msg;
 		this.actionEditor = actionEditor;
 		initUI();
 	}
 
-	public void setInput(ScheduledProcessingRuleParam toEdit)
+	void setInput(ScheduledProcessingRuleParam toEdit)
 	{
 		binder.setBean(toEdit);
 		actionEditor.setInput(toEdit.getAction());

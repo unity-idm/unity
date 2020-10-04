@@ -8,11 +8,6 @@ package io.imunity.webadmin.reg.requests;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public interface RequestSelectionListener
 {
 	void registrationChanged(RegistrationRequestState request);

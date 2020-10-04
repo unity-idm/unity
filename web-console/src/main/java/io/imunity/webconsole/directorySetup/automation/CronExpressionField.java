@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.bulk;
+package io.imunity.webconsole.directorySetup.automation;
 
 import org.quartz.CronExpression;
 
@@ -19,18 +19,18 @@ import pl.edu.icm.unity.MessageSource;
  * Field allowing for editing a Quartz cron expression
  * @author K. Benedyczak
  */
-public class CronExpressionField extends TextField
+class CronExpressionField extends TextField
 {
 	private MessageSource msg;
 
-	public CronExpressionField(MessageSource msg, String caption)
+	CronExpressionField(MessageSource msg, String caption)
 	{
 		this.msg = msg;
 		setCaption(caption);
 		setDescription(msg.getMessage("CronExpressionField.cronExpressionDescription"), ContentMode.HTML);
 	}
 
-	public void configureBinding(Binder<?> binder, String fieldName)
+	void configureBinding(Binder<?> binder, String fieldName)
 	{
 		binder.forField(this).withValidator(getValidator(msg))
 				.asRequired(msg.getMessage("fieldRequired")).bind(fieldName);

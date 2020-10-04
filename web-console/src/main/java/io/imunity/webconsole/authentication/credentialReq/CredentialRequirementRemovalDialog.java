@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.credentialRequirements;
+package io.imunity.webconsole.authentication.credentialReq;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,14 +29,14 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  * 
  * @author K. Benedyczak
  */
-public class CredentialRequirementRemovalDialog extends AbstractDialog
+class CredentialRequirementRemovalDialog extends AbstractDialog
 {
 	private Callback callback;
 	private ComboBox<String> replacementCR;
 	private Collection<CredentialRequirements> allCRs;
 	private HashSet<String> removedCr;
 
-	public CredentialRequirementRemovalDialog(MessageSource msg, HashSet<String> removedCr, 
+	CredentialRequirementRemovalDialog(MessageSource msg, HashSet<String> removedCr, 
 			Collection<CredentialRequirements> allCRs, Callback callback) 
 	{
 		super(msg, msg.getMessage("CredentialRequirements.removalCaption"));
@@ -46,7 +46,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		setSizeEm(40, 20);
 	}
 
-	public interface Callback 
+	interface Callback 
 	{
 		public void onConfirm(String replacementCR);
 	}

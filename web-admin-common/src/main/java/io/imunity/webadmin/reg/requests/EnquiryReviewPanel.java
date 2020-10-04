@@ -40,14 +40,14 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentati
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class EnquiryReviewPanel extends RequestReviewPanelBase
+class EnquiryReviewPanel extends RequestReviewPanelBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryReviewPanel.class);
 	private Label entity;
 	private EntityManagement identitiesManagement;
 	
 	@Autowired
-	public EnquiryReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	EnquiryReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement, 
 			IdentityFormatter idFormatter, GroupsManagement groupMan, PolicyDocumentManagement policyDocMan,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
@@ -69,14 +69,14 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 		setCompositionRoot(main);	
 	}
 	
-	public EnquiryResponse getUpdatedRequest()
+	EnquiryResponse getUpdatedRequest()
 	{
 		EnquiryResponse ret = new EnquiryResponse();
 		super.fillRequest(ret);
 		return ret;
 	}
 	
-	public void setInput(EnquiryResponseState requestState, EnquiryForm form)
+	void setInput(EnquiryResponseState requestState, EnquiryForm form)
 	{
 		super.setInput(requestState, form);
 		String label = null;

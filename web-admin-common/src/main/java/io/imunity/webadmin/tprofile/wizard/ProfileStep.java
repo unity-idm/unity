@@ -19,14 +19,14 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * 
  * @author Roman Krysinski
  */
-public class ProfileStep implements WizardStep 
+class ProfileStep implements WizardStep 
 {
 	private MessageSource msg;
 	private ProfileStepComponent profileComponent;
 	private TranslationProfileEditor editor;
 	private Callback addCallback;
 
-	public ProfileStep(MessageSource msg, TranslationProfileEditor editor, 
+	ProfileStep(MessageSource msg, TranslationProfileEditor editor, 
 			Callback addCallback) 
 	{
 		this.msg = msg;
@@ -35,7 +35,7 @@ public class ProfileStep implements WizardStep
 		profileComponent = new ProfileStepComponent(msg, editor);
 	}
 
-	public void handle(RemotelyAuthenticatedInput authnInput) 
+	void handle(RemotelyAuthenticatedInput authnInput) 
 	{
 		profileComponent.handle(authnInput);
 	}

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.identitytype;
+package io.imunity.webconsole.directorySetup.identityTypes;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.converter.StringToIntegerConverter;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor
  * 
  * @author K. Benedyczak
  */
-public class IdentityTypeEditor extends FormLayout
+class IdentityTypeEditor extends FormLayout
 {
 	private MessageSource msg;
 	
@@ -45,7 +45,7 @@ public class IdentityTypeEditor extends FormLayout
 	private MessageTemplateManagement msgTemplateMan;
 	private IdentityTypeDefinition typeDefinition;
 
-	public IdentityTypeEditor(MessageSource msg, IdentityTypeSupport idTypeSupport, MessageTemplateManagement msgTemplateMan,
+	IdentityTypeEditor(MessageSource msg, IdentityTypeSupport idTypeSupport, MessageTemplateManagement msgTemplateMan,
 			IdentityType toEdit)
 	{
 		super();
@@ -136,8 +136,7 @@ public class IdentityTypeEditor extends FormLayout
 		minVerified.setEnabled(state);
 	}
 
-	public IdentityType getIdentityType()
-			throws FormValidationException
+	IdentityType getIdentityType() throws FormValidationException
 	{
 		if (!binder.isValid())
 			throw new FormValidationException();

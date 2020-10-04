@@ -22,37 +22,37 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class GenericReviewPanel extends CustomComponent
+class GenericReviewPanel extends CustomComponent
 {
 	private EnquiryReviewPanel enquiryPanel;
 	private RegistrationReviewPanel registrationPanel;
 
 	@Autowired
-	public GenericReviewPanel(EnquiryReviewPanel enquiryPanel,
+	GenericReviewPanel(EnquiryReviewPanel enquiryPanel,
 			RegistrationReviewPanel registrationPanel)
 	{
 		this.enquiryPanel = enquiryPanel;
 		this.registrationPanel = registrationPanel;
 	}
 
-	public void setEnquiry(EnquiryResponseState requestState, EnquiryForm form)
+	void setEnquiry(EnquiryResponseState requestState, EnquiryForm form)
 	{
 		enquiryPanel.setInput(requestState, form);
 		setCompositionRoot(enquiryPanel);
 	}
 	
-	public void setRegistration(RegistrationRequestState requestState, RegistrationForm form)
+	void setRegistration(RegistrationRequestState requestState, RegistrationForm form)
 	{
 		registrationPanel.setInput(requestState, form);
 		setCompositionRoot(registrationPanel);
 	}
 	
-	public RegistrationRequest getUpdatedRequest()
+	RegistrationRequest getUpdatedRequest()
 	{
 		return registrationPanel.getUpdatedRequest();
 	}
 	
-	public EnquiryResponse getUpdatedResponse()
+	EnquiryResponse getUpdatedResponse()
 	{
 		return enquiryPanel.getUpdatedRequest();
 	}

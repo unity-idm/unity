@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.credentialRequirements;
+package io.imunity.webconsole.authentication.credentialReq;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,19 +24,19 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  * 
  * @author K. Benedyczak
  */
-public class CredentialRequirementEditor extends CompactFormLayout
+class CredentialRequirementEditor extends CompactFormLayout
 {
 	private MessageSource msg;
 	private Binder<CredentialRequirements> binder;
 
-	public CredentialRequirementEditor(MessageSource msg, Collection<CredentialDefinition> allCredentials, 
+	CredentialRequirementEditor(MessageSource msg, Collection<CredentialDefinition> allCredentials, 
 			CredentialRequirements initial)
 	{
 		this.msg = msg;
 		init(initial, allCredentials);
 	}
 	
-	public CredentialRequirementEditor(MessageSource msg, Collection<CredentialDefinition> allCredentials)
+	CredentialRequirementEditor(MessageSource msg, Collection<CredentialDefinition> allCredentials)
 	{
 		this(msg, allCredentials, null);
 	}
@@ -72,7 +72,7 @@ public class CredentialRequirementEditor extends CompactFormLayout
 		binder.setBean(cr);
 	}
 	
-	public CredentialRequirements getCredentialRequirements() throws IllegalCredentialException
+	CredentialRequirements getCredentialRequirements() throws IllegalCredentialException
 	{
 		if (!binder.isValid())
 			throw new IllegalCredentialException("");

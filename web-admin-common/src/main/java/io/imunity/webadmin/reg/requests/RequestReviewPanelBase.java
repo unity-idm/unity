@@ -56,7 +56,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-public class RequestReviewPanelBase extends CustomComponent
+class RequestReviewPanelBase extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RequestReviewPanelBase.class);
 	private static final int MAX_TEXT_LENGHT = 300;
@@ -83,7 +83,7 @@ public class RequestReviewPanelBase extends CustomComponent
 	private Panel identitiesP;
 	private IdentityFormatter idFormatter;
 
-	public RequestReviewPanelBase(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	RequestReviewPanelBase(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
 			PolicyDocumentManagement policyDocMan,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)

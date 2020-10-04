@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  * Allows to browse and post request comments. Works with both enquiry and registration requests.
  * @author K. Benedyczak
  */
-public class RequestCommentPanel extends CustomComponent
+class RequestCommentPanel extends CustomComponent
 {
 	private MessageSource msg;
 	private RegistrationsManagement regMan;
@@ -48,7 +48,7 @@ public class RequestCommentPanel extends CustomComponent
 	private VerticalLayout contentP; 
 	private TextArea commentField;
 	
-	public RequestCommentPanel(MessageSource msg, RegistrationsManagement regMan,
+	RequestCommentPanel(MessageSource msg, RegistrationsManagement regMan,
 			EnquiryManagement enquiryMan)
 	{
 		this.msg = msg;
@@ -124,12 +124,12 @@ public class RequestCommentPanel extends CustomComponent
 		}
 	}
 
-	public void setInput(RegistrationRequestState requestState)
+	void setInput(RegistrationRequestState requestState)
 	{
 		setInputGeneric(requestState);
 	}
 	
-	public void setInput(EnquiryResponseState requestState)
+	void setInput(EnquiryResponseState requestState)
 	{
 		setInputGeneric(requestState);
 	}

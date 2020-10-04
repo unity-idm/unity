@@ -22,8 +22,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.attribute.AttributeChangedEvent;
 import io.imunity.webadmin.attributetype.AttributeTypesUpdatedEvent;
-import io.imunity.webadmin.credentialRequirements.CredentialRequirementChangedEvent;
-import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webadmin.idcreate.EntityCreationHandler;
 import io.imunity.webadmin.identities.AddAttributeColumnDialog;
@@ -38,6 +36,8 @@ import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.identities.RemoveAttributeColumnDialog;
 import io.imunity.webadmin.identities.RemoveFromGroupHandler;
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
+import io.imunity.webconsole.authentication.credentialReq.CredentialRequirementChangedEvent;
+import io.imunity.webconsole.authentication.localCredentials.CredentialDefinitionChangedEvent;
 import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;

@@ -13,8 +13,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.bulk.RuleEditorImpl;
-import io.imunity.webadmin.bulk.ScheduledRuleParamEditorImpl;
 import io.imunity.webconsole.tprofile.ActionEditor;
 import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.MessageSource;

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  * 
  * @author Roman Krysinski
  */
-public class RemotelyAuthenticatedInputComponent extends CustomComponent 
+class RemotelyAuthenticatedInputComponent extends CustomComponent 
 {
 
 	private VerticalLayout mainLayout;
@@ -53,7 +53,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	 * visual editor.
 	 * @param msg 
 	 */
-	public RemotelyAuthenticatedInputComponent(MessageSource msg) 
+	RemotelyAuthenticatedInputComponent(MessageSource msg) 
 	{
 		this.msg = msg;
 		buildMainLayout();
@@ -87,7 +87,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 				msg.getMessage("MappingResultComponent.attrsTable.value"));
 	}
 
-	public void displayAuthnInput(RemotelyAuthenticatedInput input)
+	void displayAuthnInput(RemotelyAuthenticatedInput input)
 	{
 		if (input == null 
 				|| (input.getIdentities().isEmpty()

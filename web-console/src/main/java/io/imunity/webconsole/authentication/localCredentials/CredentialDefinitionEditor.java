@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.credentials;
+package io.imunity.webconsole.authentication.localCredentials;
 
 import java.util.Set;
 
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-public class CredentialDefinitionEditor extends CustomComponent
+class CredentialDefinitionEditor extends CustomComponent
 {
 	private MessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
@@ -47,7 +47,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 	
 	private Binder<CredentialDefinition> binder;
 	
-	public CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg,
+	CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg,
 			CredentialDefinition initial)
 	{
 		this.msg = msg;
@@ -55,7 +55,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		init(initial, credentialEditorReg);
 	}
 	
-	public CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg)
+	CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg)
 	{
 		this(msg, credentialEditorReg, null);
 	}
@@ -129,7 +129,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		credentialEditorPanel.setContent(editor);
 	}
 	
-	public CredentialDefinition getCredentialDefinition() throws IllegalCredentialException
+	CredentialDefinition getCredentialDefinition() throws IllegalCredentialException
 	{
 		String credConfig = cdEd.getCredentialDefinition();
 		if (!binder.isValid())
@@ -140,7 +140,7 @@ public class CredentialDefinitionEditor extends CustomComponent
 		return ret;
 	}
 	
-	public LocalCredentialState getLocalCredState()
+	LocalCredentialState getLocalCredState()
 	{
 		return newCredState == null ? null : newCredState.getValue();
 	}
