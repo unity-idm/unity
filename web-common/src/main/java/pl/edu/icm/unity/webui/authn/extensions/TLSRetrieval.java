@@ -106,6 +106,12 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	{
 		return false; //TODO this component can support grid
 	}
+
+	@Override
+	public boolean isMultiOption()
+	{
+		return false;
+	}
 	
 	public static X509Certificate[] getTLSCertificate()
 	{

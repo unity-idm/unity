@@ -101,7 +101,14 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	{
 		return true;
 	}
-	
+
+
+	@Override
+	public boolean isMultiOption()
+	{
+		return true;
+	}
+
 	@Override
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
