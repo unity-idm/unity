@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.idcreate;
+package io.imunity.webconsole.directoryBrowser.identities;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,10 +24,10 @@ import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.attributeclass.RequiredAttributesDialog;
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
-import io.imunity.webadmin.idcreate.NewEntityCredentialsPanel.CredentialsPanelFactory;
-import io.imunity.webadmin.idcreate.SingleCredentialPanel.ObtainedCredential;
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
+import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
+import io.imunity.webconsole.directoryBrowser.identities.SingleCredentialPanel.ObtainedCredential;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -67,7 +67,7 @@ import pl.edu.icm.unity.webui.common.widgets.InfoLabel;
  * 
  * @author K. Benedyczak
  */
-public class EntityCreationDialog extends IdentityCreationDialog
+class EntityCreationDialog extends IdentityCreationDialog
 {
 	private EntityManagement identitiesMan;
 	private CredentialRequirementManagement credReqMan;
@@ -87,7 +87,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	private TabSheet tabs;
 	private EntityCredentialManagement ecredMan;
 	
-	public EntityCreationDialog(MessageSource msg, String initialGroup, EntityManagement identitiesMan,
+	EntityCreationDialog(MessageSource msg, String initialGroup, EntityManagement identitiesMan,
 			CredentialRequirementManagement credReqMan, 
 			AttributeTypeManagement attrMan,
 			IdentityEditorRegistry identityEditorReg, 

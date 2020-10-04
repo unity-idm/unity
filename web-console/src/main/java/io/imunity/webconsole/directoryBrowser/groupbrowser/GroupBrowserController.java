@@ -17,7 +17,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webadmin.groupbrowser.GroupAttributesClassesDialog;
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;

@@ -9,7 +9,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
  * Otherwise the selection is disabled and attribute type is fixed to the single one provided.
  * @author K. Benedyczak
  */
-public class AttributeMetaEditorPanel extends CompactFormLayout
+class AttributeMetaEditorPanel extends CompactFormLayout
 {
 	private MessageSource msg;
 	
@@ -36,12 +36,12 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	private AttributeSelectionComboBox attributeTypes;
 	private TypeChangeCallback callback;
 
-	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, MessageSource msg)
+	AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, MessageSource msg)
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
 	}
 	
-	public AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, 
+	AttributeMetaEditorPanel(Collection<AttributeType> attributeTypes, String groupPath, 
 			MessageSource msg)
 	{
 		this.msg = msg;
@@ -102,12 +102,12 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 		}
 	}
 	
-	public TypeChangeCallback getCallback()
+	TypeChangeCallback getCallback()
 	{
 		return callback;
 	}
 
-	public void setCallback(TypeChangeCallback callback)
+	void setCallback(TypeChangeCallback callback)
 	{
 		this.callback = callback;
 	}
@@ -120,7 +120,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 			callback.attributeTypeChanged(type);
 	}
 
-	public void setAttributeType(String name)
+	void setAttributeType(String name)
 	{
 		attributeTypes.setSelectedItemByName(name);
 	}
@@ -136,18 +136,18 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 		unique.setValue(AttributeTypeUtils.getBooleanDesc(msg, type.isUniqueValues()));
 	}
 	
-	public String getAttributeName()
+	String getAttributeName()
 	{
 		return attributeName;
 	}
 
-	public AttributeType getAttributeType()
+	AttributeType getAttributeType()
 	{
 		return attributeTypes.getValue();
 	}
 	
-	public interface TypeChangeCallback
+	interface TypeChangeCallback
 	{
-		public void attributeTypeChanged(AttributeType newType);
+		void attributeTypeChanged(AttributeType newType);
 	}
 }

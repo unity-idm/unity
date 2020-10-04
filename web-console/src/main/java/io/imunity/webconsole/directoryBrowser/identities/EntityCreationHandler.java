@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.idcreate;
+package io.imunity.webconsole.directoryBrowser.identities;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.idcreate.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import io.imunity.webadmin.identities.IdentityEntry;
 import io.imunity.webadmin.utils.GroupManagementHelper;
+import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  * @author K. Benedyczak
  */
 @Component
-public class EntityCreationHandler
+class EntityCreationHandler
 {
 	@Autowired
 	private MessageSource msg;
@@ -53,7 +53,7 @@ public class EntityCreationHandler
 	@Autowired
 	private EntityCredentialManagement ecredMan;
 	
-	public SingleActionHandler<IdentityEntry> getAction(
+	SingleActionHandler<IdentityEntry> getAction(
 			Supplier<String> initialGroup,
 			Consumer<Identity> callback)
 	{
@@ -66,7 +66,7 @@ public class EntityCreationHandler
 				.build();
 	}
 
-	public void showAddEntityDialog(Supplier<String> initialGroup, Consumer<Identity> callback)
+	void showAddEntityDialog(Supplier<String> initialGroup, Consumer<Identity> callback)
 	{
 		new EntityCreationDialog(msg, initialGroup.get(), identitiesMan, 
 				credReqMan, attrMan, identityEditorReg, groupHelper, 

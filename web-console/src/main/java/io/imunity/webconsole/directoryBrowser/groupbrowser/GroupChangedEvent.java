@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.directoryBrowser;
+package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import pl.edu.icm.unity.webui.bus.Event;
 

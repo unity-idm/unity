@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.idcreate;
+package io.imunity.webconsole.directoryBrowser.identities;
 
 import java.util.Collection;
 import java.util.Optional;

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.idcreate;
+package io.imunity.webconsole.directoryBrowser.identities;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +40,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  * Identity creation dialog. Adds the identity to an existing entity.
  * @author K. Benedyczak
  */
-public class IdentityCreationDialog extends AbstractDialog
+class IdentityCreationDialog extends AbstractDialog
 {
 	private long entityId;
 	protected EntityManagement identitiesMan;
@@ -50,7 +50,7 @@ public class IdentityCreationDialog extends AbstractDialog
 	protected ComboBox<String> identityTypeSelector;
 	protected IdentityEditor identityEditor;
 	
-	public IdentityCreationDialog(MessageSource msg, long entityId, EntityManagement identitiesMan,
+	IdentityCreationDialog(MessageSource msg, long entityId, EntityManagement identitiesMan,
 			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
@@ -67,7 +67,7 @@ public class IdentityCreationDialog extends AbstractDialog
 	}
 
 	@Component
-	public static class IdentityCreationDialogHandler
+	static class IdentityCreationDialogHandler
 	{
 		@Autowired
 		private MessageSource msg;
@@ -76,7 +76,7 @@ public class IdentityCreationDialog extends AbstractDialog
 		@Autowired
 		private IdentityEditorRegistry identityEditorReg;
 		
-		public SingleActionHandler<IdentityEntry> getAction(Consumer<Identity> callback)
+		SingleActionHandler<IdentityEntry> getAction(Consumer<Identity> callback)
 		{
 			return SingleActionHandler.builder(IdentityEntry.class)
 					.withCaption(msg.getMessage("Identities.addIdentityAction"))

@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
+
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -19,7 +22,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;

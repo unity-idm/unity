@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.idcreate;
+package io.imunity.webconsole.directoryBrowser.identities;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.idcreate.SingleCredentialPanel.ObtainedCredential;
+import io.imunity.webconsole.directoryBrowser.identities.SingleCredentialPanel.ObtainedCredential;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  * Editing of credentials of an entity which does not exist yet.
  */
 @PrototypeComponent
-public class NewEntityCredentialsPanel extends VerticalLayout
+class NewEntityCredentialsPanel extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NewEntityCredentialsPanel.class);
 	private CredentialManagement credMan;
@@ -80,7 +80,7 @@ public class NewEntityCredentialsPanel extends VerticalLayout
 		}
 	}
 
-	public List<ObtainedCredential> getCredentials()
+	List<ObtainedCredential> getCredentials()
 	{
 		return panels.stream().map(panel -> panel.getCredential()).filter(Optional::isPresent)
 			.map(Optional::get)

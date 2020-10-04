@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
