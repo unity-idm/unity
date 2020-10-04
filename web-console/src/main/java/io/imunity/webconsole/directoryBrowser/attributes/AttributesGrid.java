@@ -105,10 +105,11 @@ public class AttributesGrid extends CustomComponent
 				msg.getMessage("AttributesGrid.updateCaption"), 5).setResizable(true).setHidable(true)
 				.setHidden(true);
 
-		attributesGrid.addSortableColumn(a -> {
+		attributesGrid.addSortableColumn(a -> 
+		{
 			if (a.getTranslationProfile() != null)
 			{
-				return a.getTranslationProfile() + a.getRemoteIdp() != null ? " " + a.getRemoteIdp() : "";
+				return a.getTranslationProfile() + (a.getRemoteIdp() != null ? " " + a.getRemoteIdp() : "");
 			} else if (a.isDirect())
 			{
 				return msg.getMessage("Attribute.direct");
