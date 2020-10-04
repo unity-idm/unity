@@ -11,7 +11,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.tprofile.TranslationProfileEditor;
+import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.UnityView;

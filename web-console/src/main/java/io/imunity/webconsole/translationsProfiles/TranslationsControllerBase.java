@@ -13,8 +13,8 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.server.StreamResource;
 
-import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
-import io.imunity.webadmin.tprofile.TranslationProfileEditor;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;

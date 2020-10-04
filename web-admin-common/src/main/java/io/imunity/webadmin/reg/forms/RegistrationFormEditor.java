@@ -22,8 +22,8 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
-import io.imunity.webadmin.tprofile.RegistrationTranslationProfileEditor;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

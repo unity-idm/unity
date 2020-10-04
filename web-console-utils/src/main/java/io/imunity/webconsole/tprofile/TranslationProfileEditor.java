@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webadmin.tprofile;
+package io.imunity.webconsole.tprofile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
-import io.imunity.webadmin.tprofile.RuleComponent.Callback;
-import io.imunity.webadmin.tprofile.StartStopButton.ClickStartEvent;
-import io.imunity.webadmin.tprofile.StartStopButton.ClickStopEvent;
+import io.imunity.webconsole.tprofile.RuleComponent.Callback;
+import io.imunity.webconsole.tprofile.StartStopButton.ClickStartEvent;
+import io.imunity.webconsole.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;

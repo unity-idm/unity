@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
-import io.imunity.webadmin.tprofile.TranslationProfileEditor;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webadmin.tprofile;
+package io.imunity.webconsole.tprofile;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;

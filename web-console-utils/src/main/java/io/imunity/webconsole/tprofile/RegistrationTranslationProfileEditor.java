@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webadmin.tprofile;
+package io.imunity.webconsole.tprofile;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;

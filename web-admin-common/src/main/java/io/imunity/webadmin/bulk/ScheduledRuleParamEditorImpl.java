@@ -8,7 +8,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
-import io.imunity.webadmin.tprofile.ActionEditor;
+import io.imunity.webconsole.tprofile.ActionEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;

@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.tprofile;
+package io.imunity.webconsole.tprofile;
 
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;

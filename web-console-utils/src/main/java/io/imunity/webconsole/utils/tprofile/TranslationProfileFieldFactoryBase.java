@@ -8,7 +8,7 @@ package io.imunity.webconsole.utils.tprofile;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;

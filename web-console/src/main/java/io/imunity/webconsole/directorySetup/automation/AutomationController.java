@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webadmin.bulk.RuleEditorImpl;
 import io.imunity.webadmin.bulk.ScheduledRuleParamEditorImpl;
-import io.imunity.webadmin.tprofile.ActionEditor;
-import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionEditor;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;

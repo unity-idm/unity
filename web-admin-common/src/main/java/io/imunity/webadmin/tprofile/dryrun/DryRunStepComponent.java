@@ -16,8 +16,8 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.tprofile.MappingResultComponent;
-import io.imunity.webadmin.tprofile.TranslationProfileViewer;
+import io.imunity.webconsole.tprofile.MappingResultComponent;
+import io.imunity.webconsole.tprofile.TranslationProfileViewer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;

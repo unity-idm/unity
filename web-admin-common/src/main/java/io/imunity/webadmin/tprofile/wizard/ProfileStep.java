@@ -8,8 +8,8 @@ import org.vaadin.teemu.wizards.WizardStep;
 
 import com.vaadin.ui.Component;
 
-import io.imunity.webadmin.tprofile.TranslationProfileEditor;
-import io.imunity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
+import io.imunity.webconsole.tprofile.TranslationProfileEditor;
+import io.imunity.webconsole.tprofile.TranslationProfileEditDialog.Callback;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
