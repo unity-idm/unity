@@ -15,7 +15,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.attributetype.ImportAttributeTypeEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.attributeTypes.AttributeTypesView.AttributeTypesNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;

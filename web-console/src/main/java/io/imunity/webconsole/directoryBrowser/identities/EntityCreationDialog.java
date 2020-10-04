@@ -23,11 +23,11 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.attributeclass.RequiredAttributesDialog;
-import io.imunity.webadmin.utils.GroupManagementHelper;
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
 import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import io.imunity.webconsole.directoryBrowser.identities.SingleCredentialPanel.ObtainedCredential;
+import io.imunity.webconsole.directorySetup.attributeClasses.RequiredAttributesDialog;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;

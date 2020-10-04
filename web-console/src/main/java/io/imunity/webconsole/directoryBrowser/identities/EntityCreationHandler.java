@@ -10,8 +10,7 @@ import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.identities.IdentityEntry;
-import io.imunity.webadmin.utils.GroupManagementHelper;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
 import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

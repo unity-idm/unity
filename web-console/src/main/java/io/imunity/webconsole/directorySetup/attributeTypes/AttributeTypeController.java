@@ -18,10 +18,6 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.server.StreamResource;
 
-import io.imunity.webadmin.attributetype.AttributeTypeEditor;
-import io.imunity.webadmin.attributetype.ImmutableAttributeTypeEditor;
-import io.imunity.webadmin.attributetype.ImportAttributeTypeEditor;
-import io.imunity.webadmin.attributetype.RegularAttributeTypeEditor;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

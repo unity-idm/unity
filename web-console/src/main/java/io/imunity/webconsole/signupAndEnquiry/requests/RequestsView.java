@@ -14,8 +14,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.requests.RequestProcessingPanel;
-import io.imunity.webadmin.reg.requests.RequestSelectionListener;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;

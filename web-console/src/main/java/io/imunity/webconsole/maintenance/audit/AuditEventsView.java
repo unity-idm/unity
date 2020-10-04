@@ -18,9 +18,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
-import io.imunity.webadmin.identities.EntityDetailsDialog;
-import io.imunity.webadmin.identities.EntityDetailsPanel;
+
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.directoryBrowser.identities.EntityDetailsDialog;
+import io.imunity.webconsole.directoryBrowser.identities.EntityDetailsPanel;
 import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;

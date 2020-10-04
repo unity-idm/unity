@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.common.EndpointController;
 import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
-import io.imunity.webconsole.translationsProfiles.TranslationsControllerBase;
+import io.imunity.webconsole.translationProfile.TranslationsControllerBase;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;

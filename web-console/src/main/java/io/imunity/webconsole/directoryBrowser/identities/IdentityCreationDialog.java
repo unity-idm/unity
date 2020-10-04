@@ -18,7 +18,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.identities.IdentityEntry;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;

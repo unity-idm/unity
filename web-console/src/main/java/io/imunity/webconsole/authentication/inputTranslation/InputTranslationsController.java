@@ -13,13 +13,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
-import io.imunity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
 import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
-import io.imunity.webconsole.translationsProfiles.TranslationsControllerBase;
+import io.imunity.webconsole.translationProfile.TranslationsControllerBase;
+import io.imunity.webconsole.translationProfile.dryrun.DryRunWizardProvider;
+import io.imunity.webconsole.translationProfile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;

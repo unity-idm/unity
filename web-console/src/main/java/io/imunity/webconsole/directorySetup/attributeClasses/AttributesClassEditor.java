@@ -15,8 +15,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
-import io.imunity.webadmin.attributeclass.ACTwinColSelect;
-import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;

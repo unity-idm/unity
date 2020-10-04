@@ -16,8 +16,6 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 
-import io.imunity.webadmin.reg.requests.RequestEntry;
-import io.imunity.webadmin.reg.requests.RequestSelectionListener;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;

@@ -24,7 +24,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.RadioButtonGroup;
 
-import io.imunity.webadmin.attribute.AttributeFieldWithEdit;
+import io.imunity.webconsole.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;

@@ -19,9 +19,9 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.event.selection.SingleSelectionListener;
 
-import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
+import io.imunity.webconsole.translationProfile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;

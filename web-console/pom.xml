@@ -45,13 +45,17 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-admin-common</artifactId>
+			<artifactId>unity-server-web-console-utils</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
 		</dependency>
 		
 	</dependencies>

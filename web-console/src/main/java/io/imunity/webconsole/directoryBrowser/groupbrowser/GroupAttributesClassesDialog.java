@@ -11,9 +11,9 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
-import io.imunity.webadmin.attributeclass.ACTwinColSelect;
-import io.imunity.webadmin.attributeclass.AbstractAttributesClassesDialog;
-import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
+import io.imunity.webconsole.directorySetup.attributeClasses.ACTwinColSelect;
+import io.imunity.webconsole.directorySetup.attributeClasses.AbstractAttributesClassesDialog;
+import io.imunity.webconsole.directorySetup.attributeClasses.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;

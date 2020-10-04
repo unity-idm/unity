@@ -16,10 +16,10 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 
-import io.imunity.webadmin.reg.forms.EnquiryFormEditDialog;
-import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
-import io.imunity.webadmin.reg.forms.RegistrationFormEditDialog;
-import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditDialog;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditDialog;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditor;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
