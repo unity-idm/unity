@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.attributeclass;
+package io.imunity.webconsole.directorySetup.attributeClasses;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
+import io.imunity.webadmin.attributeclass.ACTwinColSelect;
+import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -29,7 +31,7 @@ import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
  * Editing component of an {@link AttributesClass} instance.
  * @author K. Benedyczak
  */
-public class AttributesClassEditor extends CompactFormLayout
+class AttributesClassEditor extends CompactFormLayout
 {
 	private MessageSource msg;
 	private Map<String, AttributesClass> allClasses;
@@ -45,7 +47,7 @@ public class AttributesClassEditor extends CompactFormLayout
 	
 	private Binder<AttributesClass> binder;
 	
-	public AttributesClassEditor(MessageSource msg, Map<String, AttributesClass> allClasses,
+	AttributesClassEditor(MessageSource msg, Map<String, AttributesClass> allClasses,
 			Collection<AttributeType> allTypes)
 	{
 		this.msg = msg;
@@ -57,7 +59,7 @@ public class AttributesClassEditor extends CompactFormLayout
 		initUI();
 	}
 
-	public void setEditedClass(AttributesClass ac)
+	void setEditedClass(AttributesClass ac)
 	{
 		binder.setBean(ac);
 		name.setReadOnly(true);
@@ -134,7 +136,7 @@ public class AttributesClassEditor extends CompactFormLayout
 		}
 	}
 	
-	public AttributesClass getAttributesClass() throws FormValidationException
+	AttributesClass getAttributesClass() throws FormValidationException
 	{
 		if (!binder.isValid())
 			throw new FormValidationException();

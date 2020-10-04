@@ -11,7 +11,6 @@ import java.util.Set;
 
 import com.vaadin.ui.TwinColSelect;
 
-import io.imunity.webadmin.groupbrowser.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -22,9 +21,6 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
  * Base of dialogs allowing for editing group or entity {@link AttributesClass}es. 
- * See {@link GroupAttributesClassesDialog} and {@link EntityAttributesClassesDialog}.
- * 
- * @author K. Benedyczak
  */
 public abstract class AbstractAttributesClassesDialog extends AbstractDialog 
 {

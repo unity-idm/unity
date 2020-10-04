@@ -14,12 +14,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.formfill.AdminEnquiryFormLauncher;
-import io.imunity.webadmin.reg.formfill.AdminRegistrationFormLauncher;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
 import io.imunity.webconsole.signupAndEnquiry.enquiry.EnquiryFormsComponent;
 import io.imunity.webconsole.signupAndEnquiry.enquiry.EnquiryFormsController;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminEnquiryFormLauncher;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminRegistrationFormLauncher;
 import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsComponent;
 import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsController;
 import io.imunity.webelements.navigation.NavigationInfo;

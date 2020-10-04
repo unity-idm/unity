@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.groupbrowser;
+package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import java.util.Set;
 
@@ -32,11 +32,11 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialog
+class GroupAttributesClassesDialog extends AbstractAttributesClassesDialog
 {
 	private Callback callback;
 	
-	public GroupAttributesClassesDialog(MessageSource msg, String group, 
+	GroupAttributesClassesDialog(MessageSource msg, String group, 
 			AttributeClassManagement acMan, GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, group, acMan, groupsMan, msg.getMessage("GroupAttributesClasses.caption"));
@@ -100,8 +100,8 @@ public class GroupAttributesClassesDialog extends AbstractAttributesClassesDialo
 		}
 	}
 
-	public interface Callback
+	interface Callback
 	{
-		public void onUpdate(Group updated);
+		void onUpdate(Group updated);
 	}
 }

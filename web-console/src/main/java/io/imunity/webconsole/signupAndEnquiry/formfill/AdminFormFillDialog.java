@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webadmin.reg.formfill;
+package io.imunity.webconsole.signupAndEnquiry.formfill;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
@@ -24,13 +24,13 @@ import pl.edu.icm.unity.webui.forms.FormsUIHelper;
  * 
  * @author K. Benedyczak
  */
-public class AdminFormFillDialog<T extends BaseRegistrationInput> extends AbstractDialog
+class AdminFormFillDialog<T extends BaseRegistrationInput> extends AbstractDialog
 {
 	private BaseRequestEditor<T> editor;
 	private Callback<T> callback;
 	private Button submitAndAccept;
 	
-	public AdminFormFillDialog(MessageSource msg, String caption, 
+	AdminFormFillDialog(MessageSource msg, String caption, 
 			BaseRequestEditor<T> editor, Callback<T> callback)
 	{
 		super(msg, caption, msg.getMessage("UserFormFillDialog.submitRequest"), 
@@ -95,7 +95,7 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 		}
 	}
 	
-	public interface Callback<T>
+	interface Callback<T>
 	{
 		void newRequest(T request, boolean autoAccept) throws WrongArgumentException;
 		void cancelled();
