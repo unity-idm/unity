@@ -62,7 +62,7 @@
 		<module>web-elements</module>
 		<module>web-admin-common</module>
 		<module>web-console-utils</module>
-		<module>web-admin</module>
+		<module>user-home</module>
 		<module>web-console-spi</module>
 		<module>web-console</module>
 		<module>web-upman</module>
