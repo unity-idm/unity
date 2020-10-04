@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.preferences;
+package pl.edu.icm.unity.home;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
  * Management of a single preference.
  * @author K. Benedyczak
  */
-public class PreferenceViewTab extends VerticalLayout
+class PreferenceViewTab extends VerticalLayout
 {
 	private PreferencesHandler preferenceHandler;
 	private PreferencesManagement prefMan;
@@ -46,7 +46,7 @@ public class PreferenceViewTab extends VerticalLayout
 	private PreferencesEditor editor;
 	private String currentValue;
 	
-	public PreferenceViewTab(MessageSource msg, PreferencesHandler preferenceHandler, 
+	PreferenceViewTab(MessageSource msg, PreferencesHandler preferenceHandler, 
 			PreferencesManagement prefMan)
 	{
 		this.msg = msg;

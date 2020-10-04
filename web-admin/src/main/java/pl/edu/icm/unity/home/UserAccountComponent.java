@@ -46,7 +46,6 @@ import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;

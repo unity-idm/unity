@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.UserHomeEndpointFactory;
-import pl.edu.icm.unity.webadmin.utils.ProjectManagementHelper;
+import pl.edu.icm.unity.home.utils.ProjectManagementHelper;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;

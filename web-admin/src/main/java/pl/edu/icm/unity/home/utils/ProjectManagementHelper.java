@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.webadmin.utils;
+package pl.edu.icm.unity.home.utils;
 
 import java.util.Collections;
 import java.util.List;

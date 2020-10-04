@@ -19,9 +19,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.home.utils.ProjectManagementHelper;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.webadmin.utils.ProjectManagementHelper;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;

@@ -13,20 +13,20 @@ share some basic configuration options.
 Endpoints are configured in the main configuration file. An example endpoint definition:
 
 ----
-unityServer.core.endpoints.1.endpointType=WebAdminUI
+unityServer.core.endpoints.1.endpointType=WebConsoleUI
 unityServer.core.endpoints.1.endpointName=UNITY administration interface
-unityServer.core.endpoints.1.contextPath=/admin
-unityServer.core.endpoints.1.endpointConfigurationFile=conf/webadmin.json
-unityServer.core.endpoints.1.endpointAuthenticators=oauthWeb;passwordWithSMS
+unityServer.core.endpoints.1.contextPath=/console
+unityServer.core.endpoints.1.endpointConfigurationFile=conf/console.json
+unityServer.core.endpoints.1.endpointAuthenticators=oauth;passwordWithSMS
 ----
 
-The endpoint instance configuration must specify the endpoint type (in the example it is +WebAdminUI+), one 
+The endpoint instance configuration must specify the endpoint type (in the example it is +WebConsoleUI+), one 
 of the available ones. Each available endpoint has a separate subsection later on, which provide its 
 type name. The endpoint instance must be named (any string) - the name is displayed in various user interfaces.
 
 Endpoint context path defines the first element of a server relative address of an endpoint. E.g. for the
-above context path +/admin+ all URLs of the endpoint instance will start with the URL 
-+pass:[https://unity-hostname:unity-port/admin/...]+.
+above context path +/console+, all URLs of the endpoint instance will start with the URL 
++pass:[https://unity-hostname:unity-port/console/...]+.
 
 Endpoint configuration file is used to specify endpoint type-specific configuration, including the 
 binding specific settings.
@@ -205,6 +205,5 @@ include::endpoint-restadmin.txt[]
 include::endpoint-wellknown.txt[]
 
 
-include::endpoint-admin.txt[]
 
 
