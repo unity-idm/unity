@@ -115,7 +115,7 @@ public class FidoEntityHelperTest
 		when(identityResolver.getIdentitiesForEntity(eq(new EntityParam(1L)))).thenReturn(identitiesList);
 
 		//when
-		Identities ids = helper.resolveUsername(1L, null);
+		Identities ids = helper.resolveUsername(1L, null).get();
 
 		// then
 		assertEquals(EMAIL, ids.getUsername());
@@ -129,7 +129,7 @@ public class FidoEntityHelperTest
 		when(identityResolver.getIdentitiesForEntity(eq(new EntityParam(1L)))).thenReturn(identitiesList);
 
 		//when
-		Identities ids = helper.resolveUsername(1L, null);
+		Identities ids = helper.resolveUsername(1L, null).get();
 
 		// then
 		assertEquals(USERNAME, ids.getUsername());
@@ -139,31 +139,29 @@ public class FidoEntityHelperTest
 	public void shouldReturnUsernameForTwoIdentity() throws EngineException
 	{
 		//given/when
-		Identities ids = helper.resolveUsername(1L, null);
+		Identities ids = helper.resolveUsername(1L, null).get();
 
 		// then
 		assertEquals(USERNAME, ids.getUsername());
 	}
 
-	@Test(expected = FidoException.class)
-	public void shouldNotCreateIdentityForMissingUsername1() throws EngineException
+	public void shouldReturnEmptyForMissingUsername() throws EngineException
 	{
 		//given
 		List<Identity> identitiesList = Collections.singletonList(USERHANDLE_IDENTITY);
 		when(identityResolver.getIdentitiesForEntity(eq(new EntityParam(1L)))).thenReturn(identitiesList);
 
 		//when/then
-		helper.resolveUsername(1L, null);
+		assertEquals(Optional.empty(), helper.resolveUsername(1L, null));
 	}
 
-	@Test(expected = FidoException.class)
-	public void shouldNotCreateIdentityForMissingUsername2() throws EngineException
+	public void shouldReturnEmptyForMissingUsername2() throws EngineException
 	{
 		//given
 		when(identityResolver.getIdentitiesForEntity(eq(new EntityParam(1L)))).thenReturn(Collections.emptyList());
 
 		//when/then
-		helper.resolveUsername(1L, null);
+		assertEquals(Optional.empty(), helper.resolveUsername(1L, null));
 	}
 
 	@Test
@@ -204,11 +202,11 @@ public class FidoEntityHelperTest
 		when(identityResolver.insertIdentity(any(), any())).thenReturn(new Identity(FidoUserHandleIdentity.ID, userHandle.asString(), 1, userHandle.asString()));
 
 		//when
-		String uh = helper.getOrCreateUserHandle(ids);
+		FidoUserHandle uh = helper.getOrCreateUserHandle(ids, userHandle.asString());
 
 		// then
 		verify(identityResolver).insertIdentity(any(), any());
-		assertEquals(userHandle.asString(), uh);
+		assertEquals(userHandle.asString(), uh.asString());
 	}
 
 	@Test
@@ -218,11 +216,11 @@ public class FidoEntityHelperTest
 		Identities ids = Identities.builder().identities(identitiesList).build();
 
 		//when
-		String uh = helper.getOrCreateUserHandle(ids);
+		FidoUserHandle uh = helper.getOrCreateUserHandle(ids);
 
 		// then
 		Identity id = verify(identityResolver, never()).insertIdentity(any(), any());
-		assertEquals(USER_HANDLE.asString(), uh);
+		assertEquals(USER_HANDLE.asString(), uh.asString());
 	}
 
 	@Test

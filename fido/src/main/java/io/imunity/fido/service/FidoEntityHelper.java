@@ -40,7 +40,7 @@ import static java.util.Objects.nonNull;
 class FidoEntityHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoEntityHelper.class);
-	private static final String NO_ENTITY_MSG = "FidoExc.noEntity";
+	static final String NO_ENTITY_MSG = "FidoExc.noEntity";
 
 	private EntityResolver entityResolver;
 	private IdentityResolver identityResolver;
@@ -89,27 +89,30 @@ class FidoEntityHelper
 				.findFirst();
 	}
 
-	String getOrCreateUserHandle(final Identities identities) throws FidoException
+	FidoUserHandle getOrCreateUserHandle(final Identities identities) {
+		return getOrCreateUserHandle(identities, FidoUserHandle.create().asString());
+	}
+
+	FidoUserHandle getOrCreateUserHandle(final Identities identities, final String userHandle) throws FidoException
 	{
 		if (isNull(identities))
 			throw new FidoException(msg.getMessage(NO_ENTITY_MSG));
 
 		Optional<String> uh = identities.getUserHandle();
 		if (uh.isPresent())
-			return uh.get();
+			return FidoUserHandle.fromString(uh.get());
 
-		Identity userHandleIdentity = null;
+		FidoUserHandle fidoUserHandle = FidoUserHandle.fromString(userHandle);
 		try
 		{
-			IdentityParam userHandle = new IdentityParam(FidoUserHandleIdentity.ID, FidoUserHandle.create().asString());
-			userHandleIdentity = identityResolver.insertIdentity(userHandle, identities.getEntityParam());
+			identityResolver.insertIdentity(new IdentityParam(FidoUserHandleIdentity.ID, fidoUserHandle.asString()), identities.getEntityParam());
 		} catch (EngineException e)
 		{
 			log.error("Failed to create identity: ", e);
 			throw new FidoException(msg.getMessage("FidoExc.internalError"));
 		}
 
-		return userHandleIdentity.getValue();
+		return fidoUserHandle;
 	}
 
 	List<Identity> getIdentitiesByUserHandle(final String userHandle)
@@ -137,7 +140,7 @@ class FidoEntityHelper
 		}
 	}
 
-	Identities resolveUsername(final Long entityId, final String username) throws FidoException
+	Optional<Identities> resolveUsername(final Long entityId, final String username) throws FidoException
 	{
 		List<Identity> identities;
 		if (nonNull(entityId))
@@ -147,19 +150,23 @@ class FidoEntityHelper
 				identities = identityResolver.getIdentitiesForEntity(new EntityParam(entityId));
 			} catch (IllegalIdentityValueException e)
 			{
-				throw new NoEntityException(msg.getMessage(NO_ENTITY_MSG));
+				return Optional.empty();
 			}
 		} else
 		{
 			identities = getIdentitiesByUsername(username);
 		}
 
+		if (identities.isEmpty())
+			return Optional.empty();
+
 		try
 		{
-			return Identities.builder().identities(identities).build();
+			return Optional.of(Identities.builder().identities(identities).build());
 		} catch (IllegalArgumentException | NoSuchElementException e)
 		{
-			throw new NoEntityException(msg.getMessage(NO_ENTITY_MSG), e);
+			log.warn("Got exception: ", e);
+			return Optional.empty();
 		}
 	}
 

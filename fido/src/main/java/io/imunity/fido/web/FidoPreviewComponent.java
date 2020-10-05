@@ -101,6 +101,7 @@ class FidoPreviewComponent extends CustomComponent
 			textField.setValue(value);
 			layout.addComponent(textField);
 			layout.setComponentAlignment(textField, Alignment.MIDDLE_RIGHT);
+			layout.setExpandRatio(textField, 1);
 			textField.addValueChangeListener(event -> setter.accept(event.getValue()));
 		}
 

@@ -12,12 +12,10 @@ import io.imunity.fido.credential.FidoCredentialInfo;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.stdext.credential.pass.PasswordExtraInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 

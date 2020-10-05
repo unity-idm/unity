@@ -17,8 +17,11 @@ import pl.edu.icm.unity.Constants;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
@@ -96,6 +99,10 @@ public class FidoCredentialInfo
 	 * Human readable description.
 	 */
 	private String description;
+	/**
+	 * Fido user handle. All entities's credentials have the same value.
+	 */
+	private String userHandle;
 
 	public long getRegistrationTimestamp()
 	{
@@ -162,19 +169,14 @@ public class FidoCredentialInfo
 		return signatureCount;
 	}
 
-	public void setSignatureCount(long signatureCount)
-	{
-		this.signatureCount = signatureCount;
-	}
-
 	public String getDescription()
 	{
 		return description;
 	}
 
-	public void setDescription(String description)
+	public String getUserHandle()
 	{
-		this.description = description;
+		return userHandle;
 	}
 
 	@JsonIgnore
@@ -236,6 +238,26 @@ public class FidoCredentialInfo
 		return new FidoCredentialInfoBuilder();
 	}
 
+	public FidoCredentialInfoBuilder copyBuilder()
+	{
+		return new FidoCredentialInfoBuilder()
+				.registrationTime(this.registrationTimestamp)
+				.credentialId(this.credentialId)
+				.publicKeyCose(this.publicKeyCose)
+				.signatureCount(this.signatureCount)
+				.userPresent(this.userPresent)
+				.userVerified(this.userVerified)
+				.attestationFormat(this.attestationFormat)
+				.aaguid(this.aaguid)
+				.description(this.description)
+				.attestationTrusted(this.attestationTrusted)
+				.metadataIdentifier(this.metadataIdentifier)
+				.vendorProperties(this.vendorProperties)
+				.deviceProperties(this.deviceProperties)
+				.transports(this.transports)
+				.userHandle(this.userHandle);
+	}
+
 	public static final class FidoCredentialInfoBuilder
 	{
 		private long registrationTimestamp;
@@ -249,7 +271,13 @@ public class FidoCredentialInfo
 		private String aaguid;
 		private String description;
 
-		Attestation attestationMetadata;
+		private boolean attestationTrusted;
+		private String metadataIdentifier;
+		private Map<String, String> vendorProperties;
+		private Map<String, String> deviceProperties;
+		private Set<Transport> transports;
+
+		private String userHandle;
 
 		private FidoCredentialInfoBuilder()
 		{
@@ -284,9 +312,50 @@ public class FidoCredentialInfo
 			return this;
 		}
 
+
+		public FidoCredentialInfoBuilder attestationTrusted(boolean attestationTrusted)
+		{
+			this.attestationTrusted = attestationTrusted;
+			return this;
+		}
+
+		public FidoCredentialInfoBuilder metadataIdentifier(String metadataIdentifier)
+		{
+			this.metadataIdentifier = metadataIdentifier;
+			return this;
+		}
+
+		public FidoCredentialInfoBuilder vendorProperties(Map<String, String> vendorProperties)
+		{
+			if (nonNull(vendorProperties) && !vendorProperties.isEmpty())
+				this.vendorProperties = new HashMap<>(vendorProperties);
+			return this;
+		}
+
+		public FidoCredentialInfoBuilder deviceProperties(Map<String, String> deviceProperties)
+		{
+			if (nonNull(deviceProperties) && !deviceProperties.isEmpty())
+				this.deviceProperties = new HashMap<>(deviceProperties);
+			return this;
+		}
+
+		public FidoCredentialInfoBuilder transports(Set<Transport> transports)
+		{
+			if (nonNull(transports) && !transports.isEmpty())
+				this.transports = new HashSet<>(transports);
+			return this;
+		}
+
 		public FidoCredentialInfoBuilder attestationMetadata(Attestation attestationMetadata)
 		{
-			this.attestationMetadata = attestationMetadata;
+			if (nonNull(attestationMetadata))
+			{
+				this.attestationTrusted = attestationMetadata.isTrusted();
+				this.metadataIdentifier = attestationMetadata.getMetadataIdentifier().orElse(null);
+				this.vendorProperties = attestationMetadata.getVendorProperties().orElse(null);
+				this.deviceProperties = attestationMetadata.getDeviceProperties().orElse(null);
+				this.transports = attestationMetadata.getTransports().orElse(null);
+			}
 			return this;
 		}
 
@@ -320,6 +389,12 @@ public class FidoCredentialInfo
 			return this;
 		}
 
+		public FidoCredentialInfoBuilder userHandle(String userHandle)
+		{
+			this.userHandle = userHandle;
+			return this;
+		}
+
 		public FidoCredentialInfo build()
 		{
 			FidoCredentialInfo info = new FidoCredentialInfo();
@@ -331,21 +406,20 @@ public class FidoCredentialInfo
 
 			info.userPresent = this.userPresent;
 			info.userVerified = this.userVerified;
-			info.attestationFormat = this.attestationFormat.toLowerCase();
+			info.attestationFormat = Optional.ofNullable(this.attestationFormat).map(String::toLowerCase).orElse(null);
 			info.aaguid = this.aaguid;
-			if (info.attestationFormat.equals("none"))
+			info.userHandle = this.userHandle;
+			if (Optional.ofNullable(info.attestationFormat).filter(f -> f.equals("none")).isPresent())
 			{
 				info.aaguid = null; // for NONE attestation aaguid is always reset to 0s
 			}
 
-			if (nonNull(attestationMetadata))
-			{
-				info.attestationTrusted = attestationMetadata.isTrusted();
-				info.metadataIdentifier = attestationMetadata.getMetadataIdentifier().orElse(null);
-				info.vendorProperties = attestationMetadata.getVendorProperties().orElse(null);
-				info.deviceProperties = attestationMetadata.getDeviceProperties().orElse(null);
-				info.transports = attestationMetadata.getTransports().orElse(null);
-			}
+			info.attestationTrusted = this.attestationTrusted;
+			info.metadataIdentifier = this.metadataIdentifier;
+			info.vendorProperties = this.vendorProperties;
+			info.deviceProperties = this.deviceProperties;
+			info.transports = this.transports;
+
 			info.description = this.description;
 
 			return info;

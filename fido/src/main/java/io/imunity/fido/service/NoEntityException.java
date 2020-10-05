@@ -5,7 +5,7 @@
 package io.imunity.fido.service;
 
 /**
- * Thrown when there is not entity for given username or id.
+ * Thrown when there is no entity for given username or id.
  * @author R. Ledzinski
  */
 public class NoEntityException extends FidoException

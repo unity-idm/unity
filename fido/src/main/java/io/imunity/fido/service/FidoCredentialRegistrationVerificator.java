@@ -38,7 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.imunity.fido.service.FidoCredentialVerificator.FIDO_MAPPER;
 import static io.imunity.fido.service.FidoCredentialVerificator.getRelyingParty;
-import static java.util.Objects.nonNull;
+import static io.imunity.fido.service.FidoEntityHelper.NO_ENTITY_MSG;
+import static java.util.Objects.isNull;
 
 /**
  * Service for processing FIDO registration functionality.
@@ -76,22 +77,21 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 	public SimpleEntry<String, String> getRegistrationOptions(final String credentialName, final String credentialConfiguration,
 															  final Long entityId, final String username) throws FidoException
 	{
-		Identities resolvedUsername = entityHelper.resolveUsername(entityId, username);
-
-		// Create user handle when needed
-		// FIXME need to work on "in-memory" user handle to support registration with Fido
-		String userHandle = entityHelper.getOrCreateUserHandle(resolvedUsername);
-
+		Optional<Identities> resolvedUsername = entityHelper.resolveUsername(entityId, username);
+		if (!resolvedUsername.isPresent() && (isNull(username) || username.isEmpty()))
+			throw new NoEntityException(msg.getMessage(NO_ENTITY_MSG));
 		String reqId = UUID.randomUUID().toString();
-		String displayName = nonNull(resolvedUsername) ? entityHelper.getDisplayName(resolvedUsername) : username;
+		FidoUserHandle userHandle = resolvedUsername.map(entityHelper::getOrCreateUserHandle).orElse(FidoUserHandle.create());
+		String registrationUsername = resolvedUsername.map(Identities::getUsername).orElse(username);
+		String displayName = resolvedUsername.map(entityHelper::getDisplayName).orElse(username);
 
 		FidoCredential fidoCredential = FidoCredential.deserialize(credentialConfiguration);
 		PublicKeyCredentialCreationOptions registrationRequest = getRelyingParty(addressProvider.get().getHost(), fidoStorage.getInstance(credentialName), fidoCredential)
 				.startRegistration(StartRegistrationOptions.builder()
 				.user(UserIdentity.builder()
-						.name(resolvedUsername.getUsername())
+						.name(registrationUsername)
 						.displayName(displayName)
-						.id(new ByteArray(FidoUserHandle.fromString(userHandle).getBytes()))
+						.id(new ByteArray(userHandle.getBytes()))
 						.build())
 				.authenticatorSelection(AuthenticatorSelectionCriteria.builder()
 						.userVerification(UserVerificationRequirement.valueOf(fidoCredential.getUserVerification()))
@@ -152,6 +152,7 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 				.attestationFormat(pkc.getResponse().getAttestation().getFormat())
 				.aaguid(pkc.getResponse().getParsedAuthenticatorData().getAttestedCredentialData().map(AttestedCredentialData::getAaguid).map(ByteArray::getHex).orElse(null))
 				.attestationMetadata(attestationMetadata.orElse(null))
+				.userHandle(new FidoUserHandle(registrationRequest.getUser().getId().getBytes()).asString())
 				.build();
 	}
 

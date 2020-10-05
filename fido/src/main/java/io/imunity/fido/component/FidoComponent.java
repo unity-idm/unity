@@ -71,6 +71,11 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		addShowErrorJSFunctions();
 	}
 
+	public Long getEntityId()
+	{
+		return entityId;
+	}
+
 	private void addFinalizeRegistrationJSFunction()
 	{
 		addFunction("finalizeRegistration", arguments ->
@@ -165,6 +170,10 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		} catch (FidoException e)
 		{
 			showError(msg.getMessage("Fido.registration"), e.getLocalizedMessage());
+		} catch (Exception e)
+		{
+			log.error("Showing internal error caused by ", e);
+			showError(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
 		}
 	}
 
@@ -181,6 +190,10 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				authenticationResultListener.accept(new AuthenticationResult(AuthenticationResult.Status.deny, null));
 			else
 				showError(msg.getMessage("Fido.authentication"), e.getLocalizedMessage());
+		} catch (Exception e)
+		{
+			log.error("Showing internal error caused by ", e);
+			showError(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
 		}
 	}
 

@@ -47,7 +47,9 @@ class FidoCredentialInfoWrapper
 
 	public void setDescription(String description)
 	{
-		credential.setDescription(description);
+		credential = credential.copyBuilder()
+				.description(description)
+				.build();
 	}
 
 	public boolean isDeleted()

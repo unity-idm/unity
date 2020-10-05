@@ -236,11 +236,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		{
 			usernameField.setValue("");
 		}
-
-		void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
-		{
-			// FIXME is it applicable?
-		}
 	}
 
 	private class FidoRetrievalUI implements VaadinAuthenticationUI
@@ -261,7 +256,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		@Override
 		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
 		{
-			theComponent.setCredentialResetLauncher(credResetLauncher);
 		}
 		
 		@Override

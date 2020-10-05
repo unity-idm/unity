@@ -79,7 +79,7 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 		Optional<String> username = entityHelper.getUsernameForUserHandle(userHandle);
 		if (!username.isPresent())
 			return Collections.emptyList();
-		return getFidoCredentialInfoForEntity(entityHelper.resolveUsername(null, username.get()));
+		return getFidoCredentialInfoForEntity(entityHelper.resolveUsername(null, username.get()).orElseThrow(() -> new NoEntityException("No entity - should not happen!")));
 	}
 
 	List<FidoCredentialInfo> getFidoCredentialInfoForUsername(final String username)
@@ -88,7 +88,7 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 		Identities ids;
 		try
 		{
-			ids = entityHelper.resolveUsername(null, username);
+			ids = entityHelper.resolveUsername(null, username).orElseThrow(() -> new NoEntityException("No entity - should not happen!"));
 		} catch (FidoException e) {
 			return Collections.emptyList();
 		}
