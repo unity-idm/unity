@@ -9,17 +9,13 @@ import org.openqa.selenium.By;
 
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
-/**
- * 
- * @author K. Benedyczak
- */
 public class TestAccountAssociation extends SeleniumTestBase
 {
 	@Test
 	public void accountAssociationTest() throws Exception
 	{
 		//login to home UI 
-		driver.get(baseUrl + "/home/home");
+		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-passwordUsernameField")).clear();
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user2");
 		waitForElement(By.className("u-passwordField")).clear();
@@ -35,7 +31,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 		driver.switchTo().window(popupH);
 
 		//login to Unity over loopback SAML in the sandbox
-		waitForElement(By.className("u-idpAuthentication-saml-5")).click();
+		waitForElement(By.className("u-idpAuthentication-saml-single-5")).click();
 		
 		//we don't have to login as both are in the same realm so we are instantly SSO-logged-in
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();

@@ -32,7 +32,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
-import io.imunity.webadmin.utils.FileUploder;
+import io.imunity.webconsole.common.FileUploder;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

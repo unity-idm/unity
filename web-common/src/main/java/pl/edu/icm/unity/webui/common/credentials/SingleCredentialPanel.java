@@ -41,7 +41,6 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel.Callback;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
@@ -70,7 +69,6 @@ public class SingleCredentialPanel extends CustomComponent
 	private SingleCredentialEditComponent credEditorPanel;
 	private CredentialDefinition toEdit;
 	private LocalCredentialState credentialState;
-	private Callback callback;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	private Component actionsBar;
 	
@@ -78,7 +76,7 @@ public class SingleCredentialPanel extends CustomComponent
 	public SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId,
 			EntityCredentialManagement ecredMan, CredentialManagement credMan,
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
-			CredentialDefinition toEdit, boolean enableAdminActions, Callback callback)
+			CredentialDefinition toEdit, boolean enableAdminActions)
 			throws Exception
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;
@@ -90,7 +88,6 @@ public class SingleCredentialPanel extends CustomComponent
 		this.credEditorReg = credEditorReg;
 		this.enableAdminOptions = enableAdminActions;
 		this.toEdit = toEdit;
-		this.callback = callback;
 		loadEntity(new EntityParam(entityId));
 		init();
 	}
@@ -135,18 +132,11 @@ public class SingleCredentialPanel extends CustomComponent
 	{
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.addStyleName(Styles.vButtonLink.toString());
-		clear.addClickListener(e -> {
-			changeCredentialStatus(LocalCredentialState.notSet);
-			if (callback != null)
-				callback.refresh();
-		});
+		clear.addClickListener(e -> changeCredentialStatus(LocalCredentialState.notSet));
 
 		invalidate = new Button(msg.getMessage("CredentialChangeDialog.invalidate"));
 		invalidate.addStyleName(Styles.vButtonLink.toString());
-		invalidate.addClickListener(ne -> {
-			changeCredentialStatus(LocalCredentialState.outdated);
-				callback.refresh();
-		});
+		invalidate.addClickListener(ne -> changeCredentialStatus(LocalCredentialState.outdated));
 
 		edit = new Button(msg.getMessage("CredentialChangeDialog.setup"));
 		edit.addStyleName(Styles.vButtonLink.toString());
@@ -287,8 +277,6 @@ public class SingleCredentialPanel extends CustomComponent
 	private void onCredentialUpdate()
 	{
 		boolean updated = updateCredential();
-		if (updated && callback != null)
-			callback.refresh();
 		if (updated)
 			hideEditor();
 	}
@@ -345,8 +333,6 @@ public class SingleCredentialPanel extends CustomComponent
 		if (result == AuthnResult.SUCCESS)
 		{
 			updateCredential();
-			if (callback != null)
-				callback.refresh();
 		} else if (result == AuthnResult.ERROR)
 		{
 			NotificationPopup.showError(msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -50,6 +51,7 @@ import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -184,6 +186,45 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 			});
 	}
 
+	
+	@Test
+	public void shouldConfigureIdPWith2TrustedCertificates() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(P+CREDENTIAL, "MAIN");
+		p.setProperty(P+REQUESTER_ID, "me");
+		p.setProperty(P+PUBLISH_METADATA, "false");
+
+		p.setProperty(P+IDPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/DFN-AAI-metadata-2certs.xml");
+		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_TRANSLATION_PROFILE, "metaTrP");
+		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_REGISTRATION_FORM, "metaRegForm");
+
+		SAMLSPProperties configuration = new SAMLSPProperties(p, pkiManagement);
+		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
+				pkiManagement, 
+				new MetaToSPConfigConverter(pkiManagement, msg), 
+				metadataService, SAMLSPProperties.IDPMETA_PREFIX);
+
+		Awaitility.await()
+			.atMost(Durations.FIVE_SECONDS)
+			.untilAsserted(() -> {
+				SAMLSPProperties ret = (SAMLSPProperties) manager.getVirtualConfiguration();
+				
+				String pfx = ret.getPrefixOfIdP("https://idp.scc.kit.edu/idp/shibboleth");
+				assertThat(pfx).isNotNull();
+				String cert1Key = ret.getValue(pfx + SAMLSPProperties.IDP_CERTIFICATES + "1");
+				assertThat(cert1Key).isNotNull();
+				NamedCertificate certificate1 = pkiManagement.getCertificate(cert1Key);
+				assertThat(certificate1).isNotNull();
+				
+				String cert2Key = ret.getValue(pfx + SAMLSPProperties.IDP_CERTIFICATES + "2");
+				assertThat(cert2Key).isNotNull();
+				NamedCertificate certificate2 = pkiManagement.getCertificate(cert2Key);
+				assertThat(certificate2).isNotNull();
+				
+				assertThat(certificate1).isNotEqualTo(certificate2);
+			});
+	}
 	
 	private void assertRemoteMetadataLoaded(RemoteMetaManager manager) throws EngineException
 	{

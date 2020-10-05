@@ -47,6 +47,10 @@ public interface VaadinAuthentication extends BindingAuthn
 	 */
 	boolean supportsGrid();
 	
+	/**
+	 * @return true if this authenticator can have more then one authentication option configured.
+	 */
+	boolean isMultiOption();
 	
 	public interface VaadinAuthenticationUI
 	{

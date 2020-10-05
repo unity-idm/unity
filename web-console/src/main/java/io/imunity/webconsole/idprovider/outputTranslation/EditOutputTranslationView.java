@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.idprovider.outputTranslation.OutputTranslationsView.OutputTranslationsNavigationInfoProvider;
-import io.imunity.webconsole.translationsProfiles.EditTranslationView;
+import io.imunity.webconsole.translationProfile.EditTranslationView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.MessageSource;

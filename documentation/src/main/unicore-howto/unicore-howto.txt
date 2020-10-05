@@ -71,7 +71,7 @@ See <<manual.txt#pam-authenticator,Unity documentation>> for more details.
 === Basic administration
 
 After configuring Unity it may be needed to perform some fine tuning or inspect things. Most of those operations is
-performed from the Unity Admin UI. It is available by default under +https://your.host.org:2443/admin+ address. 
+performed from the Unity Admin UI. It is available by default under +https://your.host.org:2443/console+ address. 
 Login with the user name +admin+ and password +the!unity+. You will be prompted to change the default password. 
 
 In the main panel you will see the hierarchy of groups with your users (all UNICORE users will appear in proper group

@@ -195,6 +195,49 @@ Example output:
     }
 ----
 
+
+=== Get group metadata
+
++@Path("/group/{groupPath}/meta")+ +
++@GET+ +
+
+Returns settings of a group.
+
+Example output: 
+----
+{
+    "i18nDescription": {
+        "DefaultValue": null,
+        "Map": {}
+    },
+    "displayedName": {
+        "DefaultValue": "/",
+        "Map": {"en" : "Root group"}
+    },
+    "attributeStatements": [
+        {
+            "resolution": "skip",
+            "condition": "true",
+            "fixedAttribute": {
+                "values": [
+                    "Regular User"
+                ],
+                "name": "sys:AuthorizationRole",
+                "groupPath": "/",
+                "valueSyntax": "enumeration"
+            }
+        }
+    ],
+    "attributesClasses": [],
+    "delegationConfiguration": {
+        "enabled": false
+    },
+    "publicGroup": false,
+    "path": "/"
+}
+----
+
+
 === Get group contents
 
 +@Path("/group/{groupPath}")+ +
@@ -288,12 +331,51 @@ Output structure:
 }
 ----
 
-=== Create group
+=== Create group (simple)
 
 +@Path("/group/{groupPath}")+ +
 +@POST+ +
 
-Creates a new group. The created group will be empty.
+Creates a new group. The created group will be empty and will contain only the default settings 
+(e.g. no attribute statements, no description, displayed name set to group path name).
+
+
+=== Create group (advanced)
+
++@Path("/group")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Creates a new group with complete configuration provided in JSON body. Example (rather minimal) request:
+
+----
+{
+    "displayedName": {
+        "Map": {"en":"Fancy name"}
+    },
+    "i18nDescription": {
+        "Map": {"en":"Fancy description"}
+    },
+    "attributeStatements": [],
+    "attributesClasses": [],
+    "delegationConfiguration": {
+        "enabled": false
+    },
+    "publicGroup": false,
+    "path": "/added-group"
+}
+----
+
+The format of the body is the same as returned by group metadata endpoint.
+
+=== Update group settings
+
++@Path("/group")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Uses the same body syntax as create group (the POST) endpoint. Allows for changing displayed name, 
+attribute statements, classes etc.
 
 
 === Delete groups
@@ -627,9 +709,9 @@ Returns all deployed endpoints. Example response with a single endpoint:
 ----
 [{
         "endpoint": {
-            "name": "/admin",
-            "typeId": "WebAdminUI",
-            "contextAddress": "/admin",
+            "name": "/console",
+            "typeId": "WebConsoleUI",
+            "contextAddress": "/console",
             "configuration": {
                 "displayedName": {
                     "DefaultValue": "UNITY administration interface",
@@ -679,13 +761,13 @@ Returns all deployed endpoints. Example response with a single endpoint:
             "maxInactivity": 600
         },
         "type": {
-            "name": "WebAdminUI",
+            "name": "WebConsoleUI",
             "description": "Web administrative user interface",
             "supportedBindings": [
                 "web-vaadin7"
             ],
             "paths": {
-                "/admin": "Web admin endpoint"
+                "/console": "Web admin endpoint"
             }
         }
     }]

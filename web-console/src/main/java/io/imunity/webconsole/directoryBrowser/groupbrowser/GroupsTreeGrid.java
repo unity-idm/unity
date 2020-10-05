@@ -33,9 +33,6 @@ import com.vaadin.ui.components.grid.MultiSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
-import io.imunity.webadmin.groupbrowser.GroupEditDialog;
-import io.imunity.webadmin.groupbrowser.TreeNode;
 import io.imunity.webconsole.directoryBrowser.identities.IdentitiesTreeGrid;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;

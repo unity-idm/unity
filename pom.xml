@@ -24,15 +24,14 @@
 		<cxf.version>3.3.6</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
 		<bc.version>1.65</bc.version>
-		<selenium.version>3.14.0</selenium.version>
+		<selenium.version>3.141.59</selenium.version>
 		<jackson.version>2.11.0</jackson.version>
 		<junit5.version>5.6.2</junit5.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-	    <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
-		<sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 		<sonar.language>java</sonar.language>
+		<sonar.java.source>8</sonar.java.source>
 		<sonar.sources>src/main/java</sonar.sources>
 	</properties>
 
@@ -62,9 +61,8 @@
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
 		<module>web-elements</module>
-		<module>web-admin-common</module>
 		<module>web-console-utils</module>
-		<module>web-admin</module>
+		<module>user-home</module>
 		<module>web-console-spi</module>
 		<module>web-console</module>
 		<module>web-upman</module>
@@ -145,7 +143,7 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.4.0.905</version>
+					<version>3.7.0.1746</version>
 				</plugin>
 				<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -210,12 +208,12 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.9</version>
+					<version>0.8.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>2.22.2</version>
 					<configuration>
 						<forkCount>1</forkCount>
 					</configuration>
@@ -776,12 +774,21 @@
 								<goals>
 									<goal>prepare-agent</goal>
 								</goals>
-								<configuration>
-					                <append>true</append>
-									<destFile>${sonar.jacoco.reportPaths}</destFile>
-								</configuration>
+							</execution>
+							<execution>
+								<id>report</id>
+								<goals>
+									<goal>report</goal>
+								</goals>
 							</execution>
 						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<argLine>@{argLine}</argLine>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

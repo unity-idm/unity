@@ -9,9 +9,6 @@ import java.util.Collection;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
-import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
-import io.imunity.webadmin.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;

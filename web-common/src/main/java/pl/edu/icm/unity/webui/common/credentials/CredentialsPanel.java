@@ -33,7 +33,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
@@ -102,13 +101,11 @@ public class CredentialsPanel extends VerticalLayout
 			return;
 		}
 		panels = new ArrayList<>();	
-		Callback callback = () -> updateUserOptInCheckbox();
 		
 		for (CredentialDefinition credDef : credentials.values())
 		{
 			SingleCredentialPanel panel = new SingleCredentialPanel(additionalAuthnHandler, msg, entityId,
-					ecredMan, credMan, entityMan, credEditorReg, credDef, enableAdminActions,
-					callback);
+					ecredMan, credMan, entityMan, credEditorReg, credDef, enableAdminActions);
 			if (!panel.isEmptyEditor())
 			{
 				panels.add(panel);
@@ -124,7 +121,6 @@ public class CredentialsPanel extends VerticalLayout
 			addComponent(panel);
 			last--;
 		}
-		updateUserOptInCheckbox();
 		
 		addComponent(HtmlTag.horizontalLine());
 		addComponent(getTrustedDevicesComponent());
@@ -184,28 +180,6 @@ public class CredentialsPanel extends VerticalLayout
 		return trustedDevicesWrapper;
 	}
 	
-	private void updateUserOptInCheckbox()
-	{
-		if (disable2ndFactorOptIn)
-			return;
-		int setCredentialSize = 0;
-
-		for (SingleCredentialPanel panel : panels)
-		{
-			if (!panel.getCredentialState().equals(LocalCredentialState.notSet))
-				setCredentialSize++;
-		}
-
-		if (setCredentialSize < 2)
-		{
-			userOptInCheckBox.setValue(false);
-			userOptInCheckBox.setEnabled(false);
-		} else
-		{
-			userOptInCheckBox.setEnabled(true);
-		}
-	}
-
 	private void setUserMFAOptin(Boolean value)
 	{
 		try

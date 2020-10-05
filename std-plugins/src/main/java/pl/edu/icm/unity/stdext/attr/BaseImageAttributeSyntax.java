@@ -17,12 +17,6 @@ import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
  * <p>
  * Note: for performance reasons the equals is implemented to always return
  * false, so each image is always assumed to be different then another.
- * <p>
- * Common parent for:
- * 
- * @see JpegImageAttributeSyntax - kept to backward compatibility
- * @see ImageAttributeSyntax - new implementation of images supporing more
- *      formats
  *
  * @author K. Benedyczak, R. Ledzinski
  */

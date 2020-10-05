@@ -24,7 +24,6 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.GridDropTarget;
 
-import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
@@ -46,7 +45,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-public class AttributeStatementsComponent extends CustomComponent
+class AttributeStatementsComponent extends CustomComponent
 {
 	private final String DND_TYPE = "attribute_statement";
 
@@ -58,7 +57,7 @@ public class AttributeStatementsComponent extends CustomComponent
 
 	private Group group;
 
-	public AttributeStatementsComponent(MessageSource msg, AttributeStatementController controller)
+	AttributeStatementsComponent(MessageSource msg, AttributeStatementController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -206,7 +205,7 @@ public class AttributeStatementsComponent extends CustomComponent
 
 	}
 
-	public void setInput(Group group)
+	void setInput(Group group)
 	{
 		this.group = group;
 		List<AttrStatementWithId> statemets = Arrays.stream(group.getAttributeStatements())

@@ -11,16 +11,12 @@ import org.openqa.selenium.By;
 
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
-/**
- * 
- * @author P. Piernik
- */
 public class TestRegistrationForm extends SeleniumTestBase
 {
 	@Test
 	public void registrationTest() throws Exception
 	{
-		driver.get(baseUrl + "/admin/admin");
+		driver.get(baseUrl + "/home2");
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		
 		waitForPageLoadByURL("/saml-idp/saml2idp-web-entry");

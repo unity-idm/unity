@@ -13,7 +13,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.msgtemplate.MessageTemplateEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.settings.msgTemplates.MessageTemplatesView.MessageTemplatesNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;

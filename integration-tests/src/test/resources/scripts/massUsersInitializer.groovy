@@ -6,7 +6,6 @@
 import pl.edu.icm.unity.engine.server.EngineInitialization
 import pl.edu.icm.unity.stdext.attr.EnumAttribute
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax
 import pl.edu.icm.unity.stdext.attr.StringAttribute
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute

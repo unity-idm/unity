@@ -14,8 +14,8 @@ import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -36,7 +36,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		ValueToJsonConverter[] converters = new ValueToJsonConverter[] {
 				new SimpleValueConverter(),
 				new EmailValueConverter(),
-				new JpegValueConverter(),
+				new ImageValueConverter(),
 				new BooleanValueConverter()
 		};
 
@@ -104,10 +104,9 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		}
 	}
 
-	private static class JpegValueConverter implements ValueToJsonConverter
+	private static class ImageValueConverter implements ValueToJsonConverter
 	{
-		private static final JpegImageAttributeSyntax syntax = 
-				new JpegImageAttributeSyntax();
+		private static final ImageAttributeSyntax syntax = new ImageAttributeSyntax();
 
 		@Override
 		public String convertValueToJson(String value)
@@ -120,7 +119,7 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		@Override
 		public String[] getSupportedSyntaxes()
 		{
-			return new String[] {JpegImageAttributeSyntax.ID};
+			return new String[] {ImageAttributeSyntax.ID};
 		}
 	}
 

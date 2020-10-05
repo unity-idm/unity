@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import io.imunity.webadmin.identitytype.IdentityTypeEditor;
-import io.imunity.webadmin.identitytype.IdentityTypesUpdatedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;

@@ -125,6 +125,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		return false;
 	}
 
+	@Override
+	public boolean isMultiOption()
+	{
+		return false;
+	}
+
 	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;

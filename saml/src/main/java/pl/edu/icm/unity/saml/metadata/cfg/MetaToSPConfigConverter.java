@@ -181,8 +181,13 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			for (X509Certificate cert: certs)
 			{
 				if (!properties.containsKey(configKey + SAMLSPProperties.IDP_CERTIFICATES + i))
+				{
 					properties.setProperty(configKey + SAMLSPProperties.IDP_CERTIFICATES + i, 
 							getCertificateKey(cert, entityId, SP_META_CERT));
+					log.debug("Enabling certificate {} {} for {}", 
+							cert.getSubjectX500Principal().getName(), cert.getSerialNumber(),
+							entityId);
+				}
 				i++;
 			}
 		}

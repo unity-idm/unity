@@ -111,7 +111,13 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 	{
 		return false;
 	}
-	
+
+	@Override
+	public boolean isMultiOption()
+	{
+		return false;
+	}
+
 	private class FidoRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private AuthenticationCallback callback;

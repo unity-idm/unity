@@ -31,14 +31,17 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.attr.ImageType;
+import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttribute;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -46,7 +49,6 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.utils.JpegImageAttributeCreator;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -203,7 +205,7 @@ public class TestQuery extends TestRESTBase
 		AttributeType enumAT = new AttributeType("enumA", EnumAttributeSyntax.ID);
 		enumAT.setValueSyntaxConfiguration(enumSyntax.getSerializedConfiguration());
 		aTypeMan.addAttributeType(enumAT);
-		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
+		aTypeMan.addAttributeType(new AttributeType("jpegA", ImageAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		
 		Group example = new Group("/example");
@@ -224,8 +226,8 @@ public class TestQuery extends TestRESTBase
 				12));
 		attrsMan.createAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
 				12.9));
-		attrsMan.createAttribute(e, JpegImageAttributeCreator.of("jpegA", "/example", 
-				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)));
+		attrsMan.createAttribute(e, ImageAttribute.of("jpegA", "/example", 
+				new UnityImage(new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB), ImageType.JPG)));
 		attrsMan.createAttribute(e, EnumAttribute.of("enumA", "/example", 
 				"V1"));
 		attrsMan.createAttribute(e, VerifiableEmailAttribute.of("emailA", "/", 

@@ -44,7 +44,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-admin</artifactId>
+			<artifactId>unity-server-user-home</artifactId>
 			<version>${project.version}</version>
 		</dependency>	
 		<dependency>
@@ -184,7 +184,7 @@
 		</dependency>				
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-admin</artifactId>
+			<artifactId>unity-server-user-home</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>i18n</classifier>

@@ -97,14 +97,14 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 	private JSONObject getInactiveResponse()
 	{
 		JSONObject ret = new JSONObject();
-		ret.put("active", "false");
+		ret.put("active", false);
 		return ret;
 	}
 
 	private JSONObject getBearerStyleTokenInfo(TokensPair tokens)
 	{
 		JSONObject ret = new JSONObject();
-		ret.put("active", "true");
+		ret.put("active", true);
 		ret.put("scope", Joiner.on(' ').join(tokens.parsedToken.getEffectiveScope()));
 		ret.put("client_id", tokens.parsedToken.getClientUsername());
 		ret.put("token_type", "bearer");
