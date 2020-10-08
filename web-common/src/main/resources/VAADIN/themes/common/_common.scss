@@ -474,8 +474,21 @@
 		max-height: $v-unit-size * 2;
 	}
 	
-	.u-maxWidthColumn {
+	.u-policyAgreementColumn {
 		max-width: $v-unit-size * 24;
+	}
+
+	.u-consentMainColumn {
+		max-width: $v-unit-size * 16;
+		margin-top: $v-unit-size * 3;
+	}
+	
+	.u-consentConfirmButton {
+		min-width: $v-unit-size * 3;
+	}
+
+	.u-consentDeclineButton {
+		min-width: $v-unit-size * 3;
 	}
 	
 	.u-smallMargin.v-margin-top {

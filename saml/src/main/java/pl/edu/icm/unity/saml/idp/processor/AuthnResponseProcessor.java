@@ -10,11 +10,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.logging.log4j.Logger;
+
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
@@ -39,6 +42,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDocument, AuthnRequestType>
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AuthnResponseProcessor.class);
 	private String sessionId;
 	private SubjectType authenticatedSubject;
 	
@@ -63,6 +67,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 			if (identity.getTypeId().equals(unityFormat))
 				ret.add(identity);
 		}
+		log.debug("Requested identity {}, mapped to {}, returning identities: {}", samlFormat, unityFormat, ret);
 		if (ret.size() > 0)
 			return ret;
 		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL,

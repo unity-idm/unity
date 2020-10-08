@@ -5,10 +5,12 @@
 package pl.edu.icm.unity.webui.idpcommon;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -40,27 +42,35 @@ public class IdPButtonsBar extends CustomComponent
 	private void initUI()
 	{
 		setSizeUndefined();
-		HorizontalLayout buttons = new HorizontalLayout();
+		VerticalLayout buttonsVL = new VerticalLayout();
+		buttonsVL.setMargin(false);
 		
 		confirmB = new Button(msg.getMessage("IdPButtonsBar.confirm"));
 		confirmB.setId("IdpButtonsBar.confirmButton");
 		confirmB.addClickListener(this::onAccept);
 		confirmB.addStyleName(Styles.vButtonPrimary.toString());
+		confirmB.addStyleName("u-consentConfirmButton");
 		confirmB.setClickShortcut(KeyCode.ENTER);
 		
 		Button declineB = new Button(msg.getMessage("IdPButtonsBar.decline"));
 		declineB.addClickListener(event -> listener.buttonClicked(Action.DENY));
+		declineB.addStyleName("u-consentDeclineButton");
+		HorizontalLayout buttonsHL = new HorizontalLayout();
+		buttonsHL.setMargin(false);
+		buttonsHL.addComponents(declineB, confirmB);
 		
 		Button reloginB = new Button(msg.getMessage("IdPButtonsBar.logAsAnother"));
+		reloginB.addStyleName(Styles.vButtonLink.toString());
 		reloginB.addClickListener(event -> 
 		{
 			listener.buttonClicked(Action.LOGIN_AS_ANOTHER);
 			authnProcessor.logout(true);
 		});
 		
-		buttons.addComponents(confirmB, declineB, reloginB);
-		buttons.setSizeUndefined();
-		setCompositionRoot(buttons);
+		buttonsVL.addComponents(buttonsHL, reloginB);
+		buttonsVL.setComponentAlignment(buttonsHL, Alignment.BOTTOM_RIGHT);
+		buttonsVL.setComponentAlignment(reloginB, Alignment.BOTTOM_RIGHT);
+		setCompositionRoot(buttonsVL);
 	}
 
 	private void onAccept(ClickEvent event)

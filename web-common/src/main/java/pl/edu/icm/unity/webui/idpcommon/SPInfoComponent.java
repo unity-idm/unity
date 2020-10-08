@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webui.idpcommon;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
@@ -30,14 +33,11 @@ public class SPInfoComponent extends CustomComponent
 	
 	
 	/**
-	 * @param msg
 	 * @param logo can be null
-	 * @param name
 	 * @param url can be null
 	 */
 	public SPInfoComponent(MessageSource msg, Resource logo, String name, String url)
 	{
-		super();
 		this.msg = msg;
 		this.logo = logo;
 		this.name = name;
@@ -54,7 +54,7 @@ public class SPInfoComponent extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(false);
 		main.setMargin(false);
-		
+				
 		if (logo != null)
 		{
 			Image logoI = new Image();
@@ -63,22 +63,63 @@ public class SPInfoComponent extends CustomComponent
 			main.addComponent(logoI);
 			main.setComponentAlignment(logoI, Alignment.TOP_CENTER);
 
-			Label spacer = HtmlTag.br();
-			spacer.addStyleName(Styles.vLabelSmall.toString());
-			main.addComponent(spacer);
+			main.addComponent(getAddressInfoLabel(getRequesterInfoWithLogo()));
+		} else
+		{
+			Label requesterNameInfo = new Label100(msg.getMessage("SPInfoComponent.requesterName", name));
+			requesterNameInfo.addStyleName("u-authn-title");
+			requesterNameInfo.addStyleName(Styles.textCenter.toString());
+			main.addComponent(requesterNameInfo);
+			
+			if (url != null)
+			{
+				String presentationAddr = msg.getMessage("SPInfoComponent.requesterAddress", 
+						getHumanReadableDomain(url));
+				main.addComponent(getAddressInfoLabel(presentationAddr));
+			}
 		}
 		
-		Label info1Id = new Label100(msg.getMessage("SPInfoComponent.requesterName", name));
-		info1Id.addStyleName(Styles.vLabelLarge.toString());
-		main.addComponent(info1Id);
+		Label spacer = HtmlTag.br();
+		spacer.addStyleName(Styles.vLabelSmall.toString());
+		main.addComponent(spacer);
+		Label requestedAccessInfo = new Label100(msg.getMessage("SPInfoComponent.requestedAccess"));
+		requestedAccessInfo.addStyleName("u-requestedAccessInfo");
+		requestedAccessInfo.addStyleName(Styles.textCenter.toString());
+		main.addComponent(requestedAccessInfo);
 		
+		setCompositionRoot(main);
+	}
+	
+	private Label getAddressInfoLabel(String message)
+	{
+		Label infoAddr = new Label100(message);
+		infoAddr.addStyleName("u-requesterAddressInfo");
+		infoAddr.addStyleName(Styles.textCenter.toString());
+		return infoAddr;
+	}
+	
+	private String getRequesterInfoWithLogo()
+	{
 		if (url != null)
 		{
-			Label info1Addr = new Label100(msg.getMessage("SPInfoComponent.requesterAddress", url));
-			info1Addr.addStyleName(Styles.vLabelSmall.toString());
-			main.addComponent(info1Addr);
+			String presentationAddr = getHumanReadableDomain(url);
+			return msg.getMessage("SPInfoComponent.requesterAddressAndName", name, presentationAddr);
+		} else
+		{
+			return msg.getMessage("SPInfoComponent.requesterName", name);
 		}
-
-		setCompositionRoot(main);
+	}
+	
+	private String getHumanReadableDomain(String url)
+	{
+		try
+		{
+			URI uri = new URI(url);
+			String host = uri.getHost();
+			return host == null ? url : host;
+		} catch (URISyntaxException e)
+		{
+			return url;
+		}
 	}
 }

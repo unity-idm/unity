@@ -25,7 +25,6 @@ public enum Styles
 	verticalPaddingSmall("u-verticalPaddingSmall"),
 	smallMargins("u-smallMargins"),
 	iconError("u-error-icon"),
-	maxWidthColumn("u-maxWidthColumn"),
 	
 	bigTabs("u-bigTabs"),
 	bigTab("u-bigTab"),

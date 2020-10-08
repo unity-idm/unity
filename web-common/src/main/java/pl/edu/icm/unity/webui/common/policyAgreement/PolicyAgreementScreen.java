@@ -129,7 +129,7 @@ public class PolicyAgreementScreen extends CustomComponent
 		submitButton.addClickListener(e -> submit());
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setHeight(100, Unit.PERCENTAGE);
-		wrapper.addStyleName(Styles.maxWidthColumn.toString());
+		wrapper.addStyleName("u-policyAgreementColumn");
 		wrapper.addComponent(submitButton);
 		wrapper.setComponentAlignment(submitButton, Alignment.TOP_CENTER);
 		mainCenter.addComponent(wrapper);
