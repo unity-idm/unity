@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -84,8 +83,10 @@ class UnicoreConsentScreen extends SamlConsentScreen
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setWidth(100, Unit.PERCENTAGE);
 		exposedInfoPanel.setContent(eiLayout);
+
+		createETDPart(eiLayout);
+		
 		idSelector = new IdentitySelectorComponent(msg, identityTypeSupport, validIdentities);
-		eiLayout.addComponent(idSelector);
 		if (validIdentities.size() > 1)
 			eiLayout.addComponent(idSelector);
 		eiLayout.addComponent(HtmlTag.br());
@@ -98,11 +99,6 @@ class UnicoreConsentScreen extends SamlConsentScreen
 						selectedIdentity);
 		eiLayout.addComponent((Component)attrsPresenter);
 
-		eiLayout.addComponent(HtmlTag.br());
-		createETDPart(eiLayout);
-
-		rememberCB = new CheckBox(msg.getMessage("SamlIdPWebUI.rememberSettings"));
-		eiLayout.addComponent(rememberCB);
 		return exposedInfoPanel;
 	}
 	
