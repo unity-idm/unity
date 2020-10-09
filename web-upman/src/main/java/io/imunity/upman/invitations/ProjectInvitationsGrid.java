@@ -8,8 +8,8 @@ package io.imunity.upman.invitations;
 import java.time.Instant;
 import java.util.List;
 
-import com.vaadin.server.Page;
-import com.vaadin.ui.Button;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.ui.Link;
 
 import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
@@ -63,12 +63,14 @@ class ProjectInvitationsGrid extends UpManGrid<ProjectInvitationEntry>
 		UpManGridHelper.createDateTimeColumn(this, (ProjectInvitationEntry e) -> e.expirationTime,
 				msg.getMessage(BaseColumn.expiration.captionKey)).setExpandRatio(2);
 
-		addComponentColumn(ie -> {
-			Button link = new Button(Images.external_link.getResource());
-			link.addStyleName("grid");
-			link.addClickListener(e -> Page.getCurrent().open(ie.link, "_blank"));
+		addComponentColumn(ie -> 
+		{
+			Link link = new Link();
+			link.setCaptionAsHtml(true);
+			link.setCaption(Images.external_link.getHtml());
+			link.setTargetName("_blank");
+			link.setResource(new ExternalResource(ie.link));
 			return link;
-
 		}).setCaption(msg.getMessage(BaseColumn.link.captionKey)).setWidth(80).setResizable(false);
 	}
 
