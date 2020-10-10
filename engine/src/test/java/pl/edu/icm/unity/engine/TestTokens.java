@@ -6,14 +6,17 @@ package pl.edu.icm.unity.engine;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +30,10 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
-
 public class TestTokens extends DBIntegrationTestBase
 {
 	@Autowired
 	protected TokensManagement tokensMan;
-	
 	
 	@Test
 	public void addedTokenIsReturnedById() throws Exception
@@ -128,5 +129,40 @@ public class TestTokens extends DBIntegrationTestBase
 		catchException(tokensMan).getTokenById("t", "1234");	
 		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
+	
+	@Test
+	public void stressTokenUpdates() throws Exception
+	{
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
+		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid);
+		EntityParam ep = new EntityParam(id);
+		byte[] c = new byte[] {'a'};
+		Date exp = new Date(System.currentTimeMillis()+500000);
+		tokensMan.addToken("t", "1234", ep, c, new Date(), exp);
+		
+		AtomicInteger counter = new AtomicInteger();
+		int TRIES = 10000;
+		Runnable updater = () -> 
+		{
+			for (int i=0; i<TRIES; i++)
+			{
+				tokensMan.updateToken("t", "1234", new Date(System.currentTimeMillis()+500000), c);
+				counter.incrementAndGet();
+			}
+		};
+
+		List<Thread> threads = new ArrayList<>();
+		int THREADS = 2;
+		for (int i=0; i<THREADS; i++)
+			threads.add(new Thread(updater));
+		for (int i=0; i<THREADS; i++)
+			threads.get(i).start();
+		for (int i=0; i<THREADS; i++)
+			threads.get(i).join();
+		
+		assertThat(counter.get()).isEqualTo(THREADS * TRIES);
+	}
+
 	
 }
