@@ -103,7 +103,7 @@ public class StickyEnquiryUpdatableComponent extends CustomComponent
 		try
 		{
 
-			editor = controller.getEditorInstance(form, RemotelyAuthenticatedContext.getLocalContext());
+			editor = controller.getEditorInstanceForAuthenticatedUser(form, RemotelyAuthenticatedContext.getLocalContext());
 		} catch (Exception e)
 		{
 			log.error("Can not get editor for enquiry form " + form.getName());

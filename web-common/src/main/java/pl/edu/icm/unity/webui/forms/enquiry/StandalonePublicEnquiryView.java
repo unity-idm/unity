@@ -146,8 +146,9 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(invitation, currentUserData, form);
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 			
-			editor = editorController.getEditorInstance(form,
-					RemotelyAuthenticatedContext.getLocalContext(), prefilled);
+			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
+					RemotelyAuthenticatedContext.getLocalContext(), prefilled,
+					new EntityParam(invitation.getEntity()));
 
 		} catch (Exception e)
 		{
