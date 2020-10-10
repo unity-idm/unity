@@ -88,7 +88,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		EnquiryResponseEditor editor;
 		try
 		{
-			editor = editorController.getEditorInstance(form,
+			editor = editorController.getEditorInstanceForAuthenticatedUser(form,
 					RemotelyAuthenticatedContext.getLocalContext());
 		} catch (Exception e)
 		{

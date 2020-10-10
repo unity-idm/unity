@@ -10,11 +10,8 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -35,10 +32,10 @@ import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
  */
 public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 {
-	private EnquiryForm enquiryForm;
-	private PrefilledSet prefilled;
+	private final EnquiryForm enquiryForm;
+	private final PrefilledSet prefilled;
+	private final List<PolicyAgreementConfiguration> filteredPolicyAgreement;
 	private RegistrationLayoutsContainer layoutContainer;
-	private List<PolicyAgreementConfiguration> filteredPolicyAgreement;
 	
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -48,16 +45,16 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			AttributeTypeManagement atMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
-			PolicyAgreementManagement policyAgrMan,
+			List<PolicyAgreementConfiguration> filteredPolicyAgreement,
 			PrefilledSet prefilled) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, policyAgreementsRepresentationBuilder);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, 
+				policyAgreementsRepresentationBuilder);
 		this.enquiryForm = form;
+		this.filteredPolicyAgreement = filteredPolicyAgreement;
 		this.prefilled = prefilled;
-		filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
-				new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
-				form.getPolicyAgreements());
+
 		validateMandatoryRemoteInput();
 		initUI();
 	}
