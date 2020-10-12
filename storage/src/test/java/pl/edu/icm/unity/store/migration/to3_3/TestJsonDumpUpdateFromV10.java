@@ -73,7 +73,7 @@ public class TestJsonDumpUpdateFromV10
 	
 	private void checkEndpointConfiguration()
 	{
-		assertThat(endpointDAO.getAll().size(), is(10));
+		assertThat(endpointDAO.getAll().size(), is(9));
 		Endpoint endpoint = endpointDAO.get("UNITY console administration interface");
 		assertThat(endpoint.getConfiguration().getConfiguration().contains("sidebarThemeValo"), is(false));
 		endpoint = endpointDAO.get("UNITY project management");

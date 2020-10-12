@@ -119,4 +119,16 @@ on the +common+ mixin, which contains almost everything the unityThemeValo has.
 Also note that a new unified look and feel across all endpoints is now adopted, what changes default appearance of 
 many user facing UI views, in the first place the authentication screen.  
 
+==== From 3.3 to 3.4
 
+Version 3.4 drops AdminUI support completely. Before upgrade make sure to:
+
+* deploy Admin Console endpoint, which is its replacement (suggested since 3.0 release)
+* remove AdminUI from configuration files if it is still there
+
+Note that DB migration will drop all stored AdminUI endpoints that are found in DB.
+
+Version 3.4 also migrates all +jpegImage+ attributes to the newer and more flexible +image+ attribute type. 
+This change requires no special action, although be aware that from that version image attributes can
+be exported over OAuth and SAML interfaces.
+  
