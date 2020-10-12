@@ -20,6 +20,8 @@ import pl.edu.icm.unity.store.impl.attribute.AttributeBean;
 import pl.edu.icm.unity.store.impl.attribute.AttributesMapper;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
+import pl.edu.icm.unity.store.impl.objstore.GenericMapper;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
@@ -42,6 +44,22 @@ public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 	{
 		updateAttributes();
 		updateAttributeTypes();
+		dropAdminUIEndpoint();
+	}
+
+	private void dropAdminUIEndpoint()
+	{
+		GenericMapper genericMapper = SQLTransactionTL.getSql().getMapper(GenericMapper.class);
+		List<GenericObjectBean> endpoints = genericMapper.selectObjectsByType("endpointDefinition");
+		for (GenericObjectBean endpoint: endpoints)
+		{
+			ObjectNode parsed = JsonUtil.parse(endpoint.getContents());
+			if ("WebAdminUI".equals(parsed.get("typeId").asText()))
+			{
+				log.info("Dropping AdminUI endpoint {} with id {}", endpoint.getName(), endpoint.getId());
+				genericMapper.deleteByKey(endpoint.getId());
+			}
+		}
 	}
 
 	private void updateAttributes()
