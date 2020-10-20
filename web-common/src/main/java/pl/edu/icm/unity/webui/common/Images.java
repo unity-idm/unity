@@ -157,7 +157,8 @@ public enum Images
 	check_square	(VaadinIcons.CHECK_SQUARE_O),
 	text_label	(VaadinIcons.TEXT_LABEL),
 	eraser		(VaadinIcons.ERASER),
-	check		(VaadinIcons.CHECK);
+	check		(VaadinIcons.CHECK),
+	list_select	(VaadinIcons.LIST_SELECT);
 	
 	private final Resource resource;
 	private final String path;
