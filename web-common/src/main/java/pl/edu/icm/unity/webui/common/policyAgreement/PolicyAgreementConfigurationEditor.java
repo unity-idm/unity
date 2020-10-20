@@ -100,7 +100,7 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 			e.getValue().forEach(d -> {
 				Button b = new Button();
 				b.setCaption(d.name);
-				b.addStyleName(Styles.vButtonSmall.toString());
+				b.addStyleName(Styles.varPickerButton.toString());
 				b.addClickListener(eb -> {
 					b.setEnabled(false);
 					text.insertOnLastFocused(prepareToInsert(d.name, d.displayedName));

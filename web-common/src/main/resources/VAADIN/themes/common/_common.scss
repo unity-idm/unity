@@ -85,7 +85,7 @@
   	.v-button-link:after {
 		content: none;
 	}
-  		
+  	 		
 	.v-caption-bold {
 	  font-weight: bold;
 	}
@@ -1484,6 +1484,20 @@
     .u-dragButton:hover{
     	background: $content-bg-color;
     	color : $color-primary-0;
+    }
+    
+    .u-varPickerButton{
+  		background-image: none; 
+		background-color: $button-bg-color;
+		color: $button-action-color;
+		border-color: $button-border-color;
+		box-shadow: none;
+		padding: 2px;
+		height: 80%;
+		&:hover {
+			background-color: $button-hover-bg-color !important;
+			color: $button-action-color !important;
+		}
     }
     
 }

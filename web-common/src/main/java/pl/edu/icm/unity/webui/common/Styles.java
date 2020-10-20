@@ -104,6 +104,7 @@ public enum Styles
 	viewSubtitle("u-viewSubtitle"),
 	policyAgreementItem("u-policyagreement-item"),
 	dragButton("u-dragButton"),
+	varPickerButton("u-varPickerButton"),
 	
 	//Sidebar
 	sidebar("u-sidebar"),
