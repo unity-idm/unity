@@ -134,33 +134,37 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 
 		private void initUI()
 		{
+			addStyleName("u-fidoRetrieval");
 			mainLayout = new VerticalLayout();
 			mainLayout.setMargin(false);
 			mainLayout.setSpacing(false);
-
+			mainLayout.addStyleName("u-fidoRetrievalLayout");
+			
 			fidoComponent = FidoComponent.builder(msg)
 					.fidoExchange(credentialExchange)
 					.showSuccessNotification(false)
 					.authenticationResultListener(this::setAuthenticationResult)
 					.build();
-
-			fidoComponent.setHeight(1, Unit.PIXELS); // no UI but Vaadin allocates a lot of space for it
+			fidoComponent.setHeight(0, Unit.PIXELS); // no UI but Vaadin allocates a lot of space for it
 			mainLayout.addComponent(fidoComponent);
 
+			VerticalLayout visiblePart = new VerticalLayout();
+			visiblePart.setMargin(false);
 			usernameField = new TextField();
 			usernameField.setWidth(100, Unit.PERCENTAGE);
 			usernameField.setPlaceholder(msg.getMessage("AuthenticationUI.username"));
 			usernameField.addStyleName("u-authnTextField");
 			usernameField.addStyleName("u-passwordUsernameField");
-			mainLayout.addComponent(usernameField);
+			visiblePart.addComponent(usernameField);
 
 			Button authenticateButton = new Button(msg.getMessage("Fido.WebRetrieval.signIn"));
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-passwordSignInButton");
 			authenticateButton.setIcon(Images.fido.getResource());
-			mainLayout.addComponent(authenticateButton);
+			visiblePart.addComponent(authenticateButton);
 
+			mainLayout.addComponent(visiblePart);
 			setCompositionRoot(mainLayout);
 		}
 

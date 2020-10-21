@@ -1472,5 +1472,11 @@
 		background: $content-bg-color;
 		color : $color-primary-0;
 	}
+
+	.u-fidoRetrievalLayout > div:first-child {
+		height: 0px;
+	}
+
+
 }
 
