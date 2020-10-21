@@ -4,6 +4,8 @@
  */
 package io.imunity.fido.web;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -11,15 +13,13 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
+
 import io.imunity.fido.credential.FidoCredential;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
-
-import static java.util.Objects.isNull;
 
 /**
  * Basic Fido credential definition editor. Requires configuration to be added.
@@ -52,11 +52,11 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		userVerification.setTextInputAllowed(false);
 		hostName = new TextField(msg.getMessage("Fido.credEditor.hostName"));
 
-		FormLayout ret = new CompactFormLayout(attestationConveyance, userVerification, hostName);
-		ret.setSpacing(true);
+		FormLayout ret = new FormLayout(attestationConveyance, userVerification, hostName);
 		ret.setMargin(true);
-
-		FidoCredential credential = isNull(credentialDefinitionConfiguration) ? new FidoCredential() : FidoCredential.deserialize(credentialDefinitionConfiguration);
+		
+		FidoCredential credential = isNull(credentialDefinitionConfiguration) ? 
+				new FidoCredential() : FidoCredential.deserialize(credentialDefinitionConfiguration);
 		initUIState(credential);
 
 		return ret;
