@@ -19,6 +19,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
@@ -81,7 +82,7 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 		presentationType.setCaption(msg.getMessage("PolicyAgreementConfigEditor.presentationType"));
 		presentationType.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
 				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		I18nTextField text = new I18nTextField(msg, msg.getMessage("PolicyAgreementConfigEditor.text"));
+		I18nTextField text = new I18nTextField(msg);
 		text.setWidth(100, Unit.PERCENTAGE);
 		text.addBlurListener(e -> buttons.forEach(b -> b.setEnabled(false)));
 		
@@ -91,10 +92,14 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 		HorizontalLayout buttonsLayout = new HorizontalLayout();
 		HorizontalLayout buttonsWrapper = new HorizontalLayout();
 		buttonsWrapper.setMargin(false);
-		buttonsWrapper.addComponent(buttonsLayout);
-		buttonsWrapper.setWidth(100, Unit.PERCENTAGE);
+		Label vars = new Label(msg.getMessage("PolicyAgreementConfigEditor.variables"));
+		buttonsWrapper.addComponent(vars);
+		buttonsWrapper.addComponent(buttonsLayout);	
+		buttonsWrapper.setComponentAlignment(vars, Alignment.BOTTOM_LEFT);
 		buttonsWrapper.setComponentAlignment(buttonsLayout, Alignment.BOTTOM_LEFT);
-
+	
+		buttonsWrapper.setVisible(false);
+		
 		policyToAccept.addValueChangeListener(e -> {
 			buttonsLayout.removeAllComponents();
 			e.getValue().forEach(d -> {
@@ -111,14 +116,24 @@ public class PolicyAgreementConfigurationEditor extends Editor<PolicyAgreementCo
 
 				b.setEnabled(false);
 				buttonsLayout.addComponent(b);
+				buttonsLayout.setComponentAlignment(b, Alignment.BOTTOM_LEFT);
 				buttons.add(b);
 			});
+			buttonsWrapper.setVisible(buttonsLayout.getComponentCount() != 0);	
 		});
 		main.addComponent(emptyPolicyToAccept);
 		main.addComponent(policyToAccept);
 		main.addComponent(presentationType);
-		main.addComponent(buttonsWrapper);
-		main.addComponent(text);
+		
+		VerticalLayout buttonsAndTextWrapper = new VerticalLayout();
+		buttonsAndTextWrapper.setSpacing(true);
+		buttonsAndTextWrapper.setMargin(false);
+		buttonsAndTextWrapper.addStyleName(Styles.smallSpacing.toString());
+		buttonsAndTextWrapper.addComponent(buttonsWrapper);
+		buttonsAndTextWrapper.addComponent(text);
+		buttonsAndTextWrapper.setCaption(msg.getMessage("PolicyAgreementConfigEditor.text"));
+			
+		main.addComponent(buttonsAndTextWrapper);
 
 		binder = new Binder<>(PolicyAgreementConfigurationVaadinBean.class);
 		binder.forField(policyToAccept).withValidator((v, c) -> validatePolicyToAccept(v))
