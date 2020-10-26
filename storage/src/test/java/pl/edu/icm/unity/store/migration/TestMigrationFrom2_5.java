@@ -71,11 +71,12 @@ public class TestMigrationFrom2_5
 	
 	private void checkEndpointConfiguration()
 	{
-		assertThat(endpointDAO.getAll().size(), is(11));
-		Endpoint endpoint = endpointDAO.get("UNITY administration interface");
-		assertThat(endpoint.getName(), is("UNITY administration interface"));	
-		assertThat(endpoint.getConfiguration().getAuthenticationOptions().size(), is(4));	
+		assertThat(endpointDAO.getAll().size(), is(10));
+		Endpoint endpoint = endpointDAO.get("UNITY user's account");
+		assertThat(endpoint.getName(), is("UNITY user's account"));	
+		assertThat(endpoint.getConfiguration().getAuthenticationOptions().size(), is(3));	
 		assertThat(endpoint.getConfiguration().getAuthenticationOptions().get(0), is("pwdWeb"));
-		assertThat(endpoint.getConfiguration().getAuthenticationOptions().get(3), is("samlWeb"));
+		assertThat(endpoint.getConfiguration().getAuthenticationOptions().get(1), is("oauthWeb"));
+		assertThat(endpoint.getConfiguration().getAuthenticationOptions().get(2), is("samlWeb"));
 	}
 }

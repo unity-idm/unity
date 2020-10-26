@@ -60,7 +60,7 @@ public class EnquiresDialogLauncher
 		EnquiryResponseEditor editor;
 		try
 		{
-			editor = enquiryController.getEditorInstance(enquiry, 
+			editor = enquiryController.getEditorInstanceForAuthenticatedUser(enquiry, 
 					RemotelyAuthenticatedContext.getLocalContext());
 		} catch (Exception e)
 		{

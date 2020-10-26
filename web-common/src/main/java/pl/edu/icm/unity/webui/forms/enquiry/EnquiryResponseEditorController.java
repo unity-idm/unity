@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -118,25 +119,33 @@ public class EnquiryResponseEditorController
 		this.policyAgrMan = policyAgrMan;
 	}
 
-	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
-			RemotelyAuthenticatedContext remoteContext, PrefilledSet set) throws Exception
+	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
+			RemotelyAuthenticatedContext remoteContext, PrefilledSet set,
+			List<PolicyAgreementConfiguration> filteredPolicyAgreement) throws Exception
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, 
-				policyAgreementsRepresentationBuilder, policyAgrMan, set);
+				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set);
+	}
+
+	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, 
+			RemotelyAuthenticatedContext remoteContext, PrefilledSet prefilled,
+			EntityParam entityId) throws Exception
+	{
+		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
+				entityId, form.getPolicyAgreements());
+		return getEditorInstance(form, remoteContext, prefilled, filteredPolicyAgreement);
 	}
 	
-	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
+	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, 
 			RemotelyAuthenticatedContext remoteContext) throws Exception
 	{
-		return getEditorInstance(form, remoteContext, getPrefilledForSticky(form, getLoggedEntity()));
-	}
-	
-	public EnquiryResponseEditor getEditorInstance(String form, 
-			RemotelyAuthenticatedContext remoteContext) throws Exception
-	{
-		return getEditorInstance(getForm(form), remoteContext);
+		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
+				new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+				form.getPolicyAgreements());
+		return getEditorInstance(form, remoteContext, getPrefilledForSticky(form, getLoggedEntity()),
+				filteredPolicyAgreement);
 	}
 	
 	public PrefilledSet getPrefilledForSticky(EnquiryForm form) throws EngineException

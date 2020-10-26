@@ -47,8 +47,23 @@ public class JsonDumpUpdateFromV11 implements JsonDumpUpdate
 		
 		udpateSyntaxInAttributeTypes(contents.withArray("attributeTypes"));
 		updateAttributeValuesSyntax(contents.withArray("attributes"));
+		dropAdminUIEndpoint(contents.withArray("endpointDefinition"));
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 
+	}
+	
+	private void dropAdminUIEndpoint(ArrayNode endpointsArray)
+	{
+		for (int i=endpointsArray.size()-1; i>=0; i--)
+		{
+			JsonNode endpoint = endpointsArray.get(i);
+			JsonNode parsed = endpoint.get("obj");
+			if ("WebAdminUI".equals(parsed.get("typeId").asText()))
+			{
+				log.info("Dropping AdminUI endpoint {}", parsed.get("name"));
+				endpointsArray.remove(i);
+			}
+		}
 	}
 	
 	private void updateAttributeValuesSyntax(JsonNode attributesArray)

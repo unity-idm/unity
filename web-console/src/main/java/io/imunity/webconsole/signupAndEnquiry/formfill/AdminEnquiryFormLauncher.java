@@ -12,14 +12,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
@@ -35,11 +31,6 @@ import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
@@ -59,44 +50,21 @@ public class AdminEnquiryFormLauncher
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminEnquiryFormLauncher.class);
 	private MessageSource msg;
 	private EnquiryManagement enquiryManagement;
-	private IdentityEditorRegistry identityEditorRegistry;
-	private CredentialEditorRegistry credentialEditorRegistry;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributeTypeManagement attrsMan;
-	private CredentialManagement authnMan;
-	private GroupsManagement groupsMan;
 	private EnquiryResponseEditorController responseController;
-	private PolicyAgreementManagement policyAgrMan;
-	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
-	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public AdminEnquiryFormLauncher(MessageSource msg,
 			EnquiryManagement enquiryManagement,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
-			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
-			GroupsManagement groupsMan, IdPLoginController idpLoginController,
-			EnquiryResponseEditorController responseController, ImageAccessService imageAccessService,
-			PolicyAgreementManagement policyAgrMan, PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
+			IdPLoginController idpLoginController,
+			EnquiryResponseEditorController responseController)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
-		this.identityEditorRegistry = identityEditorRegistry;
-		this.credentialEditorRegistry = credentialEditorRegistry;
-		this.attributeHandlerRegistry = attributeHandlerRegistry;
-		this.attrsMan = attrsMan;
-		this.authnMan = authnMan;
-		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
 		this.responseController = responseController;
-		this.imageAccessService = imageAccessService;
-		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
-		this.policyAgrMan = policyAgrMan;
 		
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
@@ -180,10 +148,7 @@ public class AdminEnquiryFormLauncher
 		EnquiryResponseEditor editor;
 		try
 		{
-			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
-					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
-					groupsMan, imageAccessService, policyAgreementsRepresentationBuilder, policyAgrMan,
-					responseController.getPrefilledForSticky(form));
+			editor = responseController.getEditorInstanceForAuthenticatedUser(form, remoteContext);
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

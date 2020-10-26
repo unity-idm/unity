@@ -98,6 +98,7 @@ void initializeCommonAttributeTypes() throws EngineException
 	nameSyntax.setMinLength(2);
 	name.setValueSyntaxConfiguration(nameSyntax.getSerializedConfiguration());
 	name.getMetadata().put(EntityNameMetadataProvider.NAME, "");
+	name.setGlobal(true)
 	if (!existingATs.containsKey(NAME_ATTR))
 		attributeTypeManagement.addAttributeType(name);
 

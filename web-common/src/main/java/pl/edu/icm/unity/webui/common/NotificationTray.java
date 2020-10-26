@@ -52,7 +52,7 @@ public class NotificationTray
 			sb.append(" ").append(style);
 		notification.setStyleName(sb.toString());
 		notification.setDelayMsec(2000);
-		notification.setPosition(Position.BOTTOM_CENTER);
+		notification.setPosition(Position.TOP_RIGHT);
 		return notification;
 	}
 }

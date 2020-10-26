@@ -7,10 +7,10 @@ package pl.edu.icm.unity.unicore.samlidp.web;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -25,6 +25,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.saml.idp.web.ROExposedAttributesComponent;
 import pl.edu.icm.unity.saml.idp.web.SAMLContextSupport;
 import pl.edu.icm.unity.saml.idp.web.SamlConsentScreen;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -82,20 +83,22 @@ class UnicoreConsentScreen extends SamlConsentScreen
 		VerticalLayout eiLayout = new VerticalLayout();
 		eiLayout.setWidth(100, Unit.PERCENTAGE);
 		exposedInfoPanel.setContent(eiLayout);
-		idSelector = new IdentitySelectorComponent(msg, identityTypeSupport, validIdentities);
-		eiLayout.addComponent(idSelector);
 
+		createETDPart(eiLayout);
+		
+		idSelector = new IdentitySelectorComponent(msg, identityTypeSupport, validIdentities);
+		if (validIdentities.size() > 1)
+			eiLayout.addComponent(idSelector);
 		eiLayout.addComponent(HtmlTag.br());
 		boolean userCanEditConsent = samlCtx.getSamlConfiguration().getBooleanValue(SamlIdpProperties.USER_EDIT_CONSENT);
-		attrsPresenter = new ExposedSelectableAttributesComponent(msg, handlersRegistry, attributeTypes, 
-				aTypeSupport, attributes, userCanEditConsent);
-		eiLayout.addComponent(attrsPresenter);
+		Optional<IdentityParam> selectedIdentity = Optional.ofNullable(validIdentities.size() == 1 ? validIdentities.get(0) : null); 
+		attrsPresenter = userCanEditConsent ? 
+				new ExposedSelectableAttributesComponent(msg, identityTypeSupport, handlersRegistry, 
+						attributeTypes, aTypeSupport, attributes, selectedIdentity) :
+				new ROExposedAttributesComponent(msg, identityTypeSupport, attributes, handlersRegistry, 
+						selectedIdentity);
+		eiLayout.addComponent((Component)attrsPresenter);
 
-		eiLayout.addComponent(HtmlTag.br());
-		createETDPart(eiLayout);
-
-		rememberCB = new CheckBox(msg.getMessage("SamlIdPWebUI.rememberSettings"));
-		eiLayout.addComponent(rememberCB);
 		return exposedInfoPanel;
 	}
 	

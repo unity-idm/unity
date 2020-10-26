@@ -34,7 +34,7 @@ public class TimeUtil
 	
 	public static String formatStandardInstantWithNano(Instant instant)
 	{
-		return Constants.DT_FORMATTER_STANDARD_NANO.format(
+		return Constants.DT_FORMATTER_STANDARD_WITH_SECOND_FRACTION.format(
 				LocalDateTime.ofInstant(instant, ZoneId.systemDefault()));
 	}
 }

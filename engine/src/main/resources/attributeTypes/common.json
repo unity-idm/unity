@@ -404,7 +404,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
-		"global": false,
+		"global": true,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -1144,7 +1144,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
-		"global": false,
+		"global": true,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",

@@ -9,7 +9,6 @@ import java.util.List;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -18,7 +17,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -40,7 +38,6 @@ public class IdentitySelectorComponent extends CustomComponent
 	public IdentitySelectorComponent(MessageSource msg, IdentityTypeSupport idTypeSupport,
 			List<IdentityParam> validIdentities)
 	{
-		super();
 		this.msg = msg;
 		this.validIdentities = validIdentities;
 		this.idTypeSupport = idTypeSupport;
@@ -111,34 +108,19 @@ public class IdentitySelectorComponent extends CustomComponent
 		
 		if (validIdentities.size() == 1)
 		{
-			HorizontalLayout header = new HorizontalLayout();
-			header.setMargin(false);
-			
 			Component help = getIdentityHelp(selectedIdentity);
-			ExpandCollapseButton expander = new ExpandCollapseButton(true, help);
-			
-			Label identityL = new Label100(msg.getMessage("IdentitySelectorComponent.identity"));
-			identityL.setStyleName(Styles.bold.toString());
-			
-			header.addComponents(identityL);
-			
-			Label identityValue = new Label100(getIdentityVisualValue(selectedIdentity));
-			identityValue.addStyleName(Styles.emphasized.toString());
-			
-			contents.addComponents(header, identityValue, expander, help);
+			contents.addComponent(help);
 		} else
 		{
 			Label identitiesL = new Label100(msg.getMessage("IdentitySelectorComponent.identities")); 
-			identitiesL.setStyleName(Styles.bold.toString());
-			Label infoManyIds = new Label100(msg.getMessage("IdentitySelectorComponent.infoManyIds"));
-			infoManyIds.setStyleName(Styles.vLabelSmall.toString());
-			identitiesCB = new ComboBox<IdentityParam>();
+			identitiesCB = new ComboBox<>();
 			identitiesCB.setItems(validIdentities);
+			identitiesCB.setItemCaptionGenerator(ip -> ip.getValue());
 			identitiesCB.setEmptySelectionAllowed(false);
 			identitiesCB.setValue(selectedIdentity);
 			identitiesCB.addSelectionListener(event -> selectedIdentity = event.getValue());
 			
-			contents.addComponents(identitiesL, infoManyIds, identitiesCB);
+			contents.addComponents(identitiesL, identitiesCB);
 		}
 
 		setCompositionRoot(contents);
@@ -150,6 +132,13 @@ public class IdentitySelectorComponent extends CustomComponent
 		{
 			VerticalLayout ret = new VerticalLayout();
 			ret.setMargin(false);
+			Label identityL = new Label100(msg.getMessage("IdentitySelectorComponent.identity"));
+			ret.addComponent(identityL);
+			
+			Label identityValue = new Label100(getIdentityVisualValue(selectedIdentity));
+			identityValue.addStyleName(Styles.emphasized.toString());
+			ret.addComponent(identityValue);
+
 			IdentityTypeDefinition idTypeDef = idTypeSupport.getTypeDefinition(identity.getTypeId());
 			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity);
 			if (!displayedValue.equals(identity.getValue()))
@@ -157,9 +146,6 @@ public class IdentitySelectorComponent extends CustomComponent
 				ret.addComponent(new Label100(msg.getMessage(
 						"IdentitySelectorComponent.fullValue", identity.getValue())));
 			}
-			Label typeDesc = new Label100(idTypeDef.getHumanFriendlyDescription(msg));
-			typeDesc.addStyleName(Styles.vLabelSmall.toString());
-			ret.addComponent(typeDesc);
 			return ret;
 		} catch (IllegalArgumentException e)
 		{

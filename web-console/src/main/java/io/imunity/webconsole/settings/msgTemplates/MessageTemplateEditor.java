@@ -341,7 +341,7 @@ class MessageTemplateEditor extends CompactFormLayout
 		for (Map.Entry<String, MessageTemplateVariable> var : consumer.getVariables().entrySet())
 		{
 			final Button b = new Button();
-			b.addStyleName(Styles.vButtonSmall.toString());
+			b.addStyleName(Styles.varPickerButton.toString());
 			b.setCaption(var.getKey());
 			b.setDescription(msg.getMessage(var.getValue().getDescriptionKey()));
 			b.addClickListener(event -> 

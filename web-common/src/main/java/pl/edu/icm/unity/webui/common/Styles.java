@@ -25,7 +25,6 @@ public enum Styles
 	verticalPaddingSmall("u-verticalPaddingSmall"),
 	smallMargins("u-smallMargins"),
 	iconError("u-error-icon"),
-	maxWidthColumn("u-maxWidthColumn"),
 	
 	bigTabs("u-bigTabs"),
 	bigTab("u-bigTab"),
@@ -105,6 +104,7 @@ public enum Styles
 	viewSubtitle("u-viewSubtitle"),
 	policyAgreementItem("u-policyagreement-item"),
 	dragButton("u-dragButton"),
+	varPickerButton("u-varPickerButton"),
 	
 	//Sidebar
 	sidebar("u-sidebar"),
