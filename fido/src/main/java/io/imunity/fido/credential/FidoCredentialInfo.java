@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -233,6 +234,35 @@ public class FidoCredentialInfo
 		}
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		FidoCredentialInfo that = (FidoCredentialInfo) o;
+		return registrationTimestamp == that.registrationTimestamp &&
+				userPresent == that.userPresent &&
+				userVerified == that.userVerified &&
+				attestationTrusted == that.attestationTrusted &&
+				signatureCount == that.signatureCount &&
+				Objects.equals(credentialId, that.credentialId) &&
+				Objects.equals(publicKeyCose, that.publicKeyCose) &&
+				Objects.equals(attestationFormat, that.attestationFormat) &&
+				Objects.equals(aaguid, that.aaguid) &&
+				Objects.equals(metadataIdentifier, that.metadataIdentifier) &&
+				Objects.equals(vendorProperties, that.vendorProperties) &&
+				Objects.equals(deviceProperties, that.deviceProperties) &&
+				Objects.equals(transports, that.transports) &&
+				Objects.equals(description, that.description) &&
+				Objects.equals(userHandle, that.userHandle);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(registrationTimestamp, credentialId, publicKeyCose, userPresent, userVerified, attestationFormat, aaguid, attestationTrusted, metadataIdentifier, vendorProperties, deviceProperties, transports, signatureCount, description, userHandle);
+	}
+
 	public static FidoCredentialInfoBuilder builder()
 	{
 		return new FidoCredentialInfoBuilder();
@@ -240,22 +270,7 @@ public class FidoCredentialInfo
 
 	public FidoCredentialInfoBuilder copyBuilder()
 	{
-		return new FidoCredentialInfoBuilder()
-				.registrationTime(this.registrationTimestamp)
-				.credentialId(this.credentialId)
-				.publicKeyCose(this.publicKeyCose)
-				.signatureCount(this.signatureCount)
-				.userPresent(this.userPresent)
-				.userVerified(this.userVerified)
-				.attestationFormat(this.attestationFormat)
-				.aaguid(this.aaguid)
-				.description(this.description)
-				.attestationTrusted(this.attestationTrusted)
-				.metadataIdentifier(this.metadataIdentifier)
-				.vendorProperties(this.vendorProperties)
-				.deviceProperties(this.deviceProperties)
-				.transports(this.transports)
-				.userHandle(this.userHandle);
+		return new FidoCredentialInfoBuilder(this);
 	}
 
 	public static final class FidoCredentialInfoBuilder
@@ -281,6 +296,25 @@ public class FidoCredentialInfo
 
 		private FidoCredentialInfoBuilder()
 		{
+		}
+
+		private FidoCredentialInfoBuilder(FidoCredentialInfo credentialInfo)
+		{
+			this.registrationTimestamp = credentialInfo.registrationTimestamp;
+			this.credentialId = credentialInfo.credentialId;
+			this.publicKeyCose = credentialInfo.publicKeyCose;
+			this.signatureCount = credentialInfo.signatureCount;
+			this.userPresent = credentialInfo.userPresent;
+			this.userVerified = credentialInfo.userVerified;
+			this.attestationFormat = credentialInfo.attestationFormat;
+			this.aaguid = credentialInfo.aaguid;
+			this.description = credentialInfo.description;
+			this.attestationTrusted = credentialInfo.attestationTrusted;
+			this.metadataIdentifier = credentialInfo.metadataIdentifier;
+			this.vendorProperties = credentialInfo.vendorProperties;
+			this.deviceProperties = credentialInfo.deviceProperties;
+			this.transports = credentialInfo.transports;
+			this.userHandle = credentialInfo.userHandle;;
 		}
 
 		public static FidoCredentialInfoBuilder aFidoCredentialInfo()

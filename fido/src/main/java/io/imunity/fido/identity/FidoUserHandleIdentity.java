@@ -30,7 +30,7 @@ public class FidoUserHandleIdentity extends AbstractStaticIdentityTypeProvider
 	@Override
 	public String getDefaultDescriptionKey()
 	{
-		return "UserHandleIdentity.description";
+		return "Fido.UserHandleIdentity.description";
 	}
 
 	@Override
@@ -67,12 +67,12 @@ public class FidoUserHandleIdentity extends AbstractStaticIdentityTypeProvider
 	@Override
 	public String getHumanFriendlyDescription(MessageSource msg)
 	{
-		return msg.getMessage("UserHandleIdentity.description");
+		return msg.getMessage("Fido.UserHandleIdentity.description");
 	}
 
 	@Override
 	public String getHumanFriendlyName(MessageSource msg)
 	{
-		return msg.getMessage("UserHandleIdentity.name");
+		return msg.getMessage("Fido.UserHandleIdentity.name");
 	}
 }

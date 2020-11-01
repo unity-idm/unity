@@ -188,22 +188,18 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 				clear();
 				setEnabled(false);
 				callback.onCompletedAuthentication(authenticationResult);
-			} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal)
+			} else if (authenticationResult.getStatus() == Status.notApplicable)
 			{
 				clear();
-				callback.onCompletedAuthentication(authenticationResult);
+				usernameField.focus();
+				String msgErr = msg.getMessage("Fido.invalidUsername");
+				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
 			} else
 			{
-				setError();
 				usernameField.focus();
-				String msgErr = msg.getMessage("Fido.WebRetrieval.wrongUsername");
+				String msgErr = msg.getMessage("Fido.authFailed");
 				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
 			}
-		}
-		
-		private void setError()
-		{
-			usernameField.setValue("");
 		}
 
 		@Override

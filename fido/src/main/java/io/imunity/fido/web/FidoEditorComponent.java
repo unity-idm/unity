@@ -44,7 +44,6 @@ class FidoEditorComponent extends CustomComponent
 	private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
 	private final FidoComponent fidoComponent;
 	private final VerticalLayout credentialsLayout;
-	private final boolean adminMode;
 	private Button addButton;
 	private TextField username;
 	private Button customizeButton;
@@ -52,7 +51,6 @@ class FidoEditorComponent extends CustomComponent
 	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, final MessageSource msg)
 	{
 		this.msg = msg;
-		this.adminMode = context.isAdminMode();
 
 		fidoComponent = FidoComponent.builder(msg)
 				.fidoRegistration(fidoRegistration)
@@ -61,6 +59,7 @@ class FidoEditorComponent extends CustomComponent
 				.credentialName(context.getCredentialName())
 				.credentialConfiguration(context.getCredentialConfiguration())
 				.newCredentialListener(this::addNewCredential)
+				.allowAuthenticatorReUsage(false)
 				.build();
 		fidoComponent.setHeight(1, Unit.PIXELS);
 

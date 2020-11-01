@@ -16,6 +16,8 @@ window.io_imunity_fido_component_FidoComponent =
 		this.createCredentials = function(key, options) {
 			try {
 				const convertedOptions = convertOptions(JSON.parse(options));
+				if (self.clearExcludedCredentials)
+					delete convertedOptions.excludeCredentials;
 				navigator.credentials.create({
 					publicKey: convertedOptions
 				}).then(promise => {
@@ -67,6 +69,7 @@ function convertOptions(options) {
 			credential.id = Uint8Array.from(atob(credId), c => c.charCodeAt(0));
 			return credential;
 		});
+		options.publicKeyCredentialRequestOptions.allowCredentials = allowCredentials;
 	} else {
 
 		const challenge = options.challenge.replace(/-/g, "+").replace(/_/g, "/");
@@ -81,9 +84,6 @@ function convertOptions(options) {
 			return credential;
 		});
 		options.excludeCredentials = excludeCredentials;
-
-		// FIXME removing this objet allows to register multiple credential with single usb key
-		delete options.excludeCredentials;
 	}
 
 	return options;

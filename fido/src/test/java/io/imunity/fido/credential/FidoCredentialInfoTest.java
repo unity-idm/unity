@@ -4,22 +4,23 @@
  */
 package io.imunity.fido.credential;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import com.yubico.webauthn.attestation.Transport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.exception.HexException;
 import org.junit.Test;
+import pl.edu.icm.unity.Constants;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Test for {@link FidoCredentialInfo} class
@@ -29,17 +30,40 @@ public class FidoCredentialInfoTest
 	private final Random random = new Random();
 
 	@Test
-	public void shouldContainsAllProperties() throws HexException
+	public void warnDeveloperWhenNewFieldsAreDetected() throws HexException
 	{
 		//given/when
 		FidoCredentialInfo fidoCredentialInfo = generateCredential();
 
 		//then
-		assertEquals(15, FidoCredentialInfo.serializeList(Collections.singletonList(fidoCredentialInfo)).split(",").length);
+		assertEquals("New field detected. Make sure FidoCredentialInfo::equals() is updated.", 16, FidoCredentialInfo.class.getDeclaredFields().length);
 	}
 
 	@Test
-	public void shouldCopyCredential() throws HexException
+	public void generateCredentialShouldSetAllFidoCredentialProperties() throws HexException
+	{
+		//given/when
+		FidoCredentialInfo fidoCredentialInfo = generateCredential();
+
+		//then
+		assertEquals("Null value detected. Make sure FidoCredentialInfoTest::generateCredential() initialize all fields of credential.",
+				-1, FidoCredentialInfo.serializeList(Collections.singletonList(fidoCredentialInfo)).indexOf("null"));
+	}
+
+	@Test
+	public void copyBuilderShouldSetAllFidoCredentialProperties() throws HexException
+	{
+		//given/when
+		FidoCredentialInfo fidoCredentialInfo = generateCredential();
+
+		//then
+		FidoCredentialInfo copy = fidoCredentialInfo.copyBuilder().build();
+		assertEquals("Null value detected. Make sure FidoCredentialInfo::copyBuilder() initialize all fields of credential.",
+				-1, FidoCredentialInfo.serializeList(Collections.singletonList(copy)).indexOf("null"));
+	}
+
+	@Test
+	public void newFidoCredentialMatchesOriginalAfterUsingCopyBuilder() throws HexException
 	{
 		//given
 		FidoCredentialInfo fidoCredentialInfo = generateCredential();
@@ -49,11 +73,11 @@ public class FidoCredentialInfoTest
 				.build();
 
 		//then
-		assertTrue(credentialsAreEqual(fidoCredentialInfo, copy));
+		assertEquals(fidoCredentialInfo, copy);
 	}
 
 	@Test
-	public void shouldCopyCredentialWithUpdates() throws HexException
+	public void copyBuilderAllowToChangeValuesOfFidoCredentials() throws HexException
 	{
 		//given
 		FidoCredentialInfo fidoCredentialInfo = generateCredential();
@@ -71,12 +95,12 @@ public class FidoCredentialInfoTest
 				.build();
 
 		//then
-		assertFalse(credentialsAreEqual(fidoCredentialInfo, copy1));
-		assertTrue(credentialsAreEqual(copy1, copy2));
+		assertNotEquals(fidoCredentialInfo, copy1);
+		assertEquals(copy1, copy2);
 	}
 
 	@Test
-	public void shouldSerializeAndDeserializeProperly() throws HexException
+	public void deserializedFidoCredentialListsMatchesSerialized() throws HexException
 	{
 		//given
 		FidoCredentialInfo fidoCredentialInfo = generateCredential();
@@ -86,12 +110,11 @@ public class FidoCredentialInfoTest
 		List<FidoCredentialInfo> credentials = FidoCredentialInfo.deserializeList(serialized);
 
 		//then
-		assertTrue(credentialsAreEqual(fidoCredentialInfo, credentials.get(0)));
+		assertEquals(fidoCredentialInfo, credentials.get(0));
 	}
 
 	private FidoCredentialInfo generateCredential() throws HexException
 	{
-
 		return FidoCredentialInfo.builder()
 				.registrationTime(System.currentTimeMillis())
 				.credentialId(randomByteArray())
@@ -115,26 +138,5 @@ public class FidoCredentialInfoTest
 		byte[] value = new byte[32];
 		random.nextBytes(value);
 		return new ByteArray(value);
-	}
-
-	public static boolean credentialsAreEqual(FidoCredentialInfo o1, FidoCredentialInfo o2)
-	{
-		if (o1 == o2) return true;
-		if (o2 == null) return false;
-		return o1.getRegistrationTimestamp() == o2.getRegistrationTimestamp() &&
-				o1.isUserPresent() == o2.isUserPresent() &&
-				o1.isUserVerified() == o2.isUserVerified() &&
-				o1.isAttestationTrusted() == o2.isAttestationTrusted() &&
-				o1.getSignatureCount() == o2.getSignatureCount() &&
-				Objects.equals(o1.getCredentialId(), o2.getCredentialId()) &&
-				Objects.equals(o1.getPublicKeyCose(), o2.getPublicKeyCose()) &&
-				Objects.equals(o1.getAttestationFormat(), o2.getAttestationFormat()) &&
-				Objects.equals(o1.getAaguid(), o2.getAaguid()) &&
-				Objects.equals(o1.getMetadataIdentifier(), o2.getMetadataIdentifier()) &&
-				Objects.equals(o1.getVendorProperties(), o2.getVendorProperties()) &&
-				Objects.equals(o1.getDeviceProperties(), o2.getDeviceProperties()) &&
-				Objects.equals(o1.getTransports(), o2.getTransports()) &&
-				Objects.equals(o1.getDescription(), o2.getDescription()) &&
-				Objects.equals(o1.getUserHandle(), o2.getUserHandle());
 	}
 }

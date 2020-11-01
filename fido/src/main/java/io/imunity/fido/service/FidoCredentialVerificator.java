@@ -16,6 +16,7 @@ import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartAssertionOptions;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.AuthenticatorAssertionResponse;
+import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.ClientAssertionExtensionOutputs;
 import com.yubico.webauthn.data.PublicKeyCredential;
 import com.yubico.webauthn.data.RelyingPartyIdentity;
@@ -46,8 +47,10 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static io.imunity.fido.service.FidoEntityHelper.NO_ENTITY_MSG;
 import static java.util.Objects.isNull;
@@ -145,15 +148,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 	{
 		Identities resolvedUsername = entityHelper.resolveUsername(entityId, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
 
-		// Check if user has FIDO2 credentials
-		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(resolvedUsername.getUsername());
-		if (credentials.isEmpty())
-		{
-			log.warn("No {} credential found for user {}", getCredentialName(), resolvedUsername.getUsername());
-			throw new FidoException(msg.getMessage("FidoExc.noEntityForName"));
-		}
-		// Make sure UserHandle Identity exists
-		entityHelper.getOrCreateUserHandle(resolvedUsername, credentials.get(0).getUserHandle());
+		assertFidoCredentialExists(resolvedUsername);
 
 		String reqId = UUID.randomUUID().toString();
 		AssertionRequest authenticationRequest = getRelyingParty().startAssertion(
@@ -176,6 +171,18 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 		return new SimpleEntry<>(reqId, json);
 	}
 
+	private void assertFidoCredentialExists(Identities resolvedUsername)
+	{
+		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(resolvedUsername.getUsername());
+		if (credentials.isEmpty())
+		{
+			log.warn("No {} credential found for user {}", getCredentialName(), resolvedUsername.getUsername());
+			throw new NoEntityException(msg.getMessage("Fido.invalidUsername"));
+		}
+		// Make sure UserHandle Identity exists - it may be missing during first login after opt-in using registration form
+		entityHelper.getOrCreateUserHandle(resolvedUsername, credentials.get(0).getUserHandle());
+	}
+
 	@Override
 	public AuthenticationResult verifyAuthentication(final String reqId, final String jsonBody) throws FidoException
 	{
@@ -194,27 +201,48 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 					.request(authenticationRequest)
 					.response(pkc)
 					.build());
-			// FIXME update signature counter
-			log.debug("New signatureCounter={}", pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter());
+			updateSignatureCount(authenticationRequest.getUsername(), pkc.getId(), pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter());
 		} catch (AssertionFailedException e)
 		{
 			log.error("Authentication failed", e);
-			throw new FidoException(msg.getMessage("FidoExc.authFailed", e));
-		} catch (IOException e)
+			throw new FidoException(msg.getMessage("Fido.authFailed", e));
+		} catch (IOException | EngineException e)
 		{
 			log.error("Authentication failed with exception", e);
 			throw new FidoException(msg.getMessage("FidoExc.internalError"), e);
 		}
 
 		if (!result.isSuccess())
-			throw new FidoException(msg.getMessage("FidoExc.authFailed"));
+			throw new FidoException(msg.getMessage("Fido.authFailed"));
 
 		String username = authenticationRequest.getUsername().orElseThrow(() -> new FidoException(msg.getMessage("FidoExc.internalError")));
 		Identities resolvedUsername = entityHelper.resolveUsername(null, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
 		AuthenticatedEntity ae = new AuthenticatedEntity(entityHelper.getEntityId(resolvedUsername.getEntityParam()), username, null);
 
-
 		return new AuthenticationResult(AuthenticationResult.Status.success, ae);
+	}
+
+	private void updateSignatureCount(Optional<String> username, ByteArray credentialId, long signatureCount) throws EngineException
+	{
+		if (!username.isPresent())
+		{
+			log.error("Request do not contains username - should never happen!");
+			throw new FidoException(msg.getMessage("FidoExc.internalError"));
+		}
+		Identities identities = entityHelper.resolveUsername(null, username.get()).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
+		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(identities.getUsername());
+		List<FidoCredentialInfo> newCredentials = credentials.stream()
+				.map(c -> {
+					if (c.getCredentialId().equals(credentialId))
+					{
+						log.debug("SignCount: old={}, new={}", c.getSignatureCount(), signatureCount);
+						return c.copyBuilder().signatureCount(signatureCount).build();
+					}
+					else
+						return c;
+				})
+				.collect(Collectors.toList());
+		credentialHelper.updateCredential(entityHelper.getEntityId(identities.getEntityParam()), getCredentialName(), FidoCredentialInfo.serializeList(newCredentials));
 	}
 
 	private RelyingParty getRelyingParty()

@@ -10,6 +10,7 @@ import io.imunity.fido.FidoExchange;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
+import io.imunity.fido.service.NoEntityException;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -53,7 +54,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 						  final String credentialName,
 						  final boolean showSuccessNotification,
 						  final Consumer<FidoCredentialInfo> newCredentialListener,
-						  final Consumer<AuthenticationResult> authenticationResultListener)
+						  final Consumer<AuthenticationResult> authenticationResultListener,
+						  final boolean allowAuthenticatorReUsage)
 	{
 		this.fidoRegistration = fidoRegistration;
 		this.fidoExchange = fidoExchange;
@@ -69,6 +71,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		addFinalizeRegistrationJSFunction();
 		addFinalizeAuthenticationJSFunction();
 		addShowErrorJSFunctions();
+		if (allowAuthenticatorReUsage)
+			addFunction("clearExcludedCredentials", arguments -> {});
 	}
 
 	public Long getEntityId()
@@ -184,6 +188,12 @@ public class FidoComponent extends AbstractJavaScriptComponent
 			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(entityId, username);
 			log.debug("reqId={}", options.getKey());
 			callFunction("getCredentials", options.getKey(), options.getValue());
+		} catch (NoEntityException e)
+		{
+			if (nonNull(authenticationResultListener))
+				authenticationResultListener.accept(new AuthenticationResult(AuthenticationResult.Status.notApplicable, null));
+			else
+				showError(msg.getMessage("Fido.authentication"), e.getLocalizedMessage());
 		} catch (FidoException e)
 		{
 			if (nonNull(authenticationResultListener))
@@ -214,6 +224,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		private String credentialName;
 		private Consumer<FidoCredentialInfo> newCredentialListener;
 		private Consumer<AuthenticationResult> authenticationResultListener;
+		private boolean allowAuthenticatorReUsage = false;
 
 		private FidoComponentBuilder(final MessageSource msg)
 		{
@@ -268,6 +279,12 @@ public class FidoComponent extends AbstractJavaScriptComponent
 			return this;
 		}
 
+		public FidoComponentBuilder allowAuthenticatorReUsage(boolean allowAuthenticatorReUsage)
+		{
+			this.allowAuthenticatorReUsage = allowAuthenticatorReUsage;
+			return this;
+		}
+
 		public FidoComponentBuilder authenticationResultListener(Consumer<AuthenticationResult> authenticationResultListener)
 		{
 			this.authenticationResultListener = authenticationResultListener;
@@ -288,7 +305,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 					credentialName,
 					showSuccessNotification,
 					newCredentialListener,
-					authenticationResultListener);
+					authenticationResultListener,
+					allowAuthenticatorReUsage);
 		}
 	}
 }

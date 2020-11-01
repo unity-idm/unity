@@ -72,8 +72,6 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		this.addressProvider = addressProvider;
 	}
 
-	// FIXME
-	// need username and display name are needed for form registration
 	public SimpleEntry<String, String> getRegistrationOptions(final String credentialName, final String credentialConfiguration,
 															  final Long entityId, final String username) throws FidoException
 	{
