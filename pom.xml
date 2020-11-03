@@ -153,6 +153,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.0</version>
 					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
 						<release>8</release>
 						<maxmem>256M</maxmem>
 						<encoding>UTF-8</encoding>
@@ -267,6 +269,7 @@
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
 							</gpgArguments>
+							<skip>true</skip>
 							<keyname>${gpg.keyname}</keyname>
 							<passphraseServerId>${gpg.serverid}</passphraseServerId>
 						</configuration>
