@@ -7,6 +7,7 @@ package io.imunity.upman.groups;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -15,10 +16,11 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -49,13 +51,28 @@ class GroupsTree extends TreeGrid<GroupNode>
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
 				.setCaption(msg.getMessage("DelegatedGroupsTree.group"));
 
-		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage("DelegatedGroupsTree.action"));
-		
+		createActionColumn(msg.getMessage("DelegatedGroupsTree.action"));
+		setPrimaryStyleName(Styles.vGroupBrowser.toString());
+		setHeaderVisible(false);
+		setRowHeight(34);
 		loadNode(projectPath, null);
 		expand(treeData.getChildren(null));
 		setWidth(100, Unit.PERCENTAGE);
 	}
 
+	private void createActionColumn(String caption)
+	{
+		addComponentColumn(t -> {
+			HamburgerMenu<GroupNode> menu = new HamburgerMenu<>();
+			HashSet<GroupNode> target = new HashSet<>();
+			target.add(t);
+			menu.setTarget(target);
+			menu.addActionHandlers(rowActionHandlers);
+			return menu;
+
+		}).setCaption(caption).setWidth(80).setResizable(false).setSortable(false);
+	}
+	
 	private void loadNode(String path, GroupNode parent) throws ControllerException
 	{
 		Map<String, List<DelegatedGroup>> groupTree;

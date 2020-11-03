@@ -74,9 +74,9 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		return selected == null ? Collections.emptyList() : ImmutableList.of(selected.toString());
 	}
 	
-	public String getSelectedGroup()
+	public Group getSelectedGroup()
 	{
-		return this.getValue() == null ? null : this.getValue().group.toString();
+		return this.getValue() == null ? null : this.getValue().group;
 	}
 
 	public void refreshCaptions()

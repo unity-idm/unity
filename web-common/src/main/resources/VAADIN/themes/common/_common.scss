@@ -119,6 +119,10 @@
 	.v-filterselect-item-inactive {
         font-style: italic;
     }
+    
+    .v-filterselect-item-italic {
+       	font-style: italic;
+    }
 
 	.v-filterselect-item-inactive:hover{
     	 background: transparent;
@@ -236,6 +240,32 @@
         color: $font-color-dark !important;
         border-color: $color-v-table-border !important;
     }
+       
+    .v-tree8-header th {
+		background:$content-bg-color;
+		background-color : $content-bg-color;
+		font-weight : bold;
+		border-top : none;
+		border-right : none;
+		border-left: none;
+		border-bottom: 2px solid #d4d4d4;
+	}
+		
+	.v-tree8-header th:last-child {
+		padding: 0px 0px 0px 2px;
+	}	
+	
+	.v-tree8-column-header-content {
+		background: $content-bg-color;
+		background-color: $content-bg-color;
+	
+	}
+	
+	.v-tree8-header-deco {
+		border : none;
+		background: $content-bg-color;
+		background-color : $content-bg-color;
+	}   
         
     .v-tree8-cell {
 		padding: 0px !important;
@@ -275,7 +305,7 @@
 	}
 	
 	.v-tree8 .v-tree8-row > td:first-child{	  
-	   	padding-left: 6px !important;
+	   	padding-left: 4px !important;
 	}
 	
 	.v-button-primary {
@@ -1046,11 +1076,11 @@
 	}
 	
  	.u-gridWithActionMulti .v-grid-header th:nth-child(2) {
-		padding: 0px 0px 0px 0px;
+		padding: 0px 0px 0px 2px;
 	}
 	
 	.u-gridWithActionMulti .v-grid-row > td:nth-child(2) {
-		padding: 0px 0px 0px 0px;
+		padding: 0px 0px 0px 2px;
 	}
 	
 	.u-gridWithAction .v-grid-tablewrapper {
@@ -1108,7 +1138,12 @@
 	.u-gridWithAction .v-grid-sidebar.v-contextmenu .v-grid-sidebar-button:after {
     	content: "\f142";
     	font-family: FontAwesome;
-	}	 
+	}	
+	
+	.u-gridWithAction .v-grid-row.warn > td {
+   	   color: red !important;
+	} 
+	
 	.u-wordWrap {
 		word-wrap : break-word !important;
 		white-space : normal !important;	
@@ -1341,7 +1376,7 @@
 	}
 	
 	.u-denseTreeGrid .v-treegrid-row > td:first-child {
-    	padding-left: 6px;
+    	padding-left: 4px;
    		width: 28px !important;
 	}
 	
@@ -1369,7 +1404,7 @@
 	}
 		
 	.u-denseTreeGrid .v-treegrid-row > td:first-child{	  	
-	   	padding-left: 6px;  
+	   	padding-left: 4px;  
 	}
 		
 	.u-denseTreeGrid .v-treegrid-cell{
@@ -1377,7 +1412,7 @@
 	}
 		
 	.u-denseTreeGrid .v-treegrid-header th:first-child{	  
-	   	padding-left: 6px;
+	   	padding-left: 4px;
 	   	transform: none !important	
 	}
 	

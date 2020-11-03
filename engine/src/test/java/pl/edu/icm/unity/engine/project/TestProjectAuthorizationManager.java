@@ -62,6 +62,93 @@ public class TestProjectAuthorizationManager
 
 	}
 
+	@Test
+	public void shouldAcceptAuthzWhenAllowReDelegateAndProjectDirectSubgroup() throws AuthorizationException
+	{
+		setupInvocationContext();
+		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+
+		addGroup("/project", true);
+		addGroup("/project/sub", true);
+
+		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project")))
+				.thenReturn(Arrays.asList(new StoredAttribute(new AttributeExt(
+						new Attribute(null, null, null, Arrays.asList(
+								GroupAuthorizationRole.allowReDelegate.toString())),
+						false), 1L)));
+		Throwable ex = catchThrowable(
+				() -> mockAuthz.checkDelegationManagerAuthorization("/project", "/project/sub"));
+		Assertions.assertThat(ex).isNull();
+	}
+
+	@Test
+	public void shouldThrowAuthzExceptionWhenNotAllowReDelegateAndProjectSubgroup() throws AuthorizationException
+	{
+		setupInvocationContext();
+		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+
+		addGroup("/project", true);
+		addGroup("/project/sub", true);
+		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project")))
+				.thenReturn(Arrays.asList(new StoredAttribute(new AttributeExt(new Attribute(null, null,
+						null, Arrays.asList(GroupAuthorizationRole.manager.toString())), false),
+						1L)));
+		Throwable ex = catchThrowable(
+				() -> mockAuthz.checkDelegationManagerAuthorization("/project", "/project/sub"));
+		assertAuthzException(ex);
+	}
+
+	@Test
+	public void shouldAcceptAuthzWhenAllowReDelegateRecusiveAndFurtherSubgroup() throws AuthorizationException
+	{
+		setupInvocationContext();
+		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+
+		addGroup("/project", true);
+		addGroup("/project/sub", true);
+		addGroup("/project/sub/sub2", true);
+
+		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project"))).thenReturn(Arrays
+				.asList(new StoredAttribute(new AttributeExt(new Attribute(null, null, null, Arrays
+						.asList(GroupAuthorizationRole.allowReDelegateRecursive.toString())),
+						false), 1L)));
+		Throwable ex = catchThrowable(
+				() -> mockAuthz.checkDelegationManagerAuthorization("/project", "/project/sub/sub2"));
+		Assertions.assertThat(ex).isNull();
+	}
+
+	@Test
+	public void shouldThrowAuthzExceptionWhenNotAllowReDelegateRecusiveAndFurtherSubgroup()
+			throws AuthorizationException
+	{
+		setupInvocationContext();
+		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+
+		addGroup("/project", true);
+		addGroup("/project/sub", true);
+		addGroup("/project/sub/sub2", true);
+
+		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project")))
+				.thenReturn(Arrays.asList(new StoredAttribute(new AttributeExt(new Attribute(null, null,
+						null, Arrays.asList(GroupAuthorizationRole.manager.toString())), false),
+						1L)));
+		Throwable ex = catchThrowable(
+				() -> mockAuthz.checkDelegationManagerAuthorization("/project", "/project/sub/sub2"));
+		assertAuthzException(ex);
+	}
+
+	private void assertAuthzException(Throwable exception)
+	{
+		Assertions.assertThat(exception).isNotNull().isInstanceOf(AuthorizationException.class);
+	}
+
+	private void addGroup(String path, boolean groupWithEnabledDelegation)
+	{
+		Group group = new Group(path);
+		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation));
+		when(mockGroupDao.get(eq(path))).thenReturn(group);
+	}
+
 	private void setupInvocationContext()
 	{
 		InvocationContext invContext = new InvocationContext(null, null, null);
@@ -74,10 +161,8 @@ public class TestProjectAuthorizationManager
 		setupInvocationContext();
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
 
-		Group group = new Group("/project");
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation));
+		addGroup("/project", groupWithEnabledDelegation);
 
-		when(mockGroupDao.get(anyString())).thenReturn(group);
 		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project")))
 				.thenReturn(Arrays.asList(new StoredAttribute(new AttributeExt(
 						new Attribute(null, null, null, Arrays.asList(userRole.toString())),
@@ -86,10 +171,4 @@ public class TestProjectAuthorizationManager
 		return catchThrowable(() -> mockAuthz.checkManagerAuthorization("/project"));
 
 	}
-
-	private void assertAuthzException(Throwable exception)
-	{
-		Assertions.assertThat(exception).isNotNull().isInstanceOf(AuthorizationException.class);
-	}
-
 }

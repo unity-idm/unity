@@ -196,17 +196,17 @@ public class GroupMembersController
 		}
 	}
 
-	public void addManagerPrivileges(String groupPath, Set<GroupMemberEntry> items) throws ControllerException
+	public void addManagerPrivileges(String projectPath, String groupPath, Set<GroupMemberEntry> items, GroupAuthorizationRole role) throws ControllerException
 	{
-		updatePrivileges(groupPath, GroupAuthorizationRole.manager, items);
+		updatePrivileges(projectPath, groupPath, role, items);
 	}
 
-	public void revokeManagerPrivileges(String groupPath, Set<GroupMemberEntry> items) throws ControllerException
+	public void revokeManagerPrivileges(String projectPath, String groupPath, Set<GroupMemberEntry> items) throws ControllerException
 	{
-		updatePrivileges(groupPath, GroupAuthorizationRole.regular, items);
+		updatePrivileges(projectPath, groupPath, GroupAuthorizationRole.regular, items);
 	}
 
-	private void updatePrivileges(String groupPath, GroupAuthorizationRole role, Set<GroupMemberEntry> items)
+	private void updatePrivileges(String projectPath, String groupPath, GroupAuthorizationRole role, Set<GroupMemberEntry> items)
 			throws ControllerException
 	{
 
@@ -216,7 +216,7 @@ public class GroupMembersController
 		{
 			for (GroupMemberEntry member : items)
 			{
-				delGroupMan.setGroupAuthorizationRole(groupPath, member.getEntityId(), role);
+				delGroupMan.setGroupAuthorizationRole(projectPath, groupPath, member.getEntityId(), role);
 				updated.add(member.getName());
 			}
 		} catch (Exception e)

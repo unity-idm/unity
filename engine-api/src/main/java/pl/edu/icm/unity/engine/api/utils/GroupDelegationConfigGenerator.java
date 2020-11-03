@@ -31,5 +31,14 @@ public interface GroupDelegationConfigGenerator
 
 	List<String> validateUpdateEnquiryForm(String groupPath, String formName);
 
+	RegistrationForm generateSubprojectRegistrationForm(String toCopy, String projectPath,
+			String subprojectPath, String logo);
+
+	EnquiryForm generateSubprojectUpdateEnquiryForm(String toCopyName, String projectPath, String subprojectPath,
+			String logo);
+
+	EnquiryForm generateSubprojectJoinEnquiryForm(String toCopyName, String projectPath, String subprojectPath,
+			String logo);
+
 	
 }

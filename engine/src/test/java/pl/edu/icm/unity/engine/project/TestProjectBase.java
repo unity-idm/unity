@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.types.basic.Group;
@@ -68,6 +69,8 @@ public class TestProjectBase
 	@Mock
 	protected EnquiryManagement mockEnquiryMan;
 	
+	@Mock
+	protected GroupDelegationConfigGenerator mockConfigGenerator;
 	
 	protected  GroupContents getConfiguredGroupContents(String path)
 	{

@@ -77,8 +77,8 @@ public class GroupsController
 		return groupTree;
 	}
 
-	public void addGroup(String projectPath, String parentPath, I18nString groupName,
-			boolean isPublic) throws ControllerException
+	public void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
+			throws ControllerException
 	{
 		try
 		{
@@ -104,8 +104,7 @@ public class GroupsController
 
 	}
 
-	public void setGroupAccessMode(String projectPath, String groupPath, boolean isOpen)
-			throws ControllerException
+	public void setGroupAccessMode(String projectPath, String groupPath, boolean isOpen) throws ControllerException
 	{
 		try
 		{
@@ -115,11 +114,11 @@ public class GroupsController
 		} catch (Exception e)
 		{
 			log.debug("Can not set group access mode for " + groupPath, e);
-			
+
 			if (!projectPath.equals(groupPath))
 			{
 				throw new ServerFaultException(msg);
-			}else
+			} else
 			{
 				throw new ControllerException(
 						msg.getMessage("GroupsController.projectGroupAccessModeChangeError"),
@@ -143,5 +142,22 @@ public class GroupsController
 			log.debug("Can not rename group " + groupPath, e);
 			throw new ServerFaultException(msg);
 		}
+	}
+
+	public void setGroupDelegationConfiguration(String projectPath, String path,
+			DelegationConfiguration groupDelegationConfig) throws ControllerException
+	{
+		try
+		{
+
+			delGroupMan.setGroupDelegationConfiguration(projectPath, path,
+					groupDelegationConfig.enabled, groupDelegationConfig.logoUrl);
+
+		} catch (Exception e)
+		{
+			log.debug("Can not set group delegation configuration in " + path, e);
+			throw new ServerFaultException(msg);
+		}
+
 	}
 }

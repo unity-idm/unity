@@ -90,8 +90,8 @@ public class TestGroupMembersController
 	@Test
 	public void shouldForwardSetManagerPriviligesToCoreManager() throws ControllerException, EngineException
 	{
-		controller.addManagerPrivileges("/project", Sets.newHashSet(getMember()));
-		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq(1L),
+		controller.addManagerPrivileges("/project", "/project", Sets.newHashSet(getMember()), GroupAuthorizationRole.manager);
+		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq("/project"), eq(1L),
 				eq(GroupAuthorizationRole.manager));
 
 	}
@@ -99,8 +99,8 @@ public class TestGroupMembersController
 	@Test
 	public void shouldForwardRevokeManagerPriviligesToCoreManager() throws ControllerException, EngineException
 	{
-		controller.revokeManagerPrivileges("/project", Sets.newHashSet(getMember()));
-		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq(1L),
+		controller.revokeManagerPrivileges("/project", "/project", Sets.newHashSet(getMember()));
+		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq("/project"), eq(1L),
 				eq(GroupAuthorizationRole.regular));
 
 	}

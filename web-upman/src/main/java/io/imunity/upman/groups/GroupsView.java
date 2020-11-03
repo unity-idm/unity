@@ -16,6 +16,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.ProjectController;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
@@ -42,12 +43,14 @@ public class GroupsView extends CustomComponent implements UpManView
 
 	private MessageSource msg;
 	private GroupsController controller;
+	private ProjectController projectController;
 
 	@Autowired
-	public GroupsView(MessageSource msg, GroupsController controller)
+	public GroupsView(MessageSource msg, GroupsController controller, ProjectController projectController)
 	{
 		this.msg = msg;
 		this.controller = controller;
+		this.projectController = projectController;
 	}
 
 	@Override
@@ -61,7 +64,7 @@ public class GroupsView extends CustomComponent implements UpManView
 		GroupsComponent groupsComponent;
 		try
 		{
-			groupsComponent = new GroupsComponent(msg, controller, project);
+			groupsComponent = new GroupsComponent(msg, controller, projectController.getProjectRole(project), project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

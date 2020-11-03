@@ -6,7 +6,9 @@
 package pl.edu.icm.unity.engine.project;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,36 +43,61 @@ public class ProjectAuthorizationManager
 		this.groupDao = groupDao;
 		this.attrDao = attrDao;
 	}
-	
+
 	@Transactional
 	public void checkManagerAuthorization(String projectPath) throws AuthorizationException
+	{
+
+		LoginSession client = getClient();
+		assertIfDelegationIsActive(projectPath);
+		assertIfClientIsProjectManager(projectPath, client.getEntityId());
+	}
+
+	private LoginSession getClient() throws AuthorizationException
 	{
 		InvocationContext authnCtx = InvocationContext.getCurrent();
 		LoginSession client = authnCtx.getLoginSession();
 
 		if (client == null)
-			throw new AuthorizationException(
-					"Access is denied. The client is not authenticated.");
+			throw new AuthorizationException("Access is denied. The client is not authenticated.");
 
 		if (client.isUsedOutdatedCredential())
 		{
 
-			throw new AuthorizationException(
-					"Access is denied. The client's credential "
-							+ "is outdated and the only allowed operation is the credential update");
+			throw new AuthorizationException("Access is denied. The client's credential "
+					+ "is outdated and the only allowed operation is the credential update");
 		}
-
-		assertIfDelegationIsActive(projectPath);
-		assertIfClientIsProjectManager(projectPath, client.getEntityId());
+		return client;
 	}
 
 	@Transactional
-	public void checkManagerAuthorization(String projectPath, String groupPath)
-			throws AuthorizationException
+	public void checkManagerAuthorization(String projectPath, String groupPath) throws AuthorizationException
 	{
 
 		checkManagerAuthorization(projectPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
+
+	}
+
+	@Transactional
+	public void checkDelegationManagerAuthorizationWithoutGroupDelegationVerification(String projectPath, String groupPath)
+			throws AuthorizationException
+
+	{
+		LoginSession client = getClient();
+		assertIfDelegationIsActive(projectPath);
+		assertGroupIsUnderProject(projectPath, groupPath);
+		assertIfClientIsProjectManagerWithRedelegationPrivilages(projectPath, groupPath, client.getEntityId());
+
+	}
+	
+	@Transactional
+	public void checkDelegationManagerAuthorization(String projectPath, String groupPath)
+			throws AuthorizationException
+
+	{
+		assertIfDelegationIsActive(groupPath);
+		checkDelegationManagerAuthorizationWithoutGroupDelegationVerification(projectPath, groupPath);
 
 	}
 
@@ -79,8 +106,8 @@ public class ProjectAuthorizationManager
 		if (!checkIfDelegationIsActive(projectPath))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires enabled delegation on "
-							+ projectPath + " group");
+					"Access is denied. The operation requires enabled delegation on " + projectPath
+							+ " group");
 		}
 	}
 
@@ -96,43 +123,64 @@ public class ProjectAuthorizationManager
 		}
 	}
 
-	private void assertIfClientIsProjectManager(String projectPath, long clientId)
-			throws AuthorizationException
+	private void assertIfClientIsProjectManager(String projectPath, long clientId) throws AuthorizationException
 	{
-		if (!checkAuthManagerAttribute(projectPath, clientId))
+		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
+
+		if (!(roles.contains(GroupAuthorizationRole.manager)
+				|| roles.contains(GroupAuthorizationRole.allowReDelegate)
+				|| roles.contains(GroupAuthorizationRole.allowReDelegateRecursive)))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires manager capability in "
-							+ projectPath + " group");
+					"Access is denied. The operation requires manager capability in " + projectPath
+							+ " group");
 		}
 	}
 
-	private boolean checkAuthManagerAttribute(String projectPath, long entity)
+	private void assertIfClientIsProjectManagerWithRedelegationPrivilages(String projectPath, String groupPath,
+			long clientId) throws AuthorizationException
+	{
+		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
+
+		if (roles.contains(GroupAuthorizationRole.allowReDelegateRecursive))
+		{
+			return;
+		}
+		
+		if (roles.contains(GroupAuthorizationRole.allowReDelegate) && Group.isDirectChild(groupPath, projectPath))
+		{
+			return;
+		}
+		
+		throw new AuthorizationException(
+				"Access is denied. The operation requires manager with redelegation capability in " + projectPath
+						+ " group");
+	}
+
+	private Set<GroupAuthorizationRole> getAuthManagerAttribute(String projectPath, long entity)
 	{
 		List<StoredAttribute> attributes = new ArrayList<>();
 		try
 		{
 			attributes.addAll(attrDao.getAttributes(
-					ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE.toString(),
+					ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE
+							.toString(),
 					entity, projectPath));
 
 		} catch (Exception e)
 		{
-			throw new InternalException(
-					"Can not get group authorization attribute of entity "
-							+ entity);
+			throw new InternalException("Can not get group authorization attribute of entity " + entity);
 		}
 
+		Set<GroupAuthorizationRole> roles = new HashSet<>();
 		for (StoredAttribute attr : attributes)
 		{
 			for (String val : attr.getAttribute().getValues())
 			{
-				if (val.equals(GroupAuthorizationRole.manager.toString()))
-					return true;
+				roles.add(GroupAuthorizationRole.valueOf(val));
 			}
 		}
-
-		return false;
+		return roles;
 
 	}
 
@@ -150,4 +198,5 @@ public class ProjectAuthorizationManager
 			super("Group " + child + " is not child of main project group " + parent);
 		}
 	}
+
 }

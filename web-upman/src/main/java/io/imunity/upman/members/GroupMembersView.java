@@ -20,6 +20,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.ProjectController;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
@@ -53,13 +54,16 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	private MessageSource msg;
 	private GroupMembersController controller;
 	private ConfirmationInfoFormatter formatter;
+	private ProjectController projectController;
 
 	@Autowired
-	public GroupMembersView(MessageSource msg, GroupMembersController controller, ConfirmationInfoFormatter formatter)
+	public GroupMembersView(MessageSource msg, GroupMembersController controller, ProjectController projectController,
+			ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;
 		this.controller = controller;
 		this.formatter = formatter;
+		this.projectController = projectController;
 		setSizeFull();
 	}
 
@@ -87,6 +91,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		subGroupCombo.setCaption(msg.getMessage("GroupMemberView.subGroupComboCaption"));
 		subGroupCombo.setItems(groups.stream().map(dg -> {
 			Group g = new Group(dg.path);
+			g.setDelegationConfiguration(dg.delegationConfiguration);
 			if (dg.path.equals(project))
 			{
 				g.setDisplayedName(new I18nString(dg.displayedName + " (" + msg.getMessage("AllMemebers") + ")"));
@@ -97,6 +102,10 @@ public class GroupMembersView extends CustomComponent implements UpManView
 			return g;
 		}).collect(Collectors.toList()));
 		subGroupCombo.setRequiredIndicatorVisible(false);
+		subGroupCombo.setStyleGenerator(
+				g -> !g.group.toString().equals(project) && g.group.getDelegationConfiguration().enabled
+						? "italic"
+						: "");
 		
 		FormLayout subGroupComboWrapper = new FormLayout(subGroupCombo);
 		main.addComponent(subGroupComboWrapper);
@@ -104,7 +113,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		GroupMembersComponent groupMembersComponent;
 		try
 		{
-			groupMembersComponent = new GroupMembersComponent(msg, controller, project, formatter);
+			groupMembersComponent = new GroupMembersComponent(msg, controller, projectController.getProjectRole(project), project, formatter);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -113,7 +122,10 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		main.addComponent(groupMembersComponent);
 		main.setExpandRatio(groupMembersComponent, 2);
 		subGroupCombo.addValueChangeListener(e -> groupMembersComponent.setGroup(subGroupCombo.getSelectedGroup()));
-		groupMembersComponent.setGroup(project);
+		
+		Group projectGroup = new Group(project);
+		projectGroup.setDelegationConfiguration(groups.stream().filter(g -> g.path.equals(project)).findFirst().get().delegationConfiguration);
+		groupMembersComponent.setGroup(projectGroup);
 		
 
 	}

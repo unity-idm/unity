@@ -18,6 +18,12 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		super(new RegistrationForm());
 		instance = (RegistrationForm) getInstance();
 	}
+	
+	public RegistrationFormBuilder(RegistrationForm toCopy)
+	{
+		super(new RegistrationForm(toCopy.toJson()));
+		instance = (RegistrationForm) getInstance();
+	}
 
 	public RegistrationForm build()
 	{

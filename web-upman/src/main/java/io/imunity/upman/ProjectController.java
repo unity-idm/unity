@@ -18,8 +18,10 @@ import com.vaadin.server.Resource;
 import io.imunity.upman.common.ServerFaultException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -83,4 +85,20 @@ public class ProjectController
 		GroupDelegationConfiguration config = group.delegationConfiguration;
 		return imageAccessService.getConfiguredImageResourceFromNullableUri(config.logoUrl).orElse(null);
 	}
+	
+	public GroupAuthorizationRole getProjectRole(String projectPath) throws ControllerException
+	{
+		try
+		{
+
+			return delGroupMan.getGroupAuthorizationRole(projectPath,
+					InvocationContext.getCurrent().getLoginSession().getEntityId());
+
+		} catch (Exception e)
+		{
+			log.debug("Can not get project authorization role " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+	}
+
 }

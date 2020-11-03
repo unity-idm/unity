@@ -25,7 +25,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -65,13 +64,14 @@ public class UpdateRequestsComponent extends CustomComponent
 		updateRequestGrid = new UpdateRequestsGrid(msg, commonActions, formatter);
 
 		HamburgerMenu<UpdateRequestEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(Styles.indentSmall.toString());
 		updateRequestGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);
 
 		SearchField search = FilterableGridHelper.generateSearchField(updateRequestGrid, msg);
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu, search);
+		menuBar.setSpacing(false);
+		menuBar.setMargin(false);
 		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
 		menuBar.setWidth(100, Unit.PERCENTAGE);
 
@@ -178,6 +178,6 @@ public class UpdateRequestsComponent extends CustomComponent
 			NotificationPopup.showError(e);
 		}
 
-		updateRequestGrid.setValue(requests);
+		updateRequestGrid.setItems(requests);
 	}
 }

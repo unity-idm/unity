@@ -6,6 +6,7 @@
 package io.imunity.upman.groups;
 
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -50,6 +51,11 @@ class GroupNode
 	public String getPath()
 	{
 		return group.path;
+	}
+	
+	public GroupDelegationConfiguration getDelegationConfiguration()
+	{
+		return group.delegationConfiguration;
 	}
 
 	@Override
