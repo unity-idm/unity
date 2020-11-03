@@ -72,7 +72,6 @@ class GroupMemebersGrid extends GridWithActionColumn<GroupMemberEntry>
 		addColumn(ie -> getRoleLabel(ie.getRole()), msg.getMessage(BaseColumn.role.captionKey), 1)
 				.setRenderer(new HtmlRenderer()).setResizable(true);
 		addColumn(ie -> ie.getName(), msg.getMessage(BaseColumn.name.captionKey), 3).setResizable(true);
-		;
 		UpManGridHelper.createEmailColumn(this, (GroupMemberEntry e) -> e.getEmail(),
 				msg.getMessage(BaseColumn.email.captionKey), formatter);
 	}

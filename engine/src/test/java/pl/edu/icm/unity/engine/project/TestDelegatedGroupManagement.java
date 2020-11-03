@@ -328,7 +328,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project"));
 
 		when(mockGroupMan.getContents(eq("/project/sub"), anyInt()))
-				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project/sub"));
+				.thenReturn(getGroupContent("/project/sub"));
 
 		when(mockConfigGenerator.generateSubprojectRegistrationForm(any(), eq("/project"), eq("/project/sub"),
 				eq("https://test/test.jpg"))).thenReturn(
