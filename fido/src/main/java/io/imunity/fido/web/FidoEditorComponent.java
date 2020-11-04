@@ -4,18 +4,25 @@
  */
 package io.imunity.fido.web;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.component.FidoComponent;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.fido.credential.FidoCredentialInfo;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.Images;
@@ -24,13 +31,6 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 /**
  * Editor integrating FidoComponent and displays current Fido keys with status.
  *
@@ -38,8 +38,6 @@ import static java.util.Objects.nonNull;
  */
 class FidoEditorComponent extends CustomComponent
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, FidoEditorComponent.class);
-
 	private MessageSource msg;
 	private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
 	private final FidoComponent fidoComponent;
@@ -48,7 +46,8 @@ class FidoEditorComponent extends CustomComponent
 	private TextField username;
 	private Button customizeButton;
 
-	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, final MessageSource msg)
+	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, 
+			final MessageSource msg)
 	{
 		this.msg = msg;
 
@@ -59,13 +58,14 @@ class FidoEditorComponent extends CustomComponent
 				.credentialName(context.getCredentialName())
 				.credentialConfiguration(context.getCredentialConfiguration())
 				.newCredentialListener(this::addNewCredential)
-				.allowAuthenticatorReUsage(false)
+				.allowAuthenticatorReUsage(isInDevelopmentMode())
 				.build();
 		fidoComponent.setHeight(1, Unit.PIXELS);
 
 		username = new TextField(msg.getMessage("Fido.username"));
 		username.setValue(nonNull(context.getCredentialConfiguration()) ?
-				FidoCredential.deserialize(context.getCredentialConfiguration()).getHostName() + " " + msg.getMessage("Fido.defaultUser") : msg.getMessage("Fido.defaultUser"));
+				FidoCredential.deserialize(context.getCredentialConfiguration()).getHostName() + " " 
+				+ msg.getMessage("Fido.defaultUser") : msg.getMessage("Fido.defaultUser"));
 		username.setVisible(false);
 		username.setWidth(100, Unit.PERCENTAGE);
 
@@ -102,6 +102,14 @@ class FidoEditorComponent extends CustomComponent
 		initUI(context.getExtraInformation());
 	}
 
+	private boolean isInDevelopmentMode()
+	{
+		VaadinService vaadinService = VaadinService.getCurrent();
+		if (vaadinService == null)
+			return false;
+		return !vaadinService.getDeploymentConfiguration().isProductionMode();
+	}
+	
 	void initUI(final String extraInformation)
 	{
 		initCredentials(extraInformation);
@@ -142,7 +150,8 @@ class FidoEditorComponent extends CustomComponent
 
 		addButton.setVisible(nonNull(fidoComponent.getEntityId()) || credentialsLayout.getComponentCount() == 0);
 		username.setVisible(username.isVisible() && credentialsLayout.getComponentCount() == 0);
-		customizeButton.setVisible(isNull(fidoComponent.getEntityId()) && credentialsLayout.getComponentCount() == 0 && !username.isVisible());
+		customizeButton.setVisible(isNull(fidoComponent.getEntityId()) 
+				&& credentialsLayout.getComponentCount() == 0 && !username.isVisible());
 	}
 
 	private void addNewCredential(final FidoCredentialInfo credential)

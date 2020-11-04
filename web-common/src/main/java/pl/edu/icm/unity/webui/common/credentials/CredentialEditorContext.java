@@ -13,7 +13,8 @@ import com.vaadin.server.Sizeable.Unit;
  */
 public class CredentialEditorContext
 {
-	public static final CredentialEditorContext EMPTY = new CredentialEditorContext(null, null,false, null, null, false, false, null, null);
+	public static final CredentialEditorContext EMPTY = new CredentialEditorContext(null, null,
+			false, null, null, false, false, null, null);
 	private final String credentialConfiguration;
 	private final String credentialName;
 	private final boolean required;
@@ -24,8 +25,9 @@ public class CredentialEditorContext
 	private Float customWidth = null;
 	private Unit customWidthUnit = null;
 
-	CredentialEditorContext(String credentialConfiguration, String credentialName, boolean required, Long entityId, String extraInformation,
-							boolean adminMode, boolean showLabelInline, Float customWidth, Unit customWidthUnit)
+	CredentialEditorContext(String credentialConfiguration, String credentialName, boolean required, 
+			Long entityId, String extraInformation,
+			boolean adminMode, boolean showLabelInline, Float customWidth, Unit customWidthUnit)
 	{
 		this.credentialConfiguration = credentialConfiguration;
 		this.credentialName = credentialName;

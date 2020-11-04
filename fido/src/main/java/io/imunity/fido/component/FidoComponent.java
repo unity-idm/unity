@@ -87,7 +87,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				log.info("Invoke finalize registration for reqId={}", arguments.getString(0));
 				try
 				{
-					FidoCredentialInfo newCred = fidoRegistration.createFidoCredentials(credentialName, credentialConfiguration,
+					FidoCredentialInfo newCred = fidoRegistration.createFidoCredentials(
+							credentialName, credentialConfiguration,
 							arguments.getString(0), arguments.getString(1));
 					if (newCredentialListener != null)
 					{
@@ -95,7 +96,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 					}
 					if (showSuccessNotification)
 					{
-						NotificationPopup.showSuccess(msg.getMessage("Fido.registration"), msg.getMessage("Fido.newCredential"));
+						NotificationPopup.showSuccess(msg.getMessage("Fido.registration"), 
+								msg.getMessage("Fido.newCredential"));
 					}
 				} catch (FidoException e)
 				{
@@ -111,19 +113,22 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				log.info("Invoke finalize authentication for reqId={}", arguments.getString(0));
 				try
 				{
-					AuthenticationResult result = fidoExchange.verifyAuthentication(arguments.getString(0), arguments.getString(1));
+					AuthenticationResult result = fidoExchange.verifyAuthentication(arguments.getString(0), 
+							arguments.getString(1));
 
 					if (nonNull(authenticationResultListener))
 						authenticationResultListener.accept(result);
 
 					if (showSuccessNotification)
 					{
-						NotificationPopup.showSuccess(msg.getMessage("Fido.authentication"), msg.getMessage("Fido.successfulAuth"));
+						NotificationPopup.showSuccess(msg.getMessage("Fido.authentication"), 
+								msg.getMessage("Fido.successfulAuth"));
 					}
 				} catch (FidoException e)
 				{
 					if (nonNull(authenticationResultListener))
-						authenticationResultListener.accept(new AuthenticationResult(AuthenticationResult.Status.deny, null));
+						authenticationResultListener.accept(
+								new AuthenticationResult(AuthenticationResult.Status.deny, null));
 					else
 						showError(msg.getMessage("Fido.authenticationFail"), e.getLocalizedMessage());
 				}
@@ -145,7 +150,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		addFunction("showInternalError", arguments ->
 			{
 				{
-					log.error("Showing internal error caused by {}: {}", arguments.getString(0), arguments.getString(1));
+					log.error("Showing internal error caused by {}: {}", 
+							arguments.getString(0), arguments.getString(1));
 					showError(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
 				}
 			});
@@ -168,7 +174,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 	{
 		try
 		{
-			AbstractMap.SimpleEntry<String, String> options = fidoRegistration.getRegistrationOptions(credentialName, credentialConfiguration, entityId, username);
+			AbstractMap.SimpleEntry<String, String> options = fidoRegistration.getRegistrationOptions(
+					credentialName, credentialConfiguration, entityId, username);
 			log.debug("reqId={}", options.getKey());
 			callFunction("createCredentials", options.getKey(), options.getValue());
 		} catch (FidoException e)
@@ -185,13 +192,15 @@ public class FidoComponent extends AbstractJavaScriptComponent
 	{
 		try
 		{
-			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(entityId, username);
+			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(
+					entityId, username);
 			log.debug("reqId={}", options.getKey());
 			callFunction("getCredentials", options.getKey(), options.getValue());
 		} catch (NoEntityException e)
 		{
 			if (nonNull(authenticationResultListener))
-				authenticationResultListener.accept(new AuthenticationResult(AuthenticationResult.Status.notApplicable, null));
+				authenticationResultListener.accept(new AuthenticationResult(
+						AuthenticationResult.Status.notApplicable, null));
 			else
 				showError(msg.getMessage("Fido.authentication"), e.getLocalizedMessage());
 		} catch (FidoException e)
@@ -294,7 +303,8 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		public FidoComponent build()
 		{
 			if (isNull(fidoExchange) && isNull(fidoRegistration))
-				throw new IllegalArgumentException("Cannot create FidoComponent. At least one FidoRegistration or FidoExchange has to be provided");
+				throw new IllegalArgumentException("Cannot create FidoComponent. "
+						+ "At least one FidoRegistration or FidoExchange has to be provided");
 
 			return new FidoComponent(fidoRegistration,
 					fidoExchange,
