@@ -12,6 +12,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
+import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 
 /**
  * Base for all authenticators editors. Contains name field with binder
@@ -29,7 +30,7 @@ public class BaseAuthenticatorEditor
 		this.msg = msg;
 		name = new TextField(msg.getMessage("BaseAuthenticatorEditor.name"));
 		nameBinder = new Binder<>(StringBindingValue.class);
-		nameBinder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("value");
+		nameBinder.forField(name).withValidator(new NoSpaceValidator(msg)).asRequired(msg.getMessage("fieldRequired")).bind("value");
 	}
 
 	protected String getName() throws FormValidationException 
