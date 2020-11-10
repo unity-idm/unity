@@ -109,7 +109,7 @@ void addGroup(String path, String name)
 void setGroupDelegationConfig(String path, String logo, String registrationForm, String enquiryForm, String stickyEnquiryForm, List<String> attributes)
 {  		
 	log.info("Setting delegation configuration for group " + path);
-	GroupDelegationConfiguration config = new GroupDelegationConfiguration(true, false, logo, registrationForm, enquiryForm, stickyEnquiryForm, attributes);
+	GroupDelegationConfiguration config = new GroupDelegationConfiguration(true, true, logo, registrationForm, enquiryForm, stickyEnquiryForm, attributes);
 	GroupContents content = groupsManagement.getContents(path, GroupContents.METADATA);
 	Group g = content.getGroup();
 	g.setDelegationConfiguration(config);
