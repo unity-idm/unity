@@ -53,6 +53,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
@@ -148,7 +149,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 
 		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
-		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null, null,
+		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null, null,
 				Arrays.asList("extraAttr")));
 
 		when(mockIdMan.getEntity(any()))
@@ -194,7 +195,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForbidGetDisplayNameOfNonProjectAttribute() throws EngineException
 	{
 		GroupContents contents = getGroupContent("/project");
-		contents.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null,
+		contents.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null,
 				null, Arrays.asList("extraAttr")));
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(contents);
 
@@ -348,7 +349,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 								.withType(EnquiryForm.EnquiryType.STICKY)
 								.withName("test").build());
 
-		dGroupMan.setGroupDelegationConfiguration("/project", "/project/sub", true, "https://test/test.jpg");
+		dGroupMan.setGroupDelegationConfiguration("/project", "/project/sub", new SubprojectGroupDelegationConfiguration(true, false, "https://test/test.jpg"));
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/sub"), argument.capture());

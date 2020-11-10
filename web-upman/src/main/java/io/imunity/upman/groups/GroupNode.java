@@ -6,7 +6,6 @@
 package io.imunity.upman.groups;
 
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -17,9 +16,10 @@ import pl.edu.icm.unity.webui.common.Images;
  */
 class GroupNode
 {
-	private DelegatedGroup group;
-	private GroupNode parent;
-	private String icon;
+	public final DelegatedGroup group;
+	public final GroupNode parent;
+	public final String htmlPrivacyIcon;
+	public final String htmlIcon;
 
 	public GroupNode(DelegatedGroup group)
 	{
@@ -30,32 +30,17 @@ class GroupNode
 	{
 		this.group = group;
 		this.parent = parent;
-		this.icon = group.open ? Images.padlock_unlock.getHtml() : Images.padlock_lock.getHtml();
-	}
-
-	public String getIcon()
-	{
-		return icon;
-	}
-
-	public void setIcon(String icon)
-	{
-		this.icon = icon;
-	}
-
-	public GroupNode getParentNode()
-	{
-		return parent;
+		this.htmlPrivacyIcon = group.open ? Images.padlock_unlock.getHtml() : "";
+		this.htmlIcon = group.delegationConfiguration.enabled && group.delegationConfiguration.logoUrl != null
+				&& !group.delegationConfiguration.logoUrl.isEmpty()
+						? "<img class=\"logo\" src=\"" + group.delegationConfiguration.logoUrl + "\">"
+							
+						: "";
 	}
 
 	public String getPath()
 	{
 		return group.path;
-	}
-	
-	public GroupDelegationConfiguration getDelegationConfiguration()
-	{
-		return group.delegationConfiguration;
 	}
 
 	@Override

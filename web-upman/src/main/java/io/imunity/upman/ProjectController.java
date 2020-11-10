@@ -86,6 +86,20 @@ public class ProjectController
 		return imageAccessService.getConfiguredImageResourceFromNullableUri(config.logoUrl).orElse(null);
 	}
 	
+	public DelegatedGroup getProjectGroup(String projectPath) throws ControllerException
+	{
+		try
+		{
+			return delGroupMan.getContents(projectPath, projectPath).group;
+		}
+		catch (Exception e)
+		
+		{
+			log.debug("Can not get project group " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+	}
+	
 	public GroupAuthorizationRole getProjectRole(String projectPath) throws ControllerException
 	{
 		try

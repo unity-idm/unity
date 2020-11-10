@@ -176,7 +176,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 			if (needMembershipFormUpdate || needSignUpFormUpdate)
 			{
 				GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
-						config.enabled, config.logoUrl, config.registrationForm,
+						config.enabled, config.enableSubprojects, config.logoUrl, config.registrationForm,
 						needSignUpFormUpdate ? "" : config.signupEnquiryForm,
 						needMembershipFormUpdate ? "" : config.membershipUpdateEnquiryForm,
 						config.attributes);
@@ -218,7 +218,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 						&& !update.newValue.getType().equals(EnquiryType.STICKY))
 				{
 					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
-							config.enabled, config.logoUrl, config.registrationForm,
+							config.enabled, config.enableSubprojects, config.logoUrl, config.registrationForm,
 							config.signupEnquiryForm, "", config.attributes);
 					group.setDelegationConfiguration(newConfig);
 					needUpdate = true;

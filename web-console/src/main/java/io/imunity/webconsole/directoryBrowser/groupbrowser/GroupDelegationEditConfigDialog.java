@@ -65,6 +65,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 
 	private TextField logoUrl;
 	private CheckBox enableDelegation;
+	private CheckBox enableSubprojects;
 	private FormComboWithButtons registrationFormComboWithButtons;
 	private FormComboWithButtons signupEnquiryFormComboWithButtons;
 	private FormComboWithButtons membershipUpdateEnquiryFormComboWithButtons;
@@ -107,6 +108,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		signupEnquiryFormComboWithButtons.setEnabled(enabled);
 		membershipUpdateEnquiryFormComboWithButtons.setEnabled(enabled);
 		attributes.setEnabled(enabled);
+		enableSubprojects.setEnabled(enabled);
 	}
 
 	@Override
@@ -118,6 +120,10 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		enableDelegation.addValueChangeListener(e -> {
 			enableEdit(e.getValue());
 		});
+		
+		enableSubprojects = new CheckBox(
+				msg.getMessage("GroupDelegationEditConfigDialog.enableSubprojectsCaption"));
+		
 		logoUrl = new TextField(msg.getMessage("GroupDelegationEditConfigDialog.logoUrlCaption"));
 		logoUrl.setWidth(100, Unit.PERCENTAGE);
 
@@ -158,6 +164,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 
 		binder = new Binder<>(DelegationConfiguration.class);
 		binder.forField(enableDelegation).bind("enabled");
+		binder.forField(enableSubprojects).bind("enableSubprojects");
 		binder.forField(logoUrl).bind("logoUrl");
 		binder.forField(registrationFormComboWithButtons).bind("registrationForm");
 		binder.forField(membershipUpdateEnquiryFormComboWithButtons).bind("membershipUpdateEnquiryForm");
@@ -166,7 +173,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		enableEdit(toEdit.enabled);
 
 		FormLayout main = new FormLayout();
-		main.addComponents(enableDelegation, logoUrl, attributes, registrationFormComboWithButtons,
+		main.addComponents(enableDelegation, logoUrl, enableSubprojects, attributes, registrationFormComboWithButtons,
 				signupEnquiryFormComboWithButtons, membershipUpdateEnquiryFormComboWithButtons);
 		return main;
 	}
@@ -267,7 +274,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		{
 			DelegationConfiguration groupDelConfig = binder.getBean();
 			GroupDelegationConfiguration config = new GroupDelegationConfiguration(
-					groupDelConfig.isEnabled(), groupDelConfig.getLogoUrl(),
+					groupDelConfig.isEnabled(),  groupDelConfig.isEnableSubprojects(), groupDelConfig.getLogoUrl(),
 					groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
 					groupDelConfig.getmembershipUpdateEnquiryForm(), attributes.getSelectedItems());
 
@@ -407,6 +414,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 	public static class DelegationConfiguration
 	{
 		private boolean enabled;
+		private boolean enableSubprojects;
 		private String logoUrl;
 		private String registrationForm;
 		private String signupEnquiryForm;
@@ -415,6 +423,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		public DelegationConfiguration(GroupDelegationConfiguration org)
 		{
 			setEnabled(org.enabled);
+			setEnableSubprojects(false);
 			setLogoUrl(org.logoUrl);
 			setRegistrationForm(org.registrationForm);
 			setSignupEnquiryForm(org.signupEnquiryForm);
@@ -469,6 +478,16 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		public void setmembershipUpdateEnquiryForm(String stickyEnquiryForm)
 		{
 			this.membershipUpdateEnquiryForm = stickyEnquiryForm;
+		}
+
+		public boolean isEnableSubprojects()
+		{
+			return enableSubprojects;
+		}
+
+		public void setEnableSubprojects(boolean enableSubprojects)
+		{
+			this.enableSubprojects = enableSubprojects;
 		}
 	}
 

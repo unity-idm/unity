@@ -196,17 +196,7 @@ public class GroupMembersController
 		}
 	}
 
-	public void addManagerPrivileges(String projectPath, String groupPath, Set<GroupMemberEntry> items, GroupAuthorizationRole role) throws ControllerException
-	{
-		updatePrivileges(projectPath, groupPath, role, items);
-	}
-
-	public void revokeManagerPrivileges(String projectPath, String groupPath, Set<GroupMemberEntry> items) throws ControllerException
-	{
-		updatePrivileges(projectPath, groupPath, GroupAuthorizationRole.regular, items);
-	}
-
-	private void updatePrivileges(String projectPath, String groupPath, GroupAuthorizationRole role, Set<GroupMemberEntry> items)
+	public void updateRole(String projectPath, String groupPath, GroupAuthorizationRole role, Set<GroupMemberEntry> items)
 			throws ControllerException
 	{
 

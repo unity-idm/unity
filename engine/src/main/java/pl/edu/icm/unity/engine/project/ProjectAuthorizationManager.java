@@ -23,6 +23,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
 /**
  * Authorizes group operations on the engine
@@ -80,43 +81,72 @@ public class ProjectAuthorizationManager
 	}
 
 	@Transactional
-	public void checkDelegationManagerAuthorizationWithoutGroupDelegationVerification(String projectPath, String groupPath)
+	public void checkTreeManagerSubprojectCreationAuthorization(String projectPath, String groupPath)
+			throws AuthorizationException
+
+	{
+		LoginSession client = getClient();
+		assertIfDelegationAndSubprojectsAreActive(projectPath);
+		assertGroupIsUnderProject(projectPath, groupPath);
+		assertIfClientIsProjectTreeManager(projectPath, groupPath, client.getEntityId());
+
+	}
+	
+	@Transactional
+	public void checkRoleManagerAuthorization(String projectPath, String groupPath, GroupAuthorizationRole role)
 			throws AuthorizationException
 
 	{
 		LoginSession client = getClient();
 		assertIfDelegationIsActive(projectPath);
+		assertIfDelegationIsActive(groupPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
-		assertIfClientIsProjectManagerWithRedelegationPrivilages(projectPath, groupPath, client.getEntityId());
+		assertIfClientCanGiveRole(client.getEntityId(), projectPath, groupPath, role);
 
 	}
-	
-	@Transactional
-	public void checkDelegationManagerAuthorization(String projectPath, String groupPath)
-			throws AuthorizationException
 
+	private void assertIfClientCanGiveRole(long clientId, String projectPath, String groupPath, GroupAuthorizationRole role) throws AuthorizationException
 	{
-		assertIfDelegationIsActive(groupPath);
-		checkDelegationManagerAuthorizationWithoutGroupDelegationVerification(projectPath, groupPath);
+		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);		
+		if (roles.contains(GroupAuthorizationRole.treeManager))
+			return;
 
+		if (roles.contains(GroupAuthorizationRole.manager) && projectPath.equals(groupPath)
+				&& !role.equals(GroupAuthorizationRole.treeManager))
+			return;
+
+		throw new AuthorizationException(
+				"Access is denied. The operation requires manager capability in " + projectPath
+						+ " group");
+						
 	}
 
 	private void assertIfDelegationIsActive(String projectPath) throws AuthorizationException
 	{
-		if (!checkIfDelegationIsActive(projectPath))
+		if (!getGroup(projectPath).getDelegationConfiguration().enabled)
 		{
 			throw new AuthorizationException(
 					"Access is denied. The operation requires enabled delegation on " + projectPath
 							+ " group");
 		}
 	}
+	
+	private void assertIfDelegationAndSubprojectsAreActive(String projectPath) throws AuthorizationException
+	{
+		GroupDelegationConfiguration config = getGroup(projectPath).getDelegationConfiguration();
+		if (!config.enabled || !config.enableSubprojects)
+		{
+			throw new AuthorizationException(
+					"Access is denied. The operation requires enabled delegation and subprojects creation on " + projectPath
+							+ " group");
+		}
+	}
 
-	private boolean checkIfDelegationIsActive(String projectPath)
+	private Group getGroup(String projectPath)
 	{
 		try
 		{
-			Group group = groupDao.get(projectPath);
-			return group.getDelegationConfiguration().enabled;
+			return groupDao.get(projectPath);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can not get group " + projectPath);
@@ -128,8 +158,7 @@ public class ProjectAuthorizationManager
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
 
 		if (!(roles.contains(GroupAuthorizationRole.manager)
-				|| roles.contains(GroupAuthorizationRole.allowReDelegate)
-				|| roles.contains(GroupAuthorizationRole.allowReDelegateRecursive)))
+				|| roles.contains(GroupAuthorizationRole.treeManager)))
 		{
 			throw new AuthorizationException(
 					"Access is denied. The operation requires manager capability in " + projectPath
@@ -137,24 +166,17 @@ public class ProjectAuthorizationManager
 		}
 	}
 
-	private void assertIfClientIsProjectManagerWithRedelegationPrivilages(String projectPath, String groupPath,
+	private void assertIfClientIsProjectTreeManager(String projectPath, String groupPath,
 			long clientId) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
 
-		if (roles.contains(GroupAuthorizationRole.allowReDelegateRecursive))
+		if (!roles.contains(GroupAuthorizationRole.treeManager))
 		{
-			return;
-		}
-		
-		if (roles.contains(GroupAuthorizationRole.allowReDelegate) && Group.isDirectChild(groupPath, projectPath))
-		{
-			return;
-		}
-		
-		throw new AuthorizationException(
-				"Access is denied. The operation requires manager with redelegation capability in " + projectPath
-						+ " group");
+			throw new AuthorizationException(
+					"Access is denied. The operation requires tree manager in " + projectPath
+							+ " group");
+		}	
 	}
 
 	private Set<GroupAuthorizationRole> getAuthManagerAttribute(String projectPath, long entity)

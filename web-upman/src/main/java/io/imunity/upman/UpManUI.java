@@ -36,6 +36,7 @@ import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
@@ -165,9 +166,9 @@ public class UpManUI extends UnityEndpointUIBase
 		return endpointDescription.getEndpoint().getContextAddress();
 	}
 
-	private String getProjectGroupInternal()
+	private DelegatedGroup getProjectGroupInternal() throws ControllerException
 	{
-		return projectCombo.getValue();
+		return controller.getProjectGroup(projectCombo.getValue());
 	}
 
 	private boolean reloadProjectInternal()
@@ -198,7 +199,7 @@ public class UpManUI extends UnityEndpointUIBase
 		}
 	}
 
-	public static String getProjectGroup()
+	public static DelegatedGroup getProjectGroup() throws ControllerException
 	{
 		UpManUI ui = (UpManUI) UI.getCurrent();
 		return ui.getProjectGroupInternal();

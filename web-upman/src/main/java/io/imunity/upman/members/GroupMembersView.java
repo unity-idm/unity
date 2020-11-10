@@ -57,8 +57,8 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	private ProjectController projectController;
 
 	@Autowired
-	public GroupMembersView(MessageSource msg, GroupMembersController controller, ProjectController projectController,
-			ConfirmationInfoFormatter formatter)
+	public GroupMembersView(MessageSource msg, GroupMembersController controller,
+			ProjectController projectController, ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -70,7 +70,16 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		String project = UpManUI.getProjectGroup();
+		DelegatedGroup project;
+		try
+		{
+			project = UpManUI.getProjectGroup();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			return;
+		}
+
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
 		main.setMargin(false);
@@ -79,41 +88,26 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		List<DelegatedGroup> groups;
 		try
 		{
-			groups = controller.getProjectGroups(project);
+			groups = controller.getProjectGroups(project.path);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 			return;
 		}
-		
+
 		MandatoryGroupSelection subGroupCombo = new MandatoryGroupSelection(msg);
 		subGroupCombo.setWidth(30, Unit.EM);
 		subGroupCombo.setCaption(msg.getMessage("GroupMemberView.subGroupComboCaption"));
-		subGroupCombo.setItems(groups.stream().map(dg -> {
-			Group g = new Group(dg.path);
-			g.setDelegationConfiguration(dg.delegationConfiguration);
-			if (dg.path.equals(project))
-			{
-				g.setDisplayedName(new I18nString(dg.displayedName + " (" + msg.getMessage("AllMemebers") + ")"));
-			}else
-			{
-				g.setDisplayedName(new I18nString(dg.displayedName));
-			}
-			return g;
-		}).collect(Collectors.toList()));
+		subGroupCombo.setItems(groups.stream().map(dg -> toGroup(project, dg)).collect(Collectors.toList()));
 		subGroupCombo.setRequiredIndicatorVisible(false);
-		subGroupCombo.setStyleGenerator(
-				g -> !g.group.toString().equals(project) && g.group.getDelegationConfiguration().enabled
-						? "italic"
-						: "");
-		
 		FormLayout subGroupComboWrapper = new FormLayout(subGroupCombo);
 		main.addComponent(subGroupComboWrapper);
 		main.setExpandRatio(subGroupComboWrapper, 0);
 		GroupMembersComponent groupMembersComponent;
 		try
 		{
-			groupMembersComponent = new GroupMembersComponent(msg, controller, projectController.getProjectRole(project), project, formatter);
+			groupMembersComponent = new GroupMembersComponent(msg, controller, projectController,
+					project.path, formatter);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -121,13 +115,30 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		}
 		main.addComponent(groupMembersComponent);
 		main.setExpandRatio(groupMembersComponent, 2);
-		subGroupCombo.addValueChangeListener(e -> groupMembersComponent.setGroup(subGroupCombo.getSelectedGroup()));
-		
-		Group projectGroup = new Group(project);
-		projectGroup.setDelegationConfiguration(groups.stream().filter(g -> g.path.equals(project)).findFirst().get().delegationConfiguration);
-		groupMembersComponent.setGroup(projectGroup);
-		
+		subGroupCombo.addValueChangeListener(
+				e -> groupMembersComponent.setGroup(subGroupCombo.getSelectedGroup()));
 
+		Group projectGroup = new Group(project.path);
+		projectGroup.setDelegationConfiguration(project.delegationConfiguration);
+		groupMembersComponent.setGroup(projectGroup);
+
+	}
+	
+	private Group toGroup(DelegatedGroup projectGroup, DelegatedGroup dg)
+	{
+		Group g = new Group(dg.path);
+		g.setDelegationConfiguration(dg.delegationConfiguration);
+		if (dg.path.equals(projectGroup.path))
+		{
+			g.setDisplayedName(new I18nString(
+					dg.displayedName + " (" + msg.getMessage("AllMemebers") + ")"));
+		} else
+		{
+			g.setDisplayedName(new I18nString(dg.displayedName + (dg.delegationConfiguration.enabled
+					? " (" + msg.getMessage("GroupMemberView.subproject") + ")"
+					: "")));
+		}
+		return g;
 	}
 
 	@Override

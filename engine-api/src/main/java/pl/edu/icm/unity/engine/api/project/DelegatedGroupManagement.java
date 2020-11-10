@@ -10,6 +10,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 
 /**
  * Internal engine API for delegated groups management
@@ -119,12 +120,12 @@ public interface DelegatedGroupManagement
 	 * 
 	 * @param projectPath
 	 * @param groupPath
-	 * @param enableDelegation
-	 * @param logoUrl
+	 * @param subprojectGroupDelegationConfiguration
 	 * @throws EngineException
 	 */
-	void setGroupDelegationConfiguration(String projectPath, String groupPath, boolean enableDelegation, String logoUrl) throws EngineException;
-
+	void setGroupDelegationConfiguration(String projectPath, String groupPath,
+			SubprojectGroupDelegationConfiguration subprojectGroupDelegationConfiguration)
+			throws EngineException;
 	
 	/**
 	 * @param entityId project manager

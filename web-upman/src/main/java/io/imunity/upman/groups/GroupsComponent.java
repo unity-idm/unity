@@ -22,10 +22,11 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -49,16 +50,17 @@ class GroupsComponent extends CustomComponent
 	private MessageSource msg;
 	private GroupsController controller;
 	private GroupsTree groupBrowser;
-	private String projectPath;
+	private DelegatedGroup project;
 	private GroupAuthorizationRole role;
 
-	public GroupsComponent(MessageSource msg, GroupsController controller, GroupAuthorizationRole role, String projectPath)
-			throws ControllerException
+	public GroupsComponent(MessageSource msg, GroupsController controller, GroupAuthorizationRole role,
+			DelegatedGroup project) throws ControllerException
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.projectPath = projectPath;
+		this.project = project;
 		this.role = role;
+		
 
 		List<SingleActionHandler<GroupNode>> rawActions = new ArrayList<>();
 		rawActions.add(getDeleteGroupAction());
@@ -68,9 +70,9 @@ class GroupsComponent extends CustomComponent
 		rawActions.add(getRenameGroupcAction());
 		rawActions.add(getDelegateGroupcAction());
 
-		groupBrowser = new GroupsTree(msg, controller, rawActions, projectPath);
+		groupBrowser = new GroupsTree(msg, controller, rawActions, project.path);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
-		
+
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandler(getExpandAllAction());
@@ -110,9 +112,9 @@ class GroupsComponent extends CustomComponent
 				.withCaption(msg.getMessage("GroupsComponent.makePublicAction"))
 				.withIcon(Images.padlock_unlock.getResource()).withDisabledPredicate(n -> {
 					boolean disabled = n.isOpen();
-					if (n.getParentNode() != null)
+					if (n.parent != null)
 					{
-						disabled = disabled || !n.getParentNode().isOpen();
+						disabled = disabled || !n.parent.isOpen();
 					}
 					return disabled;
 				})
@@ -134,7 +136,7 @@ class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.setGroupAccessMode(projectPath, groupNode.getPath(), isPublic);
+			controller.setGroupAccessMode(project.path, groupNode.getPath(), isPublic);
 			groupBrowser.reloadNode(groupNode);
 
 		} catch (ControllerException e)
@@ -166,7 +168,7 @@ class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.deleteGroupAction"))
 				.withIcon(Images.removeFromGroup.getResource())
-				.withDisabledPredicate(n -> n.getPath().equals(projectPath)).hideIfInactive()
+				.withDisabledPredicate(n -> n.getPath().equals(project.path)).hideIfInactive()
 				.withHandler(this::confirmDelete).build();
 	}
 
@@ -188,8 +190,8 @@ class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.deleteGroup(projectPath, group.getPath());
-			groupBrowser.reloadNode(group.getParentNode());
+			controller.deleteGroup(project.path, group.getPath());
+			groupBrowser.reloadNode(group.parent);
 
 		} catch (ControllerException e)
 		{
@@ -216,7 +218,7 @@ class GroupsComponent extends CustomComponent
 		new AddGroupDialog(msg, groupNode, (groupName, isOpen) -> {
 			try
 			{
-				controller.addGroup(projectPath, groupNode.getPath(), groupName, isOpen);
+				controller.addGroup(project.path, groupNode.getPath(), groupName, isOpen);
 				groupBrowser.reloadNode(groupNode);
 				groupBrowser.expand(groupNode);
 			} catch (ControllerException e)
@@ -288,7 +290,7 @@ class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.renameGroupAction"))
 				.withIcon(Images.pencil.getResource())
-				.withDisabledPredicate(n -> n.getPath().equals(projectPath)).hideIfInactive()
+				.withDisabledPredicate(n -> n.getPath().equals(project.path)).hideIfInactive()
 				.withHandler(this::showRenameGroupDialog).build();
 	}
 
@@ -297,59 +299,75 @@ class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.delegateGroupAction"))
 				.withIcon(Images.forward.getResource())
-				.withDisabledPredicate(n -> checkIfAdminCanDelegate(n.getPath())).hideIfInactive()
-				.withHandler(this::showDelegateGroupDialog).build();
+				.withDisabledPredicate(n -> !checkIfAdminCanCreateSubproject(n.getPath()))
+				.hideIfInactive().withHandler(this::showDelegateGroupDialog).build();
 	}
 
-	private boolean checkIfAdminCanDelegate(String path)
+	private boolean checkIfAdminCanCreateSubproject(String path)
 	{
-		if (path.equals(projectPath))
-			return true;
-		if (role.equals(GroupAuthorizationRole.allowReDelegateRecursive))
+		if (!project.delegationConfiguration.enabled || !project.delegationConfiguration.enableSubprojects)
 			return false;
-		else if (role.equals(GroupAuthorizationRole.allowReDelegate) && Group.isChild(path, projectPath)
-				&& !path.substring(projectPath.length() + 1).contains("/"))
+		if (!role.equals(GroupAuthorizationRole.treeManager))
 			return false;
 		return true;
 	}
 
-	
 	private void showDelegateGroupDialog(Set<GroupNode> selection)
 	{
 
-		new DelegateGroupDialog(msg, selection.iterator().next().getDelegationConfiguration(), groupDelegationConfig -> {
-			try
-			{
-			controller.setGroupDelegationConfiguration(projectPath, selection.iterator().next().getPath(),
-					groupDelegationConfig);
-				groupBrowser.reloadNode(selection.iterator().next());
-			} catch (ControllerException e)
-			{
-				NotificationPopup.showError(e);
-			}
-		}).show();
+		new DelegateGroupDialog(msg, project.delegationConfiguration,
+				selection.iterator().next().group.delegationConfiguration, groupDelegationConfig -> {
+					try
+					{
+						controller.setGroupDelegationConfiguration(project.path,
+								selection.iterator().next().getPath(),
+								groupDelegationConfig);
+						groupBrowser.reloadNode(selection.iterator().next());
+					} catch (ControllerException e)
+					{
+						NotificationPopup.showError(e);
+					}
+				}).show();
 	}
-	
+
 	private class DelegateGroupDialog extends AbstractDialog
 	{
-		private Consumer<DelegationConfiguration> groupDelegateConsumer;
+		private Consumer<SubprojectGroupDelegationConfiguration> groupDelegateConsumer;
 		private CheckBox enableDelegation;
+		private CheckBox enableSubprojects;
 		private TextField logoUrl;
 
-		public DelegateGroupDialog(MessageSource msg, GroupDelegationConfiguration config, Consumer<DelegationConfiguration> groupNameConsumer)
+		public DelegateGroupDialog(MessageSource msg, GroupDelegationConfiguration projectConfig,
+				GroupDelegationConfiguration groupConfig,
+				Consumer<SubprojectGroupDelegationConfiguration> groupDelegateConsumer)
 		{
-			super(msg, msg.getMessage("DelegateGroupDialog.caption"));
-			this.groupDelegateConsumer = groupNameConsumer;
+			super(msg, msg.getMessage("SubprojectDialog.caption"));
+			this.groupDelegateConsumer = groupDelegateConsumer;
+
+			enableDelegation = new CheckBox(msg.getMessage("SubprojectDialog.enableDelegationCaption"));
+			enableDelegation.setDescription(msg.getMessage("SubprojectDialog.enableDelegationDescription"));
+			enableDelegation.addValueChangeListener(e -> {
+				enableEdit(e.getValue());
+			});
 			
-			enableDelegation = new CheckBox(
-					msg.getMessage("DelegateGroupDialog.enableDelegationCaption"));
-			enableDelegation.setValue(config.enabled);
+
+			enableSubprojects = new CheckBox(msg.getMessage("SubprojectDialog.enableSubprojects"));
+			enableSubprojects.setValue(groupConfig.enableSubprojects);
+			enableSubprojects.setVisible(projectConfig.enableSubprojects || groupConfig.enableSubprojects);
 			
-			logoUrl = new TextField(msg.getMessage("DelegateGroupDialog.logoUrlCaption"));
+
+			logoUrl = new TextField(msg.getMessage("SubprojectDialog.logoUrlCaption"));
 			logoUrl.setWidth(100, Unit.PERCENTAGE);
-			if (config.logoUrl != null)
-				logoUrl.setValue(config.logoUrl);
-			setSizeEm(30, 18);
+			if (groupConfig.logoUrl != null)
+				logoUrl.setValue(groupConfig.logoUrl);
+			setSizeEm(60, 18);
+			enableDelegation.setValue(groupConfig.enabled);
+		}
+
+		private void enableEdit(boolean enabled)
+		{
+			logoUrl.setEnabled(enabled);
+			enableSubprojects.setEnabled(enabled);
 		}
 
 		@Override
@@ -364,7 +382,7 @@ class GroupsComponent extends CustomComponent
 		protected FormLayout getContents()
 		{
 			FormLayout main = new CompactFormLayout();
-			main.addComponents(enableDelegation, logoUrl);
+			main.addComponents(enableDelegation, logoUrl, enableSubprojects);
 			main.setSizeFull();
 			return main;
 		}
@@ -372,19 +390,19 @@ class GroupsComponent extends CustomComponent
 		@Override
 		protected void onConfirm()
 		{
-			groupDelegateConsumer.accept(new DelegationConfiguration(enableDelegation.getValue(), logoUrl.getValue()));
+			groupDelegateConsumer.accept(new SubprojectGroupDelegationConfiguration(
+					enableDelegation.getValue(), enableSubprojects.getValue(), logoUrl.getValue()));
 			close();
 		}
 	}
-	
-	
+
 	private void showRenameGroupDialog(Set<GroupNode> selection)
 	{
 
 		new RenameGroupDialog(msg, groupName -> {
 			try
 			{
-				controller.updateGroupName(projectPath, selection.iterator().next().getPath(),
+				controller.updateGroupName(project.path, selection.iterator().next().getPath(),
 						groupName);
 				groupBrowser.reloadNode(selection.iterator().next());
 			} catch (ControllerException e)
@@ -392,8 +410,8 @@ class GroupsComponent extends CustomComponent
 				NotificationPopup.showError(e);
 			}
 		}).show();
-	}	
-	
+	}
+
 	private class RenameGroupDialog extends AbstractDialog
 	{
 		private Consumer<I18nString> groupNameConsumer;

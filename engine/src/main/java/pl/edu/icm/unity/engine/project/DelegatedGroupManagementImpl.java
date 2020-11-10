@@ -19,6 +19,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -50,6 +53,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -230,12 +234,10 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public void setGroupAuthorizationRole(String projectPath, String groupPath, long entityId, GroupAuthorizationRole role)
 			throws EngineException
 	{
-		authz.checkDelegationManagerAuthorization(projectPath, groupPath);
-		List<String> val = new ArrayList<>();
-		val.add(role.toString());
+		authz.checkRoleManagerAuthorization(projectPath, groupPath, role);
 		Attribute attr = new Attribute(
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
-				null, groupPath, val);
+				null, groupPath, Lists.newArrayList(role.toString()));
 		
 		if (projectPath.equals(groupPath) && role.equals(GroupAuthorizationRole.regular))
 		{
@@ -302,11 +304,10 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	}
 
 	@Override
-	public void setGroupDelegationConfiguration(String projectPath, String groupPath, boolean enableDelegation,
-			String logoUrl) throws EngineException
+	public void setGroupDelegationConfiguration(String projectPath, String groupPath, SubprojectGroupDelegationConfiguration subprojectDelegationConfiguration) throws EngineException
 	{
 
-		authz.checkDelegationManagerAuthorizationWithoutGroupDelegationVerification(projectPath, groupPath);
+		authz.checkTreeManagerSubprojectCreationAuthorization(projectPath, groupPath);
 		Group projectGroup = getGroupInternal(projectPath);
 		GroupDelegationConfiguration projectDelConfig = projectGroup.getDelegationConfiguration();
 		Group group = getGroupInternal(groupPath);
@@ -317,38 +318,40 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		String joinEnquiryName = groupDelegationConfig.signupEnquiryForm;
 		String updateEnquiryName = groupDelegationConfig.membershipUpdateEnquiryForm;
 
-		if (enableDelegation)
+		if (subprojectDelegationConfiguration.enabled)
 		{
-			if (registrationFormName == null || registrationFormName.isEmpty())
+			if (Strings.isNullOrEmpty(registrationFormName))
 			{
 				RegistrationForm regForm = groupDelegationConfigGenerator
 						.generateSubprojectRegistrationForm(projectDelConfig.registrationForm,
-								projectPath, groupPath, logoUrl);
+								projectPath, groupPath, subprojectDelegationConfiguration.logoUrl);
 				registrationsManagement.addForm(regForm);
 				registrationFormName = regForm.getName();
 			}
 
-			if (joinEnquiryName == null || joinEnquiryName.isEmpty())
+			if (Strings.isNullOrEmpty(joinEnquiryName))
 			{
 				EnquiryForm joinEnquiryForm = groupDelegationConfigGenerator
 						.generateSubprojectJoinEnquiryForm(projectDelConfig.signupEnquiryForm,
-								projectPath, groupPath, logoUrl);
+								projectPath, groupPath, subprojectDelegationConfiguration.logoUrl);
 				enquiryManagement.addEnquiry(joinEnquiryForm);
 				joinEnquiryName = joinEnquiryForm.getName();
 
 			}
-			if (updateEnquiryName == null || updateEnquiryName.isEmpty())
+			if (Strings.isNullOrEmpty(updateEnquiryName))
 			{
 				EnquiryForm updateEnquiryForm = groupDelegationConfigGenerator
 						.generateSubprojectUpdateEnquiryForm(
 								projectDelConfig.membershipUpdateEnquiryForm,
-								projectPath, groupPath, logoUrl);
+								projectPath, groupPath, subprojectDelegationConfiguration.logoUrl);
 				enquiryManagement.addEnquiry(updateEnquiryForm);
 				updateEnquiryName = updateEnquiryForm.getName();
 			}
 		}
 
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(enableDelegation, logoUrl,
+		group.setDelegationConfiguration(new GroupDelegationConfiguration(subprojectDelegationConfiguration.enabled,
+				subprojectDelegationConfiguration.enableSubprojects, 
+				subprojectDelegationConfiguration.logoUrl,
 				registrationFormName, joinEnquiryName, updateEnquiryName,
 				projectDelConfig.attributes));
 		groupMan.updateGroup(groupPath, group);

@@ -13,10 +13,9 @@ package pl.edu.icm.unity.engine.api.project;
  */
 public enum GroupAuthorizationRole
 {
-	manager("Group manager"),
-	allowReDelegate("Group manager with re delegate privilages"), 
-	allowReDelegateRecursive("Group manager with recursive redelegate  privilages"), 
-	regular("Regular group member");
+	manager("Complete project management"),
+	treeManager("Complete project management plus ability to create sub-projects (if root project settings allows for that)"), 
+	regular("No administration capabilities");
 
 	private String description;
 

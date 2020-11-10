@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -145,13 +146,13 @@ public class GroupsController
 	}
 
 	public void setGroupDelegationConfiguration(String projectPath, String path,
-			DelegationConfiguration groupDelegationConfig) throws ControllerException
+			SubprojectGroupDelegationConfiguration groupDelegationConfig) throws ControllerException
 	{
 		try
 		{
 
 			delGroupMan.setGroupDelegationConfiguration(projectPath, path,
-					groupDelegationConfig.enabled, groupDelegationConfig.logoUrl);
+					groupDelegationConfig);
 
 		} catch (Exception e)
 		{
