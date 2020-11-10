@@ -231,6 +231,7 @@ class GroupMembersComponent extends CustomComponent
 		} else
 		{
 			updateRoleConfirmed(items, role);
+			reloadMemebersGrid();
 		}
 	}
 
@@ -243,7 +244,7 @@ class GroupMembersComponent extends CustomComponent
 		{
 			NotificationPopup.showError(e);
 		}
-		reloadMemebersGrid();
+		
 	}
 
 	public void setGroup(Group group)
