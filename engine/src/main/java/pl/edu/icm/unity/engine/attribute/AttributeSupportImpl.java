@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,15 @@ public class AttributeSupportImpl implements AttributeSupport
 	{
 		entity.validateInitialization();
 		return attributesHelper.getAttributeByMetadata(entity, group, metadataId);
+	}
+
+	@Transactional
+	@Override
+	public Optional<String> getAttributeValueByMetadata(EntityParam entity, String group,
+														String metadataId) throws EngineException
+	{
+		entity.validateInitialization();
+		return Optional.ofNullable(attributesHelper.getAttributeValueByMetadata(entity, group, metadataId));
 	}
 
 	@Override

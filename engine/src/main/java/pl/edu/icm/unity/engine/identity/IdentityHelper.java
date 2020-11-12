@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -185,7 +186,7 @@ public class IdentityHelper
 	 * Creates a given identity in database. Can create entity if needed. 
 	 */
 	public Identity insertIdentity(IdentityParam toAdd, long entityId, boolean allowSystem) 
-			throws IllegalIdentityValueException, IllegalTypeException, WrongArgumentException
+			throws IllegalIdentityValueException
 	{
 		IdentityTypeDefinition idTypeDef = idTypesRegistry.getByName(toAdd.getTypeId());
 		if (idTypeDef == null)
@@ -243,6 +244,13 @@ public class IdentityHelper
 			if (added != null)
 				ret.add(added);
 		}
+	}
+
+	List<Identity> getIdentitiesForEntity(long entityId, String target) throws IllegalIdentityValueException
+	{
+		return identityDAO.getByEntity(entityId).stream()
+				.filter(id -> id.getTarget() == null || id.getTarget().equals(target))
+				.collect(Collectors.toList());
 	}
 	
 	private Identity createDynamicIdentity(IdentityTypeDefinition idTypeImpl, long entityId, String target)

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.identity;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -52,6 +54,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	private static final String[] HUMAN_READABLE_IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID, X500Identity.ID};
 
 	private IdentityTypeHelper idTypeHelper;
+	private IdentityHelper idHelper;
 	private EntityDAO dbIdentities;
 	private EntityResolver dbResolver;
 	private AttributesHelper attributeHelper;
@@ -61,7 +64,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	@Autowired
 	public IdentityResolverImpl(IdentityTypeHelper idTypeHelper, EntityDAO dbIdentities,
 			EntityResolver dbResolver, AttributesHelper attributeHelper,
-			CredentialReqRepository credReqRepository,
+			CredentialReqRepository credReqRepository, IdentityHelper idHelper,
 			@Qualifier("insecure") EntityManagement entityManagement)
 	{
 		this.idTypeHelper = idTypeHelper;
@@ -70,6 +73,7 @@ public class IdentityResolverImpl implements IdentityResolver
 		this.attributeHelper = attributeHelper;
 		this.credReqRepository = credReqRepository;
 		this.entityManagement = entityManagement;
+		this.idHelper = idHelper;
 	}
 
 	@Override
@@ -194,5 +198,20 @@ public class IdentityResolverImpl implements IdentityResolver
 			if (identitiesMap.containsKey(master))
 				return identitiesMap.get(master).getValue();
 		return null;
-	}	
+	}
+
+	@Transactional
+	@Override
+	public List<Identity> getIdentitiesForEntity(EntityParam entity) throws IllegalIdentityValueException
+	{
+		return idHelper.getIdentitiesForEntity(dbResolver.getEntityId(entity), null);
+	}
+
+	@Transactional
+	@Override
+	public Identity insertIdentity(IdentityParam toAdd, EntityParam entity)
+			throws IllegalIdentityValueException
+	{
+		return idHelper.insertIdentity(toAdd, dbResolver.getEntityId(entity), false);
+	}
 }

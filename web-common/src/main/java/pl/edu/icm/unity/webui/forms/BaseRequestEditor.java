@@ -917,6 +917,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				.withShowLabelInline(form.getLayoutSettings().isCompactInputs())
 				.withCustomWidth(formWidth())
 				.withCustomWidthUnit(formWidthUnit())
+				.withCredentialName(param.getCredentialName())
 				.build());
 		if (param.getLabel() != null)
 			editorUI.setLabel(param.getLabel());

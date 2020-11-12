@@ -29,7 +29,7 @@ public class IdentityResolverTest
 		EntityManagement entityManagement = mock(EntityManagement.class);
 		when(entityManagement.getEntityLabel(entity)).thenReturn("dName");
 		
-		IdentityResolver resolver = new IdentityResolverImpl(null, null, null, null, null, entityManagement);
+		IdentityResolver resolver = new IdentityResolverImpl(null, null, null, null, null, null, entityManagement);
 		
 		String displayedUserName = resolver.getDisplayedUserName(entity);
 		
@@ -45,7 +45,7 @@ public class IdentityResolverTest
 		Entity resolvedEntity = new Entity(asList(new Identity(X500Identity.ID, "x500", 123l, "x500")), null, null);
 		when(entityManagement.getEntity(entity)).thenReturn(resolvedEntity);
 		
-		IdentityResolver resolver = new IdentityResolverImpl(null, null, null, null, null, entityManagement);
+		IdentityResolver resolver = new IdentityResolverImpl(null, null, null, null, null, null, entityManagement);
 		
 		String displayedUserName = resolver.getDisplayedUserName(entity);
 		
@@ -61,7 +61,7 @@ public class IdentityResolverTest
 		Entity resolvedEntity = new Entity(asList(new Identity(IdentifierIdentity.ID, "xyz", 123l, "xyz")), null, null);
 		when(entityManagement.getEntity(entity)).thenReturn(resolvedEntity);
 		
-		IdentityResolver resolver = new IdentityResolverImpl(null, null, null, null, null, entityManagement);
+		IdentityResolver resolver = new IdentityResolverImpl(null, null, null, null, null, null, entityManagement);
 		
 		String displayedUserName = resolver.getDisplayedUserName(entity);
 		

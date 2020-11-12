@@ -1,0 +1,5 @@
+{
+	"attestationConveyance": "NONE",
+	"userVerification": "DISCOURAGED",
+	"hostName" : "Unity integration server"
+}

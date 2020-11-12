@@ -66,7 +66,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 	{
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
 
-		authenticatorTypeCombo = new ComboBox<AuthenticatorTypeDescription>();
+		authenticatorTypeCombo = new ComboBox<>();
 		authenticatorTypeCombo.setCaption(msg.getMessage("MainAuthenticatorEditor.typeComboCaption"));
 		authenticatorTypeCombo.addSelectionListener(e -> reloadEditor());
 		if (typeChangeListener.isPresent())

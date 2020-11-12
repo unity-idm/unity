@@ -112,6 +112,7 @@ public class SingleCredentialPanel extends CustomComponent
 				.withAdminMode(enableAdminOptions)
 				.withCustomWidth(SingleCredentialEditComponent.WIDTH)
 				.withCustomWidthUnit(Unit.EM)
+				.withCredentialName(toEdit.getName())
 				.build());
 		credEditorPanel = new SingleCredentialEditComponent(msg, editorComponents, this::onCredentialUpdate, 
 				this::hideEditor);

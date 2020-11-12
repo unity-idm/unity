@@ -25,6 +25,7 @@
 		<apacheds.version>2.0.0-M24</apacheds.version>
 		<bc.version>1.65</bc.version>
 		<selenium.version>3.141.59</selenium.version>
+		<jackson.version>2.11.0</jackson.version>
 		<junit5.version>5.6.2</junit5.version>
 
 		<!-- Sonar -->
@@ -78,6 +79,7 @@
 		<module>distribution</module>
 		<module>documentation</module>
 		<module>composite-password</module>
+		<module>fido</module>
 	</modules>
 
 	<developers>
@@ -134,7 +136,7 @@
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
- 
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -247,9 +249,9 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<!-- To be able to sign in local settings.xml a profile (enabled by default) should be defined with
-			gpg.keyname property defined + passphrase. 
+			gpg.keyname property defined + passphrase.
 			See end of http://maven.apache.org/plugins/maven-gpg-plugin/usage.html -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -421,12 +423,17 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.11.0</version>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore</groupId>
 				<artifactId>jproperties-conf</artifactId>
-				<version>1.0.0</version>			
+				<version>1.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -547,7 +554,7 @@
 				<groupId>org.vaadin.addons</groupId>
 				<artifactId>qrcode</artifactId>
 				<version>2.1</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>edu.vt.middleware</groupId>
 				<artifactId>vt-password</artifactId>
@@ -706,7 +713,12 @@
 				<version>2.3.3</version>
 				<type>pom</type>
 			</dependency>
-			
+			<dependency>
+				<groupId>com.yubico</groupId>
+				<artifactId>webauthn-server-core</artifactId>
+				<version>1.5.0</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-java</artifactId>
