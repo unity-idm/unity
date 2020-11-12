@@ -298,13 +298,15 @@ class GroupsComponent extends CustomComponent
 	{
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.delegateGroupAction"))
-				.withIcon(Images.forward.getResource())
+				.withIcon(Images.workplace.getResource())
 				.withDisabledPredicate(n -> !checkIfAdminCanCreateSubproject(n.getPath()))
 				.hideIfInactive().withHandler(this::showDelegateGroupDialog).build();
 	}
 
 	private boolean checkIfAdminCanCreateSubproject(String path)
 	{
+		if (path.equals(project.path))
+			return false;	
 		if (!project.delegationConfiguration.enabled || !project.delegationConfiguration.enableSubprojects)
 			return false;
 		if (!role.equals(GroupAuthorizationRole.treeManager))
@@ -361,6 +363,7 @@ class GroupsComponent extends CustomComponent
 			if (groupConfig.logoUrl != null)
 				logoUrl.setValue(groupConfig.logoUrl);
 			setSizeEm(60, 18);
+			enableEdit(false);
 			enableDelegation.setValue(groupConfig.enabled);
 		}
 

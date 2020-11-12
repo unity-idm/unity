@@ -211,6 +211,7 @@ class GroupMembersComponent extends CustomComponent
 		new RoleSelectionDialog(msg, "RoleSelectionDialog.subprojectCaption",
 				"RoleSelectionDialog.subprojectRole", role -> {
 					updateRoleConfirmed(items, role);
+					reloadMemebersGrid();
 				},
 				items.size() == 1 ? items.iterator().next().getRole() : GroupAuthorizationRole.regular)
 						.show();

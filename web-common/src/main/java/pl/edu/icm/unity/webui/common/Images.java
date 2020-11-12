@@ -159,7 +159,8 @@ public enum Images
 	text_label	(VaadinIcons.TEXT_LABEL),
 	eraser		(VaadinIcons.ERASER),
 	check		(VaadinIcons.CHECK),
-	list_select	(VaadinIcons.LIST_SELECT);
+	list_select	(VaadinIcons.LIST_SELECT),
+	workplace	(VaadinIcons.WORKPLACE);
 	
 	private final Resource resource;
 	private final String path;
