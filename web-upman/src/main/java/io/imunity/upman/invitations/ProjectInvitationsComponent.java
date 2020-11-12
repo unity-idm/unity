@@ -21,7 +21,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -59,13 +58,15 @@ public class ProjectInvitationsComponent extends CustomComponent
 		invitationsGrid = new ProjectInvitationsGrid(msg, commonActions);
 
 		HamburgerMenu<ProjectInvitationEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(Styles.indentSmall.toString());
+		
 		invitationsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);
 
 		SearchField search = FilterableGridHelper.generateSearchField(invitationsGrid, msg);
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu, search);
+		menuBar.setSpacing(false);
+		menuBar.setMargin(false);
 		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
 		menuBar.setWidth(100, Unit.PERCENTAGE);
 		
@@ -129,6 +130,6 @@ public class ProjectInvitationsComponent extends CustomComponent
 			NotificationPopup.showError(e);
 		}
 			
-		invitationsGrid.setValue(invitations);
+		invitationsGrid.setItems(invitations);
 	}
 }

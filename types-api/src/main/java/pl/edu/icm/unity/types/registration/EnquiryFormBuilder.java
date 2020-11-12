@@ -21,6 +21,12 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 		instance = (EnquiryForm) super.getInstance();
 	}
 	
+	public EnquiryFormBuilder(EnquiryForm toCopy)
+	{
+		super(new EnquiryForm(toCopy.toJson()));
+		instance = (EnquiryForm) super.getInstance();
+	}
+
 	public EnquiryForm build()
 	{
 		instance.validateEnquiry();

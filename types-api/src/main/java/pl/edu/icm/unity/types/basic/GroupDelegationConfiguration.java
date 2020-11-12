@@ -26,14 +26,16 @@ public class GroupDelegationConfiguration
 	public final String signupEnquiryForm;
 	public final String membershipUpdateEnquiryForm;
 	public final List<String> attributes;
-
+	public final boolean enableSubprojects;
+	
 	public GroupDelegationConfiguration(boolean enabled)
 	{
-		this(enabled, null, null, null, null, null);
+		this(enabled, false, null, null, null, null, null);
 	}
 
 	@JsonCreator
 	public GroupDelegationConfiguration(@JsonProperty("enabled") boolean enabled,
+			@JsonProperty("enableSubprojects") boolean enableSubprojects,
 			@JsonProperty("logoUrl") String logoUrl,
 			@JsonProperty("registrationForm") String registrationForm,
 			@JsonProperty("signupEnquiryForm") String signupEnquiryForm,
@@ -46,13 +48,14 @@ public class GroupDelegationConfiguration
 		this.signupEnquiryForm = signupEnquiryForm;
 		this.membershipUpdateEnquiryForm = membershipUpdateEnquiryForm;
 		this.attributes = attributes != null ? new ArrayList<>(attributes) : null;
+		this.enableSubprojects = enableSubprojects;
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(this.enabled, this.logoUrl, this.registrationForm, this.signupEnquiryForm,
-				this.membershipUpdateEnquiryForm, this.attributes);
+				this.membershipUpdateEnquiryForm, this.attributes, this.enableSubprojects);
 	}
 
 	@Override
@@ -68,7 +71,8 @@ public class GroupDelegationConfiguration
 				&& Objects.equals(this.signupEnquiryForm, other.signupEnquiryForm)
 				&& Objects.equals(this.logoUrl, other.logoUrl)
 				&& Objects.equals(this.membershipUpdateEnquiryForm, other.membershipUpdateEnquiryForm)
-				&& Objects.equals(this.attributes, other.attributes);
+				&& Objects.equals(this.attributes, other.attributes)
+				&& Objects.equals(this.enableSubprojects, other.enableSubprojects);
 
 	}
 }

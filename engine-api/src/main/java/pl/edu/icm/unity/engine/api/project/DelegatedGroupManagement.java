@@ -10,6 +10,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 
 /**
  * Internal engine API for delegated groups management
@@ -101,9 +102,31 @@ public interface DelegatedGroupManagement
 	 * @param role value to set
 	 * @throws EngineException
 	 */
-	void setGroupAuthorizationRole(String projectPath, long entityId, GroupAuthorizationRole role)
+	void setGroupAuthorizationRole(String projectPath, String groupPath, long entityId, GroupAuthorizationRole role)
 			throws EngineException;
 
+	
+	/**
+	 * Update value of group authorization role attribute 
+	 * @param projectPath project group path
+	 * @param entityId attribute owner
+	 * @param role value to set
+	 * @throws EngineException
+	 */
+	GroupAuthorizationRole getGroupAuthorizationRole(String projectPath, long entityId)
+			throws EngineException;
+
+	/**
+	 * 
+	 * @param projectPath
+	 * @param groupPath
+	 * @param subprojectGroupDelegationConfiguration
+	 * @throws EngineException
+	 */
+	void setGroupDelegationConfiguration(String projectPath, String groupPath,
+			SubprojectGroupDelegationConfiguration subprojectGroupDelegationConfiguration)
+			throws EngineException;
+	
 	/**
 	 * @param entityId project manager
 	 * @return All project group of entity

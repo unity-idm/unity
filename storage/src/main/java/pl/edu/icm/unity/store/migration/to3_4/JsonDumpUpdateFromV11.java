@@ -20,9 +20,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 
 /**
- * changes the legacy jpegImage to a properly implemented image
+ * 1. changes the legacy jpegImage to a properly implemented image
+ * 2. changes the project management role attribute
  */
 @Component
 public class JsonDumpUpdateFromV11 implements JsonDumpUpdate
@@ -45,8 +47,8 @@ public class JsonDumpUpdateFromV11 implements JsonDumpUpdate
 
 		JsonNode contents = root.get("contents");
 		
-		udpateSyntaxInAttributeTypes(contents.withArray("attributeTypes"));
-		updateAttributeValuesSyntax(contents.withArray("attributes"));
+		udpateAttributeTypes(contents.withArray("attributeTypes"));
+		updateJpegAttributeValuesSyntax(contents.withArray("attributes"));
 		dropAdminUIEndpoint(contents.withArray("endpointDefinition"));
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 
@@ -66,7 +68,7 @@ public class JsonDumpUpdateFromV11 implements JsonDumpUpdate
 		}
 	}
 	
-	private void updateAttributeValuesSyntax(JsonNode attributesArray)
+	private void updateJpegAttributeValuesSyntax(JsonNode attributesArray)
 	{
 		for (JsonNode attrNode: attributesArray)
 		{
@@ -84,17 +86,32 @@ public class JsonDumpUpdateFromV11 implements JsonDumpUpdate
 		}
 	}
 
-	private void udpateSyntaxInAttributeTypes(JsonNode attributeTypesArray)
+	private void udpateAttributeTypes(JsonNode attributeTypesArray)
 	{
 		for (JsonNode attrTypeNode: attributeTypesArray)
 		{
 			ObjectNode attrTypeObj = (ObjectNode) attrTypeNode;
 			String syntax = attrTypeObj.get("syntaxId").asText();
+			String name = attrTypeObj.get("name").asText();
+			
 			if (syntax.equals("jpegImage"))
 			{
 				log.info("Converting attribute type {} to use image syntax type", 
 						attrTypeObj.get("name").asText());
 				attrTypeObj.put("syntaxId", "image");
+			}
+			
+			if (name.equals("sys:ProjectManagementRole"))
+			{
+				log.info("Updating attribute type {} to use new value projectTreeManager", 
+						attrTypeObj.get("name").asText());
+				attrTypeObj.set("syntaxState", UpdateHelperTo12.getProjectRoleAttributeSyntaxConfig());
+				
+				if (I18nStringJsonUtil.fromJson(attrTypeObj.get("i18nDescription")).isEmpty())
+				{
+					attrTypeObj.set("i18nDescription", I18nStringJsonUtil
+							.toJson(UpdateHelperTo12.getProjectRoleDescription()));
+				}
 			}
 		}
 	}

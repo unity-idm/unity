@@ -113,6 +113,7 @@ public enum Images
 	envelopes_open	(VaadinIcons.ENVELOPES_O),
 	user_check	(VaadinIcons.USER_CHECK),
 	star 		(VaadinIcons.STAR),
+	star_open 	(VaadinIcons.STAR_O),
 	trending_down 	(VaadinIcons.TRENDIND_DOWN),
 	trending_up 	(VaadinIcons.TRENDING_UP),
 	padlock_lock	(VaadinIcons.LOCK),
@@ -159,7 +160,8 @@ public enum Images
 	text_label	(VaadinIcons.TEXT_LABEL),
 	eraser		(VaadinIcons.ERASER),
 	check		(VaadinIcons.CHECK),
-	list_select	(VaadinIcons.LIST_SELECT);
+	list_select	(VaadinIcons.LIST_SELECT),
+	workplace	(VaadinIcons.WORKPLACE);
 	
 	private final Resource resource;
 	private final String path;

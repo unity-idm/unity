@@ -106,6 +106,11 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		return isChild(group, potentialParent, false);
 	}
+	
+	public static boolean isDirectChild(String group, String potentialParent)
+	{
+		return isChild(group, potentialParent, false) && !group.substring(potentialParent.length() + 1).contains("/");
+	}
 
 	/**
 	 * @param group

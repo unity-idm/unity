@@ -24,9 +24,11 @@ import pl.edu.icm.unity.store.impl.objstore.GenericMapper;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
- * changes the legacy jpegImage to a properly implemented image
+ * 1. changes the legacy jpegImage to a properly implemented image
+ * 2. changes the project management role attribute
  */
 @Component
 public class InDBUpdateFromSchema11 implements InDBContentsUpdater
@@ -42,8 +44,9 @@ public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 	@Override
 	public void update() throws IOException
 	{
-		updateAttributes();
-		updateAttributeTypes();
+		updateJpegAttributes();
+		updateJpegAttributeTypes();
+		updateProjectManagementRoleAttributeType();
 		dropAdminUIEndpoint();
 	}
 
@@ -62,7 +65,7 @@ public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 		}
 	}
 
-	private void updateAttributes()
+	private void updateJpegAttributes()
 	{
 		AttributesMapper attrMapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
 		List<AttributeBean> all = attrMapper.getAll();
@@ -82,7 +85,7 @@ public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 		}
 	}
 
-	private void updateAttributeTypes()
+	private void updateJpegAttributeTypes()
 	{
 		AttributeTypesMapper atTypeMapper = SQLTransactionTL.getSql().getMapper(AttributeTypesMapper.class);
 		List<AttributeTypeBean> atTypes = atTypeMapper.getAll();
@@ -92,6 +95,31 @@ public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 			{
 				log.info("Converting attribute type {} to use image syntax type", atType.getName());
 				atType.setValueSyntaxId("image");
+				atTypeMapper.updateByKey(atType);
+			}
+		}
+	}
+	
+	private void updateProjectManagementRoleAttributeType()
+	{
+		AttributeTypesMapper atTypeMapper = SQLTransactionTL.getSql().getMapper(AttributeTypesMapper.class);
+		List<AttributeTypeBean> atTypes = atTypeMapper.getAll();
+		for (AttributeTypeBean atType : atTypes)
+		{
+			if ("sys:ProjectManagementRole".equals(atType.getName()))
+			{
+				log.info("Updating attribute type {} to use new value projectTreeManager", 
+						atType.getName());
+				AttributeType at = new AttributeType();
+				at.setName(atType.getName());
+				at.setValueSyntax(atType.getValueSyntaxId());
+				at.fromJsonBase(JsonUtil.parse(atType.getContents()));
+				at.setValueSyntaxConfiguration(UpdateHelperTo12.getProjectRoleAttributeSyntaxConfig());
+				if (at.getDescription() == null || at.getDescription().isEmpty())
+				{
+					at.setDescription(UpdateHelperTo12.getProjectRoleDescription());
+				}
+				atType.setContents(JsonUtil.serialize2Bytes(at.toJsonBase()));
 				atTypeMapper.updateByKey(atType);
 			}
 		}
