@@ -47,7 +47,7 @@ class FidoAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Au
 	public Component getEditor(AuthenticatorDefinition authenticator, SubViewSwitcher subViewSwitcher,
 			boolean forceNameEditable)
 	{
-		boolean editMode = init(msg.getMessage("OTPAuthenticatorEditor.defaultName"), authenticator,
+		boolean editMode = init(msg.getMessage("FidoAuthenticatorEditor.defaultName"), authenticator,
 				forceNameEditable);
 
 		configBinder = new Binder<>(FidoConfigurationBean.class);
@@ -80,7 +80,7 @@ class FidoAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Au
 		interactiveLoginSettings.setMargin(false);
 		
 		I18nTextField retrievalName = new I18nTextField(msg);
-		retrievalName.setCaption(msg.getMessage("OTPAuthenticatorEditor.formName"));
+		retrievalName.setCaption(msg.getMessage("FidoAuthenticatorEditor.formName"));
 		configBinder.forField(retrievalName).bind("retrievalName");
 
 		interactiveLoginSettings.addComponents(retrievalName);

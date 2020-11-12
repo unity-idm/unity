@@ -5,6 +5,7 @@
 
 package io.imunity.fido.web;
 
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
@@ -161,8 +162,10 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-passwordSignInButton");
-			authenticateButton.setIcon(Images.fido.getResource());
 			visiblePart.addComponent(authenticateButton);
+
+			usernameField.addFocusListener(e -> authenticateButton.setClickShortcut(ShortcutAction.KeyCode.ENTER));
+			usernameField.addBlurListener(e -> authenticateButton.removeClickShortcut());
 
 			mainLayout.addComponent(visiblePart);
 			setCompositionRoot(mainLayout);
@@ -273,7 +276,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		@Override
 		public Resource getImage()
 		{
-			return Images.fido.getResource();
+			return null;
 		}
 
 		@Override

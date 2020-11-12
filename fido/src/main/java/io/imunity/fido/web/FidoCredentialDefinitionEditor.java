@@ -4,6 +4,7 @@
  */
 package io.imunity.fido.web;
 
+import static io.imunity.tooltip.TooltipExtension.tooltip;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,11 +47,14 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		attestationConveyance.setItems(AttestationConveyancePreference.values());
 		attestationConveyance.setEmptySelectionAllowed(false);
 		attestationConveyance.setTextInputAllowed(false);
+		tooltip(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance.tip"));
 		userVerification = new ComboBox<>(msg.getMessage("Fido.credEditor.userVerification"));
 		userVerification.setItems(UserVerificationRequirement.values());
 		userVerification.setEmptySelectionAllowed(false);
 		userVerification.setTextInputAllowed(false);
+		tooltip(userVerification, msg.getMessage("Fido.credEditor.userVerification.tip"));
 		hostName = new TextField(msg.getMessage("Fido.credEditor.hostName"));
+		tooltip(hostName, msg.getMessage("Fido.credEditor.hostName.tip"));
 
 		FormLayout ret = new FormLayout(attestationConveyance, userVerification, hostName);
 		ret.setMargin(true);
