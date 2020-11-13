@@ -31,12 +31,7 @@ class GroupNode
 		this.group = group;
 		this.parent = parent;
 		this.htmlPrivacyIcon = group.open ? Images.padlock_unlock.getHtml() : "";
-		this.htmlIcon = group.delegationConfiguration.enabled ? 
-				 group.delegationConfiguration.logoUrl == null
-				|| group.delegationConfiguration.logoUrl.isEmpty()
-						? Images.workplace.getHtml() : "<img class=\"logo\" src=\"" + group.delegationConfiguration.logoUrl + "\">"
-							
-						: "";
+		this.htmlIcon = group.delegationConfiguration.enabled ?	Images.workplace.getHtml() : "";
 	}
 
 	public String getPath()

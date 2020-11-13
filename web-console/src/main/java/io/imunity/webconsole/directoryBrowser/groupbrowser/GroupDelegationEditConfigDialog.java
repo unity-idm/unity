@@ -423,7 +423,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		public DelegationConfiguration(GroupDelegationConfiguration org)
 		{
 			setEnabled(org.enabled);
-			setEnableSubprojects(false);
+			setEnableSubprojects(org.enableSubprojects);
 			setLogoUrl(org.logoUrl);
 			setRegistrationForm(org.registrationForm);
 			setSignupEnquiryForm(org.signupEnquiryForm);
