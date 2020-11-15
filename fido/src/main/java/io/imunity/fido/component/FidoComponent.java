@@ -38,7 +38,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 	private final MessageSource msg;
 
 	private final Long entityId;
-	private final String userName;
 	private final String credentialConfiguration;
 	private final String credentialName;
 	private final boolean showSuccessNotification;
@@ -49,7 +48,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 						  final FidoExchange fidoExchange,
 						  final MessageSource msg,
 						  final Long entityId,
-						  final String userName,
 						  final String credentialConfiguration,
 						  final String credentialName,
 						  final boolean showSuccessNotification,
@@ -61,7 +59,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		this.fidoExchange = fidoExchange;
 		this.msg = msg;
 		this.entityId = entityId;
-		this.userName = userName;
 		this.credentialConfiguration = credentialConfiguration;
 		this.credentialName = credentialName;
 		this.showSuccessNotification = showSuccessNotification;
@@ -162,14 +159,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		NotificationPopup.showError(title, errorMsg);
 	}
 
-	public void invokeRegistration()
-	{
-		if (isNull(entityId) && isNull(userName))
-			throw new IllegalArgumentException("entityId has to be set before using invokeRegistration() method");
-
-		invokeRegistration(userName);
-	}
-
 	public void invokeRegistration(final String username)
 	{
 		try
@@ -188,12 +177,12 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		}
 	}
 
-	public void invokeAuthentication(final String username)
+	public void invokeAuthentication(final Long entityId, final String username)
 	{
 		try
 		{
 			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(
-					entityId, username);
+					nonNull(entityId) ? entityId : this.entityId, username);
 			log.debug("reqId={}", options.getKey());
 			callFunction("getCredentials", options.getKey(), options.getValue());
 		} catch (NoEntityException e)
@@ -228,7 +217,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		private FidoExchange fidoExchange;
 		private boolean showSuccessNotification = true;
 		private Long entityId;
-		private String userName;
 		private String credentialConfiguration;
 		private String credentialName;
 		private Consumer<FidoCredentialInfo> newCredentialListener;
@@ -261,12 +249,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		public FidoComponentBuilder entityId(Long entityId)
 		{
 			this.entityId = entityId;
-			return this;
-		}
-
-		public FidoComponentBuilder userName(String userName)
-		{
-			this.userName = userName;
 			return this;
 		}
 
@@ -310,7 +292,6 @@ public class FidoComponent extends AbstractJavaScriptComponent
 					fidoExchange,
 					msg,
 					entityId,
-					userName,
 					credentialConfiguration,
 					credentialName,
 					showSuccessNotification,

@@ -132,7 +132,7 @@ public class SingleCredentialPanel extends CustomComponent
 	{
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.addStyleName(Styles.vButtonLink.toString());
-		clear.addClickListener(e -> changeCredentialStatus(LocalCredentialState.notSet));
+		clear.addClickListener(e -> clearCredential());
 
 		invalidate = new Button(msg.getMessage("CredentialChangeDialog.invalidate"));
 		invalidate.addStyleName(Styles.vButtonLink.toString());
@@ -273,6 +273,10 @@ public class SingleCredentialPanel extends CustomComponent
 			credEditorPanel.focusEditor();
 	}
 
+	private void clearCredential()
+	{
+		changeCredentialStatus(LocalCredentialState.notSet);
+	}
 	
 	private void onCredentialUpdate()
 	{
@@ -283,6 +287,11 @@ public class SingleCredentialPanel extends CustomComponent
 	
 	private boolean updateCredential()
 	{
+		if (credEditor.isCredentialCleared()){
+			clearCredential();
+			return true;
+		}
+
 		String secrets;
 		try
 		{
@@ -326,6 +335,10 @@ public class SingleCredentialPanel extends CustomComponent
 		loadEntity(entityP);
 		updateCredentialStatus();
 		return true;
+	}
+
+	private void changeAndReload() {
+
 	}
 	
 	private void onAdditionalAuthnForUpdateCredential(AuthnResult result)

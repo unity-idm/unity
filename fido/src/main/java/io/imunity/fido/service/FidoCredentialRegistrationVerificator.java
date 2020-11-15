@@ -6,7 +6,6 @@ package io.imunity.fido.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yubico.webauthn.FinishRegistrationOptions;
-import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.RegistrationResult;
 import com.yubico.webauthn.StartRegistrationOptions;
 import com.yubico.webauthn.attestation.Attestation;
@@ -126,7 +125,6 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 					.request(registrationRequest)
 					.response(pkc)
 					.build());
-			logRegistrationDetails(registrationRequest, pkc, result);
 			return createFidoCredentialInfo(pkc, registrationRequest, result);
 		} catch (RegistrationFailedException | IOException e)
 		{
@@ -152,31 +150,5 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 				.attestationMetadata(attestationMetadata.orElse(null))
 				.userHandle(new FidoUserHandle(registrationRequest.getUser().getId().getBytes()).asString())
 				.build();
-	}
-
-	// TODO Remove later on. For now for debugging purposes
-	private void logRegistrationDetails(PublicKeyCredentialCreationOptions request,
-										PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> pkc,
-										RegistrationResult result
-	)
-	{
-		RegisteredCredential credential = RegisteredCredential.builder()
-				.credentialId(result.getKeyId().getId())
-				.userHandle(request.getUser().getId())
-				.publicKeyCose(result.getPublicKeyCose()) // public key CBOR encoded
-				.signatureCount(pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter())
-				.build();
-
-		log.debug("userIdentity: {}", request.getUser());
-		log.debug("credential: {}", credential);
-
-		log.debug("authenticator.flags: {}", pkc.getResponse().getParsedAuthenticatorData().getFlags());
-		log.debug("authenticator.aaguid: {}", pkc.getResponse().getParsedAuthenticatorData().getAttestedCredentialData().isPresent() ?
-				pkc.getResponse().getParsedAuthenticatorData().getAttestedCredentialData().get().getAaguid() : "no attestedCredentialData");
-		log.debug("response: {}", pkc.getResponse()); // encryption algorithm details and attestation signature
-
-		log.debug("result.attestationTrusted: {}", result.isAttestationTrusted());
-		log.debug("result.attestationType: {}", result.getAttestationType());
-		log.debug("attestationMetadata: {}", result.getAttestationMetadata());
 	}
 }

@@ -173,6 +173,11 @@ class FidoEditorComponent extends CustomComponent
 				.collect(Collectors.toList()));
 	}
 
+	long getNonDeletedKeysNumber()
+	{
+		return credentials.stream().filter(c -> c.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED).count();
+	}
+
 	public void setCredentialError(EngineException error)
 	{
 		if (nonNull(error))

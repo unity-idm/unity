@@ -29,14 +29,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -44,10 +41,11 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 /**
  * Retrieves FIDO authentication input and validate FIDO authentication using FidoComponent.
@@ -124,9 +122,10 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		private AuthenticationCallback callback;
 		private TextField usernameField;
 		private int tabIndex;
-		private String username;
 		private VerticalLayout mainLayout;
+		private VerticalLayout visiblePart;
 		private FidoComponent fidoComponent;
+		private Long entityId;
 		
 		public FidoRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -149,7 +148,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			fidoComponent.setHeight(0, Unit.PIXELS); // no UI but Vaadin allocates a lot of space for it
 			mainLayout.addComponent(fidoComponent);
 
-			VerticalLayout visiblePart = new VerticalLayout();
+			visiblePart = new VerticalLayout();
 			visiblePart.setMargin(false);
 			usernameField = new TextField();
 			usernameField.setWidth(100, Unit.PERCENTAGE);
@@ -173,14 +172,15 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 
 		private void triggerAuthentication()
 		{
-			username = usernameField.getValue();
-			if (username == null || username.equals(""))
+			String username = usernameField.getValue();
+			if (isNull(entityId) &&
+					(username == null || username.equals("")))
 			{
 				setAuthenticationResult(new AuthenticationResult(
 						Status.notApplicable, null));
 				return;
 			}
-			fidoComponent.invokeAuthentication(username);
+			fidoComponent.invokeAuthentication(entityId, username);
 		}
 
 		private void setAuthenticationResult(AuthenticationResult authenticationResult)
@@ -208,7 +208,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		@Override
 		public void focus()
 		{
-			if (username == null)
+			if (entityId == null)
 				usernameField.focus();
 		}
 
@@ -229,10 +229,10 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			this.callback = callback;
 		}
 
-		void setAuthenticatedIdentity(String authenticatedIdentity)
+		void setAuthenticatedEntity(long entityId)
 		{
-			this.username = authenticatedIdentity;
-			mainLayout.removeComponent(usernameField);
+			this.entityId = entityId;
+			visiblePart.removeComponent(usernameField);
 		}
 
 		private void clear()
@@ -310,13 +310,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		@Override
 		public void presetEntity(Entity authenticatedEntity)
 		{
-			List<Identity> ids = authenticatedEntity.getIdentities();
-			for (Identity id : ids)
-				if (id.getTypeId().equals(UsernameIdentity.ID))
-				{
-					theComponent.setAuthenticatedIdentity(id.getValue());
-					return;
-				}
+			theComponent.setAuthenticatedEntity(authenticatedEntity.getId());
 		}
 
 		@Override

@@ -55,6 +55,12 @@ class FidoCredentialEditor implements CredentialEditor
 	}
 
 	@Override
+	public boolean isCredentialCleared()
+	{
+		return editorComponent.getNonDeletedKeysNumber() == 0;
+	}
+
+	@Override
 	public Optional<Component> getViewer(String credentialInfo)
 	{
 		if (isNull(credentialInfo))
