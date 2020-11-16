@@ -14,26 +14,25 @@ class TreeNode
 	private String name;
 	private String path;
 	private TreeNode parent;
-	private boolean contentsFetched = false;
 	private MessageSource msg;
-	private String icon;
+	private boolean delegated;
 
-	TreeNode(MessageSource msg, Group group, String icon)
+	TreeNode(MessageSource msg, Group group)
 	{
-		this(msg, group, icon, null);
+		this(msg, group, null);
 	}
 
-	TreeNode(MessageSource msg, Group group, String icon, TreeNode parent)
+	TreeNode(MessageSource msg, Group group, TreeNode parent)
 	{
 		this.msg = msg;
 		this.path = group.toString();
 		this.parent = parent;
-		this.icon = icon;
 		setGroupMetadata(group);
 	}
 
 	void setGroupMetadata(Group group)
 	{
+		this.setDelegated(group.getDelegationConfiguration().enabled);
 		if (group.isTopLevel())
 		{
 			this.name = group.getDisplayedName().getValue(msg);
@@ -49,30 +48,20 @@ class TreeNode
 				this.name = name + " (" + realName + ")";
 		}
 	}
-
-	String getIcon()
+	
+	public boolean isDelegated()
 	{
-		return icon;
+		return delegated;
 	}
 
-	void setIcon(String icon)
+	public void setDelegated(boolean delegated)
 	{
-		this.icon = icon;
+		this.delegated = delegated;
 	}
-
+	
 	TreeNode getParentNode()
 	{
 		return parent;
-	}
-
-	boolean isContentsFetched()
-	{
-		return contentsFetched;
-	}
-
-	void setContentsFetched(boolean contentsFetched)
-	{
-		this.contentsFetched = contentsFetched;
 	}
 
 	String getPath()
