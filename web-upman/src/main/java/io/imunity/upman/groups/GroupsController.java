@@ -78,12 +78,12 @@ public class GroupsController
 		return groupTree;
 	}
 
-	public void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
+	public String addGroup(String projectPath, String parentPath, GroupWithAccessMode group)
 			throws ControllerException
 	{
 		try
 		{
-			delGroupMan.addGroup(projectPath, parentPath, groupName, isPublic);
+			return delGroupMan.addGroup(projectPath, parentPath, group.name, group.isOpen);
 		} catch (Exception e)
 		{
 			log.debug("Can not add group " + parentPath, e);

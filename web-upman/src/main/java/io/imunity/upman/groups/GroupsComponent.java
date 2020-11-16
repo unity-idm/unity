@@ -11,9 +11,11 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.google.common.collect.Lists;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -60,7 +62,6 @@ class GroupsComponent extends CustomComponent
 		this.controller = controller;
 		this.project = project;
 		this.role = role;
-		
 
 		List<SingleActionHandler<GroupNode>> rawActions = new ArrayList<>();
 		rawActions.add(getDeleteGroupAction());
@@ -215,10 +216,11 @@ class GroupsComponent extends CustomComponent
 			return;
 
 		GroupNode groupNode = items.iterator().next();
-		new AddGroupDialog(msg, groupNode, (groupName, isOpen) -> {
+		new AddGroupDialog(msg, groupNode, project.delegationConfiguration, (groupNameWithAccessMode, groupDelegationConfig) -> {
 			try
 			{
-				controller.addGroup(project.path, groupNode.getPath(), groupName, isOpen);
+				String newGroupPath = controller.addGroup(project.path, groupNode.getPath(), groupNameWithAccessMode);
+				controller.setGroupDelegationConfiguration(project.path, newGroupPath, groupDelegationConfig);
 				groupBrowser.reloadNode(groupNode);
 				groupBrowser.expand(groupNode);
 			} catch (ControllerException e)
@@ -230,18 +232,22 @@ class GroupsComponent extends CustomComponent
 
 	private class AddGroupDialog extends AbstractDialog
 	{
-		private BiConsumer<I18nString, Boolean> groupConsumer;
+		private BiConsumer<GroupWithAccessMode, SubprojectGroupDelegationConfiguration> groupConsumer;
 		private I18nTextField groupNameField;
 		private GroupNode parentGroup;
 		private CheckBox isPublic;
+		private DelagateGroupDialogContent groupDelegationContent;
 
 		public AddGroupDialog(MessageSource msg, GroupNode parentGroup,
-				BiConsumer<I18nString, Boolean> groupConsumer)
+				GroupDelegationConfiguration projectConfig,
+				BiConsumer<GroupWithAccessMode, SubprojectGroupDelegationConfiguration> groupConsumer)
 		{
 			super(msg, msg.getMessage("AddGroupDialog.caption"));
 			this.groupConsumer = groupConsumer;
 			this.parentGroup = parentGroup;
-			setSizeEm(30, 18);
+			this.groupDelegationContent = new DelagateGroupDialogContent(msg, projectConfig,
+					new GroupDelegationConfiguration(false));
+			setSizeEm(50, 25);
 		}
 
 		@Override
@@ -266,6 +272,7 @@ class GroupsComponent extends CustomComponent
 
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupNameField, isPublic);
+			groupDelegationContent.getComponents().forEach(main::addComponent);
 			main.setSizeFull();
 			return main;
 		}
@@ -280,7 +287,7 @@ class GroupsComponent extends CustomComponent
 				return;
 			}
 
-			groupConsumer.accept(groupNameField.getValue(), isPublic.getValue());
+			groupConsumer.accept(new GroupWithAccessMode(groupNameField.getValue(), isPublic.getValue()), groupDelegationContent.getValue());
 			close();
 		}
 	}
@@ -306,7 +313,7 @@ class GroupsComponent extends CustomComponent
 	private boolean checkIfAdminCanCreateSubproject(String path)
 	{
 		if (path.equals(project.path))
-			return false;	
+			return false;
 		if (!project.delegationConfiguration.enabled || !project.delegationConfiguration.enableSubprojects)
 			return false;
 		if (!role.equals(GroupAuthorizationRole.treeManager))
@@ -335,9 +342,7 @@ class GroupsComponent extends CustomComponent
 	private class DelegateGroupDialog extends AbstractDialog
 	{
 		private Consumer<SubprojectGroupDelegationConfiguration> groupDelegateConsumer;
-		private CheckBox enableDelegation;
-		private CheckBox enableSubprojects;
-		private TextField logoUrl;
+		private DelagateGroupDialogContent content;
 
 		public DelegateGroupDialog(MessageSource msg, GroupDelegationConfiguration projectConfig,
 				GroupDelegationConfiguration groupConfig,
@@ -345,32 +350,8 @@ class GroupsComponent extends CustomComponent
 		{
 			super(msg, msg.getMessage("SubprojectDialog.caption"));
 			this.groupDelegateConsumer = groupDelegateConsumer;
-
-			enableDelegation = new CheckBox(msg.getMessage("SubprojectDialog.enableDelegationCaption"));
-			enableDelegation.setDescription(msg.getMessage("SubprojectDialog.enableDelegationDescription"));
-			enableDelegation.addValueChangeListener(e -> {
-				enableEdit(e.getValue());
-			});
-			
-
-			enableSubprojects = new CheckBox(msg.getMessage("SubprojectDialog.enableSubprojects"));
-			enableSubprojects.setValue(groupConfig.enableSubprojects);
-			enableSubprojects.setVisible(projectConfig.enableSubprojects || groupConfig.enableSubprojects);
-			
-
-			logoUrl = new TextField(msg.getMessage("SubprojectDialog.logoUrlCaption"));
-			logoUrl.setWidth(100, Unit.PERCENTAGE);
-			if (groupConfig.logoUrl != null)
-				logoUrl.setValue(groupConfig.logoUrl);
+			this.content = new DelagateGroupDialogContent(msg, projectConfig, groupConfig);
 			setSizeEm(60, 18);
-			enableEdit(false);
-			enableDelegation.setValue(groupConfig.enabled);
-		}
-
-		private void enableEdit(boolean enabled)
-		{
-			logoUrl.setEnabled(enabled);
-			enableSubprojects.setEnabled(enabled);
 		}
 
 		@Override
@@ -385,7 +366,7 @@ class GroupsComponent extends CustomComponent
 		protected FormLayout getContents()
 		{
 			FormLayout main = new CompactFormLayout();
-			main.addComponents(enableDelegation, logoUrl, enableSubprojects);
+			content.getComponents().forEach(main::addComponent);
 			main.setSizeFull();
 			return main;
 		}
@@ -393,8 +374,7 @@ class GroupsComponent extends CustomComponent
 		@Override
 		protected void onConfirm()
 		{
-			groupDelegateConsumer.accept(new SubprojectGroupDelegationConfiguration(
-					enableDelegation.getValue(), enableSubprojects.getValue(), logoUrl.getValue()));
+			groupDelegateConsumer.accept(content.getValue());
 			close();
 		}
 	}
@@ -458,6 +438,53 @@ class GroupsComponent extends CustomComponent
 			groupNameConsumer.accept(groupNameField.getValue());
 			close();
 		}
+	}
+	
+	private static class DelagateGroupDialogContent
+	{
+		private CheckBox enableDelegation;
+		private CheckBox enableSubprojects;
+		private TextField logoUrl;
+
+		DelagateGroupDialogContent(MessageSource msg, GroupDelegationConfiguration projectConfig,
+				GroupDelegationConfiguration groupConfig)
+		{
+			enableDelegation = new CheckBox(msg.getMessage("SubprojectDialog.enableDelegationCaption"));
+			enableDelegation.setDescription(msg.getMessage("SubprojectDialog.enableDelegationDescription"));
+			enableDelegation.addValueChangeListener(e -> {
+				enableEdit(e.getValue());
+			});
+
+			enableSubprojects = new CheckBox(msg.getMessage("SubprojectDialog.enableSubprojects"));
+			enableSubprojects.setValue(groupConfig.enableSubprojects);
+			enableSubprojects.setVisible(projectConfig.enableSubprojects || groupConfig.enableSubprojects);
+
+			logoUrl = new TextField(msg.getMessage("SubprojectDialog.logoUrlCaption"));
+			logoUrl.setWidth(100, Unit.PERCENTAGE);
+			if (groupConfig.logoUrl != null)
+				logoUrl.setValue(groupConfig.logoUrl);
+
+			enableEdit(false);
+			enableDelegation.setValue(groupConfig.enabled);
+		}
+
+		private void enableEdit(boolean enabled)
+		{
+			logoUrl.setEnabled(enabled);
+			enableSubprojects.setEnabled(enabled);
+		}
+
+		ArrayList<Component> getComponents()
+		{
+			return Lists.newArrayList(enableDelegation, logoUrl, enableSubprojects);
+		}
+
+		SubprojectGroupDelegationConfiguration getValue()
+		{
+			return new SubprojectGroupDelegationConfiguration(enableDelegation.getValue(),
+					enableSubprojects.getValue(), logoUrl.getValue());
+		}
+
 	}
 
 }

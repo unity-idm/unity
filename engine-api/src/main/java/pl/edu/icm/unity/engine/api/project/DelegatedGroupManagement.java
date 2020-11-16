@@ -26,9 +26,10 @@ public interface DelegatedGroupManagement
 	 * @param parentPath parent group path
 	 * @param groupName new group name
 	 * @param isPublic group access mode
+	 * @return 
 	 * @throws EngineException
 	 */
-	void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
+	String addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
 			throws EngineException;
 
 	/**

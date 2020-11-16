@@ -107,7 +107,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 	@Override
 	@Transactional
-	public void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
+	public String addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
 			throws EngineException
 	{
 		authz.checkManagerAuthorization(projectPath, parentPath);
@@ -127,6 +127,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		toAdd.setPublic(isPublic);
 		toAdd.setDisplayedName(groupName);
 		groupMan.addGroup(toAdd);
+		return toAdd.toString();
 	}
 
 	@Override
