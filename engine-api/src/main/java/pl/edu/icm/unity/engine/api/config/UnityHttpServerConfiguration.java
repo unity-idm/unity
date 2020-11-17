@@ -168,9 +168,9 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 				setDescription("Maximum number of concurrent connections the server accepts."));
 		defaults.put(FAST_RANDOM, new PropertyMD("false").setCategory(advancedCat).
 				setDescription("Use insecure, but fast pseudo random generator to generate session ids "
-						+ "instead of secure generator for SSL sockets."));
-		defaults.put(WANT_CLIENT_AUTHN, new PropertyMD("true").setCategory(advancedCat).
-				setDescription("Controls whether the SSL socket accepts (but does not require) client-side authentication."));
+						+ "instead of secure generator for TLS sockets."));
+		defaults.put(WANT_CLIENT_AUTHN, new PropertyMD("false").setCategory(advancedCat).
+				setDescription("Controls whether the TLS socket accepts (but does not require) client-side certificate authentication."));
 		defaults.put(DISABLED_CIPHER_SUITES, new PropertyMD("").setCategory(advancedCat).
 				setDescription("Space separated list of TLS cipher suites to be disabled. "
 						+ "Names of the ciphers must adhere to the standard Java cipher names, available here (search for Cipher Suites): "

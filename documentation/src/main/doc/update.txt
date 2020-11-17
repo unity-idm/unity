@@ -121,6 +121,8 @@ many user facing UI views, in the first place the authentication screen.
 
 ==== From 3.3 to 3.4
 
+===== AdminUI dropped
+
 Version 3.4 drops AdminUI support completely. Before upgrade make sure to:
 
 * deploy Admin Console endpoint, which is its replacement (suggested since 3.0 release)
@@ -131,4 +133,21 @@ Note that DB migration will drop all stored AdminUI endpoints that are found in 
 Version 3.4 also migrates all +jpegImage+ attributes to the newer and more flexible +image+ attribute type. 
 This change requires no special action, although be aware that from that version image attributes can
 be exported over OAuth and SAML interfaces.
-  
+
+===== Change of the default for the TLS wantClientAuthn option
+
+Since version 3.4 Unity the default value for the option +unityServer.core.httpServer.wantClientAuthn+ is +false+,
+while previously it was +true+. This option controls whether client-side X.509 certificates are accepted 
+and so can be used for the X.509 credential authentication. 
+
+The change of default was caused by several problems caused by this setting. Among others there are problems
+with the Safari web-browser showing a popup to their users accessing a server with the aforementioned TLS feature 
+enabled. What is more the recently introduced support for FIDO2 security keys also doesn't work well in case of 
+some keys with that feature turned on.
+
+Installations relaying on default config settings for this feature, need to add the following option to +unityServer.conf+: 
+
+----
+unityServer.core.httpServer.wantClientAuthn=true
+----
+
