@@ -44,6 +44,7 @@ class FidoEditorComponent extends CustomComponent
 	private Button addButton;
 	private TextField username;
 	private Button customizeButton;
+	private VerticalLayout buttons;
 
 	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, 
 			final MessageSource msg)
@@ -59,7 +60,7 @@ class FidoEditorComponent extends CustomComponent
 				.newCredentialListener(this::addNewCredential)
 				.allowAuthenticatorReUsage(isInDevelopmentMode())
 				.build();
-		fidoComponent.setHeight(1, Unit.PIXELS);
+		fidoComponent.setHeight(0, Unit.PIXELS);
 
 		username = new TextField(msg.getMessage("Fido.username"));
 		username.setValue(nonNull(context.getCredentialConfiguration()) ?
@@ -72,6 +73,12 @@ class FidoEditorComponent extends CustomComponent
 		credentialsLayout.setMargin(false);
 		credentialsLayout.setSpacing(false);
 
+		addButton = new Button();
+		addButton.setDescription(msg.getMessage("Fido.newRegistration"));
+		addButton.setCaption(msg.getMessage("Fido.register"));
+		addButton.setWidth("100%");
+		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue()));
+
 		customizeButton = new Button(msg.getMessage("Fido.customizeUsername"));
 		customizeButton.addStyleName(Styles.vButtonLink.toString());
 		customizeButton.addStyleName("u-highlightedLink");
@@ -80,18 +87,16 @@ class FidoEditorComponent extends CustomComponent
 			username.setVisible(true);
 		});
 		customizeButton.setVisible(isNull(context.getEntityId()));
-
-		addButton = new Button();
-		addButton.setDescription(msg.getMessage("Fido.newRegistration"));
-		addButton.setCaption(msg.getMessage("Fido.register"));
-		addButton.setWidth("100%");
-		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue()));
-
+		buttons = new VerticalLayout(addButton, customizeButton);
+		buttons.setSpacing(false);
+		buttons.setMargin(false);
+		
 		VerticalLayout root = new VerticalLayout();
 		root.setMargin(false);
-		root.setSpacing(false);
-
-		root.addComponents(fidoComponent, username, credentialsLayout, addButton, customizeButton);
+		root.setSpacing(true);
+		root.addStyleName("u-fidoEditorLayout");
+		
+		root.addComponents(fidoComponent, username, credentialsLayout, buttons);
 
 		setCompositionRoot(root);
 
@@ -141,13 +146,19 @@ class FidoEditorComponent extends CustomComponent
 
 		if (credentialsLayout.getComponentCount() > 0)
 		{
+			credentialsLayout.setVisible(true);
 			credentialsLayout.addComponent(HtmlTag.horizontalLine());
+		} else
+		{
+			credentialsLayout.setVisible(false);
 		}
 
 		addButton.setVisible(nonNull(fidoComponent.getEntityId()) || credentialsLayout.getComponentCount() == 0);
 		username.setVisible(username.isVisible() && credentialsLayout.getComponentCount() == 0);
 		customizeButton.setVisible(isNull(fidoComponent.getEntityId()) 
 				&& credentialsLayout.getComponentCount() == 0 && !username.isVisible());
+
+		buttons.setVisible(addButton.isVisible() || customizeButton.isVisible());
 	}
 
 	private void addNewCredential(final FidoCredentialInfo credential)

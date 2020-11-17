@@ -1535,5 +1535,12 @@
 		}
     }
     
+    .u-fidoRetrievalLayout > div:first-child {
+		height: 0px;
+	}
+	
+	 .u-fidoEditorLayout > div:first-child {
+		height: 0px;
+	}
 }
 
