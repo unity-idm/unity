@@ -4,15 +4,12 @@
  */
 package io.imunity.fido.credential;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import com.yubico.webauthn.attestation.Transport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.exception.HexException;
 import org.junit.Test;
-import pl.edu.icm.unity.Constants;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,11 +29,9 @@ public class FidoCredentialInfoTest
 	@Test
 	public void warnDeveloperWhenNewFieldsAreDetected() throws HexException
 	{
-		//given/when
-		FidoCredentialInfo fidoCredentialInfo = generateCredential();
-
 		//then
-		assertEquals("New field detected. Make sure FidoCredentialInfo::equals() is updated.", 16, FidoCredentialInfo.class.getDeclaredFields().length);
+		assertEquals("New field detected. Make sure FidoCredentialInfo::equals() is updated.", 
+				16, FidoCredentialInfo.class.getDeclaredFields().length);
 	}
 
 	@Test

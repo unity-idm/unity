@@ -15,7 +15,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -50,7 +49,6 @@ public class FidoEntityHelperTest
 	private static final EntityParam USERHANDLE_IDENTITY_PARAMS = new EntityParam(new IdentityParam(FidoUserHandleIdentity.ID, USERHANDLE_IDENTITY.getValue()));
 	private static final EntityParam USERNAME_IDENTITY_PARAMS = new EntityParam(new IdentityParam(UsernameIdentity.ID, USERNAME));
 	private static final EntityParam EMAIL_IDENTITY_PARAMS = new EntityParam(new IdentityParam(EmailIdentity.ID, EMAIL));
-	private static final Entity entity = null;
 	private static List<Identity> identitiesList = Arrays.asList(new Identity(UsernameIdentity.ID, USERNAME, 1, USERNAME),
 				new Identity(EmailIdentity.ID, EMAIL, 1, EMAIL),
 				USERHANDLE_IDENTITY);
@@ -219,7 +217,7 @@ public class FidoEntityHelperTest
 		FidoUserHandle uh = helper.getOrCreateUserHandle(ids);
 
 		// then
-		Identity id = verify(identityResolver, never()).insertIdentity(any(), any());
+		verify(identityResolver, never()).insertIdentity(any(), any());
 		assertEquals(USER_HANDLE.asString(), uh.asString());
 	}
 

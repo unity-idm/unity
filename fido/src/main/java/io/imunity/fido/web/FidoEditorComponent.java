@@ -25,7 +25,6 @@ import io.imunity.fido.credential.FidoCredentialInfo;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;

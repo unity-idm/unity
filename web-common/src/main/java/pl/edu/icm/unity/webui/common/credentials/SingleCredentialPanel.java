@@ -337,10 +337,6 @@ public class SingleCredentialPanel extends CustomComponent
 		return true;
 	}
 
-	private void changeAndReload() {
-
-	}
-	
 	private void onAdditionalAuthnForUpdateCredential(AuthnResult result)
 	{
 		if (result == AuthnResult.SUCCESS)
