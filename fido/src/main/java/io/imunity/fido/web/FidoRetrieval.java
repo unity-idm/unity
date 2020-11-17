@@ -126,6 +126,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		private VerticalLayout visiblePart;
 		private FidoComponent fidoComponent;
 		private Long entityId;
+		private Button authenticateButton;
 		
 		public FidoRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -157,7 +158,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			usernameField.addStyleName("u-passwordUsernameField");
 			visiblePart.addComponent(usernameField);
 
-			Button authenticateButton = new Button(msg.getMessage("Fido.WebRetrieval.signIn"));
+			authenticateButton = new Button(msg.getMessage("Fido.WebRetrieval.signIn"));
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-passwordSignInButton");
@@ -210,6 +211,8 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		{
 			if (entityId == null)
 				usernameField.focus();
+			else
+				authenticateButton.focus();
 		}
 
 		@Override

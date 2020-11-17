@@ -83,10 +83,7 @@ class FidoEntityHelper
 
 	Optional<String> getUsernameForUserHandle(final String userHandle)
 	{
-		return getIdentitiesByUserHandle(userHandle).stream()
-				.filter(id -> id.getTypeId().equals(UsernameIdentity.ID))
-				.map(Identity::getName)
-				.findFirst();
+		return Identities.getUsername(getIdentitiesByUserHandle(userHandle));
 	}
 
 	FidoUserHandle getOrCreateUserHandle(final Identities identities) {
@@ -131,11 +128,19 @@ class FidoEntityHelper
 		try
 		{
 			List<Identity> ret = identityResolver.getIdentitiesForEntity(new EntityParam(new IdentityParam(UsernameIdentity.ID, username)));
-			if (ret.isEmpty())
-				return identityResolver.getIdentitiesForEntity(new EntityParam(new IdentityParam(EmailIdentity.ID, username)));
-			return ret;
+			if (!ret.isEmpty())
+				return ret;
 		} catch (IllegalIdentityValueException | UnknownIdentityException e)
 		{
+			// Ignore these exceptions as Username identity is not required - look for email
+		}
+
+		try
+		{
+			return identityResolver.getIdentitiesForEntity(new EntityParam(new IdentityParam(EmailIdentity.ID, username)));
+		} catch (IllegalIdentityValueException | UnknownIdentityException e)
+		{
+			// Neither Username nor Email identity is defined.
 			return Collections.emptyList();
 		}
 	}

@@ -10,6 +10,7 @@
 package io.imunity.fido.service;
 
 import io.imunity.fido.identity.FidoUserHandleIdentity;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -32,17 +33,21 @@ class Identities
 		this.identities = identities;
 	}
 
-	String getUsername()
+	String getUsername() {
+		return getUsername(identities)
+				.orElseThrow(() -> new RuntimeEngineException("Invalid state of Identities object - unknown username."));
+	}
+
+	static Optional<String> getUsername(List<Identity> identities)
 	{
-		Optional<String> name = identities.stream()
-				.filter(id -> id.getTypeId().equals(UsernameIdentity.ID))
-				.findFirst()
-				.map(Identity::getName);
-		return name.orElseGet(() -> identities.stream()
-				.filter(id -> id.getTypeId().equals(EmailIdentity.ID))
-				.map(Identity::getName)
-				.findFirst()
-				.get());
+		return getUsernameIdentity(identities).map(Identity::getName);
+	}
+
+	static private Optional<Identity> getUsernameIdentity(List<Identity> identities)
+	{
+		return identities.stream()
+				.filter(id -> id.getTypeId().equals(UsernameIdentity.ID) || id.getTypeId().equals(EmailIdentity.ID))
+				.reduce((x, y) -> x.getTypeId().equals(UsernameIdentity.ID) ? x : y);
 	}
 
 	Optional<String> getUserHandle()
@@ -55,19 +60,9 @@ class Identities
 
 	EntityParam getEntityParam()
 	{
-		Optional<Identity> identity = identities.stream()
-				.filter(id -> id.getTypeId().equals(UsernameIdentity.ID))
-				.findFirst();
-		if (!identity.isPresent())
-		{
-			identity = identities.stream()
-					.filter(id -> id.getTypeId().equals(EmailIdentity.ID))
-					.findFirst();
-			return new EntityParam(new IdentityParam(EmailIdentity.ID, identity.get().getValue()));
-		} else
-		{
-			return new EntityParam(new IdentityParam(UsernameIdentity.ID, identity.get().getValue()));
-		}
+		return getUsernameIdentity(identities)
+				.map(id -> new EntityParam(new IdentityParam(id.getTypeId(),id.getValue())))
+				.orElseThrow(() -> new RuntimeEngineException("Invalid state of Identities object - unknown username."));
 	}
 
 	static IdentitiesBuilder builder()
@@ -91,10 +86,9 @@ class Identities
 
 		public Identities build()
 		{
-			Identities ret = new Identities(identities);
-			if (ret.getUsername().isEmpty())
-				throw new IllegalArgumentException("Cannot retrieve username value for given identities.");
-			return ret;
+			return getUsername(identities)
+					.map(v -> new Identities(identities))
+					.orElseThrow(() -> new IllegalArgumentException("Cannot retrieve username value for given identities."));
 		}
 	}
 }

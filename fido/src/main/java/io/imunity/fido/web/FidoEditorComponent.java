@@ -85,8 +85,6 @@ class FidoEditorComponent extends CustomComponent
 		addButton = new Button();
 		addButton.setDescription(msg.getMessage("Fido.newRegistration"));
 		addButton.setCaption(msg.getMessage("Fido.register"));
-		addButton.addStyleName(Styles.signInButton.toString());
-		addButton.addStyleName("u-passwordSignInButton");
 		addButton.setWidth("100%");
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue()));
 
