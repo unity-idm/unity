@@ -158,7 +158,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 			return ret;
 		}
 
-		if (form.getIdentityParams() == null || 
+		if (form.getIdentityParams() == null || form.getIdentityParams().isEmpty() ||
 				!form.getIdentityParams().get(0).getIdentityType().equals(EmailIdentity.ID))
 		{
 			ret.add(msg.getMessage("FormGenerator.noEmailIdentity"));
@@ -234,7 +234,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 	@Transactional
 	@Override
-	public RegistrationForm generateRegistrationForm(String groupPath, String logo, List<String> attributes)
+	public RegistrationForm generateProjectRegistrationForm(String groupPath, String logo, List<String> attributes)
 			throws EngineException
 	{
 
@@ -284,7 +284,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 	@Transactional
 	@Override
-	public EnquiryForm generateJoinEnquiryForm(String groupPath, String logo) throws EngineException
+	public EnquiryForm generateProjectJoinEnquiryForm(String groupPath, String logo) throws EngineException
 	{
 
 		Set<String> actualForms = enqFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
@@ -307,7 +307,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 	@Transactional
 	@Override
-	public EnquiryForm generateUpdateEnquiryForm(String groupPath, String logo) throws EngineException
+	public EnquiryForm generateProjectUpdateEnquiryForm(String groupPath, String logo) throws EngineException
 	{
 
 		Set<String> actualForms = enqFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
@@ -405,10 +405,11 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 			if (groupParam.getGroupPath().equals(projectPath + "/?*/**"))
 			{
 				groupParam.setGroupPath(subprojectPath + "/?*/**");
-			}else 			if (groupParam.getGroupPath().equals(projectPath))
+			}else if (groupParam.getGroupPath().equals(projectPath))
 			{
 				groupParam.setGroupPath(subprojectPath);
-			}		
+			}
+			groupParams.add(groupParam);
 		}
 		return groupParams;
 	}
@@ -442,7 +443,6 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	private RegistrationFormNotifications getDefaultRegistrationNotificationConfig()
 	{
 		RegistrationFormNotifications not = new RegistrationFormNotifications();
-		not.setInvitationTemplate(getDefaultInvitationTemplate());
 		not.setInvitationTemplate(getDefaultInvitationTemplate());
 		not.setAcceptedTemplate(getDefaultAcceptTemplate());
 		not.setRejectedTemplate(getDefaultRejectTemplate());

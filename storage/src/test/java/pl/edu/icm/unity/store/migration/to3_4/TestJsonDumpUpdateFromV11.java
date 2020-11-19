@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -46,6 +47,9 @@ public class TestJsonDumpUpdateFromV11
 
 	@Autowired
 	private AttributeTypeDAO attrTypeDAO;
+	
+	@Autowired
+	private GroupDAO groupDao;
 
 	@Before
 	public void cleanDB()
@@ -70,6 +74,7 @@ public class TestJsonDumpUpdateFromV11
 			}
 
 			checkProjectRoleAttributeTypeConfig();
+			checkGroups();
 		});
 
 	}
@@ -87,4 +92,13 @@ public class TestJsonDumpUpdateFromV11
 
 	}
 
+	
+	private void checkGroups()
+	{
+		assertThat(groupDao.getAll().size(), is(9));
+		assertThat(groupDao.getAll().get(0).getDelegationConfiguration().enableSubprojects, is(false));
+		
+	}
+	
+	
 }

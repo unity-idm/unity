@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.engine.api.project;
 
 public class SubprojectGroupDelegationConfiguration
 {
@@ -13,8 +13,7 @@ public class SubprojectGroupDelegationConfiguration
 	public final boolean enableSubprojects;
 	
 	public SubprojectGroupDelegationConfiguration(boolean enabled, boolean enableSubprojects,  String logoUrl)
-	{
-		
+	{	
 		this.enabled = enabled;
 		this.logoUrl = logoUrl;
 		this.enableSubprojects = enableSubprojects;

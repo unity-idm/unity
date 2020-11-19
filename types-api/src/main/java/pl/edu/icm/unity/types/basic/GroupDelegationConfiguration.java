@@ -35,7 +35,7 @@ public class GroupDelegationConfiguration
 
 	@JsonCreator
 	public GroupDelegationConfiguration(@JsonProperty("enabled") boolean enabled,
-			@JsonProperty("enableSubprojects") boolean enableSubprojects,
+			@JsonProperty( value = "enableSubprojects", required=false) Boolean enableSubprojects,
 			@JsonProperty("logoUrl") String logoUrl,
 			@JsonProperty("registrationForm") String registrationForm,
 			@JsonProperty("signupEnquiryForm") String signupEnquiryForm,
@@ -48,7 +48,7 @@ public class GroupDelegationConfiguration
 		this.signupEnquiryForm = signupEnquiryForm;
 		this.membershipUpdateEnquiryForm = membershipUpdateEnquiryForm;
 		this.attributes = attributes != null ? new ArrayList<>(attributes) : null;
-		this.enableSubprojects = enableSubprojects;
+		this.enableSubprojects = enableSubprojects != null ? enableSubprojects : false;
 	}
 
 	@Override

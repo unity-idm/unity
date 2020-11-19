@@ -78,7 +78,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.treeManager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
+				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
 		Assertions.assertThat(ex).isNull();
 	}
 	
@@ -97,7 +97,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
+				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
 		assertAuthzException(ex);
 	}
 	
@@ -116,7 +116,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.treeManager));
+				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.treeManager));
 		assertAuthzException(ex);
 	}
 	
@@ -135,7 +135,7 @@ public class TestProjectAuthorizationManager
 						.asList(GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkRoleManagerAuthorization("/project", "/project/sub/sub2", GroupAuthorizationRole.manager));
+				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub/sub2", GroupAuthorizationRole.manager));
 		assertAuthzException(ex);
 	}
 	
@@ -154,7 +154,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.regular.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
+				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
 		assertAuthzException(ex);
 	}
 	
@@ -169,7 +169,7 @@ public class TestProjectAuthorizationManager
 
 		
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkTreeManagerSubprojectCreationAuthorization("/project", "/project/sub"));
+				() -> mockAuthz.assertTreeManagerSubprojectCreationAuthorization("/project", "/project/sub"));
 		assertAuthzException(ex);
 	}
 	
@@ -188,7 +188,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.checkTreeManagerSubprojectCreationAuthorization("/project", "/project/sub"));
+				() -> mockAuthz.assertTreeManagerSubprojectCreationAuthorization("/project", "/project/sub"));
 		assertAuthzException(ex);
 	}
 
@@ -229,7 +229,7 @@ public class TestProjectAuthorizationManager
 						new Attribute(null, null, null, Arrays.asList(userRole.toString())),
 						false), 1L)));
 
-		return catchThrowable(() -> mockAuthz.checkManagerAuthorization("/project"));
+		return catchThrowable(() -> mockAuthz.assertManagerAuthorization("/project"));
 
 	}
 }

@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -53,7 +54,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -110,7 +110,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public String addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
 			throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, parentPath);
+		authz.assertManagerAuthorization(projectPath, parentPath);
 		GroupContents groupContent = groupMan.getContents(parentPath, GroupContents.GROUPS);
 		List<String> subGroups = groupContent.getSubGroups();
 
@@ -134,7 +134,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public void removeGroup(String projectPath, String path) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, path);
+		authz.assertManagerAuthorization(projectPath, path);
 		if (projectPath.equals(path))
 			throw new RemovalOfProjectGroupException(projectPath);
 		groupMan.removeGroup(path, true);
@@ -147,7 +147,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			throws EngineException
 	{
 
-		authz.checkManagerAuthorization(projectPath, path);
+		authz.assertManagerAuthorization(projectPath, path);
 		GroupStructuralData bulkData = bulkQueryService.getBulkStructuralData(path);
 		Map<String, GroupContents> groupAndSubgroups = bulkQueryService.getGroupAndSubgroups(bulkData);
 		Map<String, DelegatedGroupContents> ret = new HashMap<>();
@@ -171,7 +171,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public DelegatedGroupContents getContents(String projectPath, String path) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, path);
+		authz.assertManagerAuthorization(projectPath, path);
 		GroupContents orgGroupContents = groupMan.getContents(path,
 				GroupContents.GROUPS | GroupContents.METADATA);
 		Group orgGroup = orgGroupContents.getGroup();
@@ -188,7 +188,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public List<DelegatedGroupMember> getDelegatedGroupMemebers(String projectPath, String path)
 			throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, path);
+		authz.assertManagerAuthorization(projectPath, path);
 		return getDelegatedGroupMemebersInternal(projectPath, path);
 	}
 
@@ -196,7 +196,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public String getAttributeDisplayedName(String projectPath, String attrName) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 		List<String> attrs = getProjectAttrs(projectPath);
 
 		if (!attrs.contains(attrName))
@@ -210,7 +210,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public void setGroupDisplayedName(String projectPath, String path, I18nString newName) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, path);
+		authz.assertManagerAuthorization(projectPath, path);
 		if (projectPath.equals(path))
 			throw new RenameProjectGroupException(projectPath);
 
@@ -223,7 +223,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public void setGroupAccessMode(String projectPath, String path, boolean isPublic) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, path);
+		authz.assertManagerAuthorization(projectPath, path);
 		GroupContents groupContent = groupMan.getContents(path, GroupContents.METADATA | GroupContents.GROUPS);
 		Group group = groupContent.getGroup();
 		group.setPublic(isPublic);
@@ -235,7 +235,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public void setGroupAuthorizationRole(String projectPath, String groupPath, long entityId, GroupAuthorizationRole role)
 			throws EngineException
 	{
-		authz.checkRoleManagerAuthorization(projectPath, groupPath, role);
+		authz.assertRoleManagerAuthorization(projectPath, groupPath, role);
 		Attribute attr = new Attribute(
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
 				null, groupPath, Lists.newArrayList(role.toString()));
@@ -278,7 +278,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public void addMemberToGroup(String projectPath, String groupPath, long entityId) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, groupPath);
+		authz.assertManagerAuthorization(projectPath, groupPath);
 		final Deque<String> notMember = getMissingEntityGroups(groupPath, entityId);
 		addToGroupRecursive(notMember, entityId);
 
@@ -288,7 +288,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Transactional
 	public void removeMemberFromGroup(String projectPath, String groupPath, long entityId) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath, groupPath);
+		authz.assertManagerAuthorization(projectPath, groupPath);
 		groupMan.removeMember(groupPath, new EntityParam(entityId));
 	}
 	
@@ -297,7 +297,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public GroupAuthorizationRole getGroupAuthorizationRole(String projectPath, long entityId)
 			throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 		Optional<String> val = projectAttrHelper.getAttributeValue(entityId, projectPath,
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE);
 		
@@ -308,7 +308,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public void setGroupDelegationConfiguration(String projectPath, String groupPath, SubprojectGroupDelegationConfiguration subprojectDelegationConfiguration) throws EngineException
 	{
 
-		authz.checkTreeManagerSubprojectCreationAuthorization(projectPath, groupPath);
+		authz.assertTreeManagerSubprojectCreationAuthorization(projectPath, groupPath);
 		Group projectGroup = getGroupInternal(projectPath);
 		GroupDelegationConfiguration projectDelConfig = projectGroup.getDelegationConfiguration();
 		Group group = getGroupInternal(groupPath);

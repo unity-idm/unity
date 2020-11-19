@@ -46,12 +46,12 @@ public class ProjectAuthorizationManager
 	}
 
 	@Transactional
-	public void checkManagerAuthorization(String projectPath) throws AuthorizationException
+	public void assertManagerAuthorization(String projectPath) throws AuthorizationException
 	{
 
 		LoginSession client = getClient();
-		assertIfDelegationIsActive(projectPath);
-		assertIfClientIsProjectManager(projectPath, client.getEntityId());
+		assertDelegationIsEnabled(projectPath);
+		assertClientIsProjectManager(projectPath, client.getEntityId());
 	}
 
 	private LoginSession getClient() throws AuthorizationException
@@ -72,40 +72,40 @@ public class ProjectAuthorizationManager
 	}
 
 	@Transactional
-	public void checkManagerAuthorization(String projectPath, String groupPath) throws AuthorizationException
+	public void assertManagerAuthorization(String projectPath, String groupPath) throws AuthorizationException
 	{
 
-		checkManagerAuthorization(projectPath);
+		assertManagerAuthorization(projectPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
 
 	}
 
 	@Transactional
-	public void checkTreeManagerSubprojectCreationAuthorization(String projectPath, String groupPath)
+	public void assertTreeManagerSubprojectCreationAuthorization(String projectPath, String groupPath)
 			throws AuthorizationException
 
 	{
 		LoginSession client = getClient();
-		assertIfDelegationAndSubprojectsAreActive(projectPath);
+		assertDelegationAndSubprojectsAreEnabled(projectPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
-		assertIfClientIsProjectTreeManager(projectPath, groupPath, client.getEntityId());
+		assertClientIsProjectTreeManager(projectPath, groupPath, client.getEntityId());
 
 	}
 	
 	@Transactional
-	public void checkRoleManagerAuthorization(String projectPath, String groupPath, GroupAuthorizationRole role)
+	public void assertRoleManagerAuthorization(String projectPath, String groupPath, GroupAuthorizationRole role)
 			throws AuthorizationException
 
 	{
 		LoginSession client = getClient();
-		assertIfDelegationIsActive(projectPath);
-		assertIfDelegationIsActive(groupPath);
+		assertDelegationIsEnabled(projectPath);
+		assertDelegationIsEnabled(groupPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
-		assertIfClientCanGiveRole(client.getEntityId(), projectPath, groupPath, role);
+		assertClientCanGiveRole(client.getEntityId(), projectPath, groupPath, role);
 
 	}
 
-	private void assertIfClientCanGiveRole(long clientId, String projectPath, String groupPath, GroupAuthorizationRole role) throws AuthorizationException
+	private void assertClientCanGiveRole(long clientId, String projectPath, String groupPath, GroupAuthorizationRole role) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);		
 		if (roles.contains(GroupAuthorizationRole.treeManager))
@@ -121,7 +121,7 @@ public class ProjectAuthorizationManager
 						
 	}
 
-	private void assertIfDelegationIsActive(String projectPath) throws AuthorizationException
+	private void assertDelegationIsEnabled(String projectPath) throws AuthorizationException
 	{
 		if (!getGroup(projectPath).getDelegationConfiguration().enabled)
 		{
@@ -131,7 +131,7 @@ public class ProjectAuthorizationManager
 		}
 	}
 	
-	private void assertIfDelegationAndSubprojectsAreActive(String projectPath) throws AuthorizationException
+	private void assertDelegationAndSubprojectsAreEnabled(String projectPath) throws AuthorizationException
 	{
 		GroupDelegationConfiguration config = getGroup(projectPath).getDelegationConfiguration();
 		if (!config.enabled || !config.enableSubprojects)
@@ -153,7 +153,7 @@ public class ProjectAuthorizationManager
 		}
 	}
 
-	private void assertIfClientIsProjectManager(String projectPath, long clientId) throws AuthorizationException
+	private void assertClientIsProjectManager(String projectPath, long clientId) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
 
@@ -166,7 +166,7 @@ public class ProjectAuthorizationManager
 		}
 	}
 
-	private void assertIfClientIsProjectTreeManager(String projectPath, String groupPath,
+	private void assertClientIsProjectTreeManager(String projectPath, String groupPath,
 			long clientId) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);

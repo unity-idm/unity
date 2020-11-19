@@ -10,7 +10,6 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.SubprojectGroupDelegationConfiguration;
 
 /**
  * Internal engine API for delegated groups management
@@ -73,6 +72,7 @@ public interface DelegatedGroupManagement
 			throws EngineException;
 
 	/**
+	 * Gets group with all child (recursive) groups as map.
 	 * 
 	 * @param projectPath project group path
 	 * @param groupPath group to be queried
@@ -97,7 +97,8 @@ public interface DelegatedGroupManagement
 			throws EngineException;
 
 	/**
-	 * Update value of group authorization role attribute 
+	 * Update value of group authorization role attribute
+	 *  
 	 * @param projectPath project group path
 	 * @param entityId attribute owner
 	 * @param role value to set
@@ -109,6 +110,7 @@ public interface DelegatedGroupManagement
 	
 	/**
 	 * Update value of group authorization role attribute 
+	 * 
 	 * @param projectPath project group path
 	 * @param entityId attribute owner
 	 * @param role value to set
@@ -118,10 +120,10 @@ public interface DelegatedGroupManagement
 			throws EngineException;
 
 	/**
-	 * 
-	 * @param projectPath
-	 * @param groupPath
-	 * @param subprojectGroupDelegationConfiguration
+	 * Sets group delegation configuration 
+	 * @param projectPath project group path
+	 * @param groupPath group path
+	 * @param subprojectGroupDelegationConfiguration group delegation configuration to set
 	 * @throws EngineException
 	 */
 	void setGroupDelegationConfiguration(String projectPath, String groupPath,
@@ -129,6 +131,8 @@ public interface DelegatedGroupManagement
 			throws EngineException;
 	
 	/**
+	 * Gets projects for entity
+	 * 
 	 * @param entityId project manager
 	 * @return All project group of entity
 	 * @throws EngineException

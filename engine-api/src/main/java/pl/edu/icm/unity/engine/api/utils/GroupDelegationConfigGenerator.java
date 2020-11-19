@@ -19,11 +19,11 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
  */
 public interface GroupDelegationConfigGenerator
 {
-	RegistrationForm generateRegistrationForm(String groupPath, String logo, List<String> attributes) throws EngineException;
+	RegistrationForm generateProjectRegistrationForm(String groupPath, String logo, List<String> attributes) throws EngineException;
 
-	EnquiryForm generateJoinEnquiryForm(String groupPath, String logo) throws EngineException;
+	EnquiryForm generateProjectJoinEnquiryForm(String groupPath, String logo) throws EngineException;
 
-	EnquiryForm generateUpdateEnquiryForm(String groupPath, String logo) throws EngineException;
+	EnquiryForm generateProjectUpdateEnquiryForm(String groupPath, String logo) throws EngineException;
 	
 	List<String> validateRegistrationForm(String groupPath, String formName);
 	

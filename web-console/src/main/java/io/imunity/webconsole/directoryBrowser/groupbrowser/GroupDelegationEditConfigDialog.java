@@ -201,7 +201,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		EnquiryForm form;
 		try
 		{
-			form = configGenerator.generateJoinEnquiryForm(group.toString(), logoUrl.getValue());
+			form = configGenerator.generateProjectJoinEnquiryForm(group.toString(), logoUrl.getValue());
 			enquiryMan.addEnquiry(form);
 
 		} catch (EngineException e)
@@ -219,7 +219,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		EnquiryForm form;
 		try
 		{
-			form = configGenerator.generateUpdateEnquiryForm(group.toString(), logoUrl.getValue());
+			form = configGenerator.generateProjectUpdateEnquiryForm(group.toString(), logoUrl.getValue());
 			enquiryMan.addEnquiry(form);
 
 		} catch (EngineException e)
@@ -253,7 +253,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		RegistrationForm form;
 		try
 		{
-			form = configGenerator.generateRegistrationForm(group.toString(), logoUrl.getValue(),
+			form = configGenerator.generateProjectRegistrationForm(group.toString(), logoUrl.getValue(),
 					attributes.getSelectedItems());
 			registrationMan.addForm(form);
 

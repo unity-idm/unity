@@ -66,6 +66,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private Toolbar<TreeNode> toolbar;
 	private GroupBrowserController controller;
 	private boolean authzError = false;
+	
 	@Autowired
 	public GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{

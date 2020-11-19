@@ -83,7 +83,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Override
 	public List<ProjectRequest> getRequests(String projectPath) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 
 		List<ProjectRequest> allRequests = new ArrayList<>();
 
@@ -103,7 +103,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Override
 	public void accept(ProjectRequestParam request) throws EngineException
 	{
-		authz.checkManagerAuthorization(request.project);
+		authz.assertManagerAuthorization(request.project);
 		proccessRequest(request, RegistrationRequestAction.accept);
 	}
 
@@ -111,7 +111,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Override
 	public void decline(ProjectRequestParam request) throws EngineException
 	{
-		authz.checkManagerAuthorization(request.project);
+		authz.assertManagerAuthorization(request.project);
 		proccessRequest(request, RegistrationRequestAction.reject);
 	}
 
@@ -120,7 +120,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public Optional<String> getProjectRegistrationFormLink(String projectPath) throws EngineException
 	{
 
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 		String registrationFormId = getProjectDelegationConfig(projectPath).registrationForm;
 
 		if (registrationFormId == null)
@@ -146,7 +146,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Override
 	public Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).signupEnquiryForm;
 		return getEnquiryLink(enquiryFormId);
 	}
@@ -156,7 +156,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Override
 	public Optional<String> getProjectUpdateMembershipEnquiryFormLink(String projectPath) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).membershipUpdateEnquiryForm;
 		return getEnquiryLink(enquiryFormId);
 	}
