@@ -402,14 +402,22 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		List<GroupRegistrationParam> groupParams = new ArrayList<>();
 		for (GroupRegistrationParam groupParam : toUpdate)
 		{
-			if (groupParam.getGroupPath().equals(projectPath + "/?*/**"))
+			GroupRegistrationParam newGroupParam = new GroupRegistrationParam();
+			newGroupParam.setDescription(groupParam.getDescription());
+			newGroupParam.setIncludeGroupsMode(groupParam.getIncludeGroupsMode());
+			newGroupParam.setGroupPath(groupParam.getGroupPath());
+			newGroupParam.setLabel(groupParam.getLabel());
+			newGroupParam.setRetrievalSettings(groupParam.getRetrievalSettings());
+			newGroupParam.setMultiSelect(groupParam.isMultiSelect());
+			
+			if (newGroupParam.getGroupPath().equals(projectPath + "/?*/**"))
 			{
-				groupParam.setGroupPath(subprojectPath + "/?*/**");
-			}else if (groupParam.getGroupPath().equals(projectPath))
+				newGroupParam.setGroupPath(subprojectPath + "/?*/**");
+			}else if (newGroupParam.getGroupPath().equals(projectPath))
 			{
-				groupParam.setGroupPath(subprojectPath);
+				newGroupParam.setGroupPath(subprojectPath);
 			}
-			groupParams.add(groupParam);
+			groupParams.add(newGroupParam);
 		}
 		return groupParams;
 	}
