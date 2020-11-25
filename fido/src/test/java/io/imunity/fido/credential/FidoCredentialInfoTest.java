@@ -27,14 +27,6 @@ public class FidoCredentialInfoTest
 	private final Random random = new Random();
 
 	@Test
-	public void warnDeveloperWhenNewFieldsAreDetected() throws HexException
-	{
-		//then
-		assertEquals("New field detected. Make sure FidoCredentialInfo::equals() is updated.", 
-				16, FidoCredentialInfo.class.getDeclaredFields().length);
-	}
-
-	@Test
 	public void generateCredentialShouldSetAllFidoCredentialProperties() throws HexException
 	{
 		//given/when
