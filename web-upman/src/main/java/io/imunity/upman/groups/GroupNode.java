@@ -16,9 +16,10 @@ import pl.edu.icm.unity.webui.common.Images;
  */
 class GroupNode
 {
-	private DelegatedGroup group;
-	private GroupNode parent;
-	private String icon;
+	public final DelegatedGroup group;
+	public final GroupNode parent;
+	public final String htmlPrivacyIcon;
+	public final String htmlIcon;
 
 	public GroupNode(DelegatedGroup group)
 	{
@@ -29,22 +30,8 @@ class GroupNode
 	{
 		this.group = group;
 		this.parent = parent;
-		this.icon = group.open ? Images.padlock_unlock.getHtml() : Images.padlock_lock.getHtml();
-	}
-
-	public String getIcon()
-	{
-		return icon;
-	}
-
-	public void setIcon(String icon)
-	{
-		this.icon = icon;
-	}
-
-	public GroupNode getParentNode()
-	{
-		return parent;
+		this.htmlPrivacyIcon = group.open ? Images.padlock_unlock.getHtml() : "";
+		this.htmlIcon = group.delegationConfiguration.enabled ?	Images.workplace.getHtml() : "";
 	}
 
 	public String getPath()

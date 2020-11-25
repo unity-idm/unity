@@ -15,6 +15,7 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -83,6 +84,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	private void resetNewElement()
 	{
 		newElement = null;
+		setComponentError(null);
 	}
 
 	private void fireChange()
@@ -263,6 +265,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		add.addStyleName(Styles.buttonAction.toString());
 		add.setIcon(Images.add.getResource());
 		add.addClickListener(e -> {
+			grid.setComponentError(null);
 			if (!grid.getEditor().isOpen())
 			{
 				newElement = newInstance(type);
@@ -289,6 +292,18 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	}
 
+	@Override
+	public void setComponentError(ErrorMessage componentError)
+	{	
+		if (grid != null)
+		{
+			grid.setComponentError(componentError);
+		}else
+		{
+			super.setComponentError(componentError);
+		}
+	}
+	
 	public Editor<T> getEditor()
 	{
 		return grid.getEditor();
@@ -298,4 +313,6 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 		return grid.getEditor().isOpen();
 	}
+	
+	
 }

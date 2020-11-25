@@ -20,7 +20,7 @@ public class TestBasic extends SeleniumTestBase
 	@Test
 	public void loginTest() throws Exception
 	{
-		driver.get(baseUrl + "/admin/admin");
+		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-passwordSignInButton"));
 		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");

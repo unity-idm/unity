@@ -82,7 +82,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-admin</artifactId>
+			<artifactId>unity-server-user-home</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -207,7 +207,7 @@
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
+								<argument>io.imunity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWellKnownURLProperties|ref-connectIdWellKnownURLProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.engine.userimport.UserImportProperties|ref-genericUserImportProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.pam.PAMProperties|ref-PAMProperties.txt|</argument>

@@ -694,14 +694,8 @@ public class EntityManagementImpl implements EntityManagement
 	public String getEntityLabel(EntityParam entity) throws EngineException
 	{
 		entity.validateInitialization();
-		AttributeExt attribute = attributesHelper.getAttributeByMetadata(entity, "/", 
+		return attributesHelper.getAttributeValueByMetadata(entity, "/",
 				EntityNameMetadataProvider.NAME);
-		if (attribute == null)
-			return null;
-		List<?> values = attribute.getValues();
-		if (values.isEmpty())
-			return null;
-		return values.get(0).toString();
 	}
 	
 	
@@ -983,18 +977,13 @@ public class EntityManagementImpl implements EntityManagement
 	}
 	
 	private List<Identity> getIdentitiesForEntity(long entityId, String target, boolean allowCreate) 
-			throws IllegalTypeException
+			throws IllegalIdentityValueException
 	{
-		List<Identity> all = idDAO.getByEntity(entityId);
-		List<Identity> ret = new ArrayList<>(all.size() + 4);
-		for (Identity id: all)
-			if (id.getTarget() == null || id.getTarget().equals(target))
-				ret.add(id);
-		Set<String> presentTypes = new HashSet<>();
-		for (Identity id: ret)
-			presentTypes.add(id.getTypeId());
+		List<Identity> ret = identityHelper.getIdentitiesForEntity(entityId, target);
+
 		if (allowCreate)
-			identityHelper.addDynamic(entityId, presentTypes, ret, target);
+			identityHelper.addDynamic(entityId, ret.stream().map(Identity::getTypeId).collect(Collectors.toSet()), ret, target);
+
 		return ret;
 	}
 

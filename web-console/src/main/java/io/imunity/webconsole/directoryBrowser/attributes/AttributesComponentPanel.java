@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.identities.EntityChangedEvent;
+import io.imunity.webconsole.directoryBrowser.identities.EntityChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.webui.WebSession;

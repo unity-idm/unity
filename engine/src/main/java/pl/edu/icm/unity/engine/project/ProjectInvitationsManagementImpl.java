@@ -99,7 +99,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	@Override
 	public String addInvitation(ProjectInvitationParam param) throws EngineException
 	{
-		authz.checkManagerAuthorization(param.project);
+		authz.assertManagerAuthorization(param.project);
 
 		Long entity = getEntityByContactAddress(param.contactAddress);
 		String code = null;
@@ -188,7 +188,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	@Override
 	public List<ProjectInvitation> getInvitations(String projectPath) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
 
@@ -254,7 +254,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	@Override
 	public void removeInvitation(String projectPath, String code) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 		assertIfIsProjectInvitation(projectPath, code);
 		invitationMan.removeInvitation(code);
 	}
@@ -280,7 +280,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	@Override
 	public void sendInvitation(String projectPath, String code) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
+		authz.assertManagerAuthorization(projectPath);
 
 		InvitationWithCode orgInvitationWithCode = assertIfIsProjectInvitation(projectPath, code);
 		InvitationParam orgInvitation = orgInvitationWithCode.getInvitation();

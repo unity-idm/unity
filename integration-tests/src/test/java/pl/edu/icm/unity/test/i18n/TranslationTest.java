@@ -29,7 +29,7 @@ public class TranslationTest
 		new MessageBundleSpec("server-engine-api", "/messages/engine-api/messages"),
 		new MessageBundleSpec("server-std-plugins", "/messages/stdext/messages"),
 		new MessageBundleSpec("server-web-common", "/messages/webui/messages"),
-		new MessageBundleSpec("server-web-admin/home", "/messages/webhome/messages"),
+		new MessageBundleSpec("server-user-home/home", "/messages/webhome/messages"),
 		new MessageBundleSpec("server-saml", "/messages/saml/messages"),
 		new MessageBundleSpec("server-unicore", "/messages/unicore/messages"),
 		new MessageBundleSpec("serveroauth", "/messages/oauth/messages"),

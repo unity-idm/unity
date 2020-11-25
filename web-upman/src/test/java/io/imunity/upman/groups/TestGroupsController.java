@@ -46,7 +46,7 @@ public class TestGroupsController
 	public void shouldForwardAddGroupToCoreManager() throws ControllerException, EngineException
 	{
 		I18nString name = new I18nString("name");
-		controller.addGroup("/project", "/", new I18nString("name"), true);
+		controller.addGroup("/project", "/", new GroupWithAccessMode(new I18nString("name"), true));
 		verify(mockDelGroupMan).addGroup(eq("/project"), eq("/"), eq(name), eq(true));
 	}
 

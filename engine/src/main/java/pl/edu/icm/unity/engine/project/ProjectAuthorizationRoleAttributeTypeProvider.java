@@ -43,14 +43,24 @@ public class ProjectAuthorizationRoleAttributeTypeProvider extends AbstractAttri
 		EnumAttributeSyntax syntax = new EnumAttributeSyntax(vals);
 		AttributeType authorizationAt = new AttributeType(PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
 				EnumAttributeSyntax.ID, msg, PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
-				new Object[] { Stream.of(GroupAuthorizationRole.values())
-						.map(e -> e.getDescription())
-						.collect(Collectors.toSet()) });
+				new Object[] { getRolesDescription() });
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setMinElements(1);
 		authorizationAt.setMaxElements(10);
 		authorizationAt.setUniqueValues(true);
 		authorizationAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return authorizationAt;
+	}
+	
+	
+	private String getRolesDescription()
+	{
+		StringBuilder ret = new StringBuilder();
+		for (GroupAuthorizationRole role: GroupAuthorizationRole.values())
+		{
+			ret.append("<br><b>").append(role).append("</b> - ").
+				append(role.getDescription()).append("\n");
+		}
+		return ret.toString();
 	}
 }

@@ -26,8 +26,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar.MenuItem;
 
-import io.imunity.webadmin.attribute.AttributeEditDialog;
-import io.imunity.webadmin.attribute.AttributeEditor;
+import io.imunity.webconsole.attribute.AttributeEditDialog;
+import io.imunity.webconsole.attribute.AttributeEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;

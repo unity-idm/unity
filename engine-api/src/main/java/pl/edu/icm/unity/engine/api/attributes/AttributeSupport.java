@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api.attributes;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -40,6 +41,13 @@ public interface AttributeSupport
 	 * null is returned. The metadata must be singleton, otherwise unchecked exception is thrown.
 	 */
 	AttributeExt getAttributeByMetadata(EntityParam entity, String group, String metadataId)
+			throws EngineException;
+
+	/**
+	 * Returns the first value of attribute which has the given metadata set. If there is no such attribute type with this metadata or value,
+	 * then null is returned. The metadata must be singleton, otherwise unchecked exception is thrown.
+	 */
+	Optional<String> getAttributeValueByMetadata(EntityParam entity, String group, String metadataId)
 			throws EngineException;
 	
 	/**

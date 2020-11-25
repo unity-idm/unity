@@ -33,7 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
@@ -234,8 +234,8 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 
 		for (int i = 0; i < attributeTypes; i++)
 		{
-			AttributeType type = new AttributeType("jpeg_" + i,
-					JpegImageAttributeSyntax.ID);
+			AttributeType type = new AttributeType("img_" + i,
+					ImageAttributeSyntax.ID);
 			type.setMaxElements(1000);
 			attrTypesMan.addAttributeType(type);
 		}

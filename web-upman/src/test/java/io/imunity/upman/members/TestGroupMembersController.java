@@ -88,28 +88,20 @@ public class TestGroupMembersController
 	}
 
 	@Test
-	public void shouldForwardSetManagerPriviligesToCoreManager() throws ControllerException, EngineException
+	public void shouldForwardSetRoleToCoreManager() throws ControllerException, EngineException
 	{
-		controller.addManagerPrivileges("/project", Sets.newHashSet(getMember()));
-		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq(1L),
+		controller.updateRole("/project", "/project",  GroupAuthorizationRole.manager, Sets.newHashSet(getMember()));
+		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq("/project"), eq(1L),
 				eq(GroupAuthorizationRole.manager));
 
 	}
 
-	@Test
-	public void shouldForwardRevokeManagerPriviligesToCoreManager() throws ControllerException, EngineException
-	{
-		controller.revokeManagerPrivileges("/project", Sets.newHashSet(getMember()));
-		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq(1L),
-				eq(GroupAuthorizationRole.regular));
-
-	}
-
+	
 	@Test
 	public void shouldForwardGetAdditinalAttributesToCoreManager() throws EngineException, ControllerException
 	{
 
-		DelegatedGroup delGroup = new DelegatedGroup("/project", new GroupDelegationConfiguration(true, null,
+		DelegatedGroup delGroup = new DelegatedGroup("/project", new GroupDelegationConfiguration(true, false, null,
 				null, null, null, Arrays.asList("extraAttr")), true, "name");
 
 		DelegatedGroupContents con = new DelegatedGroupContents(delGroup, Optional.empty());

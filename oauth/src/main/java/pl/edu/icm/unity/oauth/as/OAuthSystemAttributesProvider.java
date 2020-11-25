@@ -19,7 +19,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -98,7 +98,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	
 	private AttributeType getLogoAT()
 	{
-		JpegImageAttributeSyntax syntax = new JpegImageAttributeSyntax();
+		ImageAttributeSyntax syntax = new ImageAttributeSyntax();
 		try
 		{
 			syntax.getConfig().setMaxHeight(200);

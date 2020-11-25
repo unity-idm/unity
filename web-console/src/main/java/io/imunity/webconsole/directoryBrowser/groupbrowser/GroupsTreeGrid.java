@@ -17,10 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.TreeDataProvider;
-import com.vaadin.event.CollapseEvent;
-import com.vaadin.event.CollapseEvent.CollapseListener;
-import com.vaadin.event.ExpandEvent;
-import com.vaadin.event.ExpandEvent.ExpandListener;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.shared.ui.dnd.DropEffect;
@@ -33,9 +29,6 @@ import com.vaadin.ui.components.grid.MultiSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
-import io.imunity.webadmin.groupbrowser.GroupEditDialog;
-import io.imunity.webadmin.groupbrowser.TreeNode;
 import io.imunity.webconsole.directoryBrowser.identities.IdentitiesTreeGrid;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -72,16 +65,16 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private TreeDataProvider<TreeNode> dataProvider;
 	private Toolbar<TreeNode> toolbar;
 	private GroupBrowserController controller;
-
+	private boolean authzError = false;
+	
 	@Autowired
 	public GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
 
 		this.msg = msg;
 		this.controller = controller;
+		this.authzError = false;
 
-		addExpandListener(new GroupExpandListener());
-		addCollapseListener(new GroupCollapseListener());
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
 		((MultiSelectionModel<TreeNode>) getSelectionModel())
@@ -127,7 +120,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		setDataProvider(dataProvider);
 		dataProvider.setSortComparator((g1, g2) -> g1.getPath().compareTo(g2.getPath()));
 
-		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer()).setExpandRatio(10);
+		addColumn(n -> getIcon(n) + " " + n.toString(), new HtmlRenderer()).setExpandRatio(10);
 		addComponentColumn(n -> getRowHamburgerMenuComponent(n)).setExpandRatio(0);
 		setHeaderVisible(false);
 		setPrimaryStyleName(Styles.vGroupBrowser.toString());
@@ -137,7 +130,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		setupDragNDrop();
 
-		try
+		try 
 		{
 			loadNode("/", null);
 			expand(treeData.getRootItems());
@@ -147,12 +140,24 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			}
 		} catch (ControllerException e)
 		{
-			TreeNode parent = new TreeNode(msg, new Group("/"), Images.noAuthzGrp.getHtml());
+			authzError = true;
+			TreeNode parent = new TreeNode(msg, new Group("/"));
 			treeData.addItems(null, parent);
 			dataProvider.refreshAll();
 		}
 	}
 
+	String getIcon(TreeNode node)
+	{
+		
+		
+		return authzError ? Images.noAuthzGrp.getHtml()
+				: node.isDelegated() ? Images.workplace.getHtml()
+						: isExpanded(node) ? Images.folder_open.getHtml()
+								: Images.folder_close.getHtml();
+
+	}
+	
 	private MenuBar getRowHamburgerMenuComponent(TreeNode target)
 	{
 		SingleActionHandler<TreeNode> addAction = getAddAction();
@@ -265,7 +270,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			return;
 		for (Group rootGr : rootGrs)
 		{
-			TreeNode rootNode = new TreeNode(msg, rootGr, Images.folder_close.getHtml(), parent);
+			TreeNode rootNode = new TreeNode(msg, rootGr, parent);
 			treeData.addItem(parent, rootNode);
 			addChildren(rootNode, groupTree);
 		}
@@ -280,7 +285,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	{
 		for (Group child : groupTree.get(parentNode.getPath()))
 		{
-			TreeNode childNode = new TreeNode(msg, child, Images.folder_close.getHtml(), parentNode);
+			TreeNode childNode = new TreeNode(msg, child, parentNode);
 			treeData.addItem(parentNode, childNode);
 			addChildren(childNode, groupTree);
 		}
@@ -361,30 +366,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	}
 
-	private void updateGroup(String path, Group group)
-	{
-		try
-		{
-			controller.updateGroup(path, group);
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
-	}
-
-	private Group resolveGroup(TreeNode node)
-	{
-		Group group = null;
-		try
-		{
-			group = controller.getGroupContent(node.getPath(), GroupContents.METADATA).getGroup();
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
-		return group;
-	}
-
 	private SingleActionHandler<TreeNode> getEditDelegationConfigAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
@@ -400,9 +381,13 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		if (group == null)
 			return;
 
-		controller.getGroupDelegationEditConfigDialog(bus, group, g -> updateGroup(node.getPath(), g)).show();
+		controller.getGroupDelegationEditConfigDialog(bus, group, g -> {
+			updateGroup(node.getPath(), g);
+			node.setGroupMetadata(g);
+			dataProvider.refreshItem(node);
+		}).show();
 	}
-	
+
 	private SingleActionHandler<TreeNode> getRefreshAction()
 	{
 		return SingleActionHandler.builder4Refresh(msg, TreeNode.class).withHandler(n -> refresh()).build();
@@ -456,7 +441,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				.withCaption(msg.getMessage("GroupsTree.expandGroupAction")).dontRequireTarget()
 				.withIcon(Images.expand.getResource()).withHandler(g -> {
 					expandRecursively(g, Integer.MAX_VALUE);
-				}).build();
+				}).withDisabledPredicate(n -> isExpanded(n)).build();
 	}
 
 	private SingleActionHandler<TreeNode> getCollapseAllAction()
@@ -479,8 +464,33 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				.withCaption(msg.getMessage("GroupsTree.collapseGroupAction")).dontRequireTarget()
 				.withIcon(Images.collapse.getResource()).withHandler(g -> {
 					collapseRecursively(g, Integer.MAX_VALUE);
-				}).build();
+				}).withDisabledPredicate(n -> !isExpanded(n)).build();
 	}
+	
+	private void updateGroup(String path, Group group)
+	{
+		try
+		{
+			controller.updateGroup(path, group);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+		}
+	}
+
+	private Group resolveGroup(TreeNode node)
+	{
+		Group group = null;
+		try
+		{
+			group = controller.getGroupContent(node.getPath(), GroupContents.METADATA).getGroup();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+		}
+		return group;
+	}
+	
 
 	public void addFilter(SerializablePredicate<TreeNode> filter)
 	{
@@ -514,27 +524,5 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			}
 		}
 		return parents;
-	}
-
-	private class GroupExpandListener implements ExpandListener<TreeNode>
-	{
-
-		@Override
-		public void itemExpand(ExpandEvent<TreeNode> event)
-		{
-			event.getExpandedItem().setIcon(Images.folder_open.getHtml());
-		}
-
-	}
-
-	private class GroupCollapseListener implements CollapseListener<TreeNode>
-	{
-
-		@Override
-		public void itemCollapse(CollapseEvent<TreeNode> event)
-		{
-			event.getCollapsedItem().setIcon(Images.folder_close.getHtml());
-		}
-
 	}
 }

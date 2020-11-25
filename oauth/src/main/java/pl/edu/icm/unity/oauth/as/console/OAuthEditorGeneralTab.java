@@ -413,6 +413,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				{
 					openidScope = new OAuthScope();
 					openidScope.setName(OIDCScopeValue.OPENID.toString());
+					openidScope.setDescription(msg.getMessage("OAuthEditorGeneralTab.defaultOpenidScopeDesc"));
 					scopesGrid.addElement(openidScope);
 				}
 			} else

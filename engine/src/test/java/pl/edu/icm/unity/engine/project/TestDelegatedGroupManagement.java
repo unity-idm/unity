@@ -32,11 +32,13 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupAttributeException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupNameException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.OneManagerRemainsException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RemovalOfProjectGroupException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RenameProjectGroupException;
+import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -52,6 +54,9 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 
 /**
  * 
@@ -67,7 +72,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void initDelegatedGroupMan()
 	{
 		dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService, mockAttrTypeMan,
-				mockIdMan, mockAttrHelper, new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz);
+				mockIdMan, mockAttrHelper, mockRegistrationMan, mockEnquiryMan, mockConfigGenerator, new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz);
 	}
 
 	@Test
@@ -144,7 +149,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 
 		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
-		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null, null,
+		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null, null,
 				Arrays.asList("extraAttr")));
 
 		when(mockIdMan.getEntity(any()))
@@ -190,7 +195,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForbidGetDisplayNameOfNonProjectAttribute() throws EngineException
 	{
 		GroupContents contents = getGroupContent("/project");
-		contents.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null,
+		contents.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null,
 				null, Arrays.asList("extraAttr")));
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(contents);
 
@@ -242,7 +247,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForwardSetGroupAuthAttributeToCoreManager() throws EngineException
 	{
 
-		dGroupMan.setGroupAuthorizationRole("/project", 1L, GroupAuthorizationRole.manager);
+		dGroupMan.setGroupAuthorizationRole("/project", "/project", 1L, GroupAuthorizationRole.manager);
 
 		ArgumentCaptor<Attribute> argument = ArgumentCaptor.forClass(Attribute.class);
 		verify(mockAttrHelper).addSystemAttribute(eq(1L), argument.capture(), eq(true));
@@ -269,7 +274,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
 
-		Throwable exception = catchThrowable(() -> dGroupMan.setGroupAuthorizationRole("/project", 1L,
+		Throwable exception = catchThrowable(() -> dGroupMan.setGroupAuthorizationRole("/project", "/project", 1L,
 				GroupAuthorizationRole.regular));
 		assertExceptionType(exception, OneManagerRemainsException.class);
 	}
@@ -315,6 +320,43 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		dGroupMan.removeMemberFromGroup("/project", "/project/destination", 1L);
 		verify(mockGroupMan).removeMember(eq("/project/destination"), any());
+	}
+	
+	@Test
+	public void shouldForwardSetGroupDelegationConfigToCoreManager() throws EngineException
+	{
+		when(mockGroupMan.getContents(eq("/project"), anyInt()))
+				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project"));
+
+		when(mockGroupMan.getContents(eq("/project/sub"), anyInt()))
+				.thenReturn(getGroupContent("/project/sub"));
+
+		when(mockConfigGenerator.generateSubprojectRegistrationForm(any(), eq("/project"), eq("/project/sub"),
+				eq("https://test/test.jpg"))).thenReturn(
+						new RegistrationFormBuilder().withDefaultCredentialRequirement(
+								EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+								.withName("test").build());
+
+		when(mockConfigGenerator.generateSubprojectJoinEnquiryForm(any(), eq("/project"), eq("/project/sub"),
+				eq("https://test/test.jpg"))).thenReturn(
+						new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
+								.withType(EnquiryForm.EnquiryType.STICKY)
+								.withName("test").build());
+
+		when(mockConfigGenerator.generateSubprojectUpdateEnquiryForm(any(), eq("/project"), eq("/project/sub"),
+				eq("https://test/test.jpg"))).thenReturn(
+						new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
+								.withType(EnquiryForm.EnquiryType.STICKY)
+								.withName("test").build());
+
+		dGroupMan.setGroupDelegationConfiguration("/project", "/project/sub", new SubprojectGroupDelegationConfiguration(true, false, "https://test/test.jpg"));
+
+		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
+		verify(mockGroupMan).updateGroup(eq("/project/sub"), argument.capture());
+
+		assertThat(argument.getValue().getDelegationConfiguration().enabled, is(true));
+
+		assertThat(argument.getValue().getDelegationConfiguration().logoUrl, is("https://test/test.jpg"));
 	}
 
 	private AttributeExt getAttributeExt(String value)

@@ -120,6 +120,7 @@ abstract class AbstractOptionalLang18nField<T extends AbstractField<String>> ext
 	public void setComponentError(ErrorMessage componentError)
 	{
 		defaultTf.setComponentError(componentError);
+		translationTFs.stream().forEach(b -> b.setComponentError(componentError));
 	}
 
 	@Override
@@ -325,6 +326,12 @@ abstract class AbstractOptionalLang18nField<T extends AbstractField<String>> ext
 		public String getValue()
 		{
 			return field.getValue();
+		}
+		
+		@Override
+		public void setComponentError(ErrorMessage componentError)
+		{
+			field.setComponentError(componentError);
 		}
 
 	}

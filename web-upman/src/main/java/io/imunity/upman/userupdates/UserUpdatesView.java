@@ -23,6 +23,7 @@ import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -58,7 +59,15 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		String project = UpManUI.getProjectGroup();
+		DelegatedGroup project;
+		try
+		{
+			project = UpManUI.getProjectGroup();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			return;
+		}
 
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
@@ -68,7 +77,7 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 		UpdateRequestsComponent updateRequestsComponent;
 		try
 		{
-			updateRequestsComponent = new UpdateRequestsComponent(msg, controller, project, formatter);
+			updateRequestsComponent = new UpdateRequestsComponent(msg, controller, project.path, formatter);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

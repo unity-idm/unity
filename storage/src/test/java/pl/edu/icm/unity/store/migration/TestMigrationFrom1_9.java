@@ -149,7 +149,7 @@ public class TestMigrationFrom1_9
 					is(1)); 
 			assertThat(genericDao.getObjectsOfType(
 					EndpointHandler.ENDPOINT_OBJECT_TYPE).size(), 
-					is(10)); 
+					is(9)); 
 			assertThat(genericDao.getObjectsOfType(
 					RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE).size(), 
 					is(5)); 

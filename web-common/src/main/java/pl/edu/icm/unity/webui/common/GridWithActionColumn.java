@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
@@ -37,7 +39,7 @@ import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
  */
 public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T>
 {
-	private MessageSource msg;
+	protected MessageSource msg;
 	private List<T> contents;
 	private ListDataProvider<T> dataProvider;
 	private Column<T, HorizontalLayout> actionColumn;
@@ -50,6 +52,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private boolean hideActionColumn = false;
 	private GridRowDragger<T> rowDragger;
 	private boolean enableDrag;
+	private Function<T, String> idProvider;
 	
 
 	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers)
@@ -129,6 +132,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	@Override
 	public void setItems(Collection<T> items)
 	{
+		Set<T> selectedItems = getSelectedItems();
 		contents = new ArrayList<>();
 		if (items != null)
 		{
@@ -139,6 +143,18 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		updateFilters();
 		deselectAll();
 		refreshHeight();
+		if (idProvider != null)
+		{
+			for (String selected : selectedItems.stream().map(s -> idProvider.apply(s))
+					.collect(Collectors.toList()))
+			{
+				for (T entry : contents)
+					if (idProvider.apply(entry).equals(selected))
+						select(entry);
+			}
+		}
+		
+		
 	}
 
 	public List<T> getElements()
@@ -384,5 +400,10 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public GridRowDragger<T> getRowDragger()
 	{
 		return rowDragger;
+	}
+	
+	public void setIdProvider(Function<T, String> idProvider)
+	{
+		this.idProvider = idProvider;
 	}
 }

@@ -5,8 +5,6 @@
 
 package pl.edu.icm.unity.test.headlessui;
 
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -23,7 +21,7 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 	@Test
 	public void testLoginWithDynamicAttributeOnConsentScreen()
 	{
-		driver.get(baseUrl + "/admin/admin");
+		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-idpAuthentication-oauth-local")).click();	
 		
 		waitForPageLoadByURL("/oauth2-as/oauth2-authz-web-entry");
@@ -34,7 +32,6 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 		waitForElement(By.className("u-passwordSignInButton")).click();
 		
 		waitForElement(By.id("ExposedAttributes.showDetails")).click();
-		assertThat(waitForElement(By.xpath("//*[contains(text(), 'username')]")), notNullValue());	
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();	
 		
 		waitForPageLoad(By.id("MainHeader.logout"));

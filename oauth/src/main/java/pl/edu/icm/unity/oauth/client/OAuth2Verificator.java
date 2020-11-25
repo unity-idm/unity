@@ -29,6 +29,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Strings;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -184,7 +185,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		AuthorizationRequest req;
 		if (openidMode)
 		{
-			if (authzEndpoint == null)
+			if (Strings.isNullOrEmpty(authzEndpoint))
 			{
 				String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
 				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint, 

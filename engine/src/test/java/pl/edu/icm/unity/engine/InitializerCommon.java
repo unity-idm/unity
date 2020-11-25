@@ -16,7 +16,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
@@ -74,8 +74,8 @@ public class InitializerCommon
 	{
 		Map<String, AttributeType> existingATs = aTypeMan.getAttributeTypesAsMap();
 		
-		AttributeType userPicture = new AttributeType(JPEG_ATTR, JpegImageAttributeSyntax.ID, msg);
-		JpegImageAttributeSyntax jpegSyntax = new JpegImageAttributeSyntax();
+		AttributeType userPicture = new AttributeType(JPEG_ATTR, ImageAttributeSyntax.ID, msg);
+		ImageAttributeSyntax jpegSyntax = new ImageAttributeSyntax();
 		jpegSyntax.getConfig().setMaxSize(2000000);
 		jpegSyntax.getConfig().setMaxWidth(120);
 		jpegSyntax.getConfig().setMaxHeight(120);

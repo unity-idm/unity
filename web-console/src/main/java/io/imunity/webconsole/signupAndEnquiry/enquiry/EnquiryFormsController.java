@@ -11,7 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;

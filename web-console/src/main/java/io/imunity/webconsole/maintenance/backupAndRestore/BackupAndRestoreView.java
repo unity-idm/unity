@@ -13,7 +13,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.importExport.ImportExportComponent;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -80,7 +79,7 @@ class BackupAndRestoreView extends CustomComponent implements UnityView
 					.withParent(MaintenanceNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.maintenance.backupAndRestore"))
 					.withIcon(Images.cloud_download.getResource())
-					.withPosition(10).build());
+					.withPosition(20).build());
 
 		}
 	}

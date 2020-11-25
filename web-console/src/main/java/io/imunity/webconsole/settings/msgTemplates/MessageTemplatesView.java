@@ -27,7 +27,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import io.imunity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.settings.SettingsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -62,7 +61,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class MessageTemplatesView extends CustomComponent implements UnityView
+class MessageTemplatesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "MessageTemplates";
 
@@ -286,7 +285,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		return VIEW_NAME;
 	}
 
-	public static class PreviewWindow extends Window
+	static class PreviewWindow extends Window
 	{
 		public PreviewWindow(String contentToPreview, ContentMode contentMode)
 		{

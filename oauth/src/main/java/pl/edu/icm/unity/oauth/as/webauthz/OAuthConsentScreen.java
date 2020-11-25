@@ -5,10 +5,12 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
@@ -32,7 +34,7 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.stdext.attr.JpegImageAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -112,9 +114,9 @@ class OAuthConsentScreen extends CustomComponent
 		vmain.setSpacing(false);
 		
 		VerticalLayout contents = new VerticalLayout();
-		contents.addStyleName(Styles.maxWidthColumn.toString());
+		contents.addStyleName("u-consentMainColumn");
 		vmain.addComponent(contents);
-		vmain.setComponentAlignment(contents, Alignment.TOP_CENTER);
+		vmain.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
 		
 		
 		createInfoPart(ctx, contents);
@@ -137,21 +139,15 @@ class OAuthConsentScreen extends CustomComponent
 
 		Resource clientLogo = null;
 		Attribute logoAttr = oauthCtx.getClientLogo();
-		if (logoAttr != null && JpegImageAttributeSyntax.ID.equals(logoAttr.getValueSyntax()))
+		if (logoAttr != null && ImageAttributeSyntax.ID.equals(logoAttr.getValueSyntax()))
 		{
-			JpegImageAttributeSyntax syntax = (JpegImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
+			ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
 			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
 			clientLogo = new SimpleImageSource(image).getResource();
 		}
-		Label info1 = new Label100(msg.getMessage("OAuthAuthzUI.info1"));
-		info1.addStyleName(Styles.vLabelH1.toString());
-		
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		
-		Label spc1 = HtmlTag.br();
-		Label info2 = new Label100(msg.getMessage("OAuthAuthzUI.info2"));
-		
-		contents.addComponents(info1, spInfo, spc1, info2);
+		contents.addComponents(spInfo);
 	}
 
 	private void createExposedDataPart(OAuthAuthzContext ctx, VerticalLayout contents,
@@ -166,17 +162,18 @@ class OAuthConsentScreen extends CustomComponent
 
 		for (ScopeInfo si: ctx.getEffectiveRequestedScopes())
 		{
-			Label scope = new Label100(si.getName());
-			Label scopeDesc = new Label100(si.getDescription());
-			scopeDesc.addStyleName(Styles.vLabelSmall.toString());
-			eiLayout.addComponents(scope, scopeDesc);
+			String label = Strings.isNullOrEmpty(si.getDescription()) ? si.getName() : si.getDescription();
+			Label scope = new Label100("\u25CF " + label);
+			eiLayout.addComponents(scope);
 		}
+		
 		Label spacer = HtmlTag.br();
 		spacer.addStyleName(Styles.vLabelSmall.toString());
 		eiLayout.addComponent(spacer);
 
 		createIdentityPart(identity, eiLayout);
-		attrsPresenter = new ExposedAttributesComponent(msg, handlersRegistry, attributes);
+		attrsPresenter = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, attributes, 
+				Optional.of(identity));
 		eiLayout.addComponent(attrsPresenter);
 		
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
@@ -189,7 +186,6 @@ class OAuthConsentScreen extends CustomComponent
 	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
 	{
 		idSelector = new IdentitySelectorComponent(msg, idTypeSupport, Lists.newArrayList(validIdentity));
-		contents.addComponent(idSelector);
 	}
 	
 	private void createButtonsPart(VerticalLayout contents)
@@ -202,7 +198,7 @@ class OAuthConsentScreen extends CustomComponent
 				decline();
 		});
 		contents.addComponent(buttons);
-		contents.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
+		contents.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 	}
 
 	private void loadPreferences(OAuthAuthzContext ctx)
@@ -243,10 +239,6 @@ class OAuthConsentScreen extends CustomComponent
 	
 	/**
 	 * Applies UI selected values to the given preferences object
-	 * @param preferences
-	 * @param ctx
-	 * @param defaultAccept
-	 * @throws EngineException
 	 */
 	private void updatePreferencesFromUI(OAuthPreferences preferences, OAuthAuthzContext ctx, boolean defaultAccept) 
 			throws EngineException

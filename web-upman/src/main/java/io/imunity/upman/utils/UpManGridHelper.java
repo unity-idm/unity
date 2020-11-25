@@ -17,6 +17,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -46,47 +47,47 @@ public class UpManGridHelper
 		}).setCaption(caption).setWidth(80).setResizable(false).setSortable(false);
 	}
 
-	public static <T> Column<T, String> createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider,
+	public static <T> Column<T, String> createDateTimeColumn(GridWithActionColumn<T> grid, Function<T, Instant> timeProvider,
 			String caption)
 	{
-		return grid.addColumn(
+		return grid.addSortableColumn(
 				t -> timeProvider.apply(t) != null ? TimeUtil.formatStandardInstant(timeProvider.apply(t))
-						: "")
-				.setCaption(caption).setExpandRatio(3);
+						: ""
+				,caption, 3).setResizable(true);
 	}
 
-	public static <T> void createAttrsColumns(Grid<T> grid, Function<T, Map<String, String>> attributesProvider,
+	public static <T> void createAttrsColumns(GridWithActionColumn<T> grid, Function<T, Map<String, String>> attributesProvider,
 			Map<String, String> additionalAttributes)
 	{
 		for (Map.Entry<String, String> attribute : additionalAttributes.entrySet())
 		{
-			grid.addColumn(r -> attributesProvider.apply(r).get(attribute.getKey()))
-					.setCaption(attribute.getValue()).setExpandRatio(3)
-					.setId(ATTR_COL_PREFIX + attribute.getKey());
+			Column<T, String> column = grid.addSortableColumn(r -> attributesProvider.apply(r).get(attribute.getKey()), attribute.getValue(), 3);
+			column.setId(ATTR_COL_PREFIX + attribute.getKey());
+			column.setResizable(true);
 		}
 	}
 
-	public static <T> Column<T, String> createGroupsColumn(Grid<T> grid, Function<T, List<String>> groups,
+	public static <T> Column<T, String> createGroupsColumn(GridWithActionColumn<T> grid, Function<T, List<String>> groups,
 			String caption)
 	{
-		return grid.addColumn(r -> {
+		return grid.addSortableColumn(r -> {
 			return (groups.apply(r) != null) ? String.join(", ", groups.apply(r)) : "";
-		}).setCaption(caption).setExpandRatio(3);
+		}, caption, 3).setResizable(true);
 	}
 
-	public static <T> Column<T, String> createEmailColumn(Grid<T> grid,
+	public static <T> Column<T, String> createEmailColumn(GridWithActionColumn<T> grid,
 			Function<T, VerifiableElementBase> emailProvider, String caption,
 			ConfirmationInfoFormatter formatter)
 	{
 
-		Column<T, String> emailColumn = grid.addColumn(t -> emailProvider.apply(t) != null
+		Column<T, String> emailColumn = grid.addSortableColumn(t -> emailProvider.apply(t) != null
 				? ((emailProvider.apply(t).getConfirmationInfo().isConfirmed() ? Images.ok.getHtml()
 						: Images.warn.getHtml()) + " " + emailProvider.apply(t).getValue())
-				: "", new HtmlRenderer());
+				: "", caption, 1);
+		emailColumn.setRenderer(new HtmlRenderer());
+		emailColumn.setResizable(true);
 		emailColumn.setDescriptionGenerator(t -> emailProvider.apply(t) != null ? formatter
 				.getSimpleConfirmationStatusString(emailProvider.apply(t).getConfirmationInfo()) : "");
-		emailColumn.setCaption(caption);
-		emailColumn.setExpandRatio(1);
 		return emailColumn;
 	}
 }

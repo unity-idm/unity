@@ -18,7 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.formfill.AdminRegistrationFormLauncher;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminRegistrationFormLauncher;
 import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;

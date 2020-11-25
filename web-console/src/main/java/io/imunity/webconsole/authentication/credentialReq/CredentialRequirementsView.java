@@ -21,7 +21,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.credentialRequirements.CredentialRequirementRemovalDialog;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;

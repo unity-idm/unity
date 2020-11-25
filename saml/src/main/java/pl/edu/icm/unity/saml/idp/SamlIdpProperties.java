@@ -50,7 +50,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
@@ -521,15 +520,15 @@ public class SamlIdpProperties extends SamlProperties
 		return getValue(spKey + ALLOWED_SP_NAME);
 	}
 
-	public Resource getLogoForRequester(NameIDType id, MessageSource msg, ImageAccessService imageAccessService)
+	public Resource getLogoForRequesterOrNull(NameIDType id, MessageSource msg, ImageAccessService imageAccessService)
 	{
 		String spKey = getSPConfigKey(id);
 		if (spKey == null)
-			return Images.empty.getResource();
+			return null;
 
 		String logoURI = getLocalizedValue(spKey + ALLOWED_SP_LOGO, msg.getLocale());
 		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI)
-				.orElse(Images.empty.getResource());
+				.orElse(null);
 	}
 	
 	/**

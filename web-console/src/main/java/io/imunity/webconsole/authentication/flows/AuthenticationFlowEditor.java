@@ -21,6 +21,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 
 /**
  * Authentication realm editor.
@@ -56,7 +57,7 @@ class AuthenticationFlowEditor extends CustomComponent
 		policy.setEmptySelectionAllowed(false);
 
 		binder = new Binder<>(AuthenticationFlowDefinition.class);
-		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
+		binder.forField(name).withValidator(new NoSpaceValidator(msg)).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.forField(firstFactorAuthenticators).withNullRepresentation(Collections.emptyList())
 				.withConverter(l -> l != null ? l.stream().collect(Collectors.toSet()) : null,
 						s -> s != null ? s.stream().collect(Collectors.toList()) : null)

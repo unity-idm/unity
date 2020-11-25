@@ -84,7 +84,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-admin</artifactId>
+			<artifactId>unity-server-user-home</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -156,10 +156,23 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-user-home</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-otp</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-fido</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 

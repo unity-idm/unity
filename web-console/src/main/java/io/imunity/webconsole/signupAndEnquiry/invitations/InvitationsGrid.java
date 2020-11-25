@@ -16,8 +16,6 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 
-import io.imunity.webadmin.reg.invitations.InvitationEntry;
-import io.imunity.webadmin.reg.invitations.InvitationSelectionListener;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;

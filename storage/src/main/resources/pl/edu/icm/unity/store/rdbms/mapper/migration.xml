@@ -72,6 +72,8 @@
 		UPDATE UVOS_FLAG SET VAL = '11'
 	</update>
 	
-	
+		<update id="updateSchema-012-00">
+		UPDATE UVOS_FLAG SET VAL = '12'
+	</update>
 	
 </mapper>

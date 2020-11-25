@@ -10,8 +10,6 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.credentialRequirements.CredentialRequirementChangedEvent;
-import io.imunity.webadmin.credentialRequirements.CredentialRequirementEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;

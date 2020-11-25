@@ -69,7 +69,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 	private MessageSource msg;
 	private ProjectInvitationsController controller;
-	private String project;
+	private DelegatedGroup project;
 	private ProjectInvitationsComponent invitationsComponent;
 
 	@Autowired
@@ -83,12 +83,19 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		project = UpManUI.getProjectGroup();
+		try
+		{
+			project = UpManUI.getProjectGroup();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			return;
+		}
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
 		main.setMargin(false);
 		setCompositionRoot(main);
-		invitationsComponent = new ProjectInvitationsComponent(msg, controller, project);
+		invitationsComponent = new ProjectInvitationsComponent(msg, controller, project.path);
 		main.addComponent(invitationsComponent);	
 	}
 
@@ -132,8 +139,8 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 		try
 		{
-			Optional<DelegatedGroup> projectGroup = controller.getProjectGroups(project).stream()
-					.filter(dg -> dg.path.equals(project)).findFirst();
+			Optional<DelegatedGroup> projectGroup = controller.getProjectGroups(project.path).stream()
+					.filter(dg -> dg.path.equals(project.path)).findFirst();
 
 			if (projectGroup.isPresent())
 			{
@@ -200,8 +207,8 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 			List<DelegatedGroup> allowedGroups = new ArrayList<>();
 			try
 			{
-				allowedGroups.addAll(controller.getProjectGroups(project).stream()
-						.filter(dg -> !dg.path.equals(project)).collect(Collectors.toList()));
+				allowedGroups.addAll(controller.getProjectGroups(project.path).stream()
+						.filter(dg -> !dg.path.equals(project.path)).collect(Collectors.toList()));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
@@ -255,7 +262,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 			ProjectInvitationParams inv = binder.getBean();
 
 			ProjectInvitationParam param = new ProjectInvitationParam(
-					project, inv.getContactAddress(), groups.getSelectedItems().stream()
+					project.path, inv.getContactAddress(), groups.getSelectedItems().stream()
 							.map(g -> g.toString()).collect(Collectors.toList()),
 					inv.getExpiration());
 

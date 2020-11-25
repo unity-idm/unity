@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;

@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm
 @Field final String FBI_GROUP = "/projects/FBI"
 @Field final String UNIV_GROUP = "/projects/univ"
 
-@Field final String UNIV_LOGO_SMALL = "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/University_of_London.svg/150px-University_of_London.svg.png"
+@Field final String UNIV_LOGO_SMALL = "https://previews.123rf.com/images/captainvector/captainvector1703/captainvector170309945/74377645-university-logo-element.jpg"
 @Field final String FBI_LOGO_SMALL = "https://upload.wikimedia.org/wikipedia/commons/9/9f/FBISeal.png"
 
 if (!isColdStart)
@@ -44,18 +44,18 @@ for (int i=0; i<30; i++)
 
 addDemoUserAsManager();
 
-RegistrationForm fbiRegistrationForm = groupDelegationConfigGenerator.generateRegistrationForm(FBI_GROUP, FBI_LOGO_SMALL, Arrays.asList(TEAMNAME_ATTR))
-RegistrationForm univRegistrationForm = groupDelegationConfigGenerator.generateRegistrationForm(UNIV_GROUP, UNIV_LOGO_SMALL, Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR))
+RegistrationForm fbiRegistrationForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(FBI_GROUP, FBI_LOGO_SMALL, Arrays.asList(TEAMNAME_ATTR))
+RegistrationForm univRegistrationForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(UNIV_GROUP, UNIV_LOGO_SMALL, Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR))
 registrationsManagement.addForm(fbiRegistrationForm);  
 registrationsManagement.addForm(univRegistrationForm);  
 
-EnquiryForm fbiJoinEnquiryForm = groupDelegationConfigGenerator.generateJoinEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL)
-EnquiryForm univJoinEnquiryForm = groupDelegationConfigGenerator.generateJoinEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL)
+EnquiryForm fbiJoinEnquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL)
+EnquiryForm univJoinEnquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL)
 enquiryManagement.addEnquiry(fbiJoinEnquiryForm);  		 
 enquiryManagement.addEnquiry(univJoinEnquiryForm);  	
 
-EnquiryForm fbiUpdateEnquiryForm = groupDelegationConfigGenerator.generateUpdateEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL)
-EnquiryForm univUpdateEnquiryForm = groupDelegationConfigGenerator.generateUpdateEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL)
+EnquiryForm fbiUpdateEnquiryForm = groupDelegationConfigGenerator.generateProjectUpdateEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL)
+EnquiryForm univUpdateEnquiryForm = groupDelegationConfigGenerator.generateProjectUpdateEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL)
 enquiryManagement.addEnquiry(fbiUpdateEnquiryForm);  		 
 enquiryManagement.addEnquiry(univUpdateEnquiryForm);  		 
 
@@ -109,7 +109,7 @@ void addGroup(String path, String name)
 void setGroupDelegationConfig(String path, String logo, String registrationForm, String enquiryForm, String stickyEnquiryForm, List<String> attributes)
 {  		
 	log.info("Setting delegation configuration for group " + path);
-	GroupDelegationConfiguration config = new GroupDelegationConfiguration(true, logo, registrationForm, enquiryForm, stickyEnquiryForm, attributes);
+	GroupDelegationConfiguration config = new GroupDelegationConfiguration(true, true, logo, registrationForm, enquiryForm, stickyEnquiryForm, attributes);
 	GroupContents content = groupsManagement.getContents(path, GroupContents.METADATA);
 	Group g = content.getGroup();
 	g.setDelegationConfiguration(config);
@@ -150,10 +150,10 @@ void addDemoUserAsManager()
 	groupsManagement.addMemberFromParent("/projects/FBI", entityP);
 	groupsManagement.addMemberFromParent("/projects/univ", entityP);
 
-	Attribute managerA = EnumAttribute.of(ROLE_ATTR, FBI_GROUP, "manager");
+	Attribute managerA = EnumAttribute.of(ROLE_ATTR, FBI_GROUP, "projectsAdmin");
 	attributesManagement.createAttribute(entityP, managerA);
 
-	managerA = EnumAttribute.of(ROLE_ATTR, UNIV_GROUP, "manager");
+	managerA = EnumAttribute.of(ROLE_ATTR, UNIV_GROUP, "projectsAdmin");
 	attributesManagement.createAttribute(entityP, managerA);
 
 	log.info("Demo user was added as projects manager");

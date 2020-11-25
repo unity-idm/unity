@@ -10,4 +10,5 @@ public interface WebConsoleExtendableMenuElements
 {
 	public static String ROOT = "Root";
 	public static String SETTINGS = "Settings";
+	public static String MAINTENANCE = "Maintenance";
 }

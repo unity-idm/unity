@@ -66,7 +66,7 @@ public abstract class SeleniumTestBase
 	{
 		httpServer.start();
 		ChromeOptions chromeOptions = new ChromeOptions();
-		chromeOptions.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1");
+		chromeOptions.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1", "ignore-certificate-errors");
 		String seleniumOpts = System.getProperty("unity.selenium.opts");
 		if (seleniumOpts != null && !seleniumOpts.isEmpty())
 		{

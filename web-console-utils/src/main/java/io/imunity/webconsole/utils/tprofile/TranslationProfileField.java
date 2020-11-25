@@ -14,8 +14,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
-import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.TranslationRulesPresenter;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;

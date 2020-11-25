@@ -709,9 +709,9 @@ Returns all deployed endpoints. Example response with a single endpoint:
 ----
 [{
         "endpoint": {
-            "name": "/admin",
-            "typeId": "WebAdminUI",
-            "contextAddress": "/admin",
+            "name": "/console",
+            "typeId": "WebConsoleUI",
+            "contextAddress": "/console",
             "configuration": {
                 "displayedName": {
                     "DefaultValue": "UNITY administration interface",
@@ -761,13 +761,13 @@ Returns all deployed endpoints. Example response with a single endpoint:
             "maxInactivity": 600
         },
         "type": {
-            "name": "WebAdminUI",
+            "name": "WebConsoleUI",
             "description": "Web administrative user interface",
             "supportedBindings": [
                 "web-vaadin7"
             ],
             "paths": {
-                "/admin": "Web admin endpoint"
+                "/console": "Web admin endpoint"
             }
         }
     }]

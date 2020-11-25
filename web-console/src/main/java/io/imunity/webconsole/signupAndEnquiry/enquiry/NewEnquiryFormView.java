@@ -13,8 +13,8 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
 import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView;
 import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.SignupAndEnquiryFormsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;

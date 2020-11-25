@@ -18,7 +18,7 @@ import com.vaadin.ui.Button;
 import io.imunity.webconsole.UnityViewWithSandbox;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
-import io.imunity.webconsole.translationsProfiles.TranslationsView;
+import io.imunity.webconsole.translationProfile.TranslationsView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.MessageSource;

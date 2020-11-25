@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import org.apache.http.NameValuePair;
 
+import com.google.common.base.Strings;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
@@ -144,17 +146,17 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 			getName().toProperties(raw, prefix + CustomProviderProperties.PROVIDER_NAME, msg);
 		}
 
-		if (authenticationEndpoint != null)
+		if (!Strings.isNullOrEmpty(authenticationEndpoint))
 		{
 			raw.put(prefix + CustomProviderProperties.PROVIDER_LOCATION, authenticationEndpoint);
 		}
 
-		if (accessTokenEndpoint != null)
+		if (!Strings.isNullOrEmpty(accessTokenEndpoint))
 		{
 			raw.put(prefix + CustomProviderProperties.ACCESS_TOKEN_ENDPOINT, accessTokenEndpoint);
 		}
 
-		if (getProfileEndpoint() != null)
+		if (!Strings.isNullOrEmpty(getProfileEndpoint()))
 		{
 			raw.put(prefix + CustomProviderProperties.PROFILE_ENDPOINT, getProfileEndpoint());
 		}
@@ -200,7 +202,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 
 		raw.put(prefix + CustomProviderProperties.OPENID_CONNECT, String.valueOf(isOpenIdConnect()));
 
-		if (getOpenIdDiscoverEndpoint() != null)
+		if (!Strings.isNullOrEmpty(getOpenIdDiscoverEndpoint()))
 		{
 			raw.put(prefix + CustomProviderProperties.OPENID_DISCOVERY, getOpenIdDiscoverEndpoint());
 		}

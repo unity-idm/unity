@@ -17,13 +17,8 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
-import io.imunity.webadmin.groupbrowser.GroupAttributesClassesDialog;
-import io.imunity.webadmin.groupbrowser.GroupDelegationEditConfigDialog;
-import io.imunity.webadmin.groupbrowser.TreeNode;
-import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
-import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
-import io.imunity.webadmin.utils.GroupManagementHelper;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

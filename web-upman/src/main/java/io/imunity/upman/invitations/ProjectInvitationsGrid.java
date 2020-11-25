@@ -8,12 +8,13 @@ package io.imunity.upman.invitations;
 import java.time.Instant;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Link;
 
-import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
@@ -23,7 +24,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  * @author P.Piernik
  *
  */
-class ProjectInvitationsGrid extends UpManGrid<ProjectInvitationEntry>
+class ProjectInvitationsGrid extends GridWithActionColumn<ProjectInvitationEntry>
 {
 
 	enum BaseColumn
@@ -41,8 +42,11 @@ class ProjectInvitationsGrid extends UpManGrid<ProjectInvitationEntry>
 
 	public ProjectInvitationsGrid(MessageSource msg, List<SingleActionHandler<ProjectInvitationEntry>> rowActionHandlers)
 	{
-		super(msg, (ProjectInvitationEntry e) -> e.code);
-		createColumns(rowActionHandlers);
+		super(msg, Lists.newArrayList(), false, false);
+		addHamburgerActions(rowActionHandlers);
+		setIdProvider(e -> e.code);
+		createColumns();
+		setMultiSelect(true);
 		setStyleGenerator(e -> {
 			if (e.expirationTime.isBefore(Instant.now()))
 				return "warn";
@@ -52,17 +56,17 @@ class ProjectInvitationsGrid extends UpManGrid<ProjectInvitationEntry>
 
 	}
 
-	private void createBaseColumns()
+	private void createColumns()
 	{
-		addColumn(ie -> ie.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(2);
+		addSortableColumn(ie -> ie.email , msg.getMessage(BaseColumn.email.captionKey) ,2).setResizable(true);
 		UpManGridHelper.createGroupsColumn(this, (ProjectInvitationEntry e) -> e.groupsDisplayedNames,
-				msg.getMessage(BaseColumn.groups.captionKey)).setExpandRatio(2);
+				msg.getMessage(BaseColumn.groups.captionKey));
 
 		UpManGridHelper.createDateTimeColumn(this, (ProjectInvitationEntry e) -> e.requestedTime,
-				msg.getMessage(BaseColumn.requested.captionKey)).setExpandRatio(2);
+				msg.getMessage(BaseColumn.requested.captionKey));
 		UpManGridHelper.createDateTimeColumn(this, (ProjectInvitationEntry e) -> e.expirationTime,
-				msg.getMessage(BaseColumn.expiration.captionKey)).setExpandRatio(2);
-
+				msg.getMessage(BaseColumn.expiration.captionKey));
+	
 		addComponentColumn(ie -> 
 		{
 			Link link = new Link();
@@ -71,13 +75,6 @@ class ProjectInvitationsGrid extends UpManGrid<ProjectInvitationEntry>
 			link.setTargetName("_blank");
 			link.setResource(new ExternalResource(ie.link));
 			return link;
-		}).setCaption(msg.getMessage(BaseColumn.link.captionKey)).setWidth(80).setResizable(false);
-	}
-
-	private void createColumns(List<SingleActionHandler<ProjectInvitationEntry>> rowActionHandlers)
-	{
-
-		createBaseColumns();
-		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage(BaseColumn.action.captionKey));
+		}, msg.getMessage(BaseColumn.link.captionKey), 1).setWidth(80).setResizable(false);
 	}
 }

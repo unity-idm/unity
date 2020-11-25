@@ -7,6 +7,7 @@ package io.imunity.upman.groups;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -15,10 +16,11 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -35,8 +37,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 	private String projectPath;
 
 	public GroupsTree(MessageSource msg, GroupsController controller,
-			List<SingleActionHandler<GroupNode>> actions, String projectPath)
-			throws ControllerException
+			List<SingleActionHandler<GroupNode>> actions, String projectPath) throws ControllerException
 	{
 		this.controller = controller;
 		this.rowActionHandlers = actions;
@@ -46,14 +47,30 @@ class GroupsTree extends TreeGrid<GroupNode>
 		TreeDataProvider<GroupNode> dataProvider = new TreeDataProvider<>(treeData);
 		dataProvider.setSortComparator((g1, g2) -> g1.toString().compareTo(g2.toString()));
 		setDataProvider(dataProvider);
-		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
+		addColumn(n -> (n.htmlPrivacyIcon + n.htmlIcon + " " + n.toString()), new HtmlRenderer())
 				.setCaption(msg.getMessage("DelegatedGroupsTree.group"));
 
-		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage("DelegatedGroupsTree.action"));
+		createActionColumn(msg.getMessage("DelegatedGroupsTree.action"));
+		setPrimaryStyleName(Styles.vGroupBrowser.toString());
 		
+		setHeaderVisible(false);
+		setRowHeight(34);
 		loadNode(projectPath, null);
 		expand(treeData.getChildren(null));
 		setWidth(100, Unit.PERCENTAGE);
+	}
+
+	private void createActionColumn(String caption)
+	{
+		addComponentColumn(t -> {
+			HamburgerMenu<GroupNode> menu = new HamburgerMenu<>();
+			HashSet<GroupNode> target = new HashSet<>();
+			target.add(t);
+			menu.setTarget(target);
+			menu.addActionHandlers(rowActionHandlers);
+			return menu;
+
+		}).setCaption(caption).setWidth(80).setResizable(false).setSortable(false);
 	}
 
 	private void loadNode(String path, GroupNode parent) throws ControllerException
@@ -76,11 +93,11 @@ class GroupsTree extends TreeGrid<GroupNode>
 	public void reloadNode(GroupNode node) throws ControllerException
 	{
 		treeData.removeItem(node);
-		loadNode(node.getPath(), node.getParentNode());
+		loadNode(node.getPath(), node.parent);
 		getDataProvider().refreshAll();
 
 	}
-	
+
 	public List<GroupNode> getChildren(GroupNode node)
 	{
 		return treeData.getChildren(node);
@@ -111,11 +128,10 @@ class GroupsTree extends TreeGrid<GroupNode>
 		expandItemsRecursively(treeData.getRootItems());
 
 	}
-	
+
 	public void expandRoot()
 	{
-		expand(treeData.getRootItems());;
-
+		expand(treeData.getRootItems());
 	}
 
 	private void collapseItemsRecursively(Collection<GroupNode> items)
@@ -130,7 +146,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 
 	public void collapseAll()
 	{
-		collapseItemsRecursively(treeData.getChildren(null));		
+		collapseItemsRecursively(treeData.getChildren(null));
 	}
 
 }
