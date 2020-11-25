@@ -103,7 +103,7 @@ public class JsonDumpUpdateFromV11 implements JsonDumpUpdate
 			
 			if (name.equals("sys:ProjectManagementRole"))
 			{
-				log.info("Updating attribute type {} to use new value projectTreeManager", 
+				log.info("Updating attribute type {} adding new value projectsAdmin", 
 						attrTypeObj.get("name").asText());
 				attrTypeObj.set("syntaxState", UpdateHelperTo12.getProjectRoleAttributeSyntaxConfig());
 				

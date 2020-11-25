@@ -86,7 +86,7 @@ class GroupMemebersGrid extends GridWithActionColumn<GroupMemberEntry>
 		if (role.equals(GroupAuthorizationRole.manager))
 		{
 			return Images.star_open;
-		}else if (role.equals(GroupAuthorizationRole.treeManager))
+		}else if (role.equals(GroupAuthorizationRole.projectsAdmin))
 		{
 			return Images.star;
 		}

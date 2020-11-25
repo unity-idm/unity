@@ -308,7 +308,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public void setGroupDelegationConfiguration(String projectPath, String groupPath, SubprojectGroupDelegationConfiguration subprojectDelegationConfiguration) throws EngineException
 	{
 
-		authz.assertTreeManagerSubprojectCreationAuthorization(projectPath, groupPath);
+		authz.assertProjectsAdminSubprojectCreationAuthorization(projectPath, groupPath);
 		Group projectGroup = getGroupInternal(projectPath);
 		GroupDelegationConfiguration projectDelConfig = projectGroup.getDelegationConfiguration();
 		Group group = getGroupInternal(groupPath);

@@ -64,7 +64,7 @@ public class TestProjectAuthorizationManager
 	}
 
 	@Test
-	public void shouldAcceptAuthzWhenTreeManagerSetManagerInSubgroup() throws AuthorizationException
+	public void shouldAcceptAuthzWhenProjectsAdminSetManagerInSubgroup() throws AuthorizationException
 	{
 		setupInvocationContext();
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
@@ -75,7 +75,7 @@ public class TestProjectAuthorizationManager
 		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project")))
 				.thenReturn(Arrays.asList(new StoredAttribute(new AttributeExt(
 						new Attribute(null, null, null, Arrays.asList(
-								GroupAuthorizationRole.treeManager.toString())),
+								GroupAuthorizationRole.projectsAdmin.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
 				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.manager));
@@ -102,7 +102,7 @@ public class TestProjectAuthorizationManager
 	}
 	
 	@Test
-	public void shouldThrowAuthzExceptionWhenManagerSetTreeManagerInSubgroup() throws AuthorizationException
+	public void shouldThrowAuthzExceptionWhenManagerSetsProjectsAdminInSubgroup() throws AuthorizationException
 	{
 		setupInvocationContext();
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
@@ -116,7 +116,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.treeManager));
+				() -> mockAuthz.assertRoleManagerAuthorization("/project", "/project/sub", GroupAuthorizationRole.projectsAdmin));
 		assertAuthzException(ex);
 	}
 	
@@ -169,12 +169,12 @@ public class TestProjectAuthorizationManager
 
 		
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.assertTreeManagerSubprojectCreationAuthorization("/project", "/project/sub"));
+				() -> mockAuthz.assertProjectsAdminSubprojectCreationAuthorization("/project", "/project/sub"));
 		assertAuthzException(ex);
 	}
 	
 	@Test
-	public void shouldBlockCreationWhenNotTreeManager() throws AuthorizationException
+	public void shouldBlockCreationWhenNotProjectsAdmin() throws AuthorizationException
 	{
 		setupInvocationContext();
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
@@ -188,7 +188,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.assertTreeManagerSubprojectCreationAuthorization("/project", "/project/sub"));
+				() -> mockAuthz.assertProjectsAdminSubprojectCreationAuthorization("/project", "/project/sub"));
 		assertAuthzException(ex);
 	}
 

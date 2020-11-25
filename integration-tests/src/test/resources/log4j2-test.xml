@@ -41,6 +41,10 @@
 
 		<Logger name="unity.server.AdditionalAuthenticationService" level="TRACE"/>
 
+		<Logger name="unity.server.AuditEventRDBMSStore" level="INFO"/>
+		<Logger name="unity.server.AuditPublisher" level="INFO"/>
+		<Logger name="unity.server.EventProcessor" level="INFO"/>
+		
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
 

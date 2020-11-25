@@ -108,7 +108,7 @@ public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 		{
 			if ("sys:ProjectManagementRole".equals(atType.getName()))
 			{
-				log.info("Updating attribute type {} to use new value projectTreeManager", 
+				log.info("Updating attribute type {} adding new value projectsAdmin", 
 						atType.getName());
 				AttributeType at = new AttributeType();
 				at.setName(atType.getName());

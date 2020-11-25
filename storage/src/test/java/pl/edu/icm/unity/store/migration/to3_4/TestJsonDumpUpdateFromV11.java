@@ -88,7 +88,7 @@ public class TestJsonDumpUpdateFromV11
 		assertThat(config.get(0).asText(), is("manager"));
 		assertThat(StreamSupport.stream(config.spliterator(), false).map(a -> a.asText())
 				.collect(Collectors.toSet())
-				.containsAll(Sets.newHashSet("manager", "treeManager", "regular")), is(true));
+				.containsAll(Sets.newHashSet("manager", "projectsAdmin", "regular")), is(true));
 
 	}
 

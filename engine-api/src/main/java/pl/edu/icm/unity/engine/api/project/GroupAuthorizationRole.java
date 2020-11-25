@@ -14,7 +14,7 @@ package pl.edu.icm.unity.engine.api.project;
 public enum GroupAuthorizationRole
 {
 	manager("Complete project management"),
-	treeManager("Complete project management plus ability to create sub-projects (if root project settings allows for that)"), 
+	projectsAdmin("Complete project management plus ability to create sub-projects (if root project settings allows for that)"), 
 	regular("No administration capabilities");
 
 	private String description;

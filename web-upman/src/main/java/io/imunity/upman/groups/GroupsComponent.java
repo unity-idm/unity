@@ -316,7 +316,7 @@ class GroupsComponent extends CustomComponent
 			return false;
 		if (!project.delegationConfiguration.enabled || !project.delegationConfiguration.enableSubprojects)
 			return false;
-		if (!role.equals(GroupAuthorizationRole.treeManager))
+		if (!role.equals(GroupAuthorizationRole.projectsAdmin))
 			return false;
 		return true;
 	}

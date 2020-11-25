@@ -192,7 +192,7 @@ class GroupMembersComponent extends CustomComponent
 				.withHandler(this::showSetSubProjectRoleDialog)
 				.withDisabledPredicate(e -> project.equals(group.toString())
 						|| !group.getDelegationConfiguration().enabled
-						|| !role.equals(GroupAuthorizationRole.treeManager))
+						|| !role.equals(GroupAuthorizationRole.projectsAdmin))
 				.hideIfInactive().build();
 	}
 
@@ -328,10 +328,10 @@ class GroupMembersComponent extends CustomComponent
 
 	private List<GroupAuthorizationRole> getAvailableRoles()
 	{
-		if (role.equals(GroupAuthorizationRole.treeManager))
+		if (role.equals(GroupAuthorizationRole.projectsAdmin))
 		{
 			return Lists.newArrayList(GroupAuthorizationRole.regular, GroupAuthorizationRole.manager,
-					GroupAuthorizationRole.treeManager);
+					GroupAuthorizationRole.projectsAdmin);
 		}
 
 		else if (role.equals(GroupAuthorizationRole.manager))

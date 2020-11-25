@@ -81,14 +81,14 @@ public class ProjectAuthorizationManager
 	}
 
 	@Transactional
-	public void assertTreeManagerSubprojectCreationAuthorization(String projectPath, String groupPath)
+	public void assertProjectsAdminSubprojectCreationAuthorization(String projectPath, String groupPath)
 			throws AuthorizationException
 
 	{
 		LoginSession client = getClient();
 		assertDelegationAndSubprojectsAreEnabled(projectPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
-		assertClientIsProjectTreeManager(projectPath, groupPath, client.getEntityId());
+		assertClientIsProjectsAdmin(projectPath, groupPath, client.getEntityId());
 
 	}
 	
@@ -108,11 +108,11 @@ public class ProjectAuthorizationManager
 	private void assertClientCanGiveRole(long clientId, String projectPath, String groupPath, GroupAuthorizationRole role) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);		
-		if (roles.contains(GroupAuthorizationRole.treeManager))
+		if (roles.contains(GroupAuthorizationRole.projectsAdmin))
 			return;
 
 		if (roles.contains(GroupAuthorizationRole.manager) && projectPath.equals(groupPath)
-				&& !role.equals(GroupAuthorizationRole.treeManager))
+				&& !role.equals(GroupAuthorizationRole.projectsAdmin))
 			return;
 
 		throw new AuthorizationException(
@@ -158,7 +158,7 @@ public class ProjectAuthorizationManager
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
 
 		if (!(roles.contains(GroupAuthorizationRole.manager)
-				|| roles.contains(GroupAuthorizationRole.treeManager)))
+				|| roles.contains(GroupAuthorizationRole.projectsAdmin)))
 		{
 			throw new AuthorizationException(
 					"Access is denied. The operation requires manager capability in " + projectPath
@@ -166,12 +166,12 @@ public class ProjectAuthorizationManager
 		}
 	}
 
-	private void assertClientIsProjectTreeManager(String projectPath, String groupPath,
+	private void assertClientIsProjectsAdmin(String projectPath, String groupPath,
 			long clientId) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
 
-		if (!roles.contains(GroupAuthorizationRole.treeManager))
+		if (!roles.contains(GroupAuthorizationRole.projectsAdmin))
 		{
 			throw new AuthorizationException(
 					"Access is denied. The operation requires tree manager in " + projectPath
