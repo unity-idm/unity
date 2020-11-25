@@ -123,16 +123,16 @@ many user facing UI views, in the first place the authentication screen.
 
 ===== AdminUI dropped
 
-Version 3.4 drops AdminUI support completely. Before upgrade make sure to:
+Version 3.4 drops AdminUI support completely. Before the upgrade make sure to:
 
-* deploy Admin Console endpoint, which is its replacement (suggested since 3.0 release)
-* remove AdminUI from configuration files if it is still there
+* deploy Admin Console endpoint, which is its replacement (suggested since the 3.0.0 release)
+* remove AdminUI from configuration files, if it is still there
 
 Note that DB migration will drop all stored AdminUI endpoints that are found in DB.
 
 Version 3.4 also migrates all +jpegImage+ attributes to the newer and more flexible +image+ attribute type. 
 This change requires no special action, although be aware that from that version image attributes can
-be exported over OAuth and SAML interfaces.
+be exported over OAuth and SAML interfaces, and OAuth clients logo can use compression format like PNG improving its quality.
 
 ===== Change of the default for the TLS wantClientAuthn option
 
