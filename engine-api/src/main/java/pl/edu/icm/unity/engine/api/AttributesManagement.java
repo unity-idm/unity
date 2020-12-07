@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
+import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -99,4 +100,20 @@ public interface AttributesManagement
 	Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, 
 			String groupPath, String attributeTypeId, boolean allowDegrade) throws EngineException;
 
+	/**
+	 * Returns attributes of an entity, including hidden ones. The two last arguments can be null,
+	 * meaning that there is no restriction.
+	 * @param entity
+	 * @param effective if false then attributes which are added by groups' attribute statements are
+	 * not included. Useful only for attribute management interfaces.
+	 * @param groupPathPatterns
+	 * @param attributeTypeId
+	 * @param allowDegrade if true then in case that the caller has no permission to read hidden attributes,
+	 * the method will degrade itself and will try to return only the visible attributes, what requires
+	 * smaller permissions. Note that still it may cause authz error.
+	 * @return
+	 * @throws EngineException
+	 */
+	Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective,
+			List<String> groupPathPatterns, String attributeTypeId, boolean allowDegrade) throws EngineException;
 }

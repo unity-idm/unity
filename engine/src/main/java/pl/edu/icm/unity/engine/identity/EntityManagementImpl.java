@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.engine.identity;
 
 import static java.lang.String.join;
+import static java.util.Collections.*;
 import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -183,7 +183,7 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		authz.checkAuthorization(AuthzCapability.identityModify);
 		
-		List<Attribute> attributes = attributesP == null ? Collections.emptyList() : attributesP;
+		List<Attribute> attributes = attributesP == null ? emptyList() : attributesP;
 		
 		Identity ret = tx.runInTransactionRetThrowing(() -> {
 			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.EntitiesCount,
@@ -769,7 +769,7 @@ public class EntityManagementImpl implements EntityManagement
 		for (GroupMembership groupMem: entityMembership)
 		{
 			Group group = allAsMap.get(groupMem.getGroup());
-			group.setAttributesClasses(Collections.emptySet());
+			group.setAttributesClasses(emptySet());
 			group.setAttributeStatements(new AttributeStatement[0]);
 			ret.add(group);
 		}
@@ -830,9 +830,9 @@ public class EntityManagementImpl implements EntityManagement
 	private void mergeAttributes(long mergedId, long targetId, boolean safeMode) throws EngineException
 	{
 		Collection<AttributeExt> newAttributes = 
-				attributesHelper.getAllAttributes(mergedId, null, false, null);
+				attributesHelper.getAllAttributes(mergedId, emptyList(), false, null);
 		Collection<AttributeExt> targetAttributes = 
-				attributesHelper.getAllAttributes(targetId, null, false, null);
+				attributesHelper.getAllAttributes(targetId, emptyList(), false, null);
 		Set<String> targetAttributesSet = new HashSet<>();
 		for (AttributeExt attribute: targetAttributes)
 			targetAttributesSet.add(getAttrKey(attribute));

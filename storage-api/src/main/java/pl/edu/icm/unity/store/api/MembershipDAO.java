@@ -8,7 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -39,5 +42,13 @@ public interface MembershipDAO
 		for (GroupMembership gm: full)
 			ret.add(gm.getGroup());
 		return ret;
+	}
+
+	default List<Group> getEntityMembershipGroups(long entityId)
+	{
+		return getEntityMembership(entityId).stream()
+			.map(GroupMembership::getGroup)
+			.map(Group::new)
+			.collect(toList());
 	}
 }

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
 
 import java.util.ArrayList;
@@ -13,13 +16,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
@@ -49,14 +50,7 @@ import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
@@ -122,24 +116,36 @@ public class AttributesHelper
 			boolean effective, String attributeTypeName) 
 			throws EngineException
 	{
+		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
+		return getAllAttributesAsMap(entityId, groupsPaths, effective, attributeTypeName);
+	}
+
+	/**
+	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
+	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
+	 */
+	public Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
+	                                                                    boolean effective, String attributeTypeName)
+		throws EngineException
+	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
 		if (!effective)
 		{
-			filterMap(directAttributesByGroup, groupPath, attributeTypeName);
+			groupsPaths.forEach(g -> filterMap(directAttributesByGroup, g, attributeTypeName));
 			return directAttributesByGroup;
 		}
 		Set<String> allGroups = membershipDAO.getEntityMembershipSimple(entityId);
-		List<String> groups = groupPath == null ? new ArrayList<>(allGroups) : Lists.newArrayList(groupPath);
+		List<String> groups = groupsPaths != null && groupsPaths.isEmpty() ? new ArrayList<>(allGroups) : groupsPaths;
 		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
-		
+
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
-		
+
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 		for (String group: groups)
 		{
-			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, 
-					group, attributeTypeName, allGroups, directAttributesByGroup, allClasses,
-					groupDAO::get, attributeTypeDAO::get);
+			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities,
+				group, attributeTypeName, allGroups, directAttributesByGroup, allClasses,
+				groupDAO::get, attributeTypeDAO::get);
 			ret.put(group, inGroup);
 		}
 		return ret;
@@ -252,8 +258,8 @@ public class AttributesHelper
 		
 		List<AttributeExt> attributes = attributeDAO.getEntityAttributes(entityId, null, group);
 		Collection<String> attributeNames = attributes.stream().
-				map(a -> a.getName()).
-				collect(Collectors.toList());
+				map(Attribute::getName).
+				collect(toList());
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
 		acHelper.checkAttribtues(attributeNames, allTypes);
 
@@ -267,27 +273,42 @@ public class AttributesHelper
 			boolean effective, String groupPath, String attributeTypeName, 
 			boolean allowDisabled) throws EngineException
 	{
+		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
+		return getAllAttributesInternal(entityId, effective, groupsPaths, attributeTypeName, allowDisabled);
+	}
+
+	public Collection<AttributeExt> getAllAttributesInternal(long entityId,
+			boolean effective, List<String> groupsPaths, String attributeTypeName,
+			boolean allowDisabled) throws EngineException
+	{
 		if (!allowDisabled)
 		{
 			EntityInformation entityInformation = entityDAO.getByKey(entityId);
 			if (entityInformation.getEntityState() == EntityState.disabled)
 				throw new IllegalIdentityValueException("The entity is disabled");
 		}
-		if (groupPath != null)
+		if (groupsPaths != null)
 		{
 			Set<String> allGroups = membershipDAO.getEntityMembershipSimple(entityId);
-			if (!allGroups.contains(groupPath))
-				throw new IllegalGroupValueException("The entity is not a member of the group " 
-						+ groupPath);
+			if (!allGroups.containsAll(groupsPaths))
+				throw new IllegalGroupValueException("The entity is not a member of the group "
+					+ groupsPaths);
 		}
-		return getAllAttributes(entityId, groupPath, effective, attributeTypeName);
+		return getAllAttributes(entityId, groupsPaths, effective, attributeTypeName);
 	}
-	
+
 	public Collection<AttributeExt> getAllAttributes(long entityId, String groupPath, boolean effective, 
 			String attributeTypeName) throws EngineException
 	{
-		Map<String, Map<String, AttributeExt>> asMap = getAllAttributesAsMap(entityId, groupPath, effective, 
-				attributeTypeName);
+		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
+		return getAllAttributes(entityId, groupsPaths, effective, attributeTypeName);
+	}
+
+	public Collection<AttributeExt> getAllAttributes(long entityId, List<String> groupsPaths, boolean effective,
+	                                                 String attributeTypeName) throws EngineException
+	{
+		Map<String, Map<String, AttributeExt>> asMap = getAllAttributesAsMap(entityId, groupsPaths, effective,
+			attributeTypeName);
 		List<AttributeExt> ret = new ArrayList<>();
 		for (Map<String, AttributeExt> entry: asMap.values())
 			ret.addAll(entry.values());
@@ -388,7 +409,7 @@ public class AttributesHelper
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.AttributesCount,
 				() -> attributeDAO.getCountWithoutType(attributeTypeDAO.getAllAsMap().values().stream()
 						.filter(t -> isSystemAttribute(t)).map(t -> t.getName())
-						.collect(Collectors.toList())));
+						.collect(toList())));
 		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeValuesCount,
 				() -> Long.valueOf(attr.getValues().size()));
 		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.AttributeCumulativeValuesSize,
