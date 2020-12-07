@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.attribute;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static java.util.Collections.*;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -267,7 +268,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		Date created = retrievedA.getCreationTs();
 		Date updated = retrievedA.getUpdateTs(); 
 		
-		at1.setValues(Collections.singletonList("333"));
+		at1.setValues(singletonList("333"));
 		Thread.sleep(2);
 		attrsMan.setAttribute(entity, at1);
 		
@@ -297,7 +298,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		Attribute at2 = StringAttribute.of("tel", "/", "1234");
 		attrsMan.createAttribute(entity, at2);
 		
-		at2.setValues(Collections.singletonList("333"));
+		at2.setValues(singletonList("333"));
 		attrsMan.setAttribute(entity, at2);
 		
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, "/", "tel");
@@ -308,7 +309,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		assertEquals(1, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 		
-		allAts = attrsMan.getAllAttributes(entity, true, null, null, false);
+		allAts = attrsMan.getAllAttributes(entity, true, emptyList(), null, false);
 		assertEquals(DEF_ATTRS + 1, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
 	}
