@@ -7,9 +7,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import static com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod.S256;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.ALLOWED_RETURN_URI;
@@ -217,7 +215,7 @@ public class OAuthWebRequestValidatorTest
 		AttributeExt allowedFlows = new AttributeExt(StringAttribute.of(ALLOWED_RETURN_URI, "/oauth-clients", 
 				authorizedURI), true);
 		AttributeExt clientType = new AttributeExt(StringAttribute.of(CLIENT_TYPE, "/oauth-clients", ClientType.PUBLIC.name()), true);
-		when(attributesMan.getAllAttributes(eq(clientEntity), anyBoolean(), any(), any(), anyBoolean()))
+		when(attributesMan.getAllAttributes(eq(clientEntity), anyBoolean(), anyString(), any(), anyBoolean()))
 			.thenReturn(Lists.newArrayList(allowedFlows, clientType));
 		return new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan);
 	}

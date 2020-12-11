@@ -295,11 +295,12 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/groups/attributes")
 	@GET
 	public String getAttributesInGroups(@PathParam("entityId") String entityId,
-			@QueryParam("group") List<String> groups)
-			throws EngineException, JsonProcessingException
+			@QueryParam("group") List<String> groups,
+			@QueryParam("identityType") String idType)
+				throws EngineException, JsonProcessingException
 	{
 		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAttributesInGroups(
-			getEP(entityId, null), groups);
+			getEP(entityId, idType), groups);
 		return mapper.writeValueAsString(attributesInGroups);
 	}
 
