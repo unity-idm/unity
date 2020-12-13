@@ -216,18 +216,25 @@ class GroupsComponent extends CustomComponent
 			return;
 
 		GroupNode groupNode = items.iterator().next();
-		new AddGroupDialog(msg, groupNode, project.delegationConfiguration, (groupNameWithAccessMode, groupDelegationConfig) -> {
-			try
-			{
-				String newGroupPath = controller.addGroup(project.path, groupNode.getPath(), groupNameWithAccessMode);
-				controller.setGroupDelegationConfiguration(project.path, newGroupPath, groupDelegationConfig);
-				groupBrowser.reloadNode(groupNode);
-				groupBrowser.expand(groupNode);
-			} catch (ControllerException e)
-			{
-				NotificationPopup.showError(e);
-			}
-		}).show();
+		new AddGroupDialog(msg, groupNode, project.delegationConfiguration, checkIfAdminCanCreateSubproject(groupNode.getPath()),
+				(groupNameWithAccessMode, groupDelegationConfig) -> {
+					try
+					{
+						String newGroupPath = controller.addGroup(project.path,
+								groupNode.getPath(), groupNameWithAccessMode);
+						if (groupDelegationConfig != null)
+						{
+							controller.setGroupDelegationConfiguration(project.path, newGroupPath,
+									groupDelegationConfig);
+						}
+								
+						groupBrowser.reloadNode(groupNode);
+						groupBrowser.expand(groupNode);
+					} catch (ControllerException e)
+					{
+						NotificationPopup.showError(e);
+					}
+				}).show();
 	}
 
 	private class AddGroupDialog extends AbstractDialog
@@ -239,14 +246,16 @@ class GroupsComponent extends CustomComponent
 		private DelagateGroupDialogContent groupDelegationContent;
 
 		public AddGroupDialog(MessageSource msg, GroupNode parentGroup,
-				GroupDelegationConfiguration projectConfig,
+				GroupDelegationConfiguration projectConfig, boolean showSubprojectConfig,
 				BiConsumer<GroupWithAccessMode, SubprojectGroupDelegationConfiguration> groupConsumer)
 		{
 			super(msg, msg.getMessage("AddGroupDialog.caption"));
 			this.groupConsumer = groupConsumer;
 			this.parentGroup = parentGroup;
-			this.groupDelegationContent = new DelagateGroupDialogContent(msg, projectConfig,
-					new GroupDelegationConfiguration(false));
+			this.groupDelegationContent = showSubprojectConfig
+					? new DelagateGroupDialogContent(msg, projectConfig,
+							new GroupDelegationConfiguration(false))
+					: null;
 			setSizeEm(50, 25);
 		}
 
@@ -272,7 +281,10 @@ class GroupsComponent extends CustomComponent
 
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupNameField, isPublic);
-			groupDelegationContent.getComponents().forEach(main::addComponent);
+			if (groupDelegationContent != null)
+			{
+				groupDelegationContent.getComponents().forEach(main::addComponent);
+			}
 			main.setSizeFull();
 			return main;
 		}
@@ -287,7 +299,8 @@ class GroupsComponent extends CustomComponent
 				return;
 			}
 
-			groupConsumer.accept(new GroupWithAccessMode(groupNameField.getValue(), isPublic.getValue()), groupDelegationContent.getValue());
+			groupConsumer.accept(new GroupWithAccessMode(groupNameField.getValue(), isPublic.getValue()),
+					groupDelegationContent == null ? null : groupDelegationContent.getValue());
 			close();
 		}
 	}
@@ -306,14 +319,20 @@ class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.delegateGroupAction"))
 				.withIcon(Images.workplace.getResource())
-				.withDisabledPredicate(n -> !checkIfAdminCanCreateSubproject(n.getPath()))
+				.withDisabledPredicate(n -> !checkIfAdminCanChangeDelegationConfig(n.getPath()))
 				.hideIfInactive().withHandler(this::showDelegateGroupDialog).build();
 	}
 
-	private boolean checkIfAdminCanCreateSubproject(String path)
+	private boolean checkIfAdminCanChangeDelegationConfig(String path)
 	{
 		if (path.equals(project.path))
 			return false;
+		return checkIfAdminCanCreateSubproject(path);
+	}
+	
+	private boolean checkIfAdminCanCreateSubproject(String path)
+	{
+		
 		if (!project.delegationConfiguration.enabled || !project.delegationConfiguration.enableSubprojects)
 			return false;
 		if (!role.equals(GroupAuthorizationRole.projectsAdmin))
@@ -439,7 +458,7 @@ class GroupsComponent extends CustomComponent
 			close();
 		}
 	}
-	
+
 	private static class DelagateGroupDialogContent
 	{
 		private CheckBox enableDelegation;
