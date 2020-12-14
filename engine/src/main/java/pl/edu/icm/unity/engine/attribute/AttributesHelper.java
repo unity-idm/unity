@@ -50,7 +50,14 @@ import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.*;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
@@ -125,8 +132,7 @@ public class AttributesHelper
 	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
 	 */
 	public Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
-	                                                                    boolean effective, String attributeTypeName)
-		throws EngineException
+			boolean effective, String attributeTypeName) throws EngineException
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
 		if (!effective)

@@ -3,7 +3,6 @@ package pl.edu.icm.unity.test.performance;
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -121,7 +120,7 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 		individual.add("getGroupsForPresentation", end-start);
 		
 		start = System.currentTimeMillis();
-		attrsMan.getAllAttributes(ep, true, emptyList(), null, true);
+		attrsMan.getAllAttributes(ep, true, (String)null, null, true);
 		end = System.currentTimeMillis();
 		individual.add("getAttributes", end-start);
 		

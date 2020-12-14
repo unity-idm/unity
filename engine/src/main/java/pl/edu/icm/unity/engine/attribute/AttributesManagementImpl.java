@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,18 +31,27 @@ import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService;
-import pl.edu.icm.unity.exceptions.*;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.basic.*;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupPattern;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 /**
