@@ -234,8 +234,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<AttributeExt> getAttributes(EntityParam entity, String groupPath,
 			String attributeTypeId) throws EngineException
 	{
-		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
-		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupsPaths,
+		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupPath,
 				attributeTypeId, new AuthzCapability[] {AuthzCapability.read}, false
 		);
 		return filterSecuritySensitive(ret);
@@ -254,14 +253,26 @@ public class AttributesManagementImpl implements AttributesManagement
 	public Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective, String groupPath,
 			String attributeTypeId, boolean allowDegrade) throws EngineException
 	{
-		List<String> groupPathPatterns = groupPath != null ? singletonList(groupPath) : emptyList();
-		return getAllAttributes(entity, effective, groupPathPatterns, attributeTypeId, allowDegrade);
+		try
+		{
+			return getAllAttributesInternal(entity, effective, groupPath, attributeTypeId,
+				new AuthzCapability[] {AuthzCapability.readHidden, AuthzCapability.read}, true);
+		} catch (AuthorizationException e)
+		{
+			if (allowDegrade)
+			{
+				return getAllAttributesInternal(entity, effective,
+					groupPath, attributeTypeId,
+					new AuthzCapability[] {AuthzCapability.read}, false);
+			} else
+				throw e;
+		}
 	}
 
 	@Override
 	@Transactional
 	public Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective,
-			List<String> groupPathPatterns, String attributeTypeId, boolean allowDegrade) throws EngineException
+			List<GroupPattern> groupPathPatterns, String attributeTypeId, boolean allowDegrade) throws EngineException
 	{
 		try
 		{
@@ -280,33 +291,51 @@ public class AttributesManagementImpl implements AttributesManagement
 	}
 
 	private Collection<AttributeExt> getAllAttributesInternal(EntityParam entity, boolean effective,
-	                                                          List<String> groupPathPatterns,
-			String attributeTypeName, AuthzCapability[] requiredCapability, boolean allowDisabled) 
-					throws EngineException
+			List<GroupPattern> groupPathPatterns, String attributeTypeName, AuthzCapability[] requiredCapability,
+			boolean allowDisabled) throws EngineException
 	{
 		entity.validateInitialization();
 		long entityId = idResolver.getEntityId(entity);
 
-		List<Group> entityGroups = membershipDAO.getEntityMembershipGroups(entityId);
-		List<String> groupsPaths = new ArrayList<>();
-		for(String groupPathPattern : groupPathPatterns){
-			groupsPaths.addAll(getFitGroups(entityGroups, groupPathPattern));
-		}
-		for (String group : groupsPaths) {
+		List<String> groupsPaths = getGroupsPaths(groupPathPatterns, entityId);
+		if(groupsPaths.isEmpty())
+			return emptyList();
+
+		for (String group : groupsPaths)
+		{
 			authz.checkAuthorization(authz.isSelf(entityId), group, requiredCapability);
 		}
 		return attributesHelper.getAllAttributesInternal(entityId,
 				effective, groupsPaths, attributeTypeName, allowDisabled);
 	}
 
-	private List<String> getFitGroups(List<Group> entityGroups, String groupPathPattern)
-			throws IllegalGroupValueException {
-		List<String> groups = GroupPatternMatcher.filterMatching(entityGroups, groupPathPattern).stream()
+	private Collection<AttributeExt> getAllAttributesInternal(EntityParam entity, boolean effective,
+			String groupPath, String attributeTypeName, AuthzCapability[] requiredCapability, boolean allowDisabled)
+			throws EngineException
+	{
+		entity.validateInitialization();
+		long entityId = idResolver.getEntityId(entity);
+		authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
+		return attributesHelper.getAllAttributesInternal(entityId,
+			effective, groupPath, attributeTypeName, allowDisabled);
+	}
+
+	private List<String> getGroupsPaths(List<GroupPattern> groupPathPatterns, long entityId)
+	{
+		List<Group> entityGroups = membershipDAO.getEntityMembershipGroups(entityId);
+		List<String> groupsPaths = new ArrayList<>();
+		for(GroupPattern groupPathPattern : groupPathPatterns)
+		{
+			groupsPaths.addAll(getMatchingGroups(entityGroups, groupPathPattern.pattern));
+		}
+		return groupsPaths;
+	}
+
+	private List<String> getMatchingGroups(List<Group> entityGroups, String groupPathPattern)
+	{
+		return GroupPatternMatcher.filterMatching(entityGroups, groupPathPattern).stream()
 			.map(Group::getName)
 			.collect(toList());
-		if(groups.isEmpty())
-			throw new IllegalGroupValueException("The entity groups don't fit to this pattern: " + groupPathPattern);
-		return groups;
 	}
 
 	/**

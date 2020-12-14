@@ -3,14 +3,13 @@ package pl.edu.icm.unity.test.performance;
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;

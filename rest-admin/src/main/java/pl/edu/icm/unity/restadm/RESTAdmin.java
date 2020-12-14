@@ -295,12 +295,15 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/groups/attributes")
 	@GET
 	public String getAttributesInGroups(@PathParam("entityId") String entityId,
-			@QueryParam("group") List<String> groups,
+			@QueryParam("groupsPatterns") List<String> groupsPatterns,
+			@QueryParam("effective") Boolean effective,
 			@QueryParam("identityType") String idType)
 				throws EngineException, JsonProcessingException
 	{
+		if (effective == null)
+			effective = true;
 		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAttributesInGroups(
-			getEP(entityId, idType), groups);
+			getEP(entityId, idType), effective, groupsPatterns);
 		return mapper.writeValueAsString(attributesInGroups);
 	}
 
@@ -507,7 +510,7 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/group/{groupPath}")
 	@POST
 	public void addGroup(@PathParam("groupPath") String group,
-	                     @QueryParam("recursive") Boolean recursive) throws EngineException, JsonProcessingException
+			@QueryParam("recursive") Boolean recursive) throws EngineException, JsonProcessingException
 	{
 		log.debug("addGroup " + group);
 		Group toAdd = new Group(group);

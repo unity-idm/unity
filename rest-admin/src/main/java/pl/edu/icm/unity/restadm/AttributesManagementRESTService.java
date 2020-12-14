@@ -20,8 +20,9 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
+import pl.edu.icm.unity.types.basic.GroupPattern;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -63,12 +64,16 @@ class AttributesManagementRESTService
 				.collect(Collectors.toList());
 	}
 
-	Map<String, List<ExternalizedAttribute>> getAttributesInGroups(EntityParam entity,
-			List<String> groups) throws EngineException
+	Map<String, List<ExternalizedAttribute>> getAttributesInGroups(EntityParam entity, boolean effective,
+			List<String> groupsPattern) throws EngineException
 	{
-		LOG.debug("getAttributes query for " + entity + " in " + groups);
+		LOG.debug("getAttributes query for " + entity + " in " + groupsPattern);
+		List<GroupPattern> groupsPathsPatterns = groupsPattern.stream()
+			.map(GroupPattern::new)
+			.collect(Collectors.toList());
+
 		Collection<AttributeExt> attributes = attributesMan.getAllAttributes(
-			entity, true, groups, null, true);
+			entity, effective, groupsPathsPatterns, null, true);
 
 		return attributes.stream()
 			.map(ExternalizedAttribute::new)

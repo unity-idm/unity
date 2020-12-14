@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import static java.util.Collections.*;
+import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.junit.Test;
@@ -542,14 +541,14 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", null, false);
 		assertEquals(aRet.toString(), a1InAZ+a2InAZ, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, true, emptyList(), null, false);
+		aRet = attrsMan.getAllAttributes(entity, true, (String)null, null, false);
 		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ+
 				a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ+systemAttributes, aRet.size());
 
-		aRet = attrsMan.getAllAttributes(entity, true, emptyList(), "a2", false);
+		aRet = attrsMan.getAllAttributes(entity, true, (String)null, "a2", false);
 		assertEquals(aRet.toString(), a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, true, emptyList(), "a1", false);
+		aRet = attrsMan.getAllAttributes(entity, true, (String)null, "a1", false);
 		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ, aRet.size());
 	}
 	

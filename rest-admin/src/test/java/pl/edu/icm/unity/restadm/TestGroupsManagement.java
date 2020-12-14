@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -58,6 +59,25 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(true));
+	}
+
+	@Test
+	public void recursivelyAddedGroupIsReturned() throws Exception
+	{
+		String encodedSlash = "%2F";
+		String params = "?recursive=true";
+		String uri = "/restadm/v1/group/subgroup1" + encodedSlash + "subgroup2" + encodedSlash + "subgroup3" + params;
+		HttpPost add = new HttpPost(uri);
+		HttpResponse response = client.execute(host, add, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+
+		HttpGet getGroupContents =
+			new HttpGet("/restadm/v1/group/" + encodedSlash + "subgroup1" + encodedSlash + "subgroup2");
+		response = client.execute(host, getGroupContents, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
+		assertThat(groupContent.getSubGroups().contains("/subgroup1/subgroup2/subgroup3"), is(true));
 	}
 
 	@Test

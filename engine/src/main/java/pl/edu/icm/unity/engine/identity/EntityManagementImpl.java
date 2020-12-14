@@ -5,7 +5,8 @@
 package pl.edu.icm.unity.engine.identity;
 
 import static java.lang.String.join;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 import java.util.ArrayList;

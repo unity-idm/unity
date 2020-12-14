@@ -4,7 +4,14 @@
  */
 package pl.edu.icm.unity.engine.translation.in;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +43,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-
-import static java.util.Collections.*;
 
 /**
  * Applies all mappings which were recorded by profile's actions, taking into
@@ -466,7 +471,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			Set<Attribute> alreadyProcessedAttributes) throws EngineException
 	{
 		Map<String, AttributeExt> existingAttributes = new HashMap<>();
-		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, false, emptyList(), null, false);
+		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, false, (String)null, null, false);
 		for (AttributeExt a : existingAttrs)
 			existingAttributes.put(a.getGroupPath() + "///" + a.getName(), a);
 
