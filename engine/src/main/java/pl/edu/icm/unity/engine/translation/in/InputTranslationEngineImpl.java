@@ -471,7 +471,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			Set<Attribute> alreadyProcessedAttributes) throws EngineException
 	{
 		Map<String, AttributeExt> existingAttributes = new HashMap<>();
-		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, false, null, null, false);
+		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, false, (String)null, null, false);
 		for (AttributeExt a : existingAttrs)
 			existingAttributes.put(a.getGroupPath() + "///" + a.getName(), a);
 

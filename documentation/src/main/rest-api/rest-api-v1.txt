@@ -196,6 +196,80 @@ Example output:
 ----
 
 
+=== Get entity attributes in groups
+
++@Path(/entity/{entityId}/groups/attributes)+ +
++@QueryParam("groupsPatterns")+ +
++@QueryParam("effective")+ +
++@QueryParam("identityType")+ +
++@GET+ +
+
+Returns grouped by group attributes of a given entity in a selected groups patterns.
+Group pattern is an ant pattern, which has following rules:
+(?) - matches one character within a path variable
+(*) - matches any characters within a path variable
+(**) - matches any characters across whole directory
+Values are encoded in syntax type dependent way.
+The optional effective query parameter (by default true) can be used to control whether only directly defined
+or effective attributes are queried.
+
+Example output:
+----
+[
+    "/": [
+        {
+            "values": [
+                "2017-04-03T22:18:34"
+            ],
+            "creationTs": 1491257914036,
+            "updateTs": 1491257914036,
+            "direct": true,
+            "name": "sys:LastAuthentication",
+            "groupPath": "/",
+            "valueSyntax": "string"
+        },
+        {
+            "values": [
+                "Regular User"
+            ],
+            "creationTs": 1491257136049,
+            "updateTs": 1491257136049,
+            "direct": true,
+            "name": "sys:AuthorizationRole",
+            "groupPath": "/",
+            "valueSyntax": "enumeration"
+        }
+    ],
+    "/test": [
+        {
+            "values": [
+                "{\"value\":\"some@email.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1491257136061,\"sentRequestAmount\":0},\"tags\":[]}"
+            ],
+            "creationTs": 1491257136075,
+            "updateTs": 1491257136075,
+            "direct": true,
+            "name": "email",
+            "groupPath": "/test",
+            "valueSyntax": "verifiableEmail"
+        },
+        {
+            "values": [
+                "Example organization",
+                "org2",
+                "org3"
+            ],
+            "creationTs": 1491257136052,
+            "updateTs": 1491257136052,
+            "direct": true,
+            "name": "o",
+            "groupPath": "/test",
+            "valueSyntax": "string"
+        }
+    ]
+]
+----
+
+
 === Get group metadata
 
 +@Path("/group/{groupPath}/meta")+ +
@@ -334,10 +408,13 @@ Output structure:
 === Create group (simple)
 
 +@Path("/group/{groupPath}")+ +
++@QueryParam("withParents")+ +
 +@POST+ +
 
 Creates a new group. The created group will be empty and will contain only the default settings 
 (e.g. no attribute statements, no description, displayed name set to group path name).
+The optional +(false,withParents)+ query parameter (by default false) can be used to add groups in recursive way.
+(For example three groups can be add by one request in following hierarchy "newGroup1/newGroup2/newGroup3")
 
 
 === Create group (advanced)

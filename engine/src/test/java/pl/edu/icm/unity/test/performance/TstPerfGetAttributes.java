@@ -120,7 +120,7 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 		individual.add("getGroupsForPresentation", end-start);
 		
 		start = System.currentTimeMillis();
-		attrsMan.getAllAttributes(ep, true, null, null, true);
+		attrsMan.getAllAttributes(ep, true, (String)null, null, true);
 		end = System.currentTimeMillis();
 		individual.add("getAttributes", end-start);
 		

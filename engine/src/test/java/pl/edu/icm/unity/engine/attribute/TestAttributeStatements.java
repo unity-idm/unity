@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.junit.Test;
@@ -354,10 +354,10 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupsMan.updateGroup("/A", groupA);
 		
 		
-		AttributesClass ac = new AttributesClass("ac1", "", Collections.singleton("a2"), 
+		AttributesClass ac = new AttributesClass("ac1", "", singleton("a2"),
 				new HashSet<String>(), false, new HashSet<String>(0));
 		acMan.addAttributeClass(ac);
-		acMan.setEntityAttributeClasses(entity, "/A/D", Collections.singleton(ac.getName()));
+		acMan.setEntityAttributeClasses(entity, "/A/D", singleton(ac.getName()));
 		
 		//              /  A  AB ABC AD AZ
 //		testCorrectness(0, 1, 1, 0,  0, 0,  //a1
@@ -541,14 +541,14 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", null, false);
 		assertEquals(aRet.toString(), a1InAZ+a2InAZ, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, true, null, null, false);
+		aRet = attrsMan.getAllAttributes(entity, true, (String)null, null, false);
 		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ+
 				a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ+systemAttributes, aRet.size());
 
-		aRet = attrsMan.getAllAttributes(entity, true, null, "a2", false);
+		aRet = attrsMan.getAllAttributes(entity, true, (String)null, "a2", false);
 		assertEquals(aRet.toString(), a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ, aRet.size());
 		
-		aRet = attrsMan.getAllAttributes(entity, true, null, "a1", false);
+		aRet = attrsMan.getAllAttributes(entity, true, (String)null, "a1", false);
 		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ, aRet.size());
 	}
 	

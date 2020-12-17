@@ -6,6 +6,7 @@ package pl.edu.icm.unity.restadm;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -19,8 +20,12 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
+import pl.edu.icm.unity.types.basic.GroupPattern;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 @Component
 class AttributesManagementRESTService
@@ -57,6 +62,22 @@ class AttributesManagementRESTService
 		return attributes.stream()
 				.map(ExternalizedAttribute::new)
 				.collect(Collectors.toList());
+	}
+
+	Map<String, List<ExternalizedAttribute>> getAttributesInGroups(EntityParam entity, boolean effective,
+			List<String> groupsPattern) throws EngineException
+	{
+		LOG.debug("getAttributes query for " + entity + " in " + groupsPattern);
+		List<GroupPattern> groupsPathsPatterns = groupsPattern.stream()
+			.map(GroupPattern::new)
+			.collect(Collectors.toList());
+
+		Collection<AttributeExt> attributes = attributesMan.getAllAttributes(
+			entity, effective, groupsPathsPatterns, null, true);
+
+		return attributes.stream()
+			.map(ExternalizedAttribute::new)
+			.collect(groupingBy(Attribute::getGroupPath, toList()));
 	}
 
 	private ExternalizedAttribute createWithSimpleValues(AttributeExt attribute)

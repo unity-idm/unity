@@ -118,26 +118,30 @@ public class GroupsManagementImpl implements GroupsManagement
 
 	@Override
 	@Transactional
-	public void addGroup(Group toAdd) throws EngineException
+	public void addGroup(Group toAdd, boolean withParents) throws EngineException
 	{
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
-		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, () -> dbGroups.getCount());	
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, () -> dbGroups.getCount());
 		groupHelper.validateGroupStatements(toAdd);
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
-		if (!dbGroups.exists(toAdd.getParentPath()))
+
+		boolean groupExists = dbGroups.exists(toAdd.getParentPath());
+		if (!groupExists && withParents)
+			addGroup(new Group(toAdd.getParentPath()), withParents);
+		else if (!groupExists)
 			throw new IllegalArgumentException("Parent group " + toAdd.getParentPath() + " does not exist");
-		
+
 		if (toAdd.isPublic())
-		{	
+		{
 			assertParentIsPrivate(toAdd);
 		}
-		
+
 		dbGroups.create(toAdd);
 		audit.log(AuditEventTrigger.builder()
-				.type(AuditEventType.GROUP)
-				.action(AuditEventAction.ADD)
-				.name(toAdd.getName())
-				.tags(GROUPS));
+			.type(AuditEventType.GROUP)
+			.action(AuditEventAction.ADD)
+			.name(toAdd.getName())
+			.tags(GROUPS));
 	}
 
 	@Override
@@ -381,6 +385,13 @@ public class GroupsManagementImpl implements GroupsManagement
 	{
 		authz.checkAuthorization(group, AuthzCapability.read);
 		return dbGroups.exists(group);
+	}
+
+	@Transactional
+	@Override
+	public void addGroup(Group toAdd) throws EngineException
+	{
+		addGroup(toAdd, false);
 	}
 
 	@Transactional
