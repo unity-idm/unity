@@ -510,13 +510,13 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/group/{groupPath}")
 	@POST
 	public void addGroup(@PathParam("groupPath") String group,
-			@QueryParam("recursive") Boolean recursive) throws EngineException, JsonProcessingException
+			@QueryParam("withParents") Boolean withParents) throws EngineException, JsonProcessingException
 	{
 		log.debug("addGroup " + group);
 		Group toAdd = new Group(group);
-		if (recursive == null)
-			recursive = false;
-		groupsMan.addGroup(toAdd, recursive);
+		if (withParents == null)
+			withParents = false;
+		groupsMan.addGroup(toAdd, withParents);
 	}
 
 	@Path("/group/{groupPath}/statements")

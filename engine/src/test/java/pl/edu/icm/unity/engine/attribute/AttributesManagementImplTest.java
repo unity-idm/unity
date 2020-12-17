@@ -316,7 +316,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void updatedAttributeIsReturnedByGroupPattern() throws Exception
+	public void shouldReturnAllAttributes() throws Exception
 	{
 		Attribute at2 = StringAttribute.of("tel", "/", "1234");
 		attrsMan.createAttribute(entity, at2);
@@ -324,18 +324,37 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		at2.setValues(singletonList("333"));
 		attrsMan.setAttribute(entity, at2);
 
-		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, "/", "tel");
+		Collection<AttributeExt> allAts =
+			attrsMan.getAllAttributes(entity, false, singletonList(new GroupPattern("/**")), "tel", false);
 		assertEquals(1, allAts.size());
 		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
+	}
 
-		allAts = attrsMan.getAllAttributes(entity, false, singletonList(new GroupPattern("/**")), "tel", false);
-		assertEquals(1, allAts.size());
-		assertEquals("333", getAttributeByName(allAts, "tel").getValues().get(0));
+	@Test
+	public void shouldNotReturnAttributesWhenPatternDoesNotMatch() throws Exception
+	{
+		Attribute at2 = StringAttribute.of("tel", "/", "1234");
+		attrsMan.createAttribute(entity, at2);
 
-		allAts = attrsMan.getAllAttributes(entity, false, singletonList(new GroupPattern("/subgroup/**")), "tel", false);
+		at2.setValues(singletonList("333"));
+		attrsMan.setAttribute(entity, at2);
+
+		Collection<AttributeExt> allAts =
+			attrsMan.getAllAttributes(entity, false, singletonList(new GroupPattern("/subgroup/**")), "tel", false);
 		assertEquals(0, allAts.size());
+	}
 
-		allAts = attrsMan.getAllAttributes(entity, true, emptyList(), null, false);
+	@Test
+	public void shouldNotReturnAttributesWhenPatternsListIsEmpty() throws Exception
+	{
+		Attribute at2 = StringAttribute.of("tel", "/", "1234");
+		attrsMan.createAttribute(entity, at2);
+
+		at2.setValues(singletonList("333"));
+		attrsMan.setAttribute(entity, at2);
+
+		Collection<AttributeExt> allAts =
+			attrsMan.getAllAttributes(entity, true, emptyList(), null, false);
 		assertEquals(0, allAts.size());
 	}
 

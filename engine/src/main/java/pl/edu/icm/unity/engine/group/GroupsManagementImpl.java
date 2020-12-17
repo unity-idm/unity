@@ -118,7 +118,7 @@ public class GroupsManagementImpl implements GroupsManagement
 
 	@Override
 	@Transactional
-	public void addGroup(Group toAdd, boolean recursive) throws EngineException
+	public void addGroup(Group toAdd, boolean withParents) throws EngineException
 	{
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, () -> dbGroups.getCount());
@@ -126,8 +126,8 @@ public class GroupsManagementImpl implements GroupsManagement
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
 
 		boolean groupExists = dbGroups.exists(toAdd.getParentPath());
-		if (!groupExists && recursive)
-			addGroup(new Group(toAdd.getParentPath()), recursive);
+		if (!groupExists && withParents)
+			addGroup(new Group(toAdd.getParentPath()), withParents);
 		else if (!groupExists)
 			throw new IllegalArgumentException("Parent group " + toAdd.getParentPath() + " does not exist");
 

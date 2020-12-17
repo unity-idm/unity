@@ -205,6 +205,10 @@ Example output:
 +@GET+ +
 
 Returns grouped by group attributes of a given entity in a selected groups patterns.
+Group pattern is an ant pattern, which has following rules:
+(?) - matches one character within a path variable
+(*) - matches any characters within a path variable
+(**) - matches any characters across whole directory
 Values are encoded in syntax type dependent way.
 The optional effective query parameter (by default true) can be used to control whether only directly defined
 or effective attributes are queried.
@@ -404,12 +408,12 @@ Output structure:
 === Create group (simple)
 
 +@Path("/group/{groupPath}")+ +
-+@QueryParam("recursive")+ +
++@QueryParam("withParents")+ +
 +@POST+ +
 
 Creates a new group. The created group will be empty and will contain only the default settings 
 (e.g. no attribute statements, no description, displayed name set to group path name).
-The optional recursive query parameter (by default false) can be used to add groups in recursively way.
+The optional +(false,withParents)+ query parameter (by default false) can be used to add groups in recursive way.
 (For example three groups can be add by one request in following hierarchy "newGroup1/newGroup2/newGroup3")
 
 

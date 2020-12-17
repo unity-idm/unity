@@ -33,11 +33,11 @@ public interface GroupsManagement
 	void addGroup(Group toAdd) throws EngineException;
 
 	/**
-	 * Adds a new group in a recursively way
+	 * Adds a new group in a recursive way
 	 * @param toAdd group to add
-	 * @param recursive flag to add group recursively
+	 * @param withParents flag to add group recursively
 	 */
-	void addGroup(Group toAdd, boolean recursive) throws EngineException;
+	void addGroup(Group toAdd, boolean withParents) throws EngineException;
 
 	/**
 	 * Removes a given group. Doesn't work for '/' path.

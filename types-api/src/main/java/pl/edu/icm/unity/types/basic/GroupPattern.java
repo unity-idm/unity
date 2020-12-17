@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.types.basic;
 
-public class GroupPattern {
+public class GroupPattern
+{
 	public final String pattern;
 
 	public GroupPattern(String pattern) {

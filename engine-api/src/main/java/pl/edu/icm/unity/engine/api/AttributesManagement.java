@@ -102,7 +102,8 @@ public interface AttributesManagement
 			String groupPath, String attributeTypeId, boolean allowDegrade) throws EngineException;
 
 	/**
-	 * Returns attributes of an entity, including hidden ones.
+	 * Returns attributes of multiple groups, including hidden ones.
+	 * Groups are specified by ant patterns.
 	 */
 	Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective,
 			List<GroupPattern> groupPathPatterns, String attributeTypeId, boolean allowDegrade) throws EngineException;
