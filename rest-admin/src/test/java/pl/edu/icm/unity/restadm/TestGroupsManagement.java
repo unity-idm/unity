@@ -65,7 +65,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 	public void recursivelyAddedGroupIsReturned() throws Exception
 	{
 		String encodedSlash = "%2F";
-		String params = "?recursive=true";
+		String params = "?withParents=true";
 		String uri = "/restadm/v1/group/subgroup1" + encodedSlash + "subgroup2" + encodedSlash + "subgroup3" + params;
 		HttpPost add = new HttpPost(uri);
 		HttpResponse response = client.execute(host, add, localcontext);
