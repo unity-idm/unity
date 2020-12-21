@@ -347,4 +347,23 @@ public class TestWrite extends RESTAdminTestBase
 		Entity entity = idsMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user-triggered")));
 		assertThat(entity, is(notNullValue()));
 	}
+	
+	@Test
+	public void shouldChangeEntityStatus() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam("userName", "userC"), 
+				"cr-pass", EntityState.valid);
+		long entityId = identity.getEntityId();
+		Entity entity = idsMan.getEntity(new EntityParam((entityId)));
+		assertThat(entity, is(notNullValue()));
+		assertThat(entity.getEntityInformation().getEntityState(), is(EntityState.valid));
+		
+		HttpPut changeStatus = new HttpPut("/restadm/v1/entity/" + entityId + "/status/" + EntityState.disabled.toString());		
+		HttpResponse response = client.execute(host, changeStatus, localcontext);
+		assertThat(response.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		
+		entity = idsMan.getEntity(new EntityParam((entityId)));
+		assertThat(entity, is(notNullValue()));
+		assertThat(entity.getEntityInformation().getEntityState(), is(EntityState.disabled));
+	}
 }
