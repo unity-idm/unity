@@ -227,6 +227,25 @@ public class RESTAdmin implements RESTAdminHandler
 		identitiesMan.scheduleEntityChange(getEP(entityId, idType), time, operation);
 	}
 	
+	@Path("/entity/{entityId}/status/{status}")
+	@PUT
+	public void changeEntityStatus(@PathParam("entityId") String entityId, @PathParam("status") String status, 
+			@QueryParam("identityType") String idType) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("changeEntityStatus of " + entityId + " to " + status);
+		EntityState newState;
+		try
+		{
+			newState = EntityState.valueOf(status);
+		} catch (Exception e)
+		{
+			throw new WrongArgumentException("Given status '" + status + "' is unknown, valid are: "
+					+ Arrays.toString(EntityState.values()));
+		}
+		identitiesMan.setEntityStatus(getEP(entityId, idType), newState);
+	}
+	
 	@Path("/entity/identity/{type}/{value}")
 	@POST
 	public String addEntity(@PathParam("type") String type, @PathParam("value") String value, 
@@ -972,14 +991,16 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	
 	/**
-	 * Creates {@link EntityParam} from given entity address and optional type, which can be null.
-	 * If type is null then entityId is checked to have the size of persistentId type and if matching
-	 * then persistentId type is used. Otherwise it is assumed to be internal entityId - a long number.
-	 * If type is not null then it is used as is.
+	 * Creates {@link EntityParam} from given entity address and optional
+	 * type, which can be null. If type is null then entityId is checked to
+	 * have the size of persistentId type and if matching then persistentId
+	 * type is used. Otherwise it is assumed to be internal entityId - a
+	 * long number. If type is not null then it is used as is.
+	 * 
 	 * @param identity
 	 * @param idType
 	 * @return
-	 * @throws WrongArgumentException 
+	 * @throws WrongArgumentException
 	 */
 	private EntityParam getEP(String identity, String idType) throws WrongArgumentException
 	{

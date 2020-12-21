@@ -321,30 +321,36 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		if (subprojectDelegationConfiguration.enabled)
 		{
-			if (Strings.isNullOrEmpty(registrationFormName))
+			if (Strings.isNullOrEmpty(registrationFormName)
+					&& !Strings.isNullOrEmpty(projectDelConfig.registrationForm))
 			{
 				RegistrationForm regForm = groupDelegationConfigGenerator
 						.generateSubprojectRegistrationForm(projectDelConfig.registrationForm,
-								projectPath, groupPath, subprojectDelegationConfiguration.logoUrl);
+								projectPath, groupPath,
+								subprojectDelegationConfiguration.logoUrl);
 				registrationsManagement.addForm(regForm);
 				registrationFormName = regForm.getName();
 			}
 
-			if (Strings.isNullOrEmpty(joinEnquiryName))
+			if (Strings.isNullOrEmpty(joinEnquiryName)
+					&& !Strings.isNullOrEmpty(projectDelConfig.signupEnquiryForm))
 			{
 				EnquiryForm joinEnquiryForm = groupDelegationConfigGenerator
 						.generateSubprojectJoinEnquiryForm(projectDelConfig.signupEnquiryForm,
-								projectPath, groupPath, subprojectDelegationConfiguration.logoUrl);
+								projectPath, groupPath,
+								subprojectDelegationConfiguration.logoUrl);
 				enquiryManagement.addEnquiry(joinEnquiryForm);
 				joinEnquiryName = joinEnquiryForm.getName();
 
 			}
-			if (Strings.isNullOrEmpty(updateEnquiryName))
+			if (Strings.isNullOrEmpty(updateEnquiryName)
+					&& !Strings.isNullOrEmpty(projectDelConfig.membershipUpdateEnquiryForm))
 			{
 				EnquiryForm updateEnquiryForm = groupDelegationConfigGenerator
 						.generateSubprojectUpdateEnquiryForm(
 								projectDelConfig.membershipUpdateEnquiryForm,
-								projectPath, groupPath, subprojectDelegationConfiguration.logoUrl);
+								projectPath, groupPath,
+								subprojectDelegationConfiguration.logoUrl);
 				enquiryManagement.addEnquiry(updateEnquiryForm);
 				updateEnquiryName = updateEnquiryForm.getName();
 			}
