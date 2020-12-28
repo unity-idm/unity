@@ -10,9 +10,6 @@ import com.yubico.webauthn.data.UserVerificationRequirement;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Represents business object of fido credential definition.
  *
@@ -23,8 +20,6 @@ public class FidoCredential
 	private String attestationConveyance = AttestationConveyancePreference.DIRECT.toString();
 	private String userVerification = UserVerificationRequirement.REQUIRED.toString();
 	private String hostName = "Unity";
-	private boolean allowSubdomains = false;
-	private Set<String> allowedOrigins = new HashSet<>();
 
 	public String getAttestationConveyance()
 	{
@@ -54,26 +49,6 @@ public class FidoCredential
 	public void setHostName(String hostName)
 	{
 		this.hostName = hostName;
-	}
-
-	public boolean isAllowSubdomains()
-	{
-		return allowSubdomains;
-	}
-
-	public void setAllowSubdomains(Boolean allowSubdomains)
-	{
-		this.allowSubdomains = allowSubdomains;
-	}
-
-	public Set<String> getAllowedOrigins()
-	{
-		return allowedOrigins;
-	}
-
-	public void setAllowedOrigins(Set<String> allowedOrigins)
-	{
-		this.allowedOrigins = allowedOrigins;
 	}
 
 	public String serialize()

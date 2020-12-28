@@ -25,7 +25,6 @@ import com.yubico.webauthn.exception.AssertionFailedException;
 import io.imunity.fido.FidoExchange;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.fido.credential.FidoCredentialInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,6 @@ import java.util.stream.Collectors;
 
 import static io.imunity.fido.service.FidoEntityHelper.NO_ENTITY_MSG;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * Service for processing FIDO registration and authentication functionality.
@@ -254,7 +252,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 
 	static RelyingParty getRelyingParty(final String hostName, final UnityFidoRegistrationStorage storage, final FidoCredential credentialConfiguration)
 	{
-		RelyingParty.RelyingPartyBuilder builder = RelyingParty.builder()
+		return RelyingParty.builder()
 				.identity(RelyingPartyIdentity.builder()
 						.id(hostName)
 						.name(credentialConfiguration.getHostName())
@@ -263,12 +261,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 				.attestationConveyancePreference(AttestationConveyancePreference.valueOf(credentialConfiguration.getAttestationConveyance()))
 				.allowUntrustedAttestation(true)
 				.allowOriginPort(true)
-				.allowOriginSubdomain(credentialConfiguration.isAllowSubdomains());
-
-		if (nonNull(credentialConfiguration.getAllowedOrigins()) && !credentialConfiguration.getAllowedOrigins().isEmpty())
-				builder.origins(credentialConfiguration.getAllowedOrigins());
-
-		return builder.build();
+				.build();
 	}
 
 	/**
