@@ -7,6 +7,8 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.getVaadinContext;
+
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
@@ -14,8 +16,6 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Implements handling of cancellation of authentication in the context of OAuth processing.
- *  
- * @author K. Benedyczak
  */
 public class OAuthCancelHandler implements CancelHandler
 {
@@ -29,7 +29,7 @@ public class OAuthCancelHandler implements CancelHandler
 	@Override
 	public void onCancel()
 	{
-		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
+		OAuthAuthzContext ctx = getVaadinContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());
