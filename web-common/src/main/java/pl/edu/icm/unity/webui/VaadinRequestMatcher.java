@@ -21,7 +21,9 @@ public class VaadinRequestMatcher
 {
 	private static final List<String> VAADIN_PATHS = Lists.newArrayList(
 			ApplicationConstants.HEARTBEAT_PATH + '/',
-			ApplicationConstants.UIDL_PATH + '/'); 
+			ApplicationConstants.UIDL_PATH + '/',
+			ApplicationConstants.APP_PATH + '/',
+			ApplicationConstants.PUSH_PATH + '/'); 
 	
 	public static boolean isVaadinRequest(HttpServletRequest request)
 	{
