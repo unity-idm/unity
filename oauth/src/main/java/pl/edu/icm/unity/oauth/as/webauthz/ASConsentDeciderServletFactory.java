@@ -13,29 +13,23 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
-/**
- * Creates {@link ASConsentDeciderServlet}s.
- * 
- * @author K. Benedyczak
- */
 @Component
-public class ASConsentDeciderServletFactory
+class ASConsentDeciderServletFactory
 {
-	protected PreferencesManagement preferencesMan;
-	protected IdPEngine idpEngine;
-	private SessionManagement sessionMan;
-	private EnquiryManagement enquiryManagement;
-	private OAuthProcessor processor;
-	private PolicyAgreementManagement policyAgreementManagement;
-	private MessageSource msg;
+	protected final PreferencesManagement preferencesMan;
+	protected final IdPEngine idpEngine;
+	private final OAuthSessionService oauthSessionService;
+	private final EnquiryManagement enquiryManagement;
+	private final OAuthProcessor processor;
+	private final PolicyAgreementManagement policyAgreementManagement;
+	private final MessageSource msg;
 
 	@Autowired
-	public ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
+	ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
 			IdPEngine idpEngine, 
-			SessionManagement sessionMan,
+			OAuthSessionService oauthSessionService,
 			OAuthProcessor processor,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementManagement,
@@ -43,18 +37,17 @@ public class ASConsentDeciderServletFactory
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
-		this.sessionMan = sessionMan;
+		this.oauthSessionService = oauthSessionService;
 		this.processor = processor;
 		this.enquiryManagement = enquiryManagement;
 		this.policyAgreementManagement = policyAgreementManagement;
 		this.msg = msg;
 	}
 
-
-	public ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath)
+	ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath)
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
-				processor, sessionMan, oauthUiServletPath, authenticationUIServletPath, 
+				processor, oauthSessionService, oauthUiServletPath, authenticationUIServletPath, 
 				enquiryManagement, policyAgreementManagement, msg);
 	}
 }

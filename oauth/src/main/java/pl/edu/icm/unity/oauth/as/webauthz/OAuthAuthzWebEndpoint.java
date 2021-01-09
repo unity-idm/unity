@@ -125,6 +125,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		OAuthSessionService oauthSessionService = applicationContext.getBean(OAuthSessionService.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
@@ -170,7 +171,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				registrationConfiguration, properties, 
 				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
 		
-		authenticationServlet.setCancelHandler(new OAuthCancelHandler(new OAuthResponseHandler(sessionMan)));
+		authenticationServlet.setCancelHandler(new OAuthCancelHandler(new OAuthResponseHandler(oauthSessionService)));
 		
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true); 
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");

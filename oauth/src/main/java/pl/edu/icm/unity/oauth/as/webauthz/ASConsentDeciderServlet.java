@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +32,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -40,6 +40,8 @@ import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.HttpSessionAttributes;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.SessionAttributes;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -59,7 +61,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	
 	private PreferencesManagement preferencesMan;
 	private OAuthIdPEngine idpEngine;
-	private SessionManagement sessionMan;
+	private OAuthSessionService oauthSessionService;
 	private String oauthUiServletPath;
 	private String authenticationUIServletPath;
 	private EnquiryManagement enquiryManagement;
@@ -69,14 +71,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
-			OAuthProcessor oauthProcessor, SessionManagement sessionMan,
+			OAuthProcessor oauthProcessor, OAuthSessionService oauthSessionService,
 			String oauthUiServletPath, String authenticationUIServletPath,
 			EnquiryManagement enquiryManagement, PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg)
 	{
 		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
-		this.sessionMan = sessionMan;
+		this.oauthSessionService = oauthSessionService;
 		this.authenticationUIServletPath = authenticationUIServletPath;
 		this.enquiryManagement = enquiryManagement;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
@@ -210,8 +212,6 @@ public class ASConsentDeciderServlet extends HttpServlet
 
 	/**
 	 * Automatically sends an OAuth response, without the consent screen.
-	 * @throws IOException 
-	 * @throws EopException 
 	 */
 	protected void autoReplay(OAuthClientSettings clientPreferences, OAuthAuthzContext oauthCtx, 
 			HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
@@ -265,7 +265,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (redirectURL != null)
 		{
 			response.sendRedirect(redirectURL);
-			session.removeAttribute(OAuthParseServlet.SESSION_OAUTH_CONTEXT);
+			oauthSessionService.cleanupComplete(Optional.of(new HttpSessionAttributes(session)), false);
 			throw new EopException();
 		}
 	}
@@ -273,16 +273,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private OAuthAuthzContext getOAuthContext(HttpServletRequest req)
 	{
 		HttpSession httpSession = req.getSession();
-		OAuthAuthzContext ret = (OAuthAuthzContext) httpSession.getAttribute(
-				OAuthParseServlet.SESSION_OAUTH_CONTEXT);
-		if (ret == null)
-			throw new IllegalStateException("No OAuth context after authN");
-		return ret;
+		return OAuthSessionService.getContext(new HttpSessionAttributes(httpSession));
 	}
 	
 	private void sendReturnRedirect(AuthorizationResponse oauthResponse, HttpServletRequest request, 
 			HttpServletResponse response, boolean invalidateSession) throws IOException
 	{
+		SessionAttributes session = new HttpSessionAttributes(request.getSession());
+		oauthSessionService.cleanupBeforeResponseSent(session);
 		try
 		{
 			String redirectURL = oauthResponse.toURI().toString();
@@ -291,14 +289,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 		} catch (SerializeException e)
 		{
 			throw new IOException("Error: can not serialize error response", e);
-		}
-		
-		HttpSession httpSession = request.getSession();
-		httpSession.removeAttribute(OAuthParseServlet.SESSION_OAUTH_CONTEXT);
-		if (invalidateSession)
+		} finally
 		{
-			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-			sessionMan.removeSession(loginSession.getId(), true);
+			oauthSessionService.cleanupAfterResponseSent(session, invalidateSession);
 		}
 	}
 }

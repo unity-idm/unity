@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.getVaadinContext;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,7 +36,6 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -74,7 +75,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private final StandardWebAuthenticationProcessor authnProcessor;
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport;
-	private final SessionManagement sessionMan;
+	private final OAuthSessionService oauthSessionService;
 	private final OAuthProcessor oauthProcessor;
 	private final PolicyAgreementManagement policyAgreementsMan;
 
@@ -87,7 +88,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			PreferencesManagement preferencesMan, StandardWebAuthenticationProcessor authnProcessor,
 			IdPEngine idpEngine, EnquiresDialogLauncher enquiryDialogLauncher,
 			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
-			SessionManagement sessionMan, PolicyAgreementManagement policyAgreementsMan,
+			OAuthSessionService oauthSessionService, PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
 	{
 		super(msg, enquiryDialogLauncher);
@@ -96,7 +97,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
-		this.sessionMan = sessionMan;
+		this.oauthSessionService = oauthSessionService;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.idTypeSupport = idTypeSupport;
 		this.aTypeSupport = aTypeSupport;
@@ -107,7 +108,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
+		OAuthAuthzContext ctx = getVaadinContext();
 		OAuthASProperties config = ctx.getConfig();
 
 		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(config);
@@ -178,13 +179,13 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (OAuthContextUtils.getContext().getConfig().isSkipConsent())
+		if (getVaadinContext().getConfig().isSkipConsent())
 		{
 			onFinalConfirm(identity, attributes);
 			return;
 		}
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
-				authnProcessor, idTypeSupport, aTypeSupport, sessionMan, identity, attributes,
+				authnProcessor, idTypeSupport, aTypeSupport, oauthSessionService, identity, attributes,
 				this::onDecline, this::onFinalConfirm);
 		setContent(consentScreen);
 	}
@@ -199,7 +200,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private TranslationResult getTranslationResult(OAuthAuthzContext ctx) throws EopException
 	{
-		oauthResponseHandler = new OAuthResponseHandler(sessionMan);
+		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService);
 		try
 		{
 			return idpEngine.getUserInfo(ctx);
@@ -232,7 +233,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void onDecline()
 	{
-		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
+		OAuthAuthzContext ctx = getVaadinContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());
@@ -241,7 +242,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
 	{
-		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
+		OAuthAuthzContext ctx = getVaadinContext();
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor

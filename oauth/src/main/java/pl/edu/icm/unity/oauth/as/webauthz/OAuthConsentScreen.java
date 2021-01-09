@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.getVaadinContext;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -28,7 +30,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
@@ -64,7 +65,7 @@ class OAuthConsentScreen extends CustomComponent
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
 	private StandardWebAuthenticationProcessor authnProcessor;
-	private SessionManagement sessionMan;
+	private OAuthSessionService sessionMan;
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityTypeSupport idTypeSupport;
 	private AttributeTypeSupport aTypeSupport; 
@@ -84,7 +85,7 @@ class OAuthConsentScreen extends CustomComponent
 			StandardWebAuthenticationProcessor authnProcessor, 
 			IdentityTypeSupport idTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
-			SessionManagement sessionMan,
+			OAuthSessionService sessionMan,
 			IdentityParam identity,
 			Collection<DynamicAttribute> attributes,
 			Runnable declineHandler,
@@ -106,7 +107,7 @@ class OAuthConsentScreen extends CustomComponent
 
 	private void initUI()
 	{
-		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
+		OAuthAuthzContext ctx = getVaadinContext();
 		oauthResponseHandler = new OAuthResponseHandler(sessionMan);
 		
 		VerticalLayout vmain = new VerticalLayout();
@@ -259,7 +260,7 @@ class OAuthConsentScreen extends CustomComponent
 	{
 		try
 		{
-			OAuthAuthzContext ctx = OAuthContextUtils.getContext();
+			OAuthAuthzContext ctx = getVaadinContext();
 			OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, ctx, defaultAccept);
 			OAuthPreferences.savePreferences(preferencesMan, preferences);
