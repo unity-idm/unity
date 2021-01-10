@@ -631,12 +631,12 @@
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>8.4</version>
+				<version>8.32</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>8.17</version>
+				<version>8.20.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
