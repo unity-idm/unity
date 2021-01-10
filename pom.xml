@@ -18,10 +18,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.29.v20200521</jetty.version>
+		<jetty.version>9.4.35.v20201120</jetty.version>
 		<slf4j.version>1.7.30</slf4j.version>
 		<log4j.version>2.14.0</log4j.version>
-		<spring.version>5.1.15.RELEASE</spring.version>
+		<spring.version>5.1.20.RELEASE</spring.version>
 		<vaadin.version>8.12.1</vaadin.version>
 		<cxf.version>3.4.2</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>

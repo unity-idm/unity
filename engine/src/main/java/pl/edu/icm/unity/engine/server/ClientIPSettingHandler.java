@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.server;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -74,11 +73,11 @@ class ClientIPSettingHandler extends HandlerWrapper
 		}
 	}
 	
-	private void validateAddress(ServletRequest request) throws IOException
+	private void validateAddress(HttpServletRequest request) throws IOException
 	{
 		try
 		{
-			ipValidator.validateIPAddress(request.getRemoteAddr());
+			ipValidator.validateIPAddress(ipDiscovery.getImmediateClientIPNoCheck(request));
 		} catch (Exception e)
 		{
 			log.error("Not allowed client IP", e);

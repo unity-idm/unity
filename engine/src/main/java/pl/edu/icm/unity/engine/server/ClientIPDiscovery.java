@@ -31,10 +31,22 @@ class ClientIPDiscovery
 	String getClientIP(HttpServletRequest request)
 	{
 		String clientIP = proxyCount > 0 ? getProxiedClientIP(request) : getDirectClientIP(request);
+		String bracketsStripped = stripBracketsIfPresent(clientIP);
+		String strippedIP = stripPortIfPresent(bracketsStripped);
 		//sanity check - eliminate chances for log injection in case of misconfigured setups
-		String strippedIP = stripPortIfPresent(clientIP);
 		InetAddresses.forString(strippedIP);
 		return strippedIP;
+	}
+
+	String getImmediateClientIPNoCheck(HttpServletRequest request)
+	{
+		return stripBracketsIfPresent(getDirectClientIP(request));
+	}
+	
+	private String stripBracketsIfPresent(String clientIP) 
+	{
+		return (clientIP.charAt(0) == '[' && clientIP.charAt(clientIP.length()-1) == ']') ? 
+				clientIP.substring(1, clientIP.length()-1) : clientIP;
 	}
 
 	private String getDirectClientIP(HttpServletRequest request)
