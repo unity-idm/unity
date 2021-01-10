@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.DynamicAttribute;
 
 public class CommonIdPPropertiesTest
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, CommonIdPPropertiesTest.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CommonIdPPropertiesTest.class);
 	
 	@Test
 	public void shouldReturnFilteredAndRemainingAttributes()

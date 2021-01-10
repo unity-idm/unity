@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.impl.tokens;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ public class TokensIE extends AbstractIEBase<Token>
 {
 	public static final String TOKEN_OBJECT_TYPE = "tokens";
 	
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, TokensIE.class);	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, TokensIE.class);	
 	private TokenDAO dbTokens;
 	
 	@Autowired

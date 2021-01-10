@@ -7,7 +7,7 @@ package io.imunity.fido.web;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
@@ -17,7 +17,7 @@ import java.util.Properties;
 
 class FidoRetrievalProperties extends UnityPropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, FidoRetrievalProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, FidoRetrievalProperties.class);
 
 	@DocumentationReferencePrefix
 	public static final String P = "fido.";

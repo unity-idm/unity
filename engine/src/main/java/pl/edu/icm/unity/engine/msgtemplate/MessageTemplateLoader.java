@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigIncludesProcessor;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
  */
 class MessageTemplateLoader
 {
-	private static final Logger logLegacy = Log.getLegacyLogger(Log.U_SERVER_CFG, 
+	private static final Logger logLegacy = Log.getLogger(Log.U_SERVER_CFG, 
 			MessageTemplateLoader.class);
 	private static final org.apache.logging.log4j.Logger log = Log.getLogger(Log.U_SERVER_CFG, MessageTemplateLoader.class);
 	

@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.Resource;
 
@@ -61,7 +61,7 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
  */
 public class SamlIdpProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLegacyLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
+	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	public enum AssertionSigningPolicy {always, ifResponseUnsigned};

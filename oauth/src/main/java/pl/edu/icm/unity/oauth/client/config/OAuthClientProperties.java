@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  */
 public class OAuthClientProperties extends UnityPropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
 	public enum Providers {custom, google, facebook, dropbox, github, microsoft, microsoftAzureV2, orcid, linkedin, unity, intuit};
 	

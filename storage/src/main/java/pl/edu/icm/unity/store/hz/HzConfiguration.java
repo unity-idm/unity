@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.store.rdbms.RDBMSConfiguration;
  */
 public class HzConfiguration extends RDBMSConfiguration
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, HzConfiguration.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HzConfiguration.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = StorageConfiguration.PREFIX + "engine.hz.";

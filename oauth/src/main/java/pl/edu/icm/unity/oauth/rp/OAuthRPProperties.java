@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  */
 public class OAuthRPProperties extends UnityPropertiesHelper implements BaseRemoteASProperties
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthRPProperties.class);
 	
 	public enum VerificationProtocol {mitre, unity, internal};
 	

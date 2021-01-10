@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.canl.CredentialProperties;
 import eu.unicore.security.canl.TruststoreProperties;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class UnityPKIConfiguration extends PropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityPKIConfiguration.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityPKIConfiguration.class);
 
 	@DocumentationReferencePrefix
 	public static final String P = "unity.pki.";

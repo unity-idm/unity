@@ -32,9 +32,4 @@ public class Log
 	{
 		return LogManager.getLogger(category + "." + clazz.getSimpleName());
 	}
-	
-	public static org.apache.log4j.Logger getLegacyLogger(String category, Class<?> clazz)
-	{
-		return org.apache.log4j.Logger.getLogger(category + "." + clazz.getSimpleName());
-	}
 }

@@ -75,8 +75,6 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 public class LdapClient
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
-	private static final org.apache.log4j.Logger legacyLog = 
-			Log.getLegacyLogger(Log.U_SERVER_LDAP, LdapClient.class);
 
 	private String idpName;
 	private LdapGroupHelper groupHelper;
@@ -244,7 +242,7 @@ public class LdapClient
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLS", "LDAP client", legacyLog);
+					"TLS", "LDAP client", log);
 			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
 		} else
@@ -260,7 +258,7 @@ public class LdapClient
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLSv1.2", "LDAP client", legacyLog);
+					"TLSv1.2", "LDAP client", log);
 			ExtendedResult extendedResult = connection.processExtendedOperation(
 					new StartTLSExtendedRequest(ctx));
 

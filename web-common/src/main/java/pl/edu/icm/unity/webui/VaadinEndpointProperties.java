@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
  */
 public class VaadinEndpointProperties extends UnityPropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
 	
 	enum ScaleMode {
 		none, 

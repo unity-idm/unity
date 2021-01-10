@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.util.configuration.PropertyMD;

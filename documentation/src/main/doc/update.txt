@@ -151,3 +151,11 @@ Installations relaying on default config settings for this feature, need to add 
 unityServer.core.httpServer.wantClientAuthn=true
 ----
 
+
+==== From 3.4 to 3.5
+
+===== Server logging configuration changes
+
+The logging facility showing loading of HTTP server related properties was changed as follows:
++unicore.configuration.HttpServerProperties+ -> +unity.server.config.UnityHttpServerConfiguration+
+

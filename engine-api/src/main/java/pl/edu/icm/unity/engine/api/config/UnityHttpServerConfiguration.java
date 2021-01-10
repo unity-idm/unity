@@ -15,9 +15,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
-import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -25,13 +24,14 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Configuration of the Jetty server, baseline for all HTTP based endpoints
  */
 public class UnityHttpServerConfiguration extends PropertiesHelper
 {	
-	private static final Logger log = Log.getLogger(Log.CONFIGURATION, HttpServerProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityHttpServerConfiguration.class);
 	
 	public enum XFrameOptions 
 	{

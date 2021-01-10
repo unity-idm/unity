@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.rdbms;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.h2.Driver;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.store.StorageConfiguration;
  */
 public class RDBMSConfiguration extends PropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, RDBMSConfiguration.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, RDBMSConfiguration.class);
 	public enum Dialect {h2, mysql, psql};
 
 	@DocumentationReferencePrefix

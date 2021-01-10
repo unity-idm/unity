@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -137,7 +137,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @Component
 public class EngineInitialization extends LifecycleBase
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
 	public static final String DEFAULT_CREDENTIAL = CredentialManagement.DEFAULT_CREDENTIAL;
 	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemAllCredentialRequirements.NAME;

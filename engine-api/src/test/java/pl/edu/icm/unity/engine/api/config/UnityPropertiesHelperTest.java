@@ -13,14 +13,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import eu.unicore.util.configuration.PropertyMD;
 
 public class UnityPropertiesHelperTest
 {
-	private static final Logger log = Logger.getLogger(UnityPropertiesHelperTest.class);
+	private static final Logger log = LogManager.getLogger(UnityPropertiesHelperTest.class);
 	
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	static 

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.impl.messages;
 
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 public class MessageJsonSerializer
 		implements RDBMSObjectSerializer<Message, MessageBean>, JsonSerializerForKryo<Message>
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, MessageJsonSerializer.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, MessageJsonSerializer.class);
 
 	@Override
 	public MessageBean toDB(Message from)

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
@@ -37,7 +37,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  */
 public class SAMLSPProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
 	
 	public enum MetadataSignatureValidation {require, ignore};
 	
