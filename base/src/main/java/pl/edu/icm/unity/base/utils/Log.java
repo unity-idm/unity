@@ -6,9 +6,10 @@ package pl.edu.icm.unity.base.utils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
- * Logger categories
+ * Logger categories & JUL redirection setup
  * @author K. Benedyczak
  */
 public class Log
@@ -28,8 +29,19 @@ public class Log
 	public static final String U_SERVER_FIDO = "unity.server.fido";
 	public static final String SECURITY = "unicore.security"; //legacy
 
+	static
+	{
+		redirectJULToSLF();
+	}
+	
 	public static Logger getLogger(String category, Class<?> clazz)
 	{
 		return LogManager.getLogger(category + "." + clazz.getSimpleName());
+	}
+	
+	private static void redirectJULToSLF()
+	{
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
 	}
 }
