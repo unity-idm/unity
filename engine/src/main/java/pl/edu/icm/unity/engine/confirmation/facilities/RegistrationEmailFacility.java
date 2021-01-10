@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponseAutoProcessEvent;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestAutoProcessEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -111,7 +110,7 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 			try
 			{
 				autoProcess(confirmResult.confirmationState, confirmResult.reqState, confirmResult.form.getName());
-			} catch (RuntimeEngineException e)
+			} catch (Exception e)
 			{
 				if (confirmResult.type == RequestType.REGISTRATION
 						&& e.getCause() instanceof IdentityExistsException)
@@ -119,7 +118,7 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 					return getRegistrationUserExistsFinalizationConfig(
 							(RegistrationForm) confirmResult.form, confirmResult.requestId);
 				}
-				LOG.error(e);
+				LOG.error("Auto-processing of a request bound to confirmation failed", e);
 			}
 		}
 		
@@ -218,17 +217,17 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 		{
 			RegistrationForm form = formsDB.get(formId);
 			String info = "Automatically processing registration request " + state.getRequestId()
-				+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
-				+ state.getFacilityId() + ". Action: {0}";
+				+ " to form " + form.getName() + " after confirmation [" + state.getType() + "]" 
+				+ state.getValue() + " by " + state.getFacilityId() + ". Action: {0}";
 			publisher.publishEvent(new RegistrationRequestAutoProcessEvent(form, 
 					(RegistrationRequestState) reqState, info));
 		} else
 		{
+			EnquiryForm form = enquiresDB.get(formId);
 			String info = "Automatically processing enquiry response " + state.getRequestId()
-				+ " after confirmation [" + state.getType() + "]" + 
+				+ " to form " + form.getName() + " after confirmation [" + state.getType() + "]" + 
 				state.getValue() + " by "
 				+ state.getFacilityId() + ". Action: {0}";
-			EnquiryForm form = enquiresDB.get(formId);
 			publisher.publishEvent(new EnquiryResponseAutoProcessEvent(form, 
 					(EnquiryResponseState) reqState, info));
 		}

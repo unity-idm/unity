@@ -217,7 +217,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	 * @throws EngineException 
 	 */
 	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
-			String logMessageTemplate)	throws EngineException
+			String logMessageTemplate) throws EngineException
 	{
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
 				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper, form);
@@ -233,6 +233,12 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
 		LOG.info(formattedMsg);
 		
+		return execAutoProcessAction(autoProcessAction, form, requestFull, systemComment);
+	}
+	
+	private Long execAutoProcessAction(AutomaticRequestAction autoProcessAction, 
+			RegistrationForm form, RegistrationRequestState requestFull, AdminComment systemComment) throws EngineException
+	{
 		switch (autoProcessAction)
 		{
 		case accept:
@@ -247,8 +253,9 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			break;
 		default:
 		}
-		return null;
+		return null;		
 	}
+	
 
 	@EventListener
 	public void onAutoProcessEvent(RegistrationRequestAutoProcessEvent event)

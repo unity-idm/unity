@@ -104,7 +104,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				String actionName = rule.getAction().getName();
 				if (actionNameFilter != null && !actionNameFilter.equals(actionName))
 					continue;
-				NDC.push("[r: " + (i++) + "]");
+				NDC.push("[r: " + (i++) + " " + actionName + "]");
 				try
 				{
 					rule.invoke(translationState, mvelCtx, profile.getName());

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -58,6 +60,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 @InvocationEventProducer
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationsManagementImpl.class);
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
 	private CredentialReqRepository credentialReqRepository;
@@ -214,11 +217,36 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private Long tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
-		return tx.runInTransactionRetThrowing(() -> {
-			return internalManagment.autoProcess(form, requestFull, 
-						"Automatic processing of the request  " + 
-						requestFull.getRequestId() + " invoked, action: {0}");
-		});
+		try
+		{
+			return tx.runInTransactionRetThrowing(() -> {
+				return internalManagment.autoProcess(form, requestFull, 
+						"Automatic processing of the request " 
+						+ requestFull.getRequestId() 
+						+ " of form " + form.getName() + " invoked, action: {0}");
+			});
+		} catch (Exception e)
+		{
+			log.warn("Auto processing of a request failed", e);
+			recordAutoAcceptFailureInRequestComment(requestFull, e);
+			throw e;
+		}
+	}
+
+	private void recordAutoAcceptFailureInRequestComment(RegistrationRequestState requestFull, Exception e) 
+	{
+		try
+		{
+			tx.runInTransaction(() -> {
+				RegistrationRequestState unprocessedRequest = requestDB.get(requestFull.getRequestId());
+				unprocessedRequest.getAdminComments().add(new AdminComment(
+						"Automatic request processing failed: " + e.getMessage(), 0, false));
+				requestDB.update(unprocessedRequest);
+			});
+		} catch (Exception e2)
+		{
+			log.error("Can not record failure of auto-processing in requests messages", e2);
+		}
 	}
 	
 	@Override
