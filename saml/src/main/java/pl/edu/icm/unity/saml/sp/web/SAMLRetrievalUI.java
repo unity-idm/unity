@@ -226,6 +226,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
 	{
+		log.debug("Processing SAML answer for request {}", authnContext.getRequestId());
 		AuthenticationResult authnResult;
 		String reason = null;
 		Exception savedException = null;

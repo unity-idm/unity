@@ -50,7 +50,9 @@ class ClientIPSettingHandler extends HandlerWrapper
 		else
 			log.trace("Setting client's IP to {}, immediate client IP is {}", 
 					clientIP, request.getRemoteAddr());
-		
+
+		log.debug("Handling client {} request to URL {}", clientIP, getFullRequestURL(httpRequest));
+
 		HTTPRequestContext.setCurrent(new HTTPRequestContext(clientIP));
 		
 		try
@@ -62,6 +64,13 @@ class ClientIPSettingHandler extends HandlerWrapper
 		}
 	}
 
+	private String getFullRequestURL(HttpServletRequest httpRequest)
+	{
+		String queryString = httpRequest.getQueryString();
+		String requestURI = httpRequest.getRequestURI();
+		return queryString == null ? requestURI : requestURI + "?" + queryString;
+	}
+	
 	private String getClientIP(HttpServletRequest httpRequest) throws IOException
 	{
 		try

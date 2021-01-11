@@ -26,6 +26,8 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -37,6 +39,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
@@ -52,6 +55,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class AuthnOptionsColumns extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthnOptionsColumns.class);
 	public static final String SPECIAL_ENTRY_LAST_USED = "_LAST_USED";
 	public static final String SPECIAL_ENTRY_REGISTER = "_REGISTER";
 	public static final String SPECIAL_ENTRY_SEPARATOR = "_SEPARATOR";
@@ -92,7 +96,10 @@ public class AuthnOptionsColumns extends CustomComponent
 		{
 			FirstFactorAuthNPanel ffAuthnPanel = column.getAuthnOptionById(id);
 			if (ffAuthnPanel != null)
+			{
+				log.debug("Refreshing authenticator {}", id);
 				ffAuthnPanel.refresh(request);
+			}
 		}
 	}
 	
@@ -146,7 +153,12 @@ public class AuthnOptionsColumns extends CustomComponent
 
 	private Component getAuthnColumnsComponent()
 	{
-		Component authNColumns = getFullAuthnColumnsComponent();
+		Component fullAuthnColumnsComponent = getFullAuthnColumnsComponent();
+		if (log.isDebugEnabled())
+			log.debug("Returning user UI decision: (config: {} preferredIdp: {} multipleOptionsConfigured: {})",
+					config.getBooleanValue(AUTHN_SHOW_LAST_OPTION_ONLY),
+					PreferredAuthenticationHelper.getPreferredIdp(),
+					hasMoreThenOneOptionConfigured());
 		if (config.getBooleanValue(AUTHN_SHOW_LAST_OPTION_ONLY) && 
 				PreferredAuthenticationHelper.getPreferredIdp() != null &&
 				hasMoreThenOneOptionConfigured())
@@ -156,9 +168,12 @@ public class AuthnOptionsColumns extends CustomComponent
 			if (lastSelectionComponent != null)
 			{
 				return lastSelectionComponent;
+			} else
+			{
+				log.debug("UI for the returning user was not created, falling back to default screen");
 			}
 		}
-		return authNColumns;
+		return fullAuthnColumnsComponent;
 	}
 
 	private Component getFullAuthnColumnsComponent()
