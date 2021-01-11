@@ -76,10 +76,6 @@ public class InternalLogoutProcessor
 	 * Takes the next async participant and starts its async logout. If there are no available async participants
 	 * then logout of synchronous participants is performed and the final response is returned via redirection/post 
 	 * to the original logout requester.
-	 * @param ctx
-	 * @param response
-	 * @throws IOException
-	 * @throws EopException 
 	 */
 	public void continueAsyncLogout(SAMLInternalLogoutContext ctx, HttpServletResponse response) 
 			throws IOException, EopException

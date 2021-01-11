@@ -263,7 +263,7 @@ public class SAMLSPProperties extends SamlProperties
 				throw new ConfigurationException("IdP " + name + " is configured to use " +
 						"HTTP Redirect binding or SOAP binding for ECP and at "
 						+ "the same time Unity is configured to sign requests for this IdP. "
-						+ "This is unsupported currently and against SAML interoperability specification.");
+						+ "This is unsupported.");
 			}
 			
 		}

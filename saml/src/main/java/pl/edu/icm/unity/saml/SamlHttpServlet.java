@@ -105,12 +105,6 @@ public abstract class SamlHttpServlet extends HttpServlet
 	 * Needs to be implemented to perform a final processing. Arguments provide information on the binding,
 	 * gives an extracted saml response and relay state which are guaranteed to be non-null.
 	 * The SAML response is already decoded, i.e. it is raw XML. 
-	 * @param isGet
-	 * @param req
-	 * @param resp
-	 * @param samlResponse
-	 * @param relayState
-	 * @throws IOException
 	 */
 	protected void postProcessResponse(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
 			String samlResponse, String relayState) throws IOException
@@ -121,12 +115,6 @@ public abstract class SamlHttpServlet extends HttpServlet
 	 * Needs to be implemented to perform a final processing. Arguments provide information on the binding,
 	 * gives an extracted saml request and relay state which are guaranteed to be non-null.
 	 * The SAML request is already decoded, i.e. it is raw XML. 
-	 * @param isGet
-	 * @param req
-	 * @param resp
-	 * @param samlResponse
-	 * @param relayState
-	 * @throws IOException
 	 */
 	protected void postProcessRequest(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
 			String samlRequest, String relayState) throws IOException

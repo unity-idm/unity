@@ -39,12 +39,6 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 
 	/**
 	 * Shows a page with error.
-	 * @param error
-	 * @param context
-	 * @param response
-	 * @throws SAMLProcessingException
-	 * @throws IOException
-	 * @throws EopException
 	 */
 	public void showError(SAMLProcessingException error, HttpServletResponse response) 
 			throws IOException, EopException
@@ -57,12 +51,6 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	 * Return a logout error response to the requester via async binding. The error is produced from the
 	 * exception provided as an argument. At the end the {@link EopException} 
 	 * is always thrown to break any further processing.
-	 * @param error
-	 * @param serviceUrl
-	 * @param context
-	 * @param response
-	 * @throws IOException
-	 * @throws EopException
 	 */
 	public void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
 			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
@@ -97,9 +85,6 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	
 	/**
 	 * Creates a Base64 encoded SAML error response, which can be returned to the requester
-	 * @param context
-	 * @param error
-	 * @return
 	 */
 	private LogoutResponseDocument convertExceptionToResponse(String issuer, String inReplyTo, 
 			SAMLServerException error) 

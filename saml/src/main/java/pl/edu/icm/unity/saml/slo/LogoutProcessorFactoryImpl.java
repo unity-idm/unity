@@ -15,12 +15,8 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
-/**
- * Factory of {@link LogoutProcessor}s.
- * @author K. Benedyczak
- */
 @Component
-public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
+class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 {
 	private LogoutContextsStore contextsStore;
 	private PKIManagement pkiManagement;
@@ -29,11 +25,10 @@ public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	private SessionParticipantTypesRegistry registry;
 	
 	@Autowired
-	public LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
+	LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
 			PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
 			SLOReplyInstaller sloReplyInstaller, SessionParticipantTypesRegistry registry)
 	{
-		super();
 		this.contextsStore = contextsStore;
 		this.pkiManagement = pkiManagement;
 		this.freemarker = freemarker;
