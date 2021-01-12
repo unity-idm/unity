@@ -163,8 +163,13 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		topLevelLayout.addComponent(authnOptionsComponent);
 		topLevelLayout.setComponentAlignment(authnOptionsComponent, Alignment.MIDDLE_CENTER);
 		
+		log.debug("Authn screen init finished loading authenticators");
+		
 		if (outdatedCredentialDialogLauncher.get())
+		{
+			log.debug("Launched outdated credential dialog");
 			return;
+		}
 		
 		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
@@ -329,15 +334,18 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		if (authNPanelInProgress != null)
 		{
+			log.debug("Refreshing authentication state via in-progress panel");
 			authNPanelInProgress.refresh(request);
 		} else
 		{
+			log.debug("Refreshing authentication state from scratch");
 			authNColumns.enableAll();
 			enableSharedWidgets(true);
 			
 			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
 			// when initial authN was started without loading UI (e.g. autoLogin feature)
 			String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
+			log.debug("Got preferred idp: {}", preferredIdp);
 			authNColumns.refreshAuthenticatorWithId(preferredIdp, request);
 		}
 	}
@@ -381,7 +389,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		SecondFactorAuthNPanel authNPanel = build2ndFactorAuthenticationOptionWidget(secondaryUI, partialState);
 		AuthnOptionsColumn wrapping2ndFColumn = new AuthnOptionsColumn(null, 
 				VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH);
-		wrapping2ndFColumn.addOptions(Lists.newArrayList(new AuthnOptionsColumn.ComponentWithId("", authNPanel)));
+		wrapping2ndFColumn.addOptions(Lists.newArrayList(new AuthnOptionsColumn.ComponentWithId("", authNPanel, 1)));
 		secondFactorHolder.removeAllComponents();
 		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
 		mfaInfo.addStyleName(Styles.error.toString());
