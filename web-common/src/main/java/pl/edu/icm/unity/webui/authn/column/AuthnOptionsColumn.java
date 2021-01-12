@@ -82,8 +82,7 @@ class AuthnOptionsColumn extends CustomComponent
 	{
 		int ret = 0;
 		for (ComponentWithId componentWithId: components)
-			if (componentWithId.component instanceof FirstFactorAuthNPanel)
-				ret++;
+			ret += componentWithId.authNItemsCount;
 		return ret;
 	}
 
@@ -142,11 +141,18 @@ class AuthnOptionsColumn extends CustomComponent
 	{
 		final String id;
 		final Component component;
+		final int authNItemsCount;
 
-		ComponentWithId(String id, Component component)
+		ComponentWithId(String id, Component component, int authNItemsCount)
 		{
 			this.id = id;
 			this.component = component;
+			this.authNItemsCount = authNItemsCount;
+		}
+		
+		static ComponentWithId createNonLoginComponent(String id, Component component)
+		{
+			return new ComponentWithId(id, component, 0);
 		}
 	}
 }

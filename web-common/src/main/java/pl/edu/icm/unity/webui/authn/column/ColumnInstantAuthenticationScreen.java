@@ -389,7 +389,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		SecondFactorAuthNPanel authNPanel = build2ndFactorAuthenticationOptionWidget(secondaryUI, partialState);
 		AuthnOptionsColumn wrapping2ndFColumn = new AuthnOptionsColumn(null, 
 				VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH);
-		wrapping2ndFColumn.addOptions(Lists.newArrayList(new AuthnOptionsColumn.ComponentWithId("", authNPanel)));
+		wrapping2ndFColumn.addOptions(Lists.newArrayList(new AuthnOptionsColumn.ComponentWithId("", authNPanel, 1)));
 		secondFactorHolder.removeAllComponents();
 		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
 		mfaInfo.addStyleName(Styles.error.toString());
