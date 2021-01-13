@@ -13,12 +13,17 @@ import java.util.UUID;
  */
 public class RemoteAuthnState
 {
-	private String relayState;
-	private Date creationTime;
+	public static final String CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE = RemoteAuthnState.class.getName() 
+			+ "_authenticatorOptionId";
+	
+	private final String relayState;
+	private final Date creationTime;
+	private final String authenticatorOptionId;
 	private SandboxAuthnResultCallback sandboxCallback;
 	
-	public RemoteAuthnState()
+	public RemoteAuthnState(String authenticatorOptionId)
 	{
+		this.authenticatorOptionId = authenticatorOptionId;
 		this.relayState = UUID.randomUUID().toString();
 		this.creationTime = new Date();
 	}
@@ -31,6 +36,11 @@ public class RemoteAuthnState
 	public Date getCreationTime()
 	{
 		return creationTime;
+	}
+
+	public String getAuthenticatorOptionId() 
+	{
+		return authenticatorOptionId;
 	}
 
 	public SandboxAuthnResultCallback getSandboxCallback()

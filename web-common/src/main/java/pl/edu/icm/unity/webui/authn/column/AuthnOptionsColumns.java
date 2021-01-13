@@ -20,6 +20,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_LAST_OP
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_SEARCH;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH;
 import static pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumn.ComponentWithId.createNonLoginComponent;
+import static pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumn.ComponentWithId.createSimpleLoginComponent;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -330,7 +331,7 @@ public class AuthnOptionsColumns extends CustomComponent
 					if (authnOption != null)
 					{
 						FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
-						ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel, 1));
+						ret.add(createSimpleLoginComponent(authNPanel.getAuthenticationOptionId(), authNPanel));
 						lastAdded.push(specEntry);
 					}
 				}
@@ -355,7 +356,7 @@ public class AuthnOptionsColumns extends CustomComponent
 				for (AuthNOption authnOption : matchingOptions)
 				{
 					FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
-					ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel, 1));
+					ret.add(createSimpleLoginComponent(authNPanel.getAuthenticationOptionId(), authNPanel));
 					lastAdded.push(specEntry);
 				}
 			}
@@ -366,7 +367,7 @@ public class AuthnOptionsColumns extends CustomComponent
 			for (AuthNOption entry: remainingRetrievals)
 			{
 				FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(entry);
-				ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel, 1));
+				ret.add(createSimpleLoginComponent(authNPanel.getAuthenticationOptionId(), authNPanel));
 				lastAdded.push(AuthenticationOptionKeyUtils.encode(entry.authenticator.getAuthenticatorId(), 
 						entry.authenticatorUI.getId()));
 			}
@@ -435,7 +436,7 @@ public class AuthnOptionsColumns extends CustomComponent
 		
 		List<AuthNOption> options = getGridContents(contents);
 		AuthnsGridWidget grid = new AuthnsGridWidget(options, msg, authNPanelFactory, height);
-		return new ComponentWithId(specEntry, grid, options.size());
+		return new ComponentWithId(specEntry, grid, options.size(), grid::getAuthnOptionById);
 	}
 	
 	private List<AuthNOption> getGridContents(String contents)

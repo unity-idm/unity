@@ -63,7 +63,7 @@ public class ECPStep1Handler
 			return;
 		}
 		
-		ECPAuthnState context = new ECPAuthnState();
+		ECPAuthnState context = new ECPAuthnState("-");
 		EnvelopeDocument envDoc = generateECPEnvelope(context);
 		samlContextManagement.addAuthnContext(context);
 		

@@ -98,7 +98,8 @@ class SAMLProxyAuthnHandler
 
 		try
 		{
-			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI);
+			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, 
+					getAuthnOptionId(idpConfigKey));
 			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);
@@ -115,10 +116,14 @@ class SAMLProxyAuthnHandler
 	
 	private void setLastIdpCookie(HttpServletResponse httpResponse, String idpConfigKey, String endpointPath)
 	{
-		String optionId = idpConfigKey.substring(SAMLSPProperties.IDP_PREFIX.length(), idpConfigKey.length()-1);
-		String selectedAuthn = AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
 		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
-				endpointPath, selectedAuthn);
+				endpointPath, getAuthnOptionId(idpConfigKey));
 		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
+	}
+	
+	private String getAuthnOptionId(String idpConfigKey)
+	{
+		String optionId = idpConfigKey.substring(SAMLSPProperties.IDP_PREFIX.length(), idpConfigKey.length()-1);
+		return AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
 	}
 }

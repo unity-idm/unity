@@ -29,6 +29,11 @@ public class OAuthContext extends RemoteAuthnState
 	private String providerConfigKey;
 	private ExpectedIdentity expectedIdentity; 
 
+	public OAuthContext(String authenticatorOptionId)
+	{
+		super(authenticatorOptionId);
+	}
+
 	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)
 	{
 		this.request = request;

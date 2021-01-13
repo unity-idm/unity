@@ -260,17 +260,18 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpKey, String servletPath)
+	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, String authnOptionId)
 	{
-		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpKey);
+		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
+				authnOptionId);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
-		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpKey))
+		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))
 			throw new IllegalStateException("The selected IdP is not valid anymore, seems it was disabled");
-		boolean sign = samlPropertiesCopy.isSignRequest(idpKey);
+		boolean sign = samlPropertiesCopy.isSignRequest(idpConfigKey);
 		String requesterId = samlPropertiesCopy.getValue(SAMLSPProperties.REQUESTER_ID);
-		String identityProviderURL = samlPropertiesCopy.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
-		String requestedNameFormat = samlPropertiesCopy.getRequestedNameFormat(idpKey);
+		String identityProviderURL = samlPropertiesCopy.getValue(idpConfigKey + SAMLSPProperties.IDP_ADDRESS);
+		String requestedNameFormat = samlPropertiesCopy.getRequestedNameFormat(idpConfigKey);
 		X509Credential credential = sign ? samlPropertiesCopy.getRequesterCredential() : null;
 		
 		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, 

@@ -56,8 +56,8 @@ public class SAMLResponseConsumerServlet extends SamlHttpServlet
 		
 		Binding binding = isGet ? Binding.HTTP_REDIRECT : Binding.HTTP_POST;
 		context.setResponse(samlResponse, binding);
-		log.debug("SAML response was stored in context, redirecting to originating endpoint {}", 
-				context.getReturnUrl());
+		log.debug("SAML response for authenticator {} was stored in context, redirecting to originating endpoint {}", 
+				context.getAuthenticatorOptionId(), context.getReturnUrl());
 		resp.sendRedirect(context.getReturnUrl());
 	}
 }

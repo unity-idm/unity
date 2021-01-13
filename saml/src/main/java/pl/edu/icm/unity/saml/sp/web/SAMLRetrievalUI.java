@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
@@ -199,7 +202,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		RemoteAuthnContext context;
 		try
 		{
-			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI);
+			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
+					AuthenticationOptionKeyUtils.encode(authenticatorName, idpKey));
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
@@ -212,6 +216,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		idpComponent.setEnabled(false);
 		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+		session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, context.getAuthenticatorOptionId());
 		samlContextManagement.addAuthnContext(context);
 
 		URI requestURI = Page.getCurrent().getLocation();

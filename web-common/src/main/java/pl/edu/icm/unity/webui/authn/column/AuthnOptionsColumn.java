@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webui.authn.column;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -111,9 +113,11 @@ class AuthnOptionsColumn extends CustomComponent
 	FirstFactorAuthNPanel getAuthnOptionById(String id)
 	{
 		for (ComponentWithId componentWithId: components)
-			if ((componentWithId.component instanceof FirstFactorAuthNPanel) 
-					&& componentWithId.id.equals(id))
-				return (FirstFactorAuthNPanel) componentWithId.component;
+		{
+			Optional<FirstFactorAuthNPanel> authnOption = componentWithId.getAuthnOptionById(id);
+			if (authnOption.isPresent())
+				return authnOption.get();
+		}
 		return null;
 	}
 
@@ -142,17 +146,31 @@ class AuthnOptionsColumn extends CustomComponent
 		final String id;
 		final Component component;
 		final int authNItemsCount;
+		private final Function<String, Optional<FirstFactorAuthNPanel>> optionFinder;
 
-		ComponentWithId(String id, Component component, int authNItemsCount)
+		ComponentWithId(String id, Component component, int authNItemsCount, 
+				Function<String, Optional<FirstFactorAuthNPanel>> optionFinder)
 		{
 			this.id = id;
 			this.component = component;
 			this.authNItemsCount = authNItemsCount;
+			this.optionFinder = optionFinder;
 		}
 		
 		static ComponentWithId createNonLoginComponent(String id, Component component)
 		{
-			return new ComponentWithId(id, component, 0);
+			return new ComponentWithId(id, component, 0, optid -> Optional.empty());
+		}
+
+		static ComponentWithId createSimpleLoginComponent(String id, FirstFactorAuthNPanel component)
+		{
+			return new ComponentWithId(id, component, 1, 
+					optid -> Optional.ofNullable(id.equals(optid) ? component : null));
+		}
+		
+		Optional<FirstFactorAuthNPanel> getAuthnOptionById(String id)
+		{
+			return optionFinder.apply(id);
 		}
 	}
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -100,7 +101,6 @@ public class AuthnsGridWidget extends CustomComponent
 	 * Shows all authN UIs of all enabled authN options. The options not matching the given filter are 
 	 * added too, but at the end and are hidden. This trick guarantees that the containing box 
 	 * stays with a fixed size, while the user only sees the matching options at the top.
-	 * @param filter
 	 */
 	private void reloadContents()
 	{
@@ -156,6 +156,14 @@ public class AuthnsGridWidget extends CustomComponent
 	
 	}
 
+	public Optional<FirstFactorAuthNPanel> getAuthnOptionById(String optionId)
+	{
+		return providers.stream()
+				.filter(prov -> prov.id.equals(optionId))
+				.findAny()
+				.map(entry -> entry.component);
+	}
+	
 	public static class NameWithTags implements Comparable<Object>
 	{
 		private String name;
@@ -203,9 +211,10 @@ public class AuthnsGridWidget extends CustomComponent
 		private String id;
 		private NameWithTags nameWithTags;
 		private Resource image;
-		private Component component;
+		private FirstFactorAuthNPanel component;
 
-		public AuthenticationOptionGridEntry(String id, NameWithTags nameWithTags, Resource image, Component component)
+		public AuthenticationOptionGridEntry(String id, NameWithTags nameWithTags, Resource image, 
+				FirstFactorAuthNPanel component)
 		{
 			this.id = id;
 			this.nameWithTags = nameWithTags;
@@ -228,7 +237,7 @@ public class AuthnsGridWidget extends CustomComponent
 			return image;
 		}
 
-		public Component getComponent()
+		public FirstFactorAuthNPanel getComponent()
 		{
 			return component;
 		}
