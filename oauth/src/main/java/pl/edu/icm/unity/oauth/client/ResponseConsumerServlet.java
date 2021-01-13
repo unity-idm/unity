@@ -72,9 +72,8 @@ public class ResponseConsumerServlet extends HttpServlet
 			context.setAuthzCode(req.getParameter("code"));
 		}
 		
-		
-		log.debug("Received OAuth response with valid state " + state + ", redirecting to " + 
-				context.getReturnUrl());
+		log.debug("Received OAuth response for authenticator {} with valid state {}, redirecting to {}", 
+				context.getAuthenticatorOptionId(), state, context.getReturnUrl());
 		resp.sendRedirect(context.getReturnUrl());
 	}
 }

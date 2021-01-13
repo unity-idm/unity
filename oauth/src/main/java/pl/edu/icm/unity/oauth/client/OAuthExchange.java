@@ -27,7 +27,8 @@ public interface OAuthExchange extends CredentialExchange
 	
 	OAuthClientProperties getSettings();
 	
-	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity) 
+	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
+			String authnOptionId) 
 			throws URISyntaxException, SerializeException, ParseException, IOException;
 	
 	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;

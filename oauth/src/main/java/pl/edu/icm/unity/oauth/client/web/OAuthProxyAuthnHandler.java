@@ -90,7 +90,8 @@ class OAuthProxyAuthnHandler
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		try
 		{
-			context = credentialExchange.createRequest(idpConfigKey, Optional.empty());
+			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
+					getAuthnOptionId(idpConfigKey));
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
@@ -122,10 +123,14 @@ class OAuthProxyAuthnHandler
 	
 	private void setLastIdpCookie(HttpServletResponse httpResponse, String idpConfigKey, String endpointPath)
 	{
-		String optionId = idpConfigKey.substring(OAuthClientProperties.PROVIDERS.length(), idpConfigKey.length()-1);
-		String selectedAuthn = AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
 		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
-				endpointPath, selectedAuthn);
+				endpointPath, getAuthnOptionId(idpConfigKey));
 		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
+	}
+	
+	private String getAuthnOptionId(String idpConfigKey)
+	{
+		String optionId = idpConfigKey.substring(OAuthClientProperties.PROVIDERS.length(), idpConfigKey.length()-1);
+		return AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
 	}
 }

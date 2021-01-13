@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
+import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 import java.util.Collection;
@@ -18,6 +19,8 @@ import com.google.common.collect.Lists;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -46,7 +49,6 @@ import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -343,13 +345,28 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			enableSharedWidgets(true);
 			
 			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
-			// when initial authN was started without loading UI (e.g. autoLogin feature)
-			String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
-			log.debug("Got preferred idp: {}", preferredIdp);
-			authNColumns.refreshAuthenticatorWithId(preferredIdp, request);
+			// - when initial authN was started without loading UI (e.g. autoLogin feature)
+			// - or when Vaadin decides to reload the UI what sometimes happen due to unknown reasons
+			Optional<String> sessionStoredIdp = getSessionStoredRemoteAuthnOptionId();
+			sessionStoredIdp.ifPresent(authnOptionId -> 
+			{
+				log.debug("Got session stored authn option id: {}", authnOptionId);
+				authNColumns.refreshAuthenticatorWithId(authnOptionId, request);
+			});
 		}
 	}
 
+	private Optional<String> getSessionStoredRemoteAuthnOptionId()
+	{
+		VaadinSession vSession = VaadinSession.getCurrent();
+		if (vSession == null)
+			return Optional.empty();
+		WrappedSession session = vSession.getSession();
+		String remoteAuthnOptionId = (String) session.getAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
+		session.removeAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
+		return Optional.ofNullable(remoteAuthnOptionId);
+	}
+	
 	private void triggerAuthNCancel() 
 	{
 		if (authNPanelInProgress != null)
@@ -389,7 +406,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		SecondFactorAuthNPanel authNPanel = build2ndFactorAuthenticationOptionWidget(secondaryUI, partialState);
 		AuthnOptionsColumn wrapping2ndFColumn = new AuthnOptionsColumn(null, 
 				VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH);
-		wrapping2ndFColumn.addOptions(Lists.newArrayList(new AuthnOptionsColumn.ComponentWithId("", authNPanel, 1)));
+		wrapping2ndFColumn.addOptions(Lists.newArrayList(
+				new AuthnOptionsColumn.ComponentWithId("", authNPanel, 1, i -> Optional.empty())));
 		secondFactorHolder.removeAllComponents();
 		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
 		mfaInfo.addStyleName(Styles.error.toString());

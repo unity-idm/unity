@@ -15,7 +15,11 @@ public class ECPAuthnState extends RemoteAuthnState
 {
 	private String requestId;
 
-	
+	public ECPAuthnState(String authenticatorOptionId) 
+	{
+		super(authenticatorOptionId);
+	}
+
 	public void setRequestId(String requestId)
 	{
 		this.requestId = requestId;
