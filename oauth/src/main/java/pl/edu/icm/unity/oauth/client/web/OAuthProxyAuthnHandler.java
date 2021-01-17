@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
+import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
@@ -95,6 +97,8 @@ class OAuthProxyAuthnHandler
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
+			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
+					context.getAuthenticatorOptionId());
 		} catch (Exception e)
 		{
 			throw new IllegalStateException("Can not create OAuth2 authN request", e);
