@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -30,7 +31,7 @@ class EntityMergeHandler
 	@Autowired
 	private MessageSource msg;
 	
-	SingleActionHandler<IdentityEntry> getAction(Supplier<String> groupSupplier)
+	SingleActionHandler<IdentityEntry> getAction(Supplier<Group> groupSupplier)
 	{
 		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.mergeEntitiesAction"))
@@ -54,7 +55,7 @@ class EntityMergeHandler
 		return false;
 	}
 	
-	private void showDialog(Set<IdentityEntry> selection, Supplier<String> groupSupplier)
+	private void showDialog(Set<IdentityEntry> selection, Supplier<Group> groupSupplier)
 	{       
 		Iterator<IdentityEntry> iterator = selection.iterator();
 		EntityWithLabel e1 = iterator.next().getSourceEntity();

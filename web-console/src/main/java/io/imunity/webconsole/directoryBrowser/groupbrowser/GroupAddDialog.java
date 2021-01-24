@@ -18,22 +18,22 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
-class GroupEditDialog extends AbstractDialog
+class GroupAddDialog extends AbstractDialog
 {
 	private Callback callback;
-	private TextField path;
+	private TextField name;
 	private I18nTextField displayedName;
 	private I18nTextArea description;
 	private CheckBox isPublic;
-	private Group originalGroup;
+	private String parent;
 	
 
-	GroupEditDialog(MessageSource msg, Group group, Callback callback) 
+	GroupAddDialog(MessageSource msg, Group group, Callback callback) 
 	{
-		super(msg, msg.getMessage("GroupEditDialog.editCaption"),
+		super(msg, msg.getMessage("GroupEditDialog.createCaption"),
 				msg.getMessage("ok"),
 				msg.getMessage("cancel"));
-		this.originalGroup = group;
+		this.parent = group.toString();
 		this.callback = callback;
 		setSizeEm(50, 30);
 	}
@@ -45,23 +45,16 @@ class GroupEditDialog extends AbstractDialog
 		fl.setMargin(true);
 		fl.setSpacing(true);
 		
-		path = new TextField(msg.getMessage("GroupEditDialog.groupPath"));
-		path.setValue(originalGroup.getPathEncoded());
-		path.setReadOnly(true);
-		path.setWidthFull();
-		fl.addComponent(path);
+		name = new TextField(msg.getMessage("GroupEditDialog.groupName"));
+		fl.addComponent(name);
 		
 		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
-		displayedName.setValue(originalGroup.getDisplayedName());
-		
 		description = new I18nTextArea(msg, msg.getMessage("GroupEditDialog.groupDesc"));
-		description.setValue(originalGroup.getDescription());
 		
 		isPublic = new CheckBox(msg.getMessage("GroupEditDialog.public"));
-		isPublic.setValue(originalGroup.isPublic());
 		
 		fl.addComponents(displayedName, description, isPublic);
-		description.focus();
+		name.focus();
 		return fl;
 	}
 
@@ -70,7 +63,8 @@ class GroupEditDialog extends AbstractDialog
 	{
 		try
 		{
-			Group group = originalGroup.clone();
+			String gName = name.getValue();
+			Group group = gName.equals("/") ? new Group("/") : new Group(new Group(parent), gName);
 			group.setDescription(description.getValue());
 			I18nString dispName = displayedName.getValue();
 			dispName.setDefaultValue(group.toString());
@@ -81,7 +75,7 @@ class GroupEditDialog extends AbstractDialog
 		}
 		catch (Exception e)
 		{
-			path.setComponentError(new UserError(
+			name.setComponentError(new UserError(
 					msg.getMessage("GroupEditDialog.invalidGroup")));
 		}
 	}

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -53,7 +54,7 @@ class EntityCreationHandler
 	private EntityCredentialManagement ecredMan;
 	
 	SingleActionHandler<IdentityEntry> getAction(
-			Supplier<String> initialGroup,
+			Supplier<Group> initialGroup,
 			Consumer<Identity> callback)
 	{
 		return SingleActionHandler.builder(IdentityEntry.class)
@@ -65,7 +66,7 @@ class EntityCreationHandler
 				.build();
 	}
 
-	void showAddEntityDialog(Supplier<String> initialGroup, Consumer<Identity> callback)
+	void showAddEntityDialog(Supplier<Group> initialGroup, Consumer<Identity> callback)
 	{
 		new EntityCreationDialog(msg, initialGroup.get(), identitiesMan, 
 				credReqMan, attrMan, identityEditorReg, groupHelper, 

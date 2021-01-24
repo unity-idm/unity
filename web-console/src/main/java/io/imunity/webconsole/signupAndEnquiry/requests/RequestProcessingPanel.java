@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -223,7 +224,7 @@ class RequestProcessingPanel extends CustomComponent
 						requestReviewPanel.getUpdatedRequest(), action, null, null);
 				bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
 				if (action == RegistrationRequestAction.accept)
-					bus.fireEvent(new GroupChangedEvent("/"));
+					bus.fireEvent(new GroupChangedEvent(new Group("/")));
 			} else
 			{
 				enquiryMan.processEnquiryResponse(requestState.getRequestId(), 

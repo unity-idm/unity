@@ -4,9 +4,14 @@
  */
 package pl.edu.icm.unity.webui.common.safehtml;
 
+import java.util.Arrays;
+
+import com.google.common.escape.Escaper;
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
+
+import pl.edu.icm.unity.MessageSource;
 
 
 /**
@@ -42,5 +47,14 @@ public class SafePanel extends Panel
 	public final void setCaption(String caption)
 	{
 		super.setCaption(HtmlEscapers.htmlEscaper().escape(caption));
+	}
+	
+	public void setCaptionFromBundle(MessageSource msg, String key, Object... args)
+	{
+		Escaper htmlEscaper = HtmlEscapers.htmlEscaper();
+		Object[] escapedArgs = Arrays.stream(args).map(arg -> htmlEscaper.escape(arg.toString())).toArray();
+		String message = msg.getMessage(key, escapedArgs);
+		setCaptionAsHtml(true);
+		super.setCaption(message);
 	}
 }
