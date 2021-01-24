@@ -111,6 +111,6 @@ class TreeNode
 
 	boolean isChild(TreeNode parent)
 	{
-		return group.isChild(parent.group);
+		return Group.isChild(group.getPathEncoded(), parent.group.getPathEncoded());
 	}
 }
