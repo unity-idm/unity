@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.saml.SamlHttpServlet;
+import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
@@ -22,14 +22,14 @@ import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
  * Implements HTTP POST and HTTP Redirect bindings entry point to the SLO functionality.
  * @author K. Benedyczak
  */
-public class SLOSAMLServlet extends SamlHttpServlet
+public class SLOSAMLServlet extends SamlHttpRequestServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SLOSAMLServlet.class);
 	private SAMLLogoutProcessor logoutProcessor;
 
 	public SLOSAMLServlet(SAMLLogoutProcessor logoutProcessor)
 	{
-		super(true, false, false);
+		super(false);
 		this.logoutProcessor = logoutProcessor;
 	}
 

@@ -13,15 +13,14 @@ import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.saml.SamlHttpServlet;
+import pl.edu.icm.unity.saml.SamlHttpResponseServlet;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 
 /**
  * Implements HTTP POST and HTTP Redirect bindings reception of SLO reply 
- * @author K. Benedyczak
  */
-public class SLOReplyServlet extends SamlHttpServlet
+public class SLOReplyServlet extends SamlHttpResponseServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SLOReplyServlet.class);
 
@@ -29,7 +28,7 @@ public class SLOReplyServlet extends SamlHttpServlet
 	
 	public SLOReplyServlet(InternalLogoutProcessor logoutProcessor)
 	{
-		super(false, true, true);
+		super(true);
 		this.logoutProcessor = logoutProcessor;
 	}
 
