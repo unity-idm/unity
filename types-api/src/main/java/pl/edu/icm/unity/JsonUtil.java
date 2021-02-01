@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity;
 
+import pl.edu.icm.unity.exceptions.InternalException;
+
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Simplifies JSON parsing a little bit
@@ -89,6 +89,17 @@ public class JsonUtil
 		}
 	}
 
+	public static String serializeHumanReadable(JsonNode node)
+	{
+		try
+		{
+			return Constants.MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't perform JSON serialization", e);
+		}
+	}
+	
 	public static byte[] serialize2Bytes(JsonNode node)
 	{
 		try

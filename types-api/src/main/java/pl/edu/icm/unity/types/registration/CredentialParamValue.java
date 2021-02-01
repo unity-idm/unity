@@ -12,6 +12,14 @@ public class CredentialParamValue
 {
 	private String credentialId;
 	private String secrets;
+	
+	public CredentialParamValue() {}
+	
+	public CredentialParamValue(String credentialId, String secrets)
+	{
+		this.credentialId = credentialId;
+		this.secrets = secrets;
+	}
 	public String getCredentialId()
 	{
 		return credentialId;
