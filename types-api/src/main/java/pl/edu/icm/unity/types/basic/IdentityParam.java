@@ -195,4 +195,18 @@ public class IdentityParam extends IdentityTaV implements VerifiableElement
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "IdentityParam [" + super.toString() + ", translationProfile=" + translationProfile + ", remoteIdp="
+				+ remoteIdp + ", confirmationInfo=" + confirmationInfo + ", metadata=" + metadata + "]";
+	}
+	
+	public String toHumanReadableString()
+	{
+		return super.toString();
+	}
+	
+	
 }

@@ -8,7 +8,10 @@ package io.imunity.webconsole.signupAndEnquiry.requests;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
@@ -30,6 +33,8 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
  */
 public class RequestEntry implements FilterableEntry
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, RequestEntry.class);
+	
 	public UserRequestState<?> request;
 	private MessageSource msg;
 	private String identity;
@@ -85,7 +90,7 @@ public class RequestEntry implements FilterableEntry
 			if (identities.isEmpty())
 				return "-";
 			IdentityParam id = identities.get(0);
-			return id == null ? "-" : id.toString();
+			return id == null ? "-" : id.toHumanReadableString();
 		} else
 		{
 			EnquiryResponseState enqRequest = (EnquiryResponseState) request;
@@ -101,17 +106,17 @@ public class RequestEntry implements FilterableEntry
 					return email.getValue();
 				} else
 				{
-					return identities.stream().findFirst().get().toString();
+					return identities.stream().findFirst().get().toHumanReadableString();
 				}
 
 			} catch (Exception e)
 			{
-				e.printStackTrace();
+				LOG.error("Failed to resolve identity {}", identity, e);
 				return "-";
 			}
 		}
 	}
-
+	
 	private VerifiableElementBase getEmailIdentity(List<IdentityParam> identities)
 	{
 		for (IdentityParam id : identities)
