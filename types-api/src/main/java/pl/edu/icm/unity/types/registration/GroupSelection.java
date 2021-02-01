@@ -88,4 +88,12 @@ public class GroupSelection
 	{
 		return Objects.hash(selectedGroups, externalIdp, translationProfile);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "GroupSelection [selectedGroups=" + selectedGroups + ", externalIdp=" + externalIdp
+				+ ", translationProfile=" + translationProfile + "]";
+	}
+	
 }

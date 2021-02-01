@@ -19,7 +19,7 @@ class IdentitiesMessageHelper
 	{
 		Collection<String> ids = new ArrayList<>();
 		for (IdentityEntry o: selection)
-			ids.add(o.getSourceIdentity().toString());		
+			ids.add(o.getSourceIdentity().toHumanReadableString());		
 		return MessageUtils.createConfirmFromStrings(msg, ids);
 	}
 }

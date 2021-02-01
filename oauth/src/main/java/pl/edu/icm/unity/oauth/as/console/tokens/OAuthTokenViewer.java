@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -19,7 +18,6 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
@@ -169,8 +167,7 @@ class OAuthTokenViewer extends VerticalLayout
 		{
 			jwtClaimsSet.setVisible(true);
 			jwtInfo.setVisible(true);
-			JsonNode tree = JsonUtil.parse(claims.get().toJSONObject().toJSONString());
-			jwtClaimsSet.setValue(JsonUtil.serializeHumanReadable(tree));
+			jwtClaimsSet.setValue(claims.get().toJSONObject().toJSONString());
 			jwtInfo.setValue(jwt.get().getHeader().toString());
 		} else
 		{

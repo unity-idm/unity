@@ -42,4 +42,11 @@ public class PolicyAgreementDecision
 	{
 		return Objects.hash(acceptanceStatus, documentsIdsToAccept);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "PolicyAgreementDecision [acceptanceStatus=" + acceptanceStatus + ", documentsIdsToAccept="
+				+ documentsIdsToAccept + "]";
+	}
 }

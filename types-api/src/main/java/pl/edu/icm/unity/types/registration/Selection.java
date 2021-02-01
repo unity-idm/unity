@@ -100,4 +100,11 @@ public class Selection
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Selection [selected=" + selected + ", externalIdp=" + externalIdp + ", translationProfile="
+				+ translationProfile + "]";
+	}
 }

@@ -61,4 +61,9 @@ public class CredentialParamValue
 			return false;
 		return true;
 	}
+	@Override
+	public String toString()
+	{
+		return "CredentialParamValue [credentialId=" + credentialId + "]";
+	}
 }

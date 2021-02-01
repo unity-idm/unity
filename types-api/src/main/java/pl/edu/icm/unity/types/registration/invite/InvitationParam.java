@@ -238,8 +238,10 @@ public abstract class InvitationParam
 	@Override
 	public String toString()
 	{
-		return "InvitationParam [formId=" + formId + ", expiration=" + expiration
-				+ ", contactAddress=" + contactAddress + "]";
+		return "InvitationParam [type=" + type + ", formId=" + formId + ", expiration=" + expiration
+				+ ", contactAddress=" + contactAddress + ", identities=" + identities + ", groupSelections="
+				+ groupSelections + ", allowedGroups=" + allowedGroups + ", attributes=" + attributes
+				+ ", messageParams=" + messageParams + "]";
 	}
 
 	@Override
