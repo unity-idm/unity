@@ -70,10 +70,19 @@ public class TestMultipleAutoProcessInvitationActions extends DBIntegrationTestB
 	}
 	
 	@Test
-	public void shouldProcessAllAutoAcceptInvitationActionsWhenEmptyForm() throws EngineException
+	public void shouldProcessAllAutoAcceptInvitationActionsWhenNullFormName() throws EngineException
 	{
 		shouldProcessAllAutoAcceptInvitationActions(
 				new TestInputData("form1", newArrayList((String) null)),
+				new TestInputData("form2", Collections.emptyList())
+		);
+	}
+	
+	@Test
+	public void shouldProcessAllAutoAcceptInvitationActionsWhenEmptyFormName() throws EngineException
+	{
+		shouldProcessAllAutoAcceptInvitationActions(
+				new TestInputData("form1", newArrayList("")),
 				new TestInputData("form2", Collections.emptyList())
 		);
 	}

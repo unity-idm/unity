@@ -171,7 +171,7 @@ class AutomaticInvitationProcessingSupport
 	{
 		return invitation ->
 		{
-			if (formsToProcess.contains(null))
+			if (formsToProcess.contains(null) || formsToProcess.contains(""))
 				return true;
 			return formsToProcess.contains(invitation.getInvitation().getFormId());
 		};
