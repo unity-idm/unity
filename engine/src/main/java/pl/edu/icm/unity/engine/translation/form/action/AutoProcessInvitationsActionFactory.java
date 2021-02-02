@@ -55,7 +55,7 @@ public class AutoProcessInvitationsActionFactory extends AbstractRegistrationTra
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			state.setInvitationProcessing(invitationProcessing);
+			state.addInvitationProcessingParam(invitationProcessing);
 		}
 
 		private void setParameters(String[] parameters)

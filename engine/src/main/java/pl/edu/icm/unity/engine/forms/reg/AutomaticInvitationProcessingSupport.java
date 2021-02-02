@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
+import static java.util.stream.Collectors.toSet;
+import static pl.edu.icm.unity.engine.forms.reg.RegistrationUtil.getPrefilledAndHiddenAttributes;
+import static pl.edu.icm.unity.engine.forms.reg.RegistrationUtil.getPrefilledAndHiddenGroups;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +18,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -71,8 +75,8 @@ class AutomaticInvitationProcessingSupport
 			TranslatedRegistrationRequest translatedRequest, Map<String, GroupParam> groupParamByPath,
 			List<Attribute> requestedAttributes, String profileName) throws EngineException
 	{
-		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
-		if (invitationProcessing == null)
+		List<AutomaticInvitationProcessingParam> invitationProcessing = translatedRequest.getInvitationProcessingParams();
+		if (CollectionUtils.isEmpty(invitationProcessing))
 			return;
 		
 		CollectedFromInvitationsContainer collectedFromInvitations = collectAttributesAndGroupsFromInvitations(
@@ -126,9 +130,11 @@ class AutomaticInvitationProcessingSupport
 		if (contactAddress == null)
 			return null;
 		
-		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
+		Set<String> formsToProcess = translatedRequest.getInvitationProcessingParams().stream()
+				.map(AutomaticInvitationProcessingParam::getFormName)
+				.collect(toSet());
 		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
-			.filter(byGivenFormOrAllIfEmpty(invitationProcessing.getFormName()))
+			.filter(byGivenFormOrAllIfEmpty(formsToProcess))
 			.filter(invitation -> contactAddress.equals(invitation.getInvitation().getContactAddress()))
 			.collect(Collectors.toList());
 		Map<String, RegistrationForm> registrationFormById = Maps.newHashMap();
@@ -144,9 +150,9 @@ class AutomaticInvitationProcessingSupport
 				invitationRegistrationForm = formsDB.get(invitation.getFormId());
 				registrationFormById.put(invitation.getFormId(), invitationRegistrationForm);
 			}
-			List<Attribute> prefilledAttrs = RegistrationUtil.getPrefilledAndHiddenAttributes(invitation, invitationRegistrationForm);
+			List<Attribute> prefilledAttrs = getPrefilledAndHiddenAttributes(invitation, invitationRegistrationForm);
 			collected.attributes.addAll(prefilledAttrs);
-			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm, profileName);
+			List<GroupParam> prefilledGroups = getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm, profileName);
 			collected.groups.addAll(prefilledGroups);
 			collected.registrationCodes.add(invitationWithCode.getRegistrationCode());
 		}
@@ -161,13 +167,13 @@ class AutomaticInvitationProcessingSupport
 	}
 	
 	
-	private Predicate<? super InvitationWithCode> byGivenFormOrAllIfEmpty(String formName)
+	private Predicate<? super InvitationWithCode> byGivenFormOrAllIfEmpty(Set<String> formsToProcess)
 	{
 		return invitation ->
 		{
-			if (Strings.isNullOrEmpty(formName))
+			if (formsToProcess.contains(null))
 				return true;
-			return formName.equals(invitation.getInvitation().getFormId());
+			return formsToProcess.contains(invitation.getInvitation().getFormId());
 		};
 	}
 }

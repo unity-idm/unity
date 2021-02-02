@@ -7,8 +7,11 @@ package pl.edu.icm.unity.engine.api.translation.form;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -46,7 +49,7 @@ public class TranslatedRegistrationRequest
 	private String credentialRequirement;
 	private String redirectURL = null;
 	private I18nMessage postSubmitMessage;
-	private AutomaticInvitationProcessingParam invitationProcessing;
+	private List<AutomaticInvitationProcessingParam> invitationProcessingParams = Lists.newArrayList();
 	private Boolean mfaPreferenceStatus;
 	
 	public TranslatedRegistrationRequest(String credentialRequirement)
@@ -173,14 +176,14 @@ public class TranslatedRegistrationRequest
 		this.postSubmitMessage = message;
 	}
 
-	public AutomaticInvitationProcessingParam getInvitationProcessing()
+	public List<AutomaticInvitationProcessingParam> getInvitationProcessingParams()
 	{
-		return invitationProcessing;
+		return invitationProcessingParams;
 	}
 
-	public void setInvitationProcessing(AutomaticInvitationProcessingParam invitationProcessing)
+	public void addInvitationProcessingParam(AutomaticInvitationProcessingParam invitationProcessing)
 	{
-		this.invitationProcessing = invitationProcessing;
+		this.invitationProcessingParams.add(invitationProcessing);
 	}
 
 	public Boolean getMfaPreferenceStatus()
