@@ -4,10 +4,11 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toCollection;
 import static pl.edu.icm.unity.engine.forms.reg.RegistrationUtil.getPrefilledAndHiddenAttributes;
 import static pl.edu.icm.unity.engine.forms.reg.RegistrationUtil.getPrefilledAndHiddenGroups;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -132,7 +133,7 @@ class AutomaticInvitationProcessingSupport
 		
 		Set<String> formsToProcess = translatedRequest.getInvitationProcessingParams().stream()
 				.map(AutomaticInvitationProcessingParam::getFormName)
-				.collect(toSet());
+				.collect(toCollection(HashSet::new));
 		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
 			.filter(byGivenFormOrAllIfEmpty(formsToProcess))
 			.filter(invitation -> contactAddress.equals(invitation.getInvitation().getContactAddress()))

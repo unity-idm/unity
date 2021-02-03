@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.translation.form;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -49,7 +48,7 @@ public class TranslatedRegistrationRequest
 	private String credentialRequirement;
 	private String redirectURL = null;
 	private I18nMessage postSubmitMessage;
-	private List<AutomaticInvitationProcessingParam> invitationProcessingParams = Lists.newArrayList();
+	private List<AutomaticInvitationProcessingParam> invitationProcessingParams = new ArrayList<>();
 	private Boolean mfaPreferenceStatus;
 	
 	public TranslatedRegistrationRequest(String credentialRequirement)
