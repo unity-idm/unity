@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
+import static org.junit.Assume.assumeTrue;
+import static pl.edu.icm.unity.store.StorageConfiguration.ALTERNATIVE_DB_CONFIG;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -11,6 +14,7 @@ import javax.sql.DataSource;
 
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -23,6 +27,12 @@ import pl.edu.icm.unity.store.api.StoragePropertiesSource;
 
 public class DataSourceConfigurationTest
 {
+	@Before
+	public void conditionalStart()
+	{
+		assumeTrue(System.getProperty(ALTERNATIVE_DB_CONFIG) == null);
+	}
+	
 	@Test
 	public void shouldSetDefaultNetworkTimeout() throws InternalException, IOException
 	{
