@@ -8,13 +8,13 @@
 
 package pl.edu.icm.unity.store.rdbms;
 
-import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.DEFAULT_NETWORK_TIMEOUT;
+import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.DEFAULT_NETWORK_TIMEOUT_MILLIS;
 import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_MAX_ACTIVE_CONNECTIONS;
-import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_MAX_CHECKOUT_TIME;
+import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_MAX_CHECKOUT_TIME_MILLIS;
 import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_MAX_IDLE_CONNECTIONS;
 import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_MAX_LOCAL_BAD_CONNECTION_TOLERANCE;
-import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_PING_CONNECTIONS_NOT_USED_FOR;
-import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_TIME_TO_WAIT;
+import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_PING_CONNECTIONS_NOT_USED_FOR_MILLIS;
+import static pl.edu.icm.unity.store.rdbms.RDBMSConfiguration.POOL_TIME_TO_WAIT_MILLIS;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -72,13 +72,13 @@ public class DBSessionManager
 		properties.setProperty(DBPropertiesHelper.URL, config.getValue(DBPropertiesHelper.URL));
 		properties.setProperty(DBPropertiesHelper.USER, config.getValue(DBPropertiesHelper.USER));
 		
-		properties.setProperty(DEFAULT_NETWORK_TIMEOUT, config.getValue(DEFAULT_NETWORK_TIMEOUT));
+		properties.setProperty(DEFAULT_NETWORK_TIMEOUT_MILLIS, config.getValue(DEFAULT_NETWORK_TIMEOUT_MILLIS));
 		properties.setProperty(POOL_MAX_ACTIVE_CONNECTIONS, config.getValue(POOL_MAX_ACTIVE_CONNECTIONS));
 		properties.setProperty(POOL_MAX_IDLE_CONNECTIONS, config.getValue(POOL_MAX_IDLE_CONNECTIONS));
-		properties.setProperty(POOL_MAX_CHECKOUT_TIME, config.getValue(POOL_MAX_CHECKOUT_TIME));
-		properties.setProperty(POOL_TIME_TO_WAIT, config.getValue(POOL_TIME_TO_WAIT));
+		properties.setProperty(POOL_MAX_CHECKOUT_TIME_MILLIS, config.getValue(POOL_MAX_CHECKOUT_TIME_MILLIS));
+		properties.setProperty(POOL_TIME_TO_WAIT_MILLIS, config.getValue(POOL_TIME_TO_WAIT_MILLIS));
 		properties.setProperty(POOL_MAX_LOCAL_BAD_CONNECTION_TOLERANCE, config.getValue(POOL_MAX_LOCAL_BAD_CONNECTION_TOLERANCE));
-		properties.setProperty(POOL_PING_CONNECTIONS_NOT_USED_FOR, config.getValue(POOL_PING_CONNECTIONS_NOT_USED_FOR));
+		properties.setProperty(POOL_PING_CONNECTIONS_NOT_USED_FOR_MILLIS, config.getValue(POOL_PING_CONNECTIONS_NOT_USED_FOR_MILLIS));
 
 		return builder.build(reader, properties);
 	}
