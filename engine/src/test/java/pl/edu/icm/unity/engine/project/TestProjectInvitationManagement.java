@@ -50,11 +50,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @RunWith(MockitoJUnitRunner.class)
 public class TestProjectInvitationManagement extends TestProjectBase
 {
@@ -66,11 +61,12 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Before
 	public void initProjectInvitationMan()
 	{
+		ExistingUserFinder userFinder = new ExistingUserFinder(mockBulkQueryService, 
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper));
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan,
-				mockRegistrationMan, mockEnquiryMan, mockBulkQueryService,
+				mockRegistrationMan, mockEnquiryMan, 
 				mockIdMan,
-				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper),
-				mockSharedEndpointMan, mockAuthz);
+				mockSharedEndpointMan, mockAuthz, userFinder);
 	}
 
 	@Test
