@@ -24,7 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
@@ -38,9 +38,9 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	private AuthenticatorSupportService authenticatorSupport;
 	private Supplier<List<String>> authnOptionSupplier;
 
-	private ChipsWithDropdown<AuthenticationOptionKey> valueComboField;
+	private ChipsWithDropdown<AuthenticationOptionsSelector> valueComboField;
 	private Binder<GridStateBindingValue> binder;
-	private List<AuthenticationOptionKey> items;
+	private List<AuthenticationOptionsSelector> items;
 
 	public GridAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
@@ -58,7 +58,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	private Component getContent()
 	{
 		binder = new Binder<>(GridStateBindingValue.class);
-		valueComboField = new ChipsWithDropdown<AuthenticationOptionKey>(i -> i.toGlobalKey(), true);
+		valueComboField = new ChipsWithDropdown<AuthenticationOptionsSelector>(i -> i.toStringEncodedSelector(), true);
 		valueComboField.setSkipRemoveInvalidSelections(true);
 		valueComboField.setWidth(20, Unit.EM);
 		refreshItems();
@@ -89,9 +89,9 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		return main;
 	}
 
-	private boolean allOptionsPresent(List<AuthenticationOptionKey> options)
+	private boolean allOptionsPresent(List<AuthenticationOptionsSelector> options)
 	{
-		Set<AuthenticationOptionKey> availableSet = new HashSet<>(items);
+		Set<AuthenticationOptionsSelector> availableSet = new HashSet<>(items);
 		return !options.stream()
 				.filter(key -> !availableSet.contains(key))
 				.findAny().isPresent();
@@ -99,7 +99,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	
 	private void refreshItems()
 	{
-		items = AuthnColumnComponentHelper.getGridCompatibleAuthnOptions(
+		items = AuthnColumnComponentHelper.getGridCompatibleAuthnSelectors(
 					authenticatorSupport, authnOptionSupplier.get());
 		valueComboField.setItems(items);
 	}
@@ -128,18 +128,9 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 
 		GridConfig gstate = (GridConfig) state;
 		
-		List<AuthenticationOptionKey> vals = new ArrayList<>();
-		for (String s : gstate.content.split(" "))
-		{
-			String avs = s;
-			if (!s.contains("."))
-			{
-				avs += "." + AuthenticationOptionKey.ALL_OPTS;
-			}
-			AuthenticationOptionKey key = AuthenticationOptionKey.valueOf(avs);
-			vals.add(key);
-
-		}
+		List<AuthenticationOptionsSelector> vals = new ArrayList<>();
+		for (String avs : gstate.content.split(" "))
+			vals.add(AuthenticationOptionsSelector.valueOf(avs));
 
 		GridStateBindingValue bean = new GridStateBindingValue(vals, gstate.rows);
 		binder.setBean(bean);
@@ -151,7 +142,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		GridStateBindingValue value = binder.getBean();
 
 		return new GridConfig(String.join(" ",
-				value.getValue().stream().map(i -> i.toGlobalKey()).collect(Collectors.toList())),
+				value.getValue().stream().map(i -> i.toStringEncodedSelector()).collect(Collectors.toList())),
 				value.getRows());
 	}
 	
@@ -164,21 +155,21 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 
 	public static class GridStateBindingValue
 	{
-		private List<AuthenticationOptionKey> value;
+		private List<AuthenticationOptionsSelector> value;
 		private int rows;
 
-		public GridStateBindingValue(List<AuthenticationOptionKey> value, int rows)
+		public GridStateBindingValue(List<AuthenticationOptionsSelector> value, int rows)
 		{
 			this.value = value;
 			this.rows = rows;
 		}
 
-		public List<AuthenticationOptionKey> getValue()
+		public List<AuthenticationOptionsSelector> getValue()
 		{
 			return value;
 		}
 
-		public void setValue(List<AuthenticationOptionKey> value)
+		public void setValue(List<AuthenticationOptionsSelector> value)
 		{
 			this.value = value;
 		}

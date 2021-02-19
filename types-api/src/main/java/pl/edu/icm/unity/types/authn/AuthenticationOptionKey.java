@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.types.authn;
@@ -7,47 +7,39 @@ package pl.edu.icm.unity.types.authn;
 import java.util.Objects;
 
 /**
- * Represents a pair of authentication option with key.
- *
- * @author Roman Krysinski (roman@unity-idm.eu)
+ * Represents an authentication option, which is a pair of authenticator id and one of its authentication option ids.
  */
 public class AuthenticationOptionKey
 {
-	public static final String ALL_OPTS = "*";
-	
 	private String authenticatorKey;
 	private String optionKey;
 
+	
 	public AuthenticationOptionKey(String authenticatorKey, String optionKey)
 	{
 		this.authenticatorKey = authenticatorKey;
 		this.optionKey = optionKey;
 	}
 	
-	protected AuthenticationOptionKey()
-	{
-	}
-
-	public static AuthenticationOptionKey valueOf(String globalKey)
+	public static AuthenticationOptionKey valueOf(String stringEncodedKey)
 	{
 		return new AuthenticationOptionKey(
-				AuthenticationOptionKeyUtils.decodeAuthenticator(globalKey), 
-				AuthenticationOptionKeyUtils.decodeOption(globalKey)
+				AuthenticationOptionKeyUtils.decodeAuthenticator(stringEncodedKey), 
+				AuthenticationOptionKeyUtils.decodeOption(stringEncodedKey)
 		);
 	}
 	
-	public String toGlobalKey()
+	public String toStringEncodedKey()
 	{
-		return !optionKey.equals(ALL_OPTS) ? AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey)
-				: AuthenticationOptionKeyUtils.encode(authenticatorKey, null);
+		return AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey);
 	}
 
-	public String getAuthenticatorKey()
+	String getAuthenticatorKey()
 	{
 		return authenticatorKey;
 	}
 
-	public String getOptionKey()
+	String getOptionKey()
 	{
 		return optionKey;
 	}

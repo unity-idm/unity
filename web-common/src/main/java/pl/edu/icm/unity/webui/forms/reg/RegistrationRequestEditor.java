@@ -44,6 +44,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
@@ -339,14 +340,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			return;
 		
 		Set<String> authnOptions = form.getExternalSignupSpec().getSpecs().stream()
-			.map(AuthenticationOptionKey::getAuthenticatorKey)
+			.map(AuthenticationOptionsSelector::getAuthenticatorKey)
 			.collect(Collectors.toSet());
 		List<AuthenticationFlow> flows = authnSupport.resolveAuthenticationFlows(Lists.newArrayList(authnOptions),
 				VaadinAuthentication.NAME);
-		Set<AuthenticationOptionKey> formSignupSpec = form.getExternalSignupSpec().getSpecs().stream().collect(Collectors.toSet());
-		Set<String> formSignupAuthenticatorAll = form.getExternalSignupSpec().getSpecs().stream()
-				.filter(s -> s.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS))
-				.map(s -> s.getAuthenticatorKey()).collect(Collectors.toSet());
+		Set<AuthenticationOptionsSelector> formSignupSpec = form.getExternalSignupSpec().getSpecs().stream()
+				.collect(Collectors.toSet());
 		for (AuthenticationFlow flow : flows)
 		{
 			for (AuthenticatorInstance authenticator : flow.getFirstFactorAuthenticators())
@@ -358,7 +357,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				{
 					String optionKey = vaadinAuthenticationUI.getId();
 					AuthenticationOptionKey authnOption = new AuthenticationOptionKey(authenticatorKey, optionKey);
-					if (formSignupSpec.contains(authnOption) || formSignupAuthenticatorAll.contains(authnOption.getAuthenticatorKey()))
+					if (formSignupSpec.stream().anyMatch(selector -> selector.matchesAuthnOption(authnOption)))
 					{
 						AuthNOption signupAuthNOption = new AuthNOption(flow, vaadinAuthenticator,  vaadinAuthenticationUI);
 						setupExpectedIdentity(vaadinAuthenticationUI);
@@ -408,12 +407,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		}
 		
 		List<AuthNOption> options = new ArrayList<>();
-		for (AuthenticationOptionKey spec : externalSignupGridSpec.getSpecs())
+		for (AuthenticationOptionsSelector spec : externalSignupGridSpec.getSpecs())
 		{
 			List<AuthNOption> signupOptions = getSignupOptions(spec);
 			if (signupOptions.isEmpty())
 			{
-				log.debug("Ignoring not available remote sign up options: {}", spec.toGlobalKey());
+				log.debug("Ignoring not available remote sign up options: {}", spec.toStringEncodedSelector());
 			}
 			
 			options.addAll(signupOptions);
@@ -447,12 +446,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private boolean createRemoteSignupButton(AbstractOrderedLayout layout, FormParameterElement element)
 	{
 		int index = element.getIndex();
-		AuthenticationOptionKey spec = form.getExternalSignupSpec().getSpecs().get(index);
+		AuthenticationOptionsSelector spec = form.getExternalSignupSpec().getSpecs().get(index);
 
 		List<AuthNOption> options = getSignupOptions(spec);
 		if (options.isEmpty())
 		{
-			log.debug("Ignoring not available remote sign up option {}", spec.toGlobalKey());
+			log.debug("Ignoring not available remote sign up option {}", spec.toStringEncodedSelector());
 			return false;
 		}
 
@@ -476,19 +475,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return true;
 	}
 
-	private List<AuthNOption> getSignupOptions(AuthenticationOptionKey spec)
+	private List<AuthNOption> getSignupOptions(AuthenticationOptionsSelector spec)
 	{
-
-		if (spec.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS))
-		{
-			return externalSignupOptions.entrySet().stream().filter(
-					e -> e.getKey().getAuthenticatorKey().equals(spec.getAuthenticatorKey()))
+		return externalSignupOptions.entrySet().stream()
+					.filter(e -> spec.matchesAuthnOption(e.getKey()))
 					.map(e -> e.getValue()).collect(Collectors.toList());
-		} else
-		{
-			return externalSignupOptions.entrySet().stream().filter(e -> e.getKey().equals(spec))
-					.map(e -> e.getValue()).collect(Collectors.toList());
-		}
 	}
 	
 	private boolean createLocalSignupButton(AbstractOrderedLayout layout, FormLocalSignupButtonElement element)

@@ -42,7 +42,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
@@ -364,7 +364,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions.description"));
 
 		remoteAuthnSelections.addChipRemovalListener(e -> {
-			AuthenticationOptionKey removed = (AuthenticationOptionKey) e.getButton().getData();
+			AuthenticationOptionsSelector removed = (AuthenticationOptionsSelector) e.getButton().getData();
 			remoteAuthnGridSelections.setItems(remoteAuthnSelections.getSelectedItems());
 			remoteAuthnGridSelections.setSelectedItems(remoteAuthnGridSelections.getSelectedItems().stream()
 					.filter(a -> !a.equals(removed)).collect(Collectors.toList()));

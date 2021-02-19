@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 
 /**
  * Configures which remote signUp methods should be shown in grid. 
@@ -22,7 +22,7 @@ public class ExternalSignupGridSpec extends ExternalSignupSpec
 {
 	private AuthnGridSettings gridSettings;
 
-	public ExternalSignupGridSpec(List<AuthenticationOptionKey> specs, AuthnGridSettings gridSettings)
+	public ExternalSignupGridSpec(List<AuthenticationOptionsSelector> specs, AuthnGridSettings gridSettings)
 	{
 		super(specs);
 		this.gridSettings = gridSettings;

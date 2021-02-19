@@ -21,7 +21,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
@@ -286,8 +286,8 @@ public class RegistrationForm extends BaseForm
 	private List<FormElement> getDefaultExternalSignupFormLayoutElements(MessageSource msg)
 	{
 
-		List<AuthenticationOptionKey> remoteSignupGrid = getExternalSignupGridSpec().getSpecs();
-		List<AuthenticationOptionKey> remoteSignup = getExternalSignupSpec().getSpecs();
+		List<AuthenticationOptionsSelector> remoteSignupGrid = getExternalSignupGridSpec().getSpecs();
+		List<AuthenticationOptionsSelector> remoteSignup = getExternalSignupSpec().getSpecs();
 
 		List<FormElement> ret = new ArrayList<>();
 		for (int i = 0; i < remoteSignup.size(); i++)
