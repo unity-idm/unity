@@ -43,7 +43,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
@@ -536,7 +535,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		@Override
 		public FirstFactorAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption)
 		{
-			String optionId = AuthenticationOptionKeyUtils.encode(
+			AuthenticationOptionKey optionId = new AuthenticationOptionKey(
 					authnOption.authenticator.getAuthenticatorId(),
 					authnOption.authenticatorUI.getId());
 

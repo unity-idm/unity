@@ -57,6 +57,7 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -260,7 +261,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, String authnOptionId)
+	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationOptionKey authnOptionId)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
 				authnOptionId);

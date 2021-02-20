@@ -55,6 +55,7 @@ import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.CookieHelper;
@@ -100,7 +101,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result,
 			String clientIp, final AuthenticationRealm realm,
 			AuthenticationFlow authenticationFlow,final boolean rememberMe,
-			String firstFactorAuthnOptionId) throws AuthenticationException
+			AuthenticationOptionKey firstFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		PartialAuthnState authnState;
@@ -178,7 +179,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	public void processSecondaryAuthnResult(PartialAuthnState state,
 			AuthenticationResult result2, String clientIp, AuthenticationRealm realm,
 			AuthenticationFlow authenticationFlow, boolean rememberMe,
-			String secondFactorAuthnOptionId) throws AuthenticationException
+			AuthenticationOptionKey secondFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		AuthenticatedEntity logInfo;

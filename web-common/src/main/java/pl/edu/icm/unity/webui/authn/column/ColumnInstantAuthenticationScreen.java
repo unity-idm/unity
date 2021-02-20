@@ -40,7 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -289,7 +289,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	
 	private FirstFactorAuthNPanel buildBaseAuthenticationOptionWidget(AuthNOption authnOption, boolean gridCompatible)
 	{
-		String optionId = AuthenticationOptionKeyUtils.encode(authnOption.authenticator.getAuthenticatorId(), 
+		AuthenticationOptionKey optionId = new AuthenticationOptionKey(authnOption.authenticator.getAuthenticatorId(), 
 				authnOption.authenticatorUI.getId());
 		if (sandboxCallback != null)
 			authnOption.authenticatorUI.setSandboxAuthnCallback(sandboxCallback);
@@ -300,7 +300,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		FirstFactorAuthNResultCallback controller = new FirstFactorAuthNResultCallback(
 				msg, authnProcessor, 
 				endpointDescription.getRealm(), authnOption.flow, 
-				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(optionId, authNPanel), 
+				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(
+						optionId.toStringEncodedKey(), authNPanel), 
 				optionId, endpointDescription.getEndpoint().getContextAddress(), 
 				authNPanel);
 		authnOption.authenticatorUI.setAuthenticationCallback(controller);
@@ -311,7 +312,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private SecondFactorAuthNPanel build2ndFactorAuthenticationOptionWidget(VaadinAuthenticationUI secondaryUI, 
 			PartialAuthnState partialAuthnState)
 	{
-		String optionId = AuthenticationOptionKeyUtils.encode(
+		AuthenticationOptionKey optionId = new AuthenticationOptionKey(
 				partialAuthnState.getSecondaryAuthenticator().getAuthenticatorId(), 
 				secondaryUI.getId());
 		SecondaryAuthenticationListenerImpl listener = new SecondaryAuthenticationListenerImpl();
@@ -475,9 +476,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		private final String optionId;
 		private final FirstFactorAuthNPanel authNPanel;
 		
-		PrimaryAuthenticationListenerImpl(String optionId, FirstFactorAuthNPanel authNPanel)
+		PrimaryAuthenticationListenerImpl(String selectedComponentId, FirstFactorAuthNPanel authNPanel)
 		{
-			this.optionId = optionId;
+			this.optionId = selectedComponentId;
 			this.authNPanel = authNPanel;
 		}
 

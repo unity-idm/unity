@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.ecp;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
  * State of the ECP authentication, i.e. records the info about a request provided via PAOS, 
@@ -15,7 +16,7 @@ public class ECPAuthnState extends RemoteAuthnState
 {
 	private String requestId;
 
-	public ECPAuthnState(String authenticatorOptionId) 
+	public ECPAuthnState(AuthenticationOptionKey authenticatorOptionId) 
 	{
 		super(authenticatorOptionId);
 	}

@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -46,7 +47,8 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 	@Override
 	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe, AuthenticationOptionKey authnOptionId) 
+					throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
 		PartialAuthnState authnState;
@@ -72,7 +74,8 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 	@Override
 	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe, AuthenticationOptionKey authnOptionId) 
+					throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
 		AuthenticatedEntity logInfo;
