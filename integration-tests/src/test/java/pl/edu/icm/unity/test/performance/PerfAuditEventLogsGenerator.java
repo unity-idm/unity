@@ -9,11 +9,18 @@
  *******************************************************************************/
 package pl.edu.icm.unity.test.performance;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.common.collect.ImmutableMap;
+
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
@@ -22,12 +29,6 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
@@ -60,7 +61,7 @@ public class PerfAuditEventLogsGenerator
 		}
 	}
 
-	@Test
+	//@Test
 	public void create10AuditLogs()
 	{
 		//given
