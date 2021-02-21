@@ -163,8 +163,8 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	
 	public LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
-			final AuthenticationRealm realm, String firstFactorAuhtnOptionId,
-			String secondFactorAuhtnOptionId)
+			final AuthenticationRealm realm, AuthenticationOptionKey firstFactorAuhtnOptionId,
+			AuthenticationOptionKey secondFactorAuhtnOptionId)
 	{
 
 		long entityId = authenticatedEntity.getEntityId();

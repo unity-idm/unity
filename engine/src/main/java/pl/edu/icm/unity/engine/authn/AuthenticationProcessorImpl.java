@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -64,7 +65,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	 */
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
-			AuthenticationFlow authenticationFlow, String authnOptionId) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
 	{
 		if (result.getStatus() != Status.success)
 		{
@@ -123,7 +124,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
-			AuthenticationResult result, String firstFactorauthnOptionId)
+			AuthenticationResult result, AuthenticationOptionKey firstFactorauthnOptionId)
 	{
 		AuthenticatorInstance secondFactorAuthenticator = getValidAuthenticatorForEntity(
 				authenticationFlow.getSecondFactorAuthenticators(), 

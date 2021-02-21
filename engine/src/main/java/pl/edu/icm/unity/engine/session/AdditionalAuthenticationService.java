@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 /**
@@ -155,11 +155,11 @@ public class AdditionalAuthenticationService
 		return getFromSessionFactor(loginSession.getLogin2ndFactorOptionId());
 	}
 
-	private String getFromSessionFactor(String loginFactor)
+	private String getFromSessionFactor(AuthenticationOptionKey loginFactor)
 	{
 		if (loginFactor != null)
 		{
-			String authenticator = AuthenticationOptionKeyUtils.decodeAuthenticator(loginFactor);
+			String authenticator = loginFactor.getAuthenticatorKey();
 			if(isValidForReauthentication(authenticator))
 				return authenticator;
 		}
@@ -235,7 +235,7 @@ public class AdditionalAuthenticationService
 				expectedAuthnOption, graceTime, System.currentTimeMillis());
 		if (authnInfo == null || authnInfo.optionId == null)
 			return false;
-		String authenticator = AuthenticationOptionKeyUtils.decodeAuthenticator(authnInfo.optionId);
+		String authenticator = authnInfo.optionId.getAuthenticatorKey();
 		if (!authenticator.equals(expectedAuthnOption))
 			return false;
 		return System.currentTimeMillis() < graceTime + authnInfo.time.getTime();

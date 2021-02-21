@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
@@ -58,7 +59,9 @@ public class RememberMeTest extends DBIntegrationTestBase
 	private void addCookieAndToken(AuthenticationRealm realm, HttpServletResponse response)
 	{
 		rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, "0.0.0.0", 1,
-				new Date(), "firstFactor", "secondFactor");
+				new Date(), 
+				new AuthenticationOptionKey("firstFactor", "o1"), 
+				new AuthenticationOptionKey("secondFactor", "o2"));
 	}
 	
 	@Test
@@ -83,8 +86,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(rememberMeUnityToken.getRememberMePolicy(),
 				is(RememberMePolicy.allowForWholeAuthn));
 		assertThat(rememberMeUnityToken.getEntity(), is(1L));
-		assertThat(rememberMeUnityToken.getFirstFactorAuthnOptionId(), is("firstFactor"));
-		assertThat(rememberMeUnityToken.getSecondFactorAuthnOptionId(), is("secondFactor"));
+		assertThat(rememberMeUnityToken.getFirstFactorAuthnOptionId().getAuthenticatorKey(), is("firstFactor"));
+		assertThat(rememberMeUnityToken.getSecondFactorAuthnOptionId().getAuthenticatorKey(), is("secondFactor"));
 		assertThat(rememberMeUnityToken.getMachineDetails().getIp(), is("0.0.0.0"));
 	}
 
@@ -129,8 +132,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 						new UnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
-		assertThat(loginSession.get().getLogin1stFactorOptionId(), is("firstFactor"));
-		assertThat(loginSession.get().getLogin2ndFactorOptionId(), is("secondFactor"));
+		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
+		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey(), is("secondFactor"));
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped, is(true));
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped, is(true));
 	}
@@ -153,8 +156,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 						new UnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
-		assertThat(loginSession.get().getLogin1stFactorOptionId(), is("firstFactor"));
-		assertThat(loginSession.get().getLogin2ndFactorOptionId(), is("secondFactor"));
+		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
+		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey(), is("secondFactor"));
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped, is(false));
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped, is(true));
 	}

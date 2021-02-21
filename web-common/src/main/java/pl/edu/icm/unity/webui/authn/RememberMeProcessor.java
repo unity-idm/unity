@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -149,7 +150,8 @@ public class RememberMeProcessor
 	}
 
 	public void addRememberMeCookieAndUnityToken(HttpServletResponse response, AuthenticationRealm realm, String clientIp,
-			long entityId, Date loginTime, String firstFactorOptionId, String secondFactorOptionId)
+			long entityId, Date loginTime, AuthenticationOptionKey firstFactorOptionId, 
+			AuthenticationOptionKey secondFactorOptionId)
 	{
 		if (realm.getRememberMePolicy().equals(RememberMePolicy.disallow))
 			return;
@@ -323,7 +325,7 @@ public class RememberMeProcessor
 		if (!unityRememberMeToken.isPresent())
 			return Optional.empty();
 
-		String secondFactorAuthnOptionId = unityRememberMeToken.get()
+		AuthenticationOptionKey secondFactorAuthnOptionId = unityRememberMeToken.get()
 				.getSecondFactorAuthnOptionId();
 		long entityId = unityRememberMeToken.get().getEntity();
 		String label = getLabel(entityId);
@@ -389,8 +391,8 @@ public class RememberMeProcessor
 	}
 
 	private RememberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
-			byte[] rememberMeTokenHash, Date loginTime, String clientIp, String firstFactorOptionId,
-			String secondFactorOptionId)
+			byte[] rememberMeTokenHash, Date loginTime, String clientIp, AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationOptionKey secondFactorOptionId)
 	{
 		
 		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;

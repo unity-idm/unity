@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 /**
@@ -25,8 +26,8 @@ public class RememberMeToken
 	private long entity;
 	private LoginMachineDetails machineDetails;
 	private Date loginTime;
-	private String  firstFactorAuthnOptionId;
-	private String  secondFactorAuthnOptionId;
+	private AuthenticationOptionKey  firstFactorAuthnOptionId;
+	private AuthenticationOptionKey  secondFactorAuthnOptionId;
 	private byte[] rememberMeTokenHash;
 	private RememberMePolicy rememberMePolicy;
 
@@ -36,7 +37,8 @@ public class RememberMeToken
 	}
 	
 	public RememberMeToken(long entity, LoginMachineDetails machineDetails, Date loginTime,
-			String firstFactorAuthnOptionId, String secondFactorAuthnOptionId, byte[] rememberMeTokenHash,
+			AuthenticationOptionKey firstFactorAuthnOptionId, AuthenticationOptionKey secondFactorAuthnOptionId, 
+			byte[] rememberMeTokenHash,
 			RememberMePolicy rememberMePolicy)
 	{
 		this.entity = entity;
@@ -116,22 +118,22 @@ public class RememberMeToken
 		this.rememberMePolicy = rememberMePolicy;
 	}
 
-	public String getFirstFactorAuthnOptionId()
+	public AuthenticationOptionKey getFirstFactorAuthnOptionId()
 	{
 		return firstFactorAuthnOptionId;
 	}
 
-	public void setFirstFactorAuthnOptionId(String firstFactorAuthnOptionId)
+	public void setFirstFactorAuthnOptionId(AuthenticationOptionKey firstFactorAuthnOptionId)
 	{
 		this.firstFactorAuthnOptionId = firstFactorAuthnOptionId;
 	}
 
-	public String getSecondFactorAuthnOptionId()
+	public AuthenticationOptionKey getSecondFactorAuthnOptionId()
 	{
 		return secondFactorAuthnOptionId;
 	}
 
-	public void setSecondFactorAuthnOptionId(String secondFactorAuthnOptionId)
+	public void setSecondFactorAuthnOptionId(AuthenticationOptionKey secondFactorAuthnOptionId)
 	{
 		this.secondFactorAuthnOptionId = secondFactorAuthnOptionId;
 	}

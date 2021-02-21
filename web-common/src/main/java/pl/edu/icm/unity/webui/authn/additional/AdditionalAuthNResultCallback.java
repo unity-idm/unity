@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
@@ -33,9 +34,9 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalAuthNResultCallback.class);
 	private final Consumer<AuthnResult> resultConsumer;
 	private final SessionManagement sessionMan;
-	private final String authenticatorId;
+	private final AuthenticationOptionKey authenticatorId;
 
-	public AdditionalAuthNResultCallback(SessionManagement sessionMan, String authenticatorId, 
+	public AdditionalAuthNResultCallback(SessionManagement sessionMan, AuthenticationOptionKey authenticatorId, 
 			Consumer<AuthnResult> resultConsumer)
 	{
 		this.sessionMan = sessionMan;

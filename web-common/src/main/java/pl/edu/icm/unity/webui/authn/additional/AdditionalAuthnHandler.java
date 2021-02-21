@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredExcep
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -73,8 +74,9 @@ public class AdditionalAuthnHandler
 		AuthNPanel authnPanel = new AuthNPanel(msg, execService, authenticationUI);
 		AdditionalAuthnDialog dialog = new AdditionalAuthnDialog(msg, header, info, authnPanel,
 				() -> onDialogClose(resultCallback));
+		AuthenticationOptionKey additionalAuthnOptionKey = new AuthenticationOptionKey(authenticator, authenticationUI.getId());
 		authenticationUI.setAuthenticationCallback(
-				new AdditionalAuthNResultCallback(sessionMan, authenticator, 
+				new AdditionalAuthNResultCallback(sessionMan, additionalAuthnOptionKey, 
 						result -> processResult(dialog, result, resultCallback)));
 		dialog.show();
 	}

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static pl.edu.icm.unity.types.authn.AuthenticationOptionKey.authenticatorOnlyKey;
+
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.util.Collections;
@@ -105,7 +107,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				MockPasswordVerificatorFactory.ID);
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), endpointFlows);
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
-				user, credentialId, null, null, null);
+				user, credentialId, null, authenticatorOnlyKey("authn1"), null);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		//override for tests: it can happen that existing session is returned, therefore old state of cred is
@@ -214,5 +216,4 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		CredentialRequirements cr3 = new CredentialRequirements("cr-certpass", "", creds);
 		credReqMan.addCredentialRequirement(cr3);
 	}
-
 }

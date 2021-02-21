@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -53,7 +54,7 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 
 		sessionMan.recordAdditionalAuthentication(InvocationContext.getCurrent().getLoginSession().getId(), 
-				"authenticator1");
+				AuthenticationOptionKey.authenticatorOnlyKey("authenticator1"));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 	}

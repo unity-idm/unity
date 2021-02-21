@@ -6,19 +6,34 @@ package pl.edu.icm.unity.types.authn;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.node.TextNode;
+
 /**
  * Represents an authentication option, which is a pair of authenticator id and one of its authentication option ids.
  */
 public class AuthenticationOptionKey
 {
-	private String authenticatorKey;
-	private String optionKey;
+	private final String authenticatorKey;
+	private final String optionKey;
 
 	
 	public AuthenticationOptionKey(String authenticatorKey, String optionKey)
 	{
 		this.authenticatorKey = authenticatorKey;
 		this.optionKey = optionKey;
+		
+		if (authenticatorKey == null)
+			throw new IllegalArgumentException("authenticatorKey can not be null");
+	}
+
+	
+	@JsonCreator
+	private AuthenticationOptionKey(TextNode value)
+	{
+		this(AuthenticationOptionKeyUtils.decodeAuthenticator(value.asText()), 
+				AuthenticationOptionKeyUtils.decodeOption(value.asText()));
 	}
 	
 	public static AuthenticationOptionKey valueOf(String stringEncodedKey)
@@ -28,18 +43,25 @@ public class AuthenticationOptionKey
 				AuthenticationOptionKeyUtils.decodeOption(stringEncodedKey)
 		);
 	}
+
+	public static AuthenticationOptionKey authenticatorOnlyKey(String authenticatorKey)
+	{
+		return new AuthenticationOptionKey(authenticatorKey, null);
+	}
+
 	
+	@JsonValue
 	public String toStringEncodedKey()
 	{
 		return AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey);
 	}
 
-	String getAuthenticatorKey()
+	public String getAuthenticatorKey()
 	{
 		return authenticatorKey;
 	}
 
-	String getOptionKey()
+	public String getOptionKey()
 	{
 		return optionKey;
 	}
