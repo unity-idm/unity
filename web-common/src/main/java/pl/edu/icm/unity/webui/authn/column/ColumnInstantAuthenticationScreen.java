@@ -348,22 +348,23 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
 			// - when initial authN was started without loading UI (e.g. autoLogin feature)
 			// - or when Vaadin decides to reload the UI what sometimes happen due to unknown reasons
-			Optional<String> sessionStoredIdp = getSessionStoredRemoteAuthnOptionId();
+			Optional<AuthenticationOptionKey> sessionStoredIdp = getSessionStoredRemoteAuthnOptionId();
 			sessionStoredIdp.ifPresent(authnOptionId -> 
 			{
 				log.debug("Got session stored authn option id: {}", authnOptionId);
-				authNColumns.refreshAuthenticatorWithId(authnOptionId, request);
+				authNColumns.refreshAuthenticatorWithId(authnOptionId.toStringEncodedKey(), request);
 			});
 		}
 	}
 
-	private Optional<String> getSessionStoredRemoteAuthnOptionId()
+	private Optional<AuthenticationOptionKey> getSessionStoredRemoteAuthnOptionId()
 	{
 		VaadinSession vSession = VaadinSession.getCurrent();
 		if (vSession == null)
 			return Optional.empty();
 		WrappedSession session = vSession.getSession();
-		String remoteAuthnOptionId = (String) session.getAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
+		AuthenticationOptionKey remoteAuthnOptionId = (AuthenticationOptionKey) 
+				session.getAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
 		session.removeAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
 		return Optional.ofNullable(remoteAuthnOptionId);
 	}
