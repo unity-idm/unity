@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class AuthenticationOptionsSelector implements Comparable<AuthenticationOptionsSelector>
 {
-	private static final String ALL_OPTS = "*";
+	public static final String ALL_OPTS = "*";
 	
 	private String authenticatorKey;
 	private String optionKey;
