@@ -418,7 +418,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 					logoutProcessorsManager.handleAsyncLogout(loginSession, null, 
 							returnUri, 
 							response.getHttpServletResponse());
-				} catch (IOException e)
+				} catch (Exception e)
 				{
 					log.warn("Logout of session peers failed", e);
 				}

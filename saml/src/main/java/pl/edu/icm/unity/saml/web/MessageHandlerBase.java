@@ -31,24 +31,18 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
  * and correct responses) are producing a web page which is redirecting the user to the final destination.
  * @author K. Benedyczak
  */
-public abstract class ResponseHandlerBase
+public abstract class MessageHandlerBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ResponseHandlerBase.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MessageHandlerBase.class);
 	protected FreemarkerAppHandler freemarker;
 	
-	public ResponseHandlerBase(FreemarkerAppHandler freemarker)
+	public MessageHandlerBase(FreemarkerAppHandler freemarker)
 	{
 		this.freemarker = freemarker;
 	}
 	
 	/**
 	 * Shows a page with error.
-	 * @param error
-	 * @param context
-	 * @param response
-	 * @throws SAMLProcessingException
-	 * @throws IOException
-	 * @throws EopException
 	 */
 	protected void showError(Exception error, HttpServletResponse response) 
 			throws IOException, EopException

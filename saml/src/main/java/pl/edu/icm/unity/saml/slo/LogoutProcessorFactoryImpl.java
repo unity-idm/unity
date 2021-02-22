@@ -47,7 +47,7 @@ class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	@Override
 	public LogoutProcessor getInstance()
 	{
-		SLOAsyncResponseHandler responseHandler = new SLOAsyncResponseHandler(freemarker);
+		SLOAsyncMessageHandler responseHandler = new SLOAsyncMessageHandler(freemarker);
 		InternalLogoutProcessor internalProcessor = new InternalLogoutProcessor(pkiManagement, contextsStore, 
 				responseHandler, consumerUri);
 		return new LogoutProcessorImpl(contextsStore, internalProcessor, registry);

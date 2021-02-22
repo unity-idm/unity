@@ -31,9 +31,9 @@ import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 {
 	private String relayState;
-	private List<SAMLSessionParticipant> toBeLoggedOut = new ArrayList<SAMLSessionParticipant>();
-	private List<SAMLSessionParticipant> loggedOut = new ArrayList<SAMLSessionParticipant>();
-	private List<SAMLSessionParticipant> failed = new ArrayList<SAMLSessionParticipant>();
+	private List<SAMLSessionParticipant> toBeLoggedOut = new ArrayList<>();
+	private List<SAMLSessionParticipant> loggedOut = new ArrayList<>();
+	private List<SAMLSessionParticipant> failed = new ArrayList<>();
 	private SAMLSessionParticipant current;
 	private String currentRequestId;
 	private AsyncLogoutFinishCallback finishCallback;
@@ -123,7 +123,6 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 
 	/**
 	 * Used after the async logout is finished to notify the initiator that the response can be returned.
-	 * @author K. Benedyczak
 	 */
 	public interface AsyncLogoutFinishCallback
 	{

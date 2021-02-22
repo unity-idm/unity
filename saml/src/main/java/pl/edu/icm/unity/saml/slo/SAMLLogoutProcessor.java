@@ -59,7 +59,7 @@ public class SAMLLogoutProcessor
 	private IdentityResolver idResolver;
 	private LogoutContextsStore contextsStore;
 	private ReplayAttackChecker replayChecker;
-	private SLOAsyncResponseHandler responseHandler;
+	private SLOAsyncMessageHandler responseHandler;
 	private InternalLogoutProcessor internalProcessor;
 	private IdentityTypeMapper identityTypeMapper;
 	private String consumerEndpointUri;
@@ -74,7 +74,7 @@ public class SAMLLogoutProcessor
 	 */
 	public SAMLLogoutProcessor(SessionManagement sessionManagement, SessionParticipantTypesRegistry registry,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
-			ReplayAttackChecker replayChecker, SLOAsyncResponseHandler responseHandler,
+			ReplayAttackChecker replayChecker, SLOAsyncMessageHandler responseHandler,
 			InternalLogoutProcessor internalProcessor,
 			IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
 			long requestValidity, String localSamlId,

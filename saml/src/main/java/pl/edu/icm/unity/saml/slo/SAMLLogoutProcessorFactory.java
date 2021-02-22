@@ -31,7 +31,7 @@ public class SAMLLogoutProcessorFactory
 	private LogoutContextsStore contextsStore;
 	private ReplayAttackChecker replayChecker;
 	private PKIManagement pkiManagement;
-	private SLOAsyncResponseHandler responseHandler;
+	private SLOAsyncMessageHandler responseHandler;
 	private SessionParticipantTypesRegistry registry;
 	private UnityServerConfiguration serverConfig;
 	
@@ -46,7 +46,7 @@ public class SAMLLogoutProcessorFactory
 		this.idResolver = idResolver;
 		this.contextsStore = contextsStore;
 		this.replayChecker = replayChecker;
-		this.responseHandler = new SLOAsyncResponseHandler(freemarker);
+		this.responseHandler = new SLOAsyncMessageHandler(freemarker);
 		this.pkiManagement = pkiManagement;
 		this.registry = registry;
 		this.serverConfig = serverConfig;

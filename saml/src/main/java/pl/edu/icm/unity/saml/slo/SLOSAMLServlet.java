@@ -35,12 +35,12 @@ public class SLOSAMLServlet extends SamlHttpRequestServlet
 
 	@Override
 	protected void postProcessRequest(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
-			String samlResponse, String relayState) throws IOException
+			String samlRequest, String relayState) throws IOException
 	{
 		try
 		{
 			Binding binding = isGet ? Binding.HTTP_REDIRECT : Binding.HTTP_POST;
-			LogoutRequestDocument reqDoc = LogoutRequestDocument.Factory.parse(samlResponse);
+			LogoutRequestDocument reqDoc = LogoutRequestDocument.Factory.parse(samlRequest);
 			logoutProcessor.handleAsyncLogoutFromSAML(reqDoc, relayState, resp, binding);
 		} catch (XmlException e)
 		{

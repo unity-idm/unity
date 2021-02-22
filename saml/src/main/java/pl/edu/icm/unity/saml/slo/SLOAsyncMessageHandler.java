@@ -17,7 +17,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
+import pl.edu.icm.unity.saml.web.MessageHandlerBase;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
@@ -28,11 +28,11 @@ import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
  * 
  * @author K. Benedyczak
  */
-public class SLOAsyncResponseHandler extends ResponseHandlerBase
+class SLOAsyncMessageHandler extends MessageHandlerBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SLOAsyncResponseHandler.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SLOAsyncMessageHandler.class);
 	
-	public SLOAsyncResponseHandler(FreemarkerAppHandler freemarker)
+	SLOAsyncMessageHandler(FreemarkerAppHandler freemarker)
 	{
 		super(freemarker);
 	}
@@ -40,7 +40,7 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	/**
 	 * Shows a page with error.
 	 */
-	public void showError(SAMLProcessingException error, HttpServletResponse response) 
+	void showError(SAMLProcessingException error, HttpServletResponse response) 
 			throws IOException, EopException
 	{
 		log.debug("SAML error is going to be shown to the user redirected to Unity SLO endpoint", error);
@@ -52,14 +52,14 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 	 * exception provided as an argument. At the end the {@link EopException} 
 	 * is always thrown to break any further processing.
 	 */
-	public void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
+	void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
 			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
 		sendErrorResponse(binding, error, serviceUrl, context.getLocalSessionAuthorityId(), 
 				context.getRequestersRelayState(), context.getRequest().getID(), response);
 	}
 
-	public void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
+	void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
 			String localIssuer, String relayState, String requestId, 
 			HttpServletResponse response) throws IOException, EopException
 	{
@@ -69,13 +69,13 @@ public class SLOAsyncResponseHandler extends ResponseHandlerBase
 		super.sendResponse(binding, errorResp, serviceUrl, relayState, response, "Logout Error");
 	}
 
-	public void sendRequest(Binding binding, LogoutRequestDocument requestDoc, String serviceUrl, 
+	void sendRequest(Binding binding, LogoutRequestDocument requestDoc, String serviceUrl, 
 			SAMLInternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
 		super.sendRequest(binding, requestDoc, serviceUrl, context.getRelayState(), response, "Logout");
 	}
 
-	public void sendResponse(Binding binding, LogoutResponseDocument responseDoc, String serviceUrl, 
+	void sendResponse(Binding binding, LogoutResponseDocument responseDoc, String serviceUrl, 
 			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
 	{
 		super.sendResponse(binding, responseDoc, serviceUrl, context.getRequestersRelayState(), 

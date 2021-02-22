@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
+import pl.edu.icm.unity.saml.web.MessageHandlerBase;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -29,7 +29,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * 
  * @author K. Benedyczak
  */
-public class ErrorHandler extends ResponseHandlerBase
+public class ErrorHandler extends MessageHandlerBase
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, ErrorHandler.class);
 	private AttributeTypeSupport aTypeSupport;

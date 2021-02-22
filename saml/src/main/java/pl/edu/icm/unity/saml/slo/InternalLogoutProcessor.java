@@ -50,20 +50,20 @@ import xmlbeans.org.oasis.saml2.protocol.StatusType;
  * 
  * @author K. Benedyczak
  */
-public class InternalLogoutProcessor
+class InternalLogoutProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, InternalLogoutProcessor.class);
 	private static final long DEF_LOGOUT_REQ_VALIDITY = 60000;
 	
 	private PKIManagement pkiManagement;
 	private LogoutContextsStore contextsStore;
-	private SLOAsyncResponseHandler responseHandler;
+	private SLOAsyncMessageHandler responseHandler;
 	
 	private String consumerEndpointUri;
 	
 
-	public InternalLogoutProcessor(PKIManagement pkiManagement,
-			LogoutContextsStore contextsStore, SLOAsyncResponseHandler responseHandler,
+	InternalLogoutProcessor(PKIManagement pkiManagement,
+			LogoutContextsStore contextsStore, SLOAsyncMessageHandler responseHandler,
 			String consumerEndpointUri)
 	{
 		this.pkiManagement = pkiManagement;
@@ -77,7 +77,7 @@ public class InternalLogoutProcessor
 	 * then logout of synchronous participants is performed and the final response is returned via redirection/post 
 	 * to the original logout requester.
 	 */
-	public void continueAsyncLogout(SAMLInternalLogoutContext ctx, HttpServletResponse response) 
+	void continueAsyncLogout(SAMLInternalLogoutContext ctx, HttpServletResponse response) 
 			throws IOException, EopException
 	{
 		InterimLogoutRequest interimReq = selectNextAsyncParticipantForLogout(ctx);
@@ -101,10 +101,8 @@ public class InternalLogoutProcessor
 
 	/**
 	 * Logs out all unprocessed participants who support soap binding.
-	 * @param ctx
-	 * @throws SAMLResponderException 
 	 */
-	public void logoutSynchronousParticipants(SAMLInternalLogoutContext ctx)
+	void logoutSynchronousParticipants(SAMLInternalLogoutContext ctx)
 	{
 		List<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut();
 		SAMLSessionParticipant participant = null;
@@ -141,13 +139,8 @@ public class InternalLogoutProcessor
 	 * Handles Logout response which can be received during the process of asynchronous logout, 
 	 * initiated by {@link #continueAsyncLogout(SAMLInternalLogoutContext, HttpServletResponse)}. This method 
 	 * process the response, updated the state of the logout process and continues it.
-	 * @param samlResponse
-	 * @param state
-	 * @param response
-	 * @throws EopException 
-	 * @throws IOException 
 	 */
-	public void handleAsyncLogoutResponse(LogoutResponseDocument samlResponse, String state, 
+	void handleAsyncLogoutResponse(LogoutResponseDocument samlResponse, String state, 
 			HttpServletResponse response) throws IOException, EopException
 	{
 		if (state == null)
@@ -229,8 +222,6 @@ public class InternalLogoutProcessor
 	 * Prepares a logout request for the next unprocessed session participant, which is supporting async 
 	 * binding. If there is no such participant returns null. If there is a problem creating a request a 
 	 * subsequent participant is tried.
-	 *   
-	 * @param ctx
 	 */
 	private InterimLogoutRequest selectNextAsyncParticipantForLogout(SAMLInternalLogoutContext ctx) 
 	{

@@ -17,7 +17,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
+import pl.edu.icm.unity.saml.web.MessageHandlerBase;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -25,7 +25,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  * Helper to send responses in SSO authn case, when working in non-Vaadin environment (plain servlets).
  * @author K. Benedyczak
  */
-public class SSOResponseHandler extends ResponseHandlerBase
+public class SSOResponseHandler extends MessageHandlerBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SSOResponseHandler.class);
 	
