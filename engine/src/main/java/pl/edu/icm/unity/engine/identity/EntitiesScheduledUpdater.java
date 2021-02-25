@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.events.EventProcessor;
+import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -32,14 +32,14 @@ public class EntitiesScheduledUpdater
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EntitiesScheduledUpdater.class);
 	private UnityServerConfiguration config;
 	private EntityDAO entityDAO;
-	private EventProcessor eventProcessor;
+	private EventPublisher eventPublisher;
 	
 	@Autowired
-	public EntitiesScheduledUpdater(UnityServerConfiguration config, EntityDAO entityDAO, EventProcessor eventProcessor)
+	public EntitiesScheduledUpdater(UnityServerConfiguration config, EntityDAO entityDAO, EventPublisher eventProcessor)
 	{
 		this.config = config;
 		this.entityDAO = entityDAO;
-		this.eventProcessor = eventProcessor;
+		this.eventPublisher = eventProcessor;
 	}
 	
 	@Transactional
@@ -91,11 +91,11 @@ public class EntitiesScheduledUpdater
 			performScheduledOperationInternal(op, entityInfo);
 			produceEvent("performScheduledOperationInternal", null, op, entityInfo);
 
-		} catch (Exception e)
+		} catch (Exception ex)
 		{
 
-			produceEvent("performScheduledOperationInternal", e.toString(), op, entityInfo);
-			throw e;
+			produceEvent("performScheduledOperationInternal", ex.toString(), op, entityInfo);
+			throw ex;
 		}
 	}
 	
@@ -121,7 +121,7 @@ public class EntitiesScheduledUpdater
 		InvocationEventContents desc = new InvocationEventContents(methodName, 
 				null, new Object[] {op, entityInfo}, e);
 		event.setContents(desc.toJson());
-		eventProcessor.fireEvent(event);	
+		eventPublisher.fireEvent(event);	
 	}
 	
 	private void disableInternal(EntityInformation entityInfo)
