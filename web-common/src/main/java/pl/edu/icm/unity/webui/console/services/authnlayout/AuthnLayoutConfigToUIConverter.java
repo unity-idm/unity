@@ -76,7 +76,6 @@ public class AuthnLayoutConfigToUIConverter
 				elp.setConfigState(config);
 				elements.add(elp);
 			}
-
 		}
 		return elements;
 	}
@@ -90,7 +89,6 @@ public class AuthnLayoutConfigToUIConverter
 		}
 
 		return new AuthnLayoutConfiguration(getColumns(config.columns), separators);
-
 	}
 
 	private static List<AuthnLayoutColumnConfiguration> getColumns(List<AuthnLayoutColumn> columns)
@@ -117,5 +115,4 @@ public class AuthnLayoutConfigToUIConverter
 
 		return elemetsC;
 	}
-
 }

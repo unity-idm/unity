@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.google.common.base.Objects;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.Component;
@@ -182,6 +183,24 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		public void setRows(int rows)
 		{
 			this.rows = rows;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hashCode(value, rows);
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (getClass() != obj.getClass())
+				return false;
+			final GridStateBindingValue other = (GridStateBindingValue) obj;
+
+			return Objects.equal(this.value, other.value) && Objects.equal(this.rows, other.rows);		
 		}
 	}
 }

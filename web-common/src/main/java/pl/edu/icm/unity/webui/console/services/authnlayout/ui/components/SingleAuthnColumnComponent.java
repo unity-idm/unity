@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.base.Objects;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.ComboBox;
@@ -115,7 +116,6 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	public void addValueChangeListener(Runnable valueChange)
 	{
 		valueComboField.addValueChangeListener(e -> valueChange.run());
-
 	}
 
 	public static class AuthnOptionKeyBindingValue
@@ -135,6 +135,24 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 		public void setValue(AuthenticationOptionsSelector value)
 		{
 			this.value = value;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hashCode(value);
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (getClass() != obj.getClass())
+				return false;
+			final AuthnOptionKeyBindingValue other = (AuthnOptionKeyBindingValue) obj;
+
+			return Objects.equal(this.value, other.value);		
 		}
 	}
 }

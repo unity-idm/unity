@@ -8,6 +8,8 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.configuration;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Objects;
+
 import pl.edu.icm.unity.types.I18nString;
 
 /**
@@ -25,5 +27,24 @@ public class AuthnLayoutConfiguration
 	{
 		this.columns = Collections.unmodifiableList(columns);
 		this.separators = Collections.unmodifiableList(separators);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(columns, separators);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		final AuthnLayoutConfiguration other = (AuthnLayoutConfiguration) obj;
+
+		return Objects.equal(this.columns, other.columns) && Objects.equal(this.separators, other.separators);
+
 	}
 }
