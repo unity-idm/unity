@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static pl.edu.icm.unity.JsonUtil.serializeHumanReadable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -169,8 +167,8 @@ public class RegistrationRequestPreprocessor
 		if (invitation.isExpired())
 			throw new IllegalFormContentsException("The invitation has already expired");
 		
-		log.debug("Will apply invitation parameter to the request:\n{}", serializeHumanReadable(invitation.toJson()));
-		log.debug("Request before applying the invitation:\n{}", serializeHumanReadable(request.toJson()));
+		log.debug("Will apply invitation parameter to the request:\n{}", invitation.toString());
+		log.debug("Request before applying the invitation:\n{}", request.toString());
 		basePreprocessor.processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
 				invitation.getIdentities(), "identity");
 		basePreprocessor.processInvitationElements(form.getAttributeParams(), request.getAttributes(), 

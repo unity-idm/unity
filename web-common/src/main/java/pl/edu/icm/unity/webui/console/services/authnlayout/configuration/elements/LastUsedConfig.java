@@ -31,4 +31,14 @@ public class LastUsedConfig implements AuthnElementConfiguration
 			return new PropertiesRepresentation(AuthnOptionsColumns.SPECIAL_ENTRY_LAST_USED);
 		}
 	}	
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		return true;	
+	}
 }

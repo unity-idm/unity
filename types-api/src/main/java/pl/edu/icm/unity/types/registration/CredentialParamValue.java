@@ -12,6 +12,14 @@ public class CredentialParamValue
 {
 	private String credentialId;
 	private String secrets;
+	
+	public CredentialParamValue() {}
+	
+	public CredentialParamValue(String credentialId, String secrets)
+	{
+		this.credentialId = credentialId;
+		this.secrets = secrets;
+	}
 	public String getCredentialId()
 	{
 		return credentialId;
@@ -60,5 +68,10 @@ public class CredentialParamValue
 		} else if (!secrets.equals(other.secrets))
 			return false;
 		return true;
+	}
+	@Override
+	public String toString()
+	{
+		return "CredentialParamValue [credentialId=" + credentialId + "]";
 	}
 }

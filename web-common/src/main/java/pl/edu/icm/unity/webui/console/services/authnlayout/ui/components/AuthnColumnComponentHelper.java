@@ -13,34 +13,33 @@ import java.util.function.Predicate;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnProvidersMultiSelection;
 
 public class AuthnColumnComponentHelper
 {
-	public static List<AuthenticationOptionKey> getSinglePickerCompatibleAuthnOptions(
+	public static List<AuthenticationOptionsSelector> getSinglePickerCompatibleAuthnSelectors(
 			AuthenticatorSupportService authenticatorSupport,
 			List<String> availableOptions)
 	{
-		return getCompatibleAuthnOptions(authenticatorSupport, availableOptions, ui -> true);
+		return getCompatibleAuthnSelectors(authenticatorSupport, availableOptions, ui -> true);
 	}
 
-	public static List<AuthenticationOptionKey> getGridCompatibleAuthnOptions(AuthenticatorSupportService authenticatorSupport,
+	public static List<AuthenticationOptionsSelector> getGridCompatibleAuthnSelectors(AuthenticatorSupportService authenticatorSupport,
 			List<String> availableOptions)
 	{
-		return getCompatibleAuthnOptions(authenticatorSupport, availableOptions, VaadinAuthentication::supportsGrid);
+		return getCompatibleAuthnSelectors(authenticatorSupport, availableOptions, VaadinAuthentication::supportsGrid);
 	}
 
-	private static List<AuthenticationOptionKey> getCompatibleAuthnOptions(AuthenticatorSupportService authenticatorSupport,
+	private static List<AuthenticationOptionsSelector> getCompatibleAuthnSelectors(AuthenticatorSupportService authenticatorSupport,
 			List<String> availableOptions, Predicate<VaadinAuthentication> authnUIFilter)
 	{
 		List<AuthenticationFlow> enabledAuthenticationFlows = authenticatorSupport.resolveAuthenticationFlows(
 				availableOptions, VaadinAuthentication.NAME);
 
-		List<AuthenticationOptionKey> authnOptions = new ArrayList<>();
+		List<AuthenticationOptionsSelector> authnOptions = new ArrayList<>();
 		for (AuthenticationFlow flow: enabledAuthenticationFlows)
 			for (AuthenticatorInstance authenticator: flow.getFirstFactorAuthenticators())
 			{
@@ -54,19 +53,18 @@ public class AuthnColumnComponentHelper
 					for (VaadinAuthenticationUI uiInstance : uiInstances)
 					{
 						String optionKey = uiInstance.getId();
-						authnOptions.add(new AuthenticationOptionKey(
+						authnOptions.add(new AuthenticationOptionsSelector(
 								authenticator.getMetadata().getId(), optionKey));
 					}
 				}
 
 				if (uiInstances.size() > 0)
 				{
-					authnOptions.add(new AuthenticationOptionKey(authenticator.getMetadata().getId(),
-							AuthenticationOptionKey.ALL_OPTS));
+					authnOptions.add(AuthenticationOptionsSelector.allForAuthenticator(authenticator.getMetadata().getId()));
 				}
 
 			}
-		authnOptions.sort(new RemoteAuthnProvidersMultiSelection.AuthnOptionComparator());
+		authnOptions.sort(null);
 		return authnOptions;
 	}
 }

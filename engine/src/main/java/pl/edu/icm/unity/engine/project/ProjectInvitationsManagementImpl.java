@@ -24,9 +24,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -34,15 +31,11 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -56,11 +49,6 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
-/**
- * Implementation of {@link ProjectInvitationsManagement}
- * 
- * @author P.Piernik
- */
 @Component
 @Primary
 public class ProjectInvitationsManagementImpl implements ProjectInvitationsManagement
@@ -71,19 +59,17 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private final SharedEndpointManagement sharedEndpointMan;
 	private final RegistrationsManagement registrationMan;
 	private final EnquiryManagement enquiryMan;
-	private final BulkGroupQueryService bulkService;
-	private final ProjectAttributeHelper attrHelper;
 	private final EntityManagement entityMan;
+	private final ExistingUserFinder existingUserFinder;
 
 	public ProjectInvitationsManagementImpl(@Qualifier("insecure") InvitationManagement invitationMan,
 			@Qualifier("insecure") GroupsManagement groupMan,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
-			@Qualifier("insecure") BulkGroupQueryService bulkService,
 			@Qualifier("insecure") EntityManagement entityMan,
-			ProjectAttributeHelper attrHelper,
 			SharedEndpointManagement sharedEndpointMan, 
-			ProjectAuthorizationManager authz)
+			ProjectAuthorizationManager authz,
+			ExistingUserFinder existingUserFinder)
 	{
 		this.invitationMan = invitationMan;
 		this.groupMan = groupMan;
@@ -91,9 +77,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		this.sharedEndpointMan = sharedEndpointMan;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
-		this.bulkService = bulkService;
-		this.attrHelper = attrHelper;
 		this.authz = authz;
+		this.existingUserFinder = existingUserFinder;
 	}
 
 	@Override
@@ -101,7 +86,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		authz.assertManagerAuthorization(param.project);
 
-		Long entity = getEntityByContactAddress(param.contactAddress);
+		Long entity = existingUserFinder.getEntityIdByContactAddress(param.contactAddress);
 		String code = null;
 		if (entity == null)
 		{
@@ -123,45 +108,6 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			throw new AlreadyMemberException();
 	}
 	
-	private Long getEntityByContactAddress(String contactAddress) throws EngineException
-	{
-		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
-		Map<Long, EntityInGroupData> members = bulkService.getMembershipInfo(bulkMembershipData);
-
-		for (EntityInGroupData info : members.values())
-		{
-			Identity emailId = info.entity.getIdentities().stream()
-					.filter(id -> id.getTypeId().equals(EmailIdentity.ID)
-							&& id.getValue().equals(contactAddress))
-					.findAny().orElse(null);
-			if (emailId != null)
-			{
-				return info.entity.getId();
-			}
-
-		}
-
-		return searchEntityByEmailAttr(members, contactAddress);
-	}
-
-	private Long searchEntityByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String contactAddress)
-			throws EngineException
-	{
-		for (EntityInGroupData info : membersWithGroups.values())
-		{
-			VerifiableElementBase contactEmail = attrHelper.searchVerifiableAttributeValueByMeta(ContactEmailMetadataProvider.NAME,
-					info.groupAttributesByName.values().stream().map(e -> (Attribute) e)
-							.collect(Collectors.toList()));
-			if (contactEmail != null && contactEmail.getValue() != null
-					&& contactEmail.getValue().equals(contactAddress))
-			{
-				return info.entity.getId();
-			}
-		}
-
-		return null;
-	}
-
 	private EnquiryInvitationParam getEnquiryInvitation(ProjectInvitationParam param, Long entityId)
 			throws EngineException
 	{

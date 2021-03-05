@@ -36,7 +36,7 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
@@ -203,7 +203,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
-					AuthenticationOptionKeyUtils.encode(authenticatorName, idpKey));
+					new AuthenticationOptionKey(authenticatorName, idpKey));
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{

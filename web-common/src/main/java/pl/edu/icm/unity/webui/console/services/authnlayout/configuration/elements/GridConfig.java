@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import com.google.common.base.Objects;
+
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumns;
 
@@ -25,6 +27,24 @@ public class GridConfig implements AuthnElementConfiguration
 	{
 		this.content = content;
 		this.rows = rows;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(content, rows);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		final GridConfig other = (GridConfig) obj;
+
+		return Objects.equal(this.content, other.content) && Objects.equal(this.rows, other.rows);			
 	}
 	
 	public static class Parser implements AuthnElementParser<GridConfig>

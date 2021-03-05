@@ -110,18 +110,6 @@ class GroupBrowserController
 		return groupTree;
 	}
 
-	GroupContents getGroupContent(String path, int filter) throws ControllerException
-	{
-		try
-		{
-			return groupsMan.getContents(path, filter);
-		} catch (Exception e)
-		{
-
-			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupContentError"), e);
-		}
-	}
-
 	Set<String> getEntitiesGroup(long entityId) throws ControllerException
 	{
 		try
@@ -140,10 +128,10 @@ class GroupBrowserController
 		List<String> removed = new ArrayList<>();
 		try
 		{
-			for (TreeNode group : groups)
+			for (TreeNode groupNode : groups)
 			{
-				groupsMan.removeGroup(group.getPath(), recursive);
-				removed.add(group.toString());
+				groupsMan.removeGroup(groupNode.getGroup().getPathEncoded(), recursive);
+				removed.add(groupNode.toString());
 			}
 		} catch (Exception e)
 		{
@@ -224,7 +212,7 @@ class GroupBrowserController
 	{
 		try
 		{
-			groupManagementHelper.bulkAddToGroup(node.getPath(), dragData, true);
+			groupManagementHelper.bulkAddToGroup(node.getGroup().getPathEncoded(), dragData, true);
 		} catch (Exception e)
 		{
 			throw new ControllerException(
@@ -232,9 +220,9 @@ class GroupBrowserController
 		}
 	}
 
-	GroupAttributesClassesDialog getGroupAttributesClassesDialog(String path, EventsBus bus)
+	GroupAttributesClassesDialog getGroupAttributesClassesDialog(Group group, EventsBus bus)
 	{
-		return new GroupAttributesClassesDialog(msg, path, acMan, groupsMan,
-				g -> bus.fireEvent(new GroupChangedEvent(path)));
+		return new GroupAttributesClassesDialog(msg, group.getPathEncoded(), acMan, groupsMan,
+				g -> bus.fireEvent(new GroupChangedEvent(group)));
 	}
 }

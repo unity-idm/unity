@@ -18,40 +18,24 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
-/**
- * Asks about group name and description, returns output in the callback. Useful for group creation and editing.
- * @author K. Benedyczak
- */
 class GroupEditDialog extends AbstractDialog
 {
-	private static final long serialVersionUID = 1L;
 	private Callback callback;
-	private TextField name;
+	private TextField path;
 	private I18nTextField displayedName;
 	private I18nTextArea description;
 	private CheckBox isPublic;
-	private String parent;
-	private String originalName;
 	private Group originalGroup;
-	private I18nString originalDispName;
-	private I18nString originalDesc;
-	private boolean originalIsPublic;
 	
 
-	GroupEditDialog(MessageSource msg, Group group, boolean edit, Callback callback) 
+	GroupEditDialog(MessageSource msg, Group group, Callback callback) 
 	{
-		super(msg, edit ? msg.getMessage("GroupEditDialog.editCaption") : 
-					msg.getMessage("GroupEditDialog.createCaption"),
+		super(msg, msg.getMessage("GroupEditDialog.editCaption"),
 				msg.getMessage("ok"),
 				msg.getMessage("cancel"));
-		this.parent = edit ? group.getParentPath() : group.toString();
-		this.originalName = edit ? group.getName() : "";
-		this.originalDesc = edit ? group.getDescription() : new I18nString();
-		this.originalDispName = edit ? group.getDisplayedName() : new I18nString();
-		this.originalIsPublic = edit ? group.isPublic() : false;
-		this.originalGroup = edit ? group : null;
+		this.originalGroup = group;
 		this.callback = callback;
-		setSizeMode(SizeMode.MEDIUM);
+		setSizeEm(50, 30);
 	}
 
 	@Override
@@ -61,26 +45,23 @@ class GroupEditDialog extends AbstractDialog
 		fl.setMargin(true);
 		fl.setSpacing(true);
 		
-		name = new TextField(msg.getMessage("GroupEditDialog.groupName"));
-		name.setValue(originalName);
-		if (!originalName.isEmpty())
-			name.setReadOnly(true);
-		fl.addComponent(name);
+		path = new TextField(msg.getMessage("GroupEditDialog.groupPath"));
+		path.setValue(originalGroup.getPathEncoded());
+		path.setReadOnly(true);
+		path.setWidthFull();
+		fl.addComponent(path);
 		
 		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
-		displayedName.setValue(originalDispName);
+		displayedName.setValue(originalGroup.getDisplayedName());
 		
 		description = new I18nTextArea(msg, msg.getMessage("GroupEditDialog.groupDesc"));
-		description.setValue(originalDesc);
+		description.setValue(originalGroup.getDescription());
 		
 		isPublic = new CheckBox(msg.getMessage("GroupEditDialog.public"));
-		isPublic.setValue(originalIsPublic);
+		isPublic.setValue(originalGroup.isPublic());
 		
 		fl.addComponents(displayedName, description, isPublic);
-		if (name.isReadOnly())
-			description.focus();
-		else
-			name.focus();
+		description.focus();
 		return fl;
 	}
 
@@ -89,13 +70,7 @@ class GroupEditDialog extends AbstractDialog
 	{
 		try
 		{
-			String gName = name.getValue();
-			Group group;
-			if (originalGroup != null)
-				group = originalGroup.clone();
-			else
-				group = gName.equals("/") ? new Group("/") : 
-					new Group(new Group(parent), gName);
+			Group group = originalGroup.clone();
 			group.setDescription(description.getValue());
 			I18nString dispName = displayedName.getValue();
 			dispName.setDefaultValue(group.toString());
@@ -106,7 +81,7 @@ class GroupEditDialog extends AbstractDialog
 		}
 		catch (Exception e)
 		{
-			name.setComponentError(new UserError(
+			path.setComponentError(new UserError(
 					msg.getMessage("GroupEditDialog.invalidGroup")));
 		}
 	}

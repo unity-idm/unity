@@ -46,6 +46,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -99,7 +100,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-				String firstFactorOptionId, String secondFactorOptionId)
+				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId)
 	{
 		try
 		{
@@ -164,8 +165,8 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String entityLabel, String outdatedCredentialId, 
-			RememberMeInfo rememberMeInfo, String firstFactorOptionId,
-			String secondFactorOptionId)
+			RememberMeInfo rememberMeInfo, AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationOptionKey secondFactorOptionId)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
@@ -191,13 +192,13 @@ public class SessionManagementImpl implements SessionManagement
 		return ls;
 	}
 
-	private void auditLogSession(LoginSession ls, long loggedEntity, String firstFactorOptionId,
-			String secondFactorOptionId, AuthenticationRealm realm)
+	private void auditLogSession(LoginSession ls, long loggedEntity, AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationOptionKey secondFactorOptionId, AuthenticationRealm realm)
 	{
 		Map<String, String> details = new HashMap<>();
-		details.put("firstFactorOption", firstFactorOptionId);
+		details.put("firstFactorOption", firstFactorOptionId.toStringEncodedKey());
 		if (secondFactorOptionId != null)
-			details.put("secondFactorOption", secondFactorOptionId);
+			details.put("secondFactorOption", secondFactorOptionId.toStringEncodedKey());
 		details.put("realm", realm.getName());
 		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.SESSION)
@@ -217,7 +218,7 @@ public class SessionManagementImpl implements SessionManagement
 
 	@Transactional
 	@Override
-	public void recordAdditionalAuthentication(String id, String optionId)
+	public void recordAdditionalAuthentication(String id, AuthenticationOptionKey optionId)
 	{
 		updateSession(id, session -> session.setAdditionalAuthn(new AuthNInfo(optionId, new Date())));
 		log.debug("Recorded additional authentication with {} for session {}", optionId, id);	

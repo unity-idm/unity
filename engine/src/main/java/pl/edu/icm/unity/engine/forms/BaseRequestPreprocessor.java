@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
@@ -106,7 +105,7 @@ public class BaseRequestPreprocessor
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
 			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws IllegalFormContentsException
 	{
-		log.debug("Validating registration request:\n{}", JsonUtil.serializeHumanReadable(request.toJson()));
+		log.debug("Validating registration request:\n{}", request.toString());
 		validateRequestAgreements(form, request);
 		validateRequestedAttributes(form, request);
 		if (!skipCredentialsValidation)

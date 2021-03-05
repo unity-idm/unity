@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
@@ -174,7 +174,7 @@ public final class FormLayoutUtils
 
 		
 		int externalSignUpSize = form.getExternalSignupSpec().getSpecs().size();
-		List<AuthenticationOptionKey> gridSpecs = form.getExternalSignupGridSpec().getSpecs();
+		List<AuthenticationOptionsSelector> gridSpecs = form.getExternalSignupGridSpec().getSpecs();
 
 		for (int i = 0; i < externalSignUpSize; i++)
 		{
@@ -383,7 +383,7 @@ public final class FormLayoutUtils
 	private static void checkRemoteSignupElements(RegistrationForm registrationform, Set<String> definedElements)
 	{
 		
-		List<AuthenticationOptionKey> gridSpecs = registrationform.getExternalSignupGridSpec().getSpecs();
+		List<AuthenticationOptionsSelector> gridSpecs = registrationform.getExternalSignupGridSpec().getSpecs();
 		for (int i = 0; i < registrationform.getExternalSignupSpec().getSpecs().size(); i++)
 		{
 			if (!gridSpecs.contains(registrationform.getExternalSignupSpec().getSpecs().get(i)))

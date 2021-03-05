@@ -164,12 +164,6 @@ public class BaseRegistrationInput
 		this.registrationCode = registrationCode;
 	}
 
-	@Override
-	public String toString()
-	{
-		return "BaseRegistrationInput [formId=" + formId + ", identities=" + identities
-				+ "]";
-	}
 
 	@JsonValue
 	public ObjectNode toJson()
@@ -290,5 +284,14 @@ public class BaseRegistrationInput
 				&& Objects.equals(this.registrationCode, other.registrationCode)
 				&& Objects.equals(this.policyAgreements, other.policyAgreements);
 
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "BaseRegistrationInput [formId=" + formId + ", identities=" + identities + ", attributes=" + attributes
+				+ ", credentials=" + credentials + ", groupSelections=" + groupSelections + ", agreements=" + agreements
+				+ ", policyAgreements=" + policyAgreements + ", comments=" + comments + ", userLocale=" + userLocale
+				+ ", registrationCode=" + registrationCode + "]";
 	}
 }

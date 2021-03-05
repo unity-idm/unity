@@ -75,7 +75,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private AttributeTypeManagement attrMan;
 	private final AttributeSupport attributeSupport;
 	private final AttributeHandlerRegistry reg;
-	private String initialGroup;
+	private Group initialGroup;
 	private CheckBox addToGroup;
 	private ComboBox<String> credentialRequirement;
 	private EnumComboBox<EntityState> entityState;
@@ -87,7 +87,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private TabSheet tabs;
 	private EntityCredentialManagement ecredMan;
 	
-	EntityCreationDialog(MessageSource msg, String initialGroup, EntityManagement identitiesMan,
+	EntityCreationDialog(MessageSource msg, Group initialGroup, EntityManagement identitiesMan,
 			CredentialRequirementManagement credReqMan, 
 			AttributeTypeManagement attrMan,
 			IdentityEditorRegistry identityEditorReg, 
@@ -226,7 +226,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 
 		addToGroup = new CheckBox(msg.getMessage("EntityCreation.addToGroup", initialGroup));
 		addToGroup.setValue(true);
-		if (initialGroup.equals("/"))
+		if (initialGroup.isTopLevel())
 			addToGroup.setVisible(false);
 		
 		entityState = new EnumComboBox<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
@@ -319,12 +319,12 @@ class EntityCreationDialog extends IdentityCreationDialog
 		
 		if (addToGroup.getValue())
 		{
-			Deque<String> missing = Group.getMissingGroups(initialGroup, 
+			Deque<String> missing = Group.getMissingGroups(initialGroup.getPathEncoded(), 
 					Collections.singleton("/"));
 			groupHelper.addToGroup(missing, created.getEntityId(), toGroup -> 
 			{
-				if (toGroup.equals(initialGroup))
-					bus.fireEvent(new GroupChangedEvent(toGroup));
+				if (toGroup.equals(initialGroup.getPathEncoded()))
+					bus.fireEvent(new GroupChangedEvent(initialGroup));
 			});
 		}
 		setupCredentials(created);

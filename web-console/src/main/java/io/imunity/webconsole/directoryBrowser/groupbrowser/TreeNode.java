@@ -12,7 +12,7 @@ import pl.edu.icm.unity.types.basic.Group;
 class TreeNode
 {
 	private String name;
-	private String path;
+	private Group group;
 	private TreeNode parent;
 	private MessageSource msg;
 	private boolean delegated;
@@ -25,7 +25,7 @@ class TreeNode
 	TreeNode(MessageSource msg, Group group, TreeNode parent)
 	{
 		this.msg = msg;
-		this.path = group.toString();
+		this.group = group;
 		this.parent = parent;
 		setGroupMetadata(group);
 	}
@@ -42,10 +42,7 @@ class TreeNode
 				this.name = name + " (/)";
 		} else
 		{
-			this.name = group.getDisplayedName().getValue(msg);
-			String realName = group.toString();
-			if (!realName.equals(name))
-				this.name = name + " (" + realName + ")";
+			this.name = group.getDisplayedNameShort().getValue(msg);
 		}
 	}
 	
@@ -64,14 +61,9 @@ class TreeNode
 		return parent;
 	}
 
-	String getPath()
+	Group getGroup()
 	{
-		return path;
-	}
-
-	void setPath(String path)
-	{
-		this.path = path;
+		return group;
 	}
 
 	@Override
@@ -83,17 +75,17 @@ class TreeNode
 	@Override
 	public int hashCode()
 	{
-
-		return path.hashCode();
+		return group.getPathEncoded().hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
+		String path = group.getPathEncoded();
 		if (obj instanceof String)
 			return path.equals(obj);
 		if (obj instanceof TreeNode)
-			return path.equals(((TreeNode) obj).path);
+			return path.equals(((TreeNode) obj).group.getPathEncoded());
 		return false;
 	}
 
@@ -104,7 +96,7 @@ class TreeNode
 		if (toString().toLowerCase().contains(textLower))
 			return true;
 
-		if (path.toLowerCase().contains(textLower))
+		if (group.getPathEncoded().toLowerCase().contains(textLower))
 			return true;
 
 		boolean anyChildContains = false;
@@ -119,6 +111,6 @@ class TreeNode
 
 	boolean isChild(TreeNode parent)
 	{
-		return Group.isChild(getPath(), parent.path);
+		return Group.isChild(group.getPathEncoded(), parent.group.getPathEncoded());
 	}
 }

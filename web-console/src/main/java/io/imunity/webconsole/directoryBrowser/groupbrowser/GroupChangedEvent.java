@@ -4,18 +4,19 @@
  */
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.bus.Event;
 
 public class GroupChangedEvent implements Event
 {
-	private String group;
+	private Group group;
 
-	public GroupChangedEvent(String group)
+	public GroupChangedEvent(Group group)
 	{
 		this.group = group;
 	}
 
-	public String getGroup()
+	public Group getGroup()
 	{
 		return group;
 	}

@@ -79,6 +79,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -172,7 +173,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	@Override
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			String authnOptionId) 
+			AuthenticationOptionKey authnOptionId) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 

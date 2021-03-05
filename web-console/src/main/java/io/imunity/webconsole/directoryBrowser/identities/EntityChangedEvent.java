@@ -4,15 +4,16 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.bus.Event;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 
 public class EntityChangedEvent implements Event
 {
 	private EntityWithLabel entity;
-	private String group;
+	private Group group;
 
-	public EntityChangedEvent(EntityWithLabel entity, String group)
+	public EntityChangedEvent(EntityWithLabel entity, Group group)
 	{
 		this.entity = entity;
 		this.group = group;
@@ -23,7 +24,7 @@ public class EntityChangedEvent implements Event
 		return entity;
 	}
 
-	public String getGroup()
+	public Group getGroup()
 	{
 		return group;
 	}

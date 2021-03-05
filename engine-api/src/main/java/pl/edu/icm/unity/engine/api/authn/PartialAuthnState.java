@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.api.authn;
 
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
  * Provides information about partial state of authentication. Basing on the contents the 
@@ -15,12 +16,12 @@ import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
 public class PartialAuthnState
 {
-	private final String firstFactorOptionId;
+	private final AuthenticationOptionKey firstFactorOptionId;
 	private final BindingAuthn secondaryAuthenticator;
 	private final AuthenticationResult primaryResult;
 	private final AuthenticationFlow flow;
 	
-	public PartialAuthnState(String firstFactorOptionId, BindingAuthn secondaryAuthenticator,
+	public PartialAuthnState(AuthenticationOptionKey firstFactorOptionId, BindingAuthn secondaryAuthenticator,
 			AuthenticationResult result, AuthenticationFlow flow)
 	{
 		this.firstFactorOptionId = firstFactorOptionId;
@@ -49,7 +50,7 @@ public class PartialAuthnState
 		return flow;
 	}
 
-	public String getFirstFactorOptionId()
+	public AuthenticationOptionKey getFirstFactorOptionId()
 	{
 		return firstFactorOptionId;
 	}

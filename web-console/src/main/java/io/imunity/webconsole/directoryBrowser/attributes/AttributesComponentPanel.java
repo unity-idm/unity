@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import io.imunity.webconsole.directoryBrowser.identities.EntityChangedEvent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -46,10 +47,10 @@ public class AttributesComponentPanel extends SafePanel
 		EventsBus bus = WebSession.getCurrent().getEventBus();
 		bus.addListener(event -> setInput(event.getEntity() == null ? null : event.getEntity(), event.getGroup()), 
 				EntityChangedEvent.class);
-		setInput(null, "/");
+		setInput(null, new Group("/"));
 	}
 
-	private void setInput(EntityWithLabel owner, String groupPath)
+	private void setInput(EntityWithLabel owner, Group group)
 	{
 		if (owner == null)
 		{
@@ -58,11 +59,11 @@ public class AttributesComponentPanel extends SafePanel
 			return;
 		}
 
-		setCaption(msg.getMessage("Attribute.caption", owner, groupPath));
+		setCaptionFromBundle(msg, "Attribute.caption", owner, group.getDisplayedNameShort().getValue(msg));
 		try
 		{
 
-			main.setInput(owner, groupPath);
+			main.setInput(owner, group.getPathEncoded());
 			setContent(main);
 		} catch (ControllerException e)
 		{

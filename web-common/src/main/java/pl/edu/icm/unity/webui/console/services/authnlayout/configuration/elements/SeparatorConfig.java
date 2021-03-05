@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import com.google.common.base.Objects;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -24,6 +26,24 @@ public class SeparatorConfig implements AuthnElementConfiguration
 	public SeparatorConfig(I18nString separatorText)
 	{
 		this.separatorText = separatorText;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(separatorText);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		final SeparatorConfig other = (SeparatorConfig) obj;
+
+		return Objects.equal(this.separatorText, other.separatorText);		
 	}
 	
 	public static class Parser implements AuthnElementParser<SeparatorConfig>

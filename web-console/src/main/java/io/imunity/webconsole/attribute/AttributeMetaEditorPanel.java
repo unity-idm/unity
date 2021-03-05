@@ -63,6 +63,7 @@ class AttributeMetaEditorPanel extends CompactFormLayout
 		
 		Label group = new Label(groupPath);
 		group.setCaption(msg.getMessage("Attribute.group"));
+		group.setWidthFull();
 		addComponent(group);
 		
 		cardinality = new Label();

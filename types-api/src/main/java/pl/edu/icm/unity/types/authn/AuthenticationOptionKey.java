@@ -1,45 +1,59 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.types.authn;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.node.TextNode;
+
 /**
- * Represents a pair of authentication option with key.
- *
- * @author Roman Krysinski (roman@unity-idm.eu)
+ * Represents an authentication option, which is a pair of authenticator id and one of its authentication option ids.
  */
 public class AuthenticationOptionKey
 {
-	public static final String ALL_OPTS = "*";
-	
-	private String authenticatorKey;
-	private String optionKey;
+	private final String authenticatorKey;
+	private final String optionKey;
 
+	
 	public AuthenticationOptionKey(String authenticatorKey, String optionKey)
 	{
 		this.authenticatorKey = authenticatorKey;
 		this.optionKey = optionKey;
-	}
-	
-	protected AuthenticationOptionKey()
-	{
+		
+		if (authenticatorKey == null)
+			throw new IllegalArgumentException("authenticatorKey can not be null");
 	}
 
-	public static AuthenticationOptionKey valueOf(String globalKey)
+	
+	@JsonCreator
+	private AuthenticationOptionKey(TextNode value)
 	{
-		return new AuthenticationOptionKey(
-				AuthenticationOptionKeyUtils.decodeAuthenticator(globalKey), 
-				AuthenticationOptionKeyUtils.decodeOption(globalKey)
-		);
+		this(AuthenticationOptionKeyUtils.decodeAuthenticator(value.asText()), 
+				AuthenticationOptionKeyUtils.decodeOption(value.asText()));
 	}
 	
-	public String toGlobalKey()
+	public static AuthenticationOptionKey valueOf(String stringEncodedKey)
 	{
-		return !optionKey.equals(ALL_OPTS) ? AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey)
-				: AuthenticationOptionKeyUtils.encode(authenticatorKey, null);
+		return new AuthenticationOptionKey(
+				AuthenticationOptionKeyUtils.decodeAuthenticator(stringEncodedKey), 
+				AuthenticationOptionKeyUtils.decodeOption(stringEncodedKey)
+		);
+	}
+
+	public static AuthenticationOptionKey authenticatorOnlyKey(String authenticatorKey)
+	{
+		return new AuthenticationOptionKey(authenticatorKey, null);
+	}
+
+	
+	@JsonValue
+	public String toStringEncodedKey()
+	{
+		return AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey);
 	}
 
 	public String getAuthenticatorKey()

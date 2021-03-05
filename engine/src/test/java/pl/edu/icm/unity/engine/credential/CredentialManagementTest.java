@@ -51,6 +51,7 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -298,7 +299,8 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 		
-		InvocationContext.getCurrent().getLoginSession().setAdditionalAuthn(new AuthNInfo("authn", new Date()));
+		InvocationContext.getCurrent().getLoginSession().setAdditionalAuthn(new AuthNInfo(
+				AuthenticationOptionKey.authenticatorOnlyKey("authn"), new Date()));
 		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 	}

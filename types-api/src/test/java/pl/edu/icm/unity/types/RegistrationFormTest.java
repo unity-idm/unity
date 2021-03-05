@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
@@ -122,8 +122,8 @@ public class RegistrationFormTest
 			.withTranslationProfile(profile)
 			.withRegistrationCode("code")
 			.withExternalSignupSpec(new ExternalSignupSpec(Lists.newArrayList(
-					AuthenticationOptionKey.valueOf("asdf.asdf"), 
-					AuthenticationOptionKey.valueOf("asdf1.asdf2"))))
+					AuthenticationOptionsSelector.valueOf("asdf.asdf"), 
+					AuthenticationOptionsSelector.valueOf("asdf1.asdf2"))))
 			.withFormLayoutSettings(FormLayoutSettings.builder()
 					.withColumnWidth(200)
 					.withColumnWidthUnit("EM")

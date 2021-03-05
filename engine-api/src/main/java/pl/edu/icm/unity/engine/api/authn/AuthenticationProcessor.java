@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 /**
@@ -34,7 +35,7 @@ public interface AuthenticationProcessor
 	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
 	 */
 	PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
-			AuthenticationFlow authenticationFlow, String authnOptionId) throws AuthenticationException;
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException;
 	
 	
 	/**

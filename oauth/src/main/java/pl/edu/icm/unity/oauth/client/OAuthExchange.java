@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
 /**
@@ -28,7 +29,7 @@ public interface OAuthExchange extends CredentialExchange
 	OAuthClientProperties getSettings();
 	
 	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			String authnOptionId) 
+			AuthenticationOptionKey authnOptionId) 
 			throws URISyntaxException, SerializeException, ParseException, IOException;
 	
 	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;

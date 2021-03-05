@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.rest.authn;
 
+import static pl.edu.icm.unity.types.authn.AuthenticationOptionKey.authenticatorOnlyKey;
+
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +37,7 @@ import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -168,7 +171,8 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				AuthenticationResult result = processAuthenticator(authnCache,
 						(CXFAuthentication) authn.getRetrieval());
 				state = authenticationProcessor.processPrimaryAuthnResult(result,
-						authenticationFlow, authn.getRetrieval().getAuthenticatorId());
+						authenticationFlow, 
+						authenticatorOnlyKey(authn.getRetrieval().getAuthenticatorId()));
 			} catch (AuthenticationException e)
 			{
 				if (firstError == null)
@@ -192,7 +196,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
 					result2);
 			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
-					secondFactorAuthn.getAuthenticatorId());			
+					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId()));			
 		} else
 		{
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
@@ -226,11 +230,11 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private static class EntityWithAuthenticators
 	{
 		private final AuthenticatedEntity entity;
-		private final String firstFactor;
-		private final String secondFactor;
+		private final AuthenticationOptionKey firstFactor;
+		private final AuthenticationOptionKey secondFactor;
 
-		EntityWithAuthenticators(AuthenticatedEntity entity, String firstFactor,
-				String secondFactor)
+		EntityWithAuthenticators(AuthenticatedEntity entity, AuthenticationOptionKey firstFactor,
+				AuthenticationOptionKey secondFactor)
 		{
 			this.entity = entity;
 			this.firstFactor = firstFactor;

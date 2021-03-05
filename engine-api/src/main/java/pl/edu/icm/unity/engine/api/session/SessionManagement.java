@@ -9,6 +9,7 @@ import java.util.Map;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -31,7 +32,7 @@ public interface SessionManagement
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-			String firstFactorOptionId, String secondFactorOptionId);
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId);
 	
 	
 	/**
@@ -45,27 +46,23 @@ public interface SessionManagement
 	 */
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-			String firstFactorOptionId, String secondFactorOptionId);
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
-	 * @param id
 	 */
 	void updateSessionAttributes(String id, AttributeUpdater updater); 
 
 	/**
 	 * Updates the lastUsed timestamp of a session. The implementation may delay this action if the 
 	 * previous update happened recently.
-	 * @param id
 	 */
 	void updateSessionActivity(String id);
 
 	/**
 	 * Records additional re-authentication fact to the session
-	 * @param id
-	 * @param optionId
 	 */
-	void recordAdditionalAuthentication(String id, String optionId);
+	void recordAdditionalAuthentication(String id, AuthenticationOptionKey optionId);
 	
 	/**
 	 * Removes a given session. Missing session is silently ignored.
@@ -75,31 +72,21 @@ public interface SessionManagement
 	 */
 	void removeSession(String id, boolean soft);
 	
-	/**
-	 * @param id
-	 * @return session
-	 */
 	LoginSession getSession(String id);
 	
 	/**
 	 * Tries to find a session owned by a given entity in a given realm.
-	 * @param owner
-	 * @param realm
-	 * @return
-	 * @throws EngineException 
 	 */
 	LoginSession getOwnedSession(EntityParam owner, String realm) throws EngineException;
 	
 	/**
-	 * Adds given participands to the current login session
-	 * @param participant
+	 * Adds given participants to the current login session
 	 */
 	void addSessionParticipant(SessionParticipant... participant);
 	
 	/**
 	 * Callback interface. Implementation can update the attributes. It should return quickly as 
 	 * it is invoked inside of a DB transaction.
-	 * @author K. Benedyczak
 	 */
 	interface AttributeUpdater
 	{
