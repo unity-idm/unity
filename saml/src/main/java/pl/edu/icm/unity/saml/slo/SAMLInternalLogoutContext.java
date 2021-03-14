@@ -8,8 +8,8 @@
 
 package pl.edu.icm.unity.saml.slo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,19 +30,21 @@ import pl.edu.icm.unity.saml.SAMLSessionParticipant;
  */
 public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 {
-	private String relayState;
-	private List<SAMLSessionParticipant> toBeLoggedOut = new ArrayList<>();
-	private List<SAMLSessionParticipant> loggedOut = new ArrayList<>();
-	private List<SAMLSessionParticipant> failed = new ArrayList<>();
+	private final String relayState;
+	private Set<SAMLSessionParticipant> toBeLoggedOut = new LinkedHashSet<>();
+	private Set<SAMLSessionParticipant> loggedOut = new LinkedHashSet<>();
+	private Set<SAMLSessionParticipant> failed = new LinkedHashSet<>();
 	private SAMLSessionParticipant current;
 	private String currentRequestId;
 	private AsyncLogoutFinishCallback finishCallback;
 	
 	public SAMLInternalLogoutContext(LoginSession loginSession, String excludedFromLogout,
-			AsyncLogoutFinishCallback finishCallback, SessionParticipantTypesRegistry registry)
+			AsyncLogoutFinishCallback finishCallback, SessionParticipantTypesRegistry registry,
+			String relayState)
 	{
 		super(loginSession);
 		this.finishCallback = finishCallback;
+		this.relayState = relayState;
 		initialize(excludedFromLogout, registry);
 	}
 
@@ -56,7 +58,15 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 			{
 				SAMLSessionParticipant samlP = (SAMLSessionParticipant) p;
 				if (excludedFromLogout == null || !excludedFromLogout.equals(samlP.getIdentifier()))
+				{
+					if (toBeLoggedOut.contains(samlP))
+					{
+						throw new IllegalStateException("Got duplicated SAML session participant, "
+								+ "looks like misconfiguration:\n" + samlP
+								+ "\nalready have:\n" + toBeLoggedOut);
+					}
 					toBeLoggedOut.add(samlP);
+				}
 			}
 		}
 	}
@@ -71,22 +81,17 @@ public class SAMLInternalLogoutContext extends AbstractSAMLLogoutContext
 		return relayState;
 	}
 
-	public void setRelayState(String relayState)
-	{
-		this.relayState = relayState;
-	}
-
-	public List<SAMLSessionParticipant> getToBeLoggedOut()
+	public Set<SAMLSessionParticipant> getToBeLoggedOut()
 	{
 		return toBeLoggedOut;
 	}
 
-	public List<SAMLSessionParticipant> getLoggedOut()
+	public Set<SAMLSessionParticipant> getLoggedOut()
 	{
 		return loggedOut;
 	}
 
-	public List<SAMLSessionParticipant> getFailed()
+	public Set<SAMLSessionParticipant> getFailed()
 	{
 		return failed;
 	}

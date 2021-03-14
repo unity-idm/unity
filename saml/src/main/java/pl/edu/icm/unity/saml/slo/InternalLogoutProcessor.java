@@ -9,6 +9,7 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,14 +20,14 @@ import org.apache.xmlbeans.XmlException;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLErrorResponseException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.samly2.messages.SAMLMessage;
 import eu.unicore.samly2.proto.LogoutRequest;
-import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.trust.StrictSamlTrustChecker;
-import eu.unicore.samly2.validators.LogoutResponseValidator;
+import eu.unicore.samly2.slo.LogoutResponseValidator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.security.dsig.DSigException;
 import eu.unicore.security.wsutil.samlclient.SAMLLogoutClient;
@@ -41,6 +42,7 @@ import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 import xmlbeans.org.oasis.saml2.protocol.StatusType;
 
@@ -84,11 +86,8 @@ class InternalLogoutProcessor
 		
 		if (interimReq != null)
 		{
-			log.debug("Logging out participant in async mode: " + interimReq.getEndpoint());
-			responseHandler.sendRequest(interimReq.getEndpoint().getBinding(),
-						interimReq.getRequest(), 
-						interimReq.getEndpoint().getUrl(), 
-						ctx, response);
+			log.debug("Logging out participant in async mode: {}", interimReq.endpoint);
+			sendRequest(interimReq, response);
 			return;
 		}
 		
@@ -99,28 +98,38 @@ class InternalLogoutProcessor
 		ctx.getFinishCallback().finished(response, ctx);
 	}
 
+	private void sendRequest(InterimLogoutRequest interimReq, HttpServletResponse response) throws IOException, EopException
+	{
+		try
+		{
+			responseHandler.sendRequest(interimReq.endpoint.getBinding(), interimReq.request, response);
+		} catch (DSigException e)
+		{
+			log.error("Can't sign SLO request to subsequent part, likely configuration problem", e);
+			throw new IOException("Error signing SLO request to subsequent peer", e);
+		}
+	}
+	
 	/**
 	 * Logs out all unprocessed participants who support soap binding.
 	 */
 	void logoutSynchronousParticipants(SAMLInternalLogoutContext ctx)
 	{
-		List<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut();
+		Iterator<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut().iterator();
 		SAMLSessionParticipant participant = null;
-		for (int i=0; i<toBeLoggedOut.size(); i++)
+		while (toBeLoggedOut.hasNext())
 		{
-			participant = toBeLoggedOut.get(i);
+			participant = toBeLoggedOut.next();
 			SAMLEndpointDefinition soapLogoutEndpoint = participant.getLogoutEndpoints().get(Binding.SOAP);
 			if (soapLogoutEndpoint == null)
-			{
 				continue;
-			}
 			
-			toBeLoggedOut.remove(i);
+			toBeLoggedOut.remove();
 			
 			try
 			{
 				log.debug("Logging out participant via SOAP: " + participant);
-				LogoutRequest logoutRequest = createLogoutRequest(participant, soapLogoutEndpoint);
+				LogoutRequest logoutRequest = createSignedLogoutRequest(participant, soapLogoutEndpoint);
 				IClientConfiguration soapClientConfig = createSoapClientConfig(participant);
 				SAMLLogoutClient client = new SAMLLogoutClient(soapLogoutEndpoint.getUrl(), 
 						soapClientConfig);
@@ -140,16 +149,16 @@ class InternalLogoutProcessor
 	 * initiated by {@link #continueAsyncLogout(SAMLInternalLogoutContext, HttpServletResponse)}. This method 
 	 * process the response, updated the state of the logout process and continues it.
 	 */
-	void handleAsyncLogoutResponse(LogoutResponseDocument samlResponse, String state, 
+	void handleAsyncLogoutResponse(SAMLMessage<LogoutResponseDocument> samlMessage, 
 			HttpServletResponse response) throws IOException, EopException
 	{
-		if (state == null)
+		if (samlMessage.relayState == null)
 		{
 			responseHandler.showError(new SAMLProcessingException("A logout response "
 					+ "was received without relay state. It can not be processed."), response);
 			return;
 		}
-		SAMLInternalLogoutContext ctx = contextsStore.getInternalContext(state);
+		SAMLInternalLogoutContext ctx = contextsStore.getInternalContext(samlMessage.relayState);
 		if (ctx == null)
 		{
 			responseHandler.showError(new SAMLProcessingException("A logout response "
@@ -157,7 +166,8 @@ class InternalLogoutProcessor
 			return;
 		}
 		
-		if (ctx.getCurrent() == null || ctx.getCurrentRequestId() == null)
+		SAMLSessionParticipant currentParticipant = ctx.getCurrent();
+		if (currentParticipant == null || ctx.getCurrentRequestId() == null)
 		{
 			responseHandler.showError(new SAMLProcessingException("A logout response "
 					+ "was received associated with invalid logout process. "
@@ -165,22 +175,24 @@ class InternalLogoutProcessor
 			return;
 		}
 
-		SamlTrustChecker trustChecker;
+		List<PublicKey> validKeys;
 		try
 		{
-			trustChecker = prepareResponseTrustChecker(ctx.getCurrent());
+			validKeys = getSigningKeysForCurrentParticipant(currentParticipant);
 		} catch (EngineException e1)
 		{
 			responseHandler.showError(new SAMLProcessingException("Internal error - "
-				+ "can't establish valid certificates for the session participant", e1), response);
+				+ "can't establish valid signing keys for the session participant", e1), response);
 			return;
 		}
 		
 		LogoutResponseValidator validator = new LogoutResponseValidator(consumerEndpointUri, 
-				ctx.getCurrentRequestId(), trustChecker);
+				ctx.getCurrentRequestId(), 
+				participant -> getSigningKeysForGivenParticipant(
+						currentParticipant.getIdentifier(), validKeys, participant));
 		try
 		{
-			validator.validate(samlResponse);
+			validator.validate(samlMessage.messageDocument, samlMessage.verifiableMessage);
 		} catch (SAMLErrorResponseException e)
 		{
 			//ok - we will handle this accordingly later on
@@ -191,31 +203,38 @@ class InternalLogoutProcessor
 			return;
 		}
 		
-		String responseIssuer = samlResponse.getLogoutResponse().getIssuer().getStringValue();
-		if (!responseIssuer.equals(ctx.getCurrent().getIdentifier()))
+		String responseIssuer = samlMessage.messageDocument.getLogoutResponse().getIssuer().getStringValue();
+		if (!responseIssuer.equals(currentParticipant.getIdentifier()))
 		{
 			responseHandler.showError(new SAMLProcessingException("An invalid logout response "
 					+ "was received - it is not matching the previous request."), response);
 			return;
 		}
 		
-		updateContextAfterParicipantLogout(ctx, ctx.getCurrent(), samlResponse);
+		updateContextAfterParicipantLogout(ctx, currentParticipant, samlMessage.messageDocument);
 		
 		continueAsyncLogout(ctx, response);
 	}
 
-	private SamlTrustChecker prepareResponseTrustChecker(SAMLSessionParticipant forWhom) throws EngineException
+	private List<PublicKey> getSigningKeysForCurrentParticipant(SAMLSessionParticipant forWhom) throws EngineException
 	{
 		Set<String> validSigningCerts = forWhom.getParticipantsCertificates();
-		StrictSamlTrustChecker checker = new StrictSamlTrustChecker();
-		List<PublicKey> trustedKeys = new ArrayList<PublicKey>();
+		List<PublicKey> trustedKeys = new ArrayList<>();
 		for (String certName: validSigningCerts)
 		{
 			X509Certificate cert = pkiManagement.getCertificate(certName).value;
 			trustedKeys.add(cert.getPublicKey());
 		}
-		checker.addTrustedIssuer(forWhom.getIdentifier(), null, trustedKeys);
-		return checker;
+		return trustedKeys;
+	}
+	
+	private List<PublicKey> getSigningKeysForGivenParticipant(String currentParticipantEntityId, List<PublicKey> validKeys,
+			NameIDType participantId)
+	{
+		if (!currentParticipantEntityId.equals(participantId.getStringValue()) 
+				|| (participantId.getFormat() != null && !participantId.getFormat().equals(SAMLConstants.NFORMAT_ENTITY)))
+			return null;
+		return validKeys;
 	}
 	
 	/**
@@ -223,7 +242,7 @@ class InternalLogoutProcessor
 	 * binding. If there is no such participant returns null. If there is a problem creating a request a 
 	 * subsequent participant is tried.
 	 */
-	private InterimLogoutRequest selectNextAsyncParticipantForLogout(SAMLInternalLogoutContext ctx) 
+	private InterimLogoutRequest selectNextAsyncParticipantForLogout(SAMLInternalLogoutContext ctx) throws IOException
 	{
 		SAMLSessionParticipant participant;
 		LogoutRequest request = null;
@@ -236,6 +255,12 @@ class InternalLogoutProcessor
 			logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_POST);
 			if (logoutEndpoint == null)
 				logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_REDIRECT);
+			if (logoutEndpoint == null)
+			{
+				log.debug("Can not prepare logout request for {} - no logout endpoint", participant);
+				ctx.getFailed().add(participant);
+				continue;
+			}
 			try
 			{
 				request = createLogoutRequest(participant, logoutEndpoint);
@@ -250,23 +275,46 @@ class InternalLogoutProcessor
 
 		ctx.setCurrent(participant);
 		ctx.setCurrentRequestId(request.getXMLBean().getID());
-		return new InterimLogoutRequest(request.getXMLBeanDoc(), ctx.getRelayState(), logoutEndpoint);
+		X509Credential credential;
+		try
+		{
+			credential = pkiManagement.getCredential(participant.getLocalCredentialName());
+		} catch (EngineException e)
+		{
+			log.error("Can't get credential for signing request", e);
+			throw new IOException("Can't get credential for signing request", e);
+		}
+		SamlMessageSpec<LogoutRequestDocument> samlMessageSpec = new SamlMessageSpec<>(request, credential, 
+				SAMLMessageType.SAMLRequest, ctx.getRelayState(), logoutEndpoint.getUrl());
+		return new InterimLogoutRequest(samlMessageSpec, logoutEndpoint);
+	}
+	
+	private X509Credential getCredential(String credentialName) throws SAMLResponderException
+	{
+		try
+		{
+			return pkiManagement.getCredential(credentialName);
+		} catch (EngineException e)
+		{
+			log.warn("Unable to extract credential {} to sign SLO request", credentialName, e);
+			throw new SAMLResponderException("Internal server error signing request.");
+		}
 	}
 	
 	private SAMLSessionParticipant findNextForAsyncLogout(SAMLInternalLogoutContext ctx)
 	{
-		List<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut();
+		Iterator<SAMLSessionParticipant> toBeLoggedOut = ctx.getToBeLoggedOut().iterator();
 		SAMLSessionParticipant participant;
-		for (int i=0; i<toBeLoggedOut.size(); i++)
+		while (toBeLoggedOut.hasNext())
 		{
-			participant = toBeLoggedOut.get(i);
+			participant = toBeLoggedOut.next();
 			if (!participant.getLogoutEndpoints().containsKey(Binding.HTTP_POST) &&
 					!participant.getLogoutEndpoints().containsKey(Binding.HTTP_REDIRECT))
 			{
 				continue;
 			}
 			
-			toBeLoggedOut.remove(i);
+			toBeLoggedOut.remove();
 			return participant;
 		}
 		return null;
@@ -294,19 +342,20 @@ class InternalLogoutProcessor
 		request.setNotAfter(new Date(System.currentTimeMillis() + DEF_LOGOUT_REQ_VALIDITY));
 		request.setSessionIds(participant.getSessionIndex());
 		request.getXMLBean().setDestination(logoutEndpoint.getUrl());
-		
+		return request;
+	}
+	
+	private LogoutRequest createSignedLogoutRequest(SAMLSessionParticipant participant,
+			SAMLEndpointDefinition logoutEndpoint) throws SAMLResponderException
+	{
+		LogoutRequest request = createLogoutRequest(participant, logoutEndpoint);
+		X509Credential credential = getCredential(participant.getLocalCredentialName());
 		try
 		{
-			X509Credential credential = pkiManagement.getCredential(participant.getLocalCredentialName());
 			request.sign(credential.getKey(), credential.getCertificateChain());
 		} catch (DSigException e)
 		{
 			log.warn("Unable to sign SLO request", e);
-			throw new SAMLResponderException("Internal server error signing request.");
-		} catch (EngineException e)
-		{
-			log.warn("Unable to extract credential " + participant.getLocalCredentialName() + 
-					" to sign SLO request", e);
 			throw new SAMLResponderException("Internal server error signing request.");
 		}
 		return request;
@@ -341,5 +390,23 @@ class InternalLogoutProcessor
 		DefaultClientConfiguration ret = new DefaultClientConfiguration(defaultTrustConfig.getValidator(), 
 				credential);
 		return ret;
+	}
+	
+	
+	/**
+	 * Holds a Logout Request along with its destination and relay state. This is used to pass necessary information
+	 * to perform an in-the-middle request to a session participant in asynchronous bindings.
+	 * @author K. Benedyczak
+	 */
+	private static class InterimLogoutRequest
+	{
+		final SamlMessageSpec<LogoutRequestDocument> request;
+		final SAMLEndpointDefinition endpoint;
+		
+		InterimLogoutRequest(SamlMessageSpec<LogoutRequestDocument> request, SAMLEndpointDefinition endpoint)
+		{
+			this.request = request;
+			this.endpoint = endpoint;
+		}
 	}
 }

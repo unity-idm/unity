@@ -12,9 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
+import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.messages.RedirectedMessage;
+import eu.unicore.samly2.messages.SAMLMessage;
+import eu.unicore.samly2.messages.SAMLVerifiableMessage;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
-import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 
@@ -34,19 +38,24 @@ public class SLOSAMLServlet extends SamlHttpRequestServlet
 	}
 
 	@Override
-	protected void postProcessRequest(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+	protected void postProcessRequest(boolean isGet, HttpServletRequest httpReq, HttpServletResponse httpResp,
 			String samlRequest, String relayState) throws IOException
 	{
 		try
 		{
-			Binding binding = isGet ? Binding.HTTP_REDIRECT : Binding.HTTP_POST;
+			SAMLBindings binding = isGet ? SAMLBindings.HTTP_REDIRECT : SAMLBindings.HTTP_POST;
 			LogoutRequestDocument reqDoc = LogoutRequestDocument.Factory.parse(samlRequest);
-			logoutProcessor.handleAsyncLogoutFromSAML(reqDoc, relayState, resp, binding);
+			SAMLVerifiableMessage verifiableMessage = binding == SAMLBindings.HTTP_REDIRECT ? 
+					new RedirectedMessage(httpReq.getQueryString()) 
+					: new XMLExpandedMessage(reqDoc, reqDoc.getLogoutRequest());
+			SAMLMessage<LogoutRequestDocument> requestMessage = new SAMLMessage<>(
+					verifiableMessage, relayState, binding, reqDoc);
+			logoutProcessor.handleAsyncLogoutFromSAML(requestMessage, httpResp);
 		} catch (XmlException e)
 		{
 			log.warn("Got a request to the SAML Single Logout endpoint, " +
 					"with invalid request (XML is broken)", e);
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid SLO request (XML is malformed)");
+			httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid SLO request (XML is malformed)");
 			return;
 		} catch (EopException e)
 		{

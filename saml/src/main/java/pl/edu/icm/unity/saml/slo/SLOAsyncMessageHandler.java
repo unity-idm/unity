@@ -10,14 +10,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
 
+import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.LogoutResponse;
+import eu.unicore.security.dsig.DSigException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.web.MessageHandlerBase;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
@@ -28,13 +29,14 @@ import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
  * 
  * @author K. Benedyczak
  */
-class SLOAsyncMessageHandler extends MessageHandlerBase
+class SLOAsyncMessageHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SLOAsyncMessageHandler.class);
+	private final SamlMessageHandler messageHandler;
 	
 	SLOAsyncMessageHandler(FreemarkerAppHandler freemarker)
 	{
-		super(freemarker);
+		this.messageHandler = new SamlMessageHandler(freemarker);
 	}
 
 	/**
@@ -44,7 +46,7 @@ class SLOAsyncMessageHandler extends MessageHandlerBase
 			throws IOException, EopException
 	{
 		log.debug("SAML error is going to be shown to the user redirected to Unity SLO endpoint", error);
-		super.showError(error, response);
+		messageHandler.showError(error, response);
 	}	
 	
 	/**
@@ -53,7 +55,8 @@ class SLOAsyncMessageHandler extends MessageHandlerBase
 	 * is always thrown to break any further processing.
 	 */
 	void sendErrorResponse(Binding binding, SAMLServerException error, String serviceUrl, 
-			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
+			SAMLExternalLogoutContext context, HttpServletResponse response) 
+					throws IOException, EopException
 	{
 		sendErrorResponse(binding, error, serviceUrl, context.getLocalSessionAuthorityId(), 
 				context.getRequestersRelayState(), context.getRequest().getID(), response);
@@ -64,36 +67,28 @@ class SLOAsyncMessageHandler extends MessageHandlerBase
 			HttpServletResponse response) throws IOException, EopException
 	{
 		log.debug("SAML error is going to be returned to the SAML requester from SLO endpoint", error);
-		LogoutResponseDocument errorResp = convertExceptionToResponse(localIssuer, 
+		LogoutResponse errorResp = new LogoutResponse(new NameID(localIssuer, null).getXBean(), 
 				requestId, error);
-		super.sendResponse(binding, errorResp, serviceUrl, relayState, response, "Logout Error");
+		SamlMessageSpec<LogoutResponseDocument> message = new SamlMessageSpec<>(
+				errorResp, null, SAMLMessageType.SAMLResponse, relayState, serviceUrl);
+		try
+		{
+			messageHandler.sendResponse(binding, message, response, "Logout Error");
+		} catch (DSigException e)
+		{
+			throw new IllegalStateException("Can't send SAML error due to signature problem. Shouldn't happen.", e);
+		}
 	}
 
-	void sendRequest(Binding binding, LogoutRequestDocument requestDoc, String serviceUrl, 
-			SAMLInternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
+	void sendRequest(Binding binding, SamlMessageSpec<LogoutRequestDocument> request, 
+			HttpServletResponse response) throws IOException, EopException, DSigException
 	{
-		super.sendRequest(binding, requestDoc, serviceUrl, context.getRelayState(), response, "Logout");
+		messageHandler.sendRequest(binding, request, response, "Logout");
 	}
 
-	void sendResponse(Binding binding, LogoutResponseDocument responseDoc, String serviceUrl, 
-			SAMLExternalLogoutContext context, HttpServletResponse response) throws IOException, EopException
+	void sendResponse(Binding binding, SamlMessageSpec<LogoutResponseDocument> samlResponse, 
+			HttpServletResponse httpResponse) throws IOException, EopException, DSigException
 	{
-		super.sendResponse(binding, responseDoc, serviceUrl, context.getRequestersRelayState(), 
-				response, "Logout");
+		messageHandler.sendResponse(binding, samlResponse, httpResponse, "Logout");
 	}
-
-	
-	/**
-	 * Creates a Base64 encoded SAML error response, which can be returned to the requester
-	 */
-	private LogoutResponseDocument convertExceptionToResponse(String issuer, String inReplyTo, 
-			SAMLServerException error) 
-	{
-		
-		LogoutResponse responseDoc = new LogoutResponse(
-				new NameID(issuer, null).getXBean(), 
-				inReplyTo, error);
-		return responseDoc.getXMLBeanDoc();
-	}
-
 }

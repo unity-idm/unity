@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.slo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.X509Credential;
@@ -36,12 +37,12 @@ public class SAMLLogoutProcessorFactory
 	private UnityServerConfiguration serverConfig;
 	
 	@Autowired
-	public SAMLLogoutProcessorFactory(SessionManagement sessionManagement, PKIManagement pkiManagement,
+	public SAMLLogoutProcessorFactory(SessionManagement sessionManagement, 
+			@Qualifier("insecure") PKIManagement pkiManagement,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
 			ReplayAttackChecker replayChecker, FreemarkerAppHandler freemarker, 
 			SessionParticipantTypesRegistry registry, UnityServerConfiguration serverConfig)
 	{
-		super();
 		this.sessionManagement = sessionManagement;
 		this.idResolver = idResolver;
 		this.contextsStore = contextsStore;

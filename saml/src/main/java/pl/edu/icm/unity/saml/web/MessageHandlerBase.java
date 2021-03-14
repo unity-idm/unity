@@ -30,7 +30,9 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
  * Some of the responses (low level errors) are shown as an error page. Other responses (high level errors 
  * and correct responses) are producing a web page which is redirecting the user to the final destination.
  * @author K. Benedyczak
+ * @deprecated Use SamlMessageHandler
  */
+@Deprecated
 public abstract class MessageHandlerBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MessageHandlerBase.class);

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.slo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -26,7 +27,7 @@ class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	
 	@Autowired
 	LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
-			PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
+			@Qualifier("insecure") PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
 			SLOReplyInstaller sloReplyInstaller, SessionParticipantTypesRegistry registry)
 	{
 		this.contextsStore = contextsStore;
