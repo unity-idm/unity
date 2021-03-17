@@ -299,7 +299,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		{
 			actionColumn = addComponentColumn(t -> getButtonComponent(new HashSet<>(Arrays.asList(t))))
 					.setCaption(msg.getMessage("actions")).setMinimumWidth(80);
-			actionColumn.setResizable(false);
+			actionColumn.setResizable(true);
 			actionColumn.setExpandRatio(0);
 			actionColumn.setSortable(false);
 		}

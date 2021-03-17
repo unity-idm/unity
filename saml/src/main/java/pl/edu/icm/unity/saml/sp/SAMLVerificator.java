@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.security.PublicKey;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -226,6 +228,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 				if (configKey == null)
 					return null;
 				return config.getLogoutEndpointsFromStructuredList(configKey);
+			}
+
+			@Override
+			public List<PublicKey> getTrustedKeys(NameIDType samlEntity)
+			{
+				SAMLSPProperties config = getSamlValidatorSettings();
+				return config.getPublicKeysOfIdp(samlEntity.getStringValue());
 			}
 		};
 		

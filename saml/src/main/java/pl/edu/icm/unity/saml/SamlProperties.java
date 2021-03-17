@@ -8,6 +8,8 @@
 
 package pl.edu.icm.unity.saml;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +41,17 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 	 * Note that adding a new binding here requires a couple of changes in the code. 
 	 * E.g. support in SAML Metadata-> config conversion, ECP, web retrieval, ....
 	 */
-	public enum Binding {HTTP_REDIRECT, HTTP_POST, SOAP};
+	public enum Binding 
+	{
+		HTTP_REDIRECT, 
+		HTTP_POST, 
+		SOAP;
+		
+		public static Binding of(SAMLBindings samlBinding)
+		{
+			return Binding.valueOf(samlBinding.name());
+		}
+	};
 	
 	public static final String PUBLISH_METADATA = "publishMetadata";
 	public static final String SIGN_METADATA = "signMetadata";
@@ -143,17 +155,17 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 		String redirectRetSlo = getValue(configKey + REDIRECT_LOGOUT_RET_URL);
 		String soapSlo = getValue(configKey + SOAP_LOGOUT_URL);
 
-		if (redirectRetSlo == null)
+		if (isBlank(redirectRetSlo))
 			redirectRetSlo = redirectSlo;
-		if (postRetSlo == null)
+		if (isBlank(postRetSlo))
 			postRetSlo = postSlo;
 		
 		List<SAMLEndpointDefinition> ret = new ArrayList<>(3);
-		if (postSlo != null)
+		if (!isBlank(postSlo))
 			ret.add(new SAMLEndpointDefinition(Binding.HTTP_POST, postSlo, postRetSlo));
-		if (redirectSlo != null)
+		if (!isBlank(redirectSlo))
 			ret.add(new SAMLEndpointDefinition(Binding.HTTP_REDIRECT, redirectSlo, redirectRetSlo));
-		if (soapSlo != null)
+		if (!isBlank(soapSlo))
 			ret.add(new SAMLEndpointDefinition(Binding.SOAP, soapSlo, soapSlo));
 		return ret;
 	}

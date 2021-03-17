@@ -54,7 +54,6 @@ public class SLOSPManager
 	public SLOSPManager(SAMLLogoutProcessorFactory logoutProcessorFactory,
 			SharedEndpointManagement sharedEndpointManagement)
 	{
-		super();
 		this.logoutProcessorFactory = logoutProcessorFactory;
 		this.sharedEndpointManagement = sharedEndpointManagement;
 	}

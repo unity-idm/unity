@@ -19,7 +19,7 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.SamlHttpServlet;
+import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -37,7 +37,7 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
  * or request can not be parsed).
  * @author K. Benedyczak
  */
-public class SamlParseServlet extends SamlHttpServlet
+public class SamlParseServlet extends SamlHttpRequestServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseServlet.class);
 	
@@ -54,7 +54,7 @@ public class SamlParseServlet extends SamlHttpServlet
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
 			String samlDispatcherServletPath, ErrorHandler errorHandler)
 	{
-		super(true, false, false);
+		super(false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlDispatcherServletPath = samlDispatcherServletPath;
@@ -215,5 +215,11 @@ public class SamlParseServlet extends SamlHttpServlet
 		{
 			errorHandler.commitErrorResponse(context, e, servletResponse);
 		}
+	}
+
+	@Override
+	protected void postProcessRequest(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
+			String samlRequest, String relayState) throws IOException 
+	{
 	}
 }

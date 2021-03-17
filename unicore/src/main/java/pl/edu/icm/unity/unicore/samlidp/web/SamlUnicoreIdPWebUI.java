@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.SAMLContextSupport;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
+import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -114,9 +115,10 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		ResponseDocument respDoc;
 		try
 		{
-			respDoc = samlWithEtdProcessor.processAuthnRequest(selectedIdentity, 
+			SamlRoutableSignableMessage<ResponseDocument> response = samlWithEtdProcessor.processAuthnRequest(selectedIdentity, 
 					attributes, samlCtx.getResponseDestination(),
-					restrictions);
+					restrictions, samlCtx.getRelayState());
+			respDoc = response.getSignedMessage();
 		} catch (Exception e)
 		{
 			samlResponseHandler.handleExceptionNotThrowing(e, false);

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.slo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -15,12 +16,8 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 
-/**
- * Factory of {@link LogoutProcessor}s.
- * @author K. Benedyczak
- */
 @Component
-public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
+class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 {
 	private LogoutContextsStore contextsStore;
 	private PKIManagement pkiManagement;
@@ -29,11 +26,10 @@ public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	private SessionParticipantTypesRegistry registry;
 	
 	@Autowired
-	public LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
-			PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
+	LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
+			@Qualifier("insecure") PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
 			SLOReplyInstaller sloReplyInstaller, SessionParticipantTypesRegistry registry)
 	{
-		super();
 		this.contextsStore = contextsStore;
 		this.pkiManagement = pkiManagement;
 		this.freemarker = freemarker;
@@ -52,7 +48,7 @@ public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	@Override
 	public LogoutProcessor getInstance()
 	{
-		SLOAsyncResponseHandler responseHandler = new SLOAsyncResponseHandler(freemarker);
+		SLOAsyncMessageHandler responseHandler = new SLOAsyncMessageHandler(freemarker);
 		InternalLogoutProcessor internalProcessor = new InternalLogoutProcessor(pkiManagement, contextsStore, 
 				responseHandler, consumerUri);
 		return new LogoutProcessorImpl(contextsStore, internalProcessor, registry);
