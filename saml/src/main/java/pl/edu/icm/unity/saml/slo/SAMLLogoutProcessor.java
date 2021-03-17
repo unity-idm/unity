@@ -288,7 +288,7 @@ public class SAMLLogoutProcessor
 		sessionManagement.removeSession(ctx.getSession().getId(), false);
 		Binding binding = ctx.getRequestBinding();
 		SAMLEndpointDefinition endpoint = ctx.getInitiator().getLogoutEndpoints().get(binding);
-		SamlMessageSpec<LogoutResponseDocument> finalResponse;
+		SamlRoutableSignableMessage<LogoutResponseDocument> finalResponse;
 		try
 		{
 			finalResponse = prepareLogoutResponse(ctx, endpoint, partial);
@@ -309,7 +309,7 @@ public class SAMLLogoutProcessor
 	 * Prepares the final logout response, taking into account 
 	 * the overall logout state from the context.
 	 */
-	private SamlMessageSpec<LogoutResponseDocument> prepareLogoutResponse(SAMLExternalLogoutContext ctx, 
+	private SamlRoutableSignableMessage<LogoutResponseDocument> prepareLogoutResponse(SAMLExternalLogoutContext ctx, 
 			SAMLEndpointDefinition endpoint, boolean partial) 
 			throws SAMLResponderException
 	{
@@ -318,7 +318,7 @@ public class SAMLLogoutProcessor
 		response.getXMLBean().setDestination(endpoint.getReturnUrl());
 		if (partial)
 			response.setPartialLogout();
-		return new SamlMessageSpec<>(response, localSamlCredential, SAMLMessageType.SAMLResponse, 
+		return new SamlRoutableSignableMessage<>(response, localSamlCredential, SAMLMessageType.SAMLResponse, 
 				ctx.getRequestersRelayState(), endpoint.getReturnUrl());
 	}
 
@@ -326,7 +326,7 @@ public class SAMLLogoutProcessor
 			SAMLEndpointDefinition endpoint, boolean partial) 
 			throws SAMLResponderException
 	{
-		SamlMessageSpec<LogoutResponseDocument> logoutResponse = prepareLogoutResponse(ctx, endpoint, partial);
+		SamlRoutableSignableMessage<LogoutResponseDocument> logoutResponse = prepareLogoutResponse(ctx, endpoint, partial);
 		try
 		{
 			return logoutResponse.getSignedMessage();

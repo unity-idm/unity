@@ -69,7 +69,7 @@ class SLOAsyncMessageHandler
 		log.debug("SAML error is going to be returned to the SAML requester from SLO endpoint", error);
 		LogoutResponse errorResp = new LogoutResponse(new NameID(localIssuer, null).getXBean(), 
 				requestId, error);
-		SamlMessageSpec<LogoutResponseDocument> message = new SamlMessageSpec<>(
+		SamlRoutableSignableMessage<LogoutResponseDocument> message = new SamlRoutableSignableMessage<>(
 				errorResp, null, SAMLMessageType.SAMLResponse, relayState, serviceUrl);
 		try
 		{
@@ -80,13 +80,13 @@ class SLOAsyncMessageHandler
 		}
 	}
 
-	void sendRequest(Binding binding, SamlMessageSpec<LogoutRequestDocument> request, 
+	void sendRequest(Binding binding, SamlRoutableSignableMessage<LogoutRequestDocument> request, 
 			HttpServletResponse response) throws IOException, EopException, DSigException
 	{
 		messageHandler.sendRequest(binding, request, response, "Logout");
 	}
 
-	void sendResponse(Binding binding, SamlMessageSpec<LogoutResponseDocument> samlResponse, 
+	void sendResponse(Binding binding, SamlRoutableSignableMessage<LogoutResponseDocument> samlResponse, 
 			HttpServletResponse httpResponse) throws IOException, EopException, DSigException
 	{
 		messageHandler.sendResponse(binding, samlResponse, httpResponse, "Logout");

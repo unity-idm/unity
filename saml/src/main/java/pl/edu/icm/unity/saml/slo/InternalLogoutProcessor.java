@@ -284,7 +284,7 @@ class InternalLogoutProcessor
 			log.error("Can't get credential for signing request", e);
 			throw new IOException("Can't get credential for signing request", e);
 		}
-		SamlMessageSpec<LogoutRequestDocument> samlMessageSpec = new SamlMessageSpec<>(request, credential, 
+		SamlRoutableSignableMessage<LogoutRequestDocument> samlMessageSpec = new SamlRoutableSignableMessage<>(request, credential, 
 				SAMLMessageType.SAMLRequest, ctx.getRelayState(), logoutEndpoint.getUrl());
 		return new InterimLogoutRequest(samlMessageSpec, logoutEndpoint);
 	}
@@ -400,10 +400,10 @@ class InternalLogoutProcessor
 	 */
 	private static class InterimLogoutRequest
 	{
-		final SamlMessageSpec<LogoutRequestDocument> request;
+		final SamlRoutableSignableMessage<LogoutRequestDocument> request;
 		final SAMLEndpointDefinition endpoint;
 		
-		InterimLogoutRequest(SamlMessageSpec<LogoutRequestDocument> request, SAMLEndpointDefinition endpoint)
+		InterimLogoutRequest(SamlRoutableSignableMessage<LogoutRequestDocument> request, SAMLEndpointDefinition endpoint)
 		{
 			this.request = request;
 			this.endpoint = endpoint;

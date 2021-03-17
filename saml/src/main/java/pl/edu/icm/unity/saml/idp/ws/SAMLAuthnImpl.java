@@ -28,6 +28,7 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -89,8 +90,10 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
-					context.getResponseDestination());
+			SamlRoutableSignableMessage<ResponseDocument> routableMessage = samlProcessor.processAuthnRequestReturningResponse(
+					selectedIdentity, attributes, 
+					null, context.getResponseDestination());
+			respDoc = routableMessage.getSignedMessage();
 		} catch (Exception e)
 		{
 			log.debug("Throwing SAML fault, caused by processing exception", e);

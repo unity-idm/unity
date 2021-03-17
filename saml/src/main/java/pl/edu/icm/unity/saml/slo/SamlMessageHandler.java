@@ -47,63 +47,63 @@ public class SamlMessageHandler
 		throw new EopException();
 	}
 	
-	public void sendRequest(Binding binding, SamlMessageSpec<?> samlMessage, HttpServletResponse response, String info) 
+	public void sendRequest(Binding binding, SamlRoutableMessage samlMessage, HttpServletResponse response, String logginName) 
 					throws IOException, EopException, DSigException
 	{
 		switch (binding)
 		{
 		case HTTP_POST:
-			handlePostGeneric(samlMessage, info, SAMLMessageType.SAMLRequest, response);
+			handlePostGeneric(samlMessage, logginName, SAMLMessageType.SAMLRequest, response);
 			break;
 		case HTTP_REDIRECT:
-			handleRedirectGeneric(samlMessage, info, SAMLMessageType.SAMLRequest, response);
+			handleRedirectGeneric(samlMessage, logginName, SAMLMessageType.SAMLRequest, response);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);
 		}
 	}
 	
-	public void sendResponse(Binding binding, SamlMessageSpec<?> samlMessage, HttpServletResponse response, String info) 
+	public void sendResponse(Binding binding, SamlRoutableMessage samlMessage, HttpServletResponse response, String loggingName) 
 			throws IOException, EopException, DSigException
 	{
 		switch (binding)
 		{
 		case HTTP_POST:
-			handlePostGeneric(samlMessage, info, SAMLMessageType.SAMLResponse, response);
+			handlePostGeneric(samlMessage, loggingName, SAMLMessageType.SAMLResponse, response);
 			break;
 		case HTTP_REDIRECT:
-			handleRedirectGeneric(samlMessage, info, SAMLMessageType.SAMLResponse, response);
+			handleRedirectGeneric(samlMessage, loggingName, SAMLMessageType.SAMLResponse, response);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported binding: " + binding);
 		}
 	}
 	
-	private void handleRedirectGeneric(SamlMessageSpec<?> samlMessage, String info, SAMLMessageType type, 
+	private void handleRedirectGeneric(SamlRoutableMessage samlMessage, String info, SAMLMessageType type, 
 			HttpServletResponse response) throws IOException, EopException, DSigException
 	{
 		setCommonHeaders(response);
-		log.debug("Returning " + info + " " + type + " with HTTP Redirect binding to " + 
-				samlMessage.getSamlParticipantURL());
+		log.debug("Returning {} {} with HTTP Redirect binding to {}",
+				info, type, samlMessage.getDestinationURL());
 		String redirectURL = samlMessage.getRedirectURL();
 		if (log.isTraceEnabled())
 		{
-			log.trace("SAML " + type + " is:\n" + samlMessage.getRawMessage());
-			log.trace("Returned Redirect URL is:\n" + redirectURL);
+			log.trace("SAML {} is:\n{}", type, samlMessage.getRawMessage());
+			log.trace("Returned Redirect URL is:\n{}", redirectURL);
 		}
 		response.sendRedirect(redirectURL);
 		throw new EopException();
 	}
 
 
-	private void handlePostGeneric(SamlMessageSpec<?> samlMessage, String info, SAMLMessageType type, 
+	private void handlePostGeneric(SamlRoutableMessage samlMessage, String info, SAMLMessageType type, 
 			HttpServletResponse response) throws IOException, EopException, DSigException
 	{
 		response.setContentType("text/html; charset=utf-8");
 		setCommonHeaders(response);
 		response.setDateHeader("Expires", -1);
 
-		log.debug("Returning {} {} with HTTP POST binding to {}", info, type, samlMessage.getSamlParticipantURL());
+		log.debug("Returning {} {} with HTTP POST binding to {}", info, type, samlMessage.getDestinationURL());
 		String htmlResponse = samlMessage.getPOSTConents();
 		if (log.isTraceEnabled())
 		{

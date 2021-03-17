@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.security.dsig.DSigException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -53,13 +54,13 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be
@@ -252,8 +253,6 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	/**
 	 * Automatically sends a SAML response, without the consent screen.
-	 * @throws IOException 
-	 * @throws EopException 
 	 */
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
@@ -270,7 +269,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 					serviceUrl, samlCtx.getRelayState(), request, response, false);
 		}
 		
-		ResponseDocument respDoc;
+		SamlRoutableMessage respDoc;
 		try
 		{
 			TranslationResult userInfo = getUserInfo(samlCtx.getSamlConfiguration(), samlProcessor, 
@@ -279,8 +278,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
-					samlCtx.getResponseDestination());
+			respDoc = samlProcessor.processAuthnRequestReturningResponse(selectedIdentity, attributes, 
+					samlCtx.getRelayState(), samlCtx.getResponseDestination());
 		} catch (Exception e)
 		{
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
@@ -290,8 +289,14 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
 				samlProcessor.getSessionId(), sessionMan);
 		
-		ssoResponseHandler.sendResponse(Binding.HTTP_POST, respDoc, serviceUrl, 
-				samlCtx.getRelayState(), request, response);
+		try
+		{
+			ssoResponseHandler.sendResponse(respDoc, Binding.HTTP_POST, request, response);
+		} catch (DSigException e)
+		{
+			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
+					serviceUrl, samlCtx.getRelayState(), request, response, false);
+		}
 	}
 	
 	private void handleRedirectIfNeeded(TranslationResult userInfo, HttpSession session,

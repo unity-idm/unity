@@ -20,44 +20,46 @@ import eu.unicore.security.dsig.DSigException;
  * Encapsulates crypto material to sign the message - important as the the way in which signature is created 
  * depends on the binding.
  */
-class SamlMessageSpec<T extends XmlObject>
+public class SamlRoutableSignableMessage<T extends XmlObject> implements SamlRoutableMessage
 {
 	private final AbstractSAMLMessage<T> message;
 	private final X509Credential signingKey;
 	private final SAMLMessageType messageType;
 	private final String relayState;
-	private final String samlParticipantURL;
+	private final String destinationURL;
 
-	SamlMessageSpec(AbstractSAMLMessage<T> message, X509Credential signingKey, SAMLMessageType messageType,
-			String relayState, String samlParticipantURL)
+	public SamlRoutableSignableMessage(AbstractSAMLMessage<T> message, X509Credential signingKey, SAMLMessageType messageType,
+			String relayState, String destinationURL)
 	{
 		this.message = message;
 		this.signingKey = signingKey;
 		this.messageType = messageType;
 		this.relayState = relayState;
-		this.samlParticipantURL = samlParticipantURL;
+		this.destinationURL = destinationURL;
 	}
 
-	String getPOSTConents() throws DSigException
+	@Override
+	public String getPOSTConents() throws DSigException
 	{
 		if (signingKey != null)
 			sign();
 		String xmlString = getRawMessage();
 		return HttpPostBindingSupport.getHtmlPOSTFormContents(
-				messageType, samlParticipantURL, xmlString, relayState);
+				messageType, destinationURL, xmlString, relayState);
 	}
 
-	String getRedirectURL() throws IOException, DSigException
+	@Override
+	public String getRedirectURL() throws IOException, DSigException
 	{
 		String xmlString = getRawMessage();
 		return signingKey != null ?
 				HttpRedirectBindingSupport.getSignedRedirectURL(messageType, relayState, xmlString, 
-						samlParticipantURL, signingKey.getKey()) : 
+						destinationURL, signingKey.getKey()) : 
 				HttpRedirectBindingSupport.getRedirectURL(messageType, relayState, xmlString, 
-						samlParticipantURL);
+						destinationURL);
 	}
 	
-	T getSignedMessage() throws DSigException
+	public T getSignedMessage() throws DSigException
 	{
 		if (signingKey != null)
 			sign();
@@ -69,22 +71,26 @@ class SamlMessageSpec<T extends XmlObject>
 		message.sign(signingKey.getKey(), signingKey.getCertificateChain());
 	}
 
-	SAMLMessageType getMessageType()
+	@Override
+	public SAMLMessageType getMessageType()
 	{
 		return messageType;
 	}
 
-	String getRelayState()
+	@Override
+	public String getRelayState()
 	{
 		return relayState;
 	}
 
-	String getSamlParticipantURL()
+	@Override
+	public String getDestinationURL()
 	{
-		return samlParticipantURL;
+		return destinationURL;
 	}
 	
-	String getRawMessage()
+	@Override
+	public String getRawMessage()
 	{
 		T xmlDoc = message.getXMLBeanDoc();
 		return xmlDoc.xmlText();
