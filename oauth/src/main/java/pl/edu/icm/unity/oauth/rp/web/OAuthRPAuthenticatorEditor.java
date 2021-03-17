@@ -11,6 +11,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -198,7 +199,11 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		clientHttpMethodForProfileAccess.setEmptySelectionAllowed(false);
 		configBinder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
 		advanced.addComponent(clientHttpMethodForProfileAccess);		
-		
+
+		CheckBox openIdMode = new CheckBox(msg.getMessage("OAuthRPAuthenticatorEditor.openIdMode"));
+		configBinder.forField(openIdMode).bind("openIdMode");
+		advanced.addComponent(openIdMode);
+
 		return new CollapsibleLayout(msg.getMessage("OAuthRPAuthenticatorEditor.advanced"), advanced);
 	}
 
