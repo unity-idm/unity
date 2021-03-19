@@ -11,7 +11,9 @@ package pl.edu.icm.unity.saml.idp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -459,6 +461,26 @@ public class SamlIdpProperties extends SamlProperties
 		}
 		return authnTrustChecker;
 	}
+	
+	public List<PublicKey> getTrustedKeysForSamlEntity(String idpKey)
+	{
+		Set<String> spCertNames = getAllowedSpCerts(idpKey);
+		List<PublicKey> trusted = new ArrayList<>();
+		for (String spCertName: spCertNames)
+		{
+			try
+			{
+				X509Certificate spCert = pkiManagement.getCertificate(spCertName).value;
+				trusted.add(spCert.getPublicKey());
+			} catch (EngineException e)
+			{
+				throw new ConfigurationException("Can't set certificate of trusted " +
+						"issuer named " + spCertName, e);
+			}
+		}
+		return trusted;
+	}
+	
 	
 	private void checkIssuer()
 	{

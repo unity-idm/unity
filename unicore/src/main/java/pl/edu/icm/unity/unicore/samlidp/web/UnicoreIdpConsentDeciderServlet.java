@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.security.dsig.DSigException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -37,13 +38,13 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
+import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Trivial extension of {@link IdpConsentDeciderServlet}, which uses UNICORE preferences instead of SAML preferences
@@ -99,7 +100,7 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			ssoResponseHandler.handleException(samlProcessor, ea, Binding.HTTP_POST, 
 					serviceUrl, samlCtx.getRelayState(), request, response, false);
 		}
-		ResponseDocument respDoc;
+		SamlRoutableMessage respDoc;
 		try
 		{
 			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
@@ -112,7 +113,8 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
 					samlCtx.getResponseDestination(),
-					etdSettings.toDelegationRestrictions());
+					etdSettings.toDelegationRestrictions(),
+					samlCtx.getRelayState());
 		} catch (Exception e)
 		{
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
@@ -121,8 +123,15 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		}
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
 				samlProcessor.getSessionId(), sessionMan);
-		ssoResponseHandler.sendResponse(Binding.HTTP_POST, respDoc, serviceUrl, 
-				samlCtx.getRelayState(), request, response);
+		try
+		{
+			ssoResponseHandler.sendResponse(respDoc, Binding.HTTP_POST, request, response);
+		} catch (DSigException e)
+		{
+			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
+					serviceUrl, samlCtx.getRelayState(), request, response, false);
+			return;
+		}
 	}
 	
 	@Component

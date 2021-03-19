@@ -47,6 +47,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
+import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
@@ -274,8 +275,10 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		ResponseDocument respDoc;
 		try
 		{
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, 
-					attributes, samlCtx.getResponseDestination());
+			SamlRoutableSignableMessage<ResponseDocument> routableResponse = 
+					samlProcessor.processAuthnRequestReturningResponse(selectedIdentity, 
+					attributes, samlCtx.getRelayState(), samlCtx.getResponseDestination());
+			respDoc = routableResponse.getSignedMessage();
 		} catch (Exception e)
 		{
 			samlResponseHandler.handleExceptionNotThrowing(e, false);

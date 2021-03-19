@@ -57,8 +57,7 @@ public class LogoutProcessorImpl implements LogoutProcessor
 		};
 		
 		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, finishCallback,
-				registry);
-		internalCtx.setRelayState(relayState);
+				registry, relayState);
 		contextsStore.addInternalContext(relayState, internalCtx);
 		
 		try
@@ -73,7 +72,7 @@ public class LogoutProcessorImpl implements LogoutProcessor
 	@Override
 	public boolean handleSynchronousLogout(LoginSession session)
 	{
-		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, null, registry);
+		SAMLInternalLogoutContext internalCtx = new SAMLInternalLogoutContext(session, null, null, registry, null);
 		internalProcessor.logoutSynchronousParticipants(internalCtx);
 		boolean allLoggedOut = internalCtx.getFailed().isEmpty();
 		return allLoggedOut;

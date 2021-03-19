@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -263,7 +266,7 @@ public class SAMLSPProperties extends SamlProperties
 				throw new ConfigurationException("IdP " + name + " is configured to use " +
 						"HTTP Redirect binding or SOAP binding for ECP and at "
 						+ "the same time Unity is configured to sign requests for this IdP. "
-						+ "This is unsupported currently and against SAML interoperability specification.");
+						+ "This is unsupported.");
 			}
 			
 		}
@@ -371,6 +374,28 @@ public class SAMLSPProperties extends SamlProperties
 		return trustChecker;
 	}
 	
+	public List<PublicKey> getPublicKeysOfIdp(String samlEntityId)
+	{
+		String idpKey = getPrefixOfIdP(samlEntityId);
+		if (idpKey == null)
+			return null;
+		Set<String> idpCertNames = getCertificateNames(idpKey);
+		List<PublicKey> keys = new ArrayList<>();
+		for (String idpCertName: idpCertNames)
+		{
+			try
+			{
+				X509Certificate idpCert = pkiManagement.getCertificate(idpCertName).value;
+				keys.add(idpCert.getPublicKey());
+			} catch (EngineException e)
+			{
+				throw new ConfigurationException("Remote SAML IdP certificate can not be loaded " 
+						+ idpCertName, e);
+			}
+		}
+		return keys;
+	}
+	
 	public Set<String> getCertificateNames(String idpKey)
 	{
 		return getCertificateNames(idpKey, IDP_CERTIFICATE, IDP_CERTIFICATES);
@@ -430,17 +455,7 @@ public class SAMLSPProperties extends SamlProperties
 	
 	public String getIdPConfigKey(NameIDType requester)
 	{
-		Set<String> allowedKeys = getStructuredListKeys(IDP_PREFIX);
-		for (String allowedKey: allowedKeys)
-		{
-			String name = getValue(allowedKey + IDP_ID);
-			if (name == null)
-				continue;
-			if (!name.equals(requester.getStringValue()))
-				continue;
-			return allowedKey;
-		}
-		return null;
+		return getPrefixOfIdP(requester.getStringValue());
 	}
 	
 	/**

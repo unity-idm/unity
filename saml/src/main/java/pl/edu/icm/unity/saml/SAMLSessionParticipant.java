@@ -25,7 +25,7 @@ public class SAMLSessionParticipant implements SessionParticipant
 	public static final String TYPE = "SAML2";
 
 	private String identifier;
-	private Map<Binding, SAMLEndpointDefinition> logoutEndpoints = new HashMap<Binding, SAMLEndpointDefinition>();
+	private Map<Binding, SAMLEndpointDefinition> logoutEndpoints = new HashMap<>();
 	private String principalNameAtParticipant;
 	private String sessionIndex;
 	private String localSamlId;
@@ -34,14 +34,12 @@ public class SAMLSessionParticipant implements SessionParticipant
 	
 	public SAMLSessionParticipant()
 	{
-		super();
 	}
 
 	public SAMLSessionParticipant(String identifier, NameIDType subjectAtParticipant, String sessionIndex,
 			List<SAMLEndpointDefinition> logoutEndpoints, String localSamlEntityId,
 			String localCredentialName, Set<String> participantsCertificates)
 	{
-		super();
 		this.identifier = identifier;
 		for (SAMLEndpointDefinition logout: logoutEndpoints)
 			this.logoutEndpoints.put(logout.getBinding(), logout);
@@ -72,7 +70,7 @@ public class SAMLSessionParticipant implements SessionParticipant
 
 	public Map<Binding, SAMLEndpointDefinition> getLogoutEndpoints()
 	{
-		return new HashMap<Binding, SAMLEndpointDefinition>(logoutEndpoints);
+		return new HashMap<>(logoutEndpoints);
 	}
 
 	public void setLogoutEndpoints(Map<Binding, SAMLEndpointDefinition> logoutEndpoints)
@@ -118,9 +116,11 @@ public class SAMLSessionParticipant implements SessionParticipant
 	@Override
 	public String toString()
 	{
-		return identifier + " [" + sessionIndex + " / " + principalNameAtParticipant + "]";
+		return String.format(
+				"SAMLSessionParticipant [identifier=%s, logoutEndpoints=%s, principalNameAtParticipant=%s, sessionIndex=%s]",
+				identifier, logoutEndpoints, principalNameAtParticipant, sessionIndex);
 	}
-
+	
 	@Override
 	public int hashCode()
 	{

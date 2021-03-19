@@ -13,6 +13,7 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
+import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -54,10 +56,11 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 	}
 
 
-	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, 
+	public SamlRoutableSignableMessage<ResponseDocument> processAuthnRequest(IdentityParam authenticatedIdentity, 
 			Collection<Attribute> attributes,
 			String destination,
-			DelegationRestrictions restrictions) 
+			DelegationRestrictions restrictions,
+			String relayState) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		if (samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION))
@@ -69,7 +72,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 				SAMLConstants.NFORMAT_DN.equals(getRequestedFormat());
 		if (!etdMode)
 			return super.processAuthnRequest(authenticatedIdentity, attributes, false,
-					destination);
+					relayState, destination);
 		
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
@@ -89,7 +92,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 			Assertion assertion = generateTD(authenticatedOne.getNameID().getStringValue(), restrictions);
 			resp.addAssertion(assertion);
 		}
-		return resp.getXMLBeanDoc();
+		return new SamlRoutableSignableMessage<>(resp, null, SAMLMessageType.SAMLResponse, relayState, destination);
 	}
 	
 	protected TrustDelegation generateTD(String custodian, DelegationRestrictions restrictions) 
