@@ -11,7 +11,9 @@ import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,6 +144,59 @@ public class GroupsManagementImpl implements GroupsManagement
 			.action(AuditEventAction.ADD)
 			.name(toAdd.getName())
 			.tags(GROUPS));
+	}
+	
+	@Override
+	@Transactional
+	public void addGroups(Set<Group> toAdd) throws EngineException
+	{
+		Set<Group> onlyParentGroups = establishOnlyParentGroups(toAdd);
+		for (Group parent : onlyParentGroups)
+		{
+			authz.checkAuthorization(parent.getParentPath(), AuthzCapability.groupModify);
+		}
+		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.GroupsCount,
+				() -> dbGroups.getCount() + toAdd.size());
+		List<Group> groupsSortedByPath = toAdd.stream().sorted(Comparator.comparing(Group::toString))
+				.collect(Collectors.toList());
+
+		for (Group groupToAdd : groupsSortedByPath)
+		{
+			if (!dbGroups.exists(groupToAdd.getParentPath()))
+			{
+				throw new IllegalArgumentException("Parent group " + groupToAdd.getParentPath() + " does not exist");
+			}
+				
+			if (groupToAdd.isPublic())
+			{
+				assertParentIsPrivate(groupToAdd);
+			}
+			dbGroups.create(groupToAdd);
+		}
+		
+		for (Group addedGroup : groupsSortedByPath)
+		{
+			audit.log(AuditEventTrigger.builder().type(AuditEventType.GROUP).action(AuditEventAction.ADD)
+					.name(addedGroup.getName()).tags(GROUPS));
+		}
+		
+	}
+		
+	private Set<Group> establishOnlyParentGroups(Set<Group> source)
+	{
+		Set<Group> onlyParents = new HashSet<>(source);
+
+		for (Group g1 : source)
+		{
+			for (Group g2 : source)
+			{
+				if (Group.isChild(g2.toString(), g1.toString()) && onlyParents.contains(g2))
+				{
+					onlyParents.remove(g2);
+				}
+			}
+		}
+		return onlyParents;
 	}
 
 	@Override

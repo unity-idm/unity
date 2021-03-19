@@ -40,6 +40,13 @@ public interface GroupsManagement
 	void addGroup(Group toAdd, boolean withParents) throws EngineException;
 
 	/**
+	 * Adds a new groups
+	 * @param requestedGroups set of groups to add
+	 * @throws EngineException 
+	 */
+	void addGroups(Set<Group> toAdd) throws EngineException;
+	
+	/**
 	 * Removes a given group. Doesn't work for '/' path.
 	 */
 	void removeGroup(String path, boolean recursive) throws EngineException;
