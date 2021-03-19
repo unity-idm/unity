@@ -18,7 +18,6 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.SerializablePredicate;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -283,7 +282,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		wrapper.addComponent(showHide);
 		wrapper.setMargin(false);
 		wrapper.setSpacing(false);
-		wrapper.setWidth(100, Unit.PERCENTAGE);
+//		wrapper.setWidth(100, Unit.PERCENTAGE);
 
 		return wrapper;
 	}
@@ -299,7 +298,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		{
 			actionColumn = addComponentColumn(t -> getButtonComponent(new HashSet<>(Arrays.asList(t))))
 					.setCaption(msg.getMessage("actions")).setMinimumWidth(80);
-			actionColumn.setResizable(false);
+			actionColumn.setResizable(true);
 			actionColumn.setExpandRatio(0);
 			actionColumn.setSortable(false);
 		}
@@ -318,12 +317,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		actions.setMargin(false);
 		actions.setSpacing(false);
 		actions.addStyleName(Styles.smallSpacing.toString());
-
-		HorizontalLayout wrapper = new HorizontalLayout();
-		wrapper.addComponent(actions);
-		wrapper.setComponentAlignment(actions, Alignment.MIDDLE_RIGHT);
-		wrapper.setWidth(100, Unit.PERCENTAGE);
-		wrapper.setHeight(100, Unit.PERCENTAGE);
+		actions.setStyleName(Styles.floatRight.toString());
 		
 		if (enableDrag)
 		{
@@ -355,7 +349,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actions.addComponent(menu);
 		}
 
-		return wrapper;
+		return actions;
 	}
 	
 	@Override
