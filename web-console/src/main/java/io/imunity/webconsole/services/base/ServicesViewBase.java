@@ -65,7 +65,7 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 		servicesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 		servicesGrid.addComponentColumn(
 				e -> StandardButtonsHelper.buildLinkButton(e.getName(), ev -> gotoEdit(e)),
-				msg.getMessage("ServicesView.nameCaption"), 10).setSortable(true)
+				msg.getMessage("ServicesView.nameCaption"), 20).setSortable(true)
 				.setComparator((e1, e2) -> {
 					return e2.getName().compareTo(e1.getName());
 				}).setId("name");
@@ -73,10 +73,10 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 		servicesGrid.addComponentColumn(e -> getStatusLabel(e.getState()),
 				msg.getMessage("ServicesView.statusCaption"), 10);
 
-		servicesGrid.addColumn(e -> ServiceTypeInfoHelper.getType(msg, e.getType()), msg.getMessage("ServicesView.typeCaption"), 10);
+		servicesGrid.addColumn(e -> ServiceTypeInfoHelper.getType(msg, e.getType()), msg.getMessage("ServicesView.typeCaption"), 5);
 
 		servicesGrid.addColumn(e -> ServiceTypeInfoHelper.getBinding(msg, e.getBinding()),
-				msg.getMessage("ServicesView.bindingCaption"), 10);
+				msg.getMessage("ServicesView.bindingCaption"), 5);
 
 		servicesGrid.addHamburgerActions(getHamburgerActionsHandlers());
 
