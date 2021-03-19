@@ -537,6 +537,24 @@ public class RESTAdmin implements RESTAdminHandler
 			withParents = false;
 		groupsMan.addGroup(toAdd, withParents);
 	}
+	
+	@Path("/groups")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addGroups(String groups) throws EngineException, JsonProcessingException
+	{
+		Set<Group> groupsToAdd;
+		try
+		{
+			groupsToAdd = Constants.MAPPER.readValue(groups, 
+					new TypeReference<Set<Group>>() {});
+		} catch (IOException e)
+		{
+			throw new WrongArgumentException("Can not parse request body as a list of groups", e);
+		}
+		
+		groupsMan.addGroups(groupsToAdd);	
+	}
 
 	@Path("/group/{groupPath}/statements")
 	@GET
