@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationProcessorImpl.class);
 	
 	private final SecondFactorOptInService secondFactorOptInService;
 	private LocalCredentialsRegistry localCred;

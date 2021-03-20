@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 @Component
 public class AuthenticatorsController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticatorsController.class);
 
 	private AuthenticatorManagement authnMan;
 	private AuthenticationFlowManagement flowsMan;

@@ -46,7 +46,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 @PrototypeComponent
 public class CertificateVerificator extends AbstractLocalVerificator implements CertificateExchange
 { 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, CertificateVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, CertificateVerificator.class);
 	private static final String[] IDENTITY_TYPES = {X500Identity.ID};
 	public static final String NAME = "certificate";
 	public static final String DESC = "Verifies certificates";

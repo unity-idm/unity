@@ -30,7 +30,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Component
 public class IntegrationEventProcessorImpl implements IntegrationEventProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, IntegrationEventProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, IntegrationEventProcessorImpl.class);
 
 	private NotificationProducer notificationProducer;
 	private WebhookProcessor webhookProcessor;

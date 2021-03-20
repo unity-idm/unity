@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Component
 public class EventProcessor implements EventPublisher, EventListenersManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EventProcessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_EVENT, EventProcessor.class);
 	private Set<EventListener> listeners = new HashSet<EventListener>();
 	private Map<String, EventListener> listenersById = new HashMap<String, EventListener>();
 	private ReadWriteLock lock = new ReentrantReadWriteLock();

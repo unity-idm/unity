@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.I18nString;
 @Component
 public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSource implements MessageSource
 {
-	private Logger log = Log.getLogger(Log.U_SERVER, UnityMessageSourceImpl.class);
+	private Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityMessageSourceImpl.class);
 	
 	private UnityServerConfiguration config;
 	private final boolean failOnMissingMessage;

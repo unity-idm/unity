@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 @Component
 public class AuthenticatorsRegistry
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorsRegistry.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticatorsRegistry.class);
 	
 	private Map<String, CredentialRetrievalFactory> credentialRetrievalFactories;
 	private Map<String, CredentialVerificatorFactory> credentialVerificatorFactories;

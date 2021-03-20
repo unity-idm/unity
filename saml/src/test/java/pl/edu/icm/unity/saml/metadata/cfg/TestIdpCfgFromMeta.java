@@ -63,7 +63,7 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TestIdpCfgFromMeta.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, TestIdpCfgFromMeta.class);
 	
 	@Autowired
 	private RemoteMetadataService metadataService;

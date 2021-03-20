@@ -54,7 +54,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Transactional
 public class CredentialManagementImpl implements CredentialManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, CredentialManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, CredentialManagementImpl.class);
 	private LocalCredentialsRegistry localCredReg;
 	private CredentialDB credentialDB;
 	private CredentialReqRepository credentialRequirementRepository;

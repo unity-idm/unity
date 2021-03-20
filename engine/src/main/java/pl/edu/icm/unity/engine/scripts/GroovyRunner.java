@@ -22,7 +22,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
  */
 public class GroovyRunner
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, GroovyRunner.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_SCRIPT, GroovyRunner.class);
 	
 	public static void run(String phase, String name, 
 			Reader scriptReader, Binding binding)

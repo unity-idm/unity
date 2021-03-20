@@ -48,7 +48,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 class CompositeEntitiesInfoProvider
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, CompositeEntitiesInfoProvider.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, CompositeEntitiesInfoProvider.class);
 	@Autowired
 	private AttributeTypeDAO attributeTypeDAO;
 	@Autowired

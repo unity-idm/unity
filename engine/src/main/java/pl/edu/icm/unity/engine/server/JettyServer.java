@@ -82,7 +82,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 @Component
 public class JettyServer implements Lifecycle, NetworkServer
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, ServletContextHandler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;

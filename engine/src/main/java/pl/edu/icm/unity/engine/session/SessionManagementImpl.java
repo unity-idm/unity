@@ -62,7 +62,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 @Component
 public class SessionManagementImpl implements SessionManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SessionManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, SessionManagementImpl.class);
 	public static final long DB_ACTIVITY_WRITE_DELAY = 3000;
 	public static final String SESSION_TOKEN_TYPE = "session";
 	private TokensManagement tokensManagement;

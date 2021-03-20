@@ -46,7 +46,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 @Component
 public class EmailFacility implements NotificationFacility
 {
-	static final Logger log = Log.getLogger(Log.U_SERVER, EmailFacility.class);
+	static final Logger log = Log.getLogger(Log.U_SERVER_NOTIFY, EmailFacility.class);
 	public static final String NAME = "EMAIL";
 	
 	static final String CFG_USER = "mailx.smtp.auth.username"; 

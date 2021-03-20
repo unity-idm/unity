@@ -44,7 +44,7 @@ import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration
 @Component
 public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirmationManager
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, MobileNumberConfirmationManagerImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CONFIRMATION, MobileNumberConfirmationManagerImpl.class);
 	private static final String CACHE_ID = "MobileConfirmationCache";
 	
 	private NotificationProducer notificationProducer;

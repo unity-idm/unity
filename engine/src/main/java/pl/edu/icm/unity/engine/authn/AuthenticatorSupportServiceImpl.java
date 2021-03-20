@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 @Component
 public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorSupportServiceImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticatorSupportServiceImpl.class);
 	private AuthenticatorLoader authnLoader;
 	private AuthenticatorsRegistry authnRegistry;
 	private AuthenticatorManagement authenticationManagement;

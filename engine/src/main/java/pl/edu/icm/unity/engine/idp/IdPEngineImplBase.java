@@ -49,7 +49,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 class IdPEngineImplBase implements IdPEngine
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, IdPEngineImplBase.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, IdPEngineImplBase.class);
 
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;

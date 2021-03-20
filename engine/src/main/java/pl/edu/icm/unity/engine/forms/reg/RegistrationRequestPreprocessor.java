@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 @Component
 public class RegistrationRequestPreprocessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS,
 			RegistrationRequestPreprocessor.class);
 	
 	private final PolicyAgreementsValidator agreementValidator;

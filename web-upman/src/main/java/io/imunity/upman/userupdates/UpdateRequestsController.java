@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class UpdateRequestsController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UpdateRequestsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, UpdateRequestsController.class);
 
 	private ProjectRequestManagement requestMan;
 	private DelegatedGroupsHelper delGroupHelper;

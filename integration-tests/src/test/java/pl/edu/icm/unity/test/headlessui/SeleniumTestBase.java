@@ -49,7 +49,7 @@ import pl.edu.icm.unity.engine.server.JettyServer;
 @TestPropertySource(properties = { "unityConfig: src/test/resources/selenium/unityServer.conf" })
 public abstract class SeleniumTestBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SeleniumTestBase.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SeleniumTestBase.class);
 	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = Integer.parseInt(
 			System.getProperty("unity.selenium.wait", "30"));

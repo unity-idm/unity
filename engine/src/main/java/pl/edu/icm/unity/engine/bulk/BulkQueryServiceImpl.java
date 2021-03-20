@@ -55,7 +55,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 @Primary
 class BulkQueryServiceImpl implements BulkGroupQueryService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkQueryServiceImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, BulkQueryServiceImpl.class);
 	
 	private final AttributeStatementProcessor statementsHelper;
 	private final EntityCredentialsHelper credentialsHelper;

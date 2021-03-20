@@ -61,7 +61,7 @@ public class SendNotificationActionFactory extends AbstractEntityActionFactory
 
 	public static class SendNotificationAction extends EntityAction
 	{
-		private static final Logger log = Log.getLogger(Log.U_SERVER,
+		private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS,
 				SendNotificationAction.class);
 		private NotificationProducer notificationProducer;
 		private String template;

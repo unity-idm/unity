@@ -52,7 +52,7 @@ import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
  */
 public class MockGroovyBindingProvider
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MockGroovyBindingProvider.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_SCRIPT, MockGroovyBindingProvider.class);
 	
 	public static Binding getBinding(PersistableEvent event)
 	{

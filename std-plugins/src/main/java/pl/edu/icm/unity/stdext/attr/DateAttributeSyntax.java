@@ -33,7 +33,7 @@ public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 	public static List<String> ACCEPTABLE_FORMATS = Arrays.asList("yyyy-MM-dd", "dd-MM-yyyy",
 			"ddMMyy", "dd.MM.yyyy", "ddMMyyyy", "dd/MM/yyyy");
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, DateAttributeSyntax.class);	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, DateAttributeSyntax.class);	
 	
 	@Override
 	public String getValueSyntaxId()

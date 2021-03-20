@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 @Component
 public class SheduledOperationHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SheduledOperationHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SheduledOperationHelper.class);
 	private EntityDAO entityDAO;
 	
 	

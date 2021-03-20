@@ -27,7 +27,7 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 					implements AuditEventDAO, CachingDAO
 {
 	private static final int LIMIT_MULTIPLIER = 2;
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventRDBMSStore.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, AuditEventRDBMSStore.class);
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	private AuditTagRDBMSStore tagDAO;
@@ -42,7 +42,7 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	@Override
 	public List<AuditEvent> getOrderedLogs(final Date from, final Date until, int limit, final String sortOrder, final int direction)
 	{
-		log.debug("Getting logs from: {}, until: {}, limit: {}, Order: {}, dir: {}", from, until, limit, sortOrder, direction);
+		log.trace("Getting logs from: {}, until: {}, limit: {}, Order: {}, dir: {}", from, until, limit, sortOrder, direction);
 
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
 		// SQL returns duplicated AuditEvents, if there are multiple TAGS related to the event.

@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
  */
 public class EnquiryTargetCondEvaluator
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EnquiryTargetCondEvaluator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, EnquiryTargetCondEvaluator.class);
 	
 	public static boolean evaluateTargetCondition(EnquiryForm form, List<Identity> identities, String entityStatus,
 			CredentialInfo credentialInfo, Set<String> groups, Collection<AttributeExt> attributes)

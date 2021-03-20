@@ -31,7 +31,7 @@ public class UnityApplication
 	{
 		System.setProperty(LoggerFactory.LOGGER_FACTORY_PROPERTY, UnityLoggerFactory.class.getName());
 	}
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 
 	private ClassPathXmlApplicationContext container;
 

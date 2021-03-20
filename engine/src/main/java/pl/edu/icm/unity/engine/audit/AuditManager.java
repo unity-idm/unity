@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 @Transactional
 public class AuditManager implements AuditEventManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditManager.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUDIT, AuditManager.class);
 
 	private AuditEventDAO dao;
 	private InternalAuthorizationManager authz;

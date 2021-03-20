@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @PrototypeComponent
 class UserNotificationTriggerer
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, UserNotificationTriggerer.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_CORE, UserNotificationTriggerer.class);
 	
 	private NotificationProducer notificationProducer;
 	private MessageSource msg;

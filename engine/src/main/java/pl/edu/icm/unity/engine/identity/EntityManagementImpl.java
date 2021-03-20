@@ -101,7 +101,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 @InvocationEventProducer
 public class EntityManagementImpl implements EntityManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,	EntityManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,	EntityManagementImpl.class);
 	private IdentityTypeDAO idTypeDAO;
 	private IdentityTypeHelper idTypeHelper;
 	private IdentityDAO idDAO;

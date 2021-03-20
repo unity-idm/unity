@@ -16,7 +16,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public abstract class ScheduledUpdaterBase implements Runnable
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ScheduledUpdaterBase.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, ScheduledUpdaterBase.class);
 	private String info;
 	private long lastUpdate = 0;
 	

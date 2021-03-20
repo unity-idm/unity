@@ -42,7 +42,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 	private static final String BEARER_AUTH = "Bearer ";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, WebhookProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, WebhookProcessorImpl.class);
 	private PKIManagement pkiMan;
 
 	@Autowired

@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 @Component
 public class SetEntityStateActionFactory extends AbstractRegistrationTranslationActionFactory
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SetEntityStateActionFactory.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, SetEntityStateActionFactory.class);
 	public static final String NAME = "setState";
 
 	/**

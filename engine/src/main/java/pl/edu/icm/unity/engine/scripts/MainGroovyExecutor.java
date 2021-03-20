@@ -62,7 +62,7 @@ import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 @Component
 public class MainGroovyExecutor
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, MainGroovyExecutor.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_SCRIPT, MainGroovyExecutor.class);
 	
 	@Autowired
 	private MessageSource unityMessageSource;

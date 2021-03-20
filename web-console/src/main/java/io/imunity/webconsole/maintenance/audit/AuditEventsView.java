@@ -79,7 +79,7 @@ import static java.util.Objects.nonNull;
 @PrototypeComponent
 class AuditEventsView extends CustomComponent implements UnityView
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventsView.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuditEventsView.class);
 
 	public final static String VIEW_NAME = "AuditLog";
 	private final static int DEFAULT_LIMIT = 10000;

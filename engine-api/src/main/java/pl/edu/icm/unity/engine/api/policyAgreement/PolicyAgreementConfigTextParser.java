@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.I18nString;
 
 public class PolicyAgreementConfigTextParser
 {	
-	private static Logger log = Log.getLogger(Log.U_SERVER, PolicyAgreementConfigTextParser.class);
+	private static Logger log = Log.getLogger(Log.U_SERVER_CORE, PolicyAgreementConfigTextParser.class);
 	
 	public static String DOC_PLACEHOLDER_PATTER = "\\{([^\\}]*)\\}";
 	

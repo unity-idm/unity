@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 @Component
 public class EnquiryResponsePreprocessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS,
 			EnquiryResponsePreprocessor.class);
 	
 	private final PolicyAgreementsValidator agreementValidator;

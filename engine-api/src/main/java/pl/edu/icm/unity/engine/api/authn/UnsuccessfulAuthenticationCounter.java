@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class UnsuccessfulAuthenticationCounter
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UnsuccessfulAuthenticationCounter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, UnsuccessfulAuthenticationCounter.class);
 	private int maxAttepts;
 	private long blockTime;
 	private Map<String, ClientInfo> accessMap;

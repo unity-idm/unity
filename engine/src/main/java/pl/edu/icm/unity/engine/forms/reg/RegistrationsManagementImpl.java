@@ -60,7 +60,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 @InvocationEventProducer
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationsManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, RegistrationsManagementImpl.class);
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
 	private CredentialReqRepository credentialReqRepository;

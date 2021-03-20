@@ -43,7 +43,7 @@ public class RemoveEntityActionFactory extends AbstractEntityActionFactory
 
 	public static class RemoveEntityAction extends EntityAction
 	{
-		private static final Logger log = Log.getLogger(Log.U_SERVER,
+		private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS,
 				RemoveEntityActionFactory.RemoveEntityAction.class);
 		private EntityManagement idsMan;
 		
