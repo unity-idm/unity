@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class ProjectController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ProjectController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, ProjectController.class);
 
 	private MessageSource msg;
 	private DelegatedGroupManagement delGroupMan;

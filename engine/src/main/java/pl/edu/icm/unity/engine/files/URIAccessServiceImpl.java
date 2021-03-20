@@ -38,7 +38,7 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 @Component
 public class URIAccessServiceImpl implements URIAccessService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, URIAccessServiceImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, URIAccessServiceImpl.class);
 	
 	private FileDAO fileDao;
 	private boolean restrictFileSystemAccess;

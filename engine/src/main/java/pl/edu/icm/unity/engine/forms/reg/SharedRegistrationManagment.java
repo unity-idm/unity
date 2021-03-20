@@ -69,7 +69,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER,
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_FORMS,
 			SharedRegistrationManagment.class);
 
 	private RegistrationRequestDB requestDB;

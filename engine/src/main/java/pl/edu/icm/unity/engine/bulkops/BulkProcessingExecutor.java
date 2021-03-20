@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class BulkProcessingExecutor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingExecutor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, BulkProcessingExecutor.class);
 	
 	@Autowired
 	@Qualifier("insecure")

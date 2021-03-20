@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 @Component
 public class UserImportServiceImpl implements UserImportSerivce
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UserImportServiceImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_USER_IMPORT, UserImportServiceImpl.class);
 	private Map<String, SingleUserImportHandler> handlersByKey;
 	
 	@Autowired

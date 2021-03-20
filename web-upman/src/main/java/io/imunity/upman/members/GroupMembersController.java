@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupMembersController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupMembersController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, GroupMembersController.class);
 
 	private DelegatedGroupManagement delGroupMan;
 	private DelegatedGroupsHelper delGroupHelper;

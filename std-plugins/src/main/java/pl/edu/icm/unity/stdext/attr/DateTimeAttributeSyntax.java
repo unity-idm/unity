@@ -35,7 +35,7 @@ public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTi
 			"ddMMyy['T'][ ]HHmmss", "dd.MM.yyyy['T'][ ]HH.mm.ss",
 			"ddMMyyyy['T'][ ]HHmmss", "dd/MM/yyyy['T'][ ]HH/mm/ss");
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, DateTimeAttributeSyntax.class);	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, DateTimeAttributeSyntax.class);	
 	
 	@Override
 	public String getValueSyntaxId()

@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class SingleUserImportHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_USER_IMPORT,
 			SingleUserImportHandler.class);
 	private static final String CACHE_PFX = "userImportCache_";
 	private UserImportSPI facility;

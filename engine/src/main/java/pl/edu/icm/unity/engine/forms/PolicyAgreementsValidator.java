@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 @Component
 public class PolicyAgreementsValidator
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, PolicyAgreementsValidator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, PolicyAgreementsValidator.class);
 
 	private PolicyDocumentDAO policyDocDao;
 	private PolicyAgreementManagement policyAgrMan;

@@ -76,7 +76,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @PrototypeComponent
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, PasswordVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, PasswordVerificator.class);
 	public static final String NAME = "password";
 	public static final String DESC = "Verifies passwords";
 	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};

@@ -33,7 +33,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class InDBUpdateFromSchema11 implements InDBContentsUpdater
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, InDBUpdateFromSchema11.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema11.class);
 	
 	@Override
 	public int getUpdatedVersion()

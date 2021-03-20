@@ -46,7 +46,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  */
 public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfirmationState> extends BaseEmailFacility<T>
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, RegistrationEmailFacility.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_CONFIRMATION, RegistrationEmailFacility.class);
 	
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	

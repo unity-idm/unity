@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.basic.MessageType;
  */
 public class ClickatellChannel implements NotificationChannelInstance
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ClickatellChannel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_NOTIFY, ClickatellChannel.class);
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	private SMSServiceProperties config;

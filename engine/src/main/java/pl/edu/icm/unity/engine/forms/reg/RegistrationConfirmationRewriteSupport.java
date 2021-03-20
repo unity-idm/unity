@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 @Component
 public class RegistrationConfirmationRewriteSupport
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RegistrationConfirmationRewriteSupport.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, RegistrationConfirmationRewriteSupport.class);
 	
 	@Autowired
 	private TokensManagement tokensMan;

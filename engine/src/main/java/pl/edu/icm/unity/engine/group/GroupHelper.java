@@ -52,7 +52,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 @Component
 public class GroupHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, GroupHelper.class);
 	
 	private MembershipDAO membershipDAO;
 	private EntityResolver entityResolver;

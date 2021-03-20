@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Component
 public class IdentityCleaner
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityCleaner.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, IdentityCleaner.class);
 	private IdentityDAO identityDAO;
 	private IdentityTypeHelper idTypeHelper;
 	private IdentityTypeDAO idTypeDAO;

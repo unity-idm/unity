@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class ProjectInvitationsController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ProjectInvitationsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, ProjectInvitationsController.class);
 
 	private ProjectInvitationsManagement invitationMan;
 	private DelegatedGroupsHelper delGroupHelper;

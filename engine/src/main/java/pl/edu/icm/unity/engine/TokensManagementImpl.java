@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class TokensManagementImpl implements TokensManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TokensManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, TokensManagementImpl.class);
 	private EntityResolver idResolver;
 	private TokenDAO dbTokens;
 	private TransactionalRunner tx; 

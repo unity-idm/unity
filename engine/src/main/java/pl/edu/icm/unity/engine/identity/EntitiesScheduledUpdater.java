@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 @Component
 public class EntitiesScheduledUpdater
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EntitiesScheduledUpdater.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, EntitiesScheduledUpdater.class);
 	private UnityServerConfiguration config;
 	private EntityDAO entityDAO;
 	private EventPublisher eventPublisher;

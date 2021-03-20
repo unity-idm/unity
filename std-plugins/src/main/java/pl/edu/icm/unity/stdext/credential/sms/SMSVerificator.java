@@ -53,7 +53,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @PrototypeComponent
 public class SMSVerificator extends AbstractLocalVerificator implements SMSExchange 
 { 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SMSVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, SMSVerificator.class);
 	
 	public static final String NAME = "sms";
 	public static final String DESC = "Verifies sms";

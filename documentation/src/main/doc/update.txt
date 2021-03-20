@@ -156,6 +156,130 @@ unityServer.core.httpServer.wantClientAuthn=true
 
 ===== Server logging configuration changes
 
+3.5 release contains revised logging. There were several changes, which may require change in the +log4j.xml+ file:
+
+1. Additional logging facility categories were added, so that logging configuration can be precise without configuring individual logging facilities.
+2. +unity.server+ category is no longer directly used by any facility. It is from now only used to control default logging level for all Unity facilities.
+3. Several new loggers were added
+4. Logging levels were updated in several cases (mostly DEBUG -> INFO and INFO -> DEBUG) so that the default configuration makes more sense.  
+
+In general all custom configurations entries using category +unity.server+ (e.g. +unity.server.AuditManager+) will need to be updated. 
+Below is a list of all logging facilities formerly in +unity.server+, with their new logging category. 
+
+
+====== Change +unity.server+ -> +unity.server.upman+:
+
++unity.server.ProjectController+
++unity.server.GroupsController+
++unity.server.ProjectInvitationsController+
++unity.server.GroupMembersController+
++unity.server.UpdateRequestsController+
++unity.server.DelegatedGroupsHelper+
++unity.server.ProjectAttributeHelper+
+
+====== Change +unity.server+ -> +unity.server.db+:
+
++unity.server.AuditEventRDBMSStore+
+
+====== Change +unity.server+ -> +unity.server.web+:
+
++unity.server.SMSCredentialEditor+
++unity.server.AuthenticatorsController+
++unity.server.InputTranslationsController+
++unity.server.AuditEventsView+
+
+
+====== Change +unity.server+ -> +unity.server.externaltranslation+:
+
++unity.server.TranslationProfileInstance+
+
+
+====== Change +unity.server+ -> +unity.server.forms+:
+
++unity.server.EnquiryTargetCondEvaluator+
++unity.server.SharedEnquiryManagment+
++unity.server.AutomaticInvitationProcessingSupport+
++unity.server.RegistrationConfirmationRewriteSupport+
++unity.server.RegistrationRequestPreprocessor+
++unity.server.RegistrationsManagementImpl+
++unity.server.SharedRegistrationManagment+
++unity.server.SetEntityStateActionFactory+
++unity.server.BaseRequestPreprocessor+
++unity.server.PolicyAgreementsValidator+
++unity.server.SharedEnquiryManagment+
+
+
+====== Change +unity.server+ -> +unity.server.authn+:
+
++unity.server.AuthenticationProcessorImpl+
++unity.server.AuthenticatorsRegistry+
++unity.server.AuthenticatorSupportServiceImpl+
++unity.server.RemoteAuthnResultProcessorImpl+
++unity.server.AdditionalAuthenticationService+
++unity.server.LoginToHttpSessionBinderImpl+
++unity.server.SessionManagementImpl+
++unity.server.UnsuccessfulAuthenticationCounter+
++unity.server.AddParticipantToSessionTask+
++unity.server.CompositePasswordVerificator+
++unity.server.CredentialResetBase+
++unity.server.CertificateVerificator+
++unity.server.PasswordVerificator+
++unity.server.SMSVerificator+
+
+====== Change +unity.server+ -> +unity.server.audit+:
+
++unity.server.AuditEventListener+
++unity.server.AuditManager+
++unity.server.AuditPublisher+
+
+
+====== Change +unity.server+ -> +unity.server.notification+:
+
++unity.server.ClickatellChannel+
++unity.server.GroovyNotificationChannel+
++unity.server.EmailFacility+
++unity.server.NotificationProducerImpl+
+
+
+====== Change +unity.server+ -> +unity.server.userimport+:
+
++unity.server.SingleUserImportHandler+
++unity.server.UserImportServiceImpl+
+
+====== Change +unity.server+ -> +unity.server.script+:
+
++unity.server.GroovyRunner+
++unity.server.MainGroovyExecutor+
++unity.server.MockGroovyBindingProvider+
+
+
+====== Change +unity.server+ -> +unity.server.event+:
+
++unity.server.EventProcessor+
++unity.server.EventsProcessingThread+
+
+====== Change +unity.server+ -> +unity.server.confirmation+:
+
++unity.server.RegistrationEmailFacility+
++unity.server.MobileNumberConfirmationManagerImpl+
++unity.server.EmailConfirmationManagerImpl+
+
+====== Change +unity.server+ -> +unity.server.bulkops+:
+
++unity.server.BulkQueryServiceImpl+
++unity.server.CompositeEntitiesInfoProvider+
++unity.server.BulkProcessingExecutor+
++unity.server.BulkProcessingSupport+
++unity.server.ChangeStatusActionFactory+
++unity.server.RemoveEntityActionFactory+
++unity.server.SendNotificationActionFactory+
+
+====== Change +unity.server+ -> +unity.server.core+:
+
+Everything else not mentioned above.
+
+====== Other changes
+
 The logging facility showing loading of HTTP server related properties was changed as follows:
 +unicore.configuration.HttpServerProperties+ -> +unity.server.config.UnityHttpServerConfiguration+
 

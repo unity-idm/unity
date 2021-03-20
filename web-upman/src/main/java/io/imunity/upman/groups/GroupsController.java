@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupsController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, GroupsController.class);
 
 	private DelegatedGroupManagement delGroupMan;
 	private MessageSource msg;

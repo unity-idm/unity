@@ -71,7 +71,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SharedEnquiryManagment.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, SharedEnquiryManagment.class);
 
 	private EnquiryResponseDB enquiryResponseDB;
 	private IdentityHelper dbIdentities;

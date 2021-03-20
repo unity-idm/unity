@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 @Component
 public class AuditPublisher
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditPublisher.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUDIT, AuditPublisher.class);
 	private static final AuditEntity SYSTEM_ENTITY = new AuditEntity(0L, "System", null);
 
 	private EventProcessor eventProcessor;

@@ -56,7 +56,7 @@ import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
  */
 public class SMSCredentialEditor implements CredentialEditor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SMSCredentialEditor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SMSCredentialEditor.class);
 	
 	private enum CredentialSource
 	{

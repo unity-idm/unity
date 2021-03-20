@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 @Component
 public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 {
-	static final Logger log = Log.getLogger(Log.U_SERVER, TargetedPersistentIdentity.class);
+	static final Logger log = Log.getLogger(Log.U_SERVER_CORE, TargetedPersistentIdentity.class);
 	public static final String ID = "targetedPersistent";
 	
 	@Override

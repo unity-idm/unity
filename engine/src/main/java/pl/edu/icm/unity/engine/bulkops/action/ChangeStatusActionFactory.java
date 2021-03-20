@@ -50,7 +50,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 
 	public static class ChangeStatusAction extends EntityAction
 	{
-		private static final Logger log = Log.getLogger(Log.U_SERVER,
+		private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS,
 				ChangeStatusActionFactory.ChangeStatusAction.class);
 		private EntityManagement idsMan;
 		private EntityState state;

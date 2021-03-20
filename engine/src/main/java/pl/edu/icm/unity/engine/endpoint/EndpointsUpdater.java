@@ -45,7 +45,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 @Component
 public class EndpointsUpdater extends ScheduledUpdaterBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, EndpointsUpdater.class);
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorConfigurationDB authnDB;

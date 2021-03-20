@@ -51,7 +51,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 @Component
 public class BulkProcessingSupport
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingSupport.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, BulkProcessingSupport.class);
 	public static final String RULE_KEY = "rule";
 	public static final String EXECUTOR_KEY = "executor";
 	public static final String TS_KEY = "timeStamp";

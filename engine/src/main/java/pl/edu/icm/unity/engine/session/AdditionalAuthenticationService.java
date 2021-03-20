@@ -33,7 +33,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 @Component
 public class AdditionalAuthenticationService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AdditionalAuthenticationService.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AdditionalAuthenticationService.class);
 	private final AuthenticationProcessor authnProcessor;
 	private final String policyStr;
 	private final boolean failOnNoMatch;

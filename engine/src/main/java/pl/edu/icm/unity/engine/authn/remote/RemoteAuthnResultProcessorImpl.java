@@ -50,7 +50,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @Component
 public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RemoteAuthnResultProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResultProcessorImpl.class);
 	private InputTranslationProfileRepository inputProfileRepo;
 	private IdentityResolver identityResolver;
 	private InputTranslationEngine trEngine;

@@ -31,7 +31,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 //@ActiveProfiles("test-storage-h2")
 public class TstPerfGetAttributes extends PerformanceTestBase2
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,
 			TstPerfGetAttributes.class);
 	private final int TEST_REPETITIONS = 3;
 	

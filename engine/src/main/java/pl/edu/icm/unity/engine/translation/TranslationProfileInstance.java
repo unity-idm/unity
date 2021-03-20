@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 public abstract class TranslationProfileInstance<T extends TranslationActionInstance, 
 			R extends TranslationRuleInstance<?>> 
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TranslationActionInstance.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, TranslationActionInstance.class);
 	protected List<R> ruleInstances;
 	protected TranslationProfile profile;
 	protected boolean hasInvalidActions;

@@ -69,7 +69,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 @PrototypeComponent
 public class CompositePasswordVerificator extends AbstractVerificator implements PasswordExchange
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN,
 			CompositePasswordVerificator.class);
 
 	public static final String NAME = "composite-password";

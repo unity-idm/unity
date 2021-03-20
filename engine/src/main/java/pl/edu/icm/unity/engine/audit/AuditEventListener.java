@@ -35,7 +35,7 @@ import java.util.List;
 @Component
 public class AuditEventListener implements EventListener
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuditEventListener.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUDIT, AuditEventListener.class);
 	public static final String ID = AuditEventListener.class.getName();
 
 	String entityNameAttribute;

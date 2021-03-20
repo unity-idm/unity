@@ -49,7 +49,7 @@ import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 @InvocationEventProducer
 public class ServerManagementImpl implements ServerManagement
 {
-	private Logger log = Log.getLogger(Log.U_SERVER, ServerManagementImpl.class);
+	private Logger log = Log.getLogger(Log.U_SERVER_CORE, ServerManagementImpl.class);
 	private ImportExport dbDump;
 	private StorageCleaner initDb;
 	private EngineInitialization engineInit;

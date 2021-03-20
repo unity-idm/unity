@@ -73,7 +73,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 @Component
 public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EmailConfirmationManagerImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CONFIRMATION, EmailConfirmationManagerImpl.class);
 	private static final String CACHE_ID = "EmailConfirmationCache";
 	
 	private IdentityTypeHelper idTypeHelper;

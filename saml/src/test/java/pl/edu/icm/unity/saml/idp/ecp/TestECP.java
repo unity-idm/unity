@@ -71,7 +71,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class TestECP extends AbstractTestIdpBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TestECP.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, TestECP.class);
 	
 	private static final String ECP_ENDP_CFG = 
 			"unity.saml.requester.requesterEntityId=http://ecpSP.example.com\n" +

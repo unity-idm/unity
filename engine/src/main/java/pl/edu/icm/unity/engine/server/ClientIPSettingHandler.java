@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
  */
 class ClientIPSettingHandler extends HandlerWrapper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ClientIPSettingHandler.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, ClientIPSettingHandler.class);
 	private final ClientIPDiscovery ipDiscovery;
 	private final IPValidator ipValidator;
 	

@@ -32,7 +32,7 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 @Component
 public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, LoginToHttpSessionBinderImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, LoginToHttpSessionBinderImpl.class);
 
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);

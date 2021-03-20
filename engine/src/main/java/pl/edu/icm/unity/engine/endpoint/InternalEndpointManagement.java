@@ -31,7 +31,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 @Component
 public class InternalEndpointManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalEndpointManagement.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, InternalEndpointManagement.class);
 	private EndpointDB endpointDB;
 	
 	private Map<String, EndpointInstance> deployedEndpoints = new LinkedHashMap<>();

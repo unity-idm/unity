@@ -27,7 +27,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class RoutingServlet extends HttpServlet
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RoutingServlet.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, RoutingServlet.class);
 	public static final String CURRENT_DESTINATION = RoutingServlet.class.getName() + ".destination";
 	private String defaultTarget;
 

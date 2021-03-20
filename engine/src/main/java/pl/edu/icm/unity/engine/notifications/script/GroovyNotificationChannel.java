@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
 class GroovyNotificationChannel implements NotificationChannelInstance
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, GroovyNotificationChannel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_NOTIFY, GroovyNotificationChannel.class);
 	private final GroovyNotificationChannelConfig config;
 	private final ExecutorsService executorsService;
 	

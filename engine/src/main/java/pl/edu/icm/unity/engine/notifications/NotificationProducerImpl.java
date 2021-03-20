@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 @Component
 public class NotificationProducerImpl implements NotificationProducer, InternalFacilitiesManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, NotificationProducerImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_NOTIFY, NotificationProducerImpl.class);
 	
 	private NotificationFacilitiesRegistry facilitiesRegistry;
 	private MembershipDAO dbGroups;
