@@ -186,6 +186,7 @@
 						<phase>pre-site</phase>
 						<configuration>
 							<mainClass>pl.edu.icm.unity.doc.utils.AsciidoctorFormatter</mainClass>
+							<cleanupDaemonThreads>false</cleanupDaemonThreads>
 							<arguments>
 								<argument>target/workspace</argument>
 								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|.</argument>
