@@ -40,9 +40,8 @@ public interface GroupsManagement
 	void addGroup(Group toAdd, boolean withParents) throws EngineException;
 
 	/**
-	 * Adds a new groups
+	 * Adds new groups
 	 * @param requestedGroups set of groups to add
-	 * @throws EngineException 
 	 */
 	void addGroups(Set<Group> toAdd) throws EngineException;
 	

@@ -441,6 +441,34 @@ Creates a new group with complete configuration provided in JSON body. Example (
     "publicGroup": false,
     "path": "/added-group"
 }
+
+=== Create groups 
+
++@Path("/groups")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Creates a new groups with complete configuration provided in JSON body. Example (rather minimal) request:
+
+----
+[
+	{
+	    "displayedName": {
+	        "Map": {"en":"Fancy name"}
+	    },
+	    "i18nDescription": {
+	        "Map": {"en":"Fancy description"}
+	    },
+	    "attributeStatements": [],
+	    "attributesClasses": [],
+	    "delegationConfiguration": {
+	        "enabled": false
+	    },
+	    "publicGroup": false,
+	    "path": "/added-group"
+	},
+	// ... next group definition 
+]
 ----
 
 The format of the body is the same as returned by group metadata endpoint.

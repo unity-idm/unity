@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * 
  * @author K. Benedyczak
  */
-public class Group extends I18nDescribedObject implements NamedObject
+public class Group extends I18nDescribedObject implements NamedObject, Comparable<Group>
 {
 	private String[] path;
 
@@ -409,6 +409,13 @@ public class Group extends I18nDescribedObject implements NamedObject
 				+ ((attributesClasses == null) ? 0 : attributesClasses.hashCode());
 		result = prime * result + Arrays.hashCode(path);
 		return result;
+	}
+	
+	@Override
+	public int compareTo(Group toCompare)
+	{
+		return toString().compareTo(toCompare.toString());	
+		
 	}
 
 	@Override
