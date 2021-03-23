@@ -448,7 +448,7 @@ Creates a new group with complete configuration provided in JSON body. Example (
 +@POST+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Creates a new groups with complete configuration provided in JSON body. Example (rather minimal) request:
+Creates new groups with complete configuration provided in JSON body. Example (rather minimal) request:
 
 ----
 [
@@ -471,7 +471,7 @@ Creates a new groups with complete configuration provided in JSON body. Example 
 ]
 ----
 
-The format of the body is the same as returned by group metadata endpoint.
+The format of the body is the same as returned by the group metadata endpoint.
 
 === Update group settings
 
