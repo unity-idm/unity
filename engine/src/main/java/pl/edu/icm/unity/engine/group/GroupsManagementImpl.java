@@ -11,7 +11,6 @@ import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -157,7 +156,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		capacityLimitVerificator.assertInSystemLimit(CapacityLimitName.GroupsCount,
 				() -> dbGroups.getCount() + toAdd.size());
-		List<Group> groupsSortedByPath = toAdd.stream().sorted(Comparator.comparing(Group::toString))
+		List<Group> groupsSortedByPath = toAdd.stream().sorted()
 				.collect(Collectors.toList());
 
 		for (Group groupToAdd : groupsSortedByPath)
@@ -190,7 +189,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		{
 			for (Group g2 : source)
 			{
-				if (Group.isChild(g2.toString(), g1.toString()) && onlyParents.contains(g2))
+				if (g2.isChild(g1) && onlyParents.contains(g2))
 				{
 					onlyParents.remove(g2);
 				}

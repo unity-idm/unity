@@ -1,5 +1,6 @@
 package pl.edu.icm.unity.engine.group;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,7 +8,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,45 +90,51 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 	public void shouldCreateMultipleGroups() throws EngineException
 	{
 		Group g1 = new Group("/g1");
-		g1.setDisplayedName(new I18nString("G1"));
 		Group g2 = new Group("/g1/g2");
-		Group g21 = new Group("/g1/g2/g21");
-		Group g3 = new Group("/g1/g2/g3");
-
-		Group g4 = new Group("/g4");
-		g4.setDelegationConfiguration(new GroupDelegationConfiguration(true));
+		Group g3 = new Group("/g3");
 		
-		Group g5 = new Group("/g4/g5");
-		Group g6 = new Group("/g6");
-
-		Set<Group> toAdd = Sets.newHashSet(g6, g5, g1, g2, g3, g4, g21);
+		Set<Group> toAdd = Sets.newHashSet(g1, g2, g3);
 		groupsMan.addGroups(Sets.newHashSet(toAdd));
 		
 		Set<String> groups = groupsMan.getChildGroups("/");
 		assertThat(groups, hasItems(toAdd.stream().map(Group::toString).toArray(String[]::new)));
 		assertThat(groupsMan.getContents(g1.toString(), GroupContents.EVERYTHING).getGroup(), is(g1));
-		assertThat(groupsMan.getContents(g4.toString(), GroupContents.EVERYTHING).getGroup(), is(g4));
 	}
+	
+	@Test
+	public void shouldCreateMultipleGroupsWithConfigs() throws EngineException
+	{
+		Group g1 = new Group("/g1");
+		g1.setDisplayedName(new I18nString("G1"));
+		g1.setDelegationConfiguration(new GroupDelegationConfiguration(true));
+		Group g2 = new Group("/g1/g2");
+		g2.setDisplayedName(new I18nString("G2"));
+		Group g3 = new Group("/g3");
+		g3.setDisplayedName(new I18nString("G3"));
+		g3.setDelegationConfiguration(new GroupDelegationConfiguration(false));
+		
+		Set<Group> toAdd = Sets.newHashSet(g1, g2, g3);
+		groupsMan.addGroups(Sets.newHashSet(toAdd));
+		
+		Set<String> groups = groupsMan.getChildGroups("/");
+		assertThat(groups, hasItems(toAdd.stream().map(Group::toString).toArray(String[]::new)));
+		assertThat(groupsMan.getContents(g1.toString(), GroupContents.EVERYTHING).getGroup(), is(g1));
+		assertThat(groupsMan.getContents(g2.toString(), GroupContents.EVERYTHING).getGroup(), is(g2));
+		assertThat(groupsMan.getContents(g3.toString(), GroupContents.EVERYTHING).getGroup(), is(g3));
+	}
+
 
 	@Test
 	public void shouldFailAndRollbackWhenOneGroupIsIncorrect() throws EngineException
 	{
 		Group g1 = new Group("/g1");
 		Group g2 = new Group("/g1/g2");
-		Group g21 = new Group("/g1/g2/g21");
-		Group g3 = new Group("/g1/g2/g3");
-		Group g4 = new Group("/g4");
-		Group g5 = new Group("/g4/g5");
-		Group g6 = new Group("/g6/g7");
-		Set<Group> toAdd = Sets.newHashSet(g6, g5, g1, g2, g3, g4, g21);
-		try
-		{
-			groupsMan.addGroups(Sets.newHashSet(g6, g5, g1, g2, g3, g4, g21));
-			fail();
-		} catch (Exception e)
-		{
-			//ok
-		}
+		Group g3Broken = new Group("/g6/g7");
+		
+		Set<Group> toAdd = Sets.newHashSet(g1, g2, g3Broken);
+		
+		Throwable exception = catchThrowable(() -> groupsMan.addGroups(toAdd));
+		assertExceptionType(exception, IllegalArgumentException.class);
 
 		Set<String> groups = groupsMan.getChildGroups("/");
 		assertThat(groups, not(hasItems(toAdd.stream().map(Group::toString).toArray(String[]::new))));
