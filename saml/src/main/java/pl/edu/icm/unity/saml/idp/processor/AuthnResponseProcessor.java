@@ -72,7 +72,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		log.debug("Requested identity {}, mapped to {}, returning identities: {}", samlFormat, unityFormat, ret);
 		if (ret.size() > 0)
 			return ret;
-		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL,
+		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPAL,
 				"There is no identity of the requested '" + samlFormat + 
 				"' SAML identity format for the authenticated principial.");			
 	}

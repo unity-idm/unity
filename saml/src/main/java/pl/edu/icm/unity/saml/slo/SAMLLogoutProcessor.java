@@ -356,7 +356,7 @@ public class SAMLLogoutProcessor
 					parsedRequest.getIssuer().getStringValue(), realm);
 		} catch (EngineException e)
 		{
-			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL,
+			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPAL,
 					"The principal is not known");
 		}
 		
