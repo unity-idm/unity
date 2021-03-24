@@ -91,7 +91,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			OAuthTokenRepository oauthTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider)
 	{
-		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH);
+		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;

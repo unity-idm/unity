@@ -51,7 +51,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		String resourceBase = getWebContentsDir(config);
 		if (resourceBase != null)
 			sharedHandler.setResourceBase(resourceBase);
-		httpServer.deployHandler(sharedHandler);
+		httpServer.deployHandler(sharedHandler, "sys:shared");
 		usedPaths = new HashSet<>();
 		this.advertisedAddress = advertisedAddrProvider.get();
 	}

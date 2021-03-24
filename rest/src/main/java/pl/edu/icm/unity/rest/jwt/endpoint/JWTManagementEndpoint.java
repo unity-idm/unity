@@ -63,7 +63,7 @@ public class JWTManagementEndpoint extends RESTEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement identitiesMan)
 	{
-		super(msg, sessionMan, authenticationProcessor, networkServer, advertisedAddrProvider, "");
+		super(msg, sessionMan, authenticationProcessor, networkServer, advertisedAddrProvider, "", identitiesMan);
 		this.tokensMan = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.identitiesMan = identitiesMan;

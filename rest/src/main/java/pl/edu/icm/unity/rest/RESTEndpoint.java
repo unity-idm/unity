@@ -30,6 +30,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
@@ -61,7 +62,8 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected String servletPath;
 	protected SessionManagement sessionMan;
 	protected MessageSource msg;
-	
+	private final EntityManagement entityMan;
+
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
 	public RESTEndpoint(MessageSource msg,
@@ -69,13 +71,15 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 			AuthenticationProcessor authenticationProcessor,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			String servletPath)
+			String servletPath,
+			EntityManagement entityMan)
 	{
 		super(server, advertisedAddrProvider);
 		this.authenticationProcessor = authenticationProcessor;
 		this.servletPath = servletPath;
 		this.msg = msg;
 		this.sessionMan = sessionMan;
+		this.entityMan = entityMan;
 	}
 
 	@Override
@@ -170,7 +174,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
 				authenticationFlows, realm, sessionMan, notProtectedPaths,
-				getEndpointDescription().getType().getFeatures()));
+				getEndpointDescription().getType().getFeatures(), entityMan));
 		installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 
