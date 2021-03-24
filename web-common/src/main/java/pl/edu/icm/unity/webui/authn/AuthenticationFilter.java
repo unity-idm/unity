@@ -161,7 +161,7 @@ public class AuthenticationFilter implements Filter
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp);
 		if (blockedTime > 0)
 		{
-			log.debug("Blocked potential DoS/brute force authN attack from "
+			log.warn("Blocked potential DoS/brute force authN attack from "
 					+ clientIp);
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
 					"Access is blocked for "
@@ -213,7 +213,7 @@ public class AuthenticationFilter implements Filter
 			throw new EopException();
 		}
 
-		log.debug("Whole authn is remembered by entity "
+		log.info("Whole authn is remembered by entity "
 				+ loginSessionFromRememberMe.get().getEntityId() + ", skipping it");
 		bindSessionAndGotoProtectedResource(httpRequest, httpResponse, chain,
 				loginSessionFromRememberMe.get(), clientIp);

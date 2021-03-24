@@ -259,7 +259,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			return result;
 		}
 
-		log.debug("Password provided by {} is invalid", username);
+		log.info("Password provided by {} is invalid", username);
 		return new AuthenticationResult(Status.deny, null);
 	}
 

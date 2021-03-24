@@ -209,7 +209,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 						logo.getValue().getStringValue());
 		}
 					
-		log.debug("Added an accepted SP loaded from SAML metadata: " + entityId + " with " + 
+		log.info("Added an accepted SP loaded from SAML metadata: " + entityId + " with " + 
 				defaultServiceEndpoint + " default return url");		
 	}
 		

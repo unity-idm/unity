@@ -223,7 +223,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			properties.setProperty(configKey + CommonWebAuthnProperties.REGISTRATION_FORM, 
 					perMetaRegForm);
 		
-		log.debug("Added a trusted IdP loaded from SAML metadata: " + entityId + " with " + 
+		log.info("Added a trusted IdP loaded from SAML metadata: " + entityId + " with " + 
 				endpoint.getBinding() + " binding");
 	}
 		

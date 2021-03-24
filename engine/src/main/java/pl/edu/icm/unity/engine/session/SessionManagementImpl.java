@@ -122,7 +122,7 @@ public class SessionManagementImpl implements SessionManagement
 							ret.getId(), null, contents);
 
 					if (log.isDebugEnabled())
-						log.debug("Using existing session " + ret.getId()
+						log.info("Using existing session " + ret.getId()
 								+ " for logged entity "
 								+ ret.getEntityId() + " in realm "
 								+ realm.getName());
@@ -154,7 +154,7 @@ public class SessionManagementImpl implements SessionManagement
 		EntityInformation info = entityDAO.getByKey(entityId);
 		if (info.getState() != EntityState.onlyLoginPermitted)
 			return;
-		log.debug("Removing scheduled removal of an account [as the user is being logged] for entity " + 
+		log.info("Removing scheduled removal of an account [as the user is being logged] for entity " + 
 			entityId);
 		info.setState(EntityState.valid);
 		info.setRemovalByUserTime(null);
@@ -187,7 +187,7 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can't create a new session", e);
 		}
-		log.debug("Created a new session {} for logged entity {} in realm {}", 
+		log.info("Created a new session {} for logged entity {} in realm {}", 
 				ls.getId(), ls.getEntityId(), realm.getName());
 		return ls;
 	}
@@ -221,7 +221,7 @@ public class SessionManagementImpl implements SessionManagement
 	public void recordAdditionalAuthentication(String id, AuthenticationOptionKey optionId)
 	{
 		updateSession(id, session -> session.setAdditionalAuthn(new AuthNInfo(optionId, new Date())));
-		log.debug("Recorded additional authentication with {} for session {}", optionId, id);	
+		log.info("Recorded additional authentication with {} for session {}", optionId, id);	
 	}
 	
 	@Transactional
@@ -244,8 +244,7 @@ public class SessionManagementImpl implements SessionManagement
 					.name(id)
 					.subject(tokenToRemove.getOwner())
 					.tags(AUTHN));
-			if (log.isDebugEnabled())
-				log.debug("Removed session with id " + id);
+			log.info("Terminated session {} of entity {}", id, tokenToRemove.getOwner());
 		} catch (IllegalArgumentException e)
 		{
 			//not found - ok
@@ -405,7 +404,7 @@ public class SessionManagementImpl implements SessionManagement
 			long inactiveFor = now - session.getLastUsed().getTime(); 
 			if (inactiveFor > session.getMaxInactivity())
 			{
-				log.debug("Expiring login session " + session + " inactive for: " + 
+				log.info("Expiring login session " + session + " inactive for: " + 
 						inactiveFor);
 				try
 				{

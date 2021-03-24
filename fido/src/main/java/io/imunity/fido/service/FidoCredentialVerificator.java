@@ -167,7 +167,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 			log.error("Parsing JSON: {}, exception: ", json, e);
 			throw new FidoException(msg.getMessage("FidoExc.internalError"), e);
 		}
-		log.debug("Fido start authentication for entityId: {}, username: {}, reqId: {}", entityId, username, reqId);
+		log.info("Fido start authentication for entityId: {}, username: {}, reqId: {}", entityId, username, reqId);
 		return new SimpleEntry<>(reqId, json);
 	}
 

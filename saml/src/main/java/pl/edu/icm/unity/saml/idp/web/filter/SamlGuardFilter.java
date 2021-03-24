@@ -72,7 +72,7 @@ public class SamlGuardFilter implements Filter
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("Request to SAML post-processing address, without SAML context: " 
+				log.warn("Request to SAML post-processing address, without SAML context: " 
 						+ request.getRequestURI() + "?" + request.getQueryString());
 				if (log.isTraceEnabled())
 					dumpRequest(request);

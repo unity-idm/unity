@@ -101,7 +101,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 			return ret;
 		} catch (Exception e)
 		{
-			log.debug("Checking certificate failed", e);
+			log.warn("Checking certificate failed", e);
 			AuthenticationResult ret = new AuthenticationResult(Status.deny, null);
 			if (sandboxCallback != null)
 				sandboxCallback.sandboxedAuthenticationDone(

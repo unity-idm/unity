@@ -282,19 +282,12 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 		if (ls.isUsedOutdatedCredential())
-			log.debug("User {} logged with outdated credential", ls.getEntityId());
+			log.info("User {} logged with outdated credential", ls.getEntityId());
 		
-		if (log.isTraceEnabled())
-		{
-			log.trace("Logged with session: " + ls.toString()
-					+ ", first factor authn option: "
-					+ ls.getLogin1stFactorOptionId()
-					+ ", second factor authn option: "
-					+ ls.getLogin2ndFactorOptionId() + ", first factor skipped: "
-					+ ls.getRememberMeInfo().firstFactorSkipped
-					+ ", second factor skipped: "
-					+ ls.getRememberMeInfo().secondFactorSkipped);
-		}
+		log.info("Logged with session: {}, first factor authn option: {}, second factor authn option: {}"
+				+ ", first factor skipped: {}, second factor skipped: {}",
+				ls.toString(), ls.getLogin1stFactorOptionId(), ls.getLogin2ndFactorOptionId(),
+				ls.getRememberMeInfo().firstFactorSkipped, ls.getRememberMeInfo().secondFactorSkipped);
 	}
 	
 	public static String getSessionCookieName(String realmName)

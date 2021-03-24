@@ -124,11 +124,11 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		{
 			if (force)
 			{
-				log.debug("Forcing sending authn sms code to the user " + subject
+				log.warn("Forcing sending authn sms code to the user " + subject
 						+ ", but authn sms limit is exceeded");
 			} else
 			{
-				log.debug("Authn sms limit to the user " + subject
+				log.warn("Authn sms limit to the user " + subject
 						+ " is exceeded, skipping send authn sms");
 				return null;
 			}
@@ -142,14 +142,14 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 					credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for sms authN can not be found: " + subject, e);
+			log.info("The user for sms authN can not be found: " + subject, e);
 			return null;
 		}
 
 		String credentialValue = resolved.getCredentialValue();
 		if (credentialValue == null)
 		{
-			log.debug("The user {} does not have {} credential defined, skipping sending authentication code",
+			log.info("The user {} does not have {} credential defined, skipping sending authentication code",
 					subject, credentialName);
 			return null;
 		}
@@ -200,7 +200,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 					credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for sms authN can not be found: " + subject, e);
+			log.info("The user for sms authN can not be found: " + subject, e);
 			return new AuthenticationResult(Status.deny, null);
 
 		}
@@ -208,13 +208,13 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		if (System.currentTimeMillis() > sentCode.getValidTo())
 		{
 
-			log.debug("SMS code provided by " + subject + " is invalid");
+			log.info("SMS code provided by " + subject + " is invalid");
 			return new AuthenticationResult(Status.deny, null);
 		}
 
 		if (codeFromUser == null || !sentCode.getValue().equals(codeFromUser))
 		{
-			log.debug("SMS code provided by " + subject + " is incorrect");
+			log.info("SMS code provided by " + subject + " is incorrect");
 			return new AuthenticationResult(Status.deny, null);
 		}
 

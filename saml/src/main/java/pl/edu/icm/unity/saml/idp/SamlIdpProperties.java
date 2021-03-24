@@ -310,12 +310,12 @@ public class SamlIdpProperties extends SamlProperties
 		{
 			authnTrustChecker = new AcceptingSamlTrustChecker();
 			sloTrustChecker = new AcceptingSamlTrustChecker();
-			log.debug("All SPs will be authorized to submit authentication requests");
+			log.info("All SPs will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.validSigner)
 		{
 			authnTrustChecker = new PKISamlTrustChecker(trustedValidator);
 			sloTrustChecker = new PKISamlTrustChecker(trustedValidator);
-			log.debug("All SPs using a valid certificate will be authorized to submit authentication requests");
+			log.info("All SPs using a valid certificate will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
 			authnTrustChecker = createStrictTrustChecker();

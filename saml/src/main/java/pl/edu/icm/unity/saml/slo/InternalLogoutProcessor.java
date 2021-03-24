@@ -86,14 +86,14 @@ class InternalLogoutProcessor
 		
 		if (interimReq != null)
 		{
-			log.debug("Logging out participant in async mode: {}", interimReq.endpoint);
+			log.info("Logging out participant in async mode: {}", interimReq.endpoint);
 			sendRequest(interimReq, response);
 			return;
 		}
 		
 		logoutSynchronousParticipants(ctx);
 		
-		log.debug("Async logout process of session peers is completed");
+		log.info("Async logout process of session peers is completed");
 		contextsStore.removeInternalContext(ctx.getRelayState());
 		ctx.getFinishCallback().finished(response, ctx);
 	}
@@ -128,7 +128,7 @@ class InternalLogoutProcessor
 			
 			try
 			{
-				log.debug("Logging out participant via SOAP: " + participant);
+				log.info("Logging out participant via SOAP: " + participant);
 				LogoutRequest logoutRequest = createSignedLogoutRequest(participant, soapLogoutEndpoint);
 				IClientConfiguration soapClientConfig = createSoapClientConfig(participant);
 				SAMLLogoutClient client = new SAMLLogoutClient(soapLogoutEndpoint.getUrl(), 
@@ -137,7 +137,7 @@ class InternalLogoutProcessor
 				updateContextAfterParicipantLogout(ctx, participant, resp);
 			} catch (Exception e)
 			{
-				log.debug("Logging out the participant " + participant + " via SOAP failed", e);
+				log.warn("Logging out the participant " + participant + " via SOAP failed", e);
 				ctx.getFailed().add(participant);
 			}
 		}
@@ -257,7 +257,7 @@ class InternalLogoutProcessor
 				logoutEndpoint = participant.getLogoutEndpoints().get(Binding.HTTP_REDIRECT);
 			if (logoutEndpoint == null)
 			{
-				log.debug("Can not prepare logout request for {} - no logout endpoint", participant);
+				log.warn("Can not prepare logout request for {} - no logout endpoint", participant);
 				ctx.getFailed().add(participant);
 				continue;
 			}
@@ -267,7 +267,7 @@ class InternalLogoutProcessor
 				break;
 			} catch (SAMLResponderException e)
 			{
-				log.debug("Can not prepare logout request for " + participant, e);
+				log.warn("Can not prepare logout request for " + participant, e);
 				ctx.getFailed().add(participant);
 			}
 		} while (request == null);
@@ -367,11 +367,11 @@ class InternalLogoutProcessor
 		StatusType status = resp.getLogoutResponse().getStatus();
 		if (SAMLConstants.Status.STATUS_OK.toString().equals(status.getStatusCode().getValue()))
 		{
-			log.debug("Successful logout of participant " + participant);
+			log.info("Successful logout of participant " + participant);
 			ctx.getLoggedOut().add(participant);
 		} else
 		{
-			log.debug("Logging out the participant " + participant + 
+			log.warn("Logging out the participant " + participant + 
 					" failed, received status is: " + 
 					status.getStatusCode().getValue() + " - " + status.getStatusMessage() + 
 					" " + status.getStatusDetail());

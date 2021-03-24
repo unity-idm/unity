@@ -183,8 +183,7 @@ public class ECPStep2Handler
 	
 	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx)
 	{
-		if (log.isDebugEnabled())
-			log.debug("Client was successfully authenticated: [" + 
+		log.info("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
 				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null);

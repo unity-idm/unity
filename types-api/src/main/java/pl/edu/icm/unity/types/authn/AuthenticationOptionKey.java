@@ -81,4 +81,13 @@ public class AuthenticationOptionKey
 	{
 		return Objects.hash(authenticatorKey, optionKey);
 	}
+
+
+	@Override
+	public String toString()
+	{
+		return toStringEncodedKey();
+	}
+	
+	
 }

@@ -191,7 +191,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public void removeEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("removeEntity of " + entityId);
+		log.info("removeEntity of " + entityId);
 		identitiesMan.removeEntity(getEP(entityId, idType));
 	}
 
@@ -201,7 +201,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("scheduleRemovalByUser of " + entityId + " on " + when);
+		log.info("scheduleRemovalByUser of " + entityId + " on " + when);
 		Date time = new Date(when);
 		identitiesMan.scheduleRemovalByUser(getEP(entityId, idType), time);
 	}
@@ -212,7 +212,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("operation") String operationStr, @QueryParam("identityType") String idType) 
 			throws EngineException
 	{
-		log.debug("scheduleEntityChange of " + entityId + " on " + when + " op " + operationStr);
+		log.info("scheduleEntityChange of " + entityId + " on " + when + " op " + operationStr);
 		Date time = new Date(when);
 		EntityScheduledOperation operation;
 		try
@@ -233,7 +233,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("changeEntityStatus of " + entityId + " to " + status);
+		log.info("changeEntityStatus of " + entityId + " to " + status);
 		EntityState newState;
 		try
 		{
@@ -252,7 +252,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("credentialRequirement") String credReqIdId) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("addEntity " + value + " type: " + type);
+		log.info("addEntity " + value + " type: " + type);
 		Identity identity = identitiesMan.addEntity(dataParser.parseAsIdentity(type, value), 
 				credReqIdId, EntityState.valid);
 		ObjectNode ret = mapper.createObjectNode();
@@ -267,7 +267,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
+		log.info("addIdentity of " + value + " type: " + type + " for entity: " + entityId);
 		identitiesMan.addIdentity(dataParser.parseAsIdentity(type, value), getEP(entityId, idType));
 	}
 
@@ -277,7 +277,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("target") String target, @QueryParam("realm") String realm) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("removeIdentity of " + value + " type: " + type + " target: " + target + " realm: " + realm);
+		log.info("removeIdentity of " + value + " type: " + type + " target: " + target + " realm: " + realm);
 		identitiesMan.removeIdentity(new IdentityTaV(type, value, target, realm));
 	}
 	
@@ -346,7 +346,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("setAttribute for " + entityId);
+		log.info("setAttribute for " + entityId);
 		Attribute attributeParam;
 		try
 		{
@@ -365,7 +365,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String idType) 
 			throws EngineException, IOException
 	{
-		log.debug("Bulk setAttributes for " + entityId);
+		log.info("Bulk setAttributes for " + entityId);
 		
 		JsonNode root = mapper.readTree(attributes);
 		if (!root.isArray())
@@ -399,7 +399,7 @@ public class RESTAdmin implements RESTAdminHandler
 			String secrets) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("setCredentialByAdmin for " + entityId);
+		log.info("setCredentialByAdmin for " + entityId);
 		entityCredMan.setEntityCredential(getEP(entityId, idType), credential, secrets);
 	}
 	
@@ -412,7 +412,7 @@ public class RESTAdmin implements RESTAdminHandler
 			String secretsArray) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("setCredentialByUser for " + entityId);
+		log.info("setCredentialByUser for " + entityId);
 		JsonNode main;
 		try
 		{
@@ -443,7 +443,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@PathParam("status") String status) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("setCredential {} status for {} to {}", credential, entityId, status);
+		log.info("setCredential {} status for {} to {}", credential, entityId, status);
 		LocalCredentialState desiredCredentialState = LocalCredentialState.valueOf(status);
 		entityCredMan.setEntityCredentialStatus(getEP(entityId, idType), credential, desiredCredentialState);
 	}
@@ -455,7 +455,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
-		log.debug("set2ndFactorOptIn for {} to {}", entityId, status);
+		log.info("set2ndFactorOptIn for {} to {}", entityId, status);
 		entityCredMan.setUserMFAOptIn(getEP(entityId, idType), status);
 	}	
 
@@ -504,7 +504,7 @@ public class RESTAdmin implements RESTAdminHandler
 			recursive = false;
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		log.debug("removeGroup " + group + (recursive ? " [recursive]" : ""));
+		log.info("removeGroup " + group + (recursive ? " [recursive]" : ""));
 		groupsMan.removeGroup(group, recursive);
 	}
 
@@ -512,7 +512,7 @@ public class RESTAdmin implements RESTAdminHandler
 	@POST
 	public void addInitializedGroup(String groupJson) throws EngineException, JsonProcessingException
 	{
-		log.debug("addInitializedGroup {}", groupJson);
+		log.info("addInitializedGroup {}", groupJson);
 		Group parsedGroup = JsonUtil.parse(groupJson, Group.class);
 		groupsMan.addGroup(parsedGroup);
 	}
@@ -521,7 +521,7 @@ public class RESTAdmin implements RESTAdminHandler
 	@PUT
 	public void updateGroup(String groupJson) throws EngineException, JsonProcessingException
 	{
-		log.debug("updateGroup {}", groupJson);
+		log.info("updateGroup {}", groupJson);
 		Group parsedGroup = JsonUtil.parse(groupJson, Group.class);
 		groupsMan.updateGroup(parsedGroup.getName(), parsedGroup);
 	}
@@ -531,7 +531,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public void addGroup(@PathParam("groupPath") String group,
 			@QueryParam("withParents") Boolean withParents) throws EngineException, JsonProcessingException
 	{
-		log.debug("addGroup " + group);
+		log.info("addGroup " + group);
 		Group toAdd = new Group(group);
 		if (withParents == null)
 			withParents = false;
@@ -576,7 +576,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		log.debug("updateGroup statements " + group);
+		log.info("updateGroup statements " + group);
 		
 		List<AttributeStatement> statements;
 		try
@@ -604,7 +604,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		log.debug("removeMember " + entityId + " from " + group);
+		log.info("removeMember " + entityId + " from " + group);
 		groupsMan.removeMember(group, getEP(entityId, idType));
 	}
 	
@@ -617,7 +617,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		log.debug("addMember " + entityId + " to " + group);
+		log.info("addMember " + entityId + " to " + group);
 		
 		EntityParam entityParam = getEP(entityId, idType);
 		
@@ -647,7 +647,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		log.debug("addAttributeType " + jsonRaw);
 		AttributeType at = JsonUtil.parse(jsonRaw, AttributeType.class);
-		log.debug("addAttributeType " + at.getName());
+		log.info("addAttributeType " + at.getName());
 		attributeTypeMan.addAttributeType(at);
 	}
 
@@ -658,7 +658,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		log.debug("updateAttributeType " + jsonRaw);
 		AttributeType at = JsonUtil.parse(jsonRaw, AttributeType.class);
-		log.debug("updateAttributeType " + at.getName());
+		log.info("updateAttributeType " + at.getName());
 		attributeTypeMan.updateAttributeType(at);
 	}
 	
@@ -667,7 +667,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public void removeAttributeType(@PathParam("toRemove") String toRemove, 
 			@QueryParam("withInstances") String withInstances) throws EngineException
 	{
-		log.debug("removeAttributeType " + toRemove);
+		log.info("removeAttributeType " + toRemove);
 		boolean instances = false;
 		if (withInstances != null)
 			instances = Boolean.parseBoolean(withInstances);
@@ -683,7 +683,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (group == null)
 			group = "/";
-		log.debug("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
+		log.info("confirmation trigger for " + attribute + " of " + entityId + " in " + group);
 		EntityParam entityParam = getEP(entityId, idType);
 		Collection<AttributeExt> attributes = attributesService.getAttributes(entityParam, group, attribute);
 		
@@ -701,7 +701,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String identityType, 
 			@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
-		log.debug("Triggering UserNotification \'{}\' for identity {} type {}", 
+		log.info("Triggering UserNotification \'{}\' for identity {} type {}", 
 				templateId,  identityValue,  identityType);
 		EntityParam entityParam = getEP(identityValue, identityType);
 		Entity entity = identitiesMan.getEntity(entityParam);
@@ -723,7 +723,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public void resendConfirmationForIdentity(@PathParam("type") String idType, 
 			@PathParam("value") String value) throws EngineException, JsonProcessingException
 	{
-		log.debug("confirmation trigger for " + idType + ": " + value);
+		log.info("confirmation trigger for " + idType + ": " + value);
 		EntityParam entityParam = new EntityParam(new IdentityTaV(idType, value));
 		Entity entity = identitiesMan.getEntity(entityParam);
 		for (Identity id: entity.getIdentities())
@@ -969,7 +969,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public void removeToken(@PathParam("type") String type, 
 			@PathParam("value") String value) throws EngineException, JsonProcessingException
 	{
-		log.debug("remove token " + type + ":" + value);
+		log.info("remove token " + type + ":" + value);
 		try{
 			securedTokenMan.removeToken(type, value);
 		} catch (EngineException e) {

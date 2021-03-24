@@ -147,7 +147,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private void authnSuccess(EntityWithAuthenticators client, String ip, InvocationContext ctx)
 	{
 		if (log.isDebugEnabled())
-			log.debug("Client was successfully authenticated: [" + 
+			log.info("Client was successfully authenticated: [" + 
 					client.entity.getEntityId() + "] " + client.entity.getAuthenticatedWith().toString());
 		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
 		

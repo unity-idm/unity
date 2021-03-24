@@ -298,10 +298,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		} else
 		{
 			if (savedException != null)
-				log.debug("OAuth2 authorization code verification or processing failed", 
+				log.warn("OAuth2 authorization code verification or processing failed", 
 						savedException);
 			else
-				log.debug("OAuth2 authorization code verification or processing failed");
+				log.warn("OAuth2 authorization code verification or processing failed");
 			Optional<String> errorDetail = reason == null ? Optional.empty() : 
 				Optional.of(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
 			if (error == null)

@@ -105,7 +105,7 @@ public class LdapClient
 		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
 		
 		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Established user's DN is: " + dn);
+		log.info("Established user's DN is: " + dn);
 		
 		bindAsUser(connection, dn, password, configuration);
 		if (configuration.isBindOnly())
@@ -158,7 +158,7 @@ public class LdapClient
 		LDAPConnection connection = createConnection(configuration);
 		
 		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Established user's DN is: " + dn);
+		log.info("Established user's DN is: " + dn);
 		
 		if (configuration.isBindOnly())
 		{
@@ -288,7 +288,7 @@ public class LdapClient
 				throw new LdapAuthenticationException("Wrong username or credentials", e);
 			} else throw e;
 		}
-		log.debug("LDAP bind as user " + dn + " was successful");
+		log.info("LDAP bind as user " + dn + " was successful");
 	}
 
 	private void bindAsSystem(LDAPConnection connection, LdapClientConfiguration configuration) 

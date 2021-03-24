@@ -112,7 +112,7 @@ class SingleCredentialPanel extends VerticalLayout
 			}
 		} catch (EngineException e)
 		{
-			log.debug("Can not get credential type " + credType, e);
+			log.warn("Can not get credential type " + credType, e);
 		}
 		return false;
 	}

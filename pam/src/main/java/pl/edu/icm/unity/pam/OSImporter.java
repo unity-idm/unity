@@ -37,7 +37,7 @@ public class OSImporter implements UserImportSPI
 	{
 		if (!type.equals(UsernameIdentity.ID) && !type.equals(IdentifierIdentity.ID))
 		{
-			log.debug("Can not import user of type " + type 
+			log.warn("Can not import user of type " + type 
 					+ " from local OS, only " + UsernameIdentity.ID 
 					+ " and " + IdentifierIdentity.ID + " are supported.");
 			return null;
@@ -49,7 +49,7 @@ public class OSImporter implements UserImportSPI
 			return LibPAMUtils.unixUser2RAI(unixUser, idpName);
 		} catch (PAMException e)
 		{
-			log.debug("Import of user " + identity + " from local OS failed, skipping", e);
+			log.warn("Import of user " + identity + " from local OS failed, skipping", e);
 			return null;
 		}
 	}

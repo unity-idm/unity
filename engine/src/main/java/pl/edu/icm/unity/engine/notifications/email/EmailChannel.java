@@ -97,7 +97,7 @@ class EmailChannel implements NotificationChannelInstance
 	
 	private void sendEmail(MessageTemplate.Message message, String to) throws MessagingException
 	{
-		EmailFacility.log.debug("Sending e-mail message to '" + to +"' with subject: " + message.getSubject());
+		EmailFacility.log.info("Sending e-mail message to '" + to +"' with subject: " + message.getSubject());
 		MimeMessage msg = new MimeMessage(session);
 		msg.setFrom();
 		msg.setRecipients(Message.RecipientType.TO, to);

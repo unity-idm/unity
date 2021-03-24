@@ -350,7 +350,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			if (disabledCiphers.length() > 1)
 				factory.setExcludeCipherSuites(disabledCiphers.split("[ ]+"));
 		}
-		log.debug("SSL protocol was set to: '" + factory.getProtocol() + "'");
+		log.info("SSL protocol was set to: '" + factory.getProtocol() + "'");
 		return ssl;
 	}
 
@@ -380,7 +380,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 */
 	private ServerConnector createPlainConnector(URL url)
 	{
-		log.debug("Creating plain HTTP connector on: " + url);
+		log.info("Creating plain HTTP connector on: " + url);
 		return getPlainConnectorInstance();
 	}
 

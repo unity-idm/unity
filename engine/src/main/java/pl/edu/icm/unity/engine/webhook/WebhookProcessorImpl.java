@@ -80,7 +80,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 			request.setHeader(AUTHORIZATION_HEADER, BEARER_AUTH + webhook.secret);
 		}
 		
-		log.debug("Request GET to " + url.toString());
+		log.info("Request GET to " + url.toString());
 		HttpResponse response = httpClient.execute(request);
 		return response;
 	}
@@ -99,7 +99,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 			post.setHeader(AUTHORIZATION_HEADER, BEARER_AUTH + webhook.secret);
 		}
 		HttpClient httpClient = getSSLClient(webhook.url, webhook.truststore);
-		log.debug("Request POST to " + webhook.url + " with entity: " + EntityUtils.toString(post.getEntity()));
+		log.info("Request POST to " + webhook.url + " with entity: " + EntityUtils.toString(post.getEntity()));
 		HttpResponse response = httpClient.execute(post);
 		return response;
 	}

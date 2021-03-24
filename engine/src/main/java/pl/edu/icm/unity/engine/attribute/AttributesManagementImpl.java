@@ -166,7 +166,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		if (isSensitiveAttributeChange(at))
 		{
-			log.debug("Additional authentication triggered for sensitive >{}< attribute change", at.getName());
+			log.info("Additional authentication triggered for sensitive >{}< attribute change", at.getName());
 			additionalAuthnService.checkAdditionalAuthenticationRequirements();
 		}
 	}

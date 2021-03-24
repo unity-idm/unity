@@ -104,7 +104,7 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		{
 			throw new FidoException("Failed to create registration options", e);
 		}
-		log.debug("Fido start registration for entityId: {}, username: {}, reqId: {} {}", entityId, username, reqId, json);
+		log.info("Fido start registration for entityId: {}, username: {}, reqId: {} {}", entityId, username, reqId, json);
 		return new SimpleEntry<>(reqId, json);
 	}
 

@@ -169,7 +169,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		
 		if (outdatedCredentialDialogLauncher.get())
 		{
-			log.debug("Launched outdated credential dialog");
+			log.info("Launched outdated credential dialog");
 			return;
 		}
 		

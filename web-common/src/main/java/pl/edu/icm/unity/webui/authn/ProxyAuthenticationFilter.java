@@ -193,17 +193,17 @@ public class ProxyAuthenticationFilter implements Filter
 					authenticatorParam;
 			try
 			{
-				log.debug("Invoking automated proxy authentication handler of {}",
+				log.info("Invoking automated proxy authentication handler of {}",
 						authenticator.getAuthenticatorId());
 				
 				boolean result = authenticator.triggerAutomatedAuthentication(
 						httpRequest, httpResponse, endpointPath);
 				if (result)
 				{
-					log.debug("Automated proxy authentication of {} handled the request",
+					log.info("Automated proxy authentication of {} handled the request",
 							authenticator.getAuthenticatorId());
 				} else
-					log.trace("Automated proxy authentication of {} ignored the request",
+					log.debug("Automated proxy authentication of {} ignored the request",
 							authenticator.getAuthenticatorId());
 				return result;
 			} catch (Exception e)

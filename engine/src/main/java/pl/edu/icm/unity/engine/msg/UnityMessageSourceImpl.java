@@ -105,7 +105,7 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
 		setAlwaysUseMessageFormat(true);
-		log.debug("Messages will be loaded from the following locations: " + Arrays.toString(allBasenames));
+		log.info("Messages will be loaded from the following locations: " + Arrays.toString(allBasenames));
 	}
 	
 	private String getFSPathFromClasspath(String classpath)

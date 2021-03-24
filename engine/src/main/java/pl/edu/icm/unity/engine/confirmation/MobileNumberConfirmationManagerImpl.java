@@ -95,7 +95,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		HashMap<String, String> params = new HashMap<>();
 		params.put(MobileNumberConfirmationTemplateDef.CONFIRMATION_CODE, code);
 
-		log.debug("Send sms confirmation request to mobile " + mobileToConfirm + " with code = "
+		log.info("Send sms confirmation request to mobile " + mobileToConfirm + " with code = "
 				+ code);
 
 		notificationProducer.sendNotification(mobileToConfirm,

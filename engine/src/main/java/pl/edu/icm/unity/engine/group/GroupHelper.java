@@ -104,7 +104,7 @@ public class GroupHelper
 				.subject(entityId)
 				.name(group.getName())
 				.tags(MEMBERS, GROUPS));
-		log.debug("Added entity " + entityId + " to group " + group.toString());
+		log.info("Added entity " + entityId + " to group " + group.toString());
 	}
 	
 	public boolean isMember(long entityId, String path)
@@ -187,7 +187,7 @@ public class GroupHelper
 							.details(ImmutableMap.of("action", "remove"))
 							.tags(MEMBERS, GROUPS));
 					dbAttributes.deleteAttributesInGroup(entityId, group);
-					log.debug("Removed entity " + entityId + " from group " + group);
+					log.info("Removed entity " + entityId + " from group " + group);
 				}
 			}
 		}

@@ -276,7 +276,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 					SAMLConstants.BINDING_HTTP_POST);
 			handleRedirectIfNeeded(userInfo, request.getSession(), response);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
-			log.debug("Authentication of " + selectedIdentity);
+			log.info("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequestReturningResponse(selectedIdentity, attributes, 
 					samlCtx.getRelayState(), samlCtx.getResponseDestination());

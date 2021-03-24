@@ -55,10 +55,7 @@ public class TranslationCondition
 			result = (Boolean) MVEL.executeExpression(compiled, input, new HashMap<>());
 		} catch (Exception e)
 		{
-			if (log.isDebugEnabled())
-			{
-				log.debug("Error during expression execution.", e);
-			}
+			log.warn("Error during expression execution.", e);
 			throw new EngineException(e);
 		}
 		

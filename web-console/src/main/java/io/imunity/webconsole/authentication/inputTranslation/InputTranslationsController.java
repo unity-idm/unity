@@ -102,7 +102,7 @@ public class InputTranslationsController extends TranslationsControllerBase
 			addCallback.run();
 		} catch (ControllerException e)
 		{
-			log.debug("Can nod add input translation profile", e);
+			log.info("Can not add input translation profile", e);
 			errorCallback.accept(e);
 			return false;
 		}

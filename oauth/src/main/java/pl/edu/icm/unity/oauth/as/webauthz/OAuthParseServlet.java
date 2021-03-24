@@ -135,7 +135,7 @@ public class OAuthParseServlet extends HttpServlet
 				Scope requestedScopes = authzRequest.getScope();
 				if (requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID))
 				{
-					log.debug("Request to OAuth2 endpoint address, which is not OIDC request, "
+					log.warn("Request to OAuth2 endpoint address, which is not OIDC request, "
 							+ "but OIDC profile requested. OIDC parse error: " + 
 							e.toString());
 					errorHandler.showErrorPage("Error parsing OAuth OIDC request", e.getMessage(), 
@@ -175,8 +175,7 @@ public class OAuthParseServlet extends HttpServlet
 			validator.validate(context);
 		} catch (OAuthValidationException e)
 		{
-			if (log.isDebugEnabled())
-				log.debug("Processing of OAuth request failed", e);
+			log.warn("Processing of OAuth request failed", e);
 			errorHandler.showErrorPage(e.getMessage(), null, response);
 			return;
 		}

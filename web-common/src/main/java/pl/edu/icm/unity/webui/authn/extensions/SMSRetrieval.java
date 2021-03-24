@@ -297,7 +297,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				capcha.resetFull();
 				usernameLabel.setValue("");
 				sendCodeButton.setVisible(true);
-				log.debug("Too many authn sms code sent to the user, turn on capcha");
+				log.info("Too many authn sms code sent to the user, turn on capcha");
 				return;
 			}
 					
@@ -319,7 +319,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				
 			} catch (EngineException e)
 			{
-				log.debug("Cannot send authn sms code", e);
+				log.warn("Cannot send authn sms code", e);
 				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 						msg.getMessage("WebSMSRetrieval.cannotSendSMS"));
 				return;

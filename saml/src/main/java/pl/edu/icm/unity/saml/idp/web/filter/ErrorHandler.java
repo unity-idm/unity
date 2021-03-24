@@ -61,7 +61,7 @@ public class ErrorHandler
 			throw new SAMLProcessingException("No return URL in the SAML request. " +
 					"Can't return the SAML error response.", error);
 
-		log.debug("SAML error is going to be returned to the SAML requester by the IdP", error);
+		log.warn("SAML error is going to be returned to the SAML requester by the IdP", error);
 		
 		AuthnResponseProcessor errorResponseProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx);
 		String encodedSamlError = processError(errorResponseProcessor, error);
@@ -89,7 +89,7 @@ public class ErrorHandler
 		SAMLConstants.SubStatus subStatus = error.getSamlSubErrorId();
 		if (subStatus != null && subStatus.equals(SAMLConstants.SubStatus.STATUS2_REQUEST_DENIED))
 		{
-			log.debug("Returning of an error response to the requester was blocked for security reasons."
+			log.warn("Returning of an error response to the requester was blocked for security reasons."
 					+ " Instead an error page should be presented.");
 			throw new SAMLProcessingException(error);
 		}
@@ -109,7 +109,7 @@ public class ErrorHandler
 	public void showErrorPage(SAMLProcessingException reason, HttpServletResponse response) 
 			throws IOException, EopException
 	{
-		log.debug("SAML error is going to be shown to the user redirected to Unity IdP by the " +
+		log.warn("SAML error is going to be shown to the user redirected to Unity IdP by the " +
 				"SAML requester", reason);
 		messageHandler.showError(reason, response);
 	}

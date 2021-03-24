@@ -212,7 +212,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			clear();
 			return;
 		}
-		log.debug("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
+		log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
 		idpComponent.setEnabled(false);
 		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);

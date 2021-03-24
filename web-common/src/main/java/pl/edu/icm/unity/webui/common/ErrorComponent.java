@@ -35,9 +35,9 @@ public class ErrorComponent extends FormLayout
 		Label errorL = getGeneric(description + ": " + NotificationPopup.getHumanMessage(error), 
 				Images.error, Styles.error); 
 		if (error instanceof AuthorizationException)
-			log.debug("Error component initialized with the authZ error: " + description);
+			log.warn("Error component initialized with the authZ error: " + description);
 		else
-			log.debug("Error component initialized with the error with exception. Description: " + description, 
+			log.warn("Error component initialized with the error with exception. Description: " + description, 
 					error);
 		addCommon(errorL);
 	}

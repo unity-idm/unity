@@ -141,7 +141,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		} catch (SAMLProcessingException e)
 		{
 			if (log.isDebugEnabled())
-				log.debug("Processing of SAML input failed", e);
+				log.warn("Processing of SAML input failed", e);
 			errorHandler.showErrorPage(e, (HttpServletResponse) response);
 			return;
 		}

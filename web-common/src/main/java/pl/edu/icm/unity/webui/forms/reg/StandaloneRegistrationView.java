@@ -476,7 +476,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onUnknownUser(AuthenticationResult result)
 		{
-			log.debug("External authentication resulted in unknown user, proceeding to 2nd stage");
+			log.info("External authentication resulted in unknown user, proceeding to 2nd stage");
 			switchTo2ndStagePostAuthn(result);
 		}
 
@@ -493,7 +493,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onAuthnError(AuthenticationException e, String authenticatorError)
 		{
-			log.debug("External authentication failed, aborting: {}, {}", e.toString(), authenticatorError);
+			log.info("External authentication failed, aborting: {}, {}", e.toString(), authenticatorError);
 			enableSharedComponentsAndHideAuthnProgress();
 			String genericError = msg.getMessage(e.getMessage());
 			String errorToShow = authenticatorError == null ? genericError : authenticatorError;

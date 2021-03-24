@@ -153,7 +153,7 @@ class MetadataSourceHandler
 	
 	private void doRefresh()
 	{
-		log.debug("Refreshing metadata for {}", source.url);
+		log.info("Refreshing metadata for {}", source.url);
 		EntitiesDescriptorDocument metadata;
 		try
 		{

@@ -39,10 +39,7 @@ public class RedirectRequestHandler extends AbstractRedirectRequestHandler
 		VaadinServletResponse rr = (VaadinServletResponse) response;
 		setCommonHeaders(response);
 		String redirectURL = context.getRequestURI().toString();
-		if (log.isDebugEnabled())
-		{
-			log.debug("Starting OAuth redirection to OAuth provider " + redirectURL);
-		}
+		log.info("Starting OAuth redirection to OAuth provider " + redirectURL);
 		rr.sendRedirect(redirectURL);
 		return true;
 	}

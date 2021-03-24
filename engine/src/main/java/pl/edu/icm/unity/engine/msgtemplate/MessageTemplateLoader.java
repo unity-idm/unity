@@ -160,7 +160,7 @@ class MessageTemplateLoader
 		String channel = templ.getNotificationChannel();
 		if (!channel.isEmpty() && !notificationChannels.keySet().contains(channel))
 		{
-			log.debug("Skip adding message template {}: configured notification channel {} does not exist",
+			log.info("Skip adding message template {}: configured notification channel {} does not exist",
 					templ.getName(), channel);
 			return false;
 		}

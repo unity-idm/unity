@@ -78,11 +78,8 @@ public class NotificationPopup
 			description = msg.getMessage("Generic.formErrorHint");
 		}
 
-		if (log.isDebugEnabled())
-		{
-			log.debug("Error popup showed an error to the user: " + exception.getCaption());
-			log.debug("What's more there was an exception attached which caused an error:", exception);
-		}
+		log.warn("Error popup showed an error to the user: " + exception.getCaption());
+		log.info("What's more there was an exception attached which caused an error:", exception);
 
 		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.ERROR)
 		{
@@ -121,11 +118,8 @@ public class NotificationPopup
 		if (description.trim().isEmpty())
 			description = msg.getMessage("Generic.formErrorHint");
 
-		if (log.isDebugEnabled())
-		{
-			log.debug("Error popup showed an error to the user: " + message);
-			log.debug("What's more there was an exception attached which caused an error:", e);
-		}
+		log.warn("Error popup showed an error to the user: " + message);
+		log.info("What's more there was an exception attached which caused an error:", e);
 		showError(message, description);
 	}
 

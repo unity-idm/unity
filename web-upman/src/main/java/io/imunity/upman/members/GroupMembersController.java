@@ -68,7 +68,7 @@ public class GroupMembersController
 			members = delGroupMan.getDelegatedGroupMemebers(projectPath, groupPath);
 		} catch (Exception e)
 		{
-			log.debug("Can not get memebers of group " + projectPath, e);
+			log.warn("Can not get memebers of group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -120,7 +120,7 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not get attribute names for project " + projectPath, e);
+			log.warn("Can not get attribute names for project " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 		return attrs;
@@ -133,7 +133,7 @@ public class GroupMembersController
 			return delGroupHelper.getProjectGroups(projectPath);
 		} catch (Exception e)
 		{
-			log.debug("Can not get group " + projectPath, e);
+			log.warn("Can not get group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}
@@ -152,7 +152,7 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not add member to group " + groupPath, e);
+			log.warn("Can not add member to group " + groupPath, e);
 			if (added.isEmpty())
 			{
 				throw new ControllerException(msg.getMessage("GroupMembersController.addToGroupError"),
@@ -180,7 +180,7 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not remove member from group " + groupPath, e);
+			log.warn("Can not remove member from group " + groupPath, e);
 			if (removed.isEmpty())
 			{
 				throw new ControllerException(
@@ -211,7 +211,7 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not update group authorization role", e);
+			log.warn("Can not update group authorization role", e);
 			if (updated.isEmpty())
 			{
 				throw new ControllerException(
