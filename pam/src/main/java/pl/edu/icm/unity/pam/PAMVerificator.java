@@ -102,7 +102,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 		} catch (Exception e)
 		{
 			if (e instanceof AuthenticationException)
-				log.debug("PAM authentication failed", e);
+				log.info("PAM authentication failed", e);
 			else
 				log.warn("PAM authentication failed", e);
 			finishAuthnResponseProcessing(state, e);

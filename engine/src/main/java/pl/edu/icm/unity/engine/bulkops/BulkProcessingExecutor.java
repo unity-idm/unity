@@ -81,14 +81,11 @@ public class BulkProcessingExecutor
 			
 			if (rule.getConditionInstance().evaluate(context, log))
 			{
-				if (log.isDebugEnabled())
-					log.debug("Executing action on entity with id " + 
-							entity.getEntityInformation().getId());
+				log.info("Executing action on entity with id {}", entity.getEntityInformation().getId());
 				rule.getActionInstance().invoke(entity);
 			} else
 			{
-				if (log.isDebugEnabled())
-					log.debug("Skipping entity with id {} not matching the condition",
+				log.debug("Skipping entity with id {} not matching the condition",
 							 entity.getEntityInformation().getId());
 			}
 		} catch (Exception e)

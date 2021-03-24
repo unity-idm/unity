@@ -53,7 +53,7 @@ class JettyErrorHandler extends ErrorHandler
 		
 		if (code == HttpStatus.NOT_FOUND_404)
 		{
-			log.debug("404 error: {}", message);
+			log.info("404 error: {}", message);
 		} else
 		{
 			Throwable th = (Throwable)request.getAttribute(

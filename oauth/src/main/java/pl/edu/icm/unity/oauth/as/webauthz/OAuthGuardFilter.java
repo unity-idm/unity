@@ -78,7 +78,7 @@ public class OAuthGuardFilter implements Filter
 		if (context == null)
 		{
 			if (log.isDebugEnabled())
-				log.debug("Request to OAuth post-processing address, without OAuth context: " 
+				log.warn("Request to OAuth post-processing address, without OAuth context: " 
 						+ request.getRequestURI());
 			errorHandler.showErrorPage("No OAuth context", null, 
 					(HttpServletResponse) response);

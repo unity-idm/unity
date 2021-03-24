@@ -145,12 +145,12 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			{
 				if (!authenticator.getTypeDescription().isLocal())
 				{
-					log.debug("Using remote second factor authenticator " + authenticator.getId());
+					log.info("Using remote second factor authenticator " + authenticator.getId());
 					return authn;
 
 				} else if (checkIfUserHasCredential(authenticator, entityId))
 				{
-					log.debug("Using local second factor authenticator " + authenticator.getId());
+					log.info("Using local second factor authenticator " + authenticator.getId());
 					return authn;
 				}
 			}
@@ -180,7 +180,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			return ret;
 		} catch (Exception e)
 		{
-			log.debug("Can not check entity local credential state", e);
+			log.warn("Can not check entity local credential state", e);
 			return false;
 		}
 

@@ -131,7 +131,7 @@ public class SAMLLogoutProcessor
 			return finalResponse;
 		} catch (SAMLServerException e)
 		{
-			log.debug("SOAP Logout request processing finished with error, "
+			log.warn("SOAP Logout request processing finished with error, "
 					+ "converting it to SAML error response", e);
 			LogoutResponse responseDoc = new LogoutResponse(getIssuer(localSamlId), 
 					request.getLogoutRequest().getID(), e);
@@ -157,7 +157,7 @@ public class SAMLLogoutProcessor
 					Binding.of(requestMessage.binding));
 			return;
 		}
-		log.debug("Handling SAML logout request from " + externalCtx.getRequest().getIssuer().getStringValue());
+		log.info("Handling SAML logout request from " + externalCtx.getRequest().getIssuer().getStringValue());
 		
 		AsyncLogoutFinishCallback finishCallback = new AsyncLogoutFinishCallback()
 		{

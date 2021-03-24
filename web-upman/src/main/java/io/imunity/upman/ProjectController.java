@@ -59,7 +59,7 @@ public class ProjectController
 			projects = delGroupMan.getProjectsForEntity(entityId);
 		} catch (Exception e)
 		{
-			log.debug("Can not get projects for entity " + entityId, e);
+			log.warn("Can not get projects for entity " + entityId, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -95,7 +95,7 @@ public class ProjectController
 		catch (Exception e)
 		
 		{
-			log.debug("Can not get project group " + projectPath, e);
+			log.warn("Can not get project group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}
@@ -110,7 +110,7 @@ public class ProjectController
 
 		} catch (Exception e)
 		{
-			log.debug("Can not get project authorization role " + projectPath, e);
+			log.warn("Can not get project authorization role " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}

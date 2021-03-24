@@ -723,7 +723,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			preferences = IdentitiesTablePreferences.getPreferences(preferencesMan);
 		} catch (EngineException e)
 		{
-			log.debug("Can not load preferences for identities table", e);
+			log.warn("Can not load preferences for identities table", e);
 			return;
 		}
 		groupByEntity = preferences.getGroupByEntitiesSetting();

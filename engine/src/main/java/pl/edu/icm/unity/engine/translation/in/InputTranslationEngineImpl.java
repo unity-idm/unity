@@ -445,7 +445,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				processedAttributes.addAll(attributes);
 			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
 			{
-				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
+				log.info("Entity should be added to a group " + group + " which is missing, failing.");
 				throw new ExecutionBreakException();
 			} else
 			{

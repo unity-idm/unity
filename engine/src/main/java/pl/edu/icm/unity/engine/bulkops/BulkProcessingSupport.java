@@ -104,7 +104,7 @@ public class BulkProcessingSupport
 		Trigger trigger = createImmediateTrigger();
 		String id = generateJobKey();
 		JobDetail job = createJob(id, createRuleInstance(rule), new Date());
-		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
+		log.info("Scheduling job with id " + id + " and trigger " + trigger);
 		
 		ListenerManager listenerManager;
 		try
@@ -145,7 +145,7 @@ public class BulkProcessingSupport
 	
 	public synchronized void undeployJob(String id)
 	{
-		log.debug("Removing job with id " + id);
+		log.info("Removing job with id " + id);
 		try
 		{
 			scheduler.deleteJob(new JobKey(id, BulkProcessingSupport.JOB_GROUP));
@@ -194,7 +194,7 @@ public class BulkProcessingSupport
 	private synchronized void scheduleJob(EntityTranslationRule rule, Trigger trigger, String id, Date ts)
 	{
 		JobDetail job = createJob(id, rule, ts);
-		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
+		log.info("Scheduling job with id " + id + " and trigger " + trigger);
 		try
 		{
 			scheduler.scheduleJob(job, trigger);

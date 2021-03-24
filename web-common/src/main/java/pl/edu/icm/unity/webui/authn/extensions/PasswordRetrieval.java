@@ -243,7 +243,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 						username, password, sandboxCallback);
 			} catch (AuthenticationException e)
 			{
-				log.debug("Authentication error during password checking", e);
+				log.info("Authentication error during password checking", e);
 				authenticationResult = e.getResult();
 			} catch (Exception e)
 			{

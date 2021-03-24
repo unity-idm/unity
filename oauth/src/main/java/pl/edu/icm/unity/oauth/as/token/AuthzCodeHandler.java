@@ -103,7 +103,7 @@ class AuthzCodeHandler
 
 		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(internalToken,
 				accessToken, refreshToken, null);
-		log.debug("Authz code grant: issuing new access token {}, valid until {}", 
+		log.info("Authz code grant: issuing new access token {}, valid until {}", 
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), 
 				accessExpiration);
 		oauthTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 

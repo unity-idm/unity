@@ -80,7 +80,7 @@ public class InternalCapacityLimitVerificator
 
 		if (limit < value.get())
 		{
-			log.debug("Capacity limit {} reached (limit={}, value={})", name.toString(), limit, value);
+			log.info("Capacity limit {} reached (limit={}, value={})", name.toString(), limit, value);
 			throw new CapacityLimitReachedException("Capacity limit reached");
 		}
 

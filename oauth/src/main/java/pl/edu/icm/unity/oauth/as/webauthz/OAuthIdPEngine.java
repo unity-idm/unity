@@ -53,7 +53,7 @@ public class OAuthIdPEngine
 			return getUserInfoUnsafe(ctx);
 		} catch (ExecutionFailException e)
 		{
-			log.debug("Authentication failed due to profile's decision, returning error");
+			log.info("Authentication failed due to profile's decision, returning error");
 			ErrorObject eo = new ErrorObject("access_denied", 
 					e.getMessage(), HTTPResponse.SC_FORBIDDEN);
 			
@@ -62,7 +62,7 @@ public class OAuthIdPEngine
 			throw new OAuthErrorResponseException(oauthResponse, true);
 		} catch (IllegalGroupValueException igve)
 		{
-			log.debug("Entity trying to access OAuth resource is not a member of required group");
+			log.warn("Entity trying to access OAuth resource is not a member of required group");
 			ErrorObject eo = new ErrorObject("access_denied", 
 					"Not a member of required group " + ctx.getUsersGroup(), 
 					HTTPResponse.SC_FORBIDDEN);

@@ -114,8 +114,7 @@ class OAuthProxyAuthnHandler
 	{
 		setCommonHeaders(response);
 		String redirectURL = context.getRequestURI().toString();
-		if (log.isDebugEnabled())
-			log.debug("Starting OAuth redirection to OAuth provider: {}, returnURL is {}", 
+		log.info("Starting OAuth redirection to OAuth provider: {}, returnURL is {}", 
 					redirectURL, context.getReturnUrl());
 		response.sendRedirect(redirectURL);
 	}

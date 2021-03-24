@@ -132,7 +132,7 @@ public class SessionParticipants
 			for (SessionParticipant p: toBeAdded)
 				participants.addParticipant(p);
 			if (log.isDebugEnabled())
-				log.debug("Updated session participants to: " + participants);
+				log.info("Updated session participants to: " + participants);
 			sessionAttributes.put(KEY, participants.serialize());
 		}
 	}

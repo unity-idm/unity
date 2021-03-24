@@ -45,7 +45,7 @@ class SLOAsyncMessageHandler
 	void showError(SAMLProcessingException error, HttpServletResponse response) 
 			throws IOException, EopException
 	{
-		log.debug("SAML error is going to be shown to the user redirected to Unity SLO endpoint", error);
+		log.warn("SAML error is going to be shown to the user redirected to Unity SLO endpoint", error);
 		messageHandler.showError(error, response);
 	}	
 	
@@ -66,7 +66,7 @@ class SLOAsyncMessageHandler
 			String localIssuer, String relayState, String requestId, 
 			HttpServletResponse response) throws IOException, EopException
 	{
-		log.debug("SAML error is going to be returned to the SAML requester from SLO endpoint", error);
+		log.warn("SAML error is going to be returned to the SAML requester from SLO endpoint", error);
 		LogoutResponse errorResp = new LogoutResponse(new NameID(localIssuer, null).getXBean(), 
 				requestId, error);
 		SamlRoutableSignableMessage<LogoutResponseDocument> message = new SamlRoutableSignableMessage<>(

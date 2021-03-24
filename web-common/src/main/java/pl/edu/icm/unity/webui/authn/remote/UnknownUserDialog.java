@@ -165,7 +165,7 @@ public class UnknownUserDialog extends AbstractDialog
 	
 	private void handleRegistrationError(Exception error)
 	{
-		log.debug("Can't show a registration form for the remotely authenticated user - "
+		log.info("Can't show a registration form for the remotely authenticated user - "
 				+ "user does not meet form requirements.", error);
 		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 				msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));

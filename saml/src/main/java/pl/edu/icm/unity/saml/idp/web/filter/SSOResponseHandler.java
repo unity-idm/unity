@@ -62,7 +62,7 @@ public class SSOResponseHandler
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 		SamlRoutableUnsignedMessage response = new SamlRoutableUnsignedMessage(respDoc,  
 				SAMLMessageType.SAMLResponse, relayState, serviceUrl);
-		log.debug("Sending SAML error to {} in effect of exception handling", serviceUrl, e);
+		log.warn("Sending SAML error to {} in effect of exception handling", serviceUrl, e);
 		try
 		{
 			messageHandler.sendResponse(binding, response, httpResponse, 

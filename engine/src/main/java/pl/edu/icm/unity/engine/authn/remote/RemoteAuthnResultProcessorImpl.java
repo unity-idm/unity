@@ -202,13 +202,13 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 				translationProfile, inputProfileRepo, actionsRegistry);
 		
 		MappingResult result = profileInstance.translate(input);
-		log.debug("Result of remote data mapping:\n{}", result);
+		log.info("Result of remote data mapping:\n{}", result);
 		if (identity.isPresent())
 		{
 			IdentityTaV presetIdentity = identity.get();
 			IdentityParam presetIdParam = new IdentityParam(presetIdentity.getTypeId(), 
 					presetIdentity.getValue());
-			log.debug("Adding a preset identity as a required to results of mapping: {}", presetIdentity);
+			log.info("Adding a preset identity as a required to results of mapping: {}", presetIdentity);
 			result.addIdentity(new MappedIdentity(IdentityEffectMode.REQUIRE_MATCH, 
 					presetIdParam, null));
 		}

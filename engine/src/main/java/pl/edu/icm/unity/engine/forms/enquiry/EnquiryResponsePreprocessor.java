@@ -57,7 +57,7 @@ public class EnquiryResponsePreprocessor
 		if (invitationInfo.isByInvitation())
 		{
 			String code = response.getRequest().getRegistrationCode();
-			log.debug("Received enquiry response for invitation " + code + ", removing it");
+			log.info("Received enquiry response for invitation " + code + ", removing it");
 			basePreprocessor.removeInvitation(code);
 		}
 	}

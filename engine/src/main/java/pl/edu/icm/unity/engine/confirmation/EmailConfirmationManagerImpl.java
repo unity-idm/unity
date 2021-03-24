@@ -258,7 +258,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
 				+ EmailConfirmationServletProvider.CONFIRMATION_TOKEN_ARG + "=" + token);
 
-		log.debug("Send confirmation request to " + recipientAddress + " with token = "
+		log.info("Send confirmation request to " + recipientAddress + " with token = "
 				+ token);
 
 		confirmationReqCache.put(new Element(token, recipientAddress));
@@ -505,7 +505,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 
 		} catch (Exception e)
 		{
-			log.debug("Cannot get confirmation configuration for attribute "
+			log.info("Cannot get confirmation configuration for attribute "
 					+ attributeName, e);
 			return Optional.empty();
 		}

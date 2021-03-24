@@ -197,7 +197,7 @@ public class JWTManagement
 			return JWTUtils.parseAndValidate(token, signingCred);
 		} catch (ParseException|JOSEException e1)
 		{
-			log.debug("Received invalid JWT to be refreshed", e1);
+			log.warn("Received invalid JWT to be refreshed", e1);
 			throw new BadRequestException(e1);
 		}
 	}

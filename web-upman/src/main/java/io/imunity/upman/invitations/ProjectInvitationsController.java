@@ -61,7 +61,7 @@ public class ProjectInvitationsController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not resend invitations", e);
+			log.warn("Can not resend invitations", e);
 			if (sent.isEmpty())
 			{
 				throw new ControllerException(
@@ -88,7 +88,7 @@ public class ProjectInvitationsController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not remove invitations", e);
+			log.warn("Can not remove invitations", e);
 			if (removed.isEmpty())
 			{
 				throw new ControllerException(
@@ -113,7 +113,7 @@ public class ProjectInvitationsController
 			invitations = invitationMan.getInvitations(projectPath);
 		} catch (Exception e)
 		{
-			log.debug("Can not get project invitations", e);
+			log.warn("Can not get project invitations", e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -134,7 +134,7 @@ public class ProjectInvitationsController
 			throw ControllerException.warning(msg.getMessage("InvitationsController.alreadyAMember"), e);
 		} catch (Exception e)
 		{
-			log.debug("Can not add invitation", e);
+			log.warn("Can not add invitation", e);
 			throw new ServerFaultException(msg);
 		}
 	}
@@ -146,7 +146,7 @@ public class ProjectInvitationsController
 			return delGroupHelper.getProjectGroups(projectPath);
 		} catch (Exception e)
 		{
-			log.debug("Can not get group " + projectPath, e);
+			log.warn("Can not get group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}

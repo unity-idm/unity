@@ -74,7 +74,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
-			log.debug("Throwing SAML fault, caused by validation exception", e1);
+			log.warn("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, context);
@@ -88,7 +88,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 
 			TranslationResult userInfo = getUserInfo(samlProcessor);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
-			log.debug("Authentication of " + selectedIdentity);
+			log.info("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			SamlRoutableSignableMessage<ResponseDocument> routableMessage = samlProcessor.processAuthnRequestReturningResponse(
 					selectedIdentity, attributes, 
@@ -96,7 +96,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			respDoc = routableMessage.getSignedMessage();
 		} catch (Exception e)
 		{
-			log.debug("Throwing SAML fault, caused by processing exception", e);
+			log.warn("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 			respDoc = samlProcessor.getErrorResponse(convertedException);
 		}

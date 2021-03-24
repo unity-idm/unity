@@ -67,7 +67,7 @@ public class AdditionalAuthnHandler
 		Entity entity = getCurrentEntity();
 		authenticationUI.presetEntity(entity);
 
-		log.debug("Triggering additional authentication for {} using authenticator {}",
+		log.info("Triggering additional authentication for {} using authenticator {}",
 				entity.getId(),
 				exception.authenticationOption);
 
@@ -97,7 +97,7 @@ public class AdditionalAuthnHandler
 	{
 		dialog.diableCancelListener();
 		dialog.close();
-		log.debug("Additional authentication completed, result: {}", result);
+		log.info("Additional authentication completed, result: {}", result);
 		resultCallback.accept(result);
 	}
 	

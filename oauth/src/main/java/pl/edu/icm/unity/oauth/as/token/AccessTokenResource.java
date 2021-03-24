@@ -360,7 +360,7 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken,
 				null, null);
-		log.debug("Refreshed access token {} of entity {}, valid until {}", 
+		log.info("Refreshed access token {} of entity {}, valid until {}", 
 				tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
 		oauthTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(refreshToken.getOwner()), now, 
 				accessExpiration);
@@ -386,7 +386,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		internalToken.setAccessToken(accessToken.getValue());
 		
 		Date expiration = TokenUtils.getAccessTokenExpiration(config, now);
-		log.debug("Client cred grant: issuing new access token {}, valid until {}", 
+		log.info("Client cred grant: issuing new access token {}, valid until {}", 
 				tokenToLog(accessToken.getValue()), expiration);
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(
 				new Tokens(accessToken, null));
@@ -502,7 +502,7 @@ public class AccessTokenResource extends BaseOAuthResource
 					makeError(OAuth2Error.ACCESS_DENIED, e.getMessage()));
 		} catch (IllegalGroupValueException e)
 		{
-			log.debug("Entity trying to access OAuth resource is not a member of required group");
+			log.warn("Entity trying to access OAuth resource is not a member of required group");
 			throw new OAuthErrorException(
 					makeError(OAuth2Error.ACCESS_DENIED, e.getMessage()));
 		} catch (Exception e)

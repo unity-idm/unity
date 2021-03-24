@@ -33,7 +33,7 @@ public class ErrorHandler
 	public void showErrorPage(String error, String errorReason, HttpServletResponse response) 
 			throws IOException, EopException
 	{
-		log.debug("OAuth error is going to be shown to the user redirected to Unity by the " +
+		log.info("OAuth error is going to be shown to the user redirected to Unity by the " +
 				"OAuth client: " + error + " " + (errorReason == null ? "" : errorReason));
 		response.setContentType("text/html; charset=utf-8");
 		PrintWriter w = response.getWriter();

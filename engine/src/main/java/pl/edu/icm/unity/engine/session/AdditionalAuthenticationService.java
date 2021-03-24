@@ -70,7 +70,7 @@ public class AdditionalAuthenticationService
 		if (!additionalAuthnRequired)
 			return;
 		
-		log.debug("Additional authn is required with option {}", additionalAuthnOption);
+		log.info("Additional authn is required with option {}", additionalAuthnOption);
 		throw new AdditionalAuthenticationRequiredException(additionalAuthnOption);
 	}
 
@@ -97,7 +97,7 @@ public class AdditionalAuthenticationService
 			default:
 				option = findOnEndpoint(policyElement);
 			}
-			log.debug("Trying {} additional authN option from policy, result: {}", policyElement, option);
+			log.info("Trying {} additional authN option from policy, result: {}", policyElement, option);
 			
 			if (option != null)
 				return option;
@@ -105,7 +105,7 @@ public class AdditionalAuthenticationService
 		
 		if (failOnNoMatch)
 		{
-			log.debug("Additional authn is required but no option was found, blocking operation");
+			log.info("Additional authn is required but no option was found, blocking operation");
 			throw new AdditionalAuthenticationMisconfiguredException();
 		}
 		return null;

@@ -96,7 +96,7 @@ class SAMLProxyAuthnHandler
 		}
 		
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
-		log.debug("Starting automatic proxy authentication with remote SAML IdP "
+		log.info("Starting automatic proxy authentication with remote SAML IdP "
 				+ "configured under {}, current relative URI is {}", idpConfigKey, currentRelativeURI);	
 
 		try
