@@ -125,7 +125,7 @@
 				fileName="logs/unity-server.log" 
 				filePattern="logs/unity-server.log.%d{yyyy-MM-dd}">
 				
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 			
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>

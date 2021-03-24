@@ -25,6 +25,7 @@ import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -91,9 +92,10 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			EntityManagement entityMan)
 	{
-		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH);
+		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, entityMan);
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
 		this.pkiManagement = pkiManagement;

@@ -20,6 +20,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
@@ -43,19 +44,21 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 	protected CXFEndpointProperties genericEndpointProperties;
 	protected SessionManagement sessionMan;
 	private AuthenticationProcessor authnProcessor;
+	private final EntityManagement entityMan;
 	
 	public CXFEndpoint(MessageSource msg,
 			SessionManagement sessionMan,
 			AuthenticationProcessor authnProcessor,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			String servletPath)
+			String servletPath, EntityManagement entityMan)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.servletPath = servletPath;
 		this.sessionMan = sessionMan;
+		this.entityMan = entityMan;
 		services = new HashMap<>();
 	}
 	
@@ -91,7 +94,7 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticationFlows, realm, sessionMan, 
-				new HashSet<String>(), getEndpointDescription().getType().getFeatures()));
+				new HashSet<>(), getEndpointDescription().getType().getFeatures(), entityMan));
 		RESTEndpoint.installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 	

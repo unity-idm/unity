@@ -187,8 +187,8 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can't create a new session", e);
 		}
-		log.info("Created a new session {} for logged entity {} in realm {}", 
-				ls.getId(), ls.getEntityId(), realm.getName());
+		log.info("Created a new session {} for logged entity {} ({}) in realm {}", 
+				ls.getId(), ls.getEntityLabel(), ls.getEntityId(), realm.getName());
 		return ls;
 	}
 

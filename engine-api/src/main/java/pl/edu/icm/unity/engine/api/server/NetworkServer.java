@@ -22,7 +22,7 @@ public interface NetworkServer
 	
 	void undeployEndpoint(String id) throws EngineException;
 
-	void deployHandler(ServletContextHandler sharedHandler) throws EngineException;
+	void deployHandler(ServletContextHandler sharedHandler, String endpointId) throws EngineException;
 
 	void undeployHandler(String contextPath) throws EngineException;
 	

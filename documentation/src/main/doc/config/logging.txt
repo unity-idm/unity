@@ -76,10 +76,14 @@ For more info on controlling the logging we refer to the log4j documentation:
 
 ==== Logger categories, names and levels
 
-Logger names are hierarchical. In Unity, prefixes are used (e.g. "unity.server.con") 
-to which the Java class name is appended. The most common logging prefixes are:
+Logger names are hierarchical. In Unity, prefixes are used to define category of log message (e.g. "unity.server.ldap")  
+to which the Java class name is appended. Complete name of a logger is sometimes called as logging facility. 
 
-- +unity.server+ - general server messages
+The logging prefixes are:
+
+- +unity.server+ - can be used to control default logging level of all Unity-produced logs. No logging facility is 
+directly using this prefix though, there is always something after 'server' - see below.
+- +unity.server.core+ - general server messages (not covered by any other facility below)
 - +unity.server.config+ - configuration parsing and loading
 - +unity.server.db+ - database related
 - +unity.server.web+ - web interface related
@@ -88,12 +92,23 @@ to which the Java class name is appended. The most common logging prefixes are:
 - +unity.server.ws+ - SOAP (web service) stack related
 - +unity.server.externaltranslation+ - messages connected with the translation of any upstream IdP 
 data to the Unity format.
+- +unity.server.forms+ - Registration and enquiry related logs
+- +unity.server.authn+ - Authentication and session management
+- +unity.server.oauth+ - OAuth related
+- +unity.server.pam+ - PAM related
+- +unity.server.otp+ - One time passwords related
+- +unity.server.fido+ - FIDO related
+- +unity.server.rest+ - REST infrastructure 
+- +unity.server.notification+ - User notifications subsystem 
+- +unity.server.confirmation+ - Email and mobile confirmations
+- +unity.server.upman+ - Unity projects management endpoint 
+- +unity.server.audit+ - Audit logging
+- +unity.server.script+ - Invocation of external scripts
+- +unity.server.userimport+ - Import of user information from 3rd party DBs like LDAP
+- +unity.server.bulkops+ - Bulk operations on Unity directory
+- +unity.server.event+ - Low level events handling
  
-NOTE: The default log4j configuration file always contains a comprehensive and up to date list of all prefixes 
-used in Unity.
-
-Therefore the logging output produced can be controlled in a fine-grained manner. 
-Log levels in Log4j are (in increasing level of severity): 
+Therefore the logging output produced can be controlled in a fine-grained manner. Log levels in Log4j are (in increasing level of severity): 
 
 - +TRACE+ on this level _huge_ pieces of unprocessed information are dumped,
 - +DEBUG+ admin-friendly, verbose information, useful for hunting problems, 
@@ -106,6 +121,33 @@ Log levels in Log4j are (in increasing level of severity):
 [NOTE]
 ===========
 The best way to discover what is the name of the interesting category is to turn on the general DEBUG logging 
-for a while. Then interesting events can be seen and subsequently the logging configuration can be fine tuned
+for a while. Then interesting entries can be seen and subsequently the logging configuration can be fine tuned
 to only show them.
 ===========
+
+==== Diagnostic context (MDC)
+
+Unity inject several pieces of context information. Those are commonly referred as Mapped Diagnostic Context and are
+useful to trace processing flows consisting of many subsequent log entries. The following keys are available:
+
+- +endpoint+ - name of the endpoint handling the request
+- +user+ - displayed name of the user who initiated operation
+- +entityId+ - numeric entity id of the user who initiated operation
+- +clientIP+ - IP of the client who initiated operation
+ 
+Note, that all of the MDC keys are not always present, i.e. may be absent when are not applicable. Example is 
+a periodic operation invoked by server itself - its logs won't have diagnostic context.
+ 
+Example configuration of console appender using all available MDC:
+----
+	<Appenders>
+		<Console name="CONSOLE">
+			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] [%X{entityId}] [%X{clientIP}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+		</Console>
+	</Appenders>
+----
+ 
+Log entry with the above configuration could look like this:
+----
+2021-03-24T12:53:05,988 [qtp1132974836-39] [RESTful administration API] [Default Administrator] [1] [0:0:0:0:0:0:0:1] DEBUG unity.server.rest.RESTAdmin: getEntity query for 1
+----

@@ -18,10 +18,12 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -35,10 +37,14 @@ import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.MDCKeys;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -57,11 +63,12 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	private Properties endpointProperties;
+	private final EntityManagement entityMan;
 	
 	public AuthenticationInterceptor(MessageSource msg, AuthenticationProcessor authenticationProcessor, 
 			List<AuthenticationFlow> authenticators,
 			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths,
-			Properties endpointProperties)
+			Properties endpointProperties, EntityManagement entityMan)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
@@ -69,6 +76,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		this.realm = realm;
 		this.authenticators = authenticators;
 		this.endpointProperties = endpointProperties;
+		this.entityMan = entityMan;
 		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
@@ -151,12 +159,31 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 					client.entity.getEntityId() + "] " + client.entity.getAuthenticatedWith().toString());
 		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
 		
+		String label = getLabel(client.entity.getEntityId());
 		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 
-				"", client.entity.getOutdatedCredentialId(), new RememberMeInfo(false, false), 
+				label, client.entity.getOutdatedCredentialId(), new RememberMeInfo(false, false), 
 				client.firstFactor, client.secondFactor);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.entity.getAuthenticatedWith());
 		ls.setRemoteIdP(client.entity.getRemoteIdP());
+		MDC.put(MDCKeys.ENTITY_ID.key, ls.getEntityId());
+		MDC.put(MDCKeys.USER.key, ls.getEntityLabel());
+	}
+	
+	private String getLabel(long entityId)
+	{
+		try
+		{
+			return entityMan.getEntityLabel(new EntityParam(entityId));
+		} catch (AuthorizationException e)
+		{
+			log.debug("Not setting entity's label as the client is not authorized to read the attribute",
+					e);
+		} catch (EngineException e)
+		{
+			log.error("Can not get the attribute designated with EntityName", e);
+		}
+		return null;
 	}
 	
 	private EntityWithAuthenticators processAuthnFlow(Map<String, AuthenticationResult> authnCache,

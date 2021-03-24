@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -65,11 +66,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			EntityManagement entityMan)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
-				advertisedAddrProvider);
+				advertisedAddrProvider, entityMan);
 		this.servletPath = SERVLET_PATH;
 	}
 

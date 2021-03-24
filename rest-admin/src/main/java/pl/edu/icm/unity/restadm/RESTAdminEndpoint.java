@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
@@ -53,9 +54,10 @@ public class RESTAdminEndpoint extends RESTEndpoint
 			NetworkServer server,
 			AuthenticationProcessor authnProcessor,
 			ObjectFactory<List<RESTAdminHandler>> factories,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			EntityManagement entityMan)
 	{
-		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, "");
+		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, "", entityMan);
 		this.factories = factories;
 	}
 
