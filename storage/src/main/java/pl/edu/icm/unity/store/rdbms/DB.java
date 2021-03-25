@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.unicore.util.db.DBPropertiesHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
@@ -85,7 +86,7 @@ public class DB implements StoreLoaderInternal
 	
 	public void initialize(StorageConfiguration config) throws Exception
 	{
-		log.info("Initializing RDBMS storage engine");
+		log.info("Initializing RDBMS storage engine {}", config.getEngineConfig().getValue(DBPropertiesHelper.URL));
 		initDB.initIfNeeded();
 		verifyDBVersion(sessionMan);
 		
