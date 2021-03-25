@@ -23,9 +23,9 @@
 	</select>
 
 	<select id="getByGroup" parameterType="string" resultType="BaseB">
-		select ENTITIES.* from ENTITIES, GROUP_ENTITIES, GROUPS 
-		where GROUP_ENTITIES.GROUP_ID = GROUPS.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
-			AND GROUPS.NAME = #{value}  
+		select ENTITIES.* from ENTITIES, GROUP_ENTITIES, `GROUPS` 
+		where GROUP_ENTITIES.GROUP_ID = `GROUPS`.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
+			AND `GROUPS`.NAME = #{value}  
 	</select>
 	
 	<select id="getCount" resultType="long">

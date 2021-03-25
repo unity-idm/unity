@@ -142,7 +142,7 @@ public class TestTokens extends DBIntegrationTestBase
 		tokensMan.addToken("t", "1234", ep, c, new Date(), exp);
 		
 		AtomicInteger counter = new AtomicInteger();
-		int TRIES = 10000;
+		int TRIES = 1000;
 		Runnable updater = () -> 
 		{
 			for (int i=0; i<TRIES; i++)
