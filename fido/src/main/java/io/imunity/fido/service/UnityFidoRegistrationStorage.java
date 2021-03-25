@@ -12,11 +12,14 @@ import io.imunity.fido.credential.FidoCredentialInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +42,13 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 	private final FidoEntityHelper entityHelper;
 	private final IdentityResolver identityResolver;
 	private final String credentialName;
+	private final AttributeSupport attributeSupport;
 
-	public UnityFidoRegistrationStorage(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver, final String credentialName)
+	public UnityFidoRegistrationStorage(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver, AttributeSupport attributeSupport, final String credentialName)
 	{
 		this.entityHelper = entityHelper;
 		this.identityResolver = identityResolver;
+		this.attributeSupport = attributeSupport;
 		this.credentialName = credentialName;
 	}
 
@@ -63,7 +68,10 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 	{
 		FidoUserHandle uh = new FidoUserHandle(userHandle.getBytes());
 		log.debug("getUsernameForUserHandle({})", uh.asString());
-		return entityHelper.getUsernameForUserHandle(uh.asString());
+		Optional<String> un = entityHelper.getUsernameForUserHandle(uh.asString());
+		if (un.isPresent())
+			return un;
+		return getUsernameFromAllCredentials(uh.asString());
 	}
 
 	@Override
@@ -134,6 +142,21 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 		return Collections.emptySet();
 	}
 
+	Optional<String> getUsernameFromAllCredentials(String userHandle) {
+		Optional<Long> entityId = attributeSupport.getAttributesByType(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX + credentialName).entrySet().stream()
+				.filter(e -> !e.getValue().isEmpty() && !e.getValue().get(0).getValues().isEmpty())
+				.map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().get(0).getValues().get(0)))
+				.filter(e -> FidoCredentialInfo.deserializeList(e.getValue()).stream().anyMatch(c -> c.getUserHandle().equals(userHandle)))
+				.map(Map.Entry::getKey)
+				.findFirst();
+		log.debug("getUsernameFromAllCredentials(): found={}", entityId.isPresent());
+		return entityId.flatMap(id -> {
+			Optional<Identities> resolved = entityHelper.resolveUsername(id, null);
+			resolved.ifPresent(r -> entityHelper.getOrCreateUserHandle(r, userHandle));
+			return resolved.map(r -> r.getUsername());
+		});
+	}
+
 	/**
 	 * Factory and cache that creates Fido registration storage used mainly by Yubico library.
 	 */
@@ -143,17 +166,19 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 		private Map<String, UnityFidoRegistrationStorage> cache = new ConcurrentHashMap<>();
 		private FidoEntityHelper entityHelper;
 		private IdentityResolver identityResolver;
+		private AttributeSupport attributeSupport;
 
 		@Autowired
-		public UnityFidoRegistrationStorageCache(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver)
+		public UnityFidoRegistrationStorageCache(final FidoEntityHelper entityHelper, final IdentityResolver identityResolver, final AttributeSupport attributeSupport)
 		{
 			this.entityHelper = entityHelper;
 			this.identityResolver = identityResolver;
+			this.attributeSupport = attributeSupport;
 		}
 
 		UnityFidoRegistrationStorage getInstance(final String credentialName)
 		{
-			return cache.computeIfAbsent(credentialName, (name) -> new UnityFidoRegistrationStorage(entityHelper, identityResolver, credentialName));
+			return cache.computeIfAbsent(credentialName, (name) -> new UnityFidoRegistrationStorage(entityHelper, identityResolver, attributeSupport, credentialName));
 		}
 	}
 

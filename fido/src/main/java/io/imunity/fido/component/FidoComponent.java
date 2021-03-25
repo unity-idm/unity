@@ -159,12 +159,12 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		NotificationPopup.showError(title, errorMsg);
 	}
 
-	public void invokeRegistration(final String username)
+	public void invokeRegistration(final String username, final boolean useResidentKey)
 	{
 		try
 		{
 			AbstractMap.SimpleEntry<String, String> options = fidoRegistration.getRegistrationOptions(
-					credentialName, credentialConfiguration, entityId, username);
+					credentialName, credentialConfiguration, entityId, username, useResidentKey);
 			log.debug("reqId={}", options.getKey());
 			callFunction("createCredentials", options.getKey(), options.getValue());
 		} catch (FidoException e)

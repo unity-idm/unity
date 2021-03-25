@@ -4,15 +4,18 @@
  */
 package io.imunity.fido.web;
 
+import static io.imunity.tooltip.TooltipExtension.tooltip;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
@@ -43,8 +46,11 @@ class FidoEditorComponent extends CustomComponent
 	private final VerticalLayout credentialsLayout;
 	private Button addButton;
 	private TextField username;
-	private Button customizeButton;
+	private Button advancedOptionsButton;
+	private boolean loginLessSupported;
 	private VerticalLayout buttons;
+	private VerticalLayout advancedOptions;
+	private CheckBox loginLessAllowed;
 
 	public FidoEditorComponent(final FidoRegistration fidoRegistration, final CredentialEditorContext context, 
 			final MessageSource msg)
@@ -62,11 +68,12 @@ class FidoEditorComponent extends CustomComponent
 				.build();
 		fidoComponent.setHeight(0, Unit.PIXELS);
 
+		Optional<FidoCredential> credential = Optional.ofNullable(context.getCredentialConfiguration())
+				.map(s -> FidoCredential.deserialize(context.getCredentialConfiguration()));
+		loginLessSupported = credential.map(FidoCredential::isLoginLessAllowed).orElse(false);
+
 		username = new TextField(msg.getMessage("Fido.username"));
-		username.setValue(nonNull(context.getCredentialConfiguration()) ?
-				FidoCredential.deserialize(context.getCredentialConfiguration()).getHostName() + " " 
-				+ msg.getMessage("Fido.defaultUser") : msg.getMessage("Fido.defaultUser"));
-		username.setVisible(false);
+		username.setValue(credential.map(c -> c.getHostName() + " " + msg.getMessage("Fido.defaultUser")).orElse(msg.getMessage("Fido.defaultUser")));
 		username.setWidth(100, Unit.PERCENTAGE);
 
 		credentialsLayout = new VerticalLayout();
@@ -77,26 +84,34 @@ class FidoEditorComponent extends CustomComponent
 		addButton.setDescription(msg.getMessage("Fido.newRegistration"));
 		addButton.setCaption(msg.getMessage("Fido.register"));
 		addButton.setWidth("100%");
-		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue()));
+		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
 
-		customizeButton = new Button(msg.getMessage("Fido.customizeUsername"));
-		customizeButton.addStyleName(Styles.vButtonLink.toString());
-		customizeButton.addStyleName("u-highlightedLink");
-		customizeButton.addClickListener(e -> {
-			customizeButton.setVisible(false);
-			username.setVisible(true);
+		advancedOptionsButton = new Button(msg.getMessage("Fido.advancedOptions"));
+		advancedOptionsButton.addStyleName(Styles.vButtonLink.toString());
+		advancedOptionsButton.addStyleName("u-highlightedLink");
+		advancedOptionsButton.addClickListener(e -> {
+			advancedOptions.setVisible(!advancedOptions.isVisible());
+			reloadAdvancedOptions();
 		});
-		customizeButton.setVisible(isNull(context.getEntityId()));
-		buttons = new VerticalLayout(addButton, customizeButton);
+
+		loginLessAllowed = new CheckBox(msg.getMessage("Fido.credEditor.loginLess"));
+		tooltip(loginLessAllowed, msg.getMessage("Fido.credEditor.loginLess.tip"));
+		loginLessAllowed.setValue(loginLessSupported);
+
+		buttons = new VerticalLayout(addButton, advancedOptionsButton);
 		buttons.setSpacing(false);
 		buttons.setMargin(false);
-		
+
+		advancedOptions = new VerticalLayout(username, loginLessAllowed);
+		advancedOptions.setMargin(false);
+		advancedOptions.setVisible(false);
+
 		VerticalLayout root = new VerticalLayout();
 		root.setMargin(false);
 		root.setSpacing(true);
 		root.addStyleName("u-fidoEditorLayout");
 		
-		root.addComponents(fidoComponent, username, credentialsLayout, buttons);
+		root.addComponents(fidoComponent, credentialsLayout, buttons, advancedOptions);
 
 		setCompositionRoot(root);
 
@@ -154,11 +169,25 @@ class FidoEditorComponent extends CustomComponent
 		}
 
 		addButton.setVisible(nonNull(fidoComponent.getEntityId()) || credentialsLayout.getComponentCount() == 0);
-		username.setVisible(username.isVisible() && credentialsLayout.getComponentCount() == 0);
-		customizeButton.setVisible(isNull(fidoComponent.getEntityId()) 
-				&& credentialsLayout.getComponentCount() == 0 && !username.isVisible());
+		reloadAdvancedOptions();
+	}
 
-		buttons.setVisible(addButton.isVisible() || customizeButton.isVisible());
+	private void reloadAdvancedOptions()
+	{
+		username.setVisible(isNull(fidoComponent.getEntityId()));
+		loginLessAllowed.setVisible(loginLessSupported);
+
+		if (!username.isVisible() && !loginLessAllowed.isVisible()) {
+			advancedOptions.setVisible(false);
+			advancedOptionsButton.setVisible(false);
+			return;
+		}
+
+		advancedOptionsButton.setVisible(nonNull(fidoComponent.getEntityId()) || credentialsLayout.getComponentCount() == 0);
+		if (!advancedOptionsButton.isVisible()) {
+			advancedOptions.setVisible(false);
+		}
+		advancedOptionsButton.setCaption(advancedOptions.isVisible() ?  msg.getMessage("Fido.advancedOptions.hide") : msg.getMessage("Fido.advancedOptions"));
 	}
 
 	private void addNewCredential(final FidoCredentialInfo credential)

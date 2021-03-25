@@ -117,7 +117,7 @@ class FidoEntityHelper
 		try
 		{
 			return identityResolver.getIdentitiesForEntity(new EntityParam(new IdentityParam(FidoUserHandleIdentity.ID, userHandle)));
-		} catch (IllegalIdentityValueException e)
+		} catch (IllegalIdentityValueException | UnknownIdentityException e)
 		{
 			return Collections.emptyList();
 		}

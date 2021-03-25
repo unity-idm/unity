@@ -8,6 +8,7 @@ import static io.imunity.tooltip.TooltipExtension.tooltip;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -33,6 +34,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 
 	private ComboBox<AttestationConveyancePreference> attestationConveyance;
 	private ComboBox<UserVerificationRequirement> userVerification;
+	private CheckBox loginLessAllowed;
 	private TextField hostName;
 
 	public FidoCredentialDefinitionEditor(MessageSource msg)
@@ -52,11 +54,13 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		userVerification.setItems(UserVerificationRequirement.values());
 		userVerification.setEmptySelectionAllowed(false);
 		userVerification.setTextInputAllowed(false);
+		loginLessAllowed = new CheckBox(msg.getMessage("Fido.credEditor.loginLess"));
+		tooltip(loginLessAllowed, msg.getMessage("Fido.credEditor.loginLess.tip"));
 		tooltip(userVerification, msg.getMessage("Fido.credEditor.userVerification.tip"));
 		hostName = new TextField(msg.getMessage("Fido.credEditor.hostName"));
 		tooltip(hostName, msg.getMessage("Fido.credEditor.hostName.tip"));
 
-		FormLayout ret = new FormLayout(attestationConveyance, userVerification, hostName);
+		FormLayout ret = new FormLayout(attestationConveyance, userVerification, hostName, loginLessAllowed);
 		ret.setMargin(true);
 		
 		FidoCredential credential = isNull(credentialDefinitionConfiguration) ? 
@@ -71,6 +75,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		attestationConveyance.setValue(AttestationConveyancePreference.valueOf(credential.getAttestationConveyance()));
 		userVerification.setValue(UserVerificationRequirement.valueOf(credential.getUserVerification()));
 		hostName.setValue(credential.getHostName());
+		loginLessAllowed.setValue(credential.isLoginLessAllowed());
 	}
 
 	@Override
@@ -97,6 +102,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		credential.setAttestationConveyance(attestationConveyance.getValue().toString());
 		credential.setUserVerification(userVerification.getValue().toString());
 		credential.setHostName(hostName.getValue());
+		credential.setLoginLessOption(loginLessAllowed.getValue());
 		return credential;
 	}
 }

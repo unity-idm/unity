@@ -72,7 +72,8 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 	}
 
 	public SimpleEntry<String, String> getRegistrationOptions(final String credentialName, final String credentialConfiguration,
-															  final Long entityId, final String username) throws FidoException
+															  final Long entityId, final String username,
+															  final boolean useResidentKey) throws FidoException
 	{
 		Optional<Identities> resolvedUsername = entityHelper.resolveUsername(entityId, username);
 		if (!resolvedUsername.isPresent() && (isNull(username) || username.isEmpty()))
@@ -92,6 +93,7 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 						.build())
 				.authenticatorSelection(AuthenticatorSelectionCriteria.builder()
 						.userVerification(UserVerificationRequirement.valueOf(fidoCredential.getUserVerification()))
+						.requireResidentKey(fidoCredential.isLoginLessAllowed() && useResidentKey)
 						.build())
 				.build());
 

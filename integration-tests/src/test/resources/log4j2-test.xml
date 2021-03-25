@@ -37,7 +37,9 @@
 		<Logger name="unity.server.oauth" level="DEBUG"/>
 
 		<Logger name="unity.server.audit" level="INFO"/>
-		
+
+		<Logger name="unity.server.fido" level="INFO"/>
+
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
 
