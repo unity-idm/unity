@@ -12,37 +12,37 @@
 
 	
 	<insert id="create" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO `GROUPS`(NAME, PARENT_ID, CONTENTS) 
-			SELECT #{name} AS NAME, `GROUPS`.ID AS PARENT_ID, #{contents} AS CONTENTS  
-				from `GROUPS` where NAME = #{parentPath}
+		INSERT INTO <include refid="io.imunity.sql.groups"/>(NAME, PARENT_ID, CONTENTS) 
+			SELECT #{name} AS NAME, <include refid="io.imunity.sql.groups"/>.ID AS PARENT_ID, #{contents} AS CONTENTS  
+				from <include refid="io.imunity.sql.groups"/> where NAME = #{parentPath}
 	</insert>
 	
 	<insert id="createWithKey" parameterType="GroupB">
-		INSERT INTO `GROUPS`(ID, NAME, PARENT_ID, CONTENTS) 
-			SELECT #{id} AS ID, #{name} AS NAME, `GROUPS`.ID AS PARENT_ID, #{contents} AS CONTENTS  
-				from `GROUPS` where NAME = #{parentPath}
+		INSERT INTO <include refid="io.imunity.sql.groups"/>(ID, NAME, PARENT_ID, CONTENTS) 
+			SELECT #{id} AS ID, #{name} AS NAME, <include refid="io.imunity.sql.groups"/>.ID AS PARENT_ID, #{contents} AS CONTENTS  
+				from <include refid="io.imunity.sql.groups"/> where NAME = #{parentPath}
 	</insert>
 
 	<update id="updateByKey" parameterType="GroupB">
-		UPDATE `GROUPS` SET CONTENTS = #{contents}, NAME = #{name} WHERE ID = #{id}
+		UPDATE <include refid="io.imunity.sql.groups"/> SET CONTENTS = #{contents}, NAME = #{name} WHERE ID = #{id}
 	</update>
 
 	<delete id="deleteByKey" parameterType="long">
-		DELETE FROM `GROUPS` WHERE ID = #{value}
+		DELETE FROM <include refid="io.imunity.sql.groups"/> WHERE ID = #{value}
 	</delete>
 		
 	<delete id="deleteAll">
-		DELETE FROM `GROUPS`
+		DELETE FROM <include refid="io.imunity.sql.groups"/>
 	</delete>
 	
 	<delete id="delete" parameterType="string">
-		DELETE FROM `GROUPS` WHERE NAME = #{value}
+		DELETE FROM <include refid="io.imunity.sql.groups"/> WHERE NAME = #{value}
 	</delete>
 
 	<sql id="sql-getResolvingParent">
 		select T1.ID, T1.NAME, T1.PARENT_ID, T1.CONTENTS, T2.NAME AS PARENT_PATH
-		from `GROUPS` AS T1
-		left join `GROUPS` AS T2
+		from <include refid="io.imunity.sql.groups"/> AS T1
+		left join <include refid="io.imunity.sql.groups"/> AS T2
 		on T1.PARENT_ID = T2.ID
 	</sql>
 
@@ -61,21 +61,21 @@
 	</select>
 
 	<select id="getAllNames" resultType="string">
-		select NAME from `GROUPS`
+		select NAME from <include refid="io.imunity.sql.groups"/>
 	</select>
 	
 	<select id="getCount" resultType="long">
-		SELECT COUNT(*) FROM `GROUPS`
+		SELECT COUNT(*) FROM <include refid="io.imunity.sql.groups"/>
 	</select>
 
 	<!-- non standard -->
 	
 	<insert id="createRoot" parameterType="GroupB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO `GROUPS`(NAME, CONTENTS) 
+		INSERT INTO <include refid="io.imunity.sql.groups"/>(NAME, CONTENTS) 
 			VALUES (#{name}, #{contents})
 	</insert>
 	
 	<select id="getSubgroups" parameterType="string" resultMap="groupResult">
-		select * from `GROUPS` where PARENT_PATH = #{value} 
+		select * from <include refid="io.imunity.sql.groups"/> where PARENT_PATH = #{value} 
 	</select>
 </mapper>
