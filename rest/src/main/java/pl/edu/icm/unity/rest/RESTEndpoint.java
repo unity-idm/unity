@@ -62,7 +62,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected String servletPath;
 	protected SessionManagement sessionMan;
 	protected MessageSource msg;
-	private final EntityManagement entityMan;
+	protected final EntityManagement entityMan;
 
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
