@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,5 +100,15 @@ public class AttributeSupportImpl implements AttributeSupport
 		return attributeDAO.getAllWithKeyword(keyword).stream()
 				.map(StoredAttribute::getAttribute)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional
+	public Map<Long, List<Attribute>> getAttributesByType(String typeName)
+	{
+		return attributeDAO.getAttributes(typeName, null, null).stream()
+				.collect(Collectors.toMap(StoredAttribute::getEntityId,
+							sa -> new ArrayList<>(Collections.singletonList(sa.getAttribute())),
+							(oldV, newV) -> {oldV.addAll(newV);return oldV;}));
 	}
 }

@@ -28,7 +28,8 @@ public interface FidoRegistration
 	 * @throws FidoException in case JSON creation error
 	 */
 	AbstractMap.SimpleEntry<String, String> getRegistrationOptions(final String credentialName, final String credentialConfiguration,
-																   final Long entityId, final String username) throws FidoException;
+																   final Long entityId, final String username,
+																   final boolean useResidentKey) throws FidoException;
 
 	/**
 	 * Validates public key returned by navigator.credentials.create() method on the client side and store credentials.
