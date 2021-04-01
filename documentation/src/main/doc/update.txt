@@ -156,7 +156,7 @@ unityServer.core.httpServer.wantClientAuthn=true
 
 ===== Server logging configuration changes
 
-3.5 release contains revised logging. There were several changes, which may require change in the +log4j.xml+ file:
+3.5 release contains revised logging. There were several changes, which may require the +log4j.xml+ update:
 
 1. Additional logging facility categories were added, so that logging configuration can be precise without configuring individual logging facilities.
 2. +unity.server+ category is no longer directly used by any facility. It is from now only used to control default logging level for all Unity facilities.
