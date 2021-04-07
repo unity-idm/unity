@@ -143,12 +143,12 @@ class UnityFidoRegistrationStorage implements CredentialRepository
 	}
 
 	Optional<String> getUsernameFromAllCredentials(String userHandle) {
-		Optional<Long> entityId = attributeSupport.getAttributesByType(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX + credentialName).entrySet().stream()
+		Optional<Long> entityId = attributeSupport.getEntitiesWithAttributes(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX + credentialName).entrySet().stream()
 				.filter(e -> !e.getValue().isEmpty() && !e.getValue().get(0).getValues().isEmpty())
 				.map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().get(0).getValues().get(0)))
 				.filter(e -> FidoCredentialInfo.deserializeList(e.getValue()).stream().anyMatch(c -> c.getUserHandle().equals(userHandle)))
 				.map(Map.Entry::getKey)
-				.findFirst();
+				.findAny();
 		log.debug("getUsernameFromAllCredentials(): found={}", entityId.isPresent());
 		return entityId.flatMap(id -> {
 			Optional<Identities> resolved = entityHelper.resolveUsername(id, null);

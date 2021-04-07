@@ -104,9 +104,9 @@ public class AttributeSupportImpl implements AttributeSupport
 
 	@Override
 	@Transactional
-	public Map<Long, List<Attribute>> getAttributesByType(String typeName)
+	public Map<Long, List<Attribute>> getEntitiesWithAttributes(String attributeTypeName)
 	{
-		return attributeDAO.getAttributes(typeName, null, null).stream()
+		return attributeDAO.getAttributes(attributeTypeName, null, null).stream()
 				.collect(Collectors.toMap(StoredAttribute::getEntityId,
 							sa -> new ArrayList<>(Collections.singletonList(sa.getAttribute())),
 							(oldV, newV) -> {oldV.addAll(newV);return oldV;}));
