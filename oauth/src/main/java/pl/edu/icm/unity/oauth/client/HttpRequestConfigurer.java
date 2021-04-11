@@ -9,7 +9,8 @@ import javax.net.ssl.SSLSocketFactory;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
+import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
@@ -23,11 +24,10 @@ public class HttpRequestConfigurer
 	{
 		if (validator != null)
 		{
-			SSLSocketFactory factory = SocketFactoryCreator.getSocketFactory(null, validator);
+			SSLSocketFactory factory = new SocketFactoryCreator2(validator, new HostnameMismatchCallbackImpl(mode))
+					.getSocketFactory();
 			request.setSSLSocketFactory(factory);
 		}
-		CanlHostnameVerifierJDK verifier = new CanlHostnameVerifierJDK(mode);
-		request.setHostnameVerifier(verifier);
 		return request;
 	}
 	

@@ -29,8 +29,10 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
@@ -45,18 +47,21 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 public class EmbeddedDirectoryServer
 {
 	private InMemoryDirectoryServer ds;
-	private KeystoreCredential credential;
-	private String cfgDirectory;
+	private final KeystoreCredential credential;
+	private final String cfgDirectory;
+	private final ServerHostnameCheckingMode hostnameCheckingMode;
 	
-	public EmbeddedDirectoryServer(KeystoreCredential credential, String cfgDirectory)
+	public EmbeddedDirectoryServer(KeystoreCredential credential, String cfgDirectory, 
+			ServerHostnameCheckingMode hostnameChackingMode)
 	{
 		this.credential = credential;
 		this.cfgDirectory = cfgDirectory;
+		this.hostnameCheckingMode = hostnameChackingMode;
 	}
 
 	public EmbeddedDirectoryServer() throws Exception
 	{
-		this(DBIntegrationTestBase.getDemoCredential(), "src/test/resources");
+		this(DBIntegrationTestBase.getDemoCredential(), "src/test/resources", ServerHostnameCheckingMode.WARN);
 	}
 
 	
@@ -68,9 +73,12 @@ public class EmbeddedDirectoryServer
 		List<InMemoryListenerConfig> listenerConfigs = new ArrayList<>();
 		
 		BinaryCertChainValidator acceptAll = new BinaryCertChainValidator(true);
-		SSLServerSocketFactory serverSocketFactory = SocketFactoryCreator.getServerSocketFactory(credential, 
-				acceptAll);
-		SSLSocketFactory clientSocketFactory = SocketFactoryCreator.getSocketFactory(null, acceptAll);
+		SSLServerSocketFactory serverSocketFactory = new SocketFactoryCreator2(credential, 
+					acceptAll, new HostnameMismatchCallbackImpl(hostnameCheckingMode))
+				.getServerSocketFactory();
+		SSLSocketFactory clientSocketFactory = new SocketFactoryCreator2(null, 
+					acceptAll, new HostnameMismatchCallbackImpl(hostnameCheckingMode))
+				.getSocketFactory();
 		System.out.println(Arrays.toString(serverSocketFactory.getSupportedCipherSuites()));
 		System.out.println(Arrays.toString(clientSocketFactory.getSupportedCipherSuites()));
 		

@@ -38,6 +38,7 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.security.canl.SSLContextCreator;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
@@ -87,14 +88,6 @@ public class LdapClient
 
 	/**
 	 * Performs authentication by binding and searches for all configured attributes.
-	 * @param user
-	 * @param password
-	 * @param configuration
-	 * @return
-	 * @throws LDAPException
-	 * @throws LdapAuthenticationException
-	 * @throws KeyManagementException
-	 * @throws NoSuchAlgorithmException
 	 */
 	public RemotelyAuthenticatedInput bindAndSearch(String userOrig, String password, 
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
@@ -241,8 +234,10 @@ public class LdapClient
 		if (configuration.getConnectionMode() == ConnectionMode.SSL)
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();
+			ServerHostnameCheckingMode certificateCheckingMode = configuration.isTrustAllCerts() ? 
+					ServerHostnameCheckingMode.NONE : ServerHostnameCheckingMode.FAIL;
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLS", "LDAP client", log);
+					"TLS", "LDAP client", log, certificateCheckingMode);
 			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
 		} else
@@ -258,7 +253,7 @@ public class LdapClient
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLSv1.2", "LDAP client", log);
+					"TLSv1.2", "LDAP client", log, ServerHostnameCheckingMode.FAIL);
 			ExtendedResult extendedResult = connection.processExtendedOperation(
 					new StartTLSExtendedRequest(ctx));
 

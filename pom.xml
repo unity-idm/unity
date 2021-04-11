@@ -25,7 +25,7 @@
 		<vaadin.version>8.12.3</vaadin.version>
 		<cxf.version>3.4.2</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
-		<bc.version>1.67</bc.version>
+		<bc.version>1.68</bc.version>
 		<selenium.version>3.141.59</selenium.version>
 		<jackson.version>2.12.1</jackson.version>
 		<junit5.version>5.7.0</junit5.version>
@@ -445,7 +445,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>5.1.0</version>
+				<version>5.3.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -464,7 +464,7 @@
 			<dependency>
 				<groupId>io.imunity.samly</groupId>
 				<artifactId>samly2</artifactId>
-				<version>2.7.0-rc2</version>
+				<version>2.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.imunity.samly</groupId>
@@ -474,7 +474,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>3.1.0</version>
+				<version>3.2.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.apache.geronimo.javamail</groupId>

@@ -47,5 +47,5 @@ public class SAMLContext<T extends XmlObject, C extends RequestAbstractType>
 	public C getRequest()
 	{
 		return request;
-	}	
+	}
 }

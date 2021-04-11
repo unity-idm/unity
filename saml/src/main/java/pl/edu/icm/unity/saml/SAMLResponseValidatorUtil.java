@@ -15,6 +15,7 @@ import eu.unicore.samly2.assertion.AssertionParser;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -50,14 +51,14 @@ public class SAMLResponseValidatorUtil
 	public SAMLResponseValidatorUtil(SAMLSPProperties samlProperties,
 			ReplayAttackChecker replayAttackChecker, String responseConsumerAddress)
 	{
-		super();
 		this.samlProperties = samlProperties;
 		this.replayAttackChecker = replayAttackChecker;
 		this.responseConsumerAddress = responseConsumerAddress;
 	}
 
 
-	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument,
+	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument, 
+			SAMLVerifiableElement verifiableResponse,
 			String requestId, SAMLBindings binding, String groupAttribute, String configKey) 
 					throws AuthenticationException
 	{
@@ -82,7 +83,7 @@ public class SAMLResponseValidatorUtil
 				decryptKey);
 		try
 		{
-			validator.validate(responseDocument);
+			validator.validate(responseDocument, verifiableResponse);
 		} catch (SAMLValidationException e)
 		{
 			throw new AuthenticationException("The SAML response is either invalid or is issued " +

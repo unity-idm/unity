@@ -10,6 +10,7 @@ import java.util.Set;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnRequestValidator;
@@ -53,11 +54,11 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 	}
 	
 	@Override
-	public void validate(AuthnRequestDocument authenticationRequestDoc) throws SAMLServerException
+	public void validate(AuthnRequestDocument authenticationRequestDoc, SAMLVerifiableElement verifiableMessage) throws SAMLServerException
 	{
-		AuthnRequestType req = authenticationRequestDoc.getAuthnRequest();
-		super.validate(authenticationRequestDoc);
+		super.validate(authenticationRequestDoc, verifiableMessage);
 		
+		AuthnRequestType req = authenticationRequestDoc.getAuthnRequest();
 		//1 - presence of Subject element in request
 		//WARNING - if this is implemented then filtering of inactive identities
 		//must be also applied in this class.
@@ -88,12 +89,6 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 					"response endpoint is not configured.");
 	}
 	
-
-	/**
-	 * Useful for subclasses
-	 * @param aReq
-	 * @return
-	 */
 	protected String getRequestedFormat(AuthnRequestType aReq)
 	{
 		String requestedFormat = null;

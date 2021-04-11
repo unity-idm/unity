@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.validator;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -27,10 +28,10 @@ public class WebAuthRequestValidator extends UnityAuthnRequestValidator
 	}
 
 	@Override
-	public void validate(AuthnRequestDocument authenticationRequestDoc) throws SAMLServerException
+	public void validate(AuthnRequestDocument authenticationRequestDoc, SAMLVerifiableElement verifiableMessage) throws SAMLServerException
 	{
 		AuthnRequestType aReq = authenticationRequestDoc.getAuthnRequest();
-		super.validate(authenticationRequestDoc, aReq);
+		super.validate(authenticationRequestDoc, verifiableMessage);
 		if (aReq.getProtocolBinding() != null && 
 				!aReq.getProtocolBinding().equals(SAMLConstants.BINDING_HTTP_POST))
 		{
