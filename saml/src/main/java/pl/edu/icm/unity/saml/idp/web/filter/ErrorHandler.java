@@ -102,7 +102,7 @@ public class ErrorHandler
 		
 		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
-		freemarker.printGenericPage(w, "finishSaml.ftl", data);
+		freemarker.printGenericPage(w, "samlFinish.ftl", data);
 		throw new EopException();
 	}
 	

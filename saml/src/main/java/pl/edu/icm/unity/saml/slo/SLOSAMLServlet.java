@@ -15,7 +15,7 @@ import org.apache.xmlbeans.XmlException;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLMessage;
-import eu.unicore.samly2.messages.SAMLVerifiableMessage;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
@@ -45,7 +45,7 @@ public class SLOSAMLServlet extends SamlHttpRequestServlet
 		{
 			SAMLBindings binding = isGet ? SAMLBindings.HTTP_REDIRECT : SAMLBindings.HTTP_POST;
 			LogoutRequestDocument reqDoc = LogoutRequestDocument.Factory.parse(samlRequest);
-			SAMLVerifiableMessage verifiableMessage = binding == SAMLBindings.HTTP_REDIRECT ? 
+			SAMLVerifiableElement verifiableMessage = binding == SAMLBindings.HTTP_REDIRECT ? 
 					new RedirectedMessage(httpReq.getQueryString()) 
 					: new XMLExpandedMessage(reqDoc, reqDoc.getLogoutRequest());
 			SAMLMessage<LogoutRequestDocument> requestMessage = new SAMLMessage<>(

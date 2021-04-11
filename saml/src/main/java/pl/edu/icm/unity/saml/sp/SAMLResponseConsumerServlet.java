@@ -10,11 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
 
+import eu.unicore.samly2.messages.RedirectedMessage;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlHttpResponseServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Custom servlet which awaits SAML authn response from IdP, which should be 
@@ -55,10 +60,29 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 		}
 		
 		Binding binding = isGet ? Binding.HTTP_REDIRECT : Binding.HTTP_POST;
-		context.setResponse(samlResponse, binding);
+		SAMLVerifiableElement verifiableMessage = isGet ? 
+				new RedirectedMessage(req.getQueryString()) : getDocumentSignedMessage(samlResponse);
+		context.setResponse(samlResponse, binding, verifiableMessage);
 		log.debug("SAML response for authenticator {} was stored in context, redirecting to originating endpoint {}", 
 				context.getAuthenticatorOptionId(), context.getReturnUrl());
 		resp.sendRedirect(context.getReturnUrl());
+	}
+	
+	private XMLExpandedMessage getDocumentSignedMessage(String samlResponse) throws IOException
+	{
+		ResponseDocument parsedResponse = parseResponse(samlResponse);
+		return new XMLExpandedMessage(parsedResponse, parsedResponse.getResponse());
+	}
+	
+	private ResponseDocument parseResponse(String samlResponse) throws IOException
+	{
+		try
+		{
+			return ResponseDocument.Factory.parse(samlResponse);
+		} catch (XmlException e)
+		{
+			throw new IOException("The SAML response can not be parsed - XML data is corrupted", e);
+		}
 	}
 }
 

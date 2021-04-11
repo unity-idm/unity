@@ -16,6 +16,9 @@ import org.apache.xmlbeans.XmlException;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.RedirectedMessage;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -70,7 +73,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			throws ServletException, IOException
 	{
 		log.trace("Received GET request to the SAML IdP endpoint");
-		processSamlRequest(request, response);
+		processSamlRequest(request, response, true);
 	}
 
 	/**
@@ -82,22 +85,22 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			throws ServletException, IOException
 	{
 		log.trace("Received POST request to the SAML IdP endpoint");
-		processSamlRequest(request, response);
+		processSamlRequest(request, response, false);
 	}
 
-	protected void processSamlRequest(HttpServletRequest request, HttpServletResponse response) 
+	protected void processSamlRequest(HttpServletRequest request, HttpServletResponse response, boolean isHTTPGet) 
 			throws IOException, ServletException
 	{
 		try
 		{
-			processSamlRequestInterruptible(request, response);
+			processSamlRequestInterruptible(request, response, isHTTPGet);
 		} catch (EopException e)
 		{
 			//OK
 		}
 	}
 	
-	protected void processSamlRequestInterruptible(HttpServletRequest request, HttpServletResponse response) 
+	protected void processSamlRequestInterruptible(HttpServletRequest request, HttpServletResponse response, boolean isHTTPGet) 
 			throws IOException, ServletException, EopException
 	{
 		log.trace("Starting SAML request processing");
@@ -136,7 +139,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			AuthnRequestDocument samlRequest = parse(request);
 			if (log.isTraceEnabled())
 				log.trace("Parsed SAML request:\n" + samlRequest.xmlText());
-			context = createSamlContext(request, samlRequest, samlConfig);
+			context = createSamlContext(request, samlRequest, samlConfig, isHTTPGet);
 			validate(context, response, samlConfig);
 		} catch (SAMLProcessingException e)
 		{
@@ -156,11 +159,14 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		response.sendRedirect(samlDispatcherServletPath);
 	}
 	
-	protected SAMLAuthnContext createSamlContext(HttpServletRequest request, AuthnRequestDocument samlRequest,
-			SamlIdpProperties samlConfig)
+	protected SAMLAuthnContext createSamlContext(HttpServletRequest httpReq, AuthnRequestDocument samlRequest,
+			SamlIdpProperties samlConfig, boolean isHTTPGet)
 	{
-		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig);
-		String rs = request.getParameter(SAMLConstants.RELAY_STATE);
+		SAMLVerifiableElement verifiableMessage = isHTTPGet ? 
+				new RedirectedMessage(httpReq.getQueryString()) 
+				: new XMLExpandedMessage(samlRequest, samlRequest.getAuthnRequest());
+		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig, verifiableMessage);
+		String rs = httpReq.getParameter(SAMLConstants.RELAY_STATE);
 		if (rs != null)
 			ret.setRelayState(rs);
 		return ret;
@@ -210,7 +216,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		samlConfig.configureKnownRequesters(validator);
 		try
 		{
-			validator.validate(context.getRequestDocument());
+			validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 		} catch (SAMLServerException e)
 		{
 			errorHandler.commitErrorResponse(context, e, servletResponse);

@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -68,7 +69,8 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	{
 		if (log.isTraceEnabled())
 			log.trace("Received SAML AuthnRequest: " + reqDoc.xmlText());
-		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties);
+		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(reqDoc, reqDoc.getAuthnRequest());
+		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties, verifiableMessage);
 		try
 		{
 			validate(context);
@@ -132,7 +134,6 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 		UnityAuthnRequestValidator validator = new UnityAuthnRequestValidator(endpointAddress, 
 				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
 				samlProperties.getReplayChecker());
-		
-		validator.validate(context.getRequestDocument());
+		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}
 }

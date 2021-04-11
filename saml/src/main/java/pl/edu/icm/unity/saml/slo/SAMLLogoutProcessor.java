@@ -22,7 +22,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.SAMLMessage;
-import eu.unicore.samly2.messages.SAMLVerifiableMessage;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.proto.LogoutResponse;
 import eu.unicore.samly2.slo.LogoutRequestParser;
@@ -113,7 +113,7 @@ public class SAMLLogoutProcessor
 	{
 		try
 		{
-			SAMLVerifiableMessage verifiableMessage = new XMLExpandedMessage(request, request.getLogoutRequest());
+			SAMLVerifiableElement verifiableMessage = new XMLExpandedMessage(request, request.getLogoutRequest());
 			SAMLMessage<LogoutRequestDocument> requestMessage = 
 					new SAMLMessage<>(verifiableMessage, null, SAMLBindings.SOAP, request);
 			SAMLExternalLogoutContext externalCtx = initFromSAML(requestMessage, false);

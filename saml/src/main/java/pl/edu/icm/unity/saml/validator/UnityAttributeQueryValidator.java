@@ -30,7 +30,7 @@ public class UnityAttributeQueryValidator extends AttributeQueryValidator
 	@Override
 	public void validate(AttributeQueryDocument wrappingDocument) throws SAMLServerException
 	{
-		super.validate(wrappingDocument, wrappingDocument.getAttributeQuery());
+		super.validate(wrappingDocument);
 		SubjectType subject = wrappingDocument.getAttributeQuery().getSubject();
 		NameIDType subjectName = subject.getNameID();
 		if (subjectName == null || subjectName.isNil())

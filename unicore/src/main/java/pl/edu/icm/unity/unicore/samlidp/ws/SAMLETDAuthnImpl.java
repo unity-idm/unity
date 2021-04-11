@@ -11,6 +11,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.security.etd.DelegationRestrictions;
 import pl.edu.icm.unity.base.utils.Log;
@@ -56,7 +57,8 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	@Override
 	public ResponseDocument authnRequest(AuthnRequestDocument reqDoc)
 	{
-		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties);
+		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties, 
+				new XMLExpandedMessage(reqDoc, reqDoc.getAuthnRequest()));
 		try
 		{
 			validate(context);
@@ -113,6 +115,6 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
 				samlProperties.getReplayChecker());
 		
-		validator.validate(context.getRequestDocument());
+		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}
 }
