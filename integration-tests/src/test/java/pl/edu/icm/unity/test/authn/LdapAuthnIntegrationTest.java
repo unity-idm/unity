@@ -37,6 +37,7 @@ import eu.unicore.security.etd.TrustDelegation;
 import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -191,7 +192,7 @@ public class LdapAuthnIntegrationTest extends DBIntegrationTestBase
 		KeystoreCredential keystoreCredential = new KeystoreCredential("src/test/resources/authn-tests/demoKeystore.p12", 
 				DEMO_KS_PASS.toCharArray(), DEMO_KS_PASS.toCharArray(), DEMO_KS_ALIAS, "PKCS12");
 		EmbeddedDirectoryServer embeddedDirectoryServer = new EmbeddedDirectoryServer(keystoreCredential,
-				"src/test/resources/authn-tests");
+				"src/test/resources/authn-tests", ServerHostnameCheckingMode.WARN);
 		ds = embeddedDirectoryServer.startEmbeddedServer();
 		ldapHostname = embeddedDirectoryServer.getPlainConnection().getConnectedAddress();
 		ldapPort = embeddedDirectoryServer.getPlainConnection().getConnectedPort()+"";
