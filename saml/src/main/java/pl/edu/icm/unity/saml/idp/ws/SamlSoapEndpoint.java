@@ -183,17 +183,17 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected Servlet getMetadataServlet(String samlEndpointURL)
 	{
 		EndpointType ssoSoap = EndpointType.Factory.newInstance();
-		ssoSoap.setLocation(samlEndpointURL);
+		ssoSoap.setLocation(samlEndpointURL + "/AuthenticationService");
 		ssoSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] ssoEndpoints = new EndpointType[] {ssoSoap};
 
 		EndpointType attributeSoap = EndpointType.Factory.newInstance();
-		attributeSoap.setLocation(samlEndpointURL);
+		attributeSoap.setLocation(samlEndpointURL + "/AssertionQueryService");
 		attributeSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] attributeQueryEndpoints = new EndpointType[] {attributeSoap};
 
 		EndpointType sloSoap = EndpointType.Factory.newInstance();
-		sloSoap.setLocation(samlEndpointURL);
+		sloSoap.setLocation(samlEndpointURL + "/SingleLogoutService");
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloSoap};
 		

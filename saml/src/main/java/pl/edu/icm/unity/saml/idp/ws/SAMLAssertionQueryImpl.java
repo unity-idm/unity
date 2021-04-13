@@ -55,7 +55,6 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
-		super();
 		this.aTypeSupport = aTypeSupport;
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
