@@ -6,8 +6,10 @@ package pl.edu.icm.unity.saml.sp;
 
 import java.io.Serializable;
 
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -22,12 +24,13 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	private String requestId;
 	private Binding responseBinding;
 	private String response;
+	private SAMLVerifiableElement verifiableResponse;
 	private String returnUrl;
 
 	private SAMLSPProperties samlProperties;
 	private String idpKey;
 
-	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, String authnOptionKey)
+	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, AuthenticationOptionKey authnOptionKey)
 	{
 		super(authnOptionKey);
 		this.samlProperties = config.clone();
@@ -50,10 +53,11 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 		this.returnUrl = returnUrl;
 	}
 	
-	public synchronized void setResponse(String response, Binding responseBinding)
+	public synchronized void setResponse(String response, Binding responseBinding, SAMLVerifiableElement verifiableResponse)
 	{
 		this.response = response;
 		this.responseBinding = responseBinding;
+		this.verifiableResponse = verifiableResponse;
 	}
 
 	public synchronized String getIdpUrl()
@@ -102,5 +106,10 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	public synchronized String getContextIdpKey()
 	{
 		return idpKey;
+	}
+	
+	public synchronized SAMLVerifiableElement getVerifiableResponse()
+	{
+		return verifiableResponse;
 	}
 }

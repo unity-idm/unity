@@ -8,6 +8,7 @@ import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
@@ -34,10 +35,10 @@ public class WebAuthWithETDRequestValidator extends WebAuthRequestValidator
 	}
 
 	@Override
-	public void validate(AuthnRequestDocument authenticationRequestDoc) throws SAMLServerException
+	public void validate(AuthnRequestDocument authenticationRequestDoc, SAMLVerifiableElement verifiableMessage) throws SAMLServerException
 	{
 		AuthnRequestType aReq = authenticationRequestDoc.getAuthnRequest();
-		super.validate(authenticationRequestDoc, aReq);
+		super.validate(authenticationRequestDoc, verifiableMessage);
 		
 		String requestedFormat = getRequestedFormat(aReq);
 		

@@ -55,6 +55,7 @@ import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.CookieHelper;
@@ -100,7 +101,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result,
 			String clientIp, final AuthenticationRealm realm,
 			AuthenticationFlow authenticationFlow,final boolean rememberMe,
-			String firstFactorAuthnOptionId) throws AuthenticationException
+			AuthenticationOptionKey firstFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		PartialAuthnState authnState;
@@ -162,8 +163,8 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	
 	public LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
-			final AuthenticationRealm realm, String firstFactorAuhtnOptionId,
-			String secondFactorAuhtnOptionId)
+			final AuthenticationRealm realm, AuthenticationOptionKey firstFactorAuhtnOptionId,
+			AuthenticationOptionKey secondFactorAuhtnOptionId)
 	{
 
 		long entityId = authenticatedEntity.getEntityId();
@@ -178,7 +179,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	public void processSecondaryAuthnResult(PartialAuthnState state,
 			AuthenticationResult result2, String clientIp, AuthenticationRealm realm,
 			AuthenticationFlow authenticationFlow, boolean rememberMe,
-			String secondFactorAuthnOptionId) throws AuthenticationException
+			AuthenticationOptionKey secondFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		AuthenticatedEntity logInfo;
@@ -281,19 +282,12 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 		if (ls.isUsedOutdatedCredential())
-			log.debug("User {} logged with outdated credential", ls.getEntityId());
+			log.info("User {} logged with outdated credential", ls.getEntityId());
 		
-		if (log.isTraceEnabled())
-		{
-			log.trace("Logged with session: " + ls.toString()
-					+ ", first factor authn option: "
-					+ ls.getLogin1stFactorOptionId()
-					+ ", second factor authn option: "
-					+ ls.getLogin2ndFactorOptionId() + ", first factor skipped: "
-					+ ls.getRememberMeInfo().firstFactorSkipped
-					+ ", second factor skipped: "
-					+ ls.getRememberMeInfo().secondFactorSkipped);
-		}
+		log.info("Logged with session: {}, first factor authn option: {}, second factor authn option: {}"
+				+ ", first factor skipped: {}, second factor skipped: {}",
+				ls.toString(), ls.getLogin1stFactorOptionId(), ls.getLogin2ndFactorOptionId(),
+				ls.getRememberMeInfo().firstFactorSkipped, ls.getRememberMeInfo().secondFactorSkipped);
 	}
 	
 	public static String getSessionCookieName(String realmName)
@@ -418,7 +412,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 					logoutProcessorsManager.handleAsyncLogout(loginSession, null, 
 							returnUri, 
 							response.getHttpServletResponse());
-				} catch (IOException e)
+				} catch (Exception e)
 				{
 					log.warn("Logout of session peers failed", e);
 				}

@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TestIdentitiesAuditing extends DBIntegrationTestBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TestIdentitiesAuditing.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, TestIdentitiesAuditing.class);
 
 	@Autowired
 	private AuditEventManagement auditManager;

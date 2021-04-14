@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -149,7 +150,8 @@ public class RememberMeProcessor
 	}
 
 	public void addRememberMeCookieAndUnityToken(HttpServletResponse response, AuthenticationRealm realm, String clientIp,
-			long entityId, Date loginTime, String firstFactorOptionId, String secondFactorOptionId)
+			long entityId, Date loginTime, AuthenticationOptionKey firstFactorOptionId, 
+			AuthenticationOptionKey secondFactorOptionId)
 	{
 		if (realm.getRememberMePolicy().equals(RememberMePolicy.disallow))
 			return;
@@ -167,7 +169,7 @@ public class RememberMeProcessor
 			serializedToken = unityRememberMeToken.getSerialized();
 		} catch (JsonProcessingException e)
 		{
-			log.debug("Can not serialize remember me token, skip setting remember me cookie", e);
+			log.warn("Can not serialize remember me token, skip setting remember me cookie", e);
 			return;
 		}
 
@@ -181,7 +183,7 @@ public class RememberMeProcessor
 					unityRememberMeToken.getLoginTime(), expiration);
 		} catch (EngineException e)
 		{
-			log.debug("Can not add remember me token, skip setting remember me cookie for " + entityId, e);
+			log.warn("Can not add remember me token, skip setting remember me cookie for " + entityId, e);
 			return;
 		}
 		
@@ -189,7 +191,7 @@ public class RememberMeProcessor
 				+ rememberMeToken.toString();
 		Cookie unityRememberMeCookie = getRememberMeRawCookie(realm.getName(), rememberMeCookieValue,
 				getAbsoluteRememberMeCookieTTL(realm));		
-		log.debug("Adding remember me cookie and token for {}", entityId);
+		log.info("Adding remember me cookie and token for {}", entityId);
 		response.addCookie(unityRememberMeCookie);
 	}
 
@@ -203,7 +205,7 @@ public class RememberMeProcessor
 			unityRememberMeCookie = getRememberMeUnityCookie(request, realmName);
 		} catch (AuthenticationException e)
 		{
-			log.debug("Can not remove remember me token, the cookie content is incorrect", e);
+			log.warn("Can not remove remember me token, the cookie content is incorrect", e);
 			removeRememberMeCookie(realmName, httpResponse);
 			
 		}
@@ -245,7 +247,7 @@ public class RememberMeProcessor
 		} catch (Exception e)
 		{
 			// ok maybe token is not set or expired
-			log.debug("Can not remove remember me token + " + rememberMeSeriesToken
+			log.warn("Can not remove remember me token + " + rememberMeSeriesToken
 					+ ". The token was removed or expired");
 		}
 	}
@@ -304,7 +306,7 @@ public class RememberMeProcessor
 		if (!realm.getRememberMePolicy()
 				.equals(unityRememberMeToken.get().getRememberMePolicy()))
 		{
-			log.debug("The remember me token is invalid, remember me policy was changed");
+			log.info("The remember me token is invalid, remember me policy was changed");
 			return Optional.empty();
 		}
 
@@ -323,7 +325,7 @@ public class RememberMeProcessor
 		if (!unityRememberMeToken.isPresent())
 			return Optional.empty();
 
-		String secondFactorAuthnOptionId = unityRememberMeToken.get()
+		AuthenticationOptionKey secondFactorAuthnOptionId = unityRememberMeToken.get()
 				.getSecondFactorAuthnOptionId();
 		long entityId = unityRememberMeToken.get().getEntity();
 		String label = getLabel(entityId);
@@ -346,8 +348,7 @@ public class RememberMeProcessor
 			return entityMan.getEntityLabel(new EntityParam(entityId));
 		} catch (AuthorizationException e)
 		{
-			log.debug("Not setting entity's label as the client is not authorized to read the attribute",
-					e);
+			log.debug("Not setting entity's label as the client is not authorized to read the attribute", e);
 		} catch (EngineException e)
 		{
 			log.error("Can not get the attribute designated with EntityName", e);
@@ -376,7 +377,7 @@ public class RememberMeProcessor
 						.getInstanceFromJson(tokenById.getContents()));
 			} catch (IllegalArgumentException e)
 			{
-				log.debug("Can not parse rememberMe token", e);
+				log.warn("Can not parse rememberMe token", e);
 			}
 		}
 		return Optional.empty();
@@ -389,8 +390,8 @@ public class RememberMeProcessor
 	}
 
 	private RememberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
-			byte[] rememberMeTokenHash, Date loginTime, String clientIp, String firstFactorOptionId,
-			String secondFactorOptionId)
+			byte[] rememberMeTokenHash, Date loginTime, String clientIp, AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationOptionKey secondFactorOptionId)
 	{
 		
 		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
@@ -466,8 +467,7 @@ public class RememberMeProcessor
 				serializedToken = unityRememberMeToken.get().getSerialized();
 			} catch (JsonProcessingException e)
 			{
-				log.debug("Can not set remember me token, skip setting remember me cookie",
-						e);
+				log.warn("Can not set remember me token, skip setting remember me cookie", e);
 				return;
 			}
 

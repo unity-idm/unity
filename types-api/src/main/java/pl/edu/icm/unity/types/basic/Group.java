@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * 
  * @author K. Benedyczak
  */
-public class Group extends I18nDescribedObject implements NamedObject
+public class Group extends I18nDescribedObject implements NamedObject, Comparable<Group>
 {
 	private String[] path;
 
@@ -198,12 +198,33 @@ public class Group extends I18nDescribedObject implements NamedObject
 		return path;
 	}
 
+	public String getPathEncoded()
+	{
+		if (path.length == 0)
+			return "/";
+		StringBuilder ret = new StringBuilder(path.length * 10);
+		for (int i = 0; i < path.length; i++)
+			ret.append("/").append(path[i]);
+		return ret.toString();		
+	}
+	
 	@Override
 	public String getName()
 	{
 		return toString();
 	}
 
+	/**
+	 * This is likely a go-to method to present group name to a person.
+	 * If displayed name was set to non default value (which is sadly group path :/) then it is returned.
+	 * Otherwise last component of the path is returned. 
+	 */
+	public I18nString getDisplayedNameShort()
+	{
+		I18nString displayedName = getDisplayedName();
+		return toString().equals(displayedName.getDefaultValue()) ? new I18nString(getNameShort()) : displayedName;
+	}
+	
 	public void setPath(String path)
 	{
 		if (path.equals("/"))
@@ -284,16 +305,11 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		return path.length == 0 ? "/" : path[path.length - 1];
 	}
-
+	
 	@Override
 	public String toString()
 	{
-		if (path.length == 0)
-			return "/";
-		StringBuilder ret = new StringBuilder(path.length * 10);
-		for (int i = 0; i < path.length; i++)
-			ret.append("/").append(path[i]);
-		return ret.toString();
+		return getPathEncoded();
 	}
 
 	private void fromJson(ObjectNode main)
@@ -393,6 +409,13 @@ public class Group extends I18nDescribedObject implements NamedObject
 				+ ((attributesClasses == null) ? 0 : attributesClasses.hashCode());
 		result = prime * result + Arrays.hashCode(path);
 		return result;
+	}
+	
+	@Override
+	public int compareTo(Group toCompare)
+	{
+		return toString().compareTo(toCompare.toString());	
+		
 	}
 
 	@Override

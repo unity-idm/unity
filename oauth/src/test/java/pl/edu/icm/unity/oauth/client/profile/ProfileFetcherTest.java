@@ -41,8 +41,8 @@ public class ProfileFetcherTest
 	public void shouldResolveToJsonObjects() throws ParseException, IOException
 	{
 
-		JSONObject ob = JSONObjectUtils.parse(new String(Files
-				.readAllBytes(Paths.get("src/test/resources/orcidOutput.json"))));
+		JSONObject ob = new JSONObject(JSONObjectUtils.parse(new String(Files
+				.readAllBytes(Paths.get("src/test/resources/orcidOutput.json")))));
 		JSONObject converted = ProfileFetcherUtils.convertToRawAttributes(ob);
 		assertThat(converted.entrySet().size(), is(ob.entrySet().size()));
 

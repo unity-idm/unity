@@ -22,7 +22,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
@@ -52,7 +52,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String PROFILE_PRODUCTION = "production";
 	
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "default_email";
 	public static final String DEFAULT_SMS_CHANNEL = "default_sms";

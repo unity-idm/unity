@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public class OAuthASProperties extends UnityPropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthASProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthASProperties.class);
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.as.";

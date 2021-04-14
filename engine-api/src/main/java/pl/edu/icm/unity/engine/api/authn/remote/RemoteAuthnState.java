@@ -7,6 +7,8 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 import java.util.Date;
 import java.util.UUID;
 
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+
 /**
  * Base class for storing some context information related to external login.
  * @author K. Benedyczak
@@ -18,10 +20,10 @@ public class RemoteAuthnState
 	
 	private final String relayState;
 	private final Date creationTime;
-	private final String authenticatorOptionId;
+	private final AuthenticationOptionKey authenticatorOptionId;
 	private SandboxAuthnResultCallback sandboxCallback;
 	
-	public RemoteAuthnState(String authenticatorOptionId)
+	public RemoteAuthnState(AuthenticationOptionKey authenticatorOptionId)
 	{
 		this.authenticatorOptionId = authenticatorOptionId;
 		this.relayState = UUID.randomUUID().toString();
@@ -38,7 +40,7 @@ public class RemoteAuthnState
 		return creationTime;
 	}
 
-	public String getAuthenticatorOptionId() 
+	public AuthenticationOptionKey getAuthenticatorOptionId() 
 	{
 		return authenticatorOptionId;
 	}

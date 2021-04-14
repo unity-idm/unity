@@ -33,7 +33,7 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 			pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax.ACCEPTABLE_FORMATS.stream()
 			.map(f -> f + "xxx['['VV']'][X]").collect(Collectors.toList());	
 
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ZonedDateTimeAttributeSyntax.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, ZonedDateTimeAttributeSyntax.class);
 	
 	@Override
 	public String getValueSyntaxId()

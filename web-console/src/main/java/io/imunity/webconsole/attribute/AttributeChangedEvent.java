@@ -17,7 +17,6 @@ public class AttributeChangedEvent implements Event
 
 	public AttributeChangedEvent(String group, String attributeName)
 	{
-		super();
 		this.group = group;
 		this.attributeName = attributeName;
 	}

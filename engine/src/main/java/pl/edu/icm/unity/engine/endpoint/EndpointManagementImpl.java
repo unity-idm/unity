@@ -49,7 +49,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 @InvocationEventProducer
 public class EndpointManagementImpl implements EndpointManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, EndpointManagementImpl.class);
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private InternalEndpointManagement internalManagement;
 	private EndpointsUpdater endpointsUpdater;

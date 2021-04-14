@@ -112,7 +112,7 @@ public class SessionParticipants
 	 */
 	public static class AddParticipantToSessionTask implements AttributeUpdater
 	{
-		private static final Logger log = Log.getLogger(Log.U_SERVER,
+		private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN,
 				SessionParticipants.AddParticipantToSessionTask.class);
 		
 		private SessionParticipant[] toBeAdded;
@@ -132,7 +132,7 @@ public class SessionParticipants
 			for (SessionParticipant p: toBeAdded)
 				participants.addParticipant(p);
 			if (log.isDebugEnabled())
-				log.debug("Updated session participants to: " + participants);
+				log.info("Updated session participants to: " + participants);
 			sessionAttributes.put(KEY, participants.serialize());
 		}
 	}

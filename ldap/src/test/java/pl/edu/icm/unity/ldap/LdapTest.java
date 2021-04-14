@@ -49,6 +49,8 @@ import org.junit.Test;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.sdk.LDAPException;
 
+import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
@@ -73,7 +75,10 @@ public class LdapTest
 	@BeforeClass
 	public static void startEmbeddedServer() throws Exception
 	{
-		EmbeddedDirectoryServer embeddedDirectoryServer = new EmbeddedDirectoryServer();
+		KeystoreCredential credential = new KeystoreCredential("src/test/resources/pki/demo-localhost.p12", 
+				"the!unity".toCharArray(), "the!unity".toCharArray(), "unity-demo", "PKCS12");
+		EmbeddedDirectoryServer embeddedDirectoryServer = new EmbeddedDirectoryServer(credential, 
+				"src/test/resources", ServerHostnameCheckingMode.WARN);
 		ds = embeddedDirectoryServer.startEmbeddedServer();
 		hostname = embeddedDirectoryServer.getPlainConnection().getConnectedAddress();
 		port = embeddedDirectoryServer.getPlainConnection().getConnectedPort()+"";

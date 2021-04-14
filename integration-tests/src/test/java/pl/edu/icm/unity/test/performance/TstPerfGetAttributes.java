@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.junit.Test;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -23,7 +21,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 public class TstPerfGetAttributes extends PerformanceTestBase
 {
 		
-	@Test
+	//@Test
 	public void testGetAttributes() throws EngineException, IOException
 	{
 		addGroups(GROUP_IN_TIER,GROUP_TIERS);

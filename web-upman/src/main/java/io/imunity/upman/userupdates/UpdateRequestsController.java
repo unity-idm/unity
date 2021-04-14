@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class UpdateRequestsController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UpdateRequestsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, UpdateRequestsController.class);
 
 	private ProjectRequestManagement requestMan;
 	private DelegatedGroupsHelper delGroupHelper;
@@ -54,7 +54,7 @@ public class UpdateRequestsController
 			return requestMan.getProjectRegistrationFormLink(projectPath);
 		} catch (EngineException e)
 		{
-			log.debug("Can not get project registration form link " + projectPath, e);
+			log.warn("Can not get project registration form link " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -67,7 +67,7 @@ public class UpdateRequestsController
 			return requestMan.getProjectSignUpEnquiryFormLink(projectPath);
 		} catch (EngineException e)
 		{
-			log.debug("Can not get project signup enquiry form link " + projectPath, e);
+			log.warn("Can not get project signup enquiry form link " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -80,7 +80,7 @@ public class UpdateRequestsController
 			return requestMan.getProjectUpdateMembershipEnquiryFormLink(projectPath);
 		} catch (EngineException e)
 		{
-			log.debug("Can not get project signup enquiry form link " + projectPath, e);
+			log.warn("Can not get project signup enquiry form link " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -99,7 +99,7 @@ public class UpdateRequestsController
 					.collect(Collectors.toList());
 		} catch (EngineException e)
 		{
-			log.debug("Can not get request of group " + projectPath, e);
+			log.warn("Can not get request of group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}
@@ -117,7 +117,7 @@ public class UpdateRequestsController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not accept request ", e);
+			log.warn("Can not accept request ", e);
 			if (accepted.isEmpty())
 			{
 				throw new ControllerException(
@@ -146,7 +146,7 @@ public class UpdateRequestsController
 			}
 		} catch (Exception e)
 		{
-			log.debug("Can not reject request ", e);
+			log.warn("Can not reject request ", e);
 			if (declined.isEmpty())
 			{
 				throw new ControllerException(

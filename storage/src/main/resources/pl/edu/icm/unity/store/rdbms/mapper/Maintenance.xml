@@ -24,7 +24,7 @@
 		DROP TABLE IF EXISTS ATTRIBUTES;
 	</update>
 	<update id="cleardb-05">
-		DROP TABLE IF EXISTS GROUPS;
+		DROP TABLE IF EXISTS <include refid="io.imunity.sql.groups"/>;
 	</update>
 	<update id="cleardb-06">
 		DROP TABLE IF EXISTS IDENTITIES;
@@ -84,7 +84,7 @@
 		DELETE FROM ATTRIBUTES;
 	</delete>
 	<delete id="deletedb-groups">
-		DELETE FROM GROUPS;
+		DELETE FROM <include refid="io.imunity.sql.groups"/>;
 	</delete>
 	<delete id="deletedb-identities">
 		DELETE FROM IDENTITIES;

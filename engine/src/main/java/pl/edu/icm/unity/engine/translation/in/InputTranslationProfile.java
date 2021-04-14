@@ -55,7 +55,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 			MappingResult translationState = new MappingResult();
 			for (InputTranslationRule rule : ruleInstances)
 			{
-				NDC.push("r: " + (i++));
+				NDC.push("r: " + (i++) + " " + rule.getAction().getName());
 				try
 				{
 					TranslationRuleInvocationContext context = rule.invoke(

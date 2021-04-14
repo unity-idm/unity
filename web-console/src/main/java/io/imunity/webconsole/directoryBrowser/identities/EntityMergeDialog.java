@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -38,9 +39,9 @@ class EntityMergeDialog extends AbstractDialog
 	private EventsBus bus;
 	private EntityWithLabel first;
 	private EntityWithLabel second;
-	private String group;
+	private Group group;
 	
-	EntityMergeDialog(MessageSource msg, EntityWithLabel first, EntityWithLabel second, String group, 
+	EntityMergeDialog(MessageSource msg, EntityWithLabel first, EntityWithLabel second, Group group, 
 			EntityManagement identitiesMan)
 	{
 		super(msg, msg.getMessage("EntitiesMergeDialog.caption"), msg.getMessage("EntitiesMergeDialog.doMerge"),

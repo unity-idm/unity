@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 @Component
 public class UserImportServiceImpl implements UserImportSerivce
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UserImportServiceImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_USER_IMPORT, UserImportServiceImpl.class);
 	private Map<String, SingleUserImportHandler> handlersByKey;
 	
 	@Autowired
@@ -132,7 +132,7 @@ public class UserImportServiceImpl implements UserImportSerivce
 				continue;
 			} catch (Exception e)
 			{
-				log.error("User import has thrown an exception, skipping it", e);
+				log.debug("User import has thrown an exception, skipping it", e);
 				ret.add(new ImportResult(userImport.importerKey,
 						new AuthenticationResult(Status.notApplicable, null)));
 				continue;
@@ -146,11 +146,11 @@ public class UserImportServiceImpl implements UserImportSerivce
 			
 			if (result != null && result.getStatus() != Status.notApplicable)
 			{
-				log.debug("Import handler {} has imported the user {}", 
+				log.info("Import handler {} has imported the user {}", 
 						userImport.importerKey, userImport.identityValue);
 			} else
 			{
-				log.debug("Import handler {} returned nothing or notApplicable status",
+				log.info("Import handler {} returned nothing or notApplicable status",
 						userImport.importerKey);
 			}
 		}

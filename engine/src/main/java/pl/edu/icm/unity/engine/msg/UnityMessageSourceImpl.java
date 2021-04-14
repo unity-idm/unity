@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.I18nString;
 @Component
 public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSource implements MessageSource
 {
-	private Logger log = Log.getLogger(Log.U_SERVER, UnityMessageSourceImpl.class);
+	private Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityMessageSourceImpl.class);
 	
 	private UnityServerConfiguration config;
 	private final boolean failOnMissingMessage;
@@ -105,7 +105,7 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
 		setAlwaysUseMessageFormat(true);
-		log.debug("Messages will be loaded from the following locations: " + Arrays.toString(allBasenames));
+		log.info("Messages will be loaded from the following locations: " + Arrays.toString(allBasenames));
 	}
 	
 	private String getFSPathFromClasspath(String classpath)

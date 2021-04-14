@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 @Component
 public class SheduledOperationHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SheduledOperationHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SheduledOperationHelper.class);
 	private EntityDAO entityDAO;
 	
 	
@@ -50,7 +50,7 @@ public class SheduledOperationHelper
 		EntityInformation info = entityDAO.getByKey(entityId);
 		if (info.getState() != EntityState.onlyLoginPermitted)
 			return;
-		log.debug("Removing scheduled removal of an account [as the user is being logged] for entity " + 
+		log.info("Removing scheduled removal of an account [as the user is being logged] for entity " + 
 			entityId);
 		info.setState(EntityState.valid);
 		info.setRemovalByUserTime(null);

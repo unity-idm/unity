@@ -51,7 +51,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 @Component
 public class BulkProcessingSupport
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingSupport.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, BulkProcessingSupport.class);
 	public static final String RULE_KEY = "rule";
 	public static final String EXECUTOR_KEY = "executor";
 	public static final String TS_KEY = "timeStamp";
@@ -104,7 +104,7 @@ public class BulkProcessingSupport
 		Trigger trigger = createImmediateTrigger();
 		String id = generateJobKey();
 		JobDetail job = createJob(id, createRuleInstance(rule), new Date());
-		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
+		log.info("Scheduling job with id " + id + " and trigger " + trigger);
 		
 		ListenerManager listenerManager;
 		try
@@ -145,7 +145,7 @@ public class BulkProcessingSupport
 	
 	public synchronized void undeployJob(String id)
 	{
-		log.debug("Removing job with id " + id);
+		log.info("Removing job with id " + id);
 		try
 		{
 			scheduler.deleteJob(new JobKey(id, BulkProcessingSupport.JOB_GROUP));
@@ -194,7 +194,7 @@ public class BulkProcessingSupport
 	private synchronized void scheduleJob(EntityTranslationRule rule, Trigger trigger, String id, Date ts)
 	{
 		JobDetail job = createJob(id, rule, ts);
-		log.debug("Scheduling job with id " + id + " and trigger " + trigger);
+		log.info("Scheduling job with id " + id + " and trigger " + trigger);
 		try
 		{
 			scheduler.scheduleJob(job, trigger);

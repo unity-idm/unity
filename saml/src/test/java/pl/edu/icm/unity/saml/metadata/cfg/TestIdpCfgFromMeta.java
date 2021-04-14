@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -63,7 +64,7 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, TestIdpCfgFromMeta.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, TestIdpCfgFromMeta.class);
 	
 	@Autowired
 	private RemoteMetadataService metadataService;
@@ -223,7 +224,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		assertThat(idpCfg.getReturnAddressForRequester(req), is(expected));
 		try
 		{
-			idpCfg.getAuthnTrustChecker().checkTrust(reqDoc, req);
+			idpCfg.getAuthnTrustChecker().checkTrust(new XMLExpandedMessage(reqDoc, req), req);
 		} catch (SAMLValidationException e)
 		{
 			fail("Endpoint is not accepted: " + expected);

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -45,7 +46,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	private final AuthenticationFlow selectedAuthnFlow;
 	private final Supplier<Boolean> rememberMeProvider;
 	private final AuthenticationListener authNListener;
-	private final String authnId;
+	private final AuthenticationOptionKey authnId;
 	private final String endpointPath;
 	private final FirstFactorAuthNPanel authNPanel;
 
@@ -54,7 +55,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	public FirstFactorAuthNResultCallback(MessageSource msg,
 			WebAuthenticationProcessor authnProcessor, AuthenticationRealm realm,
 			AuthenticationFlow selectedAuthnFlow, Supplier<Boolean> rememberMeProvider,
-			AuthenticationListener authNListener, String authnId, String endpointPath,
+			AuthenticationListener authNListener, AuthenticationOptionKey authnId, String endpointPath,
 			FirstFactorAuthNPanel authNPanel)
 	{
 		this.msg = msg;
@@ -170,7 +171,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		}
 	}
 	
-	private void setLastIdpCookie(String idpKey)
+	private void setLastIdpCookie(AuthenticationOptionKey idpKey)
 	{
 		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(endpointPath, idpKey);
 		lastIdpCookie.ifPresent(cookie -> VaadinService.getCurrentResponse().addCookie(cookie));

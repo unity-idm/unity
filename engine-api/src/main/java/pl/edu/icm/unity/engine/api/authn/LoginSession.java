@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either
@@ -228,7 +229,7 @@ public class LoginSession
 		return login1stFactor;
 	}
 
-	public String getLogin1stFactorOptionId()
+	public AuthenticationOptionKey getLogin1stFactorOptionId()
 	{
 		return login1stFactor == null ? null : login1stFactor.optionId;
 	}
@@ -243,7 +244,7 @@ public class LoginSession
 		return login2ndFactor;
 	}
 
-	public String getLogin2ndFactorOptionId()
+	public AuthenticationOptionKey getLogin2ndFactorOptionId()
 	{
 		return login2ndFactor == null ? null : login2ndFactor.optionId;
 	}
@@ -379,11 +380,11 @@ public class LoginSession
 	
 	public static class AuthNInfo
 	{
-		public final String optionId;
+		public final AuthenticationOptionKey optionId;
 		public final Date time;
 
 		@JsonCreator
-		public AuthNInfo(@JsonProperty("optionId") String optionId, 
+		public AuthNInfo(@JsonProperty("optionId") AuthenticationOptionKey optionId, 
 				@JsonProperty("time") Date time)
 		{
 			this.optionId = optionId;

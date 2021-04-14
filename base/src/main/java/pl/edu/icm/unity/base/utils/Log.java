@@ -6,35 +6,54 @@ package pl.edu.icm.unity.base.utils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
- * Logger categories
+ * Logger categories & JUL redirection setup
  * @author K. Benedyczak
  */
 public class Log
 {
-	public static final String U_SERVER = "unity.server";
-	public static final String U_SERVER_CFG = "unity.server.config";
-	public static final String U_SERVER_DB = "unity.server.db";
-	public static final String U_SERVER_WEB = "unity.server.web";
-	public static final String U_SERVER_SAML = "unity.server.saml";
-	public static final String U_SERVER_OAUTH = "unity.server.oauth";
-	public static final String U_SERVER_LDAP = "unity.server.ldap";
-	public static final String U_SERVER_WS = "unity.server.ws";
-	public static final String U_SERVER_REST = "unity.server.rest";
-	public static final String U_SERVER_PAM = "unity.server.pam";
-	public static final String U_SERVER_OTP = "unity.server.otp";
-	public static final String U_SERVER_TRANSLATION = "unity.server.externaltranslation";
-	public static final String U_SERVER_FIDO = "unity.server.fido";
+	private static final String PFX = "unity.server.";
+	public static final String U_SERVER_CORE = PFX + "core";
+	public static final String U_SERVER_CFG = PFX + "config";
+	public static final String U_SERVER_DB = PFX + "db";
+	public static final String U_SERVER_WEB = PFX + "web";
+	public static final String U_SERVER_SAML = PFX + "saml";
+	public static final String U_SERVER_OAUTH = PFX + "oauth";
+	public static final String U_SERVER_LDAP = PFX + "ldap";
+	public static final String U_SERVER_WS = PFX + "ws";
+	public static final String U_SERVER_REST = PFX + "rest";
+	public static final String U_SERVER_PAM = PFX + "pam";
+	public static final String U_SERVER_OTP = PFX + "otp";
+	public static final String U_SERVER_TRANSLATION = PFX + "externaltranslation";
+	public static final String U_SERVER_FIDO = PFX + "fido";
+	public static final String U_SERVER_UPMAN = PFX + "upman";
+	public static final String U_SERVER_FORMS = PFX + "forms";
+	public static final String U_SERVER_AUTHN = PFX + "authn";
+	public static final String U_SERVER_AUDIT = PFX + "audit";
+	public static final String U_SERVER_NOTIFY = PFX + "notification";
+	public static final String U_SERVER_EVENT = PFX + "event";
+	public static final String U_SERVER_CONFIRMATION = PFX + "confirmation";
+	public static final String U_SERVER_SCRIPT = PFX + "script";
+	public static final String U_SERVER_USER_IMPORT = PFX + "userimport";
+	public static final String U_SERVER_BULK_OPS = PFX + "bulkops";
+
 	public static final String SECURITY = "unicore.security"; //legacy
 
+	static
+	{
+		redirectJULToSLF();
+	}
+	
 	public static Logger getLogger(String category, Class<?> clazz)
 	{
 		return LogManager.getLogger(category + "." + clazz.getSimpleName());
 	}
 	
-	public static org.apache.log4j.Logger getLegacyLogger(String category, Class<?> clazz)
+	private static void redirectJULToSLF()
 	{
-		return org.apache.log4j.Logger.getLogger(category + "." + clazz.getSimpleName());
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
 	}
 }

@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  */
 public class CustomProviderProperties extends UnityPropertiesHelper implements BaseRemoteASProperties
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, CustomProviderProperties.class);
 	
 	public enum AccessTokenFormat {standard, httpParams};
 	public enum ClientAuthnMode {secretPost, secretBasic};

@@ -26,7 +26,7 @@ public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalAr
 	
 	public Response toResponse(IllegalArgumentException ex)
 	{
-		log.debug("IllegalArgumentException exception during RESTful API invocation", ex);
+		log.warn("IllegalArgumentException exception during RESTful API invocation", ex);
 		return Response.status(Status.BAD_REQUEST).entity(new JsonError(ex).toString()).
 					type(MediaType.APPLICATION_JSON).build();
 	}

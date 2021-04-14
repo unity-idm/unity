@@ -134,7 +134,7 @@ public class EmailIdentityEditor implements IdentityEditor
 		} catch (EngineException e1)
 		{
 			
-			log.debug("Cannot send cofirmation request", e1);
+			log.warn("Cannot send cofirmation request", e1);
 			NotificationPopup.showError(msg, msg.getMessage(
 					"EmailIdentityEditor.confirmationSendError"), e1);
 		

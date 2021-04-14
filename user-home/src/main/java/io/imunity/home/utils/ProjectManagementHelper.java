@@ -62,14 +62,14 @@ public class ProjectManagementHelper
 		Set<ResolvedEndpoint> allEndpoints = getAllProjectManEndpoints();
 		if (allEndpoints.isEmpty())
 		{
-			log.debug("Project mamangement link is enable, but project management endpoins are not available");
+			log.debug("Project mamangement link is enabled, but project management endpoins are not available");
 			return Optional.empty();
 
 		}
 
 		if (!checkIfUserHasProjects())
 		{
-			log.debug("Project mamangement link is enable, but user is not a manager of any group");
+			log.debug("Project mamangement link is enabled, but user is not a manager of any group");
 			return Optional.empty();
 		}
 
@@ -77,7 +77,7 @@ public class ProjectManagementHelper
 
 		if (projectManEndpointName == null)
 		{
-			log.debug("Project mamangement link is enable, using first available project management endpoint");
+			log.debug("Project mamangement link is enabled, using first available project management endpoint");
 			return Optional.ofNullable(getLinkToProjectManagementEndpoint(allEndpoints.iterator().next()));
 		} else
 		{
@@ -88,7 +88,7 @@ public class ProjectManagementHelper
 
 			if (endpoint == null)
 			{
-				log.debug("Project mamangement link is enable, but endpoint with name "
+				log.warn("Project mamangement link is enabled, but endpoint with name "
 						+ projectManEndpointName + " is not available");
 				return Optional.empty();
 			}

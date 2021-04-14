@@ -234,7 +234,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			handleTranslationProfileRedirectIfNeeded(userInfo, request.getSession(), response);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
 					oauthCtx.getConfig().getSubjectIdentityType());
-			log.debug("Authentication of " + selectedIdentity);
+			log.info("Authentication of " + selectedIdentity);
 			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo, 
 					oauthCtx.getEffectiveRequestedAttrs());
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 

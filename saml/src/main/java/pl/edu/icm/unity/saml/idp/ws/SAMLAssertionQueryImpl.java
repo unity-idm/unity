@@ -55,7 +55,6 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
-		super();
 		this.aTypeSupport = aTypeSupport;
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
@@ -74,7 +73,7 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
-			log.debug("Throwing SAML fault, caused by validation exception", e1);
+			log.warn("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
 		AttributeQueryResponseProcessor processor = new AttributeQueryResponseProcessor(aTypeSupport, context);
@@ -90,11 +89,11 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			respDoc = processor.processAtributeRequest(attributes);
 		} catch (SAMLRequesterException e1)
 		{
-			log.debug("Throwing SAML fault, caused by processing exception", e1);
+			log.warn("Throwing SAML fault, caused by processing exception", e1);
 			respDoc = processor.getErrorResponse(e1);
 		} catch (Exception e)
 		{
-			log.debug("Throwing SAML fault, caused by processing exception", e);
+			log.warn("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = processor.convert2SAMLError(e, null, true);
 			respDoc = processor.getErrorResponse(convertedException);
 		}

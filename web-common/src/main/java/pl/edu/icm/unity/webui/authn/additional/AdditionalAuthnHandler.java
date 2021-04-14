@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredExcep
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -66,15 +67,16 @@ public class AdditionalAuthnHandler
 		Entity entity = getCurrentEntity();
 		authenticationUI.presetEntity(entity);
 
-		log.debug("Triggering additional authentication for {} using authenticator {}",
+		log.info("Triggering additional authentication for {} using authenticator {}",
 				entity.getId(),
 				exception.authenticationOption);
 
 		AuthNPanel authnPanel = new AuthNPanel(msg, execService, authenticationUI);
 		AdditionalAuthnDialog dialog = new AdditionalAuthnDialog(msg, header, info, authnPanel,
 				() -> onDialogClose(resultCallback));
+		AuthenticationOptionKey additionalAuthnOptionKey = new AuthenticationOptionKey(authenticator, authenticationUI.getId());
 		authenticationUI.setAuthenticationCallback(
-				new AdditionalAuthNResultCallback(sessionMan, authenticator, 
+				new AdditionalAuthNResultCallback(sessionMan, additionalAuthnOptionKey, 
 						result -> processResult(dialog, result, resultCallback)));
 		dialog.show();
 	}
@@ -95,7 +97,7 @@ public class AdditionalAuthnHandler
 	{
 		dialog.diableCancelListener();
 		dialog.close();
-		log.debug("Additional authentication completed, result: {}", result);
+		log.info("Additional authentication completed, result: {}", result);
 		resultCallback.accept(result);
 	}
 	

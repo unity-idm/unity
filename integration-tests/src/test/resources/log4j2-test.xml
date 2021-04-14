@@ -13,10 +13,7 @@
 		</Root>
 	
 		<!-- Everything produced by Unity (unless overwritten below) -->
-		<Logger name="unity.server" level="DEBUG"/>
-		<Logger name="unity.server.EndpointsUpdater" level="INFO"/>
-		<Logger name="unity.server.EntitiesScheduledUpdater" level="INFO"/>
-		<Logger name="unity.server.TokensManagementImpl" level="INFO"/>
+		<Logger name="unity.server" level="INFO"/>
 		
 		<!-- Loading of any configuration -->
 		<Logger name="unity.server.config" level="INFO"/>
@@ -31,20 +28,18 @@
 		<Logger name="unity.server.web" level="DEBUG"/>
 
 		<!-- PAM subsystem -->
-		<Logger name="unity.server.pam" level="DEBUG"/>
+		<Logger name="unity.server.pam" level="INFO"/>
 
 		<!-- SAML related -->
-		<Logger name="unity.server.saml" level="TRACE"/> 
+		<Logger name="unity.server.saml" level="DEBUG"/> 
 
 		<!-- OAuth related -->
-		<Logger name="unity.server.oauth" level="TRACE"/>
+		<Logger name="unity.server.oauth" level="DEBUG"/>
 
-		<Logger name="unity.server.AdditionalAuthenticationService" level="TRACE"/>
+		<Logger name="unity.server.audit" level="INFO"/>
 
-		<Logger name="unity.server.AuditEventRDBMSStore" level="INFO"/>
-		<Logger name="unity.server.AuditPublisher" level="INFO"/>
-		<Logger name="unity.server.EventProcessor" level="INFO"/>
-		
+		<Logger name="unity.server.fido" level="INFO"/>
+
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
 
@@ -52,7 +47,7 @@
 		<!-- <Logger name="unity.server.ws" level="INFO"/> -->
 
 		<!-- RESTful endpoints related -->
-		<!-- <Logger name="unity.server.rest" level="INFO"/> -->
+		<Logger name="unity.server.rest" level="DEBUG"/>
 
 		<!-- Mapping of remotely obtained data by translation profiles -->
 		<Logger name="unity.server.externaltranslation" level="DEBUG"/>
@@ -70,7 +65,7 @@
 		<Logger name="net.sf.ehcache" level="WARN"/>
 		
 		<Logger name="org.eclipse.jetty" level="INFO"/>
-		<Logger name="org.eclipse.jetty.util.ssl" level="DEBUG"/>
+		<Logger name="org.eclipse.jetty.util.ssl" level="INFO"/>
 
 		<Logger name="org.apache" level="INFO"/>
 		
@@ -83,7 +78,7 @@
 	<!-- Where to log? -->
 	<Appenders>
 		<Console name="CONSOLE">
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] [%X{entityId}] [%X{clientIP}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 		</Console>
 	</Appenders>
 	

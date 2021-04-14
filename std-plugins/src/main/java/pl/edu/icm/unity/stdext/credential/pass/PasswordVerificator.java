@@ -76,7 +76,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @PrototypeComponent
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, PasswordVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, PasswordVerificator.class);
 	public static final String NAME = "password";
 	public static final String DESC = "Verifies passwords";
 	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
@@ -269,7 +269,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 					IDENTITY_TYPES, credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for password authN can not be found: " + username, e);
+			log.info("The user for password authN can not be found: " + username, e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 		
@@ -280,13 +280,13 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			Deque<PasswordInfo> credentials = credState.getPasswords();
 			if (credentials.isEmpty())
 			{
-				log.debug("The user has no password set: {}", username);
+				log.info("The user has no password set: {}", username);
 				return new AuthenticationResult(Status.deny, null);
 			}
 			PasswordInfo current = credentials.getFirst();
 			if (!passwordEngine.verify(current, password))
 			{
-				log.debug("Password provided by {} is invalid", username);
+				log.info("Password provided by {} is invalid", username);
 				return new AuthenticationResult(Status.deny, null);
 			}
 			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
@@ -295,7 +295,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			return new AuthenticationResult(Status.success, ae);
 		} catch (Exception e)
 		{
-			log.debug("Error during password verification for " + username, e);
+			log.warn("Error during password verification for " + username, e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 	}

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.impl.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.Constants;
@@ -27,7 +27,7 @@ public class AuditEventIE extends AbstractIEBase<AuditEvent>
 {
 	public static final String AUDIT_EVENTS_OBJECT_TYPE = "auditEvents";
 	
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, AuditEventIE.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, AuditEventIE.class);
 	private AuditEventDAO dao;
 
 	@Autowired

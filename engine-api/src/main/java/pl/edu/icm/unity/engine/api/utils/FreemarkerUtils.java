@@ -28,7 +28,7 @@ public class FreemarkerUtils
 {
 	public static final String TEMPLATES_ROOT = "/templates";
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, FreemarkerUtils.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, FreemarkerUtils.class);
 	
 	public static TemplateLoader getTemplateLoader(String webContentsDirectory, 
 			String templatesRoot, Class<?> fallbackResourceLoaderClass)

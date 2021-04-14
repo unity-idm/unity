@@ -46,6 +46,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -61,7 +62,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 @Component
 public class SessionManagementImpl implements SessionManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SessionManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, SessionManagementImpl.class);
 	public static final long DB_ACTIVITY_WRITE_DELAY = 3000;
 	public static final String SESSION_TOKEN_TYPE = "session";
 	private TokensManagement tokensManagement;
@@ -99,7 +100,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-				String firstFactorOptionId, String secondFactorOptionId)
+				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId)
 	{
 		try
 		{
@@ -121,7 +122,7 @@ public class SessionManagementImpl implements SessionManagement
 							ret.getId(), null, contents);
 
 					if (log.isDebugEnabled())
-						log.debug("Using existing session " + ret.getId()
+						log.info("Using existing session " + ret.getId()
 								+ " for logged entity "
 								+ ret.getEntityId() + " in realm "
 								+ realm.getName());
@@ -153,7 +154,7 @@ public class SessionManagementImpl implements SessionManagement
 		EntityInformation info = entityDAO.getByKey(entityId);
 		if (info.getState() != EntityState.onlyLoginPermitted)
 			return;
-		log.debug("Removing scheduled removal of an account [as the user is being logged] for entity " + 
+		log.info("Removing scheduled removal of an account [as the user is being logged] for entity " + 
 			entityId);
 		info.setState(EntityState.valid);
 		info.setRemovalByUserTime(null);
@@ -164,8 +165,8 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String entityLabel, String outdatedCredentialId, 
-			RememberMeInfo rememberMeInfo, String firstFactorOptionId,
-			String secondFactorOptionId)
+			RememberMeInfo rememberMeInfo, AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationOptionKey secondFactorOptionId)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
@@ -186,18 +187,18 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can't create a new session", e);
 		}
-		log.debug("Created a new session {} for logged entity {} in realm {}", 
-				ls.getId(), ls.getEntityId(), realm.getName());
+		log.info("Created a new session {} for logged entity {} ({}) in realm {}", 
+				ls.getId(), ls.getEntityLabel(), ls.getEntityId(), realm.getName());
 		return ls;
 	}
 
-	private void auditLogSession(LoginSession ls, long loggedEntity, String firstFactorOptionId,
-			String secondFactorOptionId, AuthenticationRealm realm)
+	private void auditLogSession(LoginSession ls, long loggedEntity, AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationOptionKey secondFactorOptionId, AuthenticationRealm realm)
 	{
 		Map<String, String> details = new HashMap<>();
-		details.put("firstFactorOption", firstFactorOptionId);
+		details.put("firstFactorOption", firstFactorOptionId.toStringEncodedKey());
 		if (secondFactorOptionId != null)
-			details.put("secondFactorOption", secondFactorOptionId);
+			details.put("secondFactorOption", secondFactorOptionId.toStringEncodedKey());
 		details.put("realm", realm.getName());
 		auditPublisher.log(AuditEventTrigger.builder()
 				.type(AuditEventType.SESSION)
@@ -217,10 +218,10 @@ public class SessionManagementImpl implements SessionManagement
 
 	@Transactional
 	@Override
-	public void recordAdditionalAuthentication(String id, String optionId)
+	public void recordAdditionalAuthentication(String id, AuthenticationOptionKey optionId)
 	{
 		updateSession(id, session -> session.setAdditionalAuthn(new AuthNInfo(optionId, new Date())));
-		log.debug("Recorded additional authentication with {} for session {}", optionId, id);	
+		log.info("Recorded additional authentication with {} for session {}", optionId, id);	
 	}
 	
 	@Transactional
@@ -243,8 +244,7 @@ public class SessionManagementImpl implements SessionManagement
 					.name(id)
 					.subject(tokenToRemove.getOwner())
 					.tags(AUTHN));
-			if (log.isDebugEnabled())
-				log.debug("Removed session with id " + id);
+			log.info("Terminated session {} of entity {}", id, tokenToRemove.getOwner());
 		} catch (IllegalArgumentException e)
 		{
 			//not found - ok
@@ -404,7 +404,7 @@ public class SessionManagementImpl implements SessionManagement
 			long inactiveFor = now - session.getLastUsed().getTime(); 
 			if (inactiveFor > session.getMaxInactivity())
 			{
-				log.debug("Expiring login session " + session + " inactive for: " + 
+				log.info("Expiring login session " + session + " inactive for: " + 
 						inactiveFor);
 				try
 				{

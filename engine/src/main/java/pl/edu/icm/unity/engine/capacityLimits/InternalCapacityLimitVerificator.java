@@ -34,7 +34,7 @@ import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;
 @Component
 public class InternalCapacityLimitVerificator
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, InternalCapacityLimitVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, InternalCapacityLimitVerificator.class);
 
 	private LoadingCache<String, Map<String, Integer>> limitCache;
 
@@ -80,7 +80,7 @@ public class InternalCapacityLimitVerificator
 
 		if (limit < value.get())
 		{
-			log.debug("Capacity limit {} reached (limit={}, value={})", name.toString(), limit, value);
+			log.info("Capacity limit {} reached (limit={}, value={})", name.toString(), limit, value);
 			throw new CapacityLimitReachedException("Capacity limit reached");
 		}
 

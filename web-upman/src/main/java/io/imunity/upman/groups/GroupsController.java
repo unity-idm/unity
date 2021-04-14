@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupsController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, GroupsController.class);
 
 	private DelegatedGroupManagement delGroupMan;
 	private MessageSource msg;
@@ -55,7 +55,7 @@ public class GroupsController
 			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(projectPath, rootPath);
 		} catch (Exception e)
 		{
-			log.debug("Can not get group " + projectPath, e);
+			log.warn("Can not get group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -86,7 +86,7 @@ public class GroupsController
 			return delGroupMan.addGroup(projectPath, parentPath, group.name, group.isOpen);
 		} catch (Exception e)
 		{
-			log.debug("Can not add group " + parentPath, e);
+			log.warn("Can not add group " + parentPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}
@@ -99,7 +99,7 @@ public class GroupsController
 		} catch (Exception e)
 		{
 
-			log.debug("Can not remove group " + groupPath, e);
+			log.warn("Can not remove group " + groupPath, e);
 			throw new ServerFaultException(msg);
 		}
 
@@ -114,7 +114,7 @@ public class GroupsController
 
 		} catch (Exception e)
 		{
-			log.debug("Can not set group access mode for " + groupPath, e);
+			log.warn("Can not set group access mode for " + groupPath, e);
 
 			if (!projectPath.equals(groupPath))
 			{
@@ -140,7 +140,7 @@ public class GroupsController
 
 		} catch (Exception e)
 		{
-			log.debug("Can not rename group " + groupPath, e);
+			log.warn("Can not rename group " + groupPath, e);
 			throw new ServerFaultException(msg);
 		}
 	}
@@ -156,7 +156,7 @@ public class GroupsController
 
 		} catch (Exception e)
 		{
-			log.debug("Can not set group delegation configuration in " + path, e);
+			log.warn("Can not set group delegation configuration in " + path, e);
 			throw new ServerFaultException(msg);
 		}
 

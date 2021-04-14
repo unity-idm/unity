@@ -61,7 +61,7 @@
 			WHERE EVENT.TIMESTAMP &lt;= #{until}
 		</if>
 		<if test="from == null and until == null">
-			WHERE EVENT.TIMESTAMP &gt; <include refid="pl.edu.icm.unity.store.rdbms.mapper.CustomMapper.sql-beginningOfEpoch"/>
+			WHERE EVENT.TIMESTAMP &gt; <include refid="io.imunity.sql.beginningOfEpoch"/>
 		</if>
 		ORDER BY ${order} ${direction}
 		LIMIT #{limit}

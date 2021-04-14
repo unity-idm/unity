@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.base.Objects;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.ComboBox;
@@ -16,7 +17,7 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
@@ -29,9 +30,9 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	private AuthenticatorSupportService authenticatorSupport;
 	private Supplier<List<String>> authnOptionSupplier;
 
-	private ComboBox<AuthenticationOptionKey> valueComboField;
+	private ComboBox<AuthenticationOptionsSelector> valueComboField;
 	private Binder<AuthnOptionKeyBindingValue> binder;
-	private List<AuthenticationOptionKey> items;
+	private List<AuthenticationOptionsSelector> items;
 
 	public SingleAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
@@ -49,7 +50,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	{
 		binder = new Binder<>(AuthnOptionKeyBindingValue.class);
 		valueComboField = new ComboBox<>();
-		valueComboField.setItemCaptionGenerator(i -> i.toGlobalKey());
+		valueComboField.setItemCaptionGenerator(i -> i.toStringEncodedSelector());
 		valueComboField.setWidth(20, Unit.EM);
 		refreshItems();
 		binder.forField(valueComboField).withValidator((v, c) -> 
@@ -64,7 +65,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 		return valueComboField;
 	}
 
-	private boolean optionPresent(AuthenticationOptionKey option)
+	private boolean optionPresent(AuthenticationOptionsSelector option)
 	{
 		return items.stream()
 				.filter(key -> key.equals(option))
@@ -73,7 +74,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	
 	private void refreshItems()
 	{
-		items = AuthnColumnComponentHelper.getSinglePickerCompatibleAuthnOptions(
+		items = AuthnColumnComponentHelper.getSinglePickerCompatibleAuthnSelectors(
 				authenticatorSupport, authnOptionSupplier.get());
 		valueComboField.setItems(items);
 	}
@@ -97,51 +98,61 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	@Override
 	public void setConfigState(AuthnElementConfiguration state)
 	{
-
 		String option = ((SingleAuthnConfig) state).authnOption;
 
 		if (option == null || option.isEmpty())
 			return;
 
-		if (!option.contains("."))
-		{
-			option += "." + AuthenticationOptionKey.ALL_OPTS;
-		}
-
-		AuthenticationOptionKey key = AuthenticationOptionKey.valueOf(option);
-		valueComboField.setValue(key);
+		valueComboField.setValue(AuthenticationOptionsSelector.valueOf(option));
 	}
 
 	@Override
 	public SingleAuthnConfig getConfigState()
 	{
-		return new SingleAuthnConfig(valueComboField.getValue() != null ? valueComboField.getValue().toGlobalKey() : null);
+		return new SingleAuthnConfig(valueComboField.getValue() != null ? valueComboField.getValue().toStringEncodedSelector() : null);
 	}
 
 	@Override
 	public void addValueChangeListener(Runnable valueChange)
 	{
 		valueComboField.addValueChangeListener(e -> valueChange.run());
-
 	}
 
 	public static class AuthnOptionKeyBindingValue
 	{
-		private AuthenticationOptionKey value;
+		private AuthenticationOptionsSelector value;
 
-		public AuthnOptionKeyBindingValue(AuthenticationOptionKey value)
+		public AuthnOptionKeyBindingValue(AuthenticationOptionsSelector value)
 		{
 			this.value = value;
 		}
 
-		public AuthenticationOptionKey getValue()
+		public AuthenticationOptionsSelector getValue()
 		{
 			return value;
 		}
 
-		public void setValue(AuthenticationOptionKey value)
+		public void setValue(AuthenticationOptionsSelector value)
 		{
 			this.value = value;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hashCode(value);
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (getClass() != obj.getClass())
+				return false;
+			final AuthnOptionKeyBindingValue other = (AuthnOptionKeyBindingValue) obj;
+
+			return Objects.equal(this.value, other.value);		
 		}
 	}
 }

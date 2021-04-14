@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 @Component
 public class AuthenticatorsRegistry
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorsRegistry.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticatorsRegistry.class);
 	
 	private Map<String, CredentialRetrievalFactory> credentialRetrievalFactories;
 	private Map<String, CredentialVerificatorFactory> credentialVerificatorFactories;
@@ -60,7 +60,7 @@ public class AuthenticatorsRegistry
 		for (CredentialVerificatorFactory f: verificatorFactories)
 			credentialVerificatorFactories.put(f.getName(), f);
 		
-		log.debug("The following authenticator types are available:");
+		log.info("The following authenticator types are available:");
 		for (int j=0; j<verificatorFactories.size(); j++)
 		{
 			CredentialVerificatorFactory vf = verificatorFactories.get(j);
@@ -84,7 +84,7 @@ public class AuthenticatorsRegistry
 				byBinding.add(desc);
 				authenticatorsById.put(desc.getVerificationMethod(), desc);
 			}
-			log.debug(" - >" + vf.getName() + "< supporting " + getSupportedBindings(vf.getName()));
+			log.info(" - >" + vf.getName() + "< supporting " + getSupportedBindings(vf.getName()));
 		}
 		
 		authenticatorsByBinding = Collections.unmodifiableMap(authenticatorsByBinding);

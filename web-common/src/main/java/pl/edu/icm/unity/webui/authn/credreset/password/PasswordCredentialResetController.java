@@ -223,7 +223,7 @@ public class PasswordCredentialResetController
 			return true;
 		} catch (Exception e)
 		{
-			log.debug("Credential reset notification failed", e);
+			log.warn("Credential reset notification failed", e);
 			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
@@ -241,7 +241,7 @@ public class PasswordCredentialResetController
 			throw e;
 		} catch (Exception e)
 		{
-			log.debug("Credential reset notification failed", e);
+			log.warn("Credential reset notification failed", e);
 			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
@@ -256,7 +256,7 @@ public class PasswordCredentialResetController
 			return true;
 		} catch (Exception e)
 		{
-			log.debug("Credential reset notification failed", e);
+			log.warn("Credential reset notification failed", e);
 			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
@@ -274,7 +274,7 @@ public class PasswordCredentialResetController
 			throw e;
 		} catch (Exception e)
 		{
-			log.debug("Credential reset notification failed", e);
+			log.warn("Credential reset notification failed", e);
 			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();

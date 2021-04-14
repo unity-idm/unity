@@ -33,7 +33,6 @@ public class SLOReplyInstaller
 	public SLOReplyInstaller(SAMLLogoutProcessorFactory logoutProcessorFactory,
 			SharedEndpointManagement sharedEndpointManagement)
 	{
-		super();
 		this.logoutProcessorFactory = logoutProcessorFactory;
 		this.sharedEndpointManagement = sharedEndpointManagement;
 	}

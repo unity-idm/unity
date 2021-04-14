@@ -59,6 +59,34 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(true));
 	}
+	
+	@Test
+	public void addedGroupsWithConfigsAreReturned() throws Exception
+	{
+		Group groupToAdd1 = new Group("/g1");
+		Group groupToAdd12 = new Group("/g1/g2");
+
+		HttpPost addGroups = new HttpPost("/restadm/v1/groups");
+		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(groupToAdd1, groupToAdd12));
+		System.out.println("Groups to add:\n" + jsonString);
+		addGroups.setEntity(new StringEntity(jsonString, ContentType.APPLICATION_JSON));
+		HttpResponse addGroupResponse = client.execute(host, addGroups, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addGroupResponse.getStatusLine().getStatusCode());
+
+		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2F");
+		HttpResponse response = client.execute(host, getGroupContents, localcontext);
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
+		assertThat(groupContent.getSubGroups().contains("/g1"), is(true));
+		
+		getGroupContents = new HttpGet("/restadm/v1/group/%2Fg1");
+		response = client.execute(host, getGroupContents, localcontext);
+		String contents2 = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		groupContent = JsonUtil.parse(contents2, GroupContents.class);
+		assertThat(groupContent.getSubGroups().contains("/g1/g2"), is(true));
+	}
 
 	@Test
 	public void recursivelyAddedGroupIsReturned() throws Exception

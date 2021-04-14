@@ -15,6 +15,7 @@ import org.junit.Test;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.proto.AuthnRequest;
 import eu.unicore.samly2.trust.EnumeratedTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -38,7 +39,9 @@ public class AuthnRequestProcessingTest
 				new ReplayAttackChecker());
 		validator.addKnownRequester("https://unity-sp.example");
 		
-		catchException(validator).validate(request.getXMLBeanDoc());
+		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(request.getXMLBeanDoc(), 
+				request.getXMLBeanDoc().getAuthnRequest());
+		catchException(validator).validate(request.getXMLBeanDoc(), verifiableMessage);
 
 		assertThat(caughtException(), is(nullValue()));
 	}

@@ -50,7 +50,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 @Component
 public class IdentityResolverImpl implements IdentityResolver
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityResolverImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, IdentityResolverImpl.class);
 	private static final String[] HUMAN_READABLE_IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID, X500Identity.ID};
 
 	private IdentityTypeHelper idTypeHelper;

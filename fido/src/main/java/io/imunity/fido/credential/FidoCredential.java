@@ -20,6 +20,7 @@ public class FidoCredential
 	private String attestationConveyance = AttestationConveyancePreference.DIRECT.toString();
 	private String userVerification = UserVerificationRequirement.REQUIRED.toString();
 	private String hostName = "Unity";
+	private boolean loginLessAllowed;
 
 	public String getAttestationConveyance()
 	{
@@ -49,6 +50,16 @@ public class FidoCredential
 	public void setHostName(String hostName)
 	{
 		this.hostName = hostName;
+	}
+
+	public boolean isLoginLessAllowed()
+	{
+		return loginLessAllowed;
+	}
+
+	public void setLoginLessOption(boolean loginLessAllowed)
+	{
+		this.loginLessAllowed = loginLessAllowed;
 	}
 
 	public String serialize()

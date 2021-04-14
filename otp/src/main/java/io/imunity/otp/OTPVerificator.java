@@ -80,7 +80,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			resolved = identityResolver.resolveSubject(subject, IDENTITY_TYPES, credentialName);
 		} catch (Exception e)
 		{
-			log.debug("The user for OTP authN can not be found: " + subject, e);
+			log.info("The user for OTP authN can not be found: " + subject, e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 		
@@ -94,7 +94,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			
 			if (!valid)
 			{
-				log.debug("Code provided by {} is invalid", subject);
+				log.info("Code provided by {} is invalid", subject);
 				return new AuthenticationResult(Status.deny, null);
 			}
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, 
@@ -102,7 +102,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			return new AuthenticationResult(Status.success, ae);
 		} catch (Exception e)
 		{
-			log.debug("Error during TOTP verification for " + subject, e);
+			log.warn("Error during TOTP verification for " + subject, e);
 			return new AuthenticationResult(Status.deny, null);
 		}
 	}

@@ -10,8 +10,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.event.EventPublisher;
+import pl.edu.icm.unity.engine.events.EventProducingAspect;
+import pl.edu.icm.unity.engine.events.InvocationEventContents;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -25,15 +29,17 @@ import pl.edu.icm.unity.types.basic.EntityState;
 @Component
 public class EntitiesScheduledUpdater
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EntitiesScheduledUpdater.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, EntitiesScheduledUpdater.class);
 	private UnityServerConfiguration config;
 	private EntityDAO entityDAO;
+	private EventPublisher eventPublisher;
 	
 	@Autowired
-	public EntitiesScheduledUpdater(UnityServerConfiguration config, EntityDAO entityDAO)
+	public EntitiesScheduledUpdater(UnityServerConfiguration config, EntityDAO entityDAO, EventPublisher eventProcessor)
 	{
 		this.config = config;
 		this.entityDAO = entityDAO;
+		this.eventPublisher = eventProcessor;
 	}
 	
 	@Transactional
@@ -64,10 +70,10 @@ public class EntitiesScheduledUpdater
 			if (isSetAndAfter(now, entityInfo.getScheduledOperationTime()))
 			{
 				EntityScheduledOperation op = entityInfo.getScheduledOperation();
-				performScheduledOperationInternal(op, entityInfo);
+				performScheduledOperationAndProduceEvent(op, entityInfo);
 			} else if (isSetAndAfter(now, entityInfo.getRemovalByUserTime()))
 			{
-				performScheduledOperationInternal(EntityScheduledOperation.REMOVE, entityInfo);
+				performScheduledOperationAndProduceEvent(EntityScheduledOperation.REMOVE, entityInfo);
 			}
 			
 			Date nextOp = entityInfo.getScheduledOperationTime();
@@ -76,7 +82,23 @@ public class EntitiesScheduledUpdater
 		}
 		return ret;
 	}
+	
+	private void performScheduledOperationAndProduceEvent(EntityScheduledOperation op,
+			EntityInformation entityInfo)
+	{
+		try
+		{
+			performScheduledOperationInternal(op, entityInfo);
+			produceEvent("performScheduledOperationInternal", null, op, entityInfo);
 
+		} catch (Exception ex)
+		{
+
+			produceEvent("performScheduledOperationInternal", ex.toString(), op, entityInfo);
+			throw ex;
+		}
+	}
+	
 	private void performScheduledOperationInternal(EntityScheduledOperation op, EntityInformation entityInfo)
 	{
 		switch (op)
@@ -89,7 +111,17 @@ public class EntitiesScheduledUpdater
 			log.info("Performing scheduled removal of entity " + entityInfo.getId());
 			entityDAO.deleteByKey(entityInfo.getId());
 			break;
-		}
+		}	
+	}
+	
+	private void produceEvent(String methodName, String e, EntityScheduledOperation op, EntityInformation entityInfo)
+	{
+		PersistableEvent event = new PersistableEvent(EventProducingAspect.CATEGORY_INVOCATION + "." + methodName,
+				null, new Date());
+		InvocationEventContents desc = new InvocationEventContents(methodName, 
+				null, new Object[] {op, entityInfo}, e);
+		event.setContents(desc.toJson());
+		eventPublisher.fireEvent(event);	
 	}
 	
 	private void disableInternal(EntityInformation entityInfo)

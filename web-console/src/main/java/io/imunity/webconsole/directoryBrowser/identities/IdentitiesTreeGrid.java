@@ -47,6 +47,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -83,7 +84,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private boolean groupByEntity;
 	private boolean showTargeted;
-	private String group;
+	private Group group;
 	private String entityNameAttribute = null;
 	private Map<String, IdentityTypeDefinition> typeDefinitionsMap;
 	private Map<String, CredentialDefinition> credentialDefinitions;
@@ -212,11 +213,11 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		menu.setTarget(target);
 		menu.addActionHandlers(Arrays.asList(entityDetailsHandler.getShowEntityAction(),
 				addToGroupHandler.getAction(),
-				removeFromGroupHandler.getAction(this::getGroup, this::refresh),
+				removeFromGroupHandler.getAction(this::getGroupPath, this::refresh),
 				identityCreationDialogHanlder.getAction(a -> refresh()),
 				changeEntityStateHandler.getAction(this::refresh), getChangeCredentialAction(),
 				credentialRequirementHandler.getAction(this::refresh),
-				entityAttributeClassHandler.getAction(this::refresh, this::getGroup),
+				entityAttributeClassHandler.getAction(this::refresh, this::getGroupPath),
 				confirmationResendHandler.getAction(), confirmHandler.getAction(this::refresh),
 				deleteIdentityHandler.getAction(this::removeIdentity, this::refresh),
 				deleteEntityHandler.getAction(this::removeEntity)));
@@ -243,12 +244,18 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		savePreferences();
 	}
 
-	public String getGroup()
+	public String getGroupPath()
 	{
-		return this.group;
+		return group.getPathEncoded();
 	}
 
-	public void showGroup(String group) throws EngineException
+	
+	public Group getGroup()
+	{
+		return group;
+	}
+
+	public void showGroup(Group group) throws EngineException
 	{
 		this.group = group;
 		AttributeType nameAt = attributeSupport
@@ -265,7 +272,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		cachedEntitites.clear();
 		getSelectionModel().deselectAll();
 		if (group != null)
-			entitiesLoader.reload(selected, group, showTargeted, this::addAndCacheResolvedEntities);
+			entitiesLoader.reload(selected, group.getPathEncoded(), showTargeted, this::addAndCacheResolvedEntities);
 	}
 
 	private void reloadTableContentsFromData()
@@ -444,7 +451,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	{
 		if (Strings.isEmpty(group))
 			removeColumn(IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX + attribute);
-		else if (group.equals(this.group))
+		else if (group.equals(this.group.getPathEncoded()))
 			removeColumn(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX + attribute);
 		reloadTableContentsFromData();
 		savePreferences();
@@ -716,7 +723,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			preferences = IdentitiesTablePreferences.getPreferences(preferencesMan);
 		} catch (EngineException e)
 		{
-			log.debug("Can not load preferences for identities table", e);
+			log.warn("Can not load preferences for identities table", e);
 			return;
 		}
 		groupByEntity = preferences.getGroupByEntitiesSetting();

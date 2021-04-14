@@ -36,7 +36,7 @@ import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.UnexpectedIdentityException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
@@ -225,7 +225,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-					AuthenticationOptionKeyUtils.encode(authenticatorName, idpKey));
+					new AuthenticationOptionKey(authenticatorName, idpKey));
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
@@ -298,10 +298,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		} else
 		{
 			if (savedException != null)
-				log.debug("OAuth2 authorization code verification or processing failed", 
+				log.warn("OAuth2 authorization code verification or processing failed", 
 						savedException);
 			else
-				log.debug("OAuth2 authorization code verification or processing failed");
+				log.warn("OAuth2 authorization code verification or processing failed");
 			Optional<String> errorDetail = reason == null ? Optional.empty() : 
 				Optional.of(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
 			if (error == null)

@@ -15,17 +15,23 @@
 		<!-- Everything produced by Unity (unless overwritten below) -->
 		<!-- <Logger name="unity.server" level="INFO"/> -->
 
+		<!-- Core server operations (not covered by any other facility below) -->
+		<!-- <Logger name="unity.server.core" level="INFO"/> -->
+
 		<!-- Loading of any configuration -->
 		<!-- <Logger name="unity.server.config" level="INFO"/> -->
 
 		<!-- Persistence subsystem -->
 		<!-- <Logger name="unity.server.db" level="INFO"/> -->
 
-		<!-- Low level persistence -->
-		<!-- <Logger name="pl.edu.icm.unity.store" level="INFO"/> -->
-
 		<!-- Web subsystem -->
 		<!-- <Logger name="unity.server.web" level="INFO"/> -->
+
+		<!-- Registration and enquiry -->
+		<!-- <Logger name="unity.server.forms" level="INFO"/> -->
+
+		<!-- Authentication & session management (general + basic credentials; other credentials have individual facilities below)-->
+		<!-- <Logger name="unity.server.authn" level="INFO"/> -->
 
 		<!-- SAML related -->
 		<!-- <Logger name="unity.server.saml" level="INFO"/> -->
@@ -35,6 +41,15 @@
 
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
+
+		<!-- PAM authentication -->
+		<!-- <Logger name="unity.server.pam" level="INFO"/> -->
+
+		<!-- OTP authentication -->
+		<!-- <Logger name="unity.server.otp" level="INFO"/> -->
+
+		<!-- FIDO authentication -->
+		<!-- <Logger name="unity.server.fido" level="INFO"/> -->
 
 		<!-- Web Service (SOAP) related -->
 		<!-- <Logger name="unity.server.ws" level="INFO"/> -->
@@ -47,6 +62,39 @@
 
 		<!-- Security related - low level (SAML processing, XML DSig, X.509 PKI)  -->
 		<!-- <Logger name="unicore.security" level="INFO"/> -->
+
+		<!-- External notifications -->
+		<!-- <Logger name="unity.server.notification" level="INFO"/> -->
+
+		<!-- Confirmations of emails and mobile -->
+		<!-- <Logger name="unity.server.confirmation" level="INFO"/> -->
+
+
+		<!--
+			Infrequently used logging facilities 
+		 -->
+
+		<!-- UpMan related -->
+		<!-- <Logger name="unity.server.upman" level="INFO"/> -->
+
+		<!-- Audit logging -->
+		<!-- <Logger name="unity.server.audit" level="INFO"/> -->
+
+		<!-- Execution of external scripts -->
+		<!-- <Logger name="unity.server.script" level="INFO"/> -->
+
+		<!-- Import of user data from external systems -->
+		<!-- <Logger name="unity.server.userimport" level="INFO"/> -->
+
+		<!-- Bulk operations on users directory -->
+		<!-- <Logger name="unity.server.bulkops" level="INFO"/> -->
+
+		<!-- Low-level internal events -->
+		<!-- <Logger name="unity.server.event" level="INFO"/> -->
+
+		<!-- Low level persistence -->
+		<!-- <Logger name="pl.edu.icm.unity.store" level="INFO"/> -->
+
 
 
 		<!-- 
@@ -77,7 +125,7 @@
 				fileName="logs/unity-server.log" 
 				filePattern="logs/unity-server.log.%d{yyyy-MM-dd}">
 				
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 			
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>

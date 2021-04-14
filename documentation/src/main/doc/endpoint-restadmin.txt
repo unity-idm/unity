@@ -9,4 +9,4 @@ This endpoint exposes a RESTful API to Unity features.
 The endpoint does not require any specialized configuration.
 
 The documentation of the REST API is available on a separate page
-<<rest-api-v1.txt#,REST API>> 
+link:rest-api-v1.html[REST API] 

@@ -79,6 +79,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -172,7 +173,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	@Override
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			String authnOptionId) 
+			AuthenticationOptionKey authnOptionId) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -275,7 +276,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				.filter(ra -> ra.getValues().contains(identity))
 				.findAny().isPresent())
 			return;
-		log.debug("Failing OAuth authentication as expected&mandatory identity {} was not found "
+		log.warn("Failing OAuth authentication as expected&mandatory identity {} was not found "
 				+ "in received user data: {}", identity, input.getTextDump());
 		throw new UnexpectedIdentityException(identity);
 	}
@@ -353,7 +354,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		log.debug("Received answer: {}", response.getStatusCode());
 		if (response.getStatusCode() != 200)
-			log.debug("Error received. Contents: {}", response.getContent());
+			log.warn("Error received. Contents: {}", response.getContent());
 		else
 			log.trace("Received token: {}", response.getContent().trim());
 		return response;

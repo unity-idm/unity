@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.security.PublicKey;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -57,6 +59,7 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -226,6 +229,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					return null;
 				return config.getLogoutEndpointsFromStructuredList(configKey);
 			}
+
+			@Override
+			public List<PublicKey> getTrustedKeys(NameIDType samlEntity)
+			{
+				SAMLSPProperties config = getSamlValidatorSettings();
+				return config.getPublicKeysOfIdp(samlEntity.getStringValue());
+			}
 		};
 		
 		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
@@ -260,7 +270,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, String authnOptionId)
+	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationOptionKey authnOptionId)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
 				authnOptionId);
@@ -322,7 +332,9 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
 				getSamlValidatorSettings(), 
 				replayAttackChecker, responseConsumerAddress);
+
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
+				context.getVerifiableResponse(),
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
 				context.getGroupAttribute(), context.getContextIdpKey());

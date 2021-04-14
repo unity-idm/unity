@@ -78,8 +78,8 @@ class AuditTagRDBMSStore
 					connection.releaseSavepoint(savepoint);
 				} catch (PersistenceException e)
 				{
-					log.info("Can't add tag {}, it is already in db. Can happen but shouldn't happen often", tag);
-					log.debug("Adding tag error details", e);
+					log.debug("Can't add tag {}, it is already in db. "
+							+ "Can happen but shouldn't happen often", tag, e);
 					connection.rollback(savepoint);
 				}
 			}

@@ -4,12 +4,15 @@
  */
 package pl.edu.icm.unity.ws.mock;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
@@ -53,7 +56,8 @@ public class MockWSEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new CXFEndpoint(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH)
+		return new CXFEndpoint(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, 
+				mock(EntityManagement.class))
 		{
 			@Override
 			protected void configureServices()

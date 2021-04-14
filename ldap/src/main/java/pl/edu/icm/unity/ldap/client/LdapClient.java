@@ -38,6 +38,7 @@ import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.security.canl.SSLContextCreator;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
@@ -75,8 +76,6 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 public class LdapClient
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
-	private static final org.apache.log4j.Logger legacyLog = 
-			Log.getLegacyLogger(Log.U_SERVER_LDAP, LdapClient.class);
 
 	private String idpName;
 	private LdapGroupHelper groupHelper;
@@ -89,14 +88,6 @@ public class LdapClient
 
 	/**
 	 * Performs authentication by binding and searches for all configured attributes.
-	 * @param user
-	 * @param password
-	 * @param configuration
-	 * @return
-	 * @throws LDAPException
-	 * @throws LdapAuthenticationException
-	 * @throws KeyManagementException
-	 * @throws NoSuchAlgorithmException
 	 */
 	public RemotelyAuthenticatedInput bindAndSearch(String userOrig, String password, 
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
@@ -107,7 +98,7 @@ public class LdapClient
 		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
 		
 		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Established user's DN is: " + dn);
+		log.info("Established user's DN is: " + dn);
 		
 		bindAsUser(connection, dn, password, configuration);
 		if (configuration.isBindOnly())
@@ -160,7 +151,7 @@ public class LdapClient
 		LDAPConnection connection = createConnection(configuration);
 		
 		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Established user's DN is: " + dn);
+		log.info("Established user's DN is: " + dn);
 		
 		if (configuration.isBindOnly())
 		{
@@ -243,8 +234,10 @@ public class LdapClient
 		if (configuration.getConnectionMode() == ConnectionMode.SSL)
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();
+			ServerHostnameCheckingMode certificateCheckingMode = configuration.isTrustAllCerts() ? 
+					ServerHostnameCheckingMode.NONE : ServerHostnameCheckingMode.FAIL;
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLS", "LDAP client", legacyLog);
+					"TLS", "LDAP client", log, certificateCheckingMode);
 			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
 		} else
@@ -260,7 +253,7 @@ public class LdapClient
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
-					"TLSv1.2", "LDAP client", legacyLog);
+					"TLSv1.2", "LDAP client", log, ServerHostnameCheckingMode.FAIL);
 			ExtendedResult extendedResult = connection.processExtendedOperation(
 					new StartTLSExtendedRequest(ctx));
 
@@ -290,7 +283,7 @@ public class LdapClient
 				throw new LdapAuthenticationException("Wrong username or credentials", e);
 			} else throw e;
 		}
-		log.debug("LDAP bind as user " + dn + " was successful");
+		log.info("LDAP bind as user " + dn + " was successful");
 	}
 
 	private void bindAsSystem(LDAPConnection connection, LdapClientConfiguration configuration) 

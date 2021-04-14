@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class BulkProcessingExecutor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkProcessingExecutor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, BulkProcessingExecutor.class);
 	
 	@Autowired
 	@Qualifier("insecure")
@@ -81,14 +81,11 @@ public class BulkProcessingExecutor
 			
 			if (rule.getConditionInstance().evaluate(context, log))
 			{
-				if (log.isDebugEnabled())
-					log.debug("Executing action on entity with id " + 
-							entity.getEntityInformation().getId());
+				log.info("Executing action on entity with id {}", entity.getEntityInformation().getId());
 				rule.getActionInstance().invoke(entity);
 			} else
 			{
-				if (log.isDebugEnabled())
-					log.debug("Skipping entity with id {} not matching the condition",
+				log.debug("Skipping entity with id {} not matching the condition",
 							 entity.getEntityInformation().getId());
 			}
 		} catch (Exception e)

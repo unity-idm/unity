@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.imunity</groupId>
 	<artifactId>unity-server-parent</artifactId>
@@ -16,17 +18,17 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.29.v20200521</jetty.version>
-		<slf4j.version>1.7.25</slf4j.version>
+		<jetty.version>9.4.35.v20201120</jetty.version>
+		<slf4j.version>1.7.30</slf4j.version>
 		<log4j.version>2.14.0</log4j.version>
-		<spring.version>5.1.15.RELEASE</spring.version>
-		<vaadin.version>8.10.5</vaadin.version>
-		<cxf.version>3.3.6</cxf.version>
+		<spring.version>5.1.20.RELEASE</spring.version>
+		<vaadin.version>8.12.3</vaadin.version>
+		<cxf.version>3.4.2</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
-		<bc.version>1.65</bc.version>
+		<bc.version>1.68</bc.version>
 		<selenium.version>3.141.59</selenium.version>
-		<jackson.version>2.11.0</jackson.version>
-		<junit5.version>5.6.2</junit5.version>
+		<jackson.version>2.12.1</jackson.version>
+		<junit5.version>5.7.0</junit5.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -146,7 +148,7 @@
 					<version>3.7.0.1746</version>
 				</plugin>
 				<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.4</version>
 				</plugin>
@@ -250,9 +252,9 @@
 				</executions>
 			</plugin>
 
-			<!-- To be able to sign in local settings.xml a profile (enabled by default) should be defined with
-			gpg.keyname property defined + passphrase.
-			See end of http://maven.apache.org/plugins/maven-gpg-plugin/usage.html -->
+			<!-- To be able to sign in local settings.xml a profile (enabled by default) 
+				should be defined with gpg.keyname property defined + passphrase. See end 
+				of http://maven.apache.org/plugins/maven-gpg-plugin/usage.html -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -324,7 +326,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.16.1</version>
+				<version>3.18.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -368,7 +370,7 @@
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
-				<version>1.9.5</version>
+				<version>1.9.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
@@ -398,6 +400,11 @@
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
 				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
@@ -433,12 +440,12 @@
 			<dependency>
 				<groupId>eu.unicore</groupId>
 				<artifactId>jproperties-conf</artifactId>
-				<version>1.0.0</version>
+				<version>1.1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>5.0.0</version>
+				<version>5.3.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -457,7 +464,7 @@
 			<dependency>
 				<groupId>io.imunity.samly</groupId>
 				<artifactId>samly2</artifactId>
-				<version>2.5.0</version>
+				<version>2.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.imunity.samly</groupId>
@@ -467,7 +474,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>3.0.0</version>
+				<version>3.2.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.apache.geronimo.javamail</groupId>
@@ -478,12 +485,12 @@
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>42.2.12.jre7</version>
+				<version>42.2.18.jre7</version>
 			</dependency>
 			<dependency>
-    			<groupId>org.mariadb.jdbc</groupId>
-    			<artifactId>mariadb-java-client</artifactId>
-    			<version>2.6.0</version>
+				<groupId>org.mariadb.jdbc</groupId>
+				<artifactId>mariadb-java-client</artifactId>
+				<version>2.7.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>
@@ -493,12 +500,12 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
-				<version>3.5.4</version>
+				<version>3.5.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis-spring</artifactId>
-				<version>2.0.4</version>
+				<version>2.0.6</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -541,9 +548,9 @@
 				<version>2.0.2</version>
 			</dependency>
 			<dependency>
-  				 <groupId>com.github.vaadin4qbanos</groupId>
-   				<artifactId>jsclipboard</artifactId>
-  				 <version>1.0.12</version>
+				<groupId>com.github.vaadin4qbanos</groupId>
+				<artifactId>jsclipboard</artifactId>
+				<version>1.0.12</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -614,32 +621,32 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>5.0.1</version>
+				<version>5.1.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.4.7.Final</version>
+				<version>2.4.11.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.12</version>
+				<version>4.5.13</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>8.4</version>
+				<version>8.32</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>8.17</version>
+				<version>8.20.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>29.0-jre</version>
+				<version>30.1-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>
@@ -649,12 +656,12 @@
 			<dependency>
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
-				<version>1.6</version>
+				<version>1.7</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.13</version>
+				<version>1.15</version>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
@@ -679,7 +686,7 @@
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
 				<artifactId>jna</artifactId>
-				<version>5.5.0</version>
+				<version>5.6.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.kohsuke</groupId>
@@ -692,20 +699,20 @@
 				<version>2.5.6</version>
 				<type>pom</type>
 				<exclusions>
-  					<exclusion>
-  						<groupId>org.testng</groupId>
-  						<artifactId>testng</artifactId>
-  					</exclusion>
-  					<exclusion>
-  						<groupId>org.codehaus.groovy</groupId>
-  						<artifactId>groovy-test-junit5</artifactId>
-  					</exclusion>
-  				</exclusions>
+					<exclusion>
+						<groupId>org.testng</groupId>
+						<artifactId>testng</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.codehaus.groovy</groupId>
+						<artifactId>groovy-test-junit5</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.nulab-inc</groupId>
 				<artifactId>zxcvbn</artifactId>
-				<version>1.3.0</version>
+				<version>1.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.xml.ws</groupId>
@@ -730,7 +737,7 @@
 				<artifactId>selenium-firefox-driver</artifactId>
 				<version>${selenium.version}</version>
 				<scope>test</scope>
-			</dependency>		
+			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-chrome-driver</artifactId>
@@ -740,8 +747,8 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!-- the base test dependencies are used for all modules, more advanced as spring are to be defined
-		directly -->
+	<!-- the base test dependencies are used for all modules, more advanced 
+		as spring are to be defined directly -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -749,11 +756,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-  			<groupId>org.mockito</groupId>
-  			<artifactId>mockito-core</artifactId>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
-  		</dependency>
-  		<dependency>
+		</dependency>
+		<dependency>
 			<groupId>eu.codearte.catch-exception</groupId>
 			<artifactId>catch-exception</artifactId>
 			<scope>test</scope>

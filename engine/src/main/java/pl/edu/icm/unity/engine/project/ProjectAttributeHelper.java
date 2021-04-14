@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 @Component
 public class ProjectAttributeHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ProjectAttributeHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, ProjectAttributeHelper.class);
 
 	private AttributesManagement attrMan;
 	private AttributesHelper attrHelper;

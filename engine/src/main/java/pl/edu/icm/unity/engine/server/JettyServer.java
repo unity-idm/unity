@@ -82,7 +82,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 @Component
 public class JettyServer implements Lifecycle, NetworkServer
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, UnityApplication.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, ServletContextHandler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
@@ -350,7 +350,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			if (disabledCiphers.length() > 1)
 				factory.setExcludeCipherSuites(disabledCiphers.split("[ ]+"));
 		}
-		log.debug("SSL protocol was set to: '" + factory.getProtocol() + "'");
+		log.info("SSL protocol was set to: '" + factory.getProtocol() + "'");
 		return ssl;
 	}
 
@@ -380,7 +380,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 */
 	private ServerConnector createPlainConnector(URL url)
 	{
-		log.debug("Creating plain HTTP connector on: " + url);
+		log.info("Creating plain HTTP connector on: " + url);
 		return getPlainConnectorInstance();
 	}
 
@@ -450,7 +450,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			try
 			{
 				deployHandler(new RedirectHandler(cfg.getValue(
-						UnityServerConfiguration.DEFAULT_WEB_PATH)));
+						UnityServerConfiguration.DEFAULT_WEB_PATH)), "sys:redirect");
 			} catch (EngineException e)
 			{
 				log.error("Cannot deploy redirect handler " + e.getMessage(), e);
@@ -467,7 +467,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throws EngineException
 	{
 		ServletContextHandler handler = endpoint.getServletContextHandler();
-		deployHandler(handler);
+		deployHandler(handler, endpoint.getEndpointDescription().getName());
 		deployedEndpoints.add(endpoint);
 	}
 	
@@ -475,7 +475,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 * Deploys a simple handler. It is only checked if the context path is free.
 	 */
 	@Override
-	public synchronized void deployHandler(ServletContextHandler handler) 
+	public synchronized void deployHandler(ServletContextHandler handler, String endpointId) 
 			throws EngineException
 	{
 		String contextPath = handler.getContextPath();
@@ -488,7 +488,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		addDoSFilter(handler);
 		addCORSFilter(handler);
 		
-		Handler wrappedHandler = applyClientIPDiscoveryHandler(handler);
+		Handler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
 		mainContextHandler.addHandler(wrappedHandler);
 		try
 		{
@@ -642,7 +642,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 
 
-	private ClientIPSettingHandler applyClientIPDiscoveryHandler(AbstractHandlerContainer baseHandler)
+	private ClientIPSettingHandler applyClientIPDiscoveryHandler(AbstractHandlerContainer baseHandler, String endpointId)
 	{
 		ClientIPDiscovery ipDiscovery = new ClientIPDiscovery(serverSettings.getIntValue(PROXY_COUNT),
 				serverSettings.getBooleanValue(ALLOW_NOT_PROXIED_TRAFFIC));
@@ -650,7 +650,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 				serverSettings.getListOfValues(ALLOWED_IMMEDIATE_CLIENTS));
 		
 		log.info("Enabling client IP discovery filter");
-		ClientIPSettingHandler handler = new ClientIPSettingHandler(ipDiscovery, ipValidator);
+		ClientIPSettingHandler handler = new ClientIPSettingHandler(ipDiscovery, ipValidator, endpointId);
 		handler.setServer(theServer);
 		handler.setHandler(baseHandler);
 		return handler;

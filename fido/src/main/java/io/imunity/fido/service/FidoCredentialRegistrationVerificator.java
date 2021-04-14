@@ -72,7 +72,8 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 	}
 
 	public SimpleEntry<String, String> getRegistrationOptions(final String credentialName, final String credentialConfiguration,
-															  final Long entityId, final String username) throws FidoException
+															  final Long entityId, final String username,
+															  final boolean useResidentKey) throws FidoException
 	{
 		Optional<Identities> resolvedUsername = entityHelper.resolveUsername(entityId, username);
 		if (!resolvedUsername.isPresent() && (isNull(username) || username.isEmpty()))
@@ -92,6 +93,7 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 						.build())
 				.authenticatorSelection(AuthenticatorSelectionCriteria.builder()
 						.userVerification(UserVerificationRequirement.valueOf(fidoCredential.getUserVerification()))
+						.requireResidentKey(fidoCredential.isLoginLessAllowed() && useResidentKey)
 						.build())
 				.build());
 
@@ -104,7 +106,7 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		{
 			throw new FidoException("Failed to create registration options", e);
 		}
-		log.debug("Fido start registration for entityId: {}, username: {}, reqId: {} {}", entityId, username, reqId, json);
+		log.info("Fido start registration for entityId: {}, username: {}, reqId: {} {}", entityId, username, reqId, json);
 		return new SimpleEntry<>(reqId, json);
 	}
 

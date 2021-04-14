@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 public class AttributeStatementProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AttributeStatementProcessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, AttributeStatementProcessor.class);
 
 	public enum ContextKey
 	{

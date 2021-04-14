@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 @Component
 public class InputTranslationsController extends TranslationsControllerBase
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, InputTranslationsController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InputTranslationsController.class);
 	private EndpointController endpointController;
 
 	@Autowired
@@ -102,7 +102,7 @@ public class InputTranslationsController extends TranslationsControllerBase
 			addCallback.run();
 		} catch (ControllerException e)
 		{
-			log.debug("Can nod add input translation profile", e);
+			log.info("Can not add input translation profile", e);
 			errorCallback.accept(e);
 			return false;
 		}

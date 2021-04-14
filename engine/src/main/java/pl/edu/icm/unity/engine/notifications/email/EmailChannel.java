@@ -23,7 +23,9 @@ import javax.net.ssl.SSLSocketFactory;
 import com.sun.mail.util.MailSSLSocketFactory;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
+import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -71,7 +73,8 @@ class EmailChannel implements NotificationChannelInstance
 		} else
 		{
 			X509CertChainValidator validator = pkiManagement.getMainAuthnAndTrust().getValidator();
-			SSLSocketFactory factory = SocketFactoryCreator.getSocketFactory(null, validator);
+			SSLSocketFactory factory = new SocketFactoryCreator2(validator, 
+					new HostnameMismatchCallbackImpl(ServerHostnameCheckingMode.FAIL)).getSocketFactory();
 			props.put("mail.smtp.ssl.socketFactory", factory);
 		}
 		session = Session.getInstance(props, smtpAuthn);
@@ -97,7 +100,7 @@ class EmailChannel implements NotificationChannelInstance
 	
 	private void sendEmail(MessageTemplate.Message message, String to) throws MessagingException
 	{
-		EmailFacility.log.debug("Sending e-mail message to '" + to +"' with subject: " + message.getSubject());
+		EmailFacility.log.info("Sending e-mail message to '" + to +"' with subject: " + message.getSubject());
 		MimeMessage msg = new MimeMessage(session);
 		msg.setFrom();
 		msg.setRecipients(Message.RecipientType.TO, to);

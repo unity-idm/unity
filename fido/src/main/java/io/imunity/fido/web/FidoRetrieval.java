@@ -45,8 +45,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
-
 /**
  * Retrieves FIDO authentication input and validate FIDO authentication using FidoComponent.
  *
@@ -174,13 +172,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		private void triggerAuthentication()
 		{
 			String username = usernameField.getValue();
-			if (isNull(entityId) &&
-					(username == null || username.equals("")))
-			{
-				setAuthenticationResult(new AuthenticationResult(
-						Status.notApplicable, null));
-				return;
-			}
 			fidoComponent.invokeAuthentication(entityId, username);
 		}
 

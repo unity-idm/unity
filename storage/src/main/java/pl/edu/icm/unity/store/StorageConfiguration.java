@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.store.api.StoragePropertiesSource;
 @Component
 public class StorageConfiguration extends PropertiesHelper
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, StorageConfiguration.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, StorageConfiguration.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unityServer.storage.";

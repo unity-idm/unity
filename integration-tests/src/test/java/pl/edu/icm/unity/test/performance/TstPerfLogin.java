@@ -13,7 +13,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HttpContext;
-import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -38,7 +37,7 @@ public class TstPerfLogin extends PerformanceTestBase
 	public final int USERS = 1000; 
 	public final int WARM_SIZE = 10;
 	
-	@Test
+	//@Test
 	public void testLogin() throws Exception
 	{
 		

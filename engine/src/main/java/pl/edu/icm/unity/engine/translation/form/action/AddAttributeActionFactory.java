@@ -108,7 +108,7 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 						null, currentProfile);
 			} catch (IllegalAttributeValueException e)
 			{
-				log.debug("Can't convert attribute values returned by the action's expression "
+				log.info("Can't convert attribute values returned by the action's expression "
 						+ "to the type of attribute " + unityAttribute + " , skipping it", e);
 				return;
 			}

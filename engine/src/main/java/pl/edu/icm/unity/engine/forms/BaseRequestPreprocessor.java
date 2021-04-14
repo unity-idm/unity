@@ -67,7 +67,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 @Component
 public class BaseRequestPreprocessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, BaseRequestPreprocessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, BaseRequestPreprocessor.class);
 	
 	private final CredentialRepository credentialRepository;
 	private final AttributeTypeDAO dbAttributes;

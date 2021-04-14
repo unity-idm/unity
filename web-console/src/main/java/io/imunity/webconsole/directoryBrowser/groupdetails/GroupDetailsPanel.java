@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
@@ -44,8 +45,9 @@ public class GroupDetailsPanel extends SafePanel
 	private GroupsManagement groupsManagement;
 
 	private VerticalLayout main;
+	private TextField path;
 	private AttributeStatementsComponent attrStatements;
-	private String group;
+	private Group group;
 
 	@Autowired
 	public GroupDetailsPanel(MessageSource msg, AttributeStatementController controller,
@@ -59,8 +61,11 @@ public class GroupDetailsPanel extends SafePanel
 		main.setSizeFull();
 
 		attrStatements = new AttributeStatementsComponent(msg, controller);
-
-		main.addComponents(attrStatements);
+		path = new TextField();
+		path.setWidthFull();
+		path.setReadOnly(true);
+		
+		main.addComponents(path, attrStatements);
 		main.setExpandRatio(attrStatements, 1);
 
 		setSizeFull();
@@ -75,10 +80,10 @@ public class GroupDetailsPanel extends SafePanel
 
 	private void refreshAndEnsureSelection()
 	{
-		setGroup(group == null ? "/" : group);
+		setGroup(group == null ? new Group("/") : group);
 	}
 
-	private void setGroup(String group)
+	private void setGroup(Group group)
 	{
 		this.group = group;
 		if (group == null)
@@ -88,14 +93,13 @@ public class GroupDetailsPanel extends SafePanel
 		}
 		try
 		{
-			GroupContents contents = groupsManagement.getContents(group, GroupContents.EVERYTHING);
+			GroupContents contents = groupsManagement.getContents(group.getPathEncoded(), GroupContents.EVERYTHING);
 			Group rGroup = contents.getGroup();
-
-			setCaption(msg.getMessage("GroupDetails.infoLabel",group,
+			setCaptionFromBundle(msg, "GroupDetails.infoLabel", group.getDisplayedNameShort().getValue(msg),
 					String.valueOf(contents.getMembers().size()),
-					String.valueOf(contents.getSubGroups().size())));
+					String.valueOf(contents.getSubGroups().size()));
 			attrStatements.setInput(rGroup);
-			
+			path.setValue(group.getPathEncoded());
 			setContent(main);
 		} catch (AuthorizationException e)
 		{

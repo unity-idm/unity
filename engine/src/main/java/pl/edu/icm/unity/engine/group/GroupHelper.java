@@ -52,7 +52,7 @@ import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 @Component
 public class GroupHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, GroupHelper.class);
 	
 	private MembershipDAO membershipDAO;
 	private EntityResolver entityResolver;
@@ -104,7 +104,7 @@ public class GroupHelper
 				.subject(entityId)
 				.name(group.getName())
 				.tags(MEMBERS, GROUPS));
-		log.debug("Added entity " + entityId + " to group " + group.toString());
+		log.info("Added entity " + entityId + " to group " + group.toString());
 	}
 	
 	public boolean isMember(long entityId, String path)
@@ -187,7 +187,7 @@ public class GroupHelper
 							.details(ImmutableMap.of("action", "remove"))
 							.tags(MEMBERS, GROUPS));
 					dbAttributes.deleteAttributesInGroup(entityId, group);
-					log.debug("Removed entity " + entityId + " from group " + group);
+					log.info("Removed entity " + entityId + " from group " + group);
 				}
 			}
 		}

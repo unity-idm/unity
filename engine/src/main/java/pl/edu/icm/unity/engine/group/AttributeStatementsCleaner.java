@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.Group;
 @Component
 public class AttributeStatementsCleaner
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,
 			AttributeStatementsCleaner.class);
 	private GroupHelper groupHelper;
 	private GroupDAO groupDAO;

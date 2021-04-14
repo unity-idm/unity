@@ -73,7 +73,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 @Component
 public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EmailConfirmationManagerImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CONFIRMATION, EmailConfirmationManagerImpl.class);
 	private static final String CACHE_ID = "EmailConfirmationCache";
 	
 	private IdentityTypeHelper idTypeHelper;
@@ -258,7 +258,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
 				+ EmailConfirmationServletProvider.CONFIRMATION_TOKEN_ARG + "=" + token);
 
-		log.debug("Send confirmation request to " + recipientAddress + " with token = "
+		log.info("Send confirmation request to " + recipientAddress + " with token = "
 				+ token);
 
 		confirmationReqCache.put(new Element(token, recipientAddress));
@@ -505,7 +505,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 
 		} catch (Exception e)
 		{
-			log.debug("Cannot get confirmation configuration for attribute "
+			log.info("Cannot get confirmation configuration for attribute "
 					+ attributeName, e);
 			return Optional.empty();
 		}

@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 
 import static io.imunity.fido.service.FidoEntityHelper.NO_ENTITY_MSG;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Service for processing FIDO registration and authentication functionality.
@@ -146,17 +147,9 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 	@Override
 	public SimpleEntry<String, String> getAuthenticationOptions(final Long entityId, final String username) throws FidoException
 	{
-		Identities resolvedUsername = entityHelper.resolveUsername(entityId, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
-
-		assertFidoCredentialExists(resolvedUsername);
-
 		String reqId = UUID.randomUUID().toString();
-		AssertionRequest authenticationRequest = getRelyingParty().startAssertion(
-				StartAssertionOptions.builder()
-						.username(resolvedUsername.getUsername())
-						.timeout(60000)
-						.userVerification(UserVerificationRequirement.valueOf(credential.getUserVerification()))
-						.build());
+		AssertionRequest authenticationRequest = getRelyingParty().startAssertion(getAssertionOptions(entityId, username));
+
 		String json = null;
 		try
 		{
@@ -167,11 +160,35 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 			log.error("Parsing JSON: {}, exception: ", json, e);
 			throw new FidoException(msg.getMessage("FidoExc.internalError"), e);
 		}
-		log.debug("Fido start authentication for entityId: {}, username: {}, reqId: {}", entityId, username, reqId);
+		log.info("Fido start authentication for entityId: {}, username: {}, reqId: {}", entityId, username, reqId);
 		return new SimpleEntry<>(reqId, json);
 	}
 
-	private void assertFidoCredentialExists(Identities resolvedUsername)
+	private StartAssertionOptions getAssertionOptions(final Long entityId, final String username) {
+		StartAssertionOptions.StartAssertionOptionsBuilder builder = StartAssertionOptions.builder()
+				.timeout(60000)
+				.userVerification(UserVerificationRequirement.valueOf(credential.getUserVerification()));
+
+		String assertionUsername = getAssertionUsername(entityId, username);
+
+		if (nonNull(assertionUsername))
+			builder.username(assertionUsername);
+
+		return builder.build();
+	}
+
+	private String getAssertionUsername(final Long entityId, final String username) {
+		Optional<Identities> resolvedUsername = entityHelper.resolveUsername(entityId, username);
+		if (resolvedUsername.isPresent())
+			return assertFidoCredentialExists(resolvedUsername.get());
+
+		if (!credential.isLoginLessAllowed())
+			throw new NoEntityException(msg.getMessage(NO_ENTITY_MSG));
+
+		return null;
+	}
+
+	private String assertFidoCredentialExists(Identities resolvedUsername)
 	{
 		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(resolvedUsername.getUsername());
 		if (credentials.isEmpty())
@@ -181,6 +198,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 		}
 		// Make sure UserHandle Identity exists - it may be missing during first login after opt-in using registration form
 		entityHelper.getOrCreateUserHandle(resolvedUsername, credentials.get(0).getUserHandle());
+		return resolvedUsername.getUsername();
 	}
 
 	@Override
@@ -188,23 +206,26 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 	{
 		log.debug("Fido finalize authentication for reqId: {}", reqId);
 		AssertionResult result;
-		AssertionRequest authenticationRequest = authenticationRequests.remove(reqId);
-		if (authenticationRequest == null)
-			throw new FidoException(msg.getMessage("FidoExc.authReqExpired"));
+		String username = null;
 
 		try
 		{
-
 			PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> pkc =
 					PublicKeyCredential.parseAssertionResponseJson(jsonBody);
+			AssertionRequest authenticationRequest = authenticationRequests.remove(reqId);
+			if (authenticationRequest == null)
+				throw new FidoException(msg.getMessage("FidoExc.authReqExpired"));
 			result = getRelyingParty().finishAssertion(FinishAssertionOptions.builder()
 					.request(authenticationRequest)
 					.response(pkc)
 					.build());
-			updateSignatureCount(authenticationRequest.getUsername(), pkc.getId(), pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter());
+			if (result.isSuccess())
+			{
+				username = result.getUsername();
+				updateSignatureCount(username, pkc.getId(), pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter());
+			}
 		} catch (AssertionFailedException e)
 		{
-			log.error("Authentication failed", e);
 			throw new FidoException(msg.getMessage("Fido.authFailed", e));
 		} catch (IOException | EngineException e)
 		{
@@ -215,21 +236,15 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 		if (!result.isSuccess())
 			throw new FidoException(msg.getMessage("Fido.authFailed"));
 
-		String username = authenticationRequest.getUsername().orElseThrow(() -> new FidoException(msg.getMessage("FidoExc.internalError")));
 		Identities resolvedUsername = entityHelper.resolveUsername(null, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
 		AuthenticatedEntity ae = new AuthenticatedEntity(entityHelper.getEntityId(resolvedUsername.getEntityParam()), username, null);
 
 		return new AuthenticationResult(AuthenticationResult.Status.success, ae);
 	}
 
-	private void updateSignatureCount(Optional<String> username, ByteArray credentialId, long signatureCount) throws EngineException
+	private void updateSignatureCount(String username, ByteArray credentialId, long signatureCount) throws EngineException
 	{
-		if (!username.isPresent())
-		{
-			log.error("Request do not contains username - should never happen!");
-			throw new FidoException(msg.getMessage("FidoExc.internalError"));
-		}
-		Identities identities = entityHelper.resolveUsername(null, username.get()).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
+		Identities identities = entityHelper.resolveUsername(null, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
 		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(identities.getUsername());
 		List<FidoCredentialInfo> newCredentials = credentials.stream()
 				.map(c -> {
@@ -261,6 +276,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 				.attestationConveyancePreference(AttestationConveyancePreference.valueOf(credentialConfiguration.getAttestationConveyance()))
 				.allowUntrustedAttestation(true)
 				.allowOriginPort(true)
+				.allowUnrequestedExtensions(true)
 				.build();
 	}
 

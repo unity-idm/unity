@@ -28,4 +28,14 @@ public class RegistrationConfig implements AuthnElementConfiguration
 			return new PropertiesRepresentation(AuthnOptionsColumns.SPECIAL_ENTRY_REGISTER);
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		return true;	
+	}	
 }

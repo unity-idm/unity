@@ -121,7 +121,7 @@ public class CredentialResetCodeVerificationUI extends CredentialResetLayout
 			cancelCallback.run();
 		} catch (Exception e)
 		{
-			log.debug("Wrong code received", e);
+			log.info("Wrong code received", e);
 			answer.setValue("");
 			NotificationPopup.showError(msg.getMessage("CredentialReset.codeInvalid"), "");
 			answer.focus();

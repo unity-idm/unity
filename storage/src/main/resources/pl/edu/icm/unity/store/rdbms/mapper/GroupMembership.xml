@@ -23,24 +23,24 @@
 	</delete>
 	
 	<select id="getAll" resultMap="groupMember">
-		select GROUP_ENTITIES.*, GROUPS.NAME from ENTITIES, GROUP_ENTITIES, GROUPS 
-		where GROUP_ENTITIES.GROUP_ID = GROUPS.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
+		select GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME from ENTITIES, GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
+		where GROUP_ENTITIES.GROUP_ID = <include refid="io.imunity.sql.groups"/>.ID AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
 	</select>
 
 	<select id="getMembers" parameterType="long" resultMap="groupMember">
-		select GROUP_ENTITIES.*, GROUPS.NAME from ENTITIES, GROUP_ENTITIES, GROUPS 
+		select GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME from ENTITIES, GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
 		where GROUP_ENTITIES.GROUP_ID = #{value} AND GROUP_ENTITIES.ENTITY_ID = ENTITIES.ID
-			AND GROUPS.ID = #{value}  
+			AND <include refid="io.imunity.sql.groups"/>.ID = #{value}  
 	</select>
 
 	<select id="getEntityMembership" parameterType="long" resultMap="groupMember">
-		select GROUP_ENTITIES.*, GROUPS.NAME from GROUP_ENTITIES, GROUPS 
-			where ENTITY_ID = #{value} AND GROUPS.ID = GROUP_ENTITIES.GROUP_ID
+		select GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME from GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
+			where ENTITY_ID = #{value} AND <include refid="io.imunity.sql.groups"/>.ID = GROUP_ENTITIES.GROUP_ID
 	</select>
 	
 	<select id="getByKey" parameterType="GroupElementB" resultMap="groupMember">
-		SELECT GROUP_ENTITIES.*, GROUPS.NAME FROM GROUP_ENTITIES, GROUPS 
+		SELECT GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME FROM GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
 			WHERE ENTITY_ID = #{elementId} AND GROUP_ENTITIES.GROUP_ID = #{groupId} AND
-			GROUPS.ID = GROUP_ENTITIES.GROUP_ID  
+			<include refid="io.imunity.sql.groups"/>.ID = GROUP_ENTITIES.GROUP_ID  
 	</select>
 </mapper>

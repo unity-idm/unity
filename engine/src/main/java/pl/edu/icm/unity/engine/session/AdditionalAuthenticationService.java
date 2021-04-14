@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 /**
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 @Component
 public class AdditionalAuthenticationService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AdditionalAuthenticationService.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AdditionalAuthenticationService.class);
 	private final AuthenticationProcessor authnProcessor;
 	private final String policyStr;
 	private final boolean failOnNoMatch;
@@ -70,7 +70,7 @@ public class AdditionalAuthenticationService
 		if (!additionalAuthnRequired)
 			return;
 		
-		log.debug("Additional authn is required with option {}", additionalAuthnOption);
+		log.info("Additional authn is required with option {}", additionalAuthnOption);
 		throw new AdditionalAuthenticationRequiredException(additionalAuthnOption);
 	}
 
@@ -97,7 +97,7 @@ public class AdditionalAuthenticationService
 			default:
 				option = findOnEndpoint(policyElement);
 			}
-			log.debug("Trying {} additional authN option from policy, result: {}", policyElement, option);
+			log.info("Trying {} additional authN option from policy, result: {}", policyElement, option);
 			
 			if (option != null)
 				return option;
@@ -105,7 +105,7 @@ public class AdditionalAuthenticationService
 		
 		if (failOnNoMatch)
 		{
-			log.debug("Additional authn is required but no option was found, blocking operation");
+			log.info("Additional authn is required but no option was found, blocking operation");
 			throw new AdditionalAuthenticationMisconfiguredException();
 		}
 		return null;
@@ -155,11 +155,11 @@ public class AdditionalAuthenticationService
 		return getFromSessionFactor(loginSession.getLogin2ndFactorOptionId());
 	}
 
-	private String getFromSessionFactor(String loginFactor)
+	private String getFromSessionFactor(AuthenticationOptionKey loginFactor)
 	{
 		if (loginFactor != null)
 		{
-			String authenticator = AuthenticationOptionKeyUtils.decodeAuthenticator(loginFactor);
+			String authenticator = loginFactor.getAuthenticatorKey();
 			if(isValidForReauthentication(authenticator))
 				return authenticator;
 		}
@@ -235,7 +235,7 @@ public class AdditionalAuthenticationService
 				expectedAuthnOption, graceTime, System.currentTimeMillis());
 		if (authnInfo == null || authnInfo.optionId == null)
 			return false;
-		String authenticator = AuthenticationOptionKeyUtils.decodeAuthenticator(authnInfo.optionId);
+		String authenticator = authnInfo.optionId.getAuthenticatorKey();
 		if (!authenticator.equals(expectedAuthnOption))
 			return false;
 		return System.currentTimeMillis() < graceTime + authnInfo.time.getTime();

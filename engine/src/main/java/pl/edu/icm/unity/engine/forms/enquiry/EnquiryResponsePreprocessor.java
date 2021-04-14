@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 @Component
 public class EnquiryResponsePreprocessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS,
 			EnquiryResponsePreprocessor.class);
 	
 	private final PolicyAgreementsValidator agreementValidator;
@@ -57,7 +57,7 @@ public class EnquiryResponsePreprocessor
 		if (invitationInfo.isByInvitation())
 		{
 			String code = response.getRequest().getRegistrationCode();
-			log.debug("Received enquiry response for invitation " + code + ", removing it");
+			log.info("Received enquiry response for invitation " + code + ", removing it");
 			basePreprocessor.removeInvitation(code);
 		}
 	}

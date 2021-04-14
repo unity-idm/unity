@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -295,8 +296,8 @@ public class AdditionalAuthenticationServiceTest
 		InvocationContext invocationContext = new InvocationContext(null, null, Lists.newArrayList(flow));
 		LoginSession loginSession = new LoginSession("id", new Date(200), 10, 1, "realm", 
 				new RememberMeInfo(false, false), 
-				new AuthNInfo(firstAuthn + ".password", new Date(200)), 
-				secondAuthn != null ? new AuthNInfo(secondAuthn + ".sms", new Date(200)) : null);
+				new AuthNInfo(new AuthenticationOptionKey(firstAuthn, "password"), new Date(200)), 
+				secondAuthn != null ? new AuthNInfo(new AuthenticationOptionKey(secondAuthn, "sms"), new Date(200)) : null);
 		invocationContext.setLoginSession(loginSession);
 		InvocationContext.setCurrent(invocationContext);
 	}

@@ -21,6 +21,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -183,8 +184,7 @@ public class ECPStep2Handler
 	
 	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx)
 	{
-		if (log.isDebugEnabled())
-			log.debug("Client was successfully authenticated: [" + 
+		log.info("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
 				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null);
@@ -244,7 +244,9 @@ public class ECPStep2Handler
 		
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
 				replayAttackChecker, myAddress);
+		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(responseDoc, responseDoc.getResponse());
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
+				verifiableMessage,
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
 		return remoteAuthnProcessor.getResult(input, profile, false, Optional.empty());
 	}

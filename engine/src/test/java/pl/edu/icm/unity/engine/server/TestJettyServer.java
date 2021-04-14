@@ -68,7 +68,7 @@ public class TestJettyServer
 		handler.setContextPath("/test");
 		handler.addServlet(new ServletHolder(new SimpleServlet()), "/*");
 		httpServer.start();
-		httpServer.deployHandler(handler);
+		httpServer.deployHandler(handler, "sys:test");
 		URL url = httpServer.getUrls()[0];
 		String baseURL = "https://127.0.0.1:" + url.getPort();
 		int THREADS = 20;

@@ -35,7 +35,7 @@ public class SystemCredentialProvider
 	private ApplicationContext applicationContext;
 	private Collection<CredentialDefinition> credentials;
 	
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER,
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_CORE,
 			SystemCredentialProvider.class);
 
 	@Autowired

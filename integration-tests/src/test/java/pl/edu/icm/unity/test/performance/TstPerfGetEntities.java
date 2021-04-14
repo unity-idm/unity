@@ -6,8 +6,6 @@ package pl.edu.icm.unity.test.performance;
 
 import java.io.IOException;
 
-import org.junit.Test;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -18,7 +16,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public class TstPerfGetEntities extends PerformanceTestBase
 {	
-	@Test
+	//@Test
 	public void testGetEntities() throws EngineException, IOException
 	{
 		addGroups(GROUP_IN_TIER,GROUP_TIERS);

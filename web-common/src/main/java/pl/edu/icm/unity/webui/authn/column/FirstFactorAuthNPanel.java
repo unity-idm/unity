@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -39,7 +40,7 @@ public class FirstFactorAuthNPanel extends AuthNPanelBase implements Authenticat
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			boolean gridCompatible,
 			VaadinAuthenticationUI authnUI,
-			String authnId)
+			AuthenticationOptionKey authnId)
 	{
 		super(authnUI, authnId, new VerticalLayout());
 		this.msg = msg;

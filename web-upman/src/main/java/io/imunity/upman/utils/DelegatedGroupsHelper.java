@@ -27,7 +27,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Component
 public class DelegatedGroupsHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, DelegatedGroupsHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, DelegatedGroupsHelper.class);
 	private DelegatedGroupManagement delGroupMan;
 	private MessageSource msg;
 

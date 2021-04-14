@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -41,7 +42,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationProcessorImpl.class);
 	
 	private final SecondFactorOptInService secondFactorOptInService;
 	private LocalCredentialsRegistry localCred;
@@ -64,7 +65,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	 */
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
-			AuthenticationFlow authenticationFlow, String authnOptionId) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
 	{
 		if (result.getStatus() != Status.success)
 		{
@@ -123,7 +124,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
-			AuthenticationResult result, String firstFactorauthnOptionId)
+			AuthenticationResult result, AuthenticationOptionKey firstFactorauthnOptionId)
 	{
 		AuthenticatorInstance secondFactorAuthenticator = getValidAuthenticatorForEntity(
 				authenticationFlow.getSecondFactorAuthenticators(), 
@@ -144,12 +145,12 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			{
 				if (!authenticator.getTypeDescription().isLocal())
 				{
-					log.debug("Using remote second factor authenticator " + authenticator.getId());
+					log.info("Using remote second factor authenticator " + authenticator.getId());
 					return authn;
 
 				} else if (checkIfUserHasCredential(authenticator, entityId))
 				{
-					log.debug("Using local second factor authenticator " + authenticator.getId());
+					log.info("Using local second factor authenticator " + authenticator.getId());
 					return authn;
 				}
 			}
@@ -179,7 +180,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			return ret;
 		} catch (Exception e)
 		{
-			log.debug("Can not check entity local credential state", e);
+			log.warn("Can not check entity local credential state", e);
 			return false;
 		}
 

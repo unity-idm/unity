@@ -22,7 +22,6 @@ public class SAMLEndpointDefinition
 	
 	public SAMLEndpointDefinition(Binding binding, String url, String returnUrl)
 	{
-		super();
 		this.binding = binding;
 		this.url = url;
 		this.returnUrl = returnUrl;

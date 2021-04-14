@@ -46,7 +46,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 @PrototypeComponent
 public class CertificateVerificator extends AbstractLocalVerificator implements CertificateExchange
 { 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER, CertificateVerificator.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, CertificateVerificator.class);
 	private static final String[] IDENTITY_TYPES = {X500Identity.ID};
 	public static final String NAME = "certificate";
 	public static final String DESC = "Verifies certificates";
@@ -101,7 +101,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 			return ret;
 		} catch (Exception e)
 		{
-			log.debug("Checking certificate failed", e);
+			log.warn("Checking certificate failed", e);
 			AuthenticationResult ret = new AuthenticationResult(Status.deny, null);
 			if (sandboxCallback != null)
 				sandboxCallback.sandboxedAuthenticationDone(

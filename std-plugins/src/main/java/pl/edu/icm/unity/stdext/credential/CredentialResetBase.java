@@ -36,7 +36,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  */
 public abstract class CredentialResetBase implements CredentialReset
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, CredentialResetBase.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, CredentialResetBase.class);
 	protected static final int MAX_ANSWER_ATTEMPTS = 2;
 	private static final int MAX_RESENDS = 3;
 	private static final long MAX_CODE_VALIDITY = 30*3600;

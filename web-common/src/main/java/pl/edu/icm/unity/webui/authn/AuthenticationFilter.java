@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ApplicationConstants;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.CookieHelper;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -134,11 +136,8 @@ public class AuthenticationFilter implements Filter
 				{
 					log.trace("Update session activity for " + loginSessionId);
 					sessionMan.updateSessionActivity(loginSessionId);
-				} else
-				{
-					
 				}
-				gotoProtectedResource(httpRequest, response, chain);
+				gotoProtectedResource(httpRequest, response, chain, loginSession);
 				throw new EopException();
 			} catch (IllegalArgumentException e)
 			{
@@ -161,7 +160,7 @@ public class AuthenticationFilter implements Filter
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp);
 		if (blockedTime > 0)
 		{
-			log.debug("Blocked potential DoS/brute force authN attack from "
+			log.warn("Blocked potential DoS/brute force authN attack from "
 					+ clientIp);
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
 					"Access is blocked for "
@@ -213,7 +212,7 @@ public class AuthenticationFilter implements Filter
 			throw new EopException();
 		}
 
-		log.debug("Whole authn is remembered by entity "
+		log.info("Whole authn is remembered by entity "
 				+ loginSessionFromRememberMe.get().getEntityId() + ", skipping it");
 		bindSessionAndGotoProtectedResource(httpRequest, httpResponse, chain,
 				loginSessionFromRememberMe.get(), clientIp);
@@ -244,16 +243,25 @@ public class AuthenticationFilter implements Filter
 	{
 		dosGauard.successfulAttempt(clientIp);
 		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSession);
-		gotoProtectedResource(httpRequest, response, chain);
+		gotoProtectedResource(httpRequest, response, chain, loginSession);
 	}
 
 	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException
+			FilterChain chain, LoginSession session) throws IOException, ServletException
 	{
 		if (log.isTraceEnabled())
 			log.trace("Request to protected address, user is authenticated: "
 					+ httpRequest.getRequestURI());
-		chain.doFilter(httpRequest, response);
+		MDC.put(MDCKeys.USER.key, session.getEntityLabel());
+		MDC.put(MDCKeys.ENTITY_ID.key, session.getEntityId());
+		try
+		{
+			chain.doFilter(httpRequest, response);
+		} finally
+		{
+			MDC.remove(MDCKeys.USER.key);
+			MDC.remove(MDCKeys.ENTITY_ID.key);
+		}
 	}
 
 	private void gotoNotProtectedResource(HttpServletRequest httpRequest,

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.utils.Log;
  */
 public class RedirectHandler extends ServletContextHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RedirectHandler.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, RedirectHandler.class);
 	private String redirectPath;
 
 	public RedirectHandler(String toPath)

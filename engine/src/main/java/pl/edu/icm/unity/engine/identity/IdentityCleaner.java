@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Component
 public class IdentityCleaner
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, IdentityCleaner.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, IdentityCleaner.class);
 	private IdentityDAO identityDAO;
 	private IdentityTypeHelper idTypeHelper;
 	private IdentityTypeDAO idTypeDAO;
@@ -51,7 +51,7 @@ public class IdentityCleaner
 			IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identityType);
 			if (typeDefinition.isExpired(identity))
 			{
-				log.debug("Removing expired identity " + identity);
+				log.info("Removing expired identity " + identity);
 				identityDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), 
 						identity.getComparableValue()));
 			}

@@ -262,6 +262,14 @@
 			<classifier>i18n</classifier>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-web-upman</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>i18n</classifier>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	
 	<build>

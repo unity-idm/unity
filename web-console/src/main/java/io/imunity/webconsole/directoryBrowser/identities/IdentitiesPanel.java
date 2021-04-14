@@ -36,6 +36,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -140,13 +141,14 @@ public class IdentitiesPanel extends SafePanel
 		bus.addListener(event -> {
 			Set<String> interestingCurrent = identitiesTable.getAttributeColumns(false);
 			interestingCurrent.add(entityNameAttribute);
-			String curGroup = identitiesTable.getGroup();
-			if (interestingCurrent.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
+			Group curGroup = identitiesTable.getGroup();
+			if (interestingCurrent.contains(event.getAttributeName()) && 
+					curGroup.getPathEncoded().equals(event.getGroup()))
 			{
 				setGroupWithSelectionSave(curGroup);
 				return;
 			}
-			if (curGroup.equals("/") && curGroup.equals(event.getGroup()))
+			if (curGroup.isTopLevel() && curGroup.getPathEncoded().equals(event.getGroup()))
 			{
 				Set<String> interestingRoot = identitiesTable.getAttributeColumns(true);
 				if (interestingRoot.contains(event.getAttributeName()))
@@ -162,9 +164,8 @@ public class IdentitiesPanel extends SafePanel
 	
 	
 	
-	private void setGroupWithSelectionSave(String group)
+	private void setGroupWithSelectionSave(Group group)
 	{
-
 		Set<IdentityEntry> selectedItems = identitiesTable.getSelectedItems();
 		setGroup(group);
 
@@ -223,7 +224,7 @@ public class IdentitiesPanel extends SafePanel
 		hamburgerMenu.addActionHandler(addToGroupAction);
 
 		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
-				.getAction(identitiesTable::getGroup, this::refresh);
+				.getAction(identitiesTable::getGroupPath, this::refresh);
 		hamburgerMenu.addActionHandler(removeFromGroupAction);
 
 		SingleActionHandler<IdentityEntry> confirmationResendAction = confirmationResendHandler.getAction();
@@ -258,7 +259,7 @@ public class IdentitiesPanel extends SafePanel
 					Set<String> alreadyUsedRoot = identitiesTable.getAttributeColumns(true);
 					Set<String> alreadyUsedCurrent = identitiesTable.getAttributeColumns(false);
 					new RemoveAttributeColumnDialog(msg, alreadyUsedRoot, alreadyUsedCurrent,
-							identitiesTable.getGroup(),
+							identitiesTable.getGroupPath(),
 							(attributeType, group) -> identitiesTable
 									.removeAttributeColumn(group, attributeType))
 											.show();
@@ -287,12 +288,12 @@ public class IdentitiesPanel extends SafePanel
 
 	private void refreshGroupAndSelectIfNeeded()
 	{
-		String currentGroup = identitiesTable.getGroup();
-		setGroup(currentGroup == null ? "/" : currentGroup);
+		Group currentGroup = identitiesTable.getGroup();
+		setGroup(currentGroup == null ? new Group("/") : currentGroup);
 	}
 
 	
-	private void setGroup(String group)
+	private void setGroup(Group group)
 	{
 		identitiesTable.clearFilters();
 		searchText.clear();
@@ -313,7 +314,7 @@ public class IdentitiesPanel extends SafePanel
 		{
 			identitiesTable.showGroup(group);
 			identitiesTable.setVisible(true);
-			setCaption(msg.getMessage("Identities.caption", group));
+			setCaptionFromBundle(msg, "Identities.caption", group.getDisplayedNameShort().getValue(msg));
 			setContent(main);
 		} catch (AuthorizationException e)
 		{
@@ -324,9 +325,9 @@ public class IdentitiesPanel extends SafePanel
 		}
 	}
 
-	private void setIdProblem(String group, Exception e)
+	private void setIdProblem(Group group, Exception e)
 	{
-		log.error("Problem retrieving group contents of " + group, e);
+		log.error("Problem retrieving group contents of " + group.getPathEncoded(), e);
 		setProblem(msg.getMessage("Identities.internalError", e.toString()), Level.error);
 	}
 
@@ -334,7 +335,7 @@ public class IdentitiesPanel extends SafePanel
 	{
 		ErrorComponent errorC = new ErrorComponent();
 		errorC.setMessage(message, level);
-		setCaption(msg.getMessage("Identities.captionNoGroup"));
+		setCaptionFromBundle(msg, "Identities.captionNoGroup");
 		setContent(errorC);
 	}
 

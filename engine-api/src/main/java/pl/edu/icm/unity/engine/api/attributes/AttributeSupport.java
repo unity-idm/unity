@@ -60,4 +60,10 @@ public interface AttributeSupport
 	 * No authorization.
 	 */
 	Collection<Attribute> getAttributesByKeyword(String keyword);
+
+	/**
+	 * Search for all attributes with given type name. Returns map identified by entity Id with list of attributes of given type.
+	 * No authorization.
+	 */
+	Map<Long, List<Attribute>>  getEntitiesWithAttributes(String attributeTypeName);
 }

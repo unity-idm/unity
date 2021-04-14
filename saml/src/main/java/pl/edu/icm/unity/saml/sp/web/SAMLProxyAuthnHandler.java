@@ -22,6 +22,7 @@ import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
@@ -95,7 +96,7 @@ class SAMLProxyAuthnHandler
 		}
 		
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
-		log.debug("Starting automatic proxy authentication with remote SAML IdP "
+		log.info("Starting automatic proxy authentication with remote SAML IdP "
 				+ "configured under {}, current relative URI is {}", idpConfigKey, currentRelativeURI);	
 
 		try
@@ -125,9 +126,9 @@ class SAMLProxyAuthnHandler
 		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 	
-	private String getAuthnOptionId(String idpConfigKey)
+	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)
 	{
 		String optionId = idpConfigKey.substring(SAMLSPProperties.IDP_PREFIX.length(), idpConfigKey.length()-1);
-		return AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
+		return new AuthenticationOptionKey(authenticatorId, optionId);
 	}
 }

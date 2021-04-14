@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.basic.MessageType;
  */
 public class ClickatellChannel implements NotificationChannelInstance
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ClickatellChannel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_NOTIFY, ClickatellChannel.class);
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	private SMSServiceProperties config;
@@ -87,6 +87,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 			throw new ConfigurationException("Refusing to send non-PLAN message over SMS channel");
 		ObjectNode request = createRequest(recipientAddress, message);
 		String requestEntity = JsonUtil.serialize(request);
+		log.info("Sending SMS to {} over Clickatell", recipientAddress);
 		sendMessage(requestEntity);
 	}
 	
@@ -108,7 +109,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 					response.getStatusLine() + ", received contents: " +
 					EntityUtils.toString(response.getEntity()));
 		}
-		log.debug("SMS sent successfully");
+		log.info("SMS to {} sent successfully");
 		client.close();
 	}
 	

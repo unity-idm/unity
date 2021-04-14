@@ -27,6 +27,7 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Body;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.IDPEntryType;
@@ -63,7 +64,7 @@ public class ECPStep1Handler
 			return;
 		}
 		
-		ECPAuthnState context = new ECPAuthnState("-");
+		ECPAuthnState context = new ECPAuthnState(new AuthenticationOptionKey("-", "-"));
 		EnvelopeDocument envDoc = generateECPEnvelope(context);
 		samlContextManagement.addAuthnContext(context);
 		

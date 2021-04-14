@@ -73,8 +73,9 @@ class ServicesView extends CustomComponent implements UnityView
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewServiceView.VIEW_NAME)));
 		servicesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 		servicesGrid.addComponentColumn(
-				e -> StandardButtonsHelper.buildLinkButton(e.getName(), ev -> gotoEdit(e)),
-				msg.getMessage("ServicesView.nameCaption"), 10).setSortable(true)
+					e -> StandardButtonsHelper.buildLinkButton(e.getName(), ev -> gotoEdit(e)),
+					msg.getMessage("ServicesView.nameCaption"), 10)
+				.setSortable(true)
 				.setComparator((e1, e2) -> {
 					return e2.getName().compareTo(e1.getName());
 				}).setId("name");

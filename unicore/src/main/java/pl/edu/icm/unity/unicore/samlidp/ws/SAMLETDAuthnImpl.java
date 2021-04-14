@@ -11,6 +11,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.security.etd.DelegationRestrictions;
 import pl.edu.icm.unity.base.utils.Log;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
+import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
@@ -55,13 +57,14 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	@Override
 	public ResponseDocument authnRequest(AuthnRequestDocument reqDoc)
 	{
-		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties);
+		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties, 
+				new XMLExpandedMessage(reqDoc, reqDoc.getAuthnRequest()));
 		try
 		{
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
-			log.debug("Throwing SAML fault, caused by validation exception", e1);
+			log.warn("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
 		
@@ -77,14 +80,16 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			
 			TranslationResult userInfo = getUserInfo(samlProcessor);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
-			log.debug("Authentication of " + selectedIdentity);
+			log.info("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
+			SamlRoutableSignableMessage<ResponseDocument> response = 
+					samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
 					context.getResponseDestination(),
-					getRestrictions(spEtdPreferences));
+					getRestrictions(spEtdPreferences), null);
+			respDoc = response.getSignedMessage();
 		} catch (Exception e)
 		{
-			log.debug("Throwing SAML fault, caused by processing exception", e);
+			log.warn("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 			respDoc = samlProcessor.getErrorResponse(convertedException);
 		}
@@ -110,6 +115,6 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
 				samlProperties.getReplayChecker());
 		
-		validator.validate(context.getRequestDocument());
+		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}
 }

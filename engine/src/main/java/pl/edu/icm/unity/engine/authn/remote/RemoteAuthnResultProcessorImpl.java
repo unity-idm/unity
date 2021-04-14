@@ -50,7 +50,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 @Component
 public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, RemoteAuthnResultProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResultProcessorImpl.class);
 	private InputTranslationProfileRepository inputProfileRepo;
 	private IdentityResolver identityResolver;
 	private InputTranslationEngine trEngine;
@@ -202,13 +202,13 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 				translationProfile, inputProfileRepo, actionsRegistry);
 		
 		MappingResult result = profileInstance.translate(input);
-		log.debug("Result of remote data mapping:\n{}", result);
+		log.info("Result of remote data mapping:\n{}", result);
 		if (identity.isPresent())
 		{
 			IdentityTaV presetIdentity = identity.get();
 			IdentityParam presetIdParam = new IdentityParam(presetIdentity.getTypeId(), 
 					presetIdentity.getValue());
-			log.debug("Adding a preset identity as a required to results of mapping: {}", presetIdentity);
+			log.info("Adding a preset identity as a required to results of mapping: {}", presetIdentity);
 			result.addIdentity(new MappedIdentity(IdentityEffectMode.REQUIRE_MATCH, 
 					presetIdParam, null));
 		}

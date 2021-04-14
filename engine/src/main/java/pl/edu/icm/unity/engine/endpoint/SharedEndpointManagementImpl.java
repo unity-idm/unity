@@ -34,7 +34,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 @Component
 public class SharedEndpointManagementImpl implements SharedEndpointManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, SharedEndpointManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SharedEndpointManagementImpl.class);
 	public static final String VAADIN_RESOURCE_PATH = "/VAADIN/*";
 	private ServletContextHandler sharedHandler;
 	private URL advertisedAddress;
@@ -51,7 +51,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		String resourceBase = getWebContentsDir(config);
 		if (resourceBase != null)
 			sharedHandler.setResourceBase(resourceBase);
-		httpServer.deployHandler(sharedHandler);
+		httpServer.deployHandler(sharedHandler, "sys:shared");
 		usedPaths = new HashSet<>();
 		this.advertisedAddress = advertisedAddrProvider.get();
 	}

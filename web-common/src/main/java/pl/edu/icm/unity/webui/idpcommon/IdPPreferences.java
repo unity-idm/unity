@@ -70,7 +70,7 @@ public abstract class IdPPreferences
 				toInit.setSerializedConfiguration(JsonUtil.parse(raw));
 		} catch (Exception e)
 		{
-			log.debug("It was impossible to establish preferences for " + entity + " will use defaults", e);
+			log.warn("It was impossible to establish preferences for " + entity + " will use defaults", e);
 		}
 	}
 	

@@ -63,7 +63,7 @@ import static java.util.stream.Collectors.toList;
 @InvocationEventProducer
 public class AttributesManagementImpl implements AttributesManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, AttributesManagementImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, AttributesManagementImpl.class);
 	private AttributeClassUtil acUtil;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO dbAttributes;
@@ -166,7 +166,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		if (isSensitiveAttributeChange(at))
 		{
-			log.debug("Additional authentication triggered for sensitive >{}< attribute change", at.getName());
+			log.info("Additional authentication triggered for sensitive >{}< attribute change", at.getName());
 			additionalAuthnService.checkAdditionalAuthenticationRequirements();
 		}
 	}

@@ -195,7 +195,7 @@ class OAuthWebRequestValidator
 			requestedURI = new URI(redirect);
 		} catch (URISyntaxException e)
 		{
-			log.debug("Requested URI parsing problem", e);
+			log.warn("Requested URI parsing problem", e);
 			throw new OAuthValidationException("The requested return address '" + redirect + 
 					"' can not be parsed as URI");
 		}

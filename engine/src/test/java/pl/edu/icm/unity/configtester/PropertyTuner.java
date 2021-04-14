@@ -13,7 +13,7 @@ import pl.edu.icm.unity.base.utils.Log;
 
 public class PropertyTuner
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, PropertyTuner.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, PropertyTuner.class);
 	
 	private String pfx;
 	private Properties props;

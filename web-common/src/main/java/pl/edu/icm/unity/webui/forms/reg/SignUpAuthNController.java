@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.column.AuthNOption;
@@ -53,7 +54,8 @@ public class SignUpAuthNController
 		try
 		{
 			authnProcessor.processPrimaryAuthnResult(result, selectedAuthNOption.flow, 
-					selectedAuthNOption.authenticatorUI.getId());
+					new AuthenticationOptionKey(selectedAuthNOption.authenticator.getAuthenticatorId(),
+							selectedAuthNOption.authenticatorUI.getId()));
 			resetSelectedAuthNOption();
 			listener.onUserExists(result);
 		} catch (AuthenticationException e)

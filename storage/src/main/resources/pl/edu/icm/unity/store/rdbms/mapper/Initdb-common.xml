@@ -33,11 +33,11 @@ CREATE TABLE IDENTITIES(
 	</update>
 
 	<update id="initdb-05">
-CREATE TABLE GROUPS(
+CREATE TABLE <include refid="io.imunity.sql.groups"/>(
 		<include refid="defaultColsBlob"/>,
 		PARENT_ID INTEGER,
 		UNIQUE(NAME),
-		FOREIGN KEY (PARENT_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE
+		FOREIGN KEY (PARENT_ID) REFERENCES <include refid="io.imunity.sql.groups"/>(ID) ON DELETE CASCADE
 		<include refid="tableOpts"/>		
 	</update>
 
@@ -50,7 +50,7 @@ CREATE TABLE ATTRIBUTES(
 		<include refid="contentsColumnBlob"/>,
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,	
 		FOREIGN KEY (TYPE_ID) REFERENCES ATTRIBUTE_TYPES(ID) ON DELETE CASCADE,
-		FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE	
+		FOREIGN KEY (GROUP_ID) REFERENCES <include refid="io.imunity.sql.groups"/>(ID) ON DELETE CASCADE	
 		<include refid="tableOpts"/>		
 	</update>
 
@@ -61,7 +61,7 @@ CREATE TABLE GROUP_ENTITIES(
 		<include refid="contentsColumn"/>,
 		PRIMARY KEY (ENTITY_ID, GROUP_ID),
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
-		FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID) ON DELETE CASCADE		
+		FOREIGN KEY (GROUP_ID) REFERENCES <include refid="io.imunity.sql.groups"/>(ID) ON DELETE CASCADE		
 		<include refid="tableOpts"/>		
 	</update>
 

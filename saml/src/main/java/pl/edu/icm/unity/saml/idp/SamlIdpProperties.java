@@ -11,7 +11,9 @@ package pl.edu.icm.unity.saml.idp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +23,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.Resource;
 
@@ -61,7 +63,7 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
  */
 public class SamlIdpProperties extends SamlProperties
 {
-	private static final Logger log = Log.getLegacyLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
+	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
 	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
 	public enum ResponseSigningPolicy {always, never, asRequest};
 	public enum AssertionSigningPolicy {always, ifResponseUnsigned};
@@ -308,12 +310,12 @@ public class SamlIdpProperties extends SamlProperties
 		{
 			authnTrustChecker = new AcceptingSamlTrustChecker();
 			sloTrustChecker = new AcceptingSamlTrustChecker();
-			log.debug("All SPs will be authorized to submit authentication requests");
+			log.info("All SPs will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.validSigner)
 		{
 			authnTrustChecker = new PKISamlTrustChecker(trustedValidator);
 			sloTrustChecker = new PKISamlTrustChecker(trustedValidator);
-			log.debug("All SPs using a valid certificate will be authorized to submit authentication requests");
+			log.info("All SPs using a valid certificate will be authorized to submit authentication requests");
 		} else if (spPolicy == RequestAcceptancePolicy.strict)
 		{
 			authnTrustChecker = createStrictTrustChecker();
@@ -459,6 +461,26 @@ public class SamlIdpProperties extends SamlProperties
 		}
 		return authnTrustChecker;
 	}
+	
+	public List<PublicKey> getTrustedKeysForSamlEntity(String idpKey)
+	{
+		Set<String> spCertNames = getAllowedSpCerts(idpKey);
+		List<PublicKey> trusted = new ArrayList<>();
+		for (String spCertName: spCertNames)
+		{
+			try
+			{
+				X509Certificate spCert = pkiManagement.getCertificate(spCertName).value;
+				trusted.add(spCert.getPublicKey());
+			} catch (EngineException e)
+			{
+				throw new ConfigurationException("Can't set certificate of trusted " +
+						"issuer named " + spCertName, e);
+			}
+		}
+		return trusted;
+	}
+	
 	
 	private void checkIssuer()
 	{

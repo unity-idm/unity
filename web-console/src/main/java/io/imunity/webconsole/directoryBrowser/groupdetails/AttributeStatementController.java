@@ -66,7 +66,7 @@ class AttributeStatementController
 		try
 		{
 			groupsMan.updateGroup(updated.toString(), updated, "set group statement",  Arrays.asList(attributeStatements).toString());
-			bus.fireEvent(new GroupChangedEvent(group.toString()));
+			bus.fireEvent(new GroupChangedEvent(group));
 		} catch (Exception e)
 		{
 			throw new ControllerException(

@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import com.google.common.base.Objects;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -21,6 +23,24 @@ public class HeaderConfig implements AuthnElementConfiguration
 	public HeaderConfig(I18nString headerText)
 	{
 		this.headerText = headerText;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(headerText);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		final HeaderConfig other = (HeaderConfig) obj;
+
+		return Objects.equal(this.headerText, other.headerText);		
 	}
 
 	public static class Parser implements AuthnElementParser<HeaderConfig>

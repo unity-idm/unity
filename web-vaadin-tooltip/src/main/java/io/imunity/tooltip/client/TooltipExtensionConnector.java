@@ -89,7 +89,8 @@ public class TooltipExtensionConnector extends AbstractExtensionConnector
 		$wnd.tippy($wnd.document.getElementById(targetId), {
 		    placement: 'right',
 		    allowHTML: true,
-		    content: tooltipContent
+		    content: tooltipContent,
+			zIndex: 10010
 		});
 	}-*/;
 }

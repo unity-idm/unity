@@ -187,7 +187,7 @@ public class CredentialsPanel extends VerticalLayout
 			ecredMan.setUserMFAOptIn(new EntityParam(entityId), value);
 		} catch (EngineException e)
 		{
-			log.debug("Can not set user MFA optin attribute", e);
+			log.warn("Can not set user MFA optin attribute", e);
 			throw new InternalException(msg.getMessage(
 					"CredentialChangeDialog.cantSetUserMFAOptin"), e);
 		}
@@ -200,7 +200,7 @@ public class CredentialsPanel extends VerticalLayout
 			return ecredMan.getUserMFAOptIn(new EntityParam(entityId));
 		} catch (EngineException e)
 		{
-			log.debug("Can not get user MFA optin attribute", e);
+			log.warn("Can not get user MFA optin attribute", e);
 			throw new InternalException(msg.getMessage(
 					"CredentialChangeDialog.cantGetUserMFAOptin"), e);
 		}

@@ -56,7 +56,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 			UserRequestState<? extends BaseRegistrationInput> request) 
 			throws EngineException
 	{
-		log.debug("Executing form profile to postprocess the submitted data");
+		log.info("Executing form profile to postprocess the submitted data");
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request.getRequest(), 
 				RequestSubmitStatus.submitted, 
@@ -85,7 +85,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 			log.error("Couldn't establish automatic request processing action from profile", e);
 			return null;
 		}
-		log.debug("Established automatic processing action: " + result.getAutoAction());
+		log.info("Established automatic processing action: " + result.getAutoAction());
 		return result.getAutoAction();
 	}
 
@@ -104,7 +104,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				String actionName = rule.getAction().getName();
 				if (actionNameFilter != null && !actionNameFilter.equals(actionName))
 					continue;
-				NDC.push("[r: " + (i++) + "]");
+				NDC.push("[r: " + (i++) + " " + actionName + "]");
 				try
 				{
 					rule.invoke(translationState, mvelCtx, profile.getName());

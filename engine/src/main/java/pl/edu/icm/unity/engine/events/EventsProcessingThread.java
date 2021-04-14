@@ -22,7 +22,7 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
  */
 public class EventsProcessingThread extends Thread
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, EventsProcessingThread.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_EVENT, EventsProcessingThread.class);
 	public static final long INTERVAL = 30000;
 	public static final long DELAY = 30000;
 	public static final long MAX_DELAY = 3600000;

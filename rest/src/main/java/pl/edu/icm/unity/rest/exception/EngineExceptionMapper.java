@@ -31,7 +31,7 @@ public class EngineExceptionMapper implements ExceptionMapper<EngineException>
 	{
 		if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
 		{
-			log.debug("Access denied for rest client", ex);
+			log.warn("Access denied for rest client", ex);
 			return Response.status(Status.FORBIDDEN).entity(new JsonError(ex).toString()).
 					type(MediaType.APPLICATION_JSON).build();
 		} else

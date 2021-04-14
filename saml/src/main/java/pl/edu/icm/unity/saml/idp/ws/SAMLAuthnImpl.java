@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -67,13 +69,14 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	{
 		if (log.isTraceEnabled())
 			log.trace("Received SAML AuthnRequest: " + reqDoc.xmlText());
-		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties);
+		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(reqDoc, reqDoc.getAuthnRequest());
+		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties, verifiableMessage);
 		try
 		{
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
-			log.debug("Throwing SAML fault, caused by validation exception", e1);
+			log.warn("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, context);
@@ -87,13 +90,15 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 
 			TranslationResult userInfo = getUserInfo(samlProcessor);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
-			log.debug("Authentication of " + selectedIdentity);
+			log.info("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
-					context.getResponseDestination());
+			SamlRoutableSignableMessage<ResponseDocument> routableMessage = samlProcessor.processAuthnRequestReturningResponse(
+					selectedIdentity, attributes, 
+					null, context.getResponseDestination());
+			respDoc = routableMessage.getSignedMessage();
 		} catch (Exception e)
 		{
-			log.debug("Throwing SAML fault, caused by processing exception", e);
+			log.warn("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 			respDoc = samlProcessor.getErrorResponse(convertedException);
 		}
@@ -129,7 +134,6 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 		UnityAuthnRequestValidator validator = new UnityAuthnRequestValidator(endpointAddress, 
 				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
 				samlProperties.getReplayChecker());
-		
-		validator.validate(context.getRequestDocument());
+		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}
 }

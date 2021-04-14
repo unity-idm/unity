@@ -34,7 +34,6 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
@@ -118,7 +117,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		treeData = new TreeData<>();
 		dataProvider = new TreeDataProvider<>(treeData);
 		setDataProvider(dataProvider);
-		dataProvider.setSortComparator((g1, g2) -> g1.getPath().compareTo(g2.getPath()));
+		dataProvider.setSortComparator((g1, g2) -> g1.toString().compareTo(g2.toString()));
 
 		addColumn(n -> getIcon(n) + " " + n.toString(), new HtmlRenderer()).setExpandRatio(10);
 		addComponentColumn(n -> getRowHamburgerMenuComponent(n)).setExpandRatio(0);
@@ -213,7 +212,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private void selectionChanged(Set<TreeNode> allSelectedItems)
 	{
 		final TreeNode node = getSingleSelection();
-		bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getPath()));
+		bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getGroup()));
 	}
 
 	public Toolbar<TreeNode> getToolbar()
@@ -250,7 +249,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		treeData.removeItem(node);
 		try
 		{
-			loadNode(node.getPath(), node.getParentNode());
+			loadNode(node.getGroup().getPathEncoded(), node.getParentNode());
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
@@ -283,7 +282,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	private void addChildren(TreeNode parentNode, Map<String, List<Group>> groupTree)
 	{
-		for (Group child : groupTree.get(parentNode.getPath()))
+		for (Group child : groupTree.get(parentNode.getGroup().getPathEncoded()))
 		{
 			TreeNode childNode = new TreeNode(msg, child, parentNode);
 			treeData.addItem(parentNode, childNode);
@@ -311,7 +310,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private void showAddDialog(Collection<TreeNode> target)
 	{
 		final TreeNode node = target.iterator().next();
-		new GroupEditDialog(msg, new Group(node.getPath()), false, g -> {
+		new GroupAddDialog(msg, node.getGroup(), g -> {
 			createGroup(g);
 			refreshNode(node);
 			expand(node);
@@ -339,7 +338,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private void showEditACsDialog(Collection<TreeNode> target)
 	{
 		final TreeNode node = target.iterator().next();
-		controller.getGroupAttributesClassesDialog(node.getPath(), bus).show();
+		controller.getGroupAttributesClassesDialog(node.getGroup(), bus).show();
 	}
 
 	private SingleActionHandler<TreeNode> getEditAction()
@@ -350,18 +349,16 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private void showEditDialog(Collection<TreeNode> target)
 	{
 		TreeNode node = target.iterator().next();
-		Group group = resolveGroup(node);
-		if (group == null)
-			return;
+		Group group = node.getGroup();
 
-		new GroupEditDialog(msg, group, true, g -> {
-			updateGroup(node.getPath(), g);
+		new GroupEditDialog(msg, group, g -> {
+			updateGroup(node.getGroup().getPathEncoded(), g);
 			if (node.getParentNode() != null)
 				refreshNode(node.getParentNode());
 			else
 				refresh();
 			if (node.equals(getSingleSelection()))
-				bus.fireEvent(new GroupChangedEvent(node.getPath()));
+				bus.fireEvent(new GroupChangedEvent(node.getGroup()));
 		}).show();
 
 	}
@@ -377,12 +374,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private void showEditDelegationCondigDialog(Collection<TreeNode> target)
 	{
 		TreeNode node = target.iterator().next();
-		Group group = resolveGroup(node);
-		if (group == null)
-			return;
+		Group group = node.getGroup();
 
 		controller.getGroupDelegationEditConfigDialog(bus, group, g -> {
-			updateGroup(node.getPath(), g);
+			updateGroup(node.getGroup().getPathEncoded(), g);
 			node.setGroupMetadata(g);
 			dataProvider.refreshItem(node);
 		}).show();
@@ -477,20 +472,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			NotificationPopup.showError(msg, e);
 		}
 	}
-
-	private Group resolveGroup(TreeNode node)
-	{
-		Group group = null;
-		try
-		{
-			group = controller.getGroupContent(node.getPath(), GroupContents.METADATA).getGroup();
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
-		return group;
-	}
-	
 
 	public void addFilter(SerializablePredicate<TreeNode> filter)
 	{

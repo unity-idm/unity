@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
@@ -113,8 +114,7 @@ class OAuthProxyAuthnHandler
 	{
 		setCommonHeaders(response);
 		String redirectURL = context.getRequestURI().toString();
-		if (log.isDebugEnabled())
-			log.debug("Starting OAuth redirection to OAuth provider: {}, returnURL is {}", 
+		log.info("Starting OAuth redirection to OAuth provider: {}, returnURL is {}", 
 					redirectURL, context.getReturnUrl());
 		response.sendRedirect(redirectURL);
 	}
@@ -132,9 +132,9 @@ class OAuthProxyAuthnHandler
 		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 	
-	private String getAuthnOptionId(String idpConfigKey)
+	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)
 	{
 		String optionId = idpConfigKey.substring(OAuthClientProperties.PROVIDERS.length(), idpConfigKey.length()-1);
-		return AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
+		return new AuthenticationOptionKey(authenticatorId, optionId);
 	}
 }

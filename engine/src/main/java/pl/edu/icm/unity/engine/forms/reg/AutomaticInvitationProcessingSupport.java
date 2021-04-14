@@ -55,7 +55,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 @Component
 class AutomaticInvitationProcessingSupport
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER, AutomaticInvitationProcessingSupport.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_FORMS, AutomaticInvitationProcessingSupport.class);
 	
 	private InvitationManagement invitationManagement;
 	private RegistrationFormDB formsDB;

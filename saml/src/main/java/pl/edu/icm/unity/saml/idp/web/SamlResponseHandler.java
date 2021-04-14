@@ -54,7 +54,7 @@ public class SamlResponseHandler
 
 	public void handleExceptionNotThrowing(Exception e, boolean destroySession)
 	{
-		log.debug("Exception raised and will trigger SAML error response from IdP", e);
+		log.warn("Exception raised and will trigger SAML error response from IdP", e);
 		SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 		returnSamlErrorResponse(respDoc, convertedException, destroySession);
@@ -80,7 +80,6 @@ public class SamlResponseHandler
 	 * This handler intercept all messages and checks if there is a SAML response in the session.
 	 * If it is present then the appropriate Freemarker page is rendered which redirects the user's browser 
 	 * back to the requesting SP.
-	 * @author K. Benedyczak
 	 */
 	public class SendResponseRequestHandler extends SynchronizedRequestHandler
 	{
@@ -97,7 +96,7 @@ public class SamlResponseHandler
 			
 			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 			String serviceUrl = samlCtx.getResponseDestination();
-			Map<String, String> data = new HashMap<String, String>();
+			Map<String, String> data = new HashMap<>();
 			data.put("SAMLResponse", encodedAssertion);
 			data.put("samlService", serviceUrl);
 			if (error != null)

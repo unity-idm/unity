@@ -45,7 +45,7 @@ public class SamlETDParseServlet extends SamlParseServlet
 
 		try
 		{
-			validator.validate(context.getRequestDocument());
+			validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 		} catch (SAMLServerException e)
 		{
 			//security measure: if the request is invalid (usually not trusted) don't send the response,

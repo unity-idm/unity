@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
@@ -44,7 +45,7 @@ class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIC
 	SecondFactorAuthNPanel(MessageSource msg,
 			EntityManagement idsMan, ExecutorsService execService,
 			VaadinAuthenticationUI secondaryUI, PartialAuthnState partialState,
-			String optionId, AuthenticationListener externalListener)
+			AuthenticationOptionKey optionId, AuthenticationListener externalListener)
 	{
 		super(secondaryUI, optionId, new VerticalLayout());
 		this.msg = msg;

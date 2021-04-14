@@ -95,7 +95,7 @@ public abstract class StatusResponseProcessor<T extends XmlObject, C extends Req
 		if (e instanceof IllegalIdentityValueException)
 		{
 			code = SAMLConstants.Status.STATUS_REQUESTER;
-			subcode = SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPIAL;
+			subcode = SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPAL;
 		} else if (e instanceof AuthenticationException)
 		{
 			code = SAMLConstants.Status.STATUS_REQUESTER;

@@ -85,7 +85,7 @@ public class OutputTranslationProfile
 				
 			for (OutputTranslationRule rule : ruleInstances)
 			{
-				NDC.push("[r: " + (i++) + "]");
+				NDC.push("[r: " + (i++) + " " + rule.getAction().getName() + "]");
 				try
 				{
 					TranslationRuleInvocationContext context = rule.invoke(
