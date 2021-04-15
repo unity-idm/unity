@@ -441,6 +441,7 @@ Creates a new group with complete configuration provided in JSON body. Example (
     "publicGroup": false,
     "path": "/added-group"
 }
+----
 
 === Create groups 
 
