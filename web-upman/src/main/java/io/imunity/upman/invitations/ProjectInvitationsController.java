@@ -124,11 +124,14 @@ public class ProjectInvitationsController
 				.collect(Collectors.toList());
 	}
 
-	public void addInvitation(ProjectInvitationParam invitation) throws ControllerException
+	public void addInvitations(List<ProjectInvitationParam> invitations) throws ControllerException
 	{
 		try
 		{
-			invitationMan.addInvitation(invitation);
+			for (ProjectInvitationParam invitation : invitations)
+			{
+				invitationMan.addInvitation(invitation);
+			}
 		} catch (AlreadyMemberException e)
 		{
 			throw ControllerException.warning(msg.getMessage("InvitationsController.alreadyAMember"), e);
