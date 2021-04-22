@@ -929,9 +929,6 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		if (param.getDescription() != null)
 			editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(param.getDescription()));
-		else if (!credDefinition.getDescription().isEmpty())
-			editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(
-					credDefinition.getDescription().getValue(msg)));
 		credentialParamEditors.add(editor);
 		layout.addComponents(editorUI.getComponents());
 		return true;
