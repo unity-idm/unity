@@ -58,8 +58,8 @@ public class TestInvitationController
 	public void shouldForwardAddToCoreManager() throws ControllerException, EngineException
 	{
 		Instant expiration = Instant.now();
-		controller.addInvitation(new ProjectInvitationParam("/project", "demo@demo.com", Arrays.asList("/"),
-				expiration));
+		controller.addInvitations(Arrays.asList(new ProjectInvitationParam("/project", "demo@demo.com", Arrays.asList("/"),
+				expiration)));
 
 		ArgumentCaptor<ProjectInvitationParam> argument = ArgumentCaptor.forClass(ProjectInvitationParam.class);
 		verify(mockInvitationMan).addInvitation(argument.capture());
