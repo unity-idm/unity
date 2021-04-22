@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		main.setMargin(false);
 		setCompositionRoot(main);
 		invitationsComponent = new ProjectInvitationsComponent(msg, controller, project.path);
-		main.addComponent(invitationsComponent);	
+		main.addComponent(invitationsComponent);
 	}
 
 	@Override
@@ -123,11 +124,11 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		addInvitationButton.addStyleName(Styles.buttonAction.toString());
 		addInvitationButton.addClickListener(e -> {
 
-			new NewInvitationDialog(msg, invitation -> {
+			new NewInvitationDialog(msg, invitations -> {
 
 				try
 				{
-					controller.addInvitation(invitation);
+					controller.addInvitations(invitations);
 				} catch (ControllerException er)
 				{
 					NotificationPopup.showError(er);
@@ -167,7 +168,8 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public InvitationsNavigationInfoProvider(MessageSource msg, ObjectFactory<ProjectInvitationsView> factory)
+		public InvitationsNavigationInfoProvider(MessageSource msg,
+				ObjectFactory<ProjectInvitationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)
@@ -179,13 +181,13 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 	private class NewInvitationDialog extends AbstractDialog
 	{
-		private Consumer<ProjectInvitationParam> selectionConsumer;
+		private Consumer<List<ProjectInvitationParam>> selectionConsumer;
 		private TextField email;
 		private OptionalGroupsSelection groups;
 		private DateTimeField lifeTime;
 		private Binder<ProjectInvitationParams> binder;
 
-		public NewInvitationDialog(MessageSource msg, Consumer<ProjectInvitationParam> selectionConsumer)
+		public NewInvitationDialog(MessageSource msg, Consumer<List<ProjectInvitationParam>> selectionConsumer)
 		{
 			super(msg, msg.getMessage("NewInvitationDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
@@ -203,18 +205,19 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		@Override
 		protected FormLayout getContents()
 		{
-			email = new TextField(msg.getMessage("NewInvitationDialog.email"));
+			email = new TextField(msg.getMessage("NewInvitationDialog.emails"));
 			List<DelegatedGroup> allowedGroups = new ArrayList<>();
 			try
 			{
 				allowedGroups.addAll(controller.getProjectGroups(project.path).stream()
-						.filter(dg -> !dg.path.equals(project.path)).collect(Collectors.toList()));
+						.filter(dg -> !dg.path.equals(project.path))
+						.collect(Collectors.toList()));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
 			}
 			email.setWidth(25, Unit.EM);
-
+			email.setDescription(msg.getMessage("NewInvitationDialog.emailsDesc"));
 			groups = new OptionalGroupsSelection(msg, true);
 			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
 			groups.setItems(allowedGroups.stream().map(dg -> {
@@ -223,15 +226,19 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 				return g;
 			}).collect(Collectors.toList()));
 			groups.setDescription(msg.getMessage("NewInvitationDialog.allowedGroupsDesc"));
-		
+
 			lifeTime = new DateTimeField(msg.getMessage("NewInvitationDialog.invitationLivetime"));
 			lifeTime.setResolution(DateTimeResolution.MINUTE);
 
 			binder = new Binder<>(ProjectInvitationParams.class);
-			binder.forField(email).asRequired(msg.getMessage("fieldRequired"))
-					.withValidator(v -> EmailUtils.validate(v) == null,
-							msg.getMessage("NewInvitationDialog.incorrectEmail"))
-					.bind("contactAddress");
+			binder.forField(email).asRequired(msg.getMessage("fieldRequired")).withValidator(v -> {
+				for (String email : v.split(","))
+				{
+					if (EmailUtils.validate(email) != null)
+						return false;
+				}
+				return true;
+			}, msg.getMessage("NewInvitationDialog.incorrectEmail")).bind("contactAddress");
 			binder.forField(lifeTime).asRequired(msg.getMessage("fieldRequired"))
 					.withConverter(d -> d.atZone(ZoneId.systemDefault()).toInstant(),
 							d -> LocalDateTime.ofInstant(d, ZoneId.systemDefault()))
@@ -261,12 +268,15 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 				return;
 			ProjectInvitationParams inv = binder.getBean();
 
-			ProjectInvitationParam param = new ProjectInvitationParam(
-					project.path, inv.getContactAddress(), groups.getSelectedItems().stream()
-							.map(g -> g.toString()).collect(Collectors.toList()),
-					inv.getExpiration());
+			List<ProjectInvitationParam> params = new ArrayList<>();
 
-			selectionConsumer.accept(param);
+			Stream.of(binder.getBean().getContactAddress().split(",")).map(String::trim)
+					.forEach(email -> params.add(new ProjectInvitationParam(project.path, email,
+							groups.getSelectedItems().stream().map(g -> g.toString())
+									.collect(Collectors.toList()),
+							inv.getExpiration())));
+
+			selectionConsumer.accept(params);
 			close();
 		}
 	}
@@ -274,7 +284,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	// for binder only
 	public static class ProjectInvitationParams
 	{
-		private String contactAddress;
+		private String contactAddresses;
 		private Instant expiration;
 
 		public ProjectInvitationParams()
@@ -294,12 +304,12 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 		public String getContactAddress()
 		{
-			return contactAddress;
+			return contactAddresses;
 		}
 
-		public void setContactAddress(String contactAddress)
+		public void setContactAddress(String contactAddresses)
 		{
-			this.contactAddress = contactAddress;
+			this.contactAddresses = contactAddresses;
 		}
 	}
 }
