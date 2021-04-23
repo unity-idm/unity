@@ -6,7 +6,10 @@
 package io.imunity.upman;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -35,8 +38,11 @@ import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
@@ -61,27 +67,45 @@ public class UpManUI extends UnityEndpointUIBase
 
 	private MenuComoboBox projectCombo;
 	private Map<String, String> projects;
-	private ProjectController controller;
+	private ProjectController projectController;
+	private HomeServiceLinkController homeServiceController;
+	private UpmanEndpointProperties config;
 
 	@Autowired
 	public UpManUI(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor,
-			Collection<UpManNavigationInfoProvider> providers,
-			ProjectController controller)
+			Collection<UpManNavigationInfoProvider> providers, ProjectController controller,
+			HomeServiceLinkController homeServiceController)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
 		this.navigationMan = new NavigationHierarchyManager(providers);
-		this.controller = controller;
+		this.projectController = controller;
+		this.homeServiceController = homeServiceController;
+	}
+
+	@Override
+	public void configure(ResolvedEndpoint description, List<AuthenticationFlow> authenticators,
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
+	{
+		super.configure(description, authenticators, regCfg, endpointProperties);
+		this.config = new UpmanEndpointProperties(endpointProperties);
 	}
 
 	private void buildTopMenu()
 	{
 		TopRightMenu topMenu = upManLayout.getTopRightMenu();
 
+		Optional<String> homeLinkIfAvailable = homeServiceController.getHomeLinkIfAvailable(config);
+		if (homeLinkIfAvailable.isPresent())
+		{
+			topMenu.addMenuElement(MenuButton.get("logout").withIcon(Images.home.getResource())
+					.withDescription(msg.getMessage("UpManMenu.toHomeService")).withClickListener(
+							e -> Page.getCurrent().open(homeLinkIfAvailable.get(), null)));
+		}
+
 		topMenu.addMenuElement(MenuButton.get("logout").withIcon(Images.exit.getResource())
-				.withDescription(msg.getMessage("UpManMenu.logout"))
-				.withClickListener(e -> logout()));
+				.withDescription(msg.getMessage("UpManMenu.logout")).withClickListener(e -> logout()));
 
 	}
 
@@ -101,12 +125,11 @@ public class UpManUI extends UnityEndpointUIBase
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 
-		projectCombo = MenuComoboBox.get()
-				.withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
+		projectCombo = MenuComoboBox.get().withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
 		projectCombo.setItemCaptionGenerator(i -> projects.get(i));
 		projectCombo.setEmptySelectionAllowed(false);
 		reloadProjectsCombo();
-		logo.setIcon(controller.getProjectLogoOrNull(projectCombo.getValue()));
+		logo.setIcon(projectController.getProjectLogoOrNull(projectCombo.getValue()));
 		projectCombo.addValueChangeListener(e -> {
 			if (e.getValue() == null || e.getValue().isEmpty())
 				return;
@@ -116,7 +139,7 @@ public class UpManUI extends UnityEndpointUIBase
 			{
 				NavigationHelper.goToView(((UnityView) view).getViewName());
 			}
-			logo.setIcon(controller.getProjectLogoOrNull(e.getValue()));
+			logo.setIcon(projectController.getProjectLogoOrNull(e.getValue()));
 		});
 
 		if (!(projects.size() == 1))
@@ -125,8 +148,7 @@ public class UpManUI extends UnityEndpointUIBase
 		} else
 		{
 			LeftMenuLabel projectLabel = LeftMenuLabel.get()
-					.withCaption(msg.getMessage("UpManMenu.projectNameCaption")
-							+ " "
+					.withCaption(msg.getMessage("UpManMenu.projectNameCaption") + " "
 							+ projects.values().iterator().next());
 			leftMenu.addMenuElement(projectLabel);
 		}
@@ -168,19 +190,19 @@ public class UpManUI extends UnityEndpointUIBase
 
 	private DelegatedGroup getProjectGroupInternal() throws ControllerException
 	{
-		return controller.getProjectGroup(projectCombo.getValue());
+		return projectController.getProjectGroup(projectCombo.getValue());
 	}
 
 	private boolean reloadProjectInternal()
 	{
 		try
 		{
-			projects = controller.getProjectForUser(InvocationContext.getCurrent()
-					.getLoginSession().getEntityId());
+			projects = projectController.getProjectForUser(
+					InvocationContext.getCurrent().getLoginSession().getEntityId());
 		} catch (ControllerException e)
 		{
-			Notification notification = NotificationPopup
-					.getErrorNotification(e.getCaption(), e.getDetails());
+			Notification notification = NotificationPopup.getErrorNotification(e.getCaption(),
+					e.getDetails());
 			notification.addCloseListener(l -> logout());
 			notification.show(Page.getCurrent());
 			setContent(new VerticalLayout());
