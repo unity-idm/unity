@@ -161,7 +161,8 @@ public enum Images
 	eraser		(VaadinIcons.ERASER),
 	check		(VaadinIcons.CHECK),
 	list_select	(VaadinIcons.LIST_SELECT),
-	workplace	(VaadinIcons.WORKPLACE);
+	workplace	(VaadinIcons.WORKPLACE),
+	home		(VaadinIcons.HOME);
 	
 	private final Resource resource;
 	private final String path;

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.home.HomeEndpointConstants;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -27,7 +28,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 @Component
 public class UserHomeEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "UserHomeUI";
+	public static final String NAME = HomeEndpointConstants.ENDPOINT_NAME;
 	public static final String SERVLET_PATH = "/home";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
 			"User-oriented account management web interface", VaadinAuthentication.NAME,
