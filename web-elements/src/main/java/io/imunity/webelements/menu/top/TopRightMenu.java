@@ -35,7 +35,7 @@ public class TopRightMenu extends CustomComponent implements MenuElementContaine
 		layout.setWidthUndefined();
 		setStyleName(Styles.topRightMenu.toString());
 		layout.setMargin(false);
-		layout.setSpacing(false);
+		layout.setSpacing(true);
 		menuElements = new HashMap<>();
 		setCompositionRoot(layout);
 		setWidthUndefined();
