@@ -10,7 +10,6 @@ import java.io.StringReader;
 import java.util.Properties;
 
 import io.imunity.upman.UpmanEndpointProperties;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
@@ -50,7 +49,7 @@ public class UpmanServiceConfiguration
 		return prop.getAsString();
 	}
 
-	public void fromProperties(String properties, MessageSource msg)
+	public void fromProperties(String properties)
 	{
 		Properties raw = new Properties();
 		try
