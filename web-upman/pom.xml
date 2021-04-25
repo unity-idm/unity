@@ -26,6 +26,13 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-engine</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 		
 		<!-- compile -->
 		<dependency>
