@@ -43,6 +43,11 @@ public class ControllerException extends Exception
 	{
 		return new ControllerException(Type.WARN, errorCaption, "", cause);
 	}
+	
+	public static ControllerException warning(String errorCaption)
+	{
+		return new ControllerException(Type.WARN, errorCaption, "", null);
+	}
 
 	public Type getType()
 	{
