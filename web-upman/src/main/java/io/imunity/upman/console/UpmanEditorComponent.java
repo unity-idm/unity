@@ -50,7 +50,7 @@ class UpmanEditorComponent extends ServiceEditorBase
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
-			config.fromProperties(toEdit.getConfiguration(), msg);
+			config.fromProperties(toEdit.getConfiguration());
 			webConfig.fromProperties(toEdit.getConfiguration(), msg, imageAccessService,
 					serverConfig.getValue(UnityServerConfiguration.THEME));
 		}
