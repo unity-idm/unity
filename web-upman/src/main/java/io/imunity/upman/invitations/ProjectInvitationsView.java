@@ -30,7 +30,7 @@ import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManNavigationInfoProviderBase;
@@ -63,8 +63,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class ProjectInvitationsView extends CustomComponent implements UpManView
-{
+public class ProjectInvitationsView extends CustomComponent implements UpManView {
 
 	public static final String VIEW_NAME = "Invitations";
 
@@ -74,21 +73,17 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	private ProjectInvitationsComponent invitationsComponent;
 
 	@Autowired
-	public ProjectInvitationsView(MessageSource msg, ProjectInvitationsController controller)
-	{
+	public ProjectInvitationsView(MessageSource msg, ProjectInvitationsController controller) {
 		this.msg = msg;
 		this.controller = controller;
 		setSizeFull();
 	}
 
 	@Override
-	public void enter(ViewChangeEvent event)
-	{
-		try
-		{
+	public void enter(ViewChangeEvent event) {
+		try {
 			project = UpManUI.getProjectGroup();
-		} catch (ControllerException e)
-		{
+		} catch (ControllerException e) {
 			NotificationPopup.showError(e);
 			return;
 		}
@@ -101,20 +96,17 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	}
 
 	@Override
-	public String getDisplayedName()
-	{
+	public String getDisplayedName() {
 		return msg.getMessage("UpManMenu.invitations");
 	}
 
 	@Override
-	public String getViewName()
-	{
+	public String getViewName() {
 		return VIEW_NAME;
 	}
 
 	@Override
-	public com.vaadin.ui.Component getViewHeader()
-	{
+	public com.vaadin.ui.Component getViewHeader() {
 		HorizontalLayout header = new HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
@@ -126,11 +118,9 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 			new NewInvitationDialog(msg, invitations -> {
 
-				try
-				{
+				try {
 					controller.addInvitations(invitations);
-				} catch (ControllerException er)
-				{
+				} catch (ControllerException er) {
 					NotificationPopup.showError(er);
 				}
 				invitationsComponent.reload();
@@ -138,13 +128,11 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 		});
 
-		try
-		{
+		try {
 			Optional<DelegatedGroup> projectGroup = controller.getProjectGroups(project.path).stream()
 					.filter(dg -> dg.path.equals(project.path)).findFirst();
 
-			if (projectGroup.isPresent())
-			{
+			if (projectGroup.isPresent()) {
 				GroupDelegationConfiguration config = projectGroup.get().delegationConfiguration;
 				addInvitationButton.setVisible((config.registrationForm != null
 						&& !config.registrationForm.isEmpty())
@@ -153,8 +141,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 			}
 
-		} catch (ControllerException er)
-		{
+		} catch (ControllerException er) {
 			NotificationPopup.showError(er);
 		}
 
@@ -165,12 +152,10 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	}
 
 	@Component
-	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase
-	{
+	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase {
 		@Autowired
 		public InvitationsNavigationInfoProvider(MessageSource msg,
-				ObjectFactory<ProjectInvitationsView> factory)
-		{
+				ObjectFactory<ProjectInvitationsView> factory) {
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(UpManRootNavigationInfoProvider.ID).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.invitations"))
@@ -179,41 +164,37 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		}
 	}
 
-	private class NewInvitationDialog extends AbstractDialog
-	{
+	private class NewInvitationDialog extends AbstractDialog {
 		private Consumer<List<ProjectInvitationParam>> selectionConsumer;
-		private TextField email;
+		private TextArea email;
 		private OptionalGroupsSelection groups;
 		private DateTimeField lifeTime;
 		private Binder<ProjectInvitationParams> binder;
 
-		public NewInvitationDialog(MessageSource msg, Consumer<List<ProjectInvitationParam>> selectionConsumer)
-		{
+		public NewInvitationDialog(MessageSource msg,
+				Consumer<List<ProjectInvitationParam>> selectionConsumer) {
 			super(msg, msg.getMessage("NewInvitationDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
 			setSizeEm(45, 24);
 		}
 
 		@Override
-		protected Button createConfirmButton()
-		{
+		protected Button createConfirmButton() {
 			Button ok = super.createConfirmButton();
 			ok.addStyleName(Styles.buttonAction.toString());
 			return ok;
 		}
 
 		@Override
-		protected FormLayout getContents()
-		{
-			email = new TextField(msg.getMessage("NewInvitationDialog.emails"));
+		protected FormLayout getContents() {
+			email = new TextArea();
+			email.setCaption(msg.getMessage("NewInvitationDialog.emails"));
 			List<DelegatedGroup> allowedGroups = new ArrayList<>();
-			try
-			{
+			try {
 				allowedGroups.addAll(controller.getProjectGroups(project.path).stream()
 						.filter(dg -> !dg.path.equals(project.path))
 						.collect(Collectors.toList()));
-			} catch (ControllerException e)
-			{
+			} catch (ControllerException e) {
 				NotificationPopup.showError(e);
 			}
 			email.setWidth(25, Unit.EM);
@@ -232,8 +213,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 			binder = new Binder<>(ProjectInvitationParams.class);
 			binder.forField(email).asRequired(msg.getMessage("fieldRequired")).withValidator(v -> {
-				for (String email : v.split(","))
-				{
+				for (String email : v.split(",")) {
 					if (EmailUtils.validate(email) != null)
 						return false;
 				}
@@ -262,19 +242,18 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		}
 
 		@Override
-		protected void onConfirm()
-		{
+		protected void onConfirm() {
 			if (!binder.validate().isOk())
 				return;
 			ProjectInvitationParams inv = binder.getBean();
 
 			List<ProjectInvitationParam> params = new ArrayList<>();
+			List<String> selectedGroups = groups.getSelectedItems().stream().map(g -> g.toString())
+					.collect(Collectors.toList());
 
 			Stream.of(binder.getBean().getContactAddress().split(",")).map(String::trim)
 					.forEach(email -> params.add(new ProjectInvitationParam(project.path, email,
-							groups.getSelectedItems().stream().map(g -> g.toString())
-									.collect(Collectors.toList()),
-							inv.getExpiration())));
+							selectedGroups, inv.getExpiration())));
 
 			selectionConsumer.accept(params);
 			close();
@@ -282,33 +261,27 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	}
 
 	// for binder only
-	public static class ProjectInvitationParams
-	{
+	public static class ProjectInvitationParams {
 		private String contactAddresses;
 		private Instant expiration;
 
-		public ProjectInvitationParams()
-		{
+		public ProjectInvitationParams() {
 
 		}
 
-		public Instant getExpiration()
-		{
+		public Instant getExpiration() {
 			return expiration;
 		}
 
-		public void setExpiration(Instant expiration)
-		{
+		public void setExpiration(Instant expiration) {
 			this.expiration = expiration;
 		}
 
-		public String getContactAddress()
-		{
+		public String getContactAddress() {
 			return contactAddresses;
 		}
 
-		public void setContactAddress(String contactAddresses)
-		{
+		public void setContactAddress(String contactAddresses) {
 			this.contactAddresses = contactAddresses;
 		}
 	}
