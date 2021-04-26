@@ -139,6 +139,41 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 			return false;
 		return true;
 	}
+	
+	public static Set<Group> establishOnlyParentGroups(Set<Group> source)
+	{
+		Set<Group> onlyParents = new HashSet<>(source);
+
+		for (Group g1 : source)
+		{
+			for (Group g2 : source)
+			{
+				if (g2.isChildNotSame(g1) && onlyParents.contains(g2))
+				{
+					onlyParents.remove(g2);
+				}
+			}
+		}
+		return onlyParents;
+	}
+
+	public static Set<Group> establishOnlyChildGroups(Set<Group> source)
+	{
+		Set<Group> onlyChilds = new HashSet<>(source);
+
+		for (Group g1 : source)
+		{
+			for (Group g2 : source)
+			{
+				if (g1.isChildNotSame(g2) && onlyChilds.contains(g1))
+				{
+					onlyChilds.remove(g2);
+				}
+			}
+		}
+		return onlyChilds;
+	}
+
 
 	/**
 	 * Computes deque of full group names which are not in the collection of
@@ -186,6 +221,11 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 			if (!tPath[i].equals(path[i]))
 				return false;
 		return true;
+	}
+	
+	public boolean isChildNotSame(Group test)
+	{
+		return isChild(toString(), test.toString(), false);
 	}
 
 	public boolean isTopLevel()
