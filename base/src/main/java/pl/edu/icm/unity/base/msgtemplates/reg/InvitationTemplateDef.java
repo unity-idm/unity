@@ -26,6 +26,7 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 	public static final String CODE = "code";
 	public static final String URL = "url";
 	public static final String EXPIRES = "expires";
+	public static final String PREFILLED_GROUPS = "prefilledGroups";
 	
 	@Override
 	public String getDescriptionKey()
@@ -51,6 +52,8 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 				"MessageTemplateConsumer.InvitationWithCode.var.url", false));
 		vars.put(EXPIRES, new MessageTemplateVariable(EXPIRES, 
 				"MessageTemplateConsumer.InvitationWithCode.var.expires", false));
+		vars.put(PREFILLED_GROUPS, new MessageTemplateVariable(PREFILLED_GROUPS, 
+				"MessageTemplateConsumer.InvitationWithCode.var.prefilledGroups", false));
 		return vars;
 	}
 	
