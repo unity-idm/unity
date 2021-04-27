@@ -28,7 +28,7 @@ public class UpmanEndpointProperties extends UnityPropertiesHelper
 	public static final String PREFIX = "unity.upman.";
 
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
 
 	public static final String ENABLE_HOME_LINK = "enableHomeLink";
 	public static final String HOME_ENDPOINT = "homeEndpoint";
