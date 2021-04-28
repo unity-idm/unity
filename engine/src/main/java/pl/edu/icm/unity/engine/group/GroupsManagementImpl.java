@@ -148,7 +148,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	@Transactional
 	public void addGroups(Set<Group> toAdd) throws EngineException
 	{
-		Set<Group> onlyParentGroups = Group.establishOnlyParentGroups(toAdd);
+		Set<Group> onlyParentGroups = Group.getRootsOfSet(toAdd);
 		for (Group parent : onlyParentGroups)
 		{
 			authz.checkAuthorization(parent.getParentPath(), AuthzCapability.groupModify);
