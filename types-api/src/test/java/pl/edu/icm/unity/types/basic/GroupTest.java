@@ -17,11 +17,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.hasItem;
 
-public class GroupTest
-{
+public class GroupTest {
 	@Test
-	public void shouldCheckIsChildGroup()
-	{
+	public void shouldCheckIsChildGroup() {
 		Group parent = new Group("/parent");
 		Group child = new Group("/parent/child");
 
@@ -29,8 +27,7 @@ public class GroupTest
 	}
 
 	@Test
-	public void shouldCheckIsChildNotSameGroup()
-	{
+	public void shouldCheckIsChildNotSameGroup() {
 		Group parent = new Group("/parent");
 		Group child = new Group("/parent/child");
 
@@ -38,47 +35,38 @@ public class GroupTest
 	}
 
 	@Test
-	public void shouldEstablishOnlyParents()
-	{
+	public void shouldReturnOnlyRootsOfGroups() {
 		Group parent1 = new Group("/parent1");
 		Group parent2 = new Group("/parent2");
-		Group parent3 = new Group("/parent3");
 		Group child1 = new Group("/parent1/child1");
-		Group child2 = new Group("/parent1/child2");
-		Group child3 = new Group("/parent2/child3");
 
-		Set<Group> parents = Group.establishOnlyParentGroups(
-				Sets.newSet(parent1, parent2, parent3, child1, child2, child3));
-
+		Set<Group> parents = Group.getRootsOfSet(Sets.newSet(parent1, parent2, child1));
 		assertThat(parents, hasItem(parent1));
 		assertThat(parents, hasItem(parent2));
-		assertThat(parents, hasItem(parent3));
 		assertThat(parents, not(hasItem(child1)));
-		assertThat(parents, not(hasItem(child2)));
-		assertThat(parents, not(hasItem(child3)));
 	}
 
 	@Test
-	public void shouldEstablishOnlyChilds()
-	{
+	public void shouldNotReturnDirectChild() {
 		Group parent1 = new Group("/parent1");
-		Group parent2 = new Group("/parent2");
-		Group parent3 = new Group("/parent3");
 		Group child1 = new Group("/parent1/child1");
 		Group child2 = new Group("/parent1/child2");
-		Group child3 = new Group("/parent2/child3");
-		Group child4 = new Group("/parent2/child3/child4");
-		Group child5 = new Group("/parent2/child3/child5");
 
-		Set<Group> childs = Group.establishOnlyChildGroups(
-				Sets.newSet(parent1, parent2, parent3, child1, child2, child3, child4, child5));
+		Set<Group> parents = Group.getRootsOfSet(Sets.newSet(parent1, child1, child2));
+		assertThat(parents, hasItem(parent1));
+		assertThat(parents, not(hasItem(child1)));
+		assertThat(parents, not(hasItem(child2)));
+	}
 
-		assertThat(childs, not(hasItem(parent1)));
-		assertThat(childs, not(hasItem(parent2)));
-		assertThat(childs, hasItem(parent3));
-		assertThat(childs, hasItem(child1));
-		assertThat(childs, hasItem(child2));
-		assertThat(childs, hasItem(child4));
-		assertThat(childs, hasItem(child5));
+	@Test
+	public void shouldNotInclude2ndLevelChildGroup() {
+		Group parent1 = new Group("/parent1");
+		Group child1 = new Group("/parent1/child1");
+		Group child2 = new Group("/parent1/child1/child2");
+
+		Set<Group> parents = Group.getRootsOfSet(Sets.newSet(parent1, child1, child2));
+		assertThat(parents, hasItem(parent1));
+		assertThat(parents, not(hasItem(child1)));
+		assertThat(parents, not(hasItem(child2)));
 	}
 }
