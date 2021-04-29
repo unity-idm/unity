@@ -157,6 +157,23 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		}
 		return onlyParents;
 	}
+	
+	public static Set<Group> getOnlyChildrenOfSet(Set<Group> source)
+	{
+		Set<Group> onlyChildren = new HashSet<>(source);
+
+		for (Group g1 : source)
+		{
+			for (Group g2 : source)
+			{
+				if (g1.isChildNotSame(g2))
+				{
+					onlyChildren.remove(g2);
+				}
+			}
+		}
+		return onlyChildren;
+	}
 
 	/**
 	 * Computes deque of full group names which are not in the collection of

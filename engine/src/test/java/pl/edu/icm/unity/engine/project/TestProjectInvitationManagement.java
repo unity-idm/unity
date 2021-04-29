@@ -66,7 +66,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan,
 				mockRegistrationMan, mockEnquiryMan, 
 				mockIdMan,
-				mockSharedEndpointMan, mockAuthz, userFinder);
+				mockSharedEndpointMan, mockAuthz, userFinder, mockMsg);
 	}
 
 	@Test

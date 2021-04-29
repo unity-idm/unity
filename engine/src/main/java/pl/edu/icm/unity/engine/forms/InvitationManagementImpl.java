@@ -244,10 +244,10 @@ public class InvitationManagementImpl implements InvitationManagement
 		if (groups == null || groups.isEmpty())
 			return "";
 		
-		Set<Group> onlyChilds = Group.establishOnlyChildGroups(groups.values().stream()
+		Set<Group> onlyChildren = Group.getOnlyChildrenOfSet(groups.values().stream()
 				.map(prefilledEntry -> prefilledEntry.getEntry().getSelectedGroups())
 				.flatMap(List::stream).map(group -> new Group(group)).collect(Collectors.toSet()));
-		return onlyChilds.stream().map(group -> getGroupDisplayedName(group.toString()))
+		return onlyChildren.stream().map(group -> getGroupDisplayedName(group.getPathEncoded()))
 				.collect(Collectors.joining(","));
 	}
 
