@@ -69,4 +69,34 @@ public class GroupTest {
 		assertThat(parents, not(hasItem(child1)));
 		assertThat(parents, not(hasItem(child2)));
 	}
+	
+	@Test
+	public void shouldReturnOnlyChildren()
+	{
+		Group parent1 = new Group("/parent1");
+		Group child1 = new Group("/parent1/child1");
+		Group child2 = new Group("/parent1/child2");
+
+		Set<Group> childs = Group.getOnlyChildrenOfSet(
+				Sets.newSet(parent1, child1, child2));
+
+		assertThat(childs, not(hasItem(parent1)));
+		assertThat(childs, hasItem(child1));
+		assertThat(childs, hasItem(child2));	
+	}
+	
+	@Test
+	public void shouldReturnOnlyLastChildren()
+	{
+		Group parent1 = new Group("/parent1");
+		Group child1 = new Group("/parent1/child1");
+		Group child2 = new Group("/parent1/child1/child2");
+
+		Set<Group> childs = Group.getOnlyChildrenOfSet(
+				Sets.newSet(parent1, child1, child2));
+
+		assertThat(childs, not(hasItem(parent1)));
+		assertThat(childs, not(hasItem(child1)));
+		assertThat(childs, hasItem(child2));	
+	}
 }
