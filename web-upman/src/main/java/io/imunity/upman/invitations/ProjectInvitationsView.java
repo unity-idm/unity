@@ -25,6 +25,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
@@ -169,6 +170,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		private TextArea email;
 		private OptionalGroupsSelection groups;
 		private DateTimeField lifeTime;
+		private CheckBox allowModifyGroups;
 		private Binder<ProjectInvitationParams> binder;
 
 		public NewInvitationDialog(MessageSource msg,
@@ -199,15 +201,33 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 			}
 			email.setWidth(25, Unit.EM);
 			email.setDescription(msg.getMessage("NewInvitationDialog.emailsDesc"));
+			
+			
+			allowModifyGroups = new CheckBox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));
+			allowModifyGroups.setValue(false);
+			allowModifyGroups.setEnabled(false);
+			
 			groups = new OptionalGroupsSelection(msg, true);
-			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
+			groups.setCaption(msg.getMessage("NewInvitationDialog.groups"));
 			groups.setItems(allowedGroups.stream().map(dg -> {
 				Group g = new Group(dg.path);
 				g.setDisplayedName(new I18nString(dg.displayedName));
 				return g;
 			}).collect(Collectors.toList()));
-			groups.setDescription(msg.getMessage("NewInvitationDialog.allowedGroupsDesc"));
+			groups.setDescription(msg.getMessage("NewInvitationDialog.groupsDesc"));
 
+			groups.addValueChangeListener(e -> {
+				if (e.getValue() == null || e.getValue().isEmpty())
+				{
+					allowModifyGroups.setEnabled(false);
+					allowModifyGroups.setValue(false);
+				} else
+				{
+					allowModifyGroups.setEnabled(true);
+
+				}
+			});
+			
 			lifeTime = new DateTimeField(msg.getMessage("NewInvitationDialog.invitationLivetime"));
 			lifeTime.setResolution(DateTimeResolution.MINUTE);
 
@@ -236,7 +256,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 			binder.setBean(bean);
 
 			FormLayout main = new CompactFormLayout();
-			main.addComponents(email, groups, lifeTime);
+			main.addComponents(email, allowModifyGroups, groups, lifeTime);
 			main.setSizeFull();
 			return main;
 		}
@@ -253,7 +273,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 
 			Stream.of(binder.getBean().getContactAddress().split(",")).map(String::trim)
 					.forEach(email -> params.add(new ProjectInvitationParam(project.path, email,
-							selectedGroups, inv.getExpiration())));
+							selectedGroups, allowModifyGroups.getValue(), inv.getExpiration())));
 
 			selectionConsumer.accept(params);
 			close();

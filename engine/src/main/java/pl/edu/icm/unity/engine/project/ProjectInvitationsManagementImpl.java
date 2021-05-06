@@ -120,7 +120,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		EnquiryInvitationParam invitationParam = new EnquiryInvitationParam(
 				getEnquiryFormForProject(param.project), param.expiration, param.contactAddress);
-		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
+		setGroups(invitationParam, param);
 		invitationParam.getMessageParams().put(
 				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
 				getProjectDisplayedName(param.project));
@@ -133,7 +133,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		RegistrationInvitationParam invitationParam = new RegistrationInvitationParam(
 				getRegistrationFormForProject(param.project), param.expiration, param.contactAddress);
-		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
+		setGroups(invitationParam, param);
 		invitationParam.getMessageParams().put(
 				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
 				getProjectDisplayedName(param.project));
@@ -142,6 +142,23 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		emailId.setConfirmationInfo(new ConfirmationInfo(true));
 		invitationParam.getIdentities().put(0, new PrefilledEntry<>(emailId, PrefilledEntryMode.HIDDEN));
 		return invitationParam;
+	}
+	
+	private void setGroups(InvitationParam toSet, ProjectInvitationParam param)
+	{
+		if (param.groups == null || param.groups.isEmpty())
+		{
+			return;
+		}
+
+		if (param.allowModifyGroups)
+		{
+			toSet.getAllowedGroups().put(0, new GroupSelection(param.groups));
+		} else
+		{
+			toSet.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection(param.groups),
+					PrefilledEntryMode.READ_ONLY));
+		}
 	}
 
 	@Override
