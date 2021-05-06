@@ -119,7 +119,7 @@ public class ProjectInvitationsController
 
 		return invitations.stream()
 				.map(pinv -> new ProjectInvitationEntry(pinv.registrationCode, pinv.contactAddress,
-						delGroupHelper.getGroupsDisplayedNames(projectPath, pinv.allowedGroup),
+						delGroupHelper.getGroupsDisplayedNames(projectPath, pinv.groups),
 						pinv.lastSentTime, pinv.expiration, pinv.link))
 				.collect(Collectors.toList());
 	}
