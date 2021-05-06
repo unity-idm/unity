@@ -61,9 +61,10 @@ public class TestInvitationController
 	{
 		Instant expiration = Instant.now();
 		controller.addInvitations(Arrays.asList(
-				new ProjectInvitationParam("/project", "demo@demo.com", Arrays.asList("/"), expiration),
-				new ProjectInvitationParam("/project", "demo2@demo.com", Arrays.asList("/","/A"),
-						expiration)));
+				new ProjectInvitationParam("/project", "demo@demo.com", Arrays.asList("/"), false,
+						expiration),
+				new ProjectInvitationParam("/project", "demo2@demo.com", Arrays.asList("/", "/A"),
+						false, expiration)));
 
 		ArgumentCaptor<ProjectInvitationParam> argument = ArgumentCaptor.forClass(ProjectInvitationParam.class);
 		verify(mockInvitationMan, times(2)).addInvitation(argument.capture());
@@ -71,11 +72,11 @@ public class TestInvitationController
 		List<ProjectInvitationParam> arguments = argument.getAllValues();
 		assertThat(arguments.get(0).project, is("/project"));
 		assertThat(arguments.get(0).contactAddress, is("demo@demo.com"));
-		assertThat(arguments.get(0).allowedGroup.iterator().next(), is("/"));
+		assertThat(arguments.get(0).groups.iterator().next(), is("/"));
 		assertThat(arguments.get(0).expiration, is(expiration));
 		assertThat(arguments.get(1).project, is("/project"));
 		assertThat(arguments.get(1).contactAddress, is("demo2@demo.com"));
-		assertThat(arguments.get(1).allowedGroup, hasItems("/","/A"));
+		assertThat(arguments.get(1).groups, hasItems("/","/A"));
 		assertThat(arguments.get(1).expiration, is(expiration));
 
 	}

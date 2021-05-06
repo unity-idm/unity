@@ -6,9 +6,12 @@
 package pl.edu.icm.unity.engine.api.project;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
 import com.google.common.base.Objects;
 
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
@@ -29,10 +32,9 @@ public class ProjectInvitation extends ProjectInvitationParam
 	public ProjectInvitation(String project, InvitationWithCode org, String link)
 	{
 
-		super(project, org.getInvitation().getContactAddress(), org.getInvitation().getAllowedGroups() != null
-				&& !org.getInvitation().getAllowedGroups().isEmpty()
-						? org.getInvitation().getAllowedGroups().get(0).getSelectedGroups()
-						: null,
+		super(project, org.getInvitation().getContactAddress(), getGroups(org),
+				org.getInvitation().getAllowedGroups() != null
+						&& !org.getInvitation().getAllowedGroups().isEmpty(),
 				org.getInvitation().getExpiration());
 		this.registrationCode = org.getRegistrationCode();
 		this.lastSentTime = org.getLastSentTime();
@@ -46,6 +48,20 @@ public class ProjectInvitation extends ProjectInvitationParam
 		return Objects.hashCode(super.hashCode(), registrationCode, lastSentTime, numberOfSends, link);
 	}
 
+	private static List<String> getGroups(InvitationWithCode org)
+	{
+		InvitationParam invParam = org.getInvitation();
+		if ((invParam.getAllowedGroups() == null || invParam.getAllowedGroups().isEmpty())
+				&& (invParam.getGroupSelections() == null || invParam.getGroupSelections().isEmpty()))
+		{
+			return Collections.emptyList();
+		}
+
+		return !invParam.getAllowedGroups().isEmpty() ? invParam.getAllowedGroups().get(0).getSelectedGroups()
+				: invParam.getGroupSelections().get(0).getEntry().getSelectedGroups();
+
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{
