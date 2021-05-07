@@ -42,7 +42,7 @@ class TreeNode
 				this.name = name + " (/)";
 		} else
 		{
-			this.name = group.getDisplayedNameShort().getValue(msg);
+			this.name = group.getDisplayedNameShort(msg).getValue(msg);
 		}
 	}
 	
