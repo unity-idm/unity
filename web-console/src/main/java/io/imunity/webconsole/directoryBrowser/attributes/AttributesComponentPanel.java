@@ -59,7 +59,7 @@ public class AttributesComponentPanel extends SafePanel
 			return;
 		}
 
-		setCaptionFromBundle(msg, "Attribute.caption", owner, group.getDisplayedNameShort().getValue(msg));
+		setCaptionFromBundle(msg, "Attribute.caption", owner, group.getDisplayedNameShort(msg).getValue(msg));
 		try
 		{
 
