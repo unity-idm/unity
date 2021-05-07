@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
@@ -258,10 +259,10 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 	 * If displayed name was set to non default value (which is sadly group path :/) then it is returned.
 	 * Otherwise last component of the path is returned. 
 	 */
-	public I18nString getDisplayedNameShort()
+	public I18nString getDisplayedNameShort(MessageSource msg)
 	{
 		I18nString displayedName = getDisplayedName();
-		return toString().equals(displayedName.getDefaultValue()) ? new I18nString(getNameShort()) : displayedName;
+		return toString().equals(displayedName.getValue(msg)) ? new I18nString(getNameShort()) : displayedName;
 	}
 	
 	public void setPath(String path)
