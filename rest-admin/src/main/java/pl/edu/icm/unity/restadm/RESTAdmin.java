@@ -79,6 +79,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.EntityWithAttributes;
 import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -311,6 +312,25 @@ public class RESTAdmin implements RESTAdminHandler
 		return mapper.writeValueAsString(attributes);
 	}
 
+	@Path("/entity/{entityId}/record")
+	@GET
+	public String getEntityWithAttributes(@PathParam("entityId") String entityId,
+			@QueryParam("groupsPatterns") List<String> groupsPatterns,
+			@QueryParam("effective") Boolean effective, @QueryParam("identityType") String idType)
+			throws EngineException, JsonProcessingException
+	{
+		if (effective == null)
+			effective = true;
+		if (groupsPatterns == null || groupsPatterns.isEmpty())
+			groupsPatterns = Arrays.asList("/**");
+
+		EntityParam entityParam = getEP(entityId, idType);
+		Entity entity = identitiesMan.getEntity(entityParam);
+		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService
+				.getAttributesInGroups(getEP(entityId, idType), effective, groupsPatterns);
+		return mapper.writeValueAsString(new EntityWithAttributes(entity, attributesInGroups));
+	}
+	
 	@Path("/entity/{entityId}/groups/attributes")
 	@GET
 	public String getAttributesInGroups(@PathParam("entityId") String entityId,
