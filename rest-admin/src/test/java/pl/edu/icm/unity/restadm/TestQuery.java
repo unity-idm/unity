@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -55,6 +57,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.EntityWithAttributes;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -142,6 +145,29 @@ public class TestQuery extends TestRESTBase
 		System.out.println("User's info:\n" + formatJson(contents));
 		Entity parsed = m.readValue(contents, Entity.class);
 		assertThat(parsed.getId(), is(e));
+	}
+	
+	
+	@Test
+	public void fullEntityWithAttributesIsReturned() throws Exception
+	{
+		long e = createTestContents();
+
+		HttpGet getEntity = new HttpGet("/restadm/v1/entity/" + e + "/record");
+		HttpResponse response = executeQuery(getEntity);
+
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		System.out.println("User's info:\n" + formatJson(contents));
+
+		EntityWithAttributes parsed = m.readValue(contents, EntityWithAttributes.class);
+		assertThat(parsed.entity.getId(), is(e));
+		assertThat(parsed.attributesInGroups.keySet().size(), is(2));
+		assertThat(parsed.attributesInGroups.get("/").size(), is(2));
+		assertThat(parsed.attributesInGroups.get("/").stream().map(a -> a.getName())
+				.collect(Collectors.toSet()), hasItems("emailA", "sys:CredentialRequirements"));
+		assertThat(parsed.attributesInGroups.get("/example").stream().map(a -> a.getName()).collect(
+				Collectors.toSet()), hasItems("floatA", "emailA", "intA", "jpegA", "enumA", "stringA"));
 	}
 	
 	@Test
