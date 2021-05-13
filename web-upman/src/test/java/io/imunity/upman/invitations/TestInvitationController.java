@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -78,7 +79,6 @@ public class TestInvitationController
 		assertThat(arguments.get(1).contactAddress, is("demo2@demo.com"));
 		assertThat(arguments.get(1).groups, hasItems("/","/A"));
 		assertThat(arguments.get(1).expiration, is(expiration));
-
 	}
 
 	@Test
