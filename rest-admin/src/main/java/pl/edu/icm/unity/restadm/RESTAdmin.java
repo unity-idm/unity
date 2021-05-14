@@ -328,7 +328,8 @@ public class RESTAdmin implements RESTAdminHandler
 		Entity entity = identitiesMan.getEntity(entityParam);
 		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService
 				.getAttributesInGroups(getEP(entityId, idType), effective, groupsPatterns);
-		return mapper.writeValueAsString(new EntityWithAttributes(entity, attributesInGroups));
+		Map<String, GroupMembership> groups = identitiesMan.getGroups(getEP(entityId, idType));
+		return mapper.writeValueAsString(new EntityWithAttributes(entity, groups, attributesInGroups));
 	}
 	
 	@Path("/entity/{entityId}/groups/attributes")

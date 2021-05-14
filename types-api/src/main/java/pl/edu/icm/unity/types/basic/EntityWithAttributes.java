@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.types.basic;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,19 +17,23 @@ public class EntityWithAttributes
 {
 
 	public final Entity entity;
+	public final Map<String, GroupMembership> groups;
 	public final Map<String, List<ExternalizedAttribute>> attributesInGroups;
 
 	public EntityWithAttributes(@JsonProperty("entity") Entity entity,
+			@JsonProperty("groups") Map<String, GroupMembership> groups,
 			@JsonProperty("attributesInGroups") Map<String, List<ExternalizedAttribute>> attributesInGroups)
 	{
 		this.entity = entity;
-		this.attributesInGroups = attributesInGroups;
+		this.attributesInGroups = Collections
+				.unmodifiableMap(attributesInGroups != null ? attributesInGroups : new HashMap<>());
+		this.groups = Collections.unmodifiableMap(groups != null ? groups : new HashMap<>());
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributesInGroups, entity);
+		return Objects.hash(attributesInGroups, groups, entity);
 	}
 
 	@Override
@@ -41,6 +47,6 @@ public class EntityWithAttributes
 			return false;
 		EntityWithAttributes other = (EntityWithAttributes) obj;
 		return Objects.equals(attributesInGroups, other.attributesInGroups)
-				&& Objects.equals(entity, other.entity);
+				&& Objects.equals(groups, other.groups) && Objects.equals(entity, other.entity);
 	}
 }
