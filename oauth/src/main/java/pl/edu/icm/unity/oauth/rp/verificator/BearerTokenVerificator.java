@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.rp.verificator;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,13 +182,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	
 	private boolean checkScopes(TokenStatus status)
 	{
-		List<String> required = new ArrayList<>();
-		// scopes should not be empty or contain extra whitespace
-		for(String v: verificatorProperties.getListOfValues(OAuthRPProperties.REQUIRED_SCOPES)){
-			if(v!=null && v.trim().length()>0) {
-				required.add(v.trim());
-			}
-		}
+		List<String> required = verificatorProperties.getListOfValues(OAuthRPProperties.REQUIRED_SCOPES);
 		if (!required.isEmpty() && status.getScope() == null)
 		{
 			log.debug("The token validation didn't provide any scope, but there are required scopes");
