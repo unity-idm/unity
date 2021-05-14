@@ -257,7 +257,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				.withOptional(true)
 				.endIdentityParam()
 				.withAddedGroupParam()
-				.withLabel(msg.getMessage("FormGenerator.selectGroups"))
+				.withLabel(msg.getMessage("FormGenerator.yourGroups"))
 				.withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).withMultiselect(true)
 				.endGroupParam().withFormLayoutSettings(getDefaultLayoutSettings(logo))
@@ -295,7 +295,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 						groupDisplayedName, actualForms))
 				.withTargetGroups(new String[] { "/" }).withType(EnquiryForm.EnquiryType.STICKY)
 				.withTargetCondition("!(groups contains '" + groupPath + "')")
-				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.selectGroups"))
+				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.yourGroups"))
 				.withMultiselect(true).withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).endGroupParam()
 				.withDisplayedName(new I18nString(msg.getLocaleCode(),
@@ -317,7 +317,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				.withName(generateName(msg.getMessage("FormGenerator.updateEnquiryNameSuffix"),
 						groupDisplayedName, actualForms))
 				.withTargetGroups(new String[] { groupPath }).withType(EnquiryForm.EnquiryType.STICKY)
-				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.selectGroups"))
+				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.yourGroups"))
 				.withMultiselect(true).withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).endGroupParam()
 				.withDisplayedName(new I18nString(msg.getLocaleCode(),
