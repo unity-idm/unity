@@ -248,7 +248,7 @@ public class InvitationManagementImpl implements InvitationManagement
 				.map(prefilledEntry -> prefilledEntry.getEntry().getSelectedGroups())
 				.flatMap(List::stream).map(group -> new Group(group)).collect(Collectors.toSet()));
 		return onlyChildren.stream().map(group -> getGroupDisplayedName(group.getPathEncoded()))
-				.collect(Collectors.joining(","));
+				.collect(Collectors.joining(", "));
 	}
 
 	private String getGroupDisplayedName(String group)
