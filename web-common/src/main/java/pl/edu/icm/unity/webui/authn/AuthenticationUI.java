@@ -50,7 +50,6 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
-import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;

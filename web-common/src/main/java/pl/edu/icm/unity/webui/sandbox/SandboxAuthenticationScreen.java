@@ -37,9 +37,9 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
-import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**

@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.remote;
+package pl.edu.icm.unity.webui.authn;
 
 import org.apache.logging.log4j.Logger;
 
