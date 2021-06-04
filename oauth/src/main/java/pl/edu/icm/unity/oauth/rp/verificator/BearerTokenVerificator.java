@@ -120,7 +120,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	public AuthenticationResult checkToken(BearerAccessToken token, SandboxAuthnResultCallback sandboxCallback) 
 			throws AuthenticationException
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(sandboxCallback, 
+		RemoteAuthnProcessingState state = startAuthnResponseProcessing(sandboxCallback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
 		try
 		{
@@ -136,7 +136,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		}
 	}
 	
-	public AuthenticationResult checkTokenInterruptible(BearerAccessToken token, RemoteAuthnState state) 
+	public AuthenticationResult checkTokenInterruptible(BearerAccessToken token, RemoteAuthnProcessingState state) 
 			throws Exception
 	{
 		CacheEntry cached = cache.getCached(token.getValue());

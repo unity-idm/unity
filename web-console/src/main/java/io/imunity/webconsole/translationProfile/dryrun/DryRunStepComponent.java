@@ -22,7 +22,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -104,7 +104,7 @@ class DryRunStepComponent extends CustomComponent
 			authnResultLabel.setStyleName(Styles.error.toString());
 		}
 		logsLabel.setHtmlValue("DryRun.DryRunStepComponent.logsLabel");
-		RemotelyAuthenticatedContext remoteAuthnContext = ctx.getAuthnContext();
+		RemotelyAuthenticatedPrincipal remoteAuthnContext = ctx.getAuthnContext();
 		if (remoteAuthnContext != null)
 		{
 			remoteIdpInput.displayAuthnInput(remoteAuthnContext.getAuthnInput());

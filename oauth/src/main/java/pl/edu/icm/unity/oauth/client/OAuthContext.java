@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.oauth.client;
 
 import java.net.URI;
+import java.util.function.Function;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
@@ -30,9 +32,10 @@ public class OAuthContext extends RemoteAuthnState
 	private String providerConfigKey;
 	private ExpectedIdentity expectedIdentity; 
 
-	public OAuthContext(AuthenticationOptionKey authenticatorOptionId)
+	public OAuthContext(AuthenticationOptionKey authenticatorOptionId, 
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
 	{
-		super(authenticatorOptionId);
+		super(authenticatorOptionId, responseHandler);
 	}
 
 	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)

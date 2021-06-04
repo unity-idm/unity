@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -61,7 +61,7 @@ public class EnquiresDialogLauncher
 		try
 		{
 			editor = enquiryController.getEditorInstanceForAuthenticatedUser(enquiry, 
-					RemotelyAuthenticatedContext.getLocalContext());
+					RemotelyAuthenticatedPrincipal.getLocalContext());
 		} catch (Exception e)
 		{
 			log.error("Can't create an editor for enquiry form " + enquiry.getName(), e);

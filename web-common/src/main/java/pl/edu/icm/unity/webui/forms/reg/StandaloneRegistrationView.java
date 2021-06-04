@@ -27,7 +27,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -138,10 +138,10 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.customCancelHandler = customCancelHandler;
 		this.completedRegistrationHandler = completedRegistrationHandler;
 		this.gotoSignInRedirector = gotoSignInRedirector;
-		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), mode);
+		showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
 	}
 	
-	private void showFirstStage(RemotelyAuthenticatedContext context, TriggeringMode mode)
+	private void showFirstStage(RemotelyAuthenticatedPrincipal context, TriggeringMode mode)
 	{
 		initUIBase();
 		
@@ -149,7 +149,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
 	}
 
-	private void showSecondStage(RemotelyAuthenticatedContext context, TriggeringMode mode, 
+	private void showSecondStage(RemotelyAuthenticatedPrincipal context, TriggeringMode mode, 
 			boolean withCredentials)
 	{
 		initUIBase();
@@ -282,7 +282,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	
 	private void onLocalSignupClickHandler()
 	{
-		showSecondStage(RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone,
+		showSecondStage(RemotelyAuthenticatedPrincipal.getLocalContext(), TriggeringMode.manualStandalone,
 				true);
 	}
 	

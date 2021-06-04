@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
@@ -84,19 +85,22 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
 	protected MessageSource msg;
+	protected final RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	
 	public VaadinEndpoint(NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, 
 			MessageSource msg,
 			ApplicationContext applicationContext,
 			String uiBeanName,
-			String servletPath)
+			String servletPath,
+			RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.uiServletPath = servletPath;
+		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 		serverConfig = applicationContext.getBean(UnityServerConfiguration.class);		
 
 	}
@@ -134,7 +138,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		
+		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));

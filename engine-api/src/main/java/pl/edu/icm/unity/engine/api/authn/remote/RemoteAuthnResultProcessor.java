@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Processes {@link RemotelyAuthenticatedInput} by applying a translation profile to it and 
- * returns {@link RemotelyAuthenticatedContext} or {@link AuthenticationResult} depending whether 
+ * returns {@link RemotelyAuthenticatedPrincipal} or {@link AuthenticationResult} depending whether 
  * caller wants to have a possibility to postprocess the translation profile output or not.
  * 
  * @author K. Benedyczak
@@ -23,7 +23,7 @@ public interface RemoteAuthnResultProcessor
 {
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
-	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedContext)}.
+	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedPrincipal)}.
 	 * Usually it is the only one that is used, when {@link RemotelyAuthenticatedInput} 
 	 * is obtained in an implementation specific way.
 	 * 
@@ -48,7 +48,7 @@ public interface RemoteAuthnResultProcessor
 			Optional<IdentityTaV> identity) throws AuthenticationException;
 	
 	/**
-	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedContext}
+	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedPrincipal}
 	 * (usually via {@link #processRemoteInput(RemotelyAuthenticatedInput)}) and returns a 
 	 * final {@link AuthenticationResult} depending on the success of this action.
 	 * 
@@ -56,12 +56,12 @@ public interface RemoteAuthnResultProcessor
 	 * @return
 	 * @throws EngineException 
 	 */
-	AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedContext remoteContext) 
+	AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext) 
 			throws AuthenticationException;
 	
 	/**
 	 * Invokes the configured translation profile on the remotely obtained authentication input. Then assembles  
-	 * the {@link RemotelyAuthenticatedContext} from the processed input containing the information about what 
+	 * the {@link RemotelyAuthenticatedPrincipal} from the processed input containing the information about what 
 	 * from the remote data is or can be meaningful in the local DB.
 	 * 
 	 * @param input
@@ -69,6 +69,6 @@ public interface RemoteAuthnResultProcessor
 	 * @return
 	 * @throws EngineException
 	 */
-	RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
+	RemotelyAuthenticatedPrincipal processRemoteInput(RemotelyAuthenticatedInput input, 
 			TranslationProfile profile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException;
 }

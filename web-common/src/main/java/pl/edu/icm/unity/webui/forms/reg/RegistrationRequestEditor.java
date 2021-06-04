@@ -39,7 +39,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -115,7 +115,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 * what is possible for registration form.
 	 */
 	public RegistrationRequestEditor(MessageSource msg, RegistrationForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated,
+			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -519,7 +519,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return form;
 	}
 	
-	RemotelyAuthenticatedContext getRemoteAuthnContext()
+	RemotelyAuthenticatedPrincipal getRemoteAuthnContext()
 	{
 		return remotelyAuthenticated;
 	}

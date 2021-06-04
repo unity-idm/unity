@@ -27,7 +27,6 @@ import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -45,6 +44,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
@@ -224,54 +224,33 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
-	/**
-	 * Called when a SAML response is received.
-	 * 
-	 * @param authnContext
-	 */
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
 	{
 		log.debug("Processing SAML answer for request {}", authnContext.getRequestId());
-		AuthenticationResult authnResult;
+		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
+				.getSession()
+				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_REQUEST_ATTRIBUTE);
 		String reason = null;
-		Exception savedException = null;
+//		try
+//		{
+//			authnResult = credentialExchange.verifySAMLResponse(authnContext);
+//		} catch (AuthenticationException e)
+//		{
+//			savedException = e;
+//			reason = NotificationPopup.getHumanMessage(e, "<br>");
+//			authnResult = e.getResult();
+//		} catch (Exception e)
+//		{
+//			log.error("Runtime error during SAML response processing or principal mapping", e);
+//			authnResult = new AuthenticationResult(Status.deny, null);
+//		}
 
-		try
+		clear();
+		if (authnResult.getStatus() == Status.success || authnResult.getStatus() == Status.unknownRemotePrincipal)
 		{
-			authnResult = credentialExchange.verifySAMLResponse(authnContext);
-		} catch (AuthenticationException e)
-		{
-			savedException = e;
-			reason = NotificationPopup.getHumanMessage(e, "<br>");
-			authnResult = e.getResult();
-		} catch (Exception e)
-		{
-			log.error("Runtime error during SAML response processing or principal mapping", e);
-			authnResult = new AuthenticationResult(Status.deny, null);
-		}
-
-		if (authnContext.getRegistrationFormForUnknown() != null)
-		{
-			log.debug("Enabling registration component");
-			authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
-		}
-		authnResult.setEnableAssociation(authnContext.isEnableAssociation());
-
-		if (authnResult.getStatus() == Status.success)
-		{
-			breakLogin();
-			callback.onCompletedAuthentication(authnResult);
-		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal)
-		{
-			clear();
 			callback.onCompletedAuthentication(authnResult);
 		} else
 		{
-			if (savedException != null)
-				log.warn("SAML response verification or processing failed", savedException);
-			else
-				log.warn("SAML response verification or processing failed");
-			clear();
 			Optional<String> errorDetail = reason == null ? Optional.empty()
 					: Optional.of(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
 			String error = msg.getMessage("WebSAMLRetrieval.authnFailedError");

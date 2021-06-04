@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 
 /**
  * Factory creating endpoints exposing {@link UserHomeUI}.
@@ -38,17 +39,20 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	private NetworkServer server;
 	private MessageSource msg;
 	private AdvertisedAddressProvider advertisedAddrProvider;
+	private RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
 	public UserHomeEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			MessageSource msg)
+			MessageSource msg,
+			RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
+		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 	}
 
 	@Override
@@ -61,6 +65,6 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new VaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext, UserHomeUI.class.getSimpleName(),
-				SERVLET_PATH);
+				SERVLET_PATH, remoteAuthnResponseProcessingFilter);
 	}
 }

@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.saml.ecp;
 
+import java.util.function.Function;
+
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
@@ -16,9 +19,10 @@ public class ECPAuthnState extends RemoteAuthnState
 {
 	private String requestId;
 
-	public ECPAuthnState(AuthenticationOptionKey authenticatorOptionId) 
+	public ECPAuthnState(AuthenticationOptionKey authenticatorOptionId, 
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler) 
 	{
-		super(authenticatorOptionId);
+		super(authenticatorOptionId, responseHandler);
 	}
 
 	public void setRequestId(String requestId)

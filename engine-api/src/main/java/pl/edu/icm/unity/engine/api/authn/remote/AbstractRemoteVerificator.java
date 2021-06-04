@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * <p>
  * Additionally (to enable compatibility with sandbox authN facility) the extension must call 
  * {@link #startAuthnResponseProcessing(String...)} at the beginning of authN response verification and
- * {@link #finishAuthnResponseProcessing(RemoteAuthnState, AuthenticationException, RemotelyAuthenticatedInput)} in case of any
+ * {@link #finishAuthnResponseProcessing(RemoteAuthnProcessingState, AuthenticationException, RemotelyAuthenticatedInput)} in case of any
  * exception produced during verification.
  * 
  * @author K. Benedyczak
@@ -43,7 +43,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
-	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedContext)}.
+	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedPrincipal)}.
 	 * Usually it is the only one that is used in subclasses, when {@link RemotelyAuthenticatedInput} 
 	 * is obtained in an implementation specific way.
 	 * 
@@ -52,7 +52,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @throws EngineException 
 	 */
 	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile,
-			RemoteAuthnState state) throws AuthenticationException
+			RemoteAuthnProcessingState state) throws AuthenticationException
 	{
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
 		stateCasted.remoteInput = input;
@@ -70,7 +70,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @param loggingFacilities logging facilities relevant for the verification process
 	 * @return
 	 */
-	protected RemoteAuthnState startAuthnResponseProcessing(SandboxAuthnResultCallback callback,
+	protected RemoteAuthnProcessingState startAuthnResponseProcessing(SandboxAuthnResultCallback callback,
 			String... loggingFacilities)
 	{
 		RemoteAuthnStateImpl ret = new RemoteAuthnStateImpl(loggingFacilities, callback);
@@ -82,7 +82,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @param state
 	 * @param context
 	 */
-	private void finishAuthnResponseProcessing(RemoteAuthnState state, RemotelyAuthenticatedContext context)
+	private void finishAuthnResponseProcessing(RemoteAuthnProcessingState state, RemotelyAuthenticatedPrincipal context)
 	{
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
 		if (stateCasted.isInSandboxMode())
@@ -101,7 +101,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @param error
 	 * @param remoteInput can be null if failure was upon input assembly.
 	 */
-	protected void finishAuthnResponseProcessing(RemoteAuthnState state, Exception error)
+	protected void finishAuthnResponseProcessing(RemoteAuthnProcessingState state, Exception error)
 	{
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
 		
@@ -131,7 +131,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		}
 	}
 
-	private class RemoteAuthnStateImpl implements RemoteAuthnState
+	private class RemoteAuthnStateImpl implements RemoteAuthnProcessingState
 	{
 		private LogRecorder logRecorder;
 		private RemotelyAuthenticatedInput remoteInput;
@@ -154,9 +154,8 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	/**
 	 * Marker interface only. Implementation is an object holding a state of remote authentication. Currently used
 	 * merely in sandbox mode.
-	 * @author K. Benedyczak
 	 */
-	public interface RemoteAuthnState
+	public interface RemoteAuthnProcessingState
 	{
 	}
 }

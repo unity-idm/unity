@@ -95,7 +95,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	public AuthenticationResult checkPassword(String username, String password, 
 			SandboxAuthnResultCallback callback) throws AuthenticationException
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(callback, 
+		RemoteAuthnProcessingState state = startAuthnResponseProcessing(callback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
 		
 		try
@@ -138,7 +138,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
 			SandboxAuthnResultCallback sandboxCallback)
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(sandboxCallback, 
+		RemoteAuthnProcessingState state = startAuthnResponseProcessing(sandboxCallback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
 		
 		try

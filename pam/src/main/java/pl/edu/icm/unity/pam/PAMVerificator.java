@@ -91,7 +91,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	public AuthenticationResult checkPassword(String username, String password,
 			SandboxAuthnResultCallback sandboxCallback)
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(sandboxCallback, 
+		RemoteAuthnProcessingState state = startAuthnResponseProcessing(sandboxCallback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_PAM);
 		
 		try

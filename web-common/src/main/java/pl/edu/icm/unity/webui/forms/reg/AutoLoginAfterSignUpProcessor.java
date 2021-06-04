@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -76,8 +76,8 @@ class AutoLoginAfterSignUpProcessor
 			return false;
 		}
 		
-		RemotelyAuthenticatedContext remoteContext = editor.getRemoteAuthnContext();
-		if (RemotelyAuthenticatedContext.isLocalContext(remoteContext))
+		RemotelyAuthenticatedPrincipal remoteContext = editor.getRemoteAuthnContext();
+		if (RemotelyAuthenticatedPrincipal.isLocalContext(remoteContext))
 		{
 			LOG.debug("Automatic login for registration request {} is not supported, "
 					+ "auto sign in requires form to be submitted with remote sign up method", 
@@ -148,7 +148,7 @@ class AutoLoginAfterSignUpProcessor
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, LoginSession ls,
-			RemotelyAuthenticatedContext remoteContext)
+			RemotelyAuthenticatedPrincipal remoteContext)
 	{
 		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		try
@@ -161,7 +161,7 @@ class AutoLoginAfterSignUpProcessor
 		}
 	}
 
-	private List<SessionParticipant> extractParticipants(RemotelyAuthenticatedContext remoteContext)
+	private List<SessionParticipant> extractParticipants(RemotelyAuthenticatedPrincipal remoteContext)
 	{
 		List<SessionParticipant> ret = Lists.newArrayList();
 		if (remoteContext.getSessionParticipants() != null)

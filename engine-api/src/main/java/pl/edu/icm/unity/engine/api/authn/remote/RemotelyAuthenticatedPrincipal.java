@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  * 
  * @author K. Benedyczak
  */
-public class RemotelyAuthenticatedContext
+public class RemotelyAuthenticatedPrincipal
 {
 	private static final String NONE = "--none--";
 	
@@ -43,17 +43,17 @@ public class RemotelyAuthenticatedContext
 	 * @return pseudo remote authn context, which is empty. Used as we don't want to pass null reference
 	 * in case of local invocations.
 	 */
-	public static RemotelyAuthenticatedContext getLocalContext()
+	public static RemotelyAuthenticatedPrincipal getLocalContext()
 	{
-		return new RemotelyAuthenticatedContext(NONE, NONE);
+		return new RemotelyAuthenticatedPrincipal(NONE, NONE);
 	}
 	
-	public static boolean isLocalContext(RemotelyAuthenticatedContext ctx)
+	public static boolean isLocalContext(RemotelyAuthenticatedPrincipal ctx)
 	{
 		return NONE.equals(ctx.getRemoteIdPName()) && NONE.equalsIgnoreCase(ctx.getInputTranslationProfile());
 	}
 	
-	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
+	public RemotelyAuthenticatedPrincipal(String remoteIdPName, String inputTranslationProfile)
 	{
 		this.remoteIdPName = remoteIdPName;
 		this.inputTranslationProfile = inputTranslationProfile;

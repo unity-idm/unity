@@ -19,7 +19,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider;
@@ -147,7 +147,7 @@ public class UnknownUserDialog extends AbstractDialog
 		close();
 	}
 	
-	protected void showRegistration(String form, RemotelyAuthenticatedContext ctx)
+	protected void showRegistration(String form, RemotelyAuthenticatedPrincipal ctx)
 	{
 		try
 		{

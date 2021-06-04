@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
@@ -36,7 +36,7 @@ class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			MergeCurrentWithUnknownConfirmationStep.class);
-	private RemotelyAuthenticatedContext authnContext;
+	private RemotelyAuthenticatedPrincipal authnContext;
 	private Exception mergeError;
 	
 	MergeCurrentWithUnknownConfirmationStep(MessageSource msg, InputTranslationEngine translationEngine, 

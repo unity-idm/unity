@@ -15,8 +15,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
  */
 public class UnknownRemoteUserException extends AuthenticationException
 {
-	private static final long serialVersionUID = 1L;
-
 	public UnknownRemoteUserException(String msg, AuthenticationResult result)
 	{
 		super(result, msg);
@@ -31,7 +29,7 @@ public class UnknownRemoteUserException extends AuthenticationException
 		return getResult().getFormForUnknownPrincipal();
 	}
 
-	public RemotelyAuthenticatedContext getRemoteContext()
+	public RemotelyAuthenticatedPrincipal getRemoteContext()
 	{
 		return getResult().getRemoteAuthnContext();
 	}

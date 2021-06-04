@@ -67,6 +67,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -183,7 +184,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
-		OAuthContext context = new OAuthContext(authnOptionId);
+		OAuthContext context = new OAuthContext(authnOptionId, this::processResponse);
 		AuthorizationRequest req;
 		if (openidMode)
 		{
@@ -229,6 +230,20 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return context;
 	}
 
+	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
+	{
+		//TODO KB 
+		try
+		{
+			return verifyOAuthAuthzResponse((OAuthContext) remoteAuthnState);
+		} catch (AuthenticationException e)
+		{
+			// TODO KB Auto-generated catch block
+			throw new IllegalStateException("not implemented yet", e);
+		}
+	}
+
+	
 	/**
 	 * The real OAuth workhorse. The authz code response verification needs not to be done: the state is 
 	 * correct as otherwise there would be no match with the {@link OAuthContext}. However we need to
@@ -240,7 +255,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	@Override
 	public AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
+		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
 		try
 		{

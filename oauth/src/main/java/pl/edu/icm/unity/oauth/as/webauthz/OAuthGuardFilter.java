@@ -26,10 +26,7 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 /**
  * Filter which is invoked prior to authentication. 
  * <p>
- * If a request comes to any other address then the OAuth consumer servlet path, then the filter checks if 
- * a OAuth context is available in the session. If not - the request is banned and an error page displayed.
- * 
- * @author K. Benedyczak
+ * The filter checks if OAuth context is available in the session. If not - the request is banned and an error page displayed.
  */
 public class OAuthGuardFilter implements Filter
 {
@@ -39,7 +36,6 @@ public class OAuthGuardFilter implements Filter
 
 	public OAuthGuardFilter(ErrorHandler errorHandler)
 	{
-		super();
 		this.errorHandler = errorHandler;
 	}
 

@@ -23,7 +23,7 @@ import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
@@ -131,7 +131,7 @@ public class EnquiryFormsComponent extends CustomComponent
 
 	private void createResponse(EnquiryForm form)
 	{
-		adminEnquiryFormLauncher.showDialog(form, RemotelyAuthenticatedContext.getLocalContext(),
+		adminEnquiryFormLauncher.showDialog(form, RemotelyAuthenticatedPrincipal.getLocalContext(),
 				EnquiryFormsComponent.this::handleError);
 	}
 

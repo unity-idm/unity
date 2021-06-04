@@ -36,10 +36,13 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
@@ -273,7 +276,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationOptionKey authnOptionId)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				authnOptionId);
+				authnOptionId, this::processResponse);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))
@@ -291,10 +294,27 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		return context;
 	}
 
+	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
+	{
+		//TODO KB 
+		try
+		{
+			return verifySAMLResponse((RemoteAuthnContext) remoteAuthnState);
+		} catch (AuthenticationException e)
+		{
+			log.warn("SAML response verification or processing failed", e);
+			return e.getResult();
+		} catch (Exception e)
+		{
+			log.error("Runtime error during SAML response processing or principal mapping", e);
+			return new AuthenticationResult(Status.deny, null);
+		}
+	}
+	
 	@Override
 	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
+		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);
 		
 		try
@@ -308,7 +328,16 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			
 			
-			return getResult(input, profile, state);
+			AuthenticationResult result = getResult(input, profile, state);
+
+			if (context.getRegistrationFormForUnknown() != null)
+			{
+				log.debug("Enabling registration component");
+				result.setFormForUnknownPrincipal(context.getRegistrationFormForUnknown());
+			}
+			result.setEnableAssociation(context.isEnableAssociation());
+
+			return result;
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);
@@ -368,12 +397,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		@Autowired
 		public Factory(ObjectFactory<SAMLVerificator> factory, SamlContextManagement contextManagement,
-				SharedEndpointManagement sharedEndpointManagement) throws EngineException
+				SharedEndpointManagement sharedEndpointManagement,
+				SharedRemoteAuthenticationContextStore sharedRemoteAuthenticationContextStore) throws EngineException
 		{
 			super(NAME, DESC, factory);
 			
 			ServletHolder servlet = new ServletHolder(new SAMLResponseConsumerServlet(
-					contextManagement));
+					contextManagement, sharedRemoteAuthenticationContextStore));
 			sharedEndpointManagement.deployInternalEndpointServlet(
 					SAMLResponseConsumerServlet.PATH, servlet, false);
 			

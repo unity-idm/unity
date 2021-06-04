@@ -15,18 +15,6 @@ public class AuthenticationException extends EngineException
 {
 	private AuthenticationResult result;
 
-	/**
-	 * 
-	 * @param result authentication result - should be failed, not successful.
-	 * @param msg
-	 * @param cause
-	 */
-	public AuthenticationException(AuthenticationResult result, String msg, Throwable cause)
-	{
-		super(msg, cause);
-		this.result = result;
-	}
-
 	public AuthenticationException(AuthenticationResult result, String msg)
 	{
 		super(msg);

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
@@ -64,7 +63,6 @@ import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 @org.springframework.stereotype.Component("AuthenticationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-@PreserveOnRefresh
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);

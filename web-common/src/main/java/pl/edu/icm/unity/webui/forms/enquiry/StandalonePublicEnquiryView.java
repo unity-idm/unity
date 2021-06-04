@@ -29,7 +29,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -147,7 +147,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 			
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
-					RemotelyAuthenticatedContext.getLocalContext(), prefilled,
+					RemotelyAuthenticatedPrincipal.getLocalContext(), prefilled,
 					new EntityParam(invitation.getEntity()));
 
 		} catch (Exception e)

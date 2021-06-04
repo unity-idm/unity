@@ -27,8 +27,7 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 /**
  * Filter which is invoked prior to authentication. 
  * <p>
- * If a request comes to any other address then the SAML consumer servlet path, then the filter checks if a SAML context 
- * is available in the session. If not - the request is banned and an error page displayed.
+ * The filter checks if a SAML context is available in the session. If not - the request is banned and an error page displayed.
  * 
  * @author K. Benedyczak
  */
@@ -40,7 +39,6 @@ public class SamlGuardFilter implements Filter
 
 	public SamlGuardFilter(ErrorHandler errorHandler)
 	{
-		super();
 		this.errorHandler = errorHandler;
 	}
 

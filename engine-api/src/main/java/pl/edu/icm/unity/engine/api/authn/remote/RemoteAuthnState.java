@@ -6,7 +6,9 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.function.Function;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
@@ -22,10 +24,14 @@ public class RemoteAuthnState
 	private final Date creationTime;
 	private final AuthenticationOptionKey authenticatorOptionId;
 	private SandboxAuthnResultCallback sandboxCallback;
+
+	private final Function<RemoteAuthnState, AuthenticationResult> responseHandler;
 	
-	public RemoteAuthnState(AuthenticationOptionKey authenticatorOptionId)
+	public RemoteAuthnState(AuthenticationOptionKey authenticatorOptionId, 
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
 	{
 		this.authenticatorOptionId = authenticatorOptionId;
+		this.responseHandler = responseHandler;
 		this.relayState = UUID.randomUUID().toString();
 		this.creationTime = new Date();
 	}
@@ -53,5 +59,10 @@ public class RemoteAuthnState
 	public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
 	{
 		this.sandboxCallback = sandboxCallback;
+	}
+	
+	public AuthenticationResult processAnswer()
+	{
+		return responseHandler.apply(this);
 	}
 }

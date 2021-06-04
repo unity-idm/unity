@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
 /**
  * This class object is returned by authenticator with information about authentication result. 
@@ -40,7 +40,7 @@ public class AuthenticationResult
 	}
 	
 	private Status status;	
-	private RemotelyAuthenticatedContext remoteAuthnContext;
+	private RemotelyAuthenticatedPrincipal remoteAuthnContext;
 	private AuthenticatedEntity authenticatedEntity;
 	private String formForUnknownPrincipal;
 	private boolean enableAssociation = true;
@@ -57,7 +57,7 @@ public class AuthenticationResult
 	/**
 	 * Used by remote verificators
 	 */
-	public AuthenticationResult(Status status, RemotelyAuthenticatedContext remoteAuthnContext,
+	public AuthenticationResult(Status status, RemotelyAuthenticatedPrincipal remoteAuthnContext,
 			AuthenticatedEntity authenticatedEntity)
 	{
 		this.status = status;
@@ -75,7 +75,7 @@ public class AuthenticationResult
 		return authenticatedEntity;
 	}
 
-	public RemotelyAuthenticatedContext getRemoteAuthnContext()
+	public RemotelyAuthenticatedPrincipal getRemoteAuthnContext()
 	{
 		return remoteAuthnContext;
 	}

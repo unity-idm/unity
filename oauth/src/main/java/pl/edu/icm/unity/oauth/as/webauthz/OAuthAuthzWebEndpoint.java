@@ -50,6 +50,7 @@ import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 
 /**
  * OAuth2 authorization endpoint, Vaadin based.
@@ -83,10 +84,11 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 			OAuthEndpointsCoordinator coordinator,
 			ASConsentDeciderServletFactory dispatcherServletFactory,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			MessageSource msg)
+			MessageSource msg,
+			RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
-				OAUTH_UI_SERVLET_PATH);
+				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter);
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
@@ -138,6 +140,9 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				OAUTH_UI_SERVLET_PATH, AUTHENTICATION_PATH);
 		ServletHolder oauthConsentDeciderHolder = createServletHolder(oauthConsentDeciderServlet, true);
 		context.addServlet(oauthConsentDeciderHolder, OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*");
+		
+		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 		
 		Filter oauthGuardFilter = new OAuthGuardFilter(new ErrorHandler(freemarkerHandler));
 		context.addFilter(new FilterHolder(oauthGuardFilter), OAUTH_ROUTING_SERVLET_PATH + "/*", 

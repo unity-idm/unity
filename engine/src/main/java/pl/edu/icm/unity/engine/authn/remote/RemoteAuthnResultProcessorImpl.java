@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
@@ -71,7 +71,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
-	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedContext)}.
+	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedPrincipal)}.
 	 * Usually it is the only one that is used, when {@link RemotelyAuthenticatedInput} 
 	 * is obtained in an implementation specific way.
 	 * 
@@ -115,7 +115,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 			boolean dryRun, Optional<IdentityTaV> identity) 
 			throws AuthenticationException
 	{
-		RemotelyAuthenticatedContext context;
+		RemotelyAuthenticatedPrincipal context;
 		try
 		{
 			context = processRemoteInput(input, profile, dryRun, identity);
@@ -130,16 +130,12 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	}
 	
 	/**
-	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedContext}
+	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedPrincipal}
 	 * (usually via {@link #processRemoteInput(RemotelyAuthenticatedInput)}) and returns a 
 	 * final {@link AuthenticationResult} depending on the success of this action.
-	 * 
-	 * @param remoteContext
-	 * @return
-	 * @throws EngineException 
 	 */
 	@Override
-	public AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedContext remoteContext) 
+	public AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext) 
 			throws AuthenticationException
 	{
 		if (remoteContext.getIdentities().isEmpty())
@@ -175,7 +171,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		}
 	}
 	
-	private void handleUnknownUser(RemotelyAuthenticatedContext remoteContext) throws AuthenticationException
+	private void handleUnknownUser(RemotelyAuthenticatedPrincipal remoteContext) throws AuthenticationException
 	{
 		AuthenticationResult r = new AuthenticationResult(Status.unknownRemotePrincipal, 
 				remoteContext, null);
@@ -185,10 +181,10 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	
 	/**
 	 * Invokes the configured translation profile on the remotely obtained authentication input. Then assembles  
-	 * the {@link RemotelyAuthenticatedContext} from the processed input containing the information about what 
+	 * the {@link RemotelyAuthenticatedPrincipal} from the processed input containing the information about what 
 	 * from the remote data is or can be meaningful in the local DB.
 	 */
-	public final RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
+	public final RemotelyAuthenticatedPrincipal processRemoteInput(RemotelyAuthenticatedInput input, 
 			TranslationProfile translationProfile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException
 	{
 		
@@ -215,7 +211,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		if (!dryRun)
 			trEngine.process(result);
 		
-		RemotelyAuthenticatedContext ret = new RemotelyAuthenticatedContext(input.getIdpName(), translationProfile.getName());
+		RemotelyAuthenticatedPrincipal ret = new RemotelyAuthenticatedPrincipal(input.getIdpName(), translationProfile.getName());
 		ret.addAttributes(extractAttributes(result));
 		ret.addIdentities(extractIdentities(result));
 		ret.addGroups(extractGroups(result));

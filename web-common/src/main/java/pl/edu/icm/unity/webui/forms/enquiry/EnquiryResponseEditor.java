@@ -10,7 +10,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -38,7 +38,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	private RegistrationLayoutsContainer layoutContainer;
 	
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated,
+			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
