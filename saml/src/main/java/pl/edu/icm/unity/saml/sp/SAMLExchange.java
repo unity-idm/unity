@@ -6,8 +6,6 @@ package pl.edu.icm.unity.saml.sp;
 
 import java.util.Locale;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -26,6 +24,5 @@ public interface SAMLExchange extends CredentialExchange
 	RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationOptionKey authnOptionId);
 	SAMLSPProperties getSamlValidatorSettings();
 	IdPVisalSettings getVisualSettings(String configKey, Locale locale);
-	AuthenticationResult verifySAMLResponse(RemoteAuthnContext authnContext) throws AuthenticationException;
 	void destroy();
 }

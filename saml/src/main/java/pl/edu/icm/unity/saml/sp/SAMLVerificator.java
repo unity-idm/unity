@@ -312,8 +312,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		}
 	}
 	
-	@Override
-	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
+	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);

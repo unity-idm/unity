@@ -257,11 +257,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	 * correct as otherwise there would be no match with the {@link OAuthContext}. However we need to
 	 * use the authz code to retrieve access token. The access code may include everything we need. But it 
 	 * may also happen that we need to perform one more query to obtain additional profile information.
-	 * @throws AuthenticationException 
-	 *   
 	 */
-	@Override
-	public AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
+	private AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);

@@ -11,8 +11,6 @@ import java.util.Optional;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -31,6 +29,4 @@ public interface OAuthExchange extends CredentialExchange
 	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
 			AuthenticationOptionKey authnOptionId) 
 			throws URISyntaxException, SerializeException, ParseException, IOException;
-	
-	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;
 }
