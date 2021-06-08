@@ -18,6 +18,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
@@ -73,18 +74,17 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public void onCompletedAuthentication(AuthenticationResult result)
 	{
-		processAuthn(result, null);
+		processAuthn(result);
 	}
 	
 
 	@Override
-	public void onFailedAuthentication(AuthenticationResult result, String error,
-			Optional<String> errorDetail)
+	public void onFailedAuthentication(AuthenticationResult result)
 	{
-		processAuthn(result, error);
+		processAuthn(result);
 	}
 	
-	private void processAuthn(AuthenticationResult result, String error)
+	private void processAuthn(AuthenticationResult result)
 	{
 		log.trace("Received authentication result of the primary authenticator " + result);
 		try
@@ -105,7 +105,8 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		} catch (AuthenticationException e)
 		{
 			log.trace("Authentication failed ", e);
-			handleError(msg.getMessage(e.getMessage()), error);
+			String originalError = result.getStatus() == Status.deny ? result.getErrorResult().error.resovle(msg) : null;
+			handleError(msg.getMessage(e.getMessage()), originalError);
 		}
 	}
 
@@ -157,16 +158,14 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	
 	private void handleUnknownUser(UnknownRemoteUserException e)
 	{
-		if (e.getFormForUser() != null || e.getResult().isEnableAssociation())
+		if (e.getFormForUser() != null || e.getResult().getUnknownRemotePrincipalResult().enableAssociation)
 		{
-			log.trace("Authentication successful, user unknown, "
-					+ "showing unknown user dialog");
+			log.trace("Authentication successful, user unknown, showing unknown user dialog");
 			setAuthenticationAborted();
 			authNPanel.showUnknownUserDialog(e);
 		} else
 		{
-			log.trace("Authentication successful, user unknown, "
-					+ "no registration form");
+			log.trace("Authentication successful, user unknown, no registration form");
 			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"), null);
 		}
 	}

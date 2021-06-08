@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -341,8 +342,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			Optional<AuthenticationSubject> subjectOpt = getAuthenticationSubject();
 			if (!subjectOpt.isPresent())
 			{
-				setAuthenticationResult(new AuthenticationResult(
-						Status.notApplicable, null));
+				setAuthenticationResult(LocalAuthenticationResult.notApplicable());
 				return;
 			}
 			setAuthenticationResult(credentialExchange.verifyCode(sentCode,
@@ -364,8 +364,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			{
 				setError();
 				usernameField.focus();
-				String msgErr = msg.getMessage("WebSMSRetrieval.wrongCode");
-				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
+				callback.onFailedAuthentication(authenticationResult);
 			}
 		}
 		

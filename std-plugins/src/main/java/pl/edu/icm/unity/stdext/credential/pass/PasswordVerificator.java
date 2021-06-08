@@ -44,9 +44,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -76,6 +77,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @PrototypeComponent
 public class PasswordVerificator extends AbstractLocalVerificator implements PasswordExchange
 { 	
+	private static final ResolvableError GENERIC_ERROR = new ResolvableError("WebPasswordRetrieval.wrongPassword");
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, PasswordVerificator.class);
 	public static final String NAME = "password";
 	public static final String DESC = "Verifies passwords";
@@ -252,7 +254,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 */
 	@Override
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback sandboxCallback)
+			SandboxAuthnResultCallback sandboxCallback,
+			String formForUnknown, boolean enableAssociation)
 	{
 		AuthenticationResult authenticationResult = checkPasswordInternal(username, password);
 		if (sandboxCallback != null)
@@ -270,7 +273,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		} catch (Exception e)
 		{
 			log.info("The user for password authN can not be found: " + username, e);
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
 		
 		try
@@ -281,22 +284,22 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			if (credentials.isEmpty())
 			{
 				log.info("The user has no password set: {}", username);
-				return new AuthenticationResult(Status.deny, null);
+				return LocalAuthenticationResult.failed(GENERIC_ERROR);
 			}
 			PasswordInfo current = credentials.getFirst();
 			if (!passwordEngine.verify(current, password))
 			{
 				log.info("Password provided by {} is invalid", username);
-				return new AuthenticationResult(Status.deny, null);
+				return LocalAuthenticationResult.failed(GENERIC_ERROR);
 			}
 			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, 
 					isOutdated ? resolved.getCredentialName() : null);
-			return new AuthenticationResult(Status.success, ae);
+			return LocalAuthenticationResult.successful(ae);
 		} catch (Exception e)
 		{
 			log.warn("Error during password verification for " + username, e);
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
 	}
 

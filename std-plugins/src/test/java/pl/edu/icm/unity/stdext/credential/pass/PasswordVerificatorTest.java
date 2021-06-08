@@ -312,7 +312,7 @@ public class PasswordVerificatorTest
 		credCfg.setScryptParams(new ScryptParams(11));
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
 		
-		AuthenticationResult result = verificator.checkPassword("username", "1qaZ2wsX", null);
+		AuthenticationResult result = verificator.checkPassword("username", "1qaZ2wsX", null, null, false);
 		assertEquals(Status.success, result.getStatus());
 		verify(credHelper).updateCredential(eq(0L), eq(null), anyString());
 	}

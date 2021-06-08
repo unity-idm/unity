@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
@@ -147,14 +147,14 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			{
 				if (!checkScopes(status))
 				{
-					return new AuthenticationResult(Status.deny, null, null);
+					return LocalAuthenticationResult.failed();
 				}
 				RemotelyAuthenticatedInput input = assembleBaseResult(status, 
 						cached.getAttributes(), getName());
-				return getResult(input, translationProfile, state);				
+				return getResultForNonInteractiveAuthn(input, translationProfile, state);				
 			} else
 			{
-				return new AuthenticationResult(Status.deny, null, null);
+				return LocalAuthenticationResult.failed();
 			}
 		}
 		
@@ -164,18 +164,18 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			if (!checkScopes(status))
 			{
 				cache.cache(token.getValue(), status, null);
-				return new AuthenticationResult(Status.deny, null, null);
+				return LocalAuthenticationResult.failed();
 			}
 			
 			AttributeFetchResult attrs;
 			attrs = getUserProfileInformation(token);
 			cache.cache(token.getValue(), status, attrs);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
-			return getResult(input, translationProfile, state);
+			return getResultForNonInteractiveAuthn(input, translationProfile, state);
 		} else
 		{
 			cache.cache(token.getValue(), status, null);
-			return new AuthenticationResult(Status.deny, null, null);
+			return LocalAuthenticationResult.failed();
 		}
 	}
 

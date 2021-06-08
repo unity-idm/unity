@@ -9,7 +9,6 @@ import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -230,32 +229,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
 				.getSession()
 				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_REQUEST_ATTRIBUTE);
-		String reason = null;
-//		try
-//		{
-//			authnResult = credentialExchange.verifySAMLResponse(authnContext);
-//		} catch (AuthenticationException e)
-//		{
-//			savedException = e;
-//			reason = NotificationPopup.getHumanMessage(e, "<br>");
-//			authnResult = e.getResult();
-//		} catch (Exception e)
-//		{
-//			log.error("Runtime error during SAML response processing or principal mapping", e);
-//			authnResult = new AuthenticationResult(Status.deny, null);
-//		}
-
 		clear();
 		if (authnResult.getStatus() == Status.success || authnResult.getStatus() == Status.unknownRemotePrincipal)
-		{
 			callback.onCompletedAuthentication(authnResult);
-		} else
-		{
-			Optional<String> errorDetail = reason == null ? Optional.empty()
-					: Optional.of(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
-			String error = msg.getMessage("WebSAMLRetrieval.authnFailedError");
-			callback.onFailedAuthentication(authnResult, error, errorDetail);
-		}
+		else
+			callback.onFailedAuthentication(authnResult);
 	}
 
 	@Override

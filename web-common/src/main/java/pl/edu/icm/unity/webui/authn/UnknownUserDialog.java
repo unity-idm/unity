@@ -18,7 +18,8 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -43,7 +44,7 @@ public class UnknownUserDialog extends AbstractDialog
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnknownUserDialog.class);
 	
-	private AuthenticationResult authNResult;
+	private UnknownRemotePrincipalResult authNResult;
 	private InsecureRegistrationFormLauncher formLauncher;
 
 	private SandboxAuthnNotifier sandboxAuthnNotifier;
@@ -51,13 +52,13 @@ public class UnknownUserDialog extends AbstractDialog
 
 	private String sandboxURL;
 
-	public UnknownUserDialog(MessageSource msg, AuthenticationResult authNResult,
+	public UnknownUserDialog(MessageSource msg, RemoteAuthenticationResult authNResult,
 			InsecureRegistrationFormLauncher formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
 			InputTranslationEngine inputTranslationEngine, String sandboxURL)
 	{
 		super(msg, msg.getMessage("UnknownUserDialog.caption"), msg.getMessage("cancel"));
 		setSizeEm(50, 25);
-		this.authNResult = authNResult;
+		this.authNResult = authNResult.getUnknownRemotePrincipalResult();
 		this.formLauncher = formLauncher;
 		this.sandboxAuthnNotifier = sandboxAuthnNotifier;
 		this.inputTranslationEngine = inputTranslationEngine;
@@ -74,12 +75,12 @@ public class UnknownUserDialog extends AbstractDialog
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
-		if (authNResult.getFormForUnknownPrincipal() != null)
+		if (authNResult.formForUnknownPrincipal != null)
 		{
 			log.debug("Adding registration component");
 			options.addComponent(getRegistrationComponent());
 		}
-		if (authNResult.isEnableAssociation())
+		if (authNResult.enableAssociation)
 		{
 			options.addComponent(getAssociationComponent());
 		}
@@ -102,8 +103,8 @@ public class UnknownUserDialog extends AbstractDialog
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				showRegistration(authNResult.getFormForUnknownPrincipal(), 
-						authNResult.getRemoteAuthnContext());
+				showRegistration(authNResult.formForUnknownPrincipal, 
+						authNResult.getRemotelyAuthenticatedPrincipal());
 			}
 		});
 		ret.addComponents(register, label);
@@ -140,7 +141,7 @@ public class UnknownUserDialog extends AbstractDialog
 		
 		ConnectIdAtLoginWizardProvider wizardProv = new ConnectIdAtLoginWizardProvider(msg, 
 				sandboxURL, sandboxAuthnNotifier, inputTranslationEngine, 
-				authNResult.getRemoteAuthnContext());
+				authNResult.getRemotelyAuthenticatedPrincipal());
 		SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProv.getWizardInstance(), 
 				wizardProv.getCaption());
 		dialog.show();

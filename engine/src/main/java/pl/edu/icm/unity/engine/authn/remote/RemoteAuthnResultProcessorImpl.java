@@ -20,10 +20,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
@@ -43,10 +43,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
-/**
- * Implements {@link RemoteAuthnResultProcessor} 
- * @author K. Benedyczak
- */
 @Component
 public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcessor
 {
@@ -69,20 +65,11 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		this.actionsRegistry = actionsRegistry;
 	}
 
-	/**
-	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
-	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedPrincipal)}.
-	 * Usually it is the only one that is used, when {@link RemotelyAuthenticatedInput} 
-	 * is obtained in an implementation specific way.
-	 * 
-	 * @param input
-	 * @return
-	 * @throws EngineException 
-	 */
 	@Override
 	@Transactional
-	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
-			boolean dryRun, Optional<IdentityTaV> identity) 
+	public RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
+			boolean dryRun, Optional<IdentityTaV> identity, 
+			String registrationForm, boolean allowAssociation) 
 			throws AuthenticationException
 	{
 		
@@ -106,27 +93,28 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		}
 		
 		
-		return getResult(input, translationProfile, dryRun, identity);
+		return getResult(input, translationProfile, dryRun, identity, registrationForm, allowAssociation);
 	}
 	
 	@Override
 	@Transactional
-	public AuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, 
-			boolean dryRun, Optional<IdentityTaV> identity) 
+	public RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, 
+			boolean dryRun, Optional<IdentityTaV> identity, 
+			String registrationForm, boolean allowAssociation) 
 			throws AuthenticationException
 	{
-		RemotelyAuthenticatedPrincipal context;
+		RemotelyAuthenticatedPrincipal remotePrincipal;
 		try
 		{
-			context = processRemoteInput(input, profile, dryRun, identity);
+			remotePrincipal = processRemoteInput(input, profile, dryRun, identity);
 		} catch (EngineException e)
 		{
 			log.warn("The mapping of the remotely authenticated principal to a local representation failed", e);
 			throw new AuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return dryRun ? new AuthenticationResult(Status.success, context, null) : 
-			assembleAuthenticationResult(context);
+		return dryRun ? RemoteAuthenticationResult.successful(remotePrincipal, null) : 
+			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation);
 	}
 	
 	/**
@@ -135,14 +123,14 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 * final {@link AuthenticationResult} depending on the success of this action.
 	 */
 	@Override
-	public AuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext) 
-			throws AuthenticationException
+	public RemoteAuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext, 
+			String registrationForm, boolean allowAssociation) throws AuthenticationException
 	{
 		if (remoteContext.getIdentities().isEmpty())
 			throw new AuthenticationException("The remotely authenticated principal " +
 					"was not mapped to a local representation.");
 		if (remoteContext.getLocalMappedPrincipal() == null)
-			handleUnknownUser(remoteContext);
+			handleUnknownUser(remoteContext, registrationForm, allowAssociation);
 		try
 		{
 			EntityParam mappedEntity = remoteContext.getLocalMappedPrincipal();
@@ -159,10 +147,10 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
 					remoteContext.getMappingResult().getAuthenticatedWith(), null);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
-			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
+			return RemoteAuthenticationResult.successful(remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)
 		{
-			handleUnknownUser(remoteContext);
+			handleUnknownUser(remoteContext, registrationForm, allowAssociation);
 			return null; //dummy - above line always throws exception
 		} catch (EngineException e)
 		{
@@ -171,10 +159,11 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		}
 	}
 	
-	private void handleUnknownUser(RemotelyAuthenticatedPrincipal remoteContext) throws AuthenticationException
+	private void handleUnknownUser(RemotelyAuthenticatedPrincipal remotePrincipal, String registrationForm, 
+			boolean allowAssociation) throws AuthenticationException
 	{
-		AuthenticationResult r = new AuthenticationResult(Status.unknownRemotePrincipal, 
-				remoteContext, null);
+		AuthenticationResult r = RemoteAuthenticationResult.unknownRemotePrincipal(remotePrincipal, 
+				registrationForm, allowAssociation);
 		throw new AuthenticationException(r, "The mapped identity is not present in the local " +
 				"user store.");
 	}

@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import java.util.AbstractMap;
@@ -124,8 +125,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				} catch (FidoException e)
 				{
 					if (nonNull(authenticationResultListener))
-						authenticationResultListener.accept(
-								new AuthenticationResult(AuthenticationResult.Status.deny, null));
+						authenticationResultListener.accept(LocalAuthenticationResult.failed());
 					else
 						showError(msg.getMessage("Fido.authenticationFail"), e.getLocalizedMessage());
 				}
@@ -188,14 +188,13 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		} catch (NoEntityException e)
 		{
 			if (nonNull(authenticationResultListener))
-				authenticationResultListener.accept(new AuthenticationResult(
-						AuthenticationResult.Status.notApplicable, null));
+				authenticationResultListener.accept(LocalAuthenticationResult.notApplicable());
 			else
 				showError(msg.getMessage("Fido.authentication"), e.getLocalizedMessage());
 		} catch (FidoException e)
 		{
 			if (nonNull(authenticationResultListener))
-				authenticationResultListener.accept(new AuthenticationResult(AuthenticationResult.Status.deny, null));
+				authenticationResultListener.accept(LocalAuthenticationResult.failed());
 			else
 				showError(msg.getMessage("Fido.authentication"), e.getLocalizedMessage());
 		} catch (Exception e)

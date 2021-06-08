@@ -33,8 +33,8 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -116,7 +116,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
-		Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider = 
+		Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider = 
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());

@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
@@ -217,9 +218,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
 				if (authenticationResult.getStatus() == Status.deny)
 				{
-					callback.onFailedAuthentication(authenticationResult, 
-							msg.getMessage("WebPasswordRetrieval.wrongPassword"), 
-							Optional.empty());
+					callback.onFailedAuthentication(authenticationResult);
 				} else
 				{
 					setEnabled(false);
@@ -232,7 +231,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			if (username.equals("") && password.equals(""))
 			{
-				return new AuthenticationResult(Status.notApplicable, null);
+				return LocalAuthenticationResult.notApplicable();
 			}
 
 			
@@ -240,7 +239,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			try
 			{
 				authenticationResult = credentialExchange.checkPassword(
-						username, password, sandboxCallback);
+						username, password, sandboxCallback, 
+						registrationFormForUnknown, enableAssociation);
 			} catch (AuthenticationException e)
 			{
 				log.info("Authentication error during password checking", e);
@@ -248,11 +248,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			} catch (Exception e)
 			{
 				log.error("Runtime error during password checking", e);
-				authenticationResult = new AuthenticationResult(Status.deny, null);
+				authenticationResult = LocalAuthenticationResult.failed();
 			}
-			if (registrationFormForUnknown != null) 
-				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-			authenticationResult.setEnableAssociation(enableAssociation);
 			if (authenticationResult.getStatus() == Status.success || 
 					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
 			{

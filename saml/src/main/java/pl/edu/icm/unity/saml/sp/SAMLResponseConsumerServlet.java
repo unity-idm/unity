@@ -42,7 +42,8 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 	private final SamlContextManagement contextManagement;
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 	
-	public SAMLResponseConsumerServlet(SamlContextManagement contextManagement, SharedRemoteAuthenticationContextStore remoteAuthnContextStore)
+	public SAMLResponseConsumerServlet(SamlContextManagement contextManagement, 
+			SharedRemoteAuthenticationContextStore remoteAuthnContextStore)
 	{
 		super(true);
 		this.contextManagement = contextManagement;

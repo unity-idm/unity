@@ -20,5 +20,6 @@ public interface CertificateExchange extends CredentialExchange
 {
 	public static final String ID = "certificate exchange";
 	
-	AuthenticationResult checkCertificate(X509Certificate[] chain, SandboxAuthnResultCallback sandboxCallback); 
+	AuthenticationResult checkCertificate(X509Certificate[] chain, SandboxAuthnResultCallback sandboxCallback,
+			String formForUnknown, boolean enableAssociation); 
 }

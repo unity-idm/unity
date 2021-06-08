@@ -64,12 +64,15 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -232,14 +235,19 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
 	{
-		//TODO KB 
+		//TODO KB drop verify from exchange API, clean error handling
 		try
 		{
 			return verifyOAuthAuthzResponse((OAuthContext) remoteAuthnState);
 		} catch (AuthenticationException e)
 		{
-			// TODO KB Auto-generated catch block
-			throw new IllegalStateException("not implemented yet", e);
+			log.warn("OAuth2 authorization code verification or processing failed", e);
+			return RemoteAuthenticationResult.failed(e.getResult().asRemote().getRemotelyAuthenticatedPrincipal(), 
+					new ResolvableError("OAuth2Retrieval.authnFailedError"));
+		} catch (Exception e)
+		{
+			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
+			return RemoteAuthenticationResult.failed(null, new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		}
 	}
 
@@ -261,12 +269,22 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
+			CustomProviderProperties providerProps = config.getProvider(context.getProviderConfigKey());
 			TranslationProfile profile = getTranslationProfile(
-					config.getProvider(context.getProviderConfigKey()),
+					providerProps,
 					CommonWebAuthnProperties.TRANSLATION_PROFILE,
 					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
-
-			return getResult(input, profile, state);
+			
+			String regFormForUnknown = providerProps.getValue(CommonWebAuthnProperties.REGISTRATION_FORM);
+			boolean enableAssociation = providerProps.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION) ?
+					providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
+					config.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
+			return getResult(input, profile, state, regFormForUnknown, enableAssociation);
+		} catch (UnexpectedIdentityException uie)
+		{
+			finishAuthnResponseProcessing(state, uie);
+			return RemoteAuthenticationResult.failed(null, 
+					new ResolvableError("OAuth2Retrieval.unexpectedUser", uie.expectedIdentity));
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);
@@ -607,11 +625,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		@Autowired
 		public Factory(ObjectFactory<OAuth2Verificator> factory, 
 				SharedEndpointManagement sharedEndpointManagement,
-				OAuthContextsManagement contextManagement) throws EngineException
+				OAuthContextsManagement contextManagement,
+				SharedRemoteAuthenticationContextStore remoteAuthnContextStore) throws EngineException
 		{
 			super(NAME, DESC, factory);
 			
-			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement));
+			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement, 
+					remoteAuthnContextStore));
 			sharedEndpointManagement.deployInternalEndpointServlet(
 					ResponseConsumerServlet.PATH, servlet, false);
 		}

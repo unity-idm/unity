@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -24,13 +23,13 @@ public class AuthenticationException extends EngineException
 	public AuthenticationException(String msg)
 	{
 		super(msg);
-		this.result = new AuthenticationResult(Status.deny, null);
+		this.result = LocalAuthenticationResult.failed();
 	}
 
 	public AuthenticationException(String msg, Exception cause)
 	{
 		super(msg, cause);
-		this.result = new AuthenticationResult(Status.deny, null);
+		this.result = LocalAuthenticationResult.failed();
 	}
 
 	public AuthenticationResult getResult()

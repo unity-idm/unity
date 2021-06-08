@@ -123,8 +123,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 					.processRememberedSecondFactor(
 							VaadinServletRequest.getCurrent(),
 							VaadinServletResponse.getCurrent(),
-							result.getAuthenticatedEntity()
-									.getEntityId(),
+							result.getSuccessResult().authenticatedEntity.getEntityId(),
 							clientIp, realm, getLoginCounter());
 			if (!loginSessionFromRememberMe.isPresent())
 			{
@@ -140,7 +139,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		}else
 		{
 			loginSession = getLoginSessionForEntity(
-					authnState.getPrimaryResult().getAuthenticatedEntity(),
+					authnState.getPrimaryResult().getSuccessResult().authenticatedEntity,
 					realm, authnState.getFirstFactorOptionId(),
 					null);
 		}

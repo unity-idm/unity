@@ -18,8 +18,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
@@ -86,7 +86,8 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 
 	@Override
 	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
-			SandboxAuthnResultCallback sandboxCallback)
+			SandboxAuthnResultCallback sandboxCallback,
+			String formForUnknown, boolean enableAssociation)
 	{
 		String identity = chain[0].getSubjectX500Principal().getName();
 		try
@@ -95,14 +96,14 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 				IDENTITY_TYPES, credentialName);
 			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(), 
 					X500NameUtils.getReadableForm(identity), null);
-			AuthenticationResult ret = new AuthenticationResult(Status.success, entity);
+			AuthenticationResult ret = LocalAuthenticationResult.successful(entity);
 			if (sandboxCallback != null)
 				sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(ret));
 			return ret;
 		} catch (Exception e)
 		{
 			log.warn("Checking certificate failed", e);
-			AuthenticationResult ret = new AuthenticationResult(Status.deny, null);
+			AuthenticationResult ret = LocalAuthenticationResult.failed();
 			if (sandboxCallback != null)
 				sandboxCallback.sandboxedAuthenticationDone(
 						new LocalSandboxAuthnContext(ret));

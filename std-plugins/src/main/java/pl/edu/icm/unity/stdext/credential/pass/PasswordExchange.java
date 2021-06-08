@@ -20,13 +20,11 @@ public interface PasswordExchange extends CredentialExchange
 	
 	/**
 	 * Verifies the user provided credentials.
-	 * @param username
-	 * @param password
 	 * @param sandboxCallback typically null, if in sandbox mode provides callback.
-	 * @return
 	 */
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException; 
+			SandboxAuthnResultCallback sandboxCallback,
+			String formForUnknown, boolean enableAssociation) throws AuthenticationException; 
 	
 	/**
 	 * @return credential reset backend

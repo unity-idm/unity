@@ -36,8 +36,8 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -77,7 +77,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	
 	private final EntityManagement idsMan;
 	private final ExecutorsService execService;
-	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider;
+	private final Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider;
 	private final WebAuthenticationProcessor authnProcessor;	
 	private final LocaleChoiceComponent localeChoice;
 	private final List<AuthenticationFlow> flows;
@@ -102,7 +102,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
-			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
+			Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
 			List<AuthenticationFlow> flows)

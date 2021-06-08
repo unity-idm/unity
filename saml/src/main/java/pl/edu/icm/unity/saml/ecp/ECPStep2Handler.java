@@ -28,11 +28,11 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -145,7 +145,7 @@ public class ECPStep2Handler
 		}
 		
 		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
-		AuthenticationResult authenticationResult;
+		RemoteAuthenticationResult authenticationResult;
 		try
 		{
 			authenticationResult = processSamlResponse(samlProperties, respDoc, ctx);
@@ -162,7 +162,7 @@ public class ECPStep2Handler
 			return;
 		}
 		
-		AuthenticatedEntity ae = authenticationResult.getAuthenticatedEntity();
+		AuthenticatedEntity ae = authenticationResult.getSuccessResult().authenticatedEntity;
 		Long entityId = ae.getEntityId();
 		
 		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
@@ -231,7 +231,7 @@ public class ECPStep2Handler
 		return contents.getNodeValue();
 	}
 	
-	private AuthenticationResult processSamlResponse(SAMLSPProperties samlProperties, 
+	private RemoteAuthenticationResult processSamlResponse(SAMLSPProperties samlProperties, 
 			ResponseDocument responseDoc, ECPAuthnState ctx) 
 			throws ServletException, AuthenticationException
 	{
@@ -248,7 +248,7 @@ public class ECPStep2Handler
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
-		return remoteAuthnProcessor.getResult(input, profile, false, Optional.empty());
+		return remoteAuthnProcessor.getResult(input, profile, false, Optional.empty(), null, false);
 	}
 	
 	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException

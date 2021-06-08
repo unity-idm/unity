@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 /**
@@ -27,11 +28,14 @@ public class ResponseConsumerServlet extends HttpServlet
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ResponseConsumerServlet.class);
 	public static final String PATH = "/oauth2ResponseConsumer";
 	
-	private OAuthContextsManagement contextManagement;
+	private final OAuthContextsManagement contextManagement;
+	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 
-	public ResponseConsumerServlet(OAuthContextsManagement contextManagement)
+	public ResponseConsumerServlet(OAuthContextsManagement contextManagement, 
+			SharedRemoteAuthenticationContextStore remoteAuthnContextStore)
 	{
 		this.contextManagement = contextManagement;
+		this.remoteAuthnContextStore = remoteAuthnContextStore;
 	}
 	
 	@Override
@@ -71,7 +75,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		{
 			context.setAuthzCode(req.getParameter("code"));
 		}
-		
+		remoteAuthnContextStore.addAuthnContext(context);
 		log.debug("Received OAuth response for authenticator {} with valid state {}, redirecting to {}", 
 				context.getAuthenticatorOptionId(), state, context.getReturnUrl());
 		resp.sendRedirect(context.getReturnUrl());

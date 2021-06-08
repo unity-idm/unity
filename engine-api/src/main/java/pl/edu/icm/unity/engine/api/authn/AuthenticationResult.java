@@ -4,16 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ErrorResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.SuccessResult;
 
 /**
- * This class object is returned by authenticator with information about authentication result. 
- * This cover authentication result of a single authenticator, not the combined result of authentication
- * with all authenticators in the set.
- * 
- * @author K. Benedyczak
+ * Base contract of authentication result - have remote and local authn variants.
  */
-public class AuthenticationResult
+public interface AuthenticationResult
 {
 	public enum Status {
 		/**
@@ -39,77 +36,27 @@ public class AuthenticationResult
 		success
 	}
 	
-	private Status status;	
-	private RemotelyAuthenticatedPrincipal remoteAuthnContext;
-	private AuthenticatedEntity authenticatedEntity;
-	private String formForUnknownPrincipal;
-	private boolean enableAssociation = true;
-
-	/**
-	 * Used by local verificators
-	 */
-	public AuthenticationResult(Status status, AuthenticatedEntity authenticatedEntity)
+	Status getStatus();
+	
+	boolean isRemote();
+	
+	String toStringFull();
+	
+	SuccessResult getSuccessResult();
+	
+	ErrorResult getErrorResult();
+	
+	default RemoteAuthenticationResult asRemote()
 	{
-		this.status = status;
-		this.authenticatedEntity = authenticatedEntity;
-	}
-
-	/**
-	 * Used by remote verificators
-	 */
-	public AuthenticationResult(Status status, RemotelyAuthenticatedPrincipal remoteAuthnContext,
-			AuthenticatedEntity authenticatedEntity)
-	{
-		this.status = status;
-		this.remoteAuthnContext = remoteAuthnContext;
-		this.authenticatedEntity = authenticatedEntity;
-	}
-
-	public Status getStatus()
-	{
-		return status;
-	}
-
-	public AuthenticatedEntity getAuthenticatedEntity()
-	{
-		return authenticatedEntity;
-	}
-
-	public RemotelyAuthenticatedPrincipal getRemoteAuthnContext()
-	{
-		return remoteAuthnContext;
-	}
-
-	public String getFormForUnknownPrincipal()
-	{
-		return formForUnknownPrincipal;
-	}
-
-	public void setFormForUnknownPrincipal(String formForUnknownPrincipal)
-	{
-		this.formForUnknownPrincipal = formForUnknownPrincipal;
+		if (!isRemote())
+			throw new IllegalStateException("This is not a remote result");
+		return (RemoteAuthenticationResult)this;
 	}
 	
-	public boolean isEnableAssociation()
+	default LocalAuthenticationResult asLocal()
 	{
-		return enableAssociation;
-	}
-
-	public void setEnableAssociation(boolean enableAssociation)
-	{
-		this.enableAssociation = enableAssociation;
-	}
-
-	public String toStringFull()
-	{
-		return "AuthenticationResult: \nstatus=" + status + "\nremoteAuthnContext=" + remoteAuthnContext
-				+ "\nauthenticatedEntity=" + authenticatedEntity + "\nformForUnknownPrincipal="
-				+ formForUnknownPrincipal + "\nenableAssociation=" + enableAssociation;
-	}
-
-	@Override
-	public String toString()
-	{
-		return status.toString();
+		if (isRemote())
+			throw new IllegalStateException("This is not a local result");
+		return (LocalAuthenticationResult)this;
 	}
 }

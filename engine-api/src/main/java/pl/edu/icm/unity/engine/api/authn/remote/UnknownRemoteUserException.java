@@ -5,7 +5,8 @@
 package pl.edu.icm.unity.engine.api.authn.remote;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 
 /**
  * Thrown on authentication problem, when the user is properly authenticated remotely 
@@ -15,9 +16,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
  */
 public class UnknownRemoteUserException extends AuthenticationException
 {
-	public UnknownRemoteUserException(String msg, AuthenticationResult result)
+	public UnknownRemoteUserException(String msg, RemoteAuthenticationResult result)
 	{
 		super(result, msg);
+		if (result.getStatus() != Status.unknownRemotePrincipal)
+			throw new IllegalArgumentException("Wrong status: " + result.getStatus());
 	}
 
 	/**
@@ -26,11 +29,16 @@ public class UnknownRemoteUserException extends AuthenticationException
 	 */
 	public String getFormForUser()
 	{
-		return getResult().getFormForUnknownPrincipal();
+		return getResult().asRemote().getUnknownRemotePrincipalResult().formForUnknownPrincipal;
 	}
 
 	public RemotelyAuthenticatedPrincipal getRemoteContext()
 	{
-		return getResult().getRemoteAuthnContext();
+		return getResult().asRemote().getRemotelyAuthenticatedPrincipal();
+	}
+	
+	public RemoteAuthenticationResult getResult()
+	{
+		return super.getResult().asRemote();
 	}
 }

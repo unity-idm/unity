@@ -11,10 +11,12 @@ import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -41,25 +43,29 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		this.processor = processor;
 	}
 	
+	protected RemoteAuthenticationResult getResultForNonInteractiveAuthn(RemotelyAuthenticatedInput input, TranslationProfile profile,
+			RemoteAuthnProcessingState state) throws AuthenticationException
+	{
+		return getResult(input, profile, state, null, false);
+	}
+
+	
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
 	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedPrincipal)}.
 	 * Usually it is the only one that is used in subclasses, when {@link RemotelyAuthenticatedInput} 
 	 * is obtained in an implementation specific way.
-	 * 
-	 * @param input
-	 * @return
-	 * @throws EngineException 
 	 */
-	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile,
-			RemoteAuthnProcessingState state) throws AuthenticationException
+	protected RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile,
+			RemoteAuthnProcessingState state, 
+			String registrationForm, boolean allowAssociation) throws AuthenticationException
 	{
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
 		stateCasted.remoteInput = input;
 		
-		AuthenticationResult result = processor.getResult(input, profile, 
-				stateCasted.isInSandboxMode(), Optional.empty());
-		finishAuthnResponseProcessing(state, result.getRemoteAuthnContext());
+		RemoteAuthenticationResult result = processor.getResult(input, profile, 
+				stateCasted.isInSandboxMode(), Optional.empty(), registrationForm, allowAssociation);
+		finishAuthnResponseProcessing(state, result.getRemotelyAuthenticatedPrincipal());
 		return result;
 	}
 	
@@ -149,6 +155,13 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		{
 			return sandboxCallback != null;
 		}
+	}
+	
+	protected AuthenticationResult repackIfError(RemoteAuthenticationResult result, ResolvableError genericError)
+	{
+		if (result.getStatus() == Status.deny && result.asRemote().getErrorResult().error == null)
+			return RemoteAuthenticationResult.failed(result.asRemote().getErrorResult().remotePrincipal, genericError);
+		return result;
 	}
 	
 	/**

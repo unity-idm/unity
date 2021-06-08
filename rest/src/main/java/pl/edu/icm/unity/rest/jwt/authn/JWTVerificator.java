@@ -26,9 +26,9 @@ import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -123,7 +123,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 					IDENTITY_TYPES, null);
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), 
 					claims.getSubject(), null); 
-			return new AuthenticationResult(Status.success, ae);
+			return LocalAuthenticationResult.successful(ae);
 		} catch (ParseException | JOSEException e)
 		{
 			throw new AuthenticationException("Token is invalid", e);

@@ -89,7 +89,7 @@ class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIC
 
 	private Entity resolveEntity(AuthenticationResult unresolved) throws EngineException
 	{
-		AuthenticatedEntity ae = unresolved.getAuthenticatedEntity();
+		AuthenticatedEntity ae = unresolved.getSuccessResult().authenticatedEntity;
 		return idsMan.getEntity(new EntityParam(ae.getEntityId()));
 	}
 

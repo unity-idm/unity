@@ -22,8 +22,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -38,6 +40,8 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 @PrototypeComponent
 public class PAMVerificator extends AbstractRemoteVerificator implements PasswordExchange
 {
+	private static final ResolvableError GENERIC_ERROR = new ResolvableError("WebPasswordRetrieval.wrongPassword");
+
 	private static final Logger log = Log.getLogger(Log.U_SERVER_PAM, PAMVerificator.class);
 	
 	public static final String NAME = "pam";
@@ -89,7 +93,8 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 
 	@Override
 	public AuthenticationResult checkPassword(String username, String password,
-			SandboxAuthnResultCallback sandboxCallback)
+			SandboxAuthnResultCallback sandboxCallback,
+			String formForUnknown, boolean enableAssociation)
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(sandboxCallback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_PAM);
@@ -98,7 +103,8 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(
 					username, password);
-			return getResult(input, translationProfile, state);
+			RemoteAuthenticationResult result = getResult(input, translationProfile, state, formForUnknown, enableAssociation);
+			return repackIfError(result, GENERIC_ERROR);
 		} catch (Exception e)
 		{
 			if (e instanceof AuthenticationException)
@@ -106,7 +112,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 			else
 				log.warn("PAM authentication failed", e);
 			finishAuthnResponseProcessing(state, e);
-			return new AuthenticationResult(Status.deny, null, null);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
 	}
 

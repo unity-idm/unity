@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
@@ -58,18 +57,17 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public void onCompletedAuthentication(AuthenticationResult result)
 	{
-		processAuthn(result, null);
+		processAuthn(result);
 	}
 	
 
 	@Override
-	public void onFailedAuthentication(AuthenticationResult result, String error,
-			Optional<String> errorDetail)
+	public void onFailedAuthentication(AuthenticationResult result)
 	{
-		processAuthn(result, error);
+		processAuthn(result);
 	}
 	
-	private void processAuthn(AuthenticationResult result, String error)
+	private void processAuthn(AuthenticationResult result)
 	{
 		log.trace("Received authentication result of the 2nd authenticator" + result);
 		try

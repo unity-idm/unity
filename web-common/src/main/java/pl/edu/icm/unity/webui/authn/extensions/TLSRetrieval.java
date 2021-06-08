@@ -31,6 +31,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
@@ -149,13 +150,10 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			X509Certificate[] clientCert = getTLSCertificate();
 
 			if (clientCert == null)
-				return new AuthenticationResult(Status.notApplicable, null);
+				return LocalAuthenticationResult.notApplicable();
 
 			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert,
-					sandboxCallback);
-			if (registrationFormForUnknown != null)
-				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-			authenticationResult.setEnableAssociation(enableAssociation);
+					sandboxCallback, registrationFormForUnknown, enableAssociation);
 			return authenticationResult;
 		}
 

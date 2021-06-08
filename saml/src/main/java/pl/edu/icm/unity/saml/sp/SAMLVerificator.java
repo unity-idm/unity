@@ -36,8 +36,9 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
@@ -296,18 +297,18 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
 	{
-		//TODO KB 
 		try
 		{
 			return verifySAMLResponse((RemoteAuthnContext) remoteAuthnState);
 		} catch (AuthenticationException e)
 		{
+			//TODO KB drop authenticationException, make sure to pass error info with AuthnResult
 			log.warn("SAML response verification or processing failed", e);
-			return e.getResult();
+			return RemoteAuthenticationResult.failed(null, new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		} catch (Exception e)
 		{
 			log.error("Runtime error during SAML response processing or principal mapping", e);
-			return new AuthenticationResult(Status.deny, null);
+			return RemoteAuthenticationResult.failed(null, new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		}
 	}
 	
@@ -328,14 +329,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			
 			
-			AuthenticationResult result = getResult(input, profile, state);
-
-			if (context.getRegistrationFormForUnknown() != null)
-			{
-				log.debug("Enabling registration component");
-				result.setFormForUnknownPrincipal(context.getRegistrationFormForUnknown());
-			}
-			result.setEnableAssociation(context.isEnableAssociation());
+			AuthenticationResult result = getResult(input, profile, state, context.getRegistrationFormForUnknown(),
+					context.isEnableAssociation());
 
 			return result;
 		} catch (Exception e)

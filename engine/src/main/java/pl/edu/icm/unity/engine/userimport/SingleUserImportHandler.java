@@ -109,7 +109,7 @@ public class SingleUserImportHandler
 		}
 		log.debug("Caching positive import result for {}", identity);
 		AuthenticationResult result = remoteUtil.getResult(importedUser, 
-				translationProfile, false, existingUser);
+				translationProfile, false, existingUser, null, false);
 		positiveCache.put(new Element(cacheKey, result));
 		return result;
 	}

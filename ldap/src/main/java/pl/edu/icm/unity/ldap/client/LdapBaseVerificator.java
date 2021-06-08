@@ -17,8 +17,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -93,7 +95,8 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 
 	@Override
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback callback) throws AuthenticationException
+			SandboxAuthnResultCallback callback,
+			String formForUnknown, boolean enableAssociation) throws AuthenticationException
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(callback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
@@ -101,7 +104,9 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(username, password);
-			return getResult(input, translationProfile, state);
+			RemoteAuthenticationResult result = getResult(input, translationProfile, state, 
+					formForUnknown, enableAssociation);
+			return repackIfError(result, new ResolvableError("WebPasswordRetrieval.wrongPassword"));
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);
@@ -136,7 +141,8 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 
 	@Override
 	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
-			SandboxAuthnResultCallback sandboxCallback)
+			SandboxAuthnResultCallback sandboxCallback,
+			String formForUnknown, boolean enableAssociation)
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(sandboxCallback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
@@ -145,12 +151,12 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 		{
 			RemotelyAuthenticatedInput input = searchRemotelyAuthenticatedInput(
 					chain[0].getSubjectX500Principal().getName());
-			return getResult(input, translationProfile, state);
+			return getResult(input, translationProfile, state, formForUnknown, enableAssociation);
 		} catch (Exception e)
 		{
 			log.debug("LDAP authentication with certificate failed", e);
 			finishAuthnResponseProcessing(state, e);
-			return new AuthenticationResult(Status.deny, null, null);
+			return LocalAuthenticationResult.failed();
 		}
 	}
 	

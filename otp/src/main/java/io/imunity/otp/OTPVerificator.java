@@ -18,9 +18,10 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -81,7 +82,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 		} catch (Exception e)
 		{
 			log.info("The user for OTP authN can not be found: " + subject, e);
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"));
 		}
 		
 		try
@@ -95,15 +96,15 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			if (!valid)
 			{
 				log.info("Code provided by {} is invalid", subject);
-				return new AuthenticationResult(Status.deny, null);
+				return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"));
 			}
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, 
 					credState.outdated ? resolved.getCredentialName() : null);
-			return new AuthenticationResult(Status.success, ae);
+			return LocalAuthenticationResult.successful(ae);
 		} catch (Exception e)
 		{
 			log.warn("Error during TOTP verification for " + subject, e);
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"));
 		}
 	}
 	

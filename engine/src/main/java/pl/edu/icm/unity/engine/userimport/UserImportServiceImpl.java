@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -127,22 +128,17 @@ public class UserImportServiceImpl implements UserImportSerivce
 			} catch (AuthenticationException e)
 			{
 				log.debug("User import has thrown an authentication exception, skipping it", e);
-				ret.add(new ImportResult(userImport.importerKey,
-						new AuthenticationResult(Status.notApplicable, null)));
+				ret.add(new ImportResult(userImport.importerKey, RemoteAuthenticationResult.notApplicable()));
 				continue;
 			} catch (Exception e)
 			{
 				log.debug("User import has thrown an exception, skipping it", e);
-				ret.add(new ImportResult(userImport.importerKey,
-						new AuthenticationResult(Status.notApplicable, null)));
+				ret.add(new ImportResult(userImport.importerKey, RemoteAuthenticationResult.notApplicable()));
 				continue;
 			}
 			
-			if (result != null)
-				ret.add(new ImportResult(userImport.importerKey, result));
-			else
-				ret.add(new ImportResult(userImport.importerKey, 
-						new AuthenticationResult(Status.notApplicable, null)));
+			ret.add(new ImportResult(userImport.importerKey, result != null ? 
+					result : RemoteAuthenticationResult.notApplicable()));
 			
 			if (result != null && result.getStatus() != Status.notApplicable)
 			{

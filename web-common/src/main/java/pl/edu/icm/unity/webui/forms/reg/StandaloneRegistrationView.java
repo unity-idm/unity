@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
@@ -93,7 +94,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
 		this.editorCreator = editorCreator;
-		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
+		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener(), msg);
 		this.autoLoginProcessor = autoLogin;
 		this.imageAccessService = imageAccessService;
 	}
@@ -417,10 +418,10 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		header.setInteractionsEnabled(isEnabled);
 	}
 
-	private void switchTo2ndStagePostAuthn(AuthenticationResult result)
+	private void switchTo2ndStagePostAuthn(RemoteAuthenticationResult result)
 	{
 		enableSharedComponentsAndHideAuthnProgress();
-		showSecondStage(result.getRemoteAuthnContext(), TriggeringMode.afterRemoteLoginFromRegistrationForm,
+		showSecondStage(result.getRemotelyAuthenticatedPrincipal(), TriggeringMode.afterRemoteLoginFromRegistrationForm,
 				false);
 	}
 	
@@ -477,7 +478,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		public void onUnknownUser(AuthenticationResult result)
 		{
 			log.info("External authentication resulted in unknown user, proceeding to 2nd stage");
-			switchTo2ndStagePostAuthn(result);
+			switchTo2ndStagePostAuthn(result.asRemote());
 		}
 
 		@Override

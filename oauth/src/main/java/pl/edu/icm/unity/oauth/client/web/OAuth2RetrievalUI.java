@@ -25,7 +25,6 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -33,20 +32,19 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
-import pl.edu.icm.unity.oauth.client.UnexpectedIdentityException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -252,63 +250,16 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
-		log.debug("RetrievalUI received OAuth response");
-		AuthenticationResult authnResult;
+		log.debug("RetrievalUI received OAuth response {}", authnContext.getRelayState());
+		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
+				.getSession()
+				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_REQUEST_ATTRIBUTE);
 		
-		String reason = null;
-		String error = null;
-		AuthenticationException savedException = null;
-		try
-		{
-			authnResult = credentialExchange.verifyOAuthAuthzResponse(authnContext);
-		} catch (AuthenticationException e)
-		{
-			savedException = e;
-			reason = NotificationPopup.getHumanMessage(e, "<br>");
-			authnResult = e.getResult();
-		} catch (UnexpectedIdentityException uie)
-		{
-			error = msg.getMessage("OAuth2Retrieval.unexpectedUser", uie.expectedIdentity);
-			authnResult = new AuthenticationResult(Status.deny, null);
-		} catch (Exception e)
-		{
-			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
-			authnResult = new AuthenticationResult(Status.deny, null);
-		}
-		
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(
-				authnContext.getProviderConfigKey()); 
-		String regFormForUnknown = providerProps.getValue(CommonWebAuthnProperties.REGISTRATION_FORM);
-		if (regFormForUnknown != null)
-			authnResult.setFormForUnknownPrincipal(regFormForUnknown);
-		boolean enableAssociation = providerProps.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION) ?
-				providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
-				clientProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
-		authnResult.setEnableAssociation(enableAssociation);
-		
-		if (authnResult.getStatus() == Status.success)
-		{
-			breakLogin();
+		clear();
+		if (authnResult.getStatus() == Status.success || authnResult.getStatus() == Status.unknownRemotePrincipal)
 			callback.onCompletedAuthentication(authnResult);
-		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal)
-		{
-			clear();
-			callback.onCompletedAuthentication(authnResult);
-		} else
-		{
-			if (savedException != null)
-				log.warn("OAuth2 authorization code verification or processing failed", 
-						savedException);
-			else
-				log.warn("OAuth2 authorization code verification or processing failed");
-			Optional<String> errorDetail = reason == null ? Optional.empty() : 
-				Optional.of(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
-			if (error == null)
-				error = msg.getMessage("OAuth2Retrieval.authnFailedError");
-			clear();
-			callback.onFailedAuthentication(authnResult, error, errorDetail);
-		}
+		else
+			callback.onFailedAuthentication(authnResult);
 	}
 
 	@Override

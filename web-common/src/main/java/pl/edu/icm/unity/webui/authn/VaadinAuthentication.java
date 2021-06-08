@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.server.Resource;
@@ -186,7 +185,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		/**
 		 * Should be called after authentication result is obtained and authentication has failed
 		 */
-		void onFailedAuthentication(AuthenticationResult result, String error, Optional<String> errorDetail);
+		void onFailedAuthentication(AuthenticationResult result);
 		
 		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 

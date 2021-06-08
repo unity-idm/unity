@@ -25,8 +25,8 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
@@ -53,7 +53,7 @@ public class IdPEngineImplBaseTest
 		
 		when(userImportService.importUser(any())).thenReturn(
 				Lists.newArrayList(
-					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
+					new UserImportSerivce.ImportResult("imp1", RemoteAuthenticationResult.successful(null, null))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -92,7 +92,7 @@ public class IdPEngineImplBaseTest
 				new Entity(Lists.newArrayList(new Identity("idType", "id", 1, "id")), null, null));
 		when(userImportService.importToExistingUser(any(), any())).thenReturn(
 				Lists.newArrayList(
-					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
+					new UserImportSerivce.ImportResult("imp1", RemoteAuthenticationResult.successful(null, null))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -134,7 +134,7 @@ public class IdPEngineImplBaseTest
 				new Entity(Lists.newArrayList(new Identity("idType", "id", 1, "id")), null, null));
 		when(userImportService.importToExistingUser(any(), any())).thenReturn(
 				Lists.newArrayList(
-					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
+					new UserImportSerivce.ImportResult("imp1", RemoteAuthenticationResult.successful(null, null))));
 		
 		when(insecureAttributesMan.getAttributes(eq(clientEntity), eq("/GROUP"), eq(null)))
 				.thenReturn(clientAttributes);

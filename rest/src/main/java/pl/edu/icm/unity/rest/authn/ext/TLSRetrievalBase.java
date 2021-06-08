@@ -16,7 +16,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
@@ -54,15 +54,13 @@ public abstract class TLSRetrievalBase extends AbstractCredentialRetrieval<Certi
 	{
 		X509Certificate[] certificates = getTLSCertificates();
 		if (certificates == null)
-		{
-			return new AuthenticationResult(Status.notApplicable, null);
-		}
+			return LocalAuthenticationResult.notApplicable();
 		try
 		{
-			return credentialExchange.checkCertificate(certificates, null);
+			return credentialExchange.checkCertificate(certificates, null, null, false);
 		} catch (Exception e)
 		{
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed();
 		}
 	}
 

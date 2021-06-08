@@ -20,7 +20,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
@@ -63,7 +63,7 @@ public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<Ac
 		if (authnToken == null)
 		{
 			log.trace("No HTTP Bearer access token header was found");
-			return new AuthenticationResult(Status.notApplicable, null);
+			return LocalAuthenticationResult.notApplicable();
 		}
 		log.trace("HTTP Bearer access token header found");
 		try
@@ -72,7 +72,7 @@ public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<Ac
 		} catch (Exception e)
 		{
 			log.debug("HTTP Bearer access token is invalid or its processing failed", e);
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed();
 		}
 
 	}

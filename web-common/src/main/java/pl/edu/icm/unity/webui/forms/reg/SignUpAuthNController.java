@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import java.util.Optional;
-
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinRequest;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -34,11 +34,14 @@ public class SignUpAuthNController
 	private SignUpAuthNControllerListener listener;
 	
 	private AuthNOption selectedAuthNOption;
+	private final MessageSource msg;
 	
-	public SignUpAuthNController(AuthenticationProcessor authnProcessor, SignUpAuthNControllerListener listener)
+	public SignUpAuthNController(AuthenticationProcessor authnProcessor, SignUpAuthNControllerListener listener, 
+			MessageSource msg)
 	{
 		this.authnProcessor = authnProcessor;
 		this.listener = listener;
+		this.msg = msg;
 	}
 
 	public AuthenticationCallback buildCallback(AuthNOption option)
@@ -46,9 +49,9 @@ public class SignUpAuthNController
 		return new SignUpAuthnCallback(option);
 	}
 	
-	private void processAuthn(AuthenticationResult result, String error)
+	private void processAuthn(AuthenticationResult result)
 	{
-		LOG.info("Processing results of remote authentication {}, {}", result, error);
+		LOG.info("Processing results of remote authentication {}", result);
 		if (LOG.isDebugEnabled())
 			LOG.debug("Complete remote authn context:\n{}", result.toStringFull());
 		try
@@ -65,7 +68,8 @@ public class SignUpAuthNController
 				listener.onUnknownUser(result);
 			} else
 			{
-				listener.onAuthnError(e, error);
+				String originalError = result.getStatus() == Status.deny ? result.getErrorResult().error.resovle(msg) : null;
+				listener.onAuthnError(e, originalError);
 			}
 		}
 	}
@@ -109,13 +113,13 @@ public class SignUpAuthNController
 		@Override
 		public void onCompletedAuthentication(AuthenticationResult result)
 		{
-			processAuthn(result, null);
+			processAuthn(result);
 		}
 
 		@Override
-		public void onFailedAuthentication(AuthenticationResult result, String error, Optional<String> errorDetail)
+		public void onFailedAuthentication(AuthenticationResult result)
 		{
-			processAuthn(result, error);
+			processAuthn(result);
 		}
 
 		@Override

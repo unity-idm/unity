@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.additional;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
@@ -67,8 +66,7 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	}
 	
 	@Override
-	public void onFailedAuthentication(AuthenticationResult result, String error,
-			Optional<String> errorDetail)
+	public void onFailedAuthentication(AuthenticationResult result)
 	{
 		log.trace("Received authentication result of the additional authentication {}", result);
 		resultConsumer.accept(AuthnResult.ERROR);
