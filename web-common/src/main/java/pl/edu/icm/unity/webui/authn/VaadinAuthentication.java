@@ -183,11 +183,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		void onCompletedAuthentication(AuthenticationResult result);
 
 		/**
-		 * Should be called after authentication result is obtained and authentication has failed
-		 */
-		void onFailedAuthentication(AuthenticationResult result);
-		
-		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 
 		 * in the component
 		 */

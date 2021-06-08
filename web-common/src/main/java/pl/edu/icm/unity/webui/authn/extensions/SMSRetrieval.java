@@ -364,7 +364,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			{
 				setError();
 				usernameField.focus();
-				callback.onFailedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult);
 			}
 		}
 		

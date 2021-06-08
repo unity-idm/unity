@@ -216,14 +216,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
 				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
-				if (authenticationResult.getStatus() == Status.deny)
-				{
-					callback.onFailedAuthentication(authenticationResult);
-				} else
-				{
-					setEnabled(false);
-					callback.onCompletedAuthentication(authenticationResult);
-				}
+				callback.onCompletedAuthentication(authenticationResult);
 			}
 		}
 		

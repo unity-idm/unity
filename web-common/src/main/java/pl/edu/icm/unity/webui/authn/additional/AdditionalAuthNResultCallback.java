@@ -54,7 +54,7 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 			updateLoginSessionInHttpSession();
 		}
 		
-		resultConsumer.accept(result.getStatus() == Status.success? AuthnResult.SUCCESS : AuthnResult.ERROR);
+		resultConsumer.accept(result.getStatus() == Status.success ? AuthnResult.SUCCESS : AuthnResult.ERROR);
 	}
 
 	private void updateLoginSessionInHttpSession()
@@ -63,13 +63,6 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 		VaadinSession vSession = VaadinSession.getCurrent();
 		if (vSession != null)
 			vSession.getSession().setAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY, updatedSession);
-	}
-	
-	@Override
-	public void onFailedAuthentication(AuthenticationResult result)
-	{
-		log.trace("Received authentication result of the additional authentication {}", result);
-		resultConsumer.accept(AuthnResult.ERROR);
 	}
 	
 	@Override

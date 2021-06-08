@@ -192,13 +192,13 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 				usernameField.focus();
 				AuthenticationResult exposedError = LocalAuthenticationResult.failed(
 						new ResolvableError("Fido.invalidUsername"));
-				callback.onFailedAuthentication(exposedError);
+				callback.onCompletedAuthentication(exposedError);
 			} else
 			{
 				usernameField.focus();
 				AuthenticationResult exposedError = LocalAuthenticationResult.failed(
 						new ResolvableError("Fido.authFailed"));
-				callback.onFailedAuthentication(exposedError);
+				callback.onCompletedAuthentication(exposedError);
 			}
 		}
 

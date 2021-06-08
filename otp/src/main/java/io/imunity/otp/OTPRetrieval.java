@@ -220,7 +220,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			} else if (authenticationResult.getStatus() == Status.deny)
 			{
 				usernameField.focus();
-				callback.onFailedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult);
 			} else
 			{
 				throw new IllegalStateException("Got unsupported status from verificator: " 

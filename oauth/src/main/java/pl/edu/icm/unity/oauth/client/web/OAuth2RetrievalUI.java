@@ -26,7 +26,6 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -256,10 +255,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_REQUEST_ATTRIBUTE);
 		
 		clear();
-		if (authnResult.getStatus() == Status.success || authnResult.getStatus() == Status.unknownRemotePrincipal)
-			callback.onCompletedAuthentication(authnResult);
-		else
-			callback.onFailedAuthentication(authnResult);
+		callback.onCompletedAuthentication(authnResult);
 	}
 
 	@Override

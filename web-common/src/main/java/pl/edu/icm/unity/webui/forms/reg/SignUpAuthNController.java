@@ -117,12 +117,6 @@ public class SignUpAuthNController
 		}
 
 		@Override
-		public void onFailedAuthentication(AuthenticationResult result)
-		{
-			processAuthn(result);
-		}
-
-		@Override
 		public void onCancelledAuthentication()
 		{
 			resetSelectedAuthNOption();
