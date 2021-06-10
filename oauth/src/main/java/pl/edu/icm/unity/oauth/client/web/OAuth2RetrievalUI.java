@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
-
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,14 +16,12 @@ import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -43,7 +39,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -231,7 +226,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
-			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, context.getAuthenticationStepContext().authnOptionId);
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
@@ -247,38 +241,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	
-	/**
-	 * Called when a OAuth authorization code response is received.
-	 */
-	private void onAuthzAnswer(OAuthContext authnContext)
-	{
-		log.debug("RetrievalUI received OAuth response {}", authnContext.getRelayState());
-		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
-				.getSession()
-				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_SESSION_ATTRIBUTE);
-		
-		clear();
-		callback.onCompletedAuthentication(authnResult);
-	}
-
-	@Override
-	public void refresh(VaadinRequest request) 
-	{
-		WrappedSession session = request.getWrappedSession();
-		OAuthContext context = (OAuthContext) session.getAttribute(
-				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-		if (context == null)
-		{
-			log.trace("Either user refreshes page, or different authN arrived");
-		} else if (!context.isAnswerPresent()) 
-		{
-			log.debug("Authentication started but OAuth2 response not arrived (user back button)");
-		} else 
-		{
-			onAuthzAnswer(context);
-		}
-	}
-
 	@Override
 	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 	{

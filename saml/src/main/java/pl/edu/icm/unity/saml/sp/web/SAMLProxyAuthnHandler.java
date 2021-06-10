@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
@@ -108,8 +106,6 @@ class SAMLProxyAuthnHandler
 			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext);
 			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
-			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
-					context.getAuthenticationStepContext().authnOptionId);
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)
 		{

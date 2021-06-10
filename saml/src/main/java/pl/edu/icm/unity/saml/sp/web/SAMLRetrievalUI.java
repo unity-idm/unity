@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
-
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,7 +16,6 @@ import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
@@ -26,7 +23,6 @@ import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -42,7 +38,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
@@ -210,8 +205,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		idpComponent.setEnabled(false);
 		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
-		session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
-				context.getAuthenticationStepContext().authnOptionId);
 		samlContextManagement.addAuthnContext(context);
 
 		URI requestURI = Page.getCurrent().getLocation();
@@ -219,38 +212,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
-	private void onSamlAnswer(RemoteAuthnContext authnContext)
-	{
-		log.debug("Processing SAML answer for request {}", authnContext.getRequestId());
-		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
-				.getSession()
-				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_SESSION_ATTRIBUTE);
-		clear();
-		callback.onCompletedAuthentication(authnResult);
-	}
-
 	@Override
 	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{
 		this.callback = callback;
-	}
-
-	@Override
-	public void refresh(VaadinRequest request)
-	{
-		WrappedSession session = request.getWrappedSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session
-				.getAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context == null)
-		{
-			log.trace("Either user refreshes page, or different authN arrived");
-		} else if (context.getResponse() == null)
-		{
-			log.debug("Authentication started but SAML response not arrived (user back button)");
-		} else
-		{
-			onSamlAnswer(context);
-		}
 	}
 
 	@Override

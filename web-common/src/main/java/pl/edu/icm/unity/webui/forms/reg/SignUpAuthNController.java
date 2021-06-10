@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.server.VaadinRequest;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -74,12 +72,6 @@ public class SignUpAuthNController
 		}
 	}
 	
-	public void refresh(VaadinRequest request)
-	{
-		if (selectedAuthNOption != null)
-			selectedAuthNOption.authenticatorUI.refresh(request);
-	}
-
 	public void manualCancel()
 	{
 		if (selectedAuthNOption != null)

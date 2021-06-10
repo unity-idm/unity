@@ -17,9 +17,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
  */
 public class RemoteAuthnState
 {
-	public static final String CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE = RemoteAuthnState.class.getName() 
-			+ "_authenticatorOptionId";
-	
 	private final String relayState;
 	private final Date creationTime;
 	private final AuthenticationStepContext authenticationContext;

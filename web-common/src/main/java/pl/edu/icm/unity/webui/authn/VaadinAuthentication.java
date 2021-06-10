@@ -8,11 +8,9 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -113,12 +111,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * Called after login was cancelled or finished, so the component can clear its state. 
 		 */
 		void clear();
-
-		/**
-		 * Invoked when browser refreshes.
-		 * @param request that caused UI to be reloaded 
-		 */
-		void refresh(VaadinRequest request);
 
 		/**
 		 * @return unique identifier of this authentication option. The id must be unique among  

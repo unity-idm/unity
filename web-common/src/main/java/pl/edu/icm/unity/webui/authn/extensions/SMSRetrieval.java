@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.base.Strings;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -500,12 +499,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void refresh(VaadinRequest request)
-		{
-			// nop
 		}
 
 		@Override

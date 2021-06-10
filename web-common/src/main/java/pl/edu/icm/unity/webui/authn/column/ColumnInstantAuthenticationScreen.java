@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 import java.util.Collection;
@@ -88,7 +87,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private FirstFactorAuthNPanel authNPanelInProgress;
 	private CheckBox rememberMe;
-	private RemoteAuthenticationProgress authNProgress;
 	private AuthnOptionsColumns authNColumns;
 	private VerticalLayout secondFactorHolder;
 	private Component rememberMeComponent;
@@ -159,11 +157,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 
 		topLevelLayout.addComponent(topHeader);
 		topLevelLayout.setComponentAlignment(topHeader, Alignment.MIDDLE_RIGHT);
-		
-		authNProgress = new RemoteAuthenticationProgress(msg, this::triggerAuthNCancel);
-		topLevelLayout.addComponent(authNProgress);
-		authNProgress.setInternalVisibility(false);
-		topLevelLayout.setComponentAlignment(authNProgress, Alignment.TOP_RIGHT);
 		
 		Component authnOptionsComponent = getAuthenticationComponent();
 		topLevelLayout.addComponent(authnOptionsComponent);
@@ -353,62 +346,18 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 							unknownUserDialogProvider);
 			remoteFirstFactorResultProcessor.onCompletedAuthentication(authnResult, authnStepContext);
 		}
-
-		//TODO KB drop properly
-		
-//		if (authNPanelInProgress != null)
-//		{
-//			log.debug("Refreshing authentication state via in-progress panel");
-//			authNPanelInProgress.refresh(request);
-//		} else
-//		{
-//			log.debug("Refreshing authentication state from scratch");
-//			authNColumns.enableAll();
-//			enableSharedWidgets(true);
-//			
-//			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
-//			// - when initial authN was started without loading UI (e.g. autoLogin feature)
-//			// - or when Vaadin decides to reload the UI what sometimes happen due to unknown reasons
-//			Optional<AuthenticationOptionKey> sessionStoredIdp = getSessionStoredRemoteAuthnOptionId();
-//			sessionStoredIdp.ifPresent(authnOptionId -> 
-//			{
-//				log.debug("Got session stored authn option id: {}", authnOptionId);
-//				authNColumns.refreshAuthenticatorWithId(authnOptionId.toStringEncodedKey(), request);
-//			});
-//		}
-	}
-
-	private Optional<AuthenticationOptionKey> getSessionStoredRemoteAuthnOptionId()
-	{
-		VaadinSession vSession = VaadinSession.getCurrent();
-		if (vSession == null)
-			return Optional.empty();
-		WrappedSession session = vSession.getSession();
-		AuthenticationOptionKey remoteAuthnOptionId = (AuthenticationOptionKey) 
-				session.getAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
-		session.removeAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE);
-		return Optional.ofNullable(remoteAuthnOptionId);
-	}
-	
-	private void triggerAuthNCancel() 
-	{
-		if (authNPanelInProgress != null)
-			authNPanelInProgress.cancel();
-		onAbortedAuthentication();
 	}
 
 	private void onAbortedAuthentication()
 	{
 		authNColumns.enableAll();
 		enableSharedWidgets(true);
-		authNProgress.setInternalVisibility(false);
 		authNPanelInProgress = null;
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
 		enableSharedWidgets(true);
-		authNProgress.setInternalVisibility(false);
 		authNPanelInProgress = null;
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
 		
@@ -479,7 +428,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private void onCompletedAuthentication()
 	{
 		authNPanelInProgress = null;
-		authNProgress.setInternalVisibility(false);
 	}
 	
 	private class AuthnPanelFactoryImpl implements AuthNPanelFactory
@@ -512,7 +460,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		public void authenticationStarted(boolean showProgress)
 		{
 			authNPanelInProgress = authNPanel;
-			authNProgress.setInternalVisibility(showProgress);
 			authNColumns.disableAllExcept(optionId);
 			enableSharedWidgets(false);
 		}

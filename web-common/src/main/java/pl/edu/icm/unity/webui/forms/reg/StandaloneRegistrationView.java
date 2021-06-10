@@ -389,7 +389,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	
 	public void refresh(VaadinRequest request)
 	{
-		signUpAuthNController.refresh(request);
 		if (currentRegistrationFormEditor != null)
 			currentRegistrationFormEditor.focusFirst();
 	}
@@ -406,7 +405,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private void enableSharedComponentsAndHideAuthnProgress()
 	{
 		enableSharedWidgets(true);
-		header.setAuthNProgressVisibility(false);
 	}
 	
 	private void enableSharedWidgets(boolean isEnabled)
@@ -513,7 +511,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		{
 			log.debug("External authentication started");
 			enableSharedWidgets(false);
-			header.setAuthNProgressVisibility(showProgress);
 		}
 	}
 }
