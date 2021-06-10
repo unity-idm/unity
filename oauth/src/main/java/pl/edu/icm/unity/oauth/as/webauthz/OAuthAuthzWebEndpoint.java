@@ -161,7 +161,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
-				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
+				description.getRealm());
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		

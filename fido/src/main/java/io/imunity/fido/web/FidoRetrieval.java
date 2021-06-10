@@ -34,6 +34,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
@@ -100,7 +101,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new FidoRetrievalUI(credEditorReg.getEditor(FidoCredentialVerificator.NAME)));

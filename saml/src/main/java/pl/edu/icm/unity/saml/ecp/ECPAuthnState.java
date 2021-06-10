@@ -7,8 +7,8 @@ package pl.edu.icm.unity.saml.ecp;
 import java.util.function.Function;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
  * State of the ECP authentication, i.e. records the info about a request provided via PAOS, 
@@ -19,10 +19,10 @@ public class ECPAuthnState extends RemoteAuthnState
 {
 	private String requestId;
 
-	public ECPAuthnState(AuthenticationOptionKey authenticatorOptionId, 
+	public ECPAuthnState(AuthenticationStepContext authenticationContext, 
 			Function<RemoteAuthnState, AuthenticationResult> responseHandler) 
 	{
-		super(authenticatorOptionId, responseHandler);
+		super(authenticationContext, responseHandler);
 	}
 
 	public void setRequestId(String requestId)

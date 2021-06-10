@@ -26,6 +26,7 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -33,7 +34,6 @@ import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
@@ -57,37 +57,39 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	
-	private MessageSource msg;
-	private ImageAccessService imageAccessService;
-	private OAuthExchange credentialExchange;
-	private OAuthContextsManagement contextManagement;
+	private final MessageSource msg;
+	private final ImageAccessService imageAccessService;
+	private final OAuthExchange credentialExchange;
+	private final OAuthContextsManagement contextManagement;
 	private final String configKey;
 	private final String idpKey;
+	private final Context context;
+	private final AuthenticationStepContext authenticationStepContext;
 	
 	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
 	private Component main;
-	private String authenticatorName;
 
 	private IdPAuthNComponent idpComponent;
-	private Context context;
 
 	private ExpectedIdentity expectedIdentity;
 
+
 	public OAuth2RetrievalUI(MessageSource msg, ImageAccessService imageAccessService, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
-			String idpKey, String configKey, String authenticatorName, Context context)
+			String configKey, Context context, 
+			AuthenticationStepContext authenticationStepContext)
 	{
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
-		this.idpKey = idpKey;
+		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();;
 		this.configKey = configKey;
-		this.authenticatorName = authenticatorName;
 		this.context = context;
+		this.authenticationStepContext = authenticationStepContext;
 		initUI();
 	}
 
@@ -134,7 +136,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private String getRetrievalClassName()
 	{
-		return authenticatorName + "." + idpKey;
+		return authenticationStepContext.authnOptionId.getAuthenticatorKey() + "." + idpKey;
 	}
 	
 	@Override
@@ -221,14 +223,15 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	{
 		try
 		{
+			
 			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-					new AuthenticationOptionKey(authenticatorName, idpKey));
+					authenticationStepContext);
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
-			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, context.getAuthenticatorOptionId());
+			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, context.getAuthenticationStepContext().authnOptionId);
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
@@ -252,7 +255,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		log.debug("RetrievalUI received OAuth response {}", authnContext.getRelayState());
 		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
 				.getSession()
-				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_REQUEST_ATTRIBUTE);
+				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_SESSION_ATTRIBUTE);
 		
 		clear();
 		callback.onCompletedAuthentication(authnResult);

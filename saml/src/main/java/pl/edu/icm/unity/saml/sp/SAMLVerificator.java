@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
@@ -63,7 +64,6 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -274,10 +274,11 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationOptionKey authnOptionId)
+	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, 
+			AuthenticationStepContext authnStepContext)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				authnOptionId, this::processResponse);
+				authnStepContext, this::processResponse);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))
@@ -297,9 +298,10 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
 	{
+		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
 		try
 		{
-			return verifySAMLResponse((RemoteAuthnContext) remoteAuthnState);
+			return verifySAMLResponse(castedState);
 		} catch (AuthenticationException e)
 		{
 			//TODO KB drop authenticationException, make sure to pass error info with AuthnResult
@@ -308,7 +310,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		} catch (Exception e)
 		{
 			log.error("Runtime error during SAML response processing or principal mapping", e);
-			return RemoteAuthenticationResult.failed(null, new ResolvableError("WebSAMLRetrieval.authnFailedError"));
+			return RemoteAuthenticationResult.failed(null, 
+					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		}
 	}
 	

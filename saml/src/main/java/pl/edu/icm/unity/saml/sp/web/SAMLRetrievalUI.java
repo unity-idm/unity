@@ -27,13 +27,13 @@ import com.vaadin.ui.UI;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
@@ -60,38 +60,34 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 
-	private MessageSource msg;
-	private URIAccessService uriAccessService;
+	private final MessageSource msg;
+	private final URIAccessService uriAccessService;
+	private final AuthenticationStepContext authenticationStepContext;
+	private final SAMLExchange credentialExchange;
+	private final String configKey;
+	private final String idpKey;
+	private final SamlContextManagement samlContextManagement;
 	
-
-	private SAMLExchange credentialExchange;
+	private IdPVisalSettings configuration;
+	private Set<String> tags;
+	private Component main;
+	private final Context context;
+	private IdPAuthNComponent idpComponent;
 	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
-	private String configKey;
-	private String idpKey;
-	private IdPVisalSettings configuration;
-	private SamlContextManagement samlContextManagement;
-	private Set<String> tags;
-
-	private Component main;
-	private String authenticatorName;
-	private Context context;
-
-	private IdPAuthNComponent idpComponent;
-
 	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
-			SamlContextManagement samlContextManagement, String idpKey, String configKey,
-			String authenticatorName, Context context)
+			SamlContextManagement samlContextManagement, String configKey,
+			Context context, AuthenticationStepContext authenticationStepContext)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
-		this.idpKey = idpKey;
+		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();
 		this.configKey = configKey;
-		this.authenticatorName = authenticatorName;
+		this.authenticationStepContext = authenticationStepContext;
 		this.configuration = credentialExchange.getVisualSettings(configKey, msg.getLocale());
 		this.context = context;
 		initUI();
@@ -142,7 +138,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private String getRetrievalClassName()
 	{
-		return authenticatorName + "." + idpKey;
+		return authenticationStepContext.authnOptionId.getAuthenticatorKey() + "." + idpKey;
 	}
 
 	private String installRequestHandler()
@@ -201,7 +197,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
-					new AuthenticationOptionKey(authenticatorName, idpKey));
+					authenticationStepContext);
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
@@ -214,7 +210,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		idpComponent.setEnabled(false);
 		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
-		session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, context.getAuthenticatorOptionId());
+		session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
+				context.getAuthenticationStepContext().authnOptionId);
 		samlContextManagement.addAuthnContext(context);
 
 		URI requestURI = Page.getCurrent().getLocation();
@@ -227,7 +224,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		log.debug("Processing SAML answer for request {}", authnContext.getRequestId());
 		AuthenticationResult authnResult = (AuthenticationResult) VaadinSession.getCurrent()
 				.getSession()
-				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_REQUEST_ATTRIBUTE);
+				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_SESSION_ATTRIBUTE);
 		clear();
 		callback.onCompletedAuthentication(authnResult);
 	}

@@ -18,6 +18,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
@@ -72,14 +74,14 @@ class OAuthProxyAuthnHandler
 	}
 
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse, endpointPath);
+		return startLogin(idpKey, httpRequest, httpResponse, endpointPath, context);
 	}
 	
 	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
 		OAuthContext context = (OAuthContext) session.getAttribute(
@@ -94,12 +96,12 @@ class OAuthProxyAuthnHandler
 		try
 		{
 			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
-					getAuthnOptionId(idpConfigKey));
+					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)));
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
-					context.getAuthenticatorOptionId());
+					context.getAuthenticationStepContext().authnOptionId);
 		} catch (Exception e)
 		{
 			throw new IllegalStateException("Can not create OAuth2 authN request", e);

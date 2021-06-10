@@ -64,6 +64,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
@@ -83,7 +84,6 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -177,7 +177,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	@Override
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationOptionKey authnOptionId) 
+			AuthenticationStepContext authnStepContext) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -187,7 +187,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
-		OAuthContext context = new OAuthContext(authnOptionId, this::processResponse);
+		OAuthContext context = new OAuthContext(authnStepContext, this::processResponse);
 		AuthorizationRequest req;
 		if (openidMode)
 		{

@@ -18,6 +18,7 @@ import org.apache.xmlbeans.XmlCursor;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -69,7 +70,9 @@ public class ECPStep1Handler
 		
 		//TODO KB
 		Function<RemoteAuthnState, AuthenticationResult> responseHandler = null;
-		ECPAuthnState context = new ECPAuthnState(new AuthenticationOptionKey("-", "-"), responseHandler);
+		AuthenticationStepContext authenticationContext = new AuthenticationStepContext(null, null, 
+				new AuthenticationOptionKey("-", "-"), 1);
+		ECPAuthnState context = new ECPAuthnState(authenticationContext, responseHandler);
 		EnvelopeDocument envDoc = generateECPEnvelope(context);
 		samlContextManagement.addAuthnContext(context);
 		

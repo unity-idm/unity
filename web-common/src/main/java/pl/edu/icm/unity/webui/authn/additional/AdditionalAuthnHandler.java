@@ -16,6 +16,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -62,8 +63,12 @@ public class AdditionalAuthnHandler
 			Consumer<AuthnResult> resultCallback)
 	{
 		String authenticator = exception.authenticationOption;
-		VaadinAuthentication authn = getRetrieval(authenticator);
-		VaadinAuthenticationUI authenticationUI = authn.createUIInstance(Context.LOGIN).iterator().next();
+		AuthenticatorWithFlow authnPlusFlow = getRetrieval(authenticator);
+		
+		AuthenticatorStepContext context = new AuthenticatorStepContext(InvocationContext.getCurrent().getRealm(),
+				authnPlusFlow.flow, 1);
+		VaadinAuthenticationUI authenticationUI = authnPlusFlow.authenticator.createUIInstance(Context.LOGIN,
+				context).iterator().next();
 		Entity entity = getCurrentEntity();
 		authenticationUI.presetEntity(entity);
 
@@ -107,14 +112,26 @@ public class AdditionalAuthnHandler
 		resultCallback.accept(AuthnResult.CANCEL);
 	}
 	
-	private VaadinAuthentication getRetrieval(String authenticator)
+	private AuthenticatorWithFlow getRetrieval(String authenticator)
 	{
 		List<AuthenticationFlow> endpointFlows = InvocationContext.getCurrent().getEndpointFlows();
 		for (AuthenticationFlow flow: endpointFlows)
 			for (AuthenticatorInstance authn: flow.getAllAuthenticators())
 				if (authenticator.equals(authn.getMetadata().getId()))
-					return (VaadinAuthentication) authn.getRetrieval();
+					return new AuthenticatorWithFlow((VaadinAuthentication) authn.getRetrieval(), flow);
 		throw new IllegalStateException("Got request for additional authentication with " + authenticator + 
 				" which is not available on the endpoint");
+	}
+	
+	private static class AuthenticatorWithFlow
+	{
+		final VaadinAuthentication authenticator;
+		final AuthenticationFlow flow;
+		
+		AuthenticatorWithFlow(VaadinAuthentication authenticator, AuthenticationFlow flow)
+		{
+			this.authenticator = authenticator;
+			this.flow = flow;
+		}
 	}
 }

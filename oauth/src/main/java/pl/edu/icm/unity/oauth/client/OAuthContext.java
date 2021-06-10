@@ -10,8 +10,8 @@ import java.util.function.Function;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
 
@@ -32,10 +32,10 @@ public class OAuthContext extends RemoteAuthnState
 	private String providerConfigKey;
 	private ExpectedIdentity expectedIdentity; 
 
-	public OAuthContext(AuthenticationOptionKey authenticatorOptionId, 
+	public OAuthContext(AuthenticationStepContext authnStepContext, 
 			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
 	{
-		super(authenticatorOptionId, responseHandler);
+		super(authnStepContext, responseHandler);
 	}
 
 	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)

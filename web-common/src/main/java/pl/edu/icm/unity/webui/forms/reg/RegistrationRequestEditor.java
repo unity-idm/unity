@@ -38,7 +38,9 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
@@ -351,14 +353,18 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			{
 				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
 				String authenticatorKey = vaadinAuthenticator.getAuthenticatorId();
-				Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(Context.REGISTRATION);
+				AuthenticatorStepContext context = new AuthenticatorStepContext(
+						InvocationContext.getCurrent().getRealm(), flow, 1);
+				Collection<VaadinAuthenticationUI> optionUIInstances = 
+						vaadinAuthenticator.createUIInstance(Context.REGISTRATION, context);
 				for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 				{
 					String optionKey = vaadinAuthenticationUI.getId();
 					AuthenticationOptionKey authnOption = new AuthenticationOptionKey(authenticatorKey, optionKey);
 					if (formSignupSpec.stream().anyMatch(selector -> selector.matchesAuthnOption(authnOption)))
 					{
-						AuthNOption signupAuthNOption = new AuthNOption(flow, vaadinAuthenticator,  vaadinAuthenticationUI);
+						AuthNOption signupAuthNOption = new AuthNOption(flow, 
+								vaadinAuthenticator,  vaadinAuthenticationUI);
 						setupExpectedIdentity(vaadinAuthenticationUI);
 						externalSignupOptions.put(authnOption, signupAuthNOption);
 					}

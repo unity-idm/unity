@@ -36,6 +36,8 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -54,6 +56,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -143,7 +146,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	protected void init()
 	{
 		log.debug("Authn screen init");
-		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows, endpointDescription.getName());
+		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows, endpointDescription.getName(), 
+				endpointDescription.getRealm());
 		
 		VerticalLayout topLevelLayout = new VerticalLayout();
 		topLevelLayout.setMargin(new MarginInfo(false, true, true, true));
@@ -335,26 +339,43 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 
 	private void refreshAuthenticationState(VaadinRequest request) 
 	{
-		if (authNPanelInProgress != null)
+		WrappedSession session = VaadinSession.getCurrent().getSession();
+		RemoteAuthenticationResult authnResult = (RemoteAuthenticationResult) session
+				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_SESSION_ATTRIBUTE);
+		if (authnResult != null)
 		{
-			log.debug("Refreshing authentication state via in-progress panel");
-			authNPanelInProgress.refresh(request);
-		} else
-		{
-			log.debug("Refreshing authentication state from scratch");
-			authNColumns.enableAll();
-			enableSharedWidgets(true);
-			
-			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
-			// - when initial authN was started without loading UI (e.g. autoLogin feature)
-			// - or when Vaadin decides to reload the UI what sometimes happen due to unknown reasons
-			Optional<AuthenticationOptionKey> sessionStoredIdp = getSessionStoredRemoteAuthnOptionId();
-			sessionStoredIdp.ifPresent(authnOptionId -> 
-			{
-				log.debug("Got session stored authn option id: {}", authnOptionId);
-				authNColumns.refreshAuthenticatorWithId(authnOptionId.toStringEncodedKey(), request);
-			});
+			log.debug("Remote authentication result found in session, triggering its processing");
+			AuthenticationStepContext authnStepContext = (AuthenticationStepContext) session.getAttribute(
+					RemoteAuthnResponseProcessingFilter.AUTHN_CONTEXT_SESSION_ATTRIBUTE);
+			RedirectedAuthnFirstFactorResultProcessor remoteFirstFactorResultProcessor = 
+					new RedirectedAuthnFirstFactorResultProcessor(msg, authnProcessor, 
+							outdatedCredentialDialogLauncher, execService, 
+							unknownUserDialogProvider);
+			remoteFirstFactorResultProcessor.onCompletedAuthentication(authnResult, authnStepContext);
 		}
+
+		//TODO KB drop properly
+		
+//		if (authNPanelInProgress != null)
+//		{
+//			log.debug("Refreshing authentication state via in-progress panel");
+//			authNPanelInProgress.refresh(request);
+//		} else
+//		{
+//			log.debug("Refreshing authentication state from scratch");
+//			authNColumns.enableAll();
+//			enableSharedWidgets(true);
+//			
+//			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
+//			// - when initial authN was started without loading UI (e.g. autoLogin feature)
+//			// - or when Vaadin decides to reload the UI what sometimes happen due to unknown reasons
+//			Optional<AuthenticationOptionKey> sessionStoredIdp = getSessionStoredRemoteAuthnOptionId();
+//			sessionStoredIdp.ifPresent(authnOptionId -> 
+//			{
+//				log.debug("Got session stored authn option id: {}", authnOptionId);
+//				authNColumns.refreshAuthenticatorWithId(authnOptionId.toStringEncodedKey(), request);
+//			});
+//		}
 	}
 
 	private Optional<AuthenticationOptionKey> getSessionStoredRemoteAuthnOptionId()
@@ -390,7 +411,11 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authNProgress.setInternalVisibility(false);
 		authNPanelInProgress = null;
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
-		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN);
+		
+		AuthenticatorStepContext context = new AuthenticatorStepContext(endpointDescription.getRealm(), 
+				partialState.getAuthenticationFlow(), 2);
+		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN,
+				context);
 		if (secondaryAuthnUIs.size() > 1)
 		{
 			log.warn("Configuration error: the authenticator configured as the second "

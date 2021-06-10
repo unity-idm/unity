@@ -9,9 +9,9 @@ import java.util.function.Function;
 
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -32,10 +32,10 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	private SAMLSPProperties samlProperties;
 	private String idpKey;
 
-	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, AuthenticationOptionKey authnOptionKey,
+	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, AuthenticationStepContext context,
 			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
 	{
-		super(authnOptionKey, responseHandler);
+		super(context, responseHandler);
 		this.samlProperties = config.clone();
 		this.idpKey = entryKey;
 	}

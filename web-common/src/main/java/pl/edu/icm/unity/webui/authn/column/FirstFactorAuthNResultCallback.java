@@ -74,11 +74,6 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public void onCompletedAuthentication(AuthenticationResult result)
 	{
-		processAuthn(result);
-	}
-	
-	private void processAuthn(AuthenticationResult result)
-	{
 		log.trace("Received authentication result of the primary authenticator " + result);
 		try
 		{

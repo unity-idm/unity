@@ -18,6 +18,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -50,10 +52,10 @@ class SAMLProxyAuthnHandler
 	}
 	
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse, endpointPath);
+		return startLogin(idpKey, httpRequest, httpResponse, endpointPath, context);
 	}
 
 	private String getIdpConfigKey(HttpServletRequest httpRequest)
@@ -83,7 +85,7 @@ class SAMLProxyAuthnHandler
 	}
 	
 	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
@@ -101,12 +103,13 @@ class SAMLProxyAuthnHandler
 
 		try
 		{
-			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, 
+			AuthenticationStepContext authnStepContext = new AuthenticationStepContext(authnContext, 
 					getAuthnOptionId(idpConfigKey));
+			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext);
 			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
-					context.getAuthenticatorOptionId());
+					context.getAuthenticationStepContext().authnOptionId);
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)
 		{

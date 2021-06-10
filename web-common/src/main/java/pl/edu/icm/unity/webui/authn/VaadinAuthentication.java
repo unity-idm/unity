@@ -12,6 +12,8 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
@@ -38,7 +40,7 @@ public interface VaadinAuthentication extends BindingAuthn
 	 * @return a new instance of the credential retrieval UIs. The collection is returned as one authenticator 
 	 * may provide many authN options (e.g. many remote IdPs). 
 	 */
-	Collection<VaadinAuthenticationUI> createUIInstance(Context context);
+	Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext);
 	
 	/**
 	 * @return true only if {@link VaadinAuthenticationUI#getGridCompatibleComponent()} 

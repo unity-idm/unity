@@ -34,7 +34,8 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessingFilter.class);
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
-	public static final String RESULT_REQUEST_ATTRIBUTE = "__remote_authn_result";
+	public static final String RESULT_SESSION_ATTRIBUTE = "__remote_authn_result";
+	public static final String AUTHN_CONTEXT_SESSION_ATTRIBUTE = "__remote_authn_step_context";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
 	
@@ -72,7 +73,8 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		
 		AuthenticationResult result = remoteAuthnResponseProcessor.processResponse(authnContext);
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		httpRequest.getSession().setAttribute(RESULT_REQUEST_ATTRIBUTE, result);
+		httpRequest.getSession().setAttribute(RESULT_SESSION_ATTRIBUTE, result);
+		httpRequest.getSession().setAttribute(AUTHN_CONTEXT_SESSION_ATTRIBUTE, authnContext.getAuthenticationStepContext());
 		log.debug("Authentication result was set in session");
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 

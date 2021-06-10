@@ -71,7 +71,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 				new RedirectedMessage(req.getQueryString()) : getDocumentSignedMessage(samlResponse);
 		context.setResponse(samlResponse, binding, verifiableMessage);
 		log.debug("SAML response for authenticator {} was stored in context, redirecting to originating endpoint {}", 
-				context.getAuthenticatorOptionId(), context.getReturnUrl());
+				context.getAuthenticationStepContext().authnOptionId, context.getReturnUrl());
 
 		remoteAuthnContextStore.addAuthnContext(context);
 		resp.sendRedirect(getRedirectWithContextIdParam(context.getReturnUrl(), relayState));

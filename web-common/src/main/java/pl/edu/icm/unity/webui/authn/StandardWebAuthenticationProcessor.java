@@ -99,8 +99,10 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	@Override
 	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result,
-			String clientIp, final AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow,final boolean rememberMe,
+			String clientIp, 
+			AuthenticationRealm realm,
+			AuthenticationFlow authenticationFlow,
+			boolean rememberMe,
 			AuthenticationOptionKey firstFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
@@ -162,7 +164,8 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	
 	public LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
-			final AuthenticationRealm realm, AuthenticationOptionKey firstFactorAuhtnOptionId,
+			AuthenticationRealm realm, 
+			AuthenticationOptionKey firstFactorAuhtnOptionId,
 			AuthenticationOptionKey secondFactorAuhtnOptionId)
 	{
 
@@ -176,8 +179,11 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	@Override
 	public void processSecondaryAuthnResult(PartialAuthnState state,
-			AuthenticationResult result2, String clientIp, AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe,
+			AuthenticationResult result2, 
+			String clientIp, 
+			AuthenticationRealm realm,
+			AuthenticationFlow authenticationFlow, 
+			boolean rememberMe,
 			AuthenticationOptionKey secondFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();

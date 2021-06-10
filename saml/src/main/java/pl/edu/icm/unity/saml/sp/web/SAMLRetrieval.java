@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -29,6 +31,7 @@ import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
@@ -74,7 +77,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authnStepContext)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
@@ -88,9 +91,13 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 						SAMLSPProperties.IDP_BINDING, Binding.class);
 				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
 				{
+					AuthenticationOptionKey authenticationOptionKey = 
+							new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
+					
 					ret.add(new SAMLRetrievalUI(msg, uriAccessService, credentialExchange, 
-							samlContextManagement, idpKey, 
-							configKey, getAuthenticatorId(), context));
+							samlContextManagement, 
+							configKey, context,
+							new AuthenticationStepContext(authnStepContext, authenticationOptionKey)));
 				}
 			}
 		return ret;
@@ -119,9 +126,9 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	
 	@Override
 	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
-		return proxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath);
+		return proxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath, context);
 	}
 
 	@Override

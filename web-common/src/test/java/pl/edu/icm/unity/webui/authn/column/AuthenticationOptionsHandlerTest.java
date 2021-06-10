@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webui.authn.column;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +22,7 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -32,7 +35,8 @@ public class AuthenticationOptionsHandlerTest
 	{
 		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn2", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), "endp");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
+				"endp", mock(AuthenticationRealm.class));
 		handler.getMatchingAuthnOptions("authn.o2");
 		
 		List<AuthNOption> result = handler.getRemainingAuthnOptions();
@@ -47,7 +51,8 @@ public class AuthenticationOptionsHandlerTest
 	{
 		AuthenticationFlow flow1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn3", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), "endp");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
+				"endp", mock(AuthenticationRealm.class));
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1");
 		
@@ -61,7 +66,8 @@ public class AuthenticationOptionsHandlerTest
 	{
 		AuthenticationFlow flow1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn3", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), "endp");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
+				"endp", mock(AuthenticationRealm.class));
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1.o2");
 		
@@ -74,7 +80,8 @@ public class AuthenticationOptionsHandlerTest
 	{
 		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn2", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), "endp");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
+				"endp", mock(AuthenticationRealm.class));
 		handler.getMatchingAuthnOptions("authn");
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn2");
@@ -87,7 +94,8 @@ public class AuthenticationOptionsHandlerTest
 	public void shouldIncludeSpecificOption()
 	{
 		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1), "endp");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1), "endp",
+				mock(AuthenticationRealm.class));
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn.o2");
 		
@@ -122,7 +130,7 @@ public class AuthenticationOptionsHandlerTest
 			when(ui.isAvailable()).thenReturn(true);
 			uis.add(ui);
 		}
-		when(vauthenticator.createUIInstance(Context.LOGIN)).thenReturn(uis);
+		when(vauthenticator.createUIInstance(eq(Context.LOGIN), any())).thenReturn(uis);
 		AuthenticatorInstance ret = mock(AuthenticatorInstance.class);
 		when(ret.getRetrieval()).thenReturn(vauthenticator);
 		return ret;

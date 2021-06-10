@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -79,7 +82,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
@@ -88,8 +91,11 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		{
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
 					key.length()-1);
+			AuthenticationOptionKey authenticationOptionKey = 
+					new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
 			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange, contextManagement, 
-					executorsService, idpKey, key, getAuthenticatorId(), context));
+					executorsService, key, context,
+					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey)));
 		}
 		return ret;
 	}
@@ -106,9 +112,9 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 
 	@Override
 	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
-		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath);
+		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath, context);
 	}
 
 	@Override
