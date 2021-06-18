@@ -53,6 +53,10 @@ manage group membership and designate other managers.
 New users can be invited to the project, using their email address. Unity will invite using appropriate 
 registration form or sign up enquiry depending on whether invited email is already Unity member or not.
 
+Note: UpMan sets one custom variable which can be used in message templates configured for invitations 
+from UpMan (that is configured on a registration form bound to UpMan project): +custom.upmanProject+. 
+This variable holds project name, so it can be used in the invitation body.  
+
 Additionally (if project forms allow for this) prospective users can fill the forms by going to their public link.
 Unless form is configured for automatic acceptance of all requests (e.g. after email confirmation), project manager
 will need to accept each request, what is also possible in UpMan UI.

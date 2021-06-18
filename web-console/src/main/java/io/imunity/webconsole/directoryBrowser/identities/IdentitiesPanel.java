@@ -314,7 +314,7 @@ public class IdentitiesPanel extends SafePanel
 		{
 			identitiesTable.showGroup(group);
 			identitiesTable.setVisible(true);
-			setCaptionFromBundle(msg, "Identities.caption", group.getDisplayedNameShort().getValue(msg));
+			setCaptionFromBundle(msg, "Identities.caption", group.getDisplayedNameShort(msg).getValue(msg));
 			setContent(main);
 		} catch (AuthorizationException e)
 		{

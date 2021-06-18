@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -53,6 +55,8 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 @Primary
 public class ProjectInvitationsManagementImpl implements ProjectInvitationsManagement
 {
+	public static final String INVITATION_PROJECT_NAME_PARAM = "upmanProject";
+	
 	private final ProjectAuthorizationManager authz;
 	private final InvitationManagement invitationMan;
 	private final GroupsManagement groupMan;
@@ -61,7 +65,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private final EnquiryManagement enquiryMan;
 	private final EntityManagement entityMan;
 	private final ExistingUserFinder existingUserFinder;
-
+	private final MessageSource msg;
+	
 	public ProjectInvitationsManagementImpl(@Qualifier("insecure") InvitationManagement invitationMan,
 			@Qualifier("insecure") GroupsManagement groupMan,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
@@ -69,7 +74,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			@Qualifier("insecure") EntityManagement entityMan,
 			SharedEndpointManagement sharedEndpointMan, 
 			ProjectAuthorizationManager authz,
-			ExistingUserFinder existingUserFinder)
+			ExistingUserFinder existingUserFinder,
+			MessageSource msg)
 	{
 		this.invitationMan = invitationMan;
 		this.groupMan = groupMan;
@@ -79,6 +85,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		this.enquiryMan = enquiryMan;
 		this.authz = authz;
 		this.existingUserFinder = existingUserFinder;
+		this.msg = msg;
 	}
 
 	@Override
@@ -113,7 +120,10 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		EnquiryInvitationParam invitationParam = new EnquiryInvitationParam(
 				getEnquiryFormForProject(param.project), param.expiration, param.contactAddress);
-		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
+		setGroups(invitationParam, param);
+		invitationParam.getMessageParams().put(
+				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
+				getProjectDisplayedName(param.project));
 		invitationParam.setEntity(entityId);
 		return invitationParam;
 	}
@@ -123,12 +133,32 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		RegistrationInvitationParam invitationParam = new RegistrationInvitationParam(
 				getRegistrationFormForProject(param.project), param.expiration, param.contactAddress);
-		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
+		setGroups(invitationParam, param);
+		invitationParam.getMessageParams().put(
+				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
+				getProjectDisplayedName(param.project));
 
 		IdentityParam emailId = new IdentityParam(EmailIdentity.ID, param.contactAddress);
 		emailId.setConfirmationInfo(new ConfirmationInfo(true));
 		invitationParam.getIdentities().put(0, new PrefilledEntry<>(emailId, PrefilledEntryMode.HIDDEN));
 		return invitationParam;
+	}
+	
+	private void setGroups(InvitationParam toSet, ProjectInvitationParam param)
+	{
+		if (param.groups == null || param.groups.isEmpty())
+		{
+			return;
+		}
+
+		if (param.allowModifyGroups)
+		{
+			toSet.getAllowedGroups().put(0, new GroupSelection(param.groups));
+		} else
+		{
+			toSet.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection(param.groups),
+					PrefilledEntryMode.READ_ONLY));
+		}
 	}
 
 	@Override
@@ -195,6 +225,11 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		GroupContents contents = groupMan.getContents(projectPath, GroupContents.METADATA);
 		return contents.getGroup().getDelegationConfiguration();
+	}
+	
+	private String getProjectDisplayedName(String projectPath) throws EngineException
+	{
+		return groupMan.getContents(projectPath, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
 	}
 
 	@Override

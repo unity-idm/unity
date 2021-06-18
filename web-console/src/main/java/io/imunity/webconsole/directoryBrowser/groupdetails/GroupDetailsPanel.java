@@ -95,7 +95,7 @@ public class GroupDetailsPanel extends SafePanel
 		{
 			GroupContents contents = groupsManagement.getContents(group.getPathEncoded(), GroupContents.EVERYTHING);
 			Group rGroup = contents.getGroup();
-			setCaptionFromBundle(msg, "GroupDetails.infoLabel", group.getDisplayedNameShort().getValue(msg),
+			setCaptionFromBundle(msg, "GroupDetails.infoLabel", group.getDisplayedNameShort(msg).getValue(msg),
 					String.valueOf(contents.getMembers().size()),
 					String.valueOf(contents.getSubGroups().size()));
 			attrStatements.setInput(rGroup);

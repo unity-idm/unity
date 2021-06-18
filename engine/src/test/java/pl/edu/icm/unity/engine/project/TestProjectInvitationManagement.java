@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.project;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -66,17 +67,17 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan,
 				mockRegistrationMan, mockEnquiryMan, 
 				mockIdMan,
-				mockSharedEndpointMan, mockAuthz, userFinder);
+				mockSharedEndpointMan, mockAuthz, userFinder, mockMsg);
 	}
 
 	@Test
-	public void shouldForwardToCoreManagerWithRegistrationParam() throws EngineException
+	public void shouldForwardToCoreManagerWithRegistrationParamWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(Collections.emptyMap());
 
-		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com", null,
-				Instant.now().plusSeconds(1000));
+		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
+				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);
 
 		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
@@ -88,22 +89,48 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		assertThat(targetParam.getFormId(), is("regForm"));
 		assertThat(targetParam.getType(), is(InvitationType.REGISTRATION));
 		assertThat(targetParam.getIdentities().get(0).getEntry().getValue(), is("demo@demo.com"));
+		assertThat(targetParam.getAllowedGroups().get(0).getSelectedGroups(), hasItems("/project/a"));
+	}
+
+	
+	@Test
+	public void shouldForwardToCoreManagerWithRegistrationParamAndFixedGroups() throws EngineException
+	{
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
+		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(Collections.emptyMap());
+
+		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
+				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
+		projectInvMan.addInvitation(projectParam);
+
+		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
+		verify(mockInvitationMan).addInvitation(argument.capture());
+
+		InvitationParam targetParam = argument.getValue();
+
+		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
+		assertThat(targetParam.getFormId(), is("regForm"));
+		assertThat(targetParam.getType(), is(InvitationType.REGISTRATION));
+		assertThat(targetParam.getIdentities().get(0).getEntry().getValue(), is("demo@demo.com"));
+		assertThat(targetParam.getGroupSelections().get(0).getEntry().getSelectedGroups(),
+				hasItems("/project/a"));
+
 	}
 
 	@Test
-	public void shouldForwardToCoreManagerWithEnquiryParam() throws EngineException
+	public void shouldForwardToCoreManagerWithEnquiryParamWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 
 		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
 		EntityInGroupData info = new EntityInGroupData(
-				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", 
-				null, null, null, null);
+				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null,
+				null, null);
 		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
 		infoMap.put(1L, info);
 		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
-		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com", null,
-				Instant.now().plusSeconds(1000));
+		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
+				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);
 
 		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
@@ -113,6 +140,34 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
 		assertThat(targetParam.getFormId(), is("enqForm"));
 		assertThat(targetParam.getType(), is(InvitationType.ENQUIRY));
+		assertThat(targetParam.getAllowedGroups().get(0).getSelectedGroups(), hasItems("/project/a"));
+	}
+
+	@Test
+	public void shouldForwardToCoreManagerWithEnquiryParamWithFixedGroups() throws EngineException
+	{
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
+
+		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
+		EntityInGroupData info = new EntityInGroupData(
+				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null,
+				null, null);
+		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
+		infoMap.put(1L, info);
+		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
+		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
+				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
+		projectInvMan.addInvitation(projectParam);
+
+		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
+		verify(mockInvitationMan).addInvitation(argument.capture());
+
+		InvitationParam targetParam = argument.getValue();
+		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
+		assertThat(targetParam.getFormId(), is("enqForm"));
+		assertThat(targetParam.getType(), is(InvitationType.ENQUIRY));
+		assertThat(targetParam.getGroupSelections().get(0).getEntry().getSelectedGroups(),
+				hasItems("/project/a"));
 	}
 
 	@Test

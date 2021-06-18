@@ -25,6 +25,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
@@ -49,7 +50,6 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -169,13 +169,14 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		private TextArea email;
 		private OptionalGroupsSelection groups;
 		private DateTimeField lifeTime;
+		private CheckBox allowModifyGroups;
 		private Binder<ProjectInvitationParams> binder;
 
 		public NewInvitationDialog(MessageSource msg,
 				Consumer<List<ProjectInvitationParam>> selectionConsumer) {
 			super(msg, msg.getMessage("NewInvitationDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
-			setSizeEm(45, 24);
+			setSizeEm(45, 28);
 		}
 
 		@Override
@@ -197,24 +198,43 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 			} catch (ControllerException e) {
 				NotificationPopup.showError(e);
 			}
-			email.setWidth(25, Unit.EM);
+			email.setWidth(20, Unit.EM);
+			email.setHeight(6, Unit.EM);
 			email.setDescription(msg.getMessage("NewInvitationDialog.emailsDesc"));
+			email.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
+			
+			allowModifyGroups = new CheckBox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));
+			allowModifyGroups.setValue(false);
+			allowModifyGroups.setEnabled(false);
+			
 			groups = new OptionalGroupsSelection(msg, true);
-			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
+			groups.setCaption(msg.getMessage("NewInvitationDialog.groups"));
 			groups.setItems(allowedGroups.stream().map(dg -> {
 				Group g = new Group(dg.path);
 				g.setDisplayedName(new I18nString(dg.displayedName));
 				return g;
 			}).collect(Collectors.toList()));
-			groups.setDescription(msg.getMessage("NewInvitationDialog.allowedGroupsDesc"));
+			groups.setDescription(msg.getMessage("NewInvitationDialog.groupsDesc"));
 
+			groups.addValueChangeListener(e -> {
+				if (e.getValue() == null || e.getValue().isEmpty())
+				{
+					allowModifyGroups.setEnabled(false);
+					allowModifyGroups.setValue(false);
+				} else
+				{
+					allowModifyGroups.setEnabled(true);
+
+				}
+			});
+			
 			lifeTime = new DateTimeField(msg.getMessage("NewInvitationDialog.invitationLivetime"));
 			lifeTime.setResolution(DateTimeResolution.MINUTE);
 
 			binder = new Binder<>(ProjectInvitationParams.class);
 			binder.forField(email).asRequired(msg.getMessage("fieldRequired")).withValidator(v -> {
-				for (String email : v.split(",")) {
-					if (EmailUtils.validate(email) != null)
+				for (String email : v.split("\n")) {
+					if (EmailUtils.validate(email.trim()) != null)
 						return false;
 				}
 				return true;
@@ -235,8 +255,10 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 					.toInstant());
 			binder.setBean(bean);
 
-			FormLayout main = new CompactFormLayout();
-			main.addComponents(email, groups, lifeTime);
+			FormLayout main = new FormLayout();
+			main.setSpacing(true);
+			main.setMargin(false);
+			main.addComponents(email, groups, allowModifyGroups, lifeTime);
 			main.setSizeFull();
 			return main;
 		}
@@ -251,9 +273,9 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 			List<String> selectedGroups = groups.getSelectedItems().stream().map(g -> g.toString())
 					.collect(Collectors.toList());
 
-			Stream.of(binder.getBean().getContactAddress().split(",")).map(String::trim)
+			Stream.of(binder.getBean().getContactAddress().split("\n")).map(String::trim)
 					.forEach(email -> params.add(new ProjectInvitationParam(project.path, email,
-							selectedGroups, inv.getExpiration())));
+							selectedGroups, allowModifyGroups.getValue(), inv.getExpiration())));
 
 			selectionConsumer.accept(params);
 			close();
