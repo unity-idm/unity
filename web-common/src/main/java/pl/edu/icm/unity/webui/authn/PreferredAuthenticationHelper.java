@@ -11,8 +11,8 @@ import javax.servlet.http.Cookie;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.webui.CookieHelper;
 
 /**
  * Provides access to the last used IDP or the one requested with request parameter

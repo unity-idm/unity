@@ -19,8 +19,12 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
@@ -34,16 +38,18 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessingFilter.class);
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
-	public static final String RESULT_SESSION_ATTRIBUTE = "__remote_authn_result";
-	public static final String AUTHN_CONTEXT_SESSION_ATTRIBUTE = "__remote_authn_step_context";
+	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	
 	public RemoteAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor,
+			InteractiveAuthenticationProcessor interactiveProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;
+		this.authnProcessor = interactiveProcessor;
 	}
 
 	@Override
@@ -73,15 +79,56 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		
 		AuthenticationResult result = remoteAuthnResponseProcessor.processResponse(authnContext);
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		httpRequest.getSession().setAttribute(RESULT_SESSION_ATTRIBUTE, result);
-		httpRequest.getSession().setAttribute(AUTHN_CONTEXT_SESSION_ATTRIBUTE, authnContext.getAuthenticationStepContext());
-		log.debug("Authentication result was set in session");
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		String clientIP = HTTPRequestContext.getCurrent().getClientIP();
+		PostFirstFactorAuthnDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
+				result, authnContext.getAuthenticationStepContext(), 
+				getLoginMachineDetails(clientIP), 
+				isSetRememberMe(),
+				httpRequest, 
+				httpResponse);
+		
+		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, postFirstFactorDecision);
+		log.debug("Authentication result was set in session");
 
 		//TODO KB refactor: use original return URI from authnContext. It needs to be put there, creating sth like RedirectRemoteAuthnContext
 		httpResponse.sendRedirect(httpRequest.getRequestURI());
 	}
 
+	private boolean isSetRememberMe()
+	{
+		//FIXME KB
+		return false;
+	}
+	
+	private LoginMachineDetails getLoginMachineDetails(String clientIp)
+	{
+		//FIXME KB
+//		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
+		String osName = "unknown";
+		String browser = "unknown";
+//		if (webBrowser != null)
+//		{
+//			if (webBrowser.isLinux())
+//				osName = "Linux";
+//			else if (webBrowser.isWindows())
+//				osName = "Windows";
+//			else if (webBrowser.isMacOSX())
+//				osName = "Mac OS X";
+//
+//			if (webBrowser.isFirefox())
+//				browser = "Firefox";
+//			else if (webBrowser.isChrome())
+//				browser = "Chrome";
+//			else if (webBrowser.isIE())
+//				browser = "IE";
+//			else if (webBrowser.isEdge())
+//				browser = "Edge";
+//		}
+		return new LoginMachineDetails(clientIp, osName, browser);
+	}
+	
+	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException
 	{

@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.MarginInfo;
@@ -35,10 +34,10 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -79,8 +78,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	
 	private final EntityManagement idsMan;
 	private final ExecutorsService execService;
-	private final Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider;
-	private final WebAuthenticationProcessor authnProcessor;	
+	private final Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider;
+	private final WebAuthenticationProcessor authnProcessor;
 	private final LocaleChoiceComponent localeChoice;
 	private final List<AuthenticationFlow> flows;
 	
@@ -103,7 +102,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
-			Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
+			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
 			List<AuthenticationFlow> flows)
@@ -169,11 +168,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			log.info("Launched outdated credential dialog");
 			return;
 		}
-		
-		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
-		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
-		// is beating very slowly but in case of very slow user we may still need to refresh.
-		refreshAuthenticationState(VaadinService.getCurrentRequest());
 	}
 	
 	/**
@@ -333,18 +327,15 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private void refreshAuthenticationState(VaadinRequest request) 
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthenticationResult authnResult = (RemoteAuthenticationResult) session
-				.getAttribute(RemoteAuthnResponseProcessingFilter.RESULT_SESSION_ATTRIBUTE);
-		if (authnResult != null)
+		PostFirstFactorAuthnDecision postFirstFactorDecision = (PostFirstFactorAuthnDecision) session
+				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+		if (postFirstFactorDecision != null)
 		{
 			log.debug("Remote authentication result found in session, triggering its processing");
-			AuthenticationStepContext authnStepContext = (AuthenticationStepContext) session.getAttribute(
-					RemoteAuthnResponseProcessingFilter.AUTHN_CONTEXT_SESSION_ATTRIBUTE);
 			RedirectedAuthnFirstFactorResultProcessor remoteFirstFactorResultProcessor = 
-					new RedirectedAuthnFirstFactorResultProcessor(msg, authnProcessor, 
-							outdatedCredentialDialogLauncher, execService, 
+					new RedirectedAuthnFirstFactorResultProcessor(msg, execService, 
 							unknownUserDialogProvider);
-			remoteFirstFactorResultProcessor.onCompletedAuthentication(authnResult, authnStepContext);
+			remoteFirstFactorResultProcessor.onCompletedAuthentication(postFirstFactorDecision);
 		}
 	}
 

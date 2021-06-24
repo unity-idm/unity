@@ -29,6 +29,7 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WebBrowser;
 import com.vaadin.server.WrappedHttpSession;
 import com.vaadin.ui.UI;
 
@@ -43,6 +44,8 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -52,13 +55,13 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.session.SessionParticipants;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.CookieHelper;
 
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
@@ -71,7 +74,7 @@ import pl.edu.icm.unity.webui.CookieHelper;
 public class StandardWebAuthenticationProcessor implements WebAuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandardWebAuthenticationProcessor.class);
-	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
+	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_"; //FIXME remove it, use InteractiveAuthnProcess
 	private static final String LOGOUT_REDIRECT_TRIGGERING = StandardWebAuthenticationProcessor.class.getName() + 
 			".invokeLogout";
 	private static final String LOGOUT_REDIRECT_RET_URI = StandardWebAuthenticationProcessor.class.getName() + 
@@ -276,7 +279,9 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		
 		if (rememberMe)
 		{
-			rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, clientIp, ls.getEntityId(),
+			rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, 
+					getLoginMachineDetails(clientIp), 
+					ls.getEntityId(),
 					ls.getStarted(), ls.getLogin1stFactorOptionId(),
 					ls.getLogin2ndFactorOptionId());
 		}
@@ -293,6 +298,32 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 				+ ", first factor skipped: {}, second factor skipped: {}",
 				ls.toString(), ls.getLogin1stFactorOptionId(), ls.getLogin2ndFactorOptionId(),
 				ls.getRememberMeInfo().firstFactorSkipped, ls.getRememberMeInfo().secondFactorSkipped);
+	}
+	
+	public LoginMachineDetails getLoginMachineDetails(String clientIp)
+	{
+		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
+		String osName = "unknown";
+		String browser = "unknown";
+		if (webBrowser != null)
+		{
+			if (webBrowser.isLinux())
+				osName = "Linux";
+			else if (webBrowser.isWindows())
+				osName = "Windows";
+			else if (webBrowser.isMacOSX())
+				osName = "Mac OS X";
+
+			if (webBrowser.isFirefox())
+				browser = "Firefox";
+			else if (webBrowser.isChrome())
+				browser = "Chrome";
+			else if (webBrowser.isIE())
+				browser = "IE";
+			else if (webBrowser.isEdge())
+				browser = "Edge";
+		}
+		return new LoginMachineDetails(clientIp, osName, browser);
 	}
 	
 	public static String getSessionCookieName(String realmName)

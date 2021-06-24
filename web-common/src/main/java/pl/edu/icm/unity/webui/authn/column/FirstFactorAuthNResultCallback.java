@@ -150,7 +150,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		{
 			log.trace("Authentication successful, user unknown, showing unknown user dialog");
 			setAuthenticationAborted();
-			authNPanel.showUnknownUserDialog(e);
+			authNPanel.showUnknownUserDialog(e.getResult().getUnknownRemotePrincipalResult());
 		} else
 		{
 			log.trace("Authentication successful, user unknown, no registration form");

@@ -18,7 +18,6 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -52,13 +51,13 @@ public class UnknownUserDialog extends AbstractDialog
 
 	private String sandboxURL;
 
-	public UnknownUserDialog(MessageSource msg, RemoteAuthenticationResult authNResult,
+	public UnknownUserDialog(MessageSource msg, UnknownRemotePrincipalResult authNResult,
 			InsecureRegistrationFormLauncher formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
 			InputTranslationEngine inputTranslationEngine, String sandboxURL)
 	{
 		super(msg, msg.getMessage("UnknownUserDialog.caption"), msg.getMessage("cancel"));
 		setSizeEm(50, 25);
-		this.authNResult = authNResult.getUnknownRemotePrincipalResult();
+		this.authNResult = authNResult;
 		this.formLauncher = formLauncher;
 		this.sandboxAuthnNotifier = sandboxAuthnNotifier;
 		this.inputTranslationEngine = inputTranslationEngine;

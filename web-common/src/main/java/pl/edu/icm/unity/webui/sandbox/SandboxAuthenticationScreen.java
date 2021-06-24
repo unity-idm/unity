@@ -28,7 +28,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -146,7 +146,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		super.init();
 	}
 	
-	private static UnknownUserDialog disabledUnknownUserProvider(AuthenticationResult authnResult)
+	private static UnknownUserDialog disabledUnknownUserProvider(UnknownRemotePrincipalResult authnResult)
 	{
 		throw new IllegalStateException("Showing unknown user dialog on sandbox screen - should never happen");
 	}

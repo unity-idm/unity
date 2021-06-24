@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn;
+package pl.edu.icm.unity.engine.authn;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vaadin.server.Page;
-import com.vaadin.server.WebBrowser;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -31,17 +29,19 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.CookieHelper;
-import pl.edu.icm.unity.webui.authn.RememberMeToken.LoginMachineDetails;
 
 /**
  * Internal management of remember me cookies and tokens.  
@@ -49,25 +49,25 @@ import pl.edu.icm.unity.webui.authn.RememberMeToken.LoginMachineDetails;
  *
  */
 @Component
-public class RememberMeProcessor
+class RememberMeProcessorImpl implements RememberMeProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RememberMeProcessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RememberMeProcessorImpl.class);
 	
 	public static final String REMEMBER_ME_COOKIE_PFX = "REMEMBERME_";
-	public static final String REMEMBER_ME_TOKEN_TYPE = "rememberMe";
 
-	private TokensManagement tokenMan;
-	private SessionManagement sessionMan;
-	private EntityManagement entityMan;
+	private final TokensManagement tokenMan;
+	private final SessionManagement sessionMan;
+	private final EntityManagement entityMan;
 	
 	@Autowired
-	public RememberMeProcessor(TokensManagement tokenMan, SessionManagement sessionMan, EntityManagement entityMan)
+	RememberMeProcessorImpl(TokensManagement tokenMan, SessionManagement sessionMan, EntityManagement entityMan)
 	{
 		this.tokenMan = tokenMan;
 		this.sessionMan = sessionMan;
 		this.entityMan = entityMan;
 	}
 
+	@Override
 	public Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
 			UnsuccessfulAuthenticationCounter dosGauard)
@@ -77,6 +77,7 @@ public class RememberMeProcessor
 				RememberMePolicy.allowForWholeAuthn);
 	}
 
+	@Override
 	public Optional<LoginSession> processRememberedSecondFactor(HttpServletRequest httpRequest,
 			ServletResponse response, long entityId, String clientIp,
 			AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGauard)
@@ -149,7 +150,9 @@ public class RememberMeProcessor
 		return loginSessionFromRememberMe;
 	}
 
-	public void addRememberMeCookieAndUnityToken(HttpServletResponse response, AuthenticationRealm realm, String clientIp,
+	@Override
+	public void addRememberMeCookieAndUnityToken(HttpServletResponse response, AuthenticationRealm realm, 
+			LoginMachineDetails machineDetails,
 			long entityId, Date loginTime, AuthenticationOptionKey firstFactorOptionId, 
 			AuthenticationOptionKey secondFactorOptionId)
 	{
@@ -160,7 +163,7 @@ public class RememberMeProcessor
 		UUID rememberMeToken = UUID.randomUUID();
 
 		RememberMeToken unityRememberMeToken = createRememberMeUnityToken(entityId, realm,
-				hash(rememberMeToken.toString()), loginTime, clientIp, firstFactorOptionId,
+				hash(rememberMeToken.toString()), loginTime, machineDetails, firstFactorOptionId,
 				secondFactorOptionId);
 
 		byte[] serializedToken = null;
@@ -195,6 +198,7 @@ public class RememberMeProcessor
 		response.addCookie(unityRememberMeCookie);
 	}
 
+	@Override
 	public void removeRememberMeWithWholeAuthn(String realmName,
 			HttpServletRequest request, HttpServletResponse httpResponse)
 	{
@@ -390,37 +394,9 @@ public class RememberMeProcessor
 	}
 
 	private RememberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
-			byte[] rememberMeTokenHash, Date loginTime, String clientIp, AuthenticationOptionKey firstFactorOptionId,
+			byte[] rememberMeTokenHash, Date loginTime, LoginMachineDetails machineDetails, AuthenticationOptionKey firstFactorOptionId,
 			AuthenticationOptionKey secondFactorOptionId)
 	{
-		
-		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
-		
-		
-		String osName = "unknown";
-		String browser = "unknown";
-		if (webBrowser != null)
-		{
-			if (webBrowser.isLinux())
-				osName = "Linux";
-			else if (webBrowser.isWindows())
-				osName = "Windows";
-			else if (webBrowser.isMacOSX())
-				osName = "Mac OS X";
-
-			if (webBrowser.isFirefox())
-				browser = "Firefox";
-			else if (webBrowser.isChrome())
-				browser = "Chrome";
-			else if (webBrowser.isIE())
-				browser = "IE";
-			else if (webBrowser.isEdge())
-				browser = "Edge";
-		}
-		
-		LoginMachineDetails machineDetails = new LoginMachineDetails(
-				clientIp, osName, browser);
-
 		return new RememberMeToken(entityId, machineDetails, loginTime, firstFactorOptionId,
 				secondFactorOptionId, rememberMeTokenHash,
 				realm.getRememberMePolicy());

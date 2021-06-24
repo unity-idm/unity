@@ -26,10 +26,10 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.webui.CookieHelper;
 
 /**
  * Servlet filter responsible merely for setting up {@link InvocationContext}. All servlets relaying on 

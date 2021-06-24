@@ -10,9 +10,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
@@ -31,13 +30,13 @@ public class FirstFactorAuthNPanel extends AuthNPanelBase implements Authenticat
 {
 	private final MessageSource msg;
 	private final ExecutorsService execService;
-	private final Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider; 
+	private final Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider; 
 	private final boolean gridCompatible;
 	
 	public FirstFactorAuthNPanel(MessageSource msg, 
 			ExecutorsService execService,
 			CancelHandler cancelHandler,
-			Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
+			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
 			boolean gridCompatible,
 			VaadinAuthenticationUI authnUI,
 			AuthenticationOptionKey authnId)
@@ -75,9 +74,9 @@ public class FirstFactorAuthNPanel extends AuthNPanelBase implements Authenticat
 		}
 	}
 	
-	void showUnknownUserDialog(UnknownRemoteUserException ee)
+	void showUnknownUserDialog(UnknownRemotePrincipalResult urpResult)
 	{
-		UnknownUserDialog dialog = unknownUserDialogProvider.apply(ee.getResult()); 
+		UnknownUserDialog dialog = unknownUserDialogProvider.apply(urpResult); 
 		dialog.show();
 	}	
 }

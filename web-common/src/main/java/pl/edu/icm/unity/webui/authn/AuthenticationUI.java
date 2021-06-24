@@ -33,8 +33,9 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -79,10 +80,12 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	private AuthenticationScreen authenticationUI;
 	private boolean resetScheduled;
+	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 	
 	@Autowired
 	public AuthenticationUI(MessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
 			StandardWebAuthenticationProcessor authnProcessor,
+			InteractiveAuthenticationProcessor interactiveProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
@@ -92,6 +95,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		super(msg);
 		this.localeChoice = localeChoice;
 		this.authnProcessor = authnProcessor;
+		this.interactiveAuthnProcessor = interactiveProcessor;
 		this.registrationFormController = registrationFormController;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
@@ -116,7 +120,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
-		Function<RemoteAuthenticationResult, UnknownUserDialog> unknownUserDialogProvider = 
+		Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider = 
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
