@@ -66,6 +66,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
@@ -235,15 +236,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
 	{
-		//TODO KB drop verify from exchange API, clean error handling
 		try
 		{
 			return verifyOAuthAuthzResponse((OAuthContext) remoteAuthnState);
-		} catch (AuthenticationException e)
-		{
-			log.warn("OAuth2 authorization code verification or processing failed", e);
-			return RemoteAuthenticationResult.failed(e.getResult().asRemote().getRemotelyAuthenticatedPrincipal(), 
-					new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		} catch (Exception e)
 		{
 			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
@@ -258,7 +253,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	 * use the authz code to retrieve access token. The access code may include everything we need. But it 
 	 * may also happen that we need to perform one more query to obtain additional profile information.
 	 */
-	private AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
+	private AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context)
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
@@ -282,10 +277,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			finishAuthnResponseProcessing(state, uie);
 			return RemoteAuthenticationResult.failed(null, 
 					new ResolvableError("OAuth2Retrieval.unexpectedUser", uie.expectedIdentity));
-		} catch (Exception e)
+		} catch (RemoteAuthenticationException e)
 		{
 			finishAuthnResponseProcessing(state, e);
-			throw e;
+			log.info("OAuth2 authorization code verification or processing failed", e);
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), 
+					new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		}
 		
 	}
@@ -312,12 +309,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
-			throws AuthenticationException 
+			throws RemoteAuthenticationException 
 	{
 		String error = context.getErrorCode();
 		if (error != null)
 		{
-			throw new AuthenticationException("OAuth provider returned an error: " + 
+			throw new RemoteAuthenticationException("OAuth provider returned an error: " + 
 					error + (context.getErrorDescription() != null ? 
 							" " + context.getErrorDescription() : ""));
 		}
@@ -332,7 +329,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				getAccessTokenAndProfilePlain(context);
 		} catch (Exception e)
 		{
-			throw new AuthenticationException("Problem during user information retrieval", e);
+			throw new RemoteAuthenticationException("Problem during user information retrieval", e);
 		}
 
 		return convertInput(context, attributes);

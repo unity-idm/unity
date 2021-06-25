@@ -47,7 +47,7 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 				new RemoteErrorResult(error, remotePrincipal));
 	}
 
-	public static AuthenticationResult failed()
+	public static RemoteAuthenticationResult failed()
 	{
 		return failed(null, ResolvableError.EMPTY);
 	}

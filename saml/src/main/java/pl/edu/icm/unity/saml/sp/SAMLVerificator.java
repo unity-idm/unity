@@ -34,11 +34,11 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
@@ -302,11 +302,6 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		try
 		{
 			return verifySAMLResponse(castedState);
-		} catch (AuthenticationException e)
-		{
-			//TODO KB drop authenticationException, make sure to pass error info with AuthnResult
-			log.warn("SAML response verification or processing failed", e);
-			return RemoteAuthenticationResult.failed(null, new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		} catch (Exception e)
 		{
 			log.error("Runtime error during SAML response processing or principal mapping", e);
@@ -315,7 +310,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		}
 	}
 	
-	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
+	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context)
 	{
 		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);
@@ -335,15 +330,17 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					context.isEnableAssociation());
 
 			return result;
-		} catch (Exception e)
+		} catch (RemoteAuthenticationException e)
 		{
 			finishAuthnResponseProcessing(state, e);
-			throw e;
+			log.info("SAML response verification or processing failed", e);
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), 
+					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		}
 	}
 	
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext context) 
-			throws AuthenticationException 
+			throws RemoteAuthenticationException 
 	{
 		ResponseDocument responseDocument;
 		try
@@ -351,7 +348,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			responseDocument = ResponseDocument.Factory.parse(context.getResponse());
 		} catch (XmlException e)
 		{
-			throw new AuthenticationException("The SAML response can not be parsed - " +
+			throw new RemoteAuthenticationException("The SAML response can not be parsed - " +
 					"XML data is corrupted", e);
 		}
 		

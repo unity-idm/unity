@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-
 /**
  * Thrown on authentication problem.
  * @author K. Benedyczak
  */
-public class AuthenticationException extends EngineException
+public class AuthenticationException extends Exception
 {
 	private AuthenticationResult result;
 

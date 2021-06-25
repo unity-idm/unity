@@ -130,7 +130,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	public void refresh(VaadinRequest request) 
 	{
 		log.debug("Refresh called on authN screen");
-		refreshAuthenticationState(request);
+		refreshAuthenticationState();
 		authNColumns.focusFirst();
 	}
 
@@ -168,6 +168,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			log.info("Launched outdated credential dialog");
 			return;
 		}
+		refreshAuthenticationState();
 	}
 	
 	/**
@@ -324,7 +325,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		return rememberMe != null && rememberMe.getValue();
 	}
 
-	private void refreshAuthenticationState(VaadinRequest request) 
+	private void refreshAuthenticationState() 
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		PostFirstFactorAuthnDecision postFirstFactorDecision = (PostFirstFactorAuthnDecision) session
@@ -332,6 +333,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		if (postFirstFactorDecision != null)
 		{
 			log.debug("Remote authentication result found in session, triggering its processing");
+			session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
 			RedirectedAuthnFirstFactorResultProcessor remoteFirstFactorResultProcessor = 
 					new RedirectedAuthnFirstFactorResultProcessor(msg, execService, 
 							unknownUserDialogProvider);

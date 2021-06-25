@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -31,7 +31,7 @@ public interface RemoteAuthnResultProcessor
 	RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
 			boolean dryRun, Optional<IdentityTaV> identity, 
 			String registrationForm, boolean allowAssociation) 
-			throws AuthenticationException;
+			throws RemoteAuthenticationException;
 	
 	/**
 	 * Equivalent
@@ -40,7 +40,7 @@ public interface RemoteAuthnResultProcessor
 	 */
 	RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, boolean dryRun,
 			Optional<IdentityTaV> identity, 
-			String registrationForm, boolean allowAssociation) throws AuthenticationException;
+			String registrationForm, boolean allowAssociation) throws RemoteAuthenticationException;
 	
 	/**
 	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedPrincipal}
@@ -49,7 +49,7 @@ public interface RemoteAuthnResultProcessor
 	 */
 	RemoteAuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext,
 			String registrationForm, boolean allowAssociation) 
-			throws AuthenticationException;
+			throws RemoteAuthenticationException;
 	
 	/**
 	 * Invokes the configured translation profile on the remotely obtained authentication input. Then assembles  

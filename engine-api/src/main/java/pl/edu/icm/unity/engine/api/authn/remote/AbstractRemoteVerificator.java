@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
@@ -44,7 +45,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	}
 	
 	protected RemoteAuthenticationResult getResultForNonInteractiveAuthn(RemotelyAuthenticatedInput input, TranslationProfile profile,
-			RemoteAuthnProcessingState state) throws AuthenticationException
+			RemoteAuthnProcessingState state) throws RemoteAuthenticationException
 	{
 		return getResult(input, profile, state, null, false);
 	}
@@ -58,7 +59,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 */
 	protected RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile,
 			RemoteAuthnProcessingState state, 
-			String registrationForm, boolean allowAssociation) throws AuthenticationException
+			String registrationForm, boolean allowAssociation) throws RemoteAuthenticationException
 	{
 		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
 		stateCasted.remoteInput = input;

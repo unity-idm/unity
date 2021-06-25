@@ -15,8 +15,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
@@ -71,7 +71,7 @@ public class SingleUserImportHandler
 	
 	
 	public AuthenticationResult importUser(String identity, String type, 
-			Optional<IdentityTaV> existingUser) throws AuthenticationException
+			Optional<IdentityTaV> existingUser) throws RemoteAuthenticationException
 	{
 		String key = getCacheKey(identity, type);
 		Element negCache = negativeCache.get(key);
@@ -98,7 +98,7 @@ public class SingleUserImportHandler
 	
 	private AuthenticationResult doImport(String cacheKey, String identity, String type, 
 			Optional<IdentityTaV> existingUser) 
-			throws AuthenticationException
+			throws RemoteAuthenticationException
 	{
 		RemotelyAuthenticatedInput importedUser = facility.importUser(identity, type);
 		if (importedUser == null)

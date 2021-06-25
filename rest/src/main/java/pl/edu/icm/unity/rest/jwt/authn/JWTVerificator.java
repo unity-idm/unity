@@ -90,7 +90,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 	}
 
 	@Override
-	public AuthenticationResult checkJWT(String token) throws EngineException
+	public AuthenticationResult checkJWT(String token) throws EngineException, AuthenticationException
 	{
 		String credential = config.getValue(JWTAuthenticationProperties.SIGNING_CREDENTIAL);
 		X509Credential signingCred = pkiManagement.getCredential(credential);

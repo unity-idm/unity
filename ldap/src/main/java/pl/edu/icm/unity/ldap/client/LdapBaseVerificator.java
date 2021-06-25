@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
@@ -116,7 +117,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	
 
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(
-			String username, String password) throws AuthenticationException
+			String username, String password) throws RemoteAuthenticationException
 	{
 		RemotelyAuthenticatedInput input = null;
 		try 
@@ -125,10 +126,10 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 		} catch (LdapAuthenticationException e) 
 		{
 			log.debug("LDAP authentication failed", e);
-			throw new AuthenticationException("Authentication has failed", e);
+			throw new RemoteAuthenticationException("Authentication has failed", e);
 		} catch (Exception e)
 		{
-			throw new AuthenticationException("Problem when authenticating against the LDAP server", e);
+			throw new RemoteAuthenticationException("Problem when authenticating against the LDAP server", e);
 		}
 		return input;
 	}	

@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
@@ -125,7 +125,7 @@ public class UserImportServiceImpl implements UserImportSerivce
 			{
 				result = handler.importUser(userImport.identityValue, 
 						userImport.identityType, existingIdentity);
-			} catch (AuthenticationException e)
+			} catch (RemoteAuthenticationException e)
 			{
 				log.debug("User import has thrown an authentication exception, skipping it", e);
 				ret.add(new ImportResult(userImport.importerKey, RemoteAuthenticationResult.notApplicable()));
