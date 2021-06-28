@@ -74,6 +74,13 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		return binder.getBean().getValue();
 	}
 
+	@Override
+	public String getActionValueRepresentation()
+	{
+		String value = binder.getBean().getValue();
+		return value == null ? null : getItemCaptionGenerator().apply(binder.getBean().getValue());
+	}
+
 	/**
 	 * Warning: The code copied to {@link AttributeActionParameterComponent#setActionValue(String)}.
 	 * It is hard to provide static method for this and Java as no multi inheritance. 

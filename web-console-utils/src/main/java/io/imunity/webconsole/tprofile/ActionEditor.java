@@ -262,13 +262,24 @@ public class ActionEditor extends LayoutEmbeddable
 			if (caption != null && !caption.endsWith(":"))
 				caption = caption + ":";
 			rep.append(caption + " "
-					+ (tc.getActionValue() != null
+					+ (tc.getActionValueRepresentation() != null
 							&& !tc.getActionValue().equals("null")
-									? tc.getActionValue()
+									? tc.getActionValueRepresentation()
 									: " "));
 			rep.append("|");
 		}
 		
 		return rep.substring(0, rep.length() - 1);
 	}
+
+
+	public void refresh()
+	{
+		setParams(actions.getValue(),
+				paramComponents.stream().map(pc -> pc.getActionValue()).toArray(String[]::new));
+		if (callback != null)
+			callback.accept(getStringRepresentation(), getActionIfValid());
+	}
 }
+
+

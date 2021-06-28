@@ -160,18 +160,26 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 	{
 		List<String> groups = new ArrayList<>();
 		List<String> rgroups = new ArrayList<>();
+		List<List<String>> sgroups = new ArrayList<>();
 		for (int i=0; i<request.getGroupSelections().size(); i++)
-		{
+		{			
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
 			GroupSelection selection = request.getGroupSelections().get(i);
+			
 			if (selection == null)
+			{
+				sgroups.add(new ArrayList<>());
 				continue;
+			}	
+			sgroups.add(selection.getSelectedGroups());
+			
 			groups.addAll(selection.getSelectedGroups());
 			if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
 				rgroups.addAll(selection.getSelectedGroups());
 		}
 		put(RegistrationMVELContextKey.groups.name(), groups);
 		put(RegistrationMVELContextKey.rgroups.name(), rgroups);
+		put(RegistrationMVELContextKey.sgroups.name(), sgroups);
 	}
 	
 	private void setupAgreements(BaseRegistrationInput request)
@@ -205,6 +213,7 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		List<String> emptyL = new ArrayList<>();
 		put(RegistrationMVELContextKey.groups.name(), emptyL);
 		put(RegistrationMVELContextKey.rgroups.name(), emptyL);
+		put(RegistrationMVELContextKey.sgroups.name(), emptyL);
 		put(RegistrationMVELContextKey.agrs.name(), emptyL);
 	}
 	

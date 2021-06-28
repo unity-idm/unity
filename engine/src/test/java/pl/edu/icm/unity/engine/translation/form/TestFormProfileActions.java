@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
+import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -96,6 +97,35 @@ public class TestFormProfileActions
 		assertThat(a.getValues().get(0), is("a1"));
 	}
 
+	@Test
+	public void testAddAttributeWithDynamicGroup() throws EngineException
+	{
+		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
+
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
+
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		Attribute attr = new Attribute("stringA", StringAttributeSyntax.ID, "/local", Lists.newArrayList("a1"));
+		when(parser.parseAsAttribute(any(), any(), eq(Lists.newArrayList("a1")), any(), any()))
+				.thenReturn(attr);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
+
+		RegistrationTranslationAction action = factory.getInstance("stringA",
+				DynamicGroupParam.DYN_GROUP_PFX + "0", "attr['attribute']");
+
+		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
+
+		action.invoke(state, createContext(), "testProf");
+
+		assertThat(state.getAttributes().size(), is(1));
+		Attribute a = state.getAttributes().iterator().next();
+		assertThat(a.getName(), is("stringA"));
+		assertThat(a.getValues().get(0), is("a1"));
+		assertThat(a.getGroupPath(), is("/local"));
+	}
+
+	
 	@Test
 	public void testFilterAttribute() throws EngineException
 	{

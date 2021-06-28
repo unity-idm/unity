@@ -18,6 +18,7 @@ public enum RegistrationMVELContextKey
 	rattr,
 	groups,
 	rgroups,
+	sgroups,
 	status,
 	triggered,
 	onIdpEndpoint,

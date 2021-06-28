@@ -17,4 +17,8 @@ public interface ActionParameterComponent extends Component
 	boolean isValid();
 	void setReadOnly(boolean readOnly);
 	void addValueChangeCallback(Runnable callback);
+	default String getActionValueRepresentation()
+	{
+		return getActionValue();
+	}
 }
