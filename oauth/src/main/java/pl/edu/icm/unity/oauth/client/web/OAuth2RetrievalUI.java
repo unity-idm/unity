@@ -220,7 +220,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		{
 			
 			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-					authenticationStepContext);
+					authenticationStepContext, callback.isSetRememberMe());
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();

@@ -20,15 +20,18 @@ public class RemoteAuthnState
 	private final String relayState;
 	private final Date creationTime;
 	private final AuthenticationStepContext authenticationContext;
+	private final boolean rememberMeEnabled;
 	private SandboxAuthnResultCallback sandboxCallback;
 
 	private final Function<RemoteAuthnState, AuthenticationResult> responseHandler;
 	
 	public RemoteAuthnState(AuthenticationStepContext authenticationContext, 
-			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler,
+			boolean rememberMeEnabled)
 	{
 		this.authenticationContext = authenticationContext;
 		this.responseHandler = responseHandler;
+		this.rememberMeEnabled = rememberMeEnabled;
 		this.relayState = UUID.randomUUID().toString();
 		this.creationTime = new Date();
 	}
@@ -51,6 +54,11 @@ public class RemoteAuthnState
 	public SandboxAuthnResultCallback getSandboxCallback()
 	{
 		return sandboxCallback;
+	}
+
+	public boolean isRememberMeEnabled()
+	{
+		return rememberMeEnabled;
 	}
 
 	public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)

@@ -275,10 +275,11 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	
 	@Override
 	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, 
-			AuthenticationStepContext authnStepContext)
+			AuthenticationStepContext authnStepContext,
+			boolean enableRememberMe)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				authnStepContext, this::processResponse);
+				authnStepContext, this::processResponse, enableRememberMe);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))

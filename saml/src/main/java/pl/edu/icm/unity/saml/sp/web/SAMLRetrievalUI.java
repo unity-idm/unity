@@ -192,7 +192,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
-					authenticationStepContext);
+					authenticationStepContext, callback.isSetRememberMe());
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{

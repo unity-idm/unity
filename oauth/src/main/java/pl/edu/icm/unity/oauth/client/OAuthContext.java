@@ -33,9 +33,10 @@ public class OAuthContext extends RemoteAuthnState
 	private ExpectedIdentity expectedIdentity; 
 
 	public OAuthContext(AuthenticationStepContext authnStepContext, 
-			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler,
+			boolean rememberMeEnabled)
 	{
-		super(authnStepContext, responseHandler);
+		super(authnStepContext, responseHandler, rememberMeEnabled);
 	}
 
 	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)

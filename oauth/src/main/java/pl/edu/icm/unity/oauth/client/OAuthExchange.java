@@ -27,6 +27,6 @@ public interface OAuthExchange extends CredentialExchange
 	OAuthClientProperties getSettings();
 	
 	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationStepContext authnStepContext) 
+			AuthenticationStepContext authnStepContext, boolean rememberMeEnabled) 
 			throws URISyntaxException, SerializeException, ParseException, IOException;
 }

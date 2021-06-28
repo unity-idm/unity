@@ -90,6 +90,12 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		setAuthenticationAborted();
 	}
+
+	@Override
+	public boolean isSetRememberMe()
+	{
+		return rememberMeProvider.get();
+	}
 	
 	private void handleError(String genericError, String authenticatorError)
 	{

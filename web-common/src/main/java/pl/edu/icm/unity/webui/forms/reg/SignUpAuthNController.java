@@ -114,5 +114,11 @@ public class SignUpAuthNController
 			resetSelectedAuthNOption();
 			listener.onAuthnCancelled();
 		}
+
+		@Override
+		public boolean isSetRememberMe()
+		{
+			return false;
+		}
 	}
 }

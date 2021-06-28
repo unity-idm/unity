@@ -178,7 +178,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	@Override
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationStepContext authnStepContext) 
+			AuthenticationStepContext authnStepContext, boolean rememberMeEnabled) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -188,7 +188,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
-		OAuthContext context = new OAuthContext(authnStepContext, this::processResponse);
+		OAuthContext context = new OAuthContext(authnStepContext, this::processResponse, rememberMeEnabled);
 		AuthorizationRequest req;
 		if (openidMode)
 		{

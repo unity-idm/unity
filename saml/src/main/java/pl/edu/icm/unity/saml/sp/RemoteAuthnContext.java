@@ -33,9 +33,9 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	private String idpKey;
 
 	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, AuthenticationStepContext context,
-			Function<RemoteAuthnState, AuthenticationResult> responseHandler)
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler, boolean rememberMeEnabled)
 	{
-		super(context, responseHandler);
+		super(context, responseHandler, rememberMeEnabled);
 		this.samlProperties = config.clone();
 		this.idpKey = entryKey;
 	}

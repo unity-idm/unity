@@ -181,5 +181,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * in the component
 		 */
 		void onCancelledAuthentication();
+		
+		boolean isSetRememberMe();
 	}
 }

@@ -112,6 +112,12 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		setAuthenticationAborted();
 	}
+
+	@Override
+	public boolean isSetRememberMe()
+	{
+		return rememberMeProvider.get();
+	}
 	
 	/**
 	 * Clears the UI so a new authentication can be started.

@@ -21,7 +21,8 @@ public interface SAMLExchange extends CredentialExchange
 {
 	public static final String ID = "SAML2 exchange";
 	
-	RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationStepContext authnContext);
+	RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationStepContext authnContext,
+			boolean enableRememberMe);
 	SAMLSPProperties getSamlValidatorSettings();
 	IdPVisalSettings getVisualSettings(String configKey, Locale locale);
 	void destroy();

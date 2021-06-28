@@ -75,4 +75,10 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	{
 		resultConsumer.accept(AuthnResult.CANCEL);
 	}
+
+	@Override
+	public boolean isSetRememberMe()
+	{
+		return false;
+	}
 }

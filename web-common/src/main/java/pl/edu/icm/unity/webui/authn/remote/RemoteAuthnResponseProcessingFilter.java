@@ -84,7 +84,7 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		PostFirstFactorAuthnDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
 				result, authnContext.getAuthenticationStepContext(), 
 				getLoginMachineDetails(clientIP), 
-				isSetRememberMe(),
+				authnContext.isRememberMeEnabled(),
 				httpRequest, 
 				httpResponse);
 		
@@ -95,12 +95,6 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		httpResponse.sendRedirect(httpRequest.getRequestURI());
 	}
 
-	private boolean isSetRememberMe()
-	{
-		//FIXME KB
-		return false;
-	}
-	
 	private LoginMachineDetails getLoginMachineDetails(String clientIp)
 	{
 		//FIXME KB

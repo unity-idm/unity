@@ -94,7 +94,8 @@ class OAuthProxyAuthnHandler
 		try
 		{
 			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
-					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)));
+					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)),
+					false);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");

@@ -22,7 +22,7 @@ public class ECPAuthnState extends RemoteAuthnState
 	public ECPAuthnState(AuthenticationStepContext authenticationContext, 
 			Function<RemoteAuthnState, AuthenticationResult> responseHandler) 
 	{
-		super(authenticationContext, responseHandler);
+		super(authenticationContext, responseHandler, false);
 	}
 
 	public void setRequestId(String requestId)
