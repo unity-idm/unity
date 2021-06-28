@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Streams;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -22,6 +23,8 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.DynamicGroupParamWithLabel;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -75,6 +78,7 @@ public class BaseFormEditor extends VerticalLayout
 	private PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
 	private final Map<String, IdentityTypeDefinition> allowedIdentitiesByName;
 	private final AttributeTypeSupport attributeTypeSupport;
+	protected ActionParameterComponentProvider actionComponentProvider;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
 	private List<String> credentialTypes;
@@ -101,7 +105,8 @@ public class BaseFormEditor extends VerticalLayout
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan, 
 			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
-			AttributeTypeSupport attributeTypeSupport)
+			AttributeTypeSupport attributeTypeSupport,
+			ActionParameterComponentProvider actionComponentProvider)
 			throws EngineException
 	{
 		this.attributeTypeSupport = attributeTypeSupport;
@@ -115,6 +120,8 @@ public class BaseFormEditor extends VerticalLayout
 			credentialTypes.add(cred.getName());
 		this.policyAgreementConfigurationListFactory = policyAgreementConfigurationListFactory;
 		this.allowedIdentitiesByName = getAllowedIdentities(identityTypeSupport);
+		this.actionComponentProvider = actionComponentProvider;
+		this.actionComponentProvider.init(this::getDynamicGroupsForProfile);
 	}
 
 	private Map<String, IdentityTypeDefinition> getAllowedIdentities(IdentityTypeSupport identityTypeSupport)
@@ -275,7 +282,21 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}
 	
-	private void onGroupChanges()
+	private List<DynamicGroupParamWithLabel> getDynamicGroupsForProfile()
+	{
+		try
+		{
+			return Streams.mapWithIndex(groupParams.getElements().stream(),
+					(gp, index) -> new DynamicGroupParamWithLabel(gp.getGroupPath(),
+							Long.valueOf(index).intValue()))
+					.collect(Collectors.toList());
+		} catch (FormValidationException e)
+		{
+			return Collections.emptyList();
+		}
+	}
+	
+	protected void onGroupChanges()
 	{
 		attributeParams.refresh();
 	}
