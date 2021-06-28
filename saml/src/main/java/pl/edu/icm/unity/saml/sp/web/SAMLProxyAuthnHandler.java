@@ -18,12 +18,14 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
@@ -98,12 +100,15 @@ class SAMLProxyAuthnHandler
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		log.info("Starting automatic proxy authentication with remote SAML IdP "
 				+ "configured under {}, current relative URI is {}", idpConfigKey, currentRelativeURI);	
-
+		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 		try
 		{
 			AuthenticationStepContext authnStepContext = new AuthenticationStepContext(authnContext, 
 					getAuthnOptionId(idpConfigKey));
-			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext, false);
+			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext, 
+					false,
+					loginMachineDetails,
+					currentRelativeURI);
 			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);

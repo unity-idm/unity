@@ -23,6 +23,7 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -35,6 +36,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -218,12 +220,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	{
 		try
 		{
-			
+			String currentRelativeURI = UrlHelper.getCurrentVaadingRelativeURI();
+			LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-					authenticationStepContext, callback.isSetRememberMe());
+					authenticationStepContext, callback.isSetRememberMe(), loginMachineDetails,  
+					currentRelativeURI);
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
-			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);

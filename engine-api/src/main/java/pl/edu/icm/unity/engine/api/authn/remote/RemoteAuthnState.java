@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 
 /**
  * Base class for storing some context information related to external login.
@@ -21,17 +22,23 @@ public class RemoteAuthnState
 	private final Date creationTime;
 	private final AuthenticationStepContext authenticationContext;
 	private final boolean rememberMeEnabled;
+	private final LoginMachineDetails initialLoginMachine;
+	private final String ultimateReturnURL;
 	private SandboxAuthnResultCallback sandboxCallback;
 
 	private final Function<RemoteAuthnState, AuthenticationResult> responseHandler;
 	
 	public RemoteAuthnState(AuthenticationStepContext authenticationContext, 
 			Function<RemoteAuthnState, AuthenticationResult> responseHandler,
-			boolean rememberMeEnabled)
+			boolean rememberMeEnabled,
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL)
 	{
 		this.authenticationContext = authenticationContext;
 		this.responseHandler = responseHandler;
 		this.rememberMeEnabled = rememberMeEnabled;
+		this.initialLoginMachine = initialLoginMachine;
+		this.ultimateReturnURL = ultimateReturnURL;
 		this.relayState = UUID.randomUUID().toString();
 		this.creationTime = new Date();
 	}
@@ -59,6 +66,16 @@ public class RemoteAuthnState
 	public boolean isRememberMeEnabled()
 	{
 		return rememberMeEnabled;
+	}
+
+	public LoginMachineDetails getInitialLoginMachine()
+	{
+		return initialLoginMachine;
+	}
+
+	public String getUltimateReturnURL()
+	{
+		return ultimateReturnURL;
 	}
 
 	public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)

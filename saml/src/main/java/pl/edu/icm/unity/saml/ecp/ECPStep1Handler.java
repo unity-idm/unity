@@ -32,6 +32,7 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.IDPEntryType;
@@ -72,7 +73,9 @@ public class ECPStep1Handler
 		Function<RemoteAuthnState, AuthenticationResult> responseHandler = null;
 		AuthenticationStepContext authenticationContext = new AuthenticationStepContext(null, null, 
 				new AuthenticationOptionKey("-", "-"), 1);
-		ECPAuthnState context = new ECPAuthnState(authenticationContext, responseHandler);
+		ECPAuthnState context = new ECPAuthnState(authenticationContext, responseHandler, 
+				LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest(),
+				null);
 		EnvelopeDocument envDoc = generateECPEnvelope(context);
 		samlContextManagement.addAuthnContext(context);
 		

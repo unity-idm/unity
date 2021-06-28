@@ -15,8 +15,8 @@ import com.vaadin.server.Page;
  */
 public final class UrlHelper
 {
-
-	public static String getCurrentRelativeURI()
+	
+	public static String getCurrentVaadingRelativeURI()
 	{
 		return getRelativeURIFrom(Page.getCurrent().getLocation());
 	}

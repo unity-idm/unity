@@ -74,7 +74,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class StandardWebAuthenticationProcessor implements WebAuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandardWebAuthenticationProcessor.class);
-	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_"; //FIXME remove it, use InteractiveAuthnProcess
+	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_"; //FIXME KB remove it, use InteractiveAuthnProcess
 	private static final String LOGOUT_REDIRECT_TRIGGERING = StandardWebAuthenticationProcessor.class.getName() + 
 			".invokeLogout";
 	private static final String LOGOUT_REDIRECT_RET_URI = StandardWebAuthenticationProcessor.class.getName() + 

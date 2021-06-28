@@ -24,6 +24,7 @@ import com.vaadin.ui.UI;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -187,12 +189,14 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
+		String currentRelativeURI = UrlHelper.getCurrentVaadingRelativeURI();
 		RemoteAuthnContext context;
 		try
 		{
+			LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
-					authenticationStepContext, callback.isSetRememberMe());
+					authenticationStepContext, callback.isSetRememberMe(),
+					loginMachineDetails, currentRelativeURI);
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{

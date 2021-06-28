@@ -21,10 +21,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision;
-import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
@@ -80,10 +78,10 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		AuthenticationResult result = remoteAuthnResponseProcessor.processResponse(authnContext);
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		String clientIP = HTTPRequestContext.getCurrent().getClientIP();
+		//FIXME KB this might be 2nd factor result as well 
 		PostFirstFactorAuthnDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
 				result, authnContext.getAuthenticationStepContext(), 
-				getLoginMachineDetails(clientIP), 
+				authnContext.getInitialLoginMachine(), 
 				authnContext.isRememberMeEnabled(),
 				httpRequest, 
 				httpResponse);
@@ -91,38 +89,9 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, postFirstFactorDecision);
 		log.debug("Authentication result was set in session");
 
-		//TODO KB refactor: use original return URI from authnContext. It needs to be put there, creating sth like RedirectRemoteAuthnContext
-		httpResponse.sendRedirect(httpRequest.getRequestURI());
+		httpResponse.sendRedirect(authnContext.getUltimateReturnURL());
 	}
 
-	private LoginMachineDetails getLoginMachineDetails(String clientIp)
-	{
-		//FIXME KB
-//		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
-		String osName = "unknown";
-		String browser = "unknown";
-//		if (webBrowser != null)
-//		{
-//			if (webBrowser.isLinux())
-//				osName = "Linux";
-//			else if (webBrowser.isWindows())
-//				osName = "Windows";
-//			else if (webBrowser.isMacOSX())
-//				osName = "Mac OS X";
-//
-//			if (webBrowser.isFirefox())
-//				browser = "Firefox";
-//			else if (webBrowser.isChrome())
-//				browser = "Chrome";
-//			else if (webBrowser.isIE())
-//				browser = "IE";
-//			else if (webBrowser.isEdge())
-//				browser = "Edge";
-//		}
-		return new LoginMachineDetails(clientIp, osName, browser);
-	}
-	
-	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException
 	{

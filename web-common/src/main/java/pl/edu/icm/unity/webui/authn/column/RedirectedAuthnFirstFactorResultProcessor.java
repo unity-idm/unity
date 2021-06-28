@@ -74,7 +74,6 @@ class RedirectedAuthnFirstFactorResultProcessor
 	
 	private void handleError(String authenticatorError, String clientIp)
 	{
-		//authNPanel.focusIfPossible(); TODO KB
 		NotificationPopup.showError(authenticatorError, "");
 		showWaitScreenIfNeeded(clientIp);
 	}

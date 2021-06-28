@@ -11,6 +11,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
@@ -34,9 +35,11 @@ public class OAuthContext extends RemoteAuthnState
 
 	public OAuthContext(AuthenticationStepContext authnStepContext, 
 			Function<RemoteAuthnState, AuthenticationResult> responseHandler,
-			boolean rememberMeEnabled)
+			boolean rememberMeEnabled,
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL)
 	{
-		super(authnStepContext, responseHandler, rememberMeEnabled);
+		super(authnStepContext, responseHandler, rememberMeEnabled, initialLoginMachine, ultimateReturnURL);
 	}
 
 	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)

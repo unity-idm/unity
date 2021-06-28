@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
@@ -276,10 +277,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, 
 			AuthenticationStepContext authnStepContext,
-			boolean enableRememberMe)
+			boolean enableRememberMe,
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL)
 	{
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				authnStepContext, this::processResponse, enableRememberMe);
+				authnStepContext, this::processResponse, enableRememberMe, 
+				initialLoginMachine, ultimateReturnURL);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))
