@@ -14,9 +14,9 @@ public class AuthenticatorStepContext
 {
 	public final AuthenticationRealm realm; 
 	public final AuthenticationFlow selectedAuthnFlow; 
-	public final int factor; 
+	public final FactorOrder factor; 
 	
-	public AuthenticatorStepContext(AuthenticationRealm realm, AuthenticationFlow selectedAuthnFlow, int factor)
+	public AuthenticatorStepContext(AuthenticationRealm realm, AuthenticationFlow selectedAuthnFlow, FactorOrder factor)
 	{
 		this.realm = realm;
 		this.selectedAuthnFlow = selectedAuthnFlow;
@@ -26,5 +26,10 @@ public class AuthenticatorStepContext
 	public AuthenticatorStepContext(AuthenticatorStepContext toClone)
 	{
 		this(toClone.realm, toClone.selectedAuthnFlow, toClone.factor);
+	}
+	
+	public static enum FactorOrder
+	{
+		FIRST, SECOND
 	}
 }

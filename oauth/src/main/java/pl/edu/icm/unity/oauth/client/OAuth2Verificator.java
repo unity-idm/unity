@@ -65,6 +65,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
@@ -181,7 +182,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
 			AuthenticationStepContext authnStepContext, boolean rememberMeEnabled,
 			LoginMachineDetails initialLoginMachine, 
-			String ultimateReturnURL) 
+			String ultimateReturnURL,
+			PartialAuthnState firstFactorAuthnState) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -191,8 +193,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
-		OAuthContext context = new OAuthContext(authnStepContext, this::processResponse, rememberMeEnabled,
-				initialLoginMachine, ultimateReturnURL);
+		RemoteAuthnState baseAuthnContext = new RemoteAuthnState(authnStepContext, this::processResponse, 
+				rememberMeEnabled,
+				initialLoginMachine, ultimateReturnURL, 
+				firstFactorAuthnState);
+		OAuthContext context = new OAuthContext(baseAuthnContext);
 		AuthorizationRequest req;
 		if (openidMode)
 		{

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -76,6 +77,6 @@ public class AuthnColumnComponentHelper
 
 	private static AuthenticatorStepContext getMockContext(AuthenticationFlow flow)
 	{
-		return new AuthenticatorStepContext(null, flow, 1);
+		return new AuthenticatorStepContext(null, flow, FactorOrder.FIRST);
 	}
 }

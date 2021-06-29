@@ -11,6 +11,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -119,6 +120,12 @@ public class SignUpAuthNController
 		public boolean isSetRememberMe()
 		{
 			return false;
+		}
+		
+		@Override
+		public PartialAuthnState getPostFirstFactorAuthnState()
+		{
+			return null;
 		}
 	}
 }

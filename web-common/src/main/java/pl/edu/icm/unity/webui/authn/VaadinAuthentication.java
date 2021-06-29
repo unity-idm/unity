@@ -13,6 +13,7 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
@@ -183,5 +184,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		void onCancelledAuthentication();
 		
 		boolean isSetRememberMe();
+		
+		PartialAuthnState getPostFirstFactorAuthnState();
 	}
 }

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -66,7 +67,7 @@ public class AdditionalAuthnHandler
 		AuthenticatorWithFlow authnPlusFlow = getRetrieval(authenticator);
 		
 		AuthenticatorStepContext context = new AuthenticatorStepContext(InvocationContext.getCurrent().getRealm(),
-				authnPlusFlow.flow, 1);
+				authnPlusFlow.flow, FactorOrder.FIRST);
 		VaadinAuthenticationUI authenticationUI = authnPlusFlow.authenticator.createUIInstance(Context.LOGIN,
 				context).iterator().next();
 		Entity entity = getCurrentEntity();

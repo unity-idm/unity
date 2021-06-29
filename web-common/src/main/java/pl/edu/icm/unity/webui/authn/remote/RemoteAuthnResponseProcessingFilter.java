@@ -19,8 +19,9 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -78,13 +79,24 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		AuthenticationResult result = remoteAuthnResponseProcessor.processResponse(authnContext);
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		//FIXME KB this might be 2nd factor result as well 
-		PostFirstFactorAuthnDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
-				result, authnContext.getAuthenticationStepContext(), 
-				authnContext.getInitialLoginMachine(), 
-				authnContext.isRememberMeEnabled(),
-				httpRequest, 
-				httpResponse);
+		FactorOrder factor = authnContext.getAuthenticationStepContext().factor; 
+		PostAuthenticationStepDecision postFirstFactorDecision =
+				factor == FactorOrder.FIRST ? 
+						authnProcessor.processFirstFactorResult(
+								result, 
+								authnContext.getAuthenticationStepContext(), 
+								authnContext.getInitialLoginMachine(), 
+								authnContext.isRememberMeEnabled(),
+								httpRequest, 
+								httpResponse) :
+						authnProcessor.processSecondFactorResult(
+								authnContext.getFirstFactorAuthnState(),
+								result, 
+								authnContext.getAuthenticationStepContext(), 
+								authnContext.getInitialLoginMachine(), 
+								authnContext.isRememberMeEnabled(),
+								httpRequest, 
+								httpResponse);
 		
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, postFirstFactorDecision);
 		log.debug("Authentication result was set in session");

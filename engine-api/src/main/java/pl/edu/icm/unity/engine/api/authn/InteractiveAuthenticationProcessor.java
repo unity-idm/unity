@@ -19,13 +19,16 @@ public interface InteractiveAuthenticationProcessor
 {
 	static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
 	
-	PostFirstFactorAuthnDecision processFirstFactorResult(AuthenticationResult result, AuthenticationStepContext stepContext,
+	PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result, AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, boolean setRememberMe,
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse);
 	
+	PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state, 
+			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails, boolean setRememberMe,
+			HttpServletRequest httpRequest, HttpServletResponse httpResponse);	
 	
-	
-	public class PostFirstFactorAuthnDecision
+	public class PostAuthenticationStepDecision
 	{
 		public enum Decision {COMPLETED, GO_TO_2ND_FACTOR, ERROR, UNKNOWN_REMOTE_USER}
 		
@@ -35,7 +38,7 @@ public interface InteractiveAuthenticationProcessor
 		private final ErrorDetail errorDetail;
 		private final SecondFactorDetail secondFactorDetail;
 	
-		private PostFirstFactorAuthnDecision(Decision decision, UnknownRemoteUserDetail unknownRemoteUserDetail,
+		private PostAuthenticationStepDecision(Decision decision, UnknownRemoteUserDetail unknownRemoteUserDetail,
 				ErrorDetail errorDetail, SecondFactorDetail secondFactorDetail)
 		{
 			this.decision = decision;
@@ -44,24 +47,24 @@ public interface InteractiveAuthenticationProcessor
 			this.secondFactorDetail = secondFactorDetail;
 		}
 
-		public static PostFirstFactorAuthnDecision unknownRemoteUser(UnknownRemoteUserDetail unknownRemoteUserDetail)
+		public static PostAuthenticationStepDecision unknownRemoteUser(UnknownRemoteUserDetail unknownRemoteUserDetail)
 		{
-			return new PostFirstFactorAuthnDecision(Decision.UNKNOWN_REMOTE_USER, unknownRemoteUserDetail, null, null);
+			return new PostAuthenticationStepDecision(Decision.UNKNOWN_REMOTE_USER, unknownRemoteUserDetail, null, null);
 		}
 
-		public static PostFirstFactorAuthnDecision error(ErrorDetail errorDetail)
+		public static PostAuthenticationStepDecision error(ErrorDetail errorDetail)
 		{
-			return new PostFirstFactorAuthnDecision(Decision.ERROR, null, errorDetail, null);
+			return new PostAuthenticationStepDecision(Decision.ERROR, null, errorDetail, null);
 		}
 
-		public static PostFirstFactorAuthnDecision goToSecondFactor(SecondFactorDetail secondFactorDetail)
+		public static PostAuthenticationStepDecision goToSecondFactor(SecondFactorDetail secondFactorDetail)
 		{
-			return new PostFirstFactorAuthnDecision(Decision.GO_TO_2ND_FACTOR, null, null, secondFactorDetail);
+			return new PostAuthenticationStepDecision(Decision.GO_TO_2ND_FACTOR, null, null, secondFactorDetail);
 		}
 
-		public static PostFirstFactorAuthnDecision completed()
+		public static PostAuthenticationStepDecision completed()
 		{
-			return new PostFirstFactorAuthnDecision(Decision.COMPLETED, null, null, null);
+			return new PostAuthenticationStepDecision(Decision.COMPLETED, null, null, null);
 		}
 
 		public Decision getDecision()

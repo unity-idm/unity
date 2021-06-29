@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
@@ -279,11 +280,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			AuthenticationStepContext authnStepContext,
 			boolean enableRememberMe,
 			LoginMachineDetails initialLoginMachine, 
-			String ultimateReturnURL)
+			String ultimateReturnURL,
+			PartialAuthnState firstFactorAuthnState)
 	{
+		RemoteAuthnState baseState = new RemoteAuthnState(authnStepContext, this::processResponse, 
+				enableRememberMe, 
+				initialLoginMachine, ultimateReturnURL, firstFactorAuthnState);
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				authnStepContext, this::processResponse, enableRememberMe, 
-				initialLoginMachine, ultimateReturnURL);
+				baseState);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))

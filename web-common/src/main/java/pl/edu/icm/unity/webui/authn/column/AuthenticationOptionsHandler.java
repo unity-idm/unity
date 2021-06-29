@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -95,7 +96,8 @@ public class AuthenticationOptionsHandler
 		}
 		
 		VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-		AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 1);
+		AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 
+				FactorOrder.FIRST);
 		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(
 				Context.LOGIN, authenticatorContext);
 		List<AuthNOption> ret = new ArrayList<>();
@@ -128,7 +130,8 @@ public class AuthenticationOptionsHandler
 				continue;
 
 			VaadinAuthentication retrieval = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-			AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 1);
+			AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 
+					FactorOrder.FIRST);
 			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance(Context.LOGIN,
 					authenticatorContext);
 			for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)

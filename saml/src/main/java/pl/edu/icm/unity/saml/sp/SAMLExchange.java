@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 
@@ -25,7 +26,8 @@ public interface SAMLExchange extends CredentialExchange
 	RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationStepContext authnContext,
 			boolean enableRememberMe,
 			LoginMachineDetails initialLoginMachine, 
-			String ultimateReturnURL);
+			String ultimateReturnURL,
+			PartialAuthnState firstFactorAuthnState);
 	SAMLSPProperties getSamlValidatorSettings();
 	IdPVisalSettings getVisualSettings(String configKey, Locale locale);
 	void destroy();

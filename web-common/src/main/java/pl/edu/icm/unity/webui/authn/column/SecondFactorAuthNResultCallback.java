@@ -96,6 +96,12 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		return rememberMeProvider.get();
 	}
+
+	@Override
+	public PartialAuthnState getPostFirstFactorAuthnState()
+	{
+		return partialState;
+	}
 	
 	private void handleError(String genericError, String authenticatorError)
 	{

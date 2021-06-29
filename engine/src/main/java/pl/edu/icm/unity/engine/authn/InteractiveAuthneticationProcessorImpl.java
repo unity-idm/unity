@@ -24,9 +24,9 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision.ErrorDetail;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision.SecondFactorDetail;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision.UnknownRemoteUserDetail;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.SecondFactorDetail;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.UnknownRemoteUserDetail;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
@@ -73,11 +73,10 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 
 	@Override
-	public PostFirstFactorAuthnDecision processFirstFactorResult(AuthenticationResult result,
+	public PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result,
 			AuthenticationStepContext stepContext, LoginMachineDetails machineDetails, boolean setRememberMe,
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
 	{
-		UnsuccessfulAuthenticationCounter counter = getLoginCounter(httpRequest);
 		PartialAuthnState authnState;
 		try
 		{
@@ -85,17 +84,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 					stepContext.selectedAuthnFlow, stepContext.authnOptionId);
 		} catch (AuthenticationException e)
 		{
-			if (e instanceof UnknownRemoteUserException)
-			{
-				return PostFirstFactorAuthnDecision.unknownRemoteUser(
-						new UnknownRemoteUserDetail(e.getResult().asRemote().getUnknownRemotePrincipalResult()));
-			} else
-			{
-				counter.unsuccessfulAttempt(machineDetails.getIp());
-				return PostFirstFactorAuthnDecision.error(new ErrorDetail(new ResolvableError(e.getMessage())));
-			}
+			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
-		
 		
 		LoginSession loginSession = null;
 		if (authnState.isSecondaryAuthenticationRequired())
@@ -108,7 +98,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 							machineDetails.getIp(), stepContext.realm, getLoginCounter(httpRequest));
 			if (!loginSessionFromRememberMe.isPresent())
 			{
-				return PostFirstFactorAuthnDecision.goToSecondFactor(new SecondFactorDetail());
+				return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail());
 			} else
 			{
 				loginSession = loginSessionFromRememberMe.get();
@@ -135,7 +125,47 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		logged(authnEntity, loginSession, stepContext.realm, machineDetails, setRememberMe,
 				AuthenticationProcessor.extractParticipants(result), httpRequest, httpResponse);
 
-		return PostFirstFactorAuthnDecision.completed(); //TODO KB shall we distinguish users with outdated credential?
+		return PostAuthenticationStepDecision.completed(); //TODO KB shall we distinguish users with outdated credential?
+	}
+
+	@Override
+	public PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state,
+			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse)
+	{
+		AuthenticatedEntity logInfo;
+		try
+		{
+			logInfo = basicAuthnProcessor.finalizeAfterSecondaryAuthentication(state, secondFactorResult);
+		} catch (AuthenticationException e)
+		{
+			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
+		}
+
+		LoginSession loginSession = getLoginSessionForEntity(logInfo, stepContext.realm,
+				state.getFirstFactorOptionId(), stepContext.authnOptionId);
+
+		logged(logInfo, loginSession, stepContext.realm, machineDetails, setRememberMe,
+				AuthenticationProcessor.extractParticipants(state.getPrimaryResult()), 
+				httpRequest, httpResponse);
+
+		return PostAuthenticationStepDecision.completed(); //TODO KB shall we distinguish users with outdated credential?
+	}
+	
+	private PostAuthenticationStepDecision interpretAuthnException(AuthenticationException e, HttpServletRequest httpRequest,
+			String ip)
+	{
+		UnsuccessfulAuthenticationCounter counter = getLoginCounter(httpRequest);
+		if (e instanceof UnknownRemoteUserException)
+		{
+			return PostAuthenticationStepDecision.unknownRemoteUser(
+					new UnknownRemoteUserDetail(e.getResult().asRemote().getUnknownRemotePrincipalResult()));
+		} else
+		{
+			counter.unsuccessfulAttempt(ip);
+			return PostAuthenticationStepDecision.error(new ErrorDetail(new ResolvableError(e.getMessage())));
+		}
 	}
 	
 	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
@@ -232,4 +262,5 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	{
 		servletResponse.addCookie(CookieHelper.setupHttpCookie(cookieName, sessionId, -1));
 	}
+
 }

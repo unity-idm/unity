@@ -39,6 +39,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -354,7 +355,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
 				String authenticatorKey = vaadinAuthenticator.getAuthenticatorId();
 				AuthenticatorStepContext context = new AuthenticatorStepContext(
-						InvocationContext.getCurrent().getRealm(), flow, 1);
+						InvocationContext.getCurrent().getRealm(), flow, FactorOrder.FIRST);
 				Collection<VaadinAuthenticationUI> optionUIInstances = 
 						vaadinAuthenticator.createUIInstance(Context.REGISTRATION, context);
 				for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)

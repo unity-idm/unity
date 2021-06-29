@@ -27,6 +27,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -195,7 +196,7 @@ public class ProxyAuthenticationFilter implements Filter
 						authenticator.getAuthenticatorId());
 				
 				AuthenticatorStepContext authnContext = new AuthenticatorStepContext(
-						realm, authenticatorParam.flow, 1);
+						realm, authenticatorParam.flow, FactorOrder.FIRST);
 				boolean result = authenticator.triggerAutomatedAuthentication(
 						httpRequest, httpResponse, endpointPath, authnContext);
 				if (result)

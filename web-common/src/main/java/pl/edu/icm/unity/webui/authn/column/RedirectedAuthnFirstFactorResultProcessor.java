@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
@@ -35,7 +35,7 @@ class RedirectedAuthnFirstFactorResultProcessor
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 	}
 
-	void onCompletedAuthentication(PostFirstFactorAuthnDecision postFirstFactorDecision)
+	void onCompletedAuthentication(PostAuthenticationStepDecision postFirstFactorDecision)
 	{
 		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		switch (postFirstFactorDecision.getDecision())

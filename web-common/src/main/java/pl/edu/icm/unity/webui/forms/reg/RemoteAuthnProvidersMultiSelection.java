@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
@@ -80,6 +81,6 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 	
 	private static AuthenticatorStepContext getMockContext()
 	{
-		return new AuthenticatorStepContext(null, null, 1);
+		return new AuthenticatorStepContext(null, null, FactorOrder.FIRST);
 	}
 }

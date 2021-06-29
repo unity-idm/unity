@@ -118,6 +118,12 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		return rememberMeProvider.get();
 	}
+
+	@Override
+	public PartialAuthnState getPostFirstFactorAuthnState()
+	{
+		return null;
+	}
 	
 	/**
 	 * Clears the UI so a new authentication can be started.

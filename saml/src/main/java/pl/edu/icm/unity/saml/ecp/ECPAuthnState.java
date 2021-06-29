@@ -25,7 +25,7 @@ public class ECPAuthnState extends RemoteAuthnState
 			LoginMachineDetails initialLoginMachine, 
 			String ultimateReturnURL) 
 	{
-		super(authenticationContext, responseHandler, false, initialLoginMachine, ultimateReturnURL);
+		super(authenticationContext, responseHandler, false, initialLoginMachine, ultimateReturnURL, null);
 	}
 
 	public void setRequestId(String requestId)

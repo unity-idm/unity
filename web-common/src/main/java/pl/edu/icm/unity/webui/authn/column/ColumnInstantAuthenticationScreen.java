@@ -35,7 +35,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostFirstFactorAuthnDecision;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -328,7 +329,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private void refreshAuthenticationState() 
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		PostFirstFactorAuthnDecision postFirstFactorDecision = (PostFirstFactorAuthnDecision) session
+		PostAuthenticationStepDecision postFirstFactorDecision = (PostAuthenticationStepDecision) session
 				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
 		if (postFirstFactorDecision != null)
 		{
@@ -355,7 +356,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
 		
 		AuthenticatorStepContext context = new AuthenticatorStepContext(endpointDescription.getRealm(), 
-				partialState.getAuthenticationFlow(), 2);
+				partialState.getAuthenticationFlow(), FactorOrder.SECOND);
 		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN,
 				context);
 		if (secondaryAuthnUIs.size() > 1)
