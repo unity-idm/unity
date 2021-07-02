@@ -104,7 +104,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		if (authNListener != null)
 			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
-		//FIXME KB we can now move it to be set after successful authN
+		//TODO KB we can now move it to be set after successful authN
 		setLastIdpCookie(authnId);
 	}
 

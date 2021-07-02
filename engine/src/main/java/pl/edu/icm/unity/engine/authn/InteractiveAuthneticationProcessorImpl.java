@@ -125,7 +125,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		logged(authnEntity, loginSession, stepContext.realm, machineDetails, setRememberMe,
 				AuthenticationProcessor.extractParticipants(result), httpRequest, httpResponse);
 
-		return PostAuthenticationStepDecision.completed(); //TODO KB shall we distinguish users with outdated credential?
+		return PostAuthenticationStepDecision.completed();
 	}
 
 	@Override
@@ -150,7 +150,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				AuthenticationProcessor.extractParticipants(state.getPrimaryResult()), 
 				httpRequest, httpResponse);
 
-		return PostAuthenticationStepDecision.completed(); //TODO KB shall we distinguish users with outdated credential?
+		return PostAuthenticationStepDecision.completed();
 	}
 	
 	private PostAuthenticationStepDecision interpretAuthnException(AuthenticationException e, HttpServletRequest httpRequest,
@@ -194,7 +194,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 		
 		//prevent session fixation
-		//FIXME KB
+		//TODO KB reimplement session fixation?
 //		VaadinSession vss = VaadinSession.getCurrent();
 //		if (vss == null)
 //		{
@@ -230,10 +230,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	
 	private static UnsuccessfulAuthenticationCounter getLoginCounter(HttpServletRequest httpRequest)
 	{
-		HttpSession httpSession = httpRequest.getSession();
-		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
+		return (UnsuccessfulAuthenticationCounter) httpRequest.getServletContext().getAttribute(
 				UnsuccessfulAuthenticationCounter.class.getName());
-		//TODO KB - most likely this should not be taken from session.
 	}
 	
 	private String getLabel(long entityId)

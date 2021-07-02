@@ -139,7 +139,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	/**
 	 * We may end up in authentication UI also after being properly logged in,
 	 * when the credential is outdated. The credential change dialog must be displayed then.
-	 * @return
 	 */
 	private boolean showOutdatedCredentialDialog()
 	{

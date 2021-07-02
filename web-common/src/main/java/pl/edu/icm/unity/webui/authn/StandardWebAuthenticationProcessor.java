@@ -74,7 +74,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class StandardWebAuthenticationProcessor implements WebAuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandardWebAuthenticationProcessor.class);
-	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_"; //FIXME KB remove it, use InteractiveAuthnProcess
+	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_"; //TODO KB remove it, use InteractiveAuthnProcess
 	private static final String LOGOUT_REDIRECT_TRIGGERING = StandardWebAuthenticationProcessor.class.getName() + 
 			".invokeLogout";
 	private static final String LOGOUT_REDIRECT_RET_URI = StandardWebAuthenticationProcessor.class.getName() + 
@@ -300,7 +300,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 				ls.getRememberMeInfo().firstFactorSkipped, ls.getRememberMeInfo().secondFactorSkipped);
 	}
 	
-	public LoginMachineDetails getLoginMachineDetails(String clientIp)
+	private LoginMachineDetails getLoginMachineDetails(String clientIp)
 	{
 		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
 		String osName = "unknown";
@@ -419,7 +419,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 				UnsuccessfulAuthenticationCounter.class.getName());
 	}
 	
-	public class LogoutRedirectHandler extends SynchronizedRequestHandler
+	private class LogoutRedirectHandler extends SynchronizedRequestHandler
 	{
 		@Override
 		public boolean synchronizedHandleRequest(VaadinSession session,
