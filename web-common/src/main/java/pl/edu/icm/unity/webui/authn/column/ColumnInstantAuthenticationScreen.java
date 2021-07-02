@@ -337,7 +337,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
 			RedirectedAuthnFirstFactorResultProcessor remoteFirstFactorResultProcessor = 
 					new RedirectedAuthnFirstFactorResultProcessor(msg, execService, 
-							unknownUserDialogProvider);
+							unknownUserDialogProvider,
+							this::switchToSecondaryAuthentication);
 			remoteFirstFactorResultProcessor.onCompletedAuthentication(postFirstFactorDecision);
 		}
 	}

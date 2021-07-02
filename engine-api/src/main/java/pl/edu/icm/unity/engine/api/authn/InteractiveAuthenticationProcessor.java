@@ -117,6 +117,12 @@ public interface InteractiveAuthenticationProcessor
 
 		public static class SecondFactorDetail
 		{
+			public final PartialAuthnState postFirstFactorResult;
+
+			public SecondFactorDetail(PartialAuthnState postFirstFactorResult)
+			{
+				this.postFirstFactorResult = postFirstFactorResult;
+			}
 		}
 	}
 	

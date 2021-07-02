@@ -98,7 +98,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 							machineDetails.getIp(), stepContext.realm, getLoginCounter(httpRequest));
 			if (!loginSessionFromRememberMe.isPresent())
 			{
-				return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail());
+				return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail(authnState));
 			} else
 			{
 				loginSession = loginSessionFromRememberMe.get();
