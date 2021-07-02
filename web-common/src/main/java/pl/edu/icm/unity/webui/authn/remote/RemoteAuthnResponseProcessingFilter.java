@@ -18,9 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
@@ -40,15 +37,12 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
-	private final InteractiveAuthenticationProcessor authnProcessor;
 	
 	public RemoteAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor,
-			InteractiveAuthenticationProcessor interactiveProcessor)
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;
-		this.authnProcessor = interactiveProcessor;
 	}
 
 	@Override
@@ -76,28 +70,12 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 			return;
 		}
 		
-		AuthenticationResult result = remoteAuthnResponseProcessor.processResponse(authnContext);
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		FactorOrder factor = authnContext.getAuthenticationStepContext().factor; 
-		PostAuthenticationStepDecision postFirstFactorDecision =
-				factor == FactorOrder.FIRST ? 
-						authnProcessor.processFirstFactorResult(
-								result, 
-								authnContext.getAuthenticationStepContext(), 
-								authnContext.getInitialLoginMachine(), 
-								authnContext.isRememberMeEnabled(),
-								httpRequest, 
-								httpResponse) :
-						authnProcessor.processSecondFactorResult(
-								authnContext.getFirstFactorAuthnState(),
-								result, 
-								authnContext.getAuthenticationStepContext(), 
-								authnContext.getInitialLoginMachine(), 
-								authnContext.isRememberMeEnabled(),
-								httpRequest, 
-								httpResponse);
 		
+		PostAuthenticationStepDecision postFirstFactorDecision = remoteAuthnResponseProcessor
+				.processResponse(authnContext, httpRequest, httpResponse);
+
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, postFirstFactorDecision);
 		log.debug("Authentication result was set in session");
 
