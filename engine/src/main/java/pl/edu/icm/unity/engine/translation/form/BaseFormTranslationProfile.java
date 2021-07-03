@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -63,7 +64,9 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				request.getRegistrationContext().triggeringMode, 
 				request.getRegistrationContext().isOnIdpEndpoint,
 				request.getRequestId(), atHelper);
-		return executeFilteredActions(request.getRequest(), mvelCtx, null);
+		RegistrationContext context = new RegistrationContext(request.getRequest());
+		
+		return executeFilteredActions(request.getRequest(), mvelCtx, context,  null);
 	}
 	
 	@Transactional
@@ -76,10 +79,12 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				request.getRegistrationContext().triggeringMode, 
 				request.getRegistrationContext().isOnIdpEndpoint,
 				request.getRequestId(), atHelper);
+		RegistrationContext context = new RegistrationContext(request.getRequest());
+
 		TranslatedRegistrationRequest result;
 		try
 		{
-			result = executeFilteredActions(request.getRequest(), mvelCtx, AutoProcessActionFactory.NAME);
+			result = executeFilteredActions(request.getRequest(), mvelCtx, context, AutoProcessActionFactory.NAME);
 		} catch (EngineException e)
 		{
 			log.error("Couldn't establish automatic request processing action from profile", e);
@@ -90,7 +95,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 	}
 
 	protected TranslatedRegistrationRequest executeFilteredActions(
-			BaseRegistrationInput request, Map<String, Object> mvelCtx, 
+			BaseRegistrationInput request, Map<String, Object> mvelCtx, RegistrationContext context,
 			String actionNameFilter) throws EngineException
 	{
 		if (log.isDebugEnabled())
@@ -107,7 +112,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 				NDC.push("[r: " + (i++) + " " + actionName + "]");
 				try
 				{
-					rule.invoke(translationState, mvelCtx, profile.getName());
+					rule.invoke(translationState, mvelCtx, context, profile.getName());
 				} catch (ExecutionBreakException e)
 				{
 					break;

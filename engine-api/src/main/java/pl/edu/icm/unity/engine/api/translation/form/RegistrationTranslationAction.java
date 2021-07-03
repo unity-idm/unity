@@ -30,6 +30,7 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 	/**
 	 * Performs the translation.
 	 * @param state
+	 * @param context which can be used to extract request related data
 	 * @param mvelCtx context which can be used in MVEL expression evaluation
 	 * @param currentProfile name of the current profile
 	 * @return result of the mapping
@@ -37,14 +38,14 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 	 * to gently stop the processing of further rules.
 	 */
 	public final void invoke(TranslatedRegistrationRequest state,
-			Object mvelCtx,	String currentProfile) throws EngineException
+			Object mvelCtx, RegistrationContext context, String currentProfile) throws EngineException
 	{
 		try
 		{
 			String identity = state.getIdentities().isEmpty() ? "unknown" : 
 				state.getIdentities().iterator().next().toString();
 			NDC.push("[" + identity + "]");
-			invokeWrapped(state, mvelCtx, currentProfile);
+			invokeWrapped(state, mvelCtx, context, currentProfile);
 		} catch (Exception e)
 		{
 			if (LOG.isDebugEnabled())
@@ -59,6 +60,7 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 	}
 	
 	protected abstract void invokeWrapped(TranslatedRegistrationRequest state,
-			Object mvelCtx,	String currentProfile) throws EngineException;
+			Object mvelCtx, RegistrationContext contexts, String currentProfile) throws EngineException;
 
 }
+

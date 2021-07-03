@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
@@ -22,13 +21,14 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -56,7 +56,7 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 				new ActionParameterDefinition(
 						"group",
 						"RegTranslationAction.addAttribute.paramDesc.group",
-						Type.UNITY_GROUP_WITH_DYNAMIC_GROUPS, true),
+						Type.UNITY_DYNAMIC_GROUP, true),
 				new ActionParameterDefinition(
 						"expression",
 						"RegTranslationAction.addAttribute.paramDesc.expression",
@@ -95,7 +95,7 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 		}
 
 		@Override
-		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
+		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx, RegistrationContext context,
 				String currentProfile) throws EngineException
 		{
 			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx, new HashMap<>());
@@ -107,7 +107,7 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			
 			List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
 			
-			for (String group : getGroups(mvelCtx))
+			for (String group : getGroups(context))
 			{
 				Attribute attribute;
 				try
@@ -133,19 +133,17 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			expressionCompiled = MVEL.compileExpression(parameters[2]);
 		}
 		
-		private Set<String> getGroups(Object mvelCtx)
+		private Set<String> getGroups(RegistrationContext context)
 		{
 			if (DynamicGroupParam.isDynamicGroup(group))
 			{
 				int groupParamIndex = new DynamicGroupParam(group).index;
-				Object value = MVEL.executeExpression(
-						MVEL.compileExpression(RegistrationMVELContextKey.sgroups.name() + "["
-								+ groupParamIndex + "]"),
-						mvelCtx, new HashMap<>());
-				List<?> aValues = value instanceof List ? (List<?>) value
-						: Collections.singletonList(value);
-				return aValues.stream().map(v -> v.toString()).collect(Collectors.toSet());
-
+				GroupSelection groupSelection = context.groupSelections.get(groupParamIndex);
+				if (groupSelection == null)
+				{
+					return Collections.emptySet();
+				}	
+				return Sets.newHashSet(groupSelection.getSelectedGroups());
 			} else
 			{
 				return Sets.newHashSet(group);

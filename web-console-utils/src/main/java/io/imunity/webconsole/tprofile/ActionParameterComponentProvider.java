@@ -136,7 +136,7 @@ public class ActionParameterComponentProvider
 			return new AttributeActionParameterComponent(param, msg, atTypes);
 		case UNITY_GROUP:
 			return new BaseEnumActionParameterComponent(param, msg, groups);
-		case UNITY_GROUP_WITH_DYNAMIC_GROUPS:
+		case UNITY_DYNAMIC_GROUP:
 			return getUnityGroupActionParameterComponent(param);
 		case UNITY_CRED_REQ:
 			return new BaseEnumActionParameterComponent(param, msg, credReqs);
