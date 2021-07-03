@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -55,7 +56,7 @@ public class SubmitMessageActionFactory extends AbstractRegistrationTranslationA
 
 		@Override
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
-				String currentProfile) throws EngineException
+				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			log.error("The submissionMessage form action is effectless. Please reconfigure your form to use Finalization config instead.");
 		}

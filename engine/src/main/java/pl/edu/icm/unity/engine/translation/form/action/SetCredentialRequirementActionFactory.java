@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.translation.form.action;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -50,7 +51,7 @@ public class SetCredentialRequirementActionFactory extends AbstractRegistrationT
 
 		@Override
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
-				String currentProfile) throws EngineException
+				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			state.setCredentialRequirement(credReq);
 		}

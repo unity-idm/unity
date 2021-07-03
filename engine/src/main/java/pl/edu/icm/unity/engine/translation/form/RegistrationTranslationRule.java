@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
@@ -28,12 +29,12 @@ public class RegistrationTranslationRule extends TranslationRuleInstance<Registr
 	}
 	
 	public void invoke(TranslatedRegistrationRequest translationState,
-			Object mvelCtx, String profileName) throws EngineException
+			Object mvelCtx, RegistrationContext context, String profileName) throws EngineException
 	{
 		if (conditionInstance.evaluate(mvelCtx))
 		{
 			log.debug("Condition OK");
-			actionInstance.invoke(translationState, mvelCtx, profileName);
+			actionInstance.invoke(translationState, mvelCtx, context, profileName);
 		} else
 		{
 			log.debug("Condition not met");			
