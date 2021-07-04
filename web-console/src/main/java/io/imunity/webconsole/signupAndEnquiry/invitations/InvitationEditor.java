@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,8 +64,10 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -100,7 +104,6 @@ public class InvitationEditor extends CustomComponent
 	private DateTimeField expiration;
 	private TextField contactAddress;
 	private EnumComboBox<RemoteIdentityExpectation> remoteIdentityExpectation;
-	private List<TextField> messageParams;
 	private Label channel;
 
 	private TabSheet tabs;
@@ -117,6 +120,9 @@ public class InvitationEditor extends CustomComponent
 	private Map<Long, String> availableEntities;
 	private String entityNameAttr;
 
+	private GridWithEditor<MessageParam> messageParamsGrid;
+	private MessageVariableNameTextField messageVariableNameTextField;
+	
 	public InvitationEditor(MessageSource msg, IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates,
 			Collection<RegistrationForm> availableRegistrationForms,
@@ -143,7 +149,14 @@ public class InvitationEditor extends CustomComponent
 
 	private void initUI() throws WrongArgumentException
 	{
-		messageParams = new ArrayList<>();
+		messageVariableNameTextField = new MessageVariableNameTextField();
+		messageParamsGrid = new GridWithEditor<>(msg, MessageParam.class, m -> !m.nameEditable, false);
+		messageParamsGrid.addTextColumn(p -> p.getName(), (p, v) -> p.setName(v),
+				msg.getMessage("InvitationEditor.messageVariableName"), 2, true, Optional.empty(),
+				messageVariableNameTextField);
+		messageParamsGrid.addTextColumn(p -> p.getValue(), (p, v) -> p.setValue(v),
+				msg.getMessage("InvitationEditor.messageVariableValue"), 2, false);
+		messageParamsGrid.setCaption(msg.getMessage("InvitationEditor.messageVariables"));
 
 		entity = new ComboBox<>(msg.getMessage("InvitationEditor.entity"));
 		entity.setEmptySelectionAllowed(false);
@@ -208,7 +221,7 @@ public class InvitationEditor extends CustomComponent
 		forms.setEmptySelectionAllowed(false);
 
 		top = new FormLayout();
-		top.addComponents(type, forms, channel, expiration, entity, contactAddress, remoteIdentityExpectation);
+		top.addComponents(type, forms, channel, expiration, entity, contactAddress, remoteIdentityExpectation, messageParamsGrid);
 
 		type.setSelectedItem(InvitationType.REGISTRATION);
 
@@ -310,8 +323,6 @@ public class InvitationEditor extends CustomComponent
 
 	private void setPerFormUI(BaseForm form)
 	{
-		for (Component mparam : messageParams)
-			top.removeComponent(mparam);
 		tabs.removeAllComponents();
 		if (form == null)
 			return;
@@ -340,17 +351,17 @@ public class InvitationEditor extends CustomComponent
 		presetGroups.setCaption(msg.getMessage("InvitationEditor.groups"));
 		if (groupParamsNum > 0)
 			addTabWithMargins(presetGroups);
-
-		messageParams = getMessageParams(form);
-		for (Component mparam : messageParams)
-			top.addComponent(mparam);
+		setMessageParams(form);
+		
 	}
-
-	private List<TextField> getMessageParams(BaseForm form)
+	
+	private void setMessageParams(BaseForm form)
 	{
+		messageParamsGrid.clear();
+				
 		String invitationTemplate = form.getNotificationsConfiguration().getInvitationTemplate();
 		if (invitationTemplate == null)
-			return Collections.emptyList();
+			return;
 		MessageTemplate msgTemplate;
 		try
 		{
@@ -358,26 +369,27 @@ public class InvitationEditor extends CustomComponent
 		} catch (EngineException e)
 		{
 			log.error("Can not read invitation template of the form, won't fill any parameters", e);
-			return Collections.emptyList();
+			return;
 		}
 
+		
+		
 		Set<String> variablesSet = MessageTemplateValidator.extractCustomVariables(msgTemplate.getMessage());
 		List<String> variables = new ArrayList<>(variablesSet);
 		Collections.sort(variables);
 
-		List<TextField> ret = new ArrayList<>();
+		List<MessageParam> ret = new ArrayList<>();
 		for (String variable : variables)
 		{
 			String caption = variable.startsWith(MessageTemplateDefinition.CUSTOM_VAR_PREFIX)
 					? variable.substring(MessageTemplateDefinition.CUSTOM_VAR_PREFIX.length())
 					: variable;
-			if (!caption.isEmpty())
-				caption = Character.toUpperCase(caption.charAt(0)) + caption.substring(1);
-			TextField field = new TextField(caption + ":");
-			field.setData(variable);
-			ret.add(field);
+			ret.add(new MessageParam(caption, "", false));
 		}
-		return ret;
+		
+		messageParamsGrid.setValue(ret);
+		messageVariableNameTextField.setNotEditableNames(ret.stream().map(m -> m.getName()).collect(Collectors.toSet()));
+		
 	}
 
 	private void addTabWithMargins(Component src)
@@ -454,10 +466,11 @@ public class InvitationEditor extends CustomComponent
 				ret.getGroupSelections());
 		prefill(presetGroups.getElements().stream().map(v -> v.allowedGroupSelection)
 				.collect(Collectors.toList()), ret.getAllowedGroups());
-		Map<String, String> customParams = messageParams.stream().collect(Collectors.toMap(
-				paramField -> (String) paramField.getData(), paramField -> paramField.getValue()));
+		Map<String, String> customParams = messageParamsGrid.getValue().stream().collect(Collectors.toMap(
+				paramField -> MessageTemplateDefinition.CUSTOM_VAR_PREFIX + paramField.getName(), paramField -> paramField.getValue()));
 		ret.getMessageParams().putAll(customParams);
 
+		
 		return ret;
 	}
 
@@ -560,6 +573,89 @@ public class InvitationEditor extends CustomComponent
 			this.allowedGroupSelection = allowedGroupSelection;
 		}
 	}
+	
+	public static class MessageParam
+	{
+		public  String name;
+		public  String value;
+		public boolean nameEditable;
+		
+		public MessageParam(String name, String value, boolean nameEditable)
+		{
+			this.name = name;
+			this.value = value;
+			this.nameEditable = nameEditable;
+		}
+		
+		public MessageParam()
+		{
+			this.name = "";
+			this.value = "";
+			this.nameEditable = true;
+		}
+		
+		public boolean isNameEditable()
+		{
+			return nameEditable;
+		}
+		public void setNameEditable(boolean nameEditable)
+		{
+			this.nameEditable = nameEditable;
+		}
+		
+		public String getName()
+		{
+			return name;
+		}
+		public void setName(String name)
+		{
+			this.name = name;
+		}
+		public String getValue()
+		{
+			return value;
+		}
+		public void setValue(String value)
+		{
+			this.value = value;
+		}		
+	}
+	
+	public static class MessageVariableNameTextField extends TextField
+	{
+		private Set<String> notEditableNames;
 
+		public MessageVariableNameTextField()
+		{
+			super();
+			this.notEditableNames = new HashSet<>();
+			
+		}
+		
+		public Set<String> getNotEditableNames()
+		{
+			return notEditableNames;
+		}
+
+		public void setNotEditableNames(Set<String> notEditableNames)
+		{
+			this.notEditableNames.clear();
+			this.notEditableNames.addAll(notEditableNames);
+		}
+		
+		
+		@Override
+		public void setValue(String value)
+		{
+			super.setValue(value);
+			setReadOnly(false);
+			removeStyleName(Styles.background.toString());
+			if (value != null && !value.isEmpty() && notEditableNames.contains(value))
+			{
+				setReadOnly(true);
+				addStyleName(Styles.background.toString());
+			}
+		}		
+	}
 	
 }
