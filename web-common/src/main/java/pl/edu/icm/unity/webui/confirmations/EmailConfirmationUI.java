@@ -83,7 +83,7 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 				.orElse(status.success ? Images.ok.getResource() : Images.error.getResource());
 		WorkflowCompletedComponent contents = new WorkflowCompletedComponent(status, 
 				Optional.of(logo),
-				url -> Page.getCurrent().open(status.redirectURL, null));
+				(p,url) -> p.open(status.redirectURL, null));
 		wrapper.addComponent(contents);
 		wrapper.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
 		setContent(wrapper);

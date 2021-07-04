@@ -194,7 +194,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			WorkflowFinalizationConfiguration config = editorController.getFinalizationHandler(form)
 					.getFinalRegistrationConfigurationNonSubmit(false, null,
 							TriggeringState.NOT_APPLICABLE_ENQUIRY);
-			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, 
+			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> {}, 
 					imageAccessService);
 			com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 			setSizeFull();
