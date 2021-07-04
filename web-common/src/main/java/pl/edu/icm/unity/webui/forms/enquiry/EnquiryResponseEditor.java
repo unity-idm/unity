@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.List;
+import java.util.Map;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -36,6 +37,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	private final PrefilledSet prefilled;
 	private final List<PolicyAgreementConfiguration> filteredPolicyAgreement;
 	private RegistrationLayoutsContainer layoutContainer;
+	private final Map<String, String> messageParams;
 	
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -46,7 +48,8 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 			List<PolicyAgreementConfiguration> filteredPolicyAgreement,
-			PrefilledSet prefilled) throws Exception
+			PrefilledSet prefilled,
+			Map<String, String> messageParams) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, 
@@ -54,6 +57,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 		this.enquiryForm = form;
 		this.filteredPolicyAgreement = filteredPolicyAgreement;
 		this.prefilled = prefilled;
+		this.messageParams = messageParams;
 
 		validateMandatoryRemoteInput();
 		initUI();
@@ -77,7 +81,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	
 	private void initUI() throws EngineException
 	{
-		layoutContainer = createLayouts();
+		layoutContainer = createLayouts(messageParams);
 		
 		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), prefilled);
 	}
