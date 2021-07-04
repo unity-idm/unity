@@ -329,7 +329,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		if (config == null)
 			return;
 		if (config.autoRedirect)
-			redirect(config.redirectURL);
+			redirect(Page.getCurrent(), config.redirectURL);
 		else
 			showFinalScreen(config);
 	}
@@ -343,10 +343,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		setSizeFull();
 	}
 
-	private void redirect(String redirectUrl)
+	private void redirect(Page page, String redirectUrl)
 	{
 		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
-		Page.getCurrent().open(redirectUrl, null);
+		page.open(redirectUrl, null);
 	}
 	
 	private WorkflowFinalizationConfiguration submit(EnquiryForm form, EnquiryResponseEditor editor)

@@ -64,6 +64,7 @@ public class RegistrationWrapUpConfig
 	private I18nString redirectCaption;
 	private boolean automatic;
 	private String redirectURL;
+	private int redirectAfterTime;
 
 	public RegistrationWrapUpConfig(TriggeringState state)
 	{
@@ -71,7 +72,7 @@ public class RegistrationWrapUpConfig
 	}
 
 	public RegistrationWrapUpConfig(TriggeringState state, I18nString title, I18nString info,
-			I18nString redirectCaption, boolean automatic, String redirectURL)
+			I18nString redirectCaption, boolean automatic, String redirectURL, int redirectAfter)
 	{
 		this.state = state;
 		this.title = title;
@@ -79,6 +80,7 @@ public class RegistrationWrapUpConfig
 		this.redirectCaption = redirectCaption;
 		this.automatic = automatic;
 		this.redirectURL = redirectURL;
+		this.redirectAfterTime = redirectAfter;
 	}
 
 	//for JSON
@@ -95,6 +97,11 @@ public class RegistrationWrapUpConfig
 		return redirectURL;
 	}
 
+	public int getRedirectAfterTime()
+	{
+		return redirectAfterTime;
+	}
+	
 	public boolean isAutomatic()
 	{
 		return automatic;
@@ -120,7 +127,7 @@ public class RegistrationWrapUpConfig
 	{
 		return "RegistrationWrapUpConfig [state=" + state + ", title=" + title + ", info=" + info
 				+ ", redirectCaption=" + redirectCaption + ", automatic=" + automatic + ", redirectURL="
-				+ redirectURL + "]";
+				+ redirectURL + ", redirectAfterTime=" + redirectAfterTime+ "]";
 	}
 
 	@Override
@@ -133,12 +140,15 @@ public class RegistrationWrapUpConfig
 				&& Objects.equals(info, castOther.info)
 				&& Objects.equals(redirectCaption, castOther.redirectCaption)
 				&& Objects.equals(automatic, castOther.automatic)
-				&& Objects.equals(redirectURL, castOther.redirectURL);
+				&& Objects.equals(redirectURL, castOther.redirectURL)
+				&& Objects.equals(redirectAfterTime, castOther.redirectAfterTime);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(state, title, info, redirectCaption, automatic, redirectURL);
+		return Objects.hash(state, title, info, redirectCaption, automatic, redirectURL, redirectAfterTime);
 	}
+
+	
 }

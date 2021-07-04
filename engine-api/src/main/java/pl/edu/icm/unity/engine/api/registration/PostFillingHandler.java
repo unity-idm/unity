@@ -81,6 +81,7 @@ public class PostFillingHandler
 				.setAutoRedirect(false)
 				.setRedirectURL(finalRedirectURL)
 				.setRedirectButtonText(redirectCaption)
+				.setRedirectAfter(config.getRedirectAfterTime())
 				.setMainInformation(title)
 				.setExtraInformation(info)
 				.setPageTitle(pageTitle)
