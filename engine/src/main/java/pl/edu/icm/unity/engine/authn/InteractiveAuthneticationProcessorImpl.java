@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -194,17 +197,9 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 		
 		//prevent session fixation
-		//TODO KB reimplement session fixation?
-//		VaadinSession vss = VaadinSession.getCurrent();
-//		if (vss == null)
-//		{
-//			log.error("BUG: Can't get VaadinSession to store authenticated user's data.");
-//			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
-//		}
-		//VaadinService.reinitializeSession(VaadinService.getCurrentRequest());
+		reinitializeSession(httpRequest);
 		
-		final HttpSession httpSession = httpRequest.getSession();
-	
+		HttpSession httpSession = httpRequest.getSession();
 		sessionBinder.bindHttpSession(httpSession, ls);
 
 		if (rememberMe)
@@ -260,5 +255,31 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	{
 		servletResponse.addCookie(CookieHelper.setupHttpCookie(cookieName, sessionId, -1));
 	}
+	
+	private static void reinitializeSession(HttpServletRequest request) 
+	{
+		HttpSession oldSession = request.getSession(false);
+		if (oldSession == null)
+			return;
 
+		Enumeration<String> attributeNames = oldSession.getAttributeNames();
+		Map<String, Object> attrs = new HashMap<>();
+		
+		while (attributeNames.hasMoreElements()) 
+		{
+			String name = attributeNames.nextElement();
+			Object value = oldSession.getAttribute(name);
+			attrs.put(name, value);
+		}
+
+		oldSession.invalidate();
+
+		HttpSession newSession = request.getSession(true);
+
+		for (String name : attrs.keySet()) 
+		{
+			Object value = attrs.get(name);
+			newSession.setAttribute(name, value);
+		}
+	}
 }
