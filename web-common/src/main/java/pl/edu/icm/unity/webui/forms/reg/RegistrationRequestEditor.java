@@ -32,6 +32,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -229,7 +230,10 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private void initUI()
 	{
 		layoutContainer = createLayouts(
-				invitation != null ? invitation.getMessageParams() : Collections.emptyMap());
+				invitation != null
+						? invitation.getMessageParamsWithCustomVarObject(
+								MessageTemplateDefinition.CUSTOM_VAR_PREFIX)
+						: Collections.emptyMap());
 
 		resolveRemoteSignupOptions();
 		PrefilledSet prefilled = new PrefilledSet();
@@ -292,7 +296,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	}
 
 	@Override
-	protected RegistrationLayoutsContainer createLayouts(Map<String, String> params)
+	protected RegistrationLayoutsContainer createLayouts(Map<String, Object> params)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);

@@ -37,7 +37,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	private final PrefilledSet prefilled;
 	private final List<PolicyAgreementConfiguration> filteredPolicyAgreement;
 	private RegistrationLayoutsContainer layoutContainer;
-	private final Map<String, String> messageParams;
+	private final Map<String, Object> messageParams;
 	
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -49,7 +49,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 			List<PolicyAgreementConfiguration> filteredPolicyAgreement,
 			PrefilledSet prefilled,
-			Map<String, String> messageParams) throws Exception
+			Map<String, Object> messageParams) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, 

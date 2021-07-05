@@ -120,7 +120,7 @@ public class EnquiryResponseEditorController
 		this.policyAgrMan = policyAgrMan;
 	}
 
-	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, String> messageParams,
+	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, Object> messageParams,
 			RemotelyAuthenticatedContext remoteContext, PrefilledSet set,
 			List<PolicyAgreementConfiguration> filteredPolicyAgreement) throws Exception
 	{
@@ -130,7 +130,7 @@ public class EnquiryResponseEditorController
 				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set, messageParams);
 	}
 
-	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, Map<String, String> messageParams,
+	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, Map<String, Object> messageParams,
 			RemotelyAuthenticatedContext remoteContext, PrefilledSet prefilled,
 			EntityParam entityId) throws Exception
 	{

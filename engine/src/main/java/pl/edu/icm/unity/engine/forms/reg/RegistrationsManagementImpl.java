@@ -359,6 +359,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (form.getCaptchaLength() > RegistrationForm.MAX_CAPTCHA_LENGTH)
 			throw new IllegalArgumentException("Captcha can not be longer then " + 
 					RegistrationForm.MAX_CAPTCHA_LENGTH + " characters");
+		if (form.getTitle2ndStage() != null)
+		{
+			baseValidator.validateFreemarkerTemplate("Second stage title", form.getTitle2ndStage());
+		}
+		
 	}
 
 	@Override

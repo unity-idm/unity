@@ -16,10 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.data.ValidationResult;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.ComboBox;
@@ -152,8 +154,12 @@ public class InvitationEditor extends CustomComponent
 		messageVariableNameTextField = new MessageVariableNameTextField();
 		messageParamsGrid = new GridWithEditor<>(msg, MessageParam.class, m -> !m.nameEditable, false);
 		messageParamsGrid.addTextColumn(p -> p.getName(), (p, v) -> p.setName(v),
-				msg.getMessage("InvitationEditor.messageVariableName"), 2, true, Optional.empty(),
-				messageVariableNameTextField);
+				msg.getMessage("InvitationEditor.messageVariableName"), 2, true, Optional.of((v, c) -> {
+					if (!messageVariableNameTextField.isReadOnly()
+							&& !Pattern.matches("[a-zA-Z0-9_]+", v))
+						return ValidationResult.error(msg.getMessage("InvitationEditor.messageVariableNameError"));
+					return ValidationResult.ok();
+				}), messageVariableNameTextField);
 		messageParamsGrid.addTextColumn(p -> p.getValue(), (p, v) -> p.setValue(v),
 				msg.getMessage("InvitationEditor.messageVariableValue"), 2, false);
 		messageParamsGrid.setCaption(msg.getMessage("InvitationEditor.messageVariables"));
@@ -576,9 +582,9 @@ public class InvitationEditor extends CustomComponent
 	
 	public static class MessageParam
 	{
-		public  String name;
-		public  String value;
-		public boolean nameEditable;
+		private  String name;
+		private  String value;
+		private boolean nameEditable;
 		
 		public MessageParam(String name, String value, boolean nameEditable)
 		{
@@ -589,9 +595,7 @@ public class InvitationEditor extends CustomComponent
 		
 		public MessageParam()
 		{
-			this.name = "";
-			this.value = "";
-			this.nameEditable = true;
+			this("","", true);
 		}
 		
 		public boolean isNameEditable()
@@ -627,9 +631,7 @@ public class InvitationEditor extends CustomComponent
 
 		public MessageVariableNameTextField()
 		{
-			super();
-			this.notEditableNames = new HashSet<>();
-			
+			this.notEditableNames = new HashSet<>();	
 		}
 		
 		public Set<String> getNotEditableNames()

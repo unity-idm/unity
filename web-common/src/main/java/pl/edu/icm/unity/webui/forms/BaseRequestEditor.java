@@ -41,6 +41,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -76,7 +77,6 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
-import pl.edu.icm.unity.webui.FreemarkerStringTemplateProcesor;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
@@ -440,7 +440,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	/**
 	 * Creates main layout, inserts title and form information
 	 */
-	protected RegistrationLayoutsContainer createLayouts(Map<String, String> params)
+	protected RegistrationLayoutsContainer createLayouts(Map<String, Object> params)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
@@ -470,9 +470,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return container;
 	}
 
-	protected String processFreeemarkerTemplate(Map<String, String> params, String template)
+	protected String processFreeemarkerTemplate(Map<String, Object> params, String template) 
 	{
-		return FreemarkerStringTemplateProcesor.process(
+		return FreemarkerUtils.processStringTemplate(
 				params != null ? params : Collections.emptyMap(), template);
 	}
 	
