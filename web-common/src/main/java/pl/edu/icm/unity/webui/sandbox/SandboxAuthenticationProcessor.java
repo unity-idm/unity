@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
-import java.util.Optional;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,17 +16,21 @@ import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 
 /**
  * Specialized implementation of web authn processor: skips session creation and most of the application part of
@@ -32,7 +39,7 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
+class SandboxAuthenticationProcessor implements InteractiveAuthenticationProcessor
 {
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
@@ -45,54 +52,50 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 	}
 
 	@Override
-	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
-			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe, AuthenticationOptionKey authnOptionId) 
-					throws AuthenticationException
+	public PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result,
+			AuthenticationStepContext stepContext, LoginMachineDetails machineDetails,
+			boolean setRememberMe, HttpServletRequest httpRequest, HttpServletResponse httpResponse)
 	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = StandardWebLogoutHandler.getLoginCounter();
 		PartialAuthnState authnState;
 		try
 		{
-			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationFlow, null);
+			authnState = authnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null);
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
-				counter.unsuccessfulAttempt(clientIp);
-			throw e;
+				counter.unsuccessfulAttempt(machineDetails.getIp());
+			return PostAuthenticationStepDecision.error(new ErrorDetail(new ResolvableError(e.getMessage())));
 		}
 
 		if (authnState.isSecondaryAuthenticationRequired())
-			return Optional.ofNullable(authnState);
+			new IllegalStateException("Sandbox mode used flow which requires 2nd factor");
 		
 		AuthenticatedEntity logInfo = authnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
 
 		finalizeLogin(logInfo);
-		return Optional.empty();
+		return PostAuthenticationStepDecision.completed();
 	}
 
 	@Override
-	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
-			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe, AuthenticationOptionKey authnOptionId) 
-					throws AuthenticationException
+	public PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state,
+			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse)
 	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
-		AuthenticatedEntity logInfo;
-		try
-		{
-			logInfo = authnProcessor.finalizeAfterSecondaryAuthentication(state, result2);
-		} catch (AuthenticationException e)
-		{
-			if (!(e instanceof UnknownRemoteUserException))
-				counter.unsuccessfulAttempt(clientIp);
-			throw e;
-		}
+		throw new UnsupportedOperationException("we are in sandbox mode");
+	}
 
-		finalizeLogin(logInfo);
+	@Override
+	public void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
+			List<SessionParticipant> participants, AuthenticationOptionKey authnOptionKey,
+			AuthenticationRealm realm, LoginMachineDetails machineDetails, boolean setRememberMe,
+			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+	{
+		throw new UnsupportedOperationException("we are in sandbox mode");
 	}
 	
-	private void finalizeLogin(AuthenticatedEntity logInfo) throws AuthenticationException
+	private void finalizeLogin(AuthenticatedEntity logInfo)
 	{
 		if (logInfo != null && logInfo.getOutdatedCredentialId() != null)
 		{
@@ -106,14 +109,5 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 		sandboxRouter.fireCompleteEvent(logInfo);
 		JavaScript.getCurrent().execute("window.close();");
 	}
-	
-	@Override
-	public void logout()
-	{
-	}
 
-	@Override
-	public void logout(boolean soft)
-	{
-	}
 }

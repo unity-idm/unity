@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -61,7 +61,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 @Theme("unityThemeValo")
 public class UpManUI extends UnityEndpointUIBase
 {
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private SidebarLayout upManLayout;
 	private NavigationHierarchyManager navigationMan;
 
@@ -73,7 +73,7 @@ public class UpManUI extends UnityEndpointUIBase
 
 	@Autowired
 	public UpManUI(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebLogoutHandler authnProcessor,
 			Collection<UpManNavigationInfoProvider> providers, ProjectController controller,
 			HomeServiceLinkController homeServiceController)
 	{

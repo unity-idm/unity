@@ -10,7 +10,7 @@ import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -22,7 +22,7 @@ public class EntityRemovalButton extends Button
 	public EntityRemovalButton(final MessageSource msg, final long entity, 
 			final EntityManagement identitiesManagement, 
 			final EntityManagement insecureIdentitiesManagement, 
-			final StandardWebAuthenticationProcessor authnProcessor,
+			final StandardWebLogoutHandler authnProcessor,
 			HomeEndpointProperties config)
 	{
 		super(msg.getMessage("EntityRemovalButton.removeAccount"), Images.delete.getResource());

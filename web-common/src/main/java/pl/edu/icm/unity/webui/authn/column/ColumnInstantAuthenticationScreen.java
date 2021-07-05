@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
@@ -54,7 +55,6 @@ import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -80,9 +80,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final EntityManagement idsMan;
 	private final ExecutorsService execService;
 	private final Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider;
-	private final WebAuthenticationProcessor authnProcessor;
 	private final LocaleChoiceComponent localeChoice;
 	private final List<AuthenticationFlow> flows;
+
+	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private FirstFactorAuthNPanel authNPanelInProgress;
@@ -104,9 +105,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
-			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			List<AuthenticationFlow> flows)
+			List<AuthenticationFlow> flows,
+			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
 	{
 		this.msg = msg;
 		this.config = config;
@@ -119,10 +120,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.execService = execService;
 		this.enableRegistration = enableRegistration;
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
-		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
 		this.flows = flows;
 		this.imageAccessService = imageAccessService;
+		this.interactiveAuthnProcessor = interactiveAuthnProcessor;
 		
 		init();
 	}
@@ -291,7 +292,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				cancelHandler, unknownUserDialogProvider, gridCompatible, 
 				authnOption.authenticatorUI, optionId);
 		FirstFactorAuthNResultCallback controller = new FirstFactorAuthNResultCallback(
-				msg, authnProcessor, 
+				msg, interactiveAuthnProcessor, 
 				endpointDescription.getRealm(), authnOption.flow, 
 				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(
 						optionId.toStringEncodedKey(), authNPanel), 
@@ -312,7 +313,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, idsMan, execService, 
 				secondaryUI, partialAuthnState, 
 				optionId, listener);
-		SecondFactorAuthNResultCallback controller = new SecondFactorAuthNResultCallback(msg, authnProcessor, 
+		SecondFactorAuthNResultCallback controller = new SecondFactorAuthNResultCallback(msg, 
+				interactiveAuthnProcessor, 
 				endpointDescription.getRealm(), listener, this::isSetRememberMe, 
 				partialAuthnState, authNPanel);
 		secondaryUI.setAuthenticationCallback(controller);
@@ -329,17 +331,17 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private void refreshAuthenticationState() 
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		PostAuthenticationStepDecision postFirstFactorDecision = (PostAuthenticationStepDecision) session
+		PostAuthenticationStepDecision postAuthnStepDecision = (PostAuthenticationStepDecision) session
 				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
-		if (postFirstFactorDecision != null)
+		if (postAuthnStepDecision != null)
 		{
 			log.debug("Remote authentication result found in session, triggering its processing");
 			session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
-			RedirectedAuthnFirstFactorResultProcessor remoteFirstFactorResultProcessor = 
-					new RedirectedAuthnFirstFactorResultProcessor(msg, execService, 
+			RedirectedAuthnResultProcessor remoteFirstFactorResultProcessor = 
+					new RedirectedAuthnResultProcessor(msg, execService, 
 							unknownUserDialogProvider,
 							this::switchToSecondaryAuthentication);
-			remoteFirstFactorResultProcessor.onCompletedAuthentication(postFirstFactorDecision);
+			remoteFirstFactorResultProcessor.onCompletedAuthentication(postAuthnStepDecision);
 		}
 	}
 

@@ -21,7 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedWithLogoutComponent;
@@ -37,12 +37,12 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	protected EnquiryResponseEditor editor;
 	private Callback callback;
 	protected MessageSource msg;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	protected ImageAccessService imageAccessService;
 	
 	protected VerticalLayout main;
 	
-	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, 
+	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebLogoutHandler authnProcessor, 
 			ImageAccessService imageAccessService,
 			MessageSource msg,	Callback callback)
 	{

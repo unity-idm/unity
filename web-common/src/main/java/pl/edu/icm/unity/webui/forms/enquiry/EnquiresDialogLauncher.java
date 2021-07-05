@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -33,12 +33,12 @@ public class EnquiresDialogLauncher
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiresDialogLauncher.class);
 	private MessageSource msg;
 	private EnquiryResponseEditorController enquiryController;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	
 	@Autowired
 	public EnquiresDialogLauncher(MessageSource msg,
 			EnquiryResponseEditorController enquiryController,
-			StandardWebAuthenticationProcessor authnProcessor)
+			StandardWebLogoutHandler authnProcessor)
 	{
 		this.msg = msg;
 		this.enquiryController = enquiryController;

@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
@@ -39,13 +39,13 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 public class UserHomeUI extends UnityEndpointUIBase
 {
 	private UserAccountComponent userAccount;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private HomeEndpointProperties config;
 	private ProjectManagementHelper projectManHelper;
 
 	@Autowired
 	public UserHomeUI(MessageSource msg, UserAccountComponent userAccountComponent,
-			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher, 
+			StandardWebLogoutHandler authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher, 
 			ProjectManagementHelper projectManHelper)
 	{
 		super(msg, enquiryDialogLauncher);

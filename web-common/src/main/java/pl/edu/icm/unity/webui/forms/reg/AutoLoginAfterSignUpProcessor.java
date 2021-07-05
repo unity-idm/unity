@@ -13,14 +13,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.vaadin.server.VaadinServletRequest;
+import com.vaadin.server.VaadinServletResponse;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,7 +29,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 
 /**
  * Used in standalone registration from to automatically sign in user, only in
@@ -49,7 +50,7 @@ class AutoLoginAfterSignUpProcessor
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AutoLoginAfterSignUpProcessor.class);
 	
 	@Autowired
-	private StandardWebAuthenticationProcessor standardAuthnProcessor;
+	private InteractiveAuthenticationProcessor authnProcessor;
 	
 	@Autowired
 	@Qualifier("insecure")  
@@ -116,10 +117,7 @@ class AutoLoginAfterSignUpProcessor
 					remoteContext.getMappingResult().getAuthenticatedWith(), null);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
 			
-			LoginSession ls = getLoginSessionForEntity(authenticatedEntity, realm);
-			
-			logged(authenticatedEntity, realm, ls, remoteContext);
-			
+			loginUser(authenticatedEntity, realm, remoteContext);
 			LOG.info("Entity Id {} automatically signed into realm {}, as the result of successful "
 					+ "registration request processing: {}", requestState.getCreatedEntityId(), 
 					form.getAutoLoginToRealm(), requestState.getRequestId());
@@ -136,31 +134,21 @@ class AutoLoginAfterSignUpProcessor
 		long now = Instant.now().getEpochSecond();
 		long login = loginTime.getEpochSecond();
 		long userActivityDuration = now - login;
-		if (userActivityDuration > realm.getMaxInactivity())
-			return true;
-		return false;
+		return userActivityDuration > realm.getMaxInactivity();
 	}
 
-	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm)
-	{
-		LoginSession ls = standardAuthnProcessor.getLoginSessionForEntity(authenticatedEntity, realm, null, null);
-		return ls;
-	}
-	
-	private void logged(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, LoginSession ls,
+	private void loginUser(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, 
 			RemotelyAuthenticatedPrincipal remoteContext)
 	{
-		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
-		try
-		{
-			standardAuthnProcessor.logged(authenticatedEntity, ls, realm, clientIp, false, 
-					extractParticipants(remoteContext));
-		} catch (AuthenticationException e)
-		{
-			LOG.error("Unable to automatically sign in entity {}.", authenticatedEntity.getEntityId(), e);
-		}
+		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
+		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
+		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
+				.getLoginMachineDetailsFromCurrentRequest();
+		authnProcessor.syntheticAuthenticate(authenticatedEntity, extractParticipants(remoteContext), 
+				null, realm, loginMachineDetails, false, 
+				servletRequest, servletResponse);
 	}
-
+	
 	private List<SessionParticipant> extractParticipants(RemotelyAuthenticatedPrincipal remoteContext)
 	{
 		List<SessionParticipant> ret = Lists.newArrayList();

@@ -18,19 +18,19 @@ import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
-class RedirectedAuthnFirstFactorResultProcessor
+class RedirectedAuthnResultProcessor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RedirectedAuthnFirstFactorResultProcessor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RedirectedAuthnResultProcessor.class);
 	private final MessageSource msg;
 	private final ExecutorsService execService;
 	private final Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider;
 	private final Consumer<PartialAuthnState> switchUITo2ndFactor; 
 	
-	RedirectedAuthnFirstFactorResultProcessor(MessageSource msg, ExecutorsService execService,
+	RedirectedAuthnResultProcessor(MessageSource msg, ExecutorsService execService,
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
 			Consumer<PartialAuthnState> switchUITo2ndFactor)
 	{
@@ -40,27 +40,27 @@ class RedirectedAuthnFirstFactorResultProcessor
 		this.switchUITo2ndFactor = switchUITo2ndFactor;
 	}
 
-	void onCompletedAuthentication(PostAuthenticationStepDecision postFirstFactorDecision)
+	void onCompletedAuthentication(PostAuthenticationStepDecision postAuthnStepDecision)
 	{
 		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
-		switch (postFirstFactorDecision.getDecision())
+		switch (postAuthnStepDecision.getDecision())
 		{
 		case COMPLETED:
 			log.trace("Authentication completed");
 			return;
 		case ERROR:
 			log.trace("Authentication failed ");
-			handleError(postFirstFactorDecision.getErrorDetail().error.resovle(msg), clientIp);
+			handleError(postAuthnStepDecision.getErrorDetail().error.resovle(msg), clientIp);
 		case GO_TO_2ND_FACTOR:
 			log.trace("Authentication requires 2nd factor");
-			switchUITo2ndFactor.accept(postFirstFactorDecision.getSecondFactorDetail().postFirstFactorResult);
+			switchUITo2ndFactor.accept(postAuthnStepDecision.getSecondFactorDetail().postFirstFactorResult);
 			return;
 		case UNKNOWN_REMOTE_USER:
 			log.trace("Authentication resulted in unknown remote user");
-			handleUnknownUser(postFirstFactorDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal, clientIp);
+			handleUnknownUser(postAuthnStepDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal, clientIp);
 			return;
 		default:
-			throw new IllegalStateException("Unknown authn decision: " + postFirstFactorDecision.getDecision());
+			throw new IllegalStateException("Unknown authn decision: " + postAuthnStepDecision.getDecision());
 		}
 	}
 	
@@ -85,7 +85,7 @@ class RedirectedAuthnFirstFactorResultProcessor
 	
 	private void showWaitScreenIfNeeded(String clientIp)
 	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = StandardWebLogoutHandler.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 		{
 			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);

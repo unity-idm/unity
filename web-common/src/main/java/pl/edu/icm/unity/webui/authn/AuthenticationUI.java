@@ -69,7 +69,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private ImageAccessService imageAccessService;
 	private LocaleChoiceComponent localeChoice;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private RegistrationFormsLayoutController registrationFormController;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
@@ -84,7 +84,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	@Autowired
 	public AuthenticationUI(MessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebLogoutHandler authnProcessor,
 			InteractiveAuthenticationProcessor interactiveProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,
@@ -131,7 +131,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
-				authnProcessor, localeChoice, authnFlows);
+				localeChoice, authnFlows,
+				interactiveAuthnProcessor);
 		setContent(authenticationUI);
 		setSizeFull();
 	}

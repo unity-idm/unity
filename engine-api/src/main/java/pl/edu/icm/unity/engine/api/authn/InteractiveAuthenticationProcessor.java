@@ -4,12 +4,17 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
  * Handles authentication results for interactive authentications (typically over some web binding).
@@ -26,7 +31,19 @@ public interface InteractiveAuthenticationProcessor
 	PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state, 
 			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, boolean setRememberMe,
-			HttpServletRequest httpRequest, HttpServletResponse httpResponse);	
+			HttpServletRequest httpRequest, HttpServletResponse httpResponse);
+	
+	void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
+			List<SessionParticipant> participants,
+			AuthenticationOptionKey authnOptionKey,
+			AuthenticationRealm realm,
+			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse);
+	
+	static String getSessionCookieName(String realmName)
+	{
+		return UNITY_SESSION_COOKIE_PFX+realmName;
+	}
 	
 	public class PostAuthenticationStepDecision
 	{

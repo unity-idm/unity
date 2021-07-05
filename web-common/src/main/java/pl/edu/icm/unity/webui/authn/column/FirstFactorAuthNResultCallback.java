@@ -12,22 +12,27 @@ import javax.servlet.http.Cookie;
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinServletRequest;
+import com.vaadin.server.VaadinServletResponse;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
-import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -42,7 +47,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			FirstFactorAuthNResultCallback.class);
 	private final MessageSource msg;
-	private final WebAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final AuthenticationRealm realm;
 	private final AuthenticationFlow selectedAuthnFlow;
 	private final Supplier<Boolean> rememberMeProvider;
@@ -54,7 +59,8 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	private String clientIp;
 	
 	public FirstFactorAuthNResultCallback(MessageSource msg,
-			WebAuthenticationProcessor authnProcessor, AuthenticationRealm realm,
+			InteractiveAuthenticationProcessor authnProcessor, 
+			AuthenticationRealm realm,
 			AuthenticationFlow selectedAuthnFlow, Supplier<Boolean> rememberMeProvider,
 			AuthenticationListener authNListener, AuthenticationOptionKey authnId, String endpointPath,
 			FirstFactorAuthNPanel authNPanel)
@@ -75,26 +81,34 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	public void onCompletedAuthentication(AuthenticationResult result)
 	{
 		log.trace("Received authentication result of the primary authenticator " + result);
-		try
+		AuthenticationStepContext stepContext = new AuthenticationStepContext(realm, 
+				selectedAuthnFlow, authnId, FactorOrder.FIRST);
+		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
+		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
+		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
+				.getLoginMachineDetailsFromCurrentRequest();
+		PostAuthenticationStepDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
+				result, 
+				stepContext, loginMachineDetails, isSetRememberMe(), servletRequest, servletResponse);
+		switch (postFirstFactorDecision.getDecision())
 		{
-			Optional<PartialAuthnState> partialState = authnProcessor.processPrimaryAuthnResult(
-					result, clientIp, realm, 
-					selectedAuthnFlow, rememberMeProvider.get(), authnId);
-			if (!partialState.isPresent())
-			{
-				setAuthenticationCompleted();
-			} else
-			{
-				switchToSecondaryAuthentication(partialState.get());
-			}
-		} catch (UnknownRemoteUserException e)
-		{
-			handleUnknownUser(e);
-		} catch (AuthenticationException e)
-		{
-			log.trace("Authentication failed ", e);
-			String originalError = result.getStatus() == Status.deny ? result.getErrorResult().error.resovle(msg) : null;
-			handleError(msg.getMessage(e.getMessage()), originalError);
+		case COMPLETED:
+			log.trace("Authentication completed");
+			setAuthenticationCompleted();
+			return;
+		case ERROR:
+			log.trace("Authentication failed ");
+			handleError(postFirstFactorDecision.getErrorDetail().error.resovle(msg));
+		case GO_TO_2ND_FACTOR:
+			log.trace("Authentication requires 2nd factor");
+			switchToSecondaryAuthentication(postFirstFactorDecision.getSecondFactorDetail().postFirstFactorResult);
+			return;
+		case UNKNOWN_REMOTE_USER:
+			log.trace("Authentication resulted in unknown remote user");
+			handleUnknownUser(postFirstFactorDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal);
+			return;
+		default:
+			throw new IllegalStateException("Unknown authn decision: " + postFirstFactorDecision.getDecision());
 		}
 	}
 
@@ -148,26 +162,25 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	}
 	
 	
-	private void handleError(String genericError, String authenticatorError)
+	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
-		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
 		NotificationPopup.showError(errorToShow, "");
 		authNPanel.showWaitScreenIfNeeded(clientIp);
 	}
 	
-	private void handleUnknownUser(UnknownRemoteUserException e)
+	private void handleUnknownUser(UnknownRemotePrincipalResult result)
 	{
-		if (e.getFormForUser() != null || e.getResult().getUnknownRemotePrincipalResult().enableAssociation)
+		if (result.formForUnknownPrincipal != null || result.enableAssociation)
 		{
 			log.trace("Authentication successful, user unknown, showing unknown user dialog");
 			setAuthenticationAborted();
-			authNPanel.showUnknownUserDialog(e.getResult().getUnknownRemotePrincipalResult());
+			authNPanel.showUnknownUserDialog(result);
 		} else
 		{
 			log.trace("Authentication successful, user unknown, no registration form");
-			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"), null);
+			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
 		}
 	}
 	

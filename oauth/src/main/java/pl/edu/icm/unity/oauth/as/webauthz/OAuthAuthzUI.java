@@ -47,7 +47,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
@@ -72,7 +72,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private final OAuthIdPEngine idpEngine;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
-	private final StandardWebAuthenticationProcessor authnProcessor;
+	private final StandardWebLogoutHandler authnProcessor;
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport;
 	private final OAuthSessionService oauthSessionService;
@@ -85,7 +85,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	@Autowired
 	public OAuthAuthzUI(MessageSource msg, OAuthProcessor oauthProcessor, AttributeHandlerRegistry handlersRegistry,
-			PreferencesManagement preferencesMan, StandardWebAuthenticationProcessor authnProcessor,
+			PreferencesManagement preferencesMan, StandardWebLogoutHandler authnProcessor,
 			IdPEngine idpEngine, EnquiresDialogLauncher enquiryDialogLauncher,
 			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
 			OAuthSessionService oauthSessionService, PolicyAgreementManagement policyAgreementsMan,

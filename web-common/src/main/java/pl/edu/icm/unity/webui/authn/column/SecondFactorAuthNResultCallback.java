@@ -8,16 +8,23 @@ import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.server.VaadinServletRequest;
+import com.vaadin.server.VaadinServletResponse;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -29,7 +36,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			SecondFactorAuthNResultCallback.class);
 	private final MessageSource msg;
-	private final WebAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final AuthenticationRealm realm;
 	private final AuthenticationListener authNListener;
 	private final Supplier<Boolean> rememberMeProvider;
@@ -40,7 +47,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 
 
 	SecondFactorAuthNResultCallback(MessageSource msg,
-			WebAuthenticationProcessor authnProcessor, AuthenticationRealm realm,
+			InteractiveAuthenticationProcessor authnProcessor, AuthenticationRealm realm,
 			AuthenticationListener authNListener, Supplier<Boolean> rememberMeProvider,
 			PartialAuthnState partialState,
 			SecondFactorAuthNPanel authNPanel)
@@ -63,17 +70,34 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	private void processAuthn(AuthenticationResult result)
 	{
 		log.trace("Received authentication result of the 2nd authenticator" + result);
-		try
+		AuthenticationStepContext stepContext = new AuthenticationStepContext(realm, 
+				partialState.getAuthenticationFlow(), 
+				authNPanel.getAuthenticationOptionId(), FactorOrder.SECOND);
+		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
+		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
+		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
+				.getLoginMachineDetailsFromCurrentRequest();
+		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorResult(
+				partialState, result, stepContext, 
+				loginMachineDetails, isSetRememberMe(), servletRequest, servletResponse);
+		switch (postSecondFactorDecision.getDecision())
 		{
-			authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
-					partialState.getAuthenticationFlow(), rememberMeProvider.get(), 
-					authNPanel.getAuthenticationOptionId());
+		case COMPLETED:
+			log.trace("Authentication completed");
 			setAuthenticationCompleted();
-		} catch (AuthenticationException e)
-		{
-			log.trace("Secondary authentication failed ", e);
-			handleError(msg.getMessage(e.getMessage()), null);
+			return;
+		case ERROR:
+			log.trace("Authentication failed ");
+			handleError(postSecondFactorDecision.getErrorDetail().error.resovle(msg));
 			switchToPrimaryAuthentication();
+		case GO_TO_2ND_FACTOR:
+			log.error("2nd factor required after 2nd factor? {}", result);
+			throw new IllegalStateException("authentication error");
+		case UNKNOWN_REMOTE_USER:
+			log.error("unknown remote user after 2nd factor? {}", result);
+			throw new IllegalStateException("authentication error");
+		default:
+			throw new IllegalStateException("Unknown authn decision: " + postSecondFactorDecision.getDecision());
 		}
 	}
 	
@@ -103,11 +127,10 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 		return partialState;
 	}
 	
-	private void handleError(String genericError, String authenticatorError)
+	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
-		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
 		NotificationPopup.showError(errorToShow, "");
 		authNPanel.showWaitScreenIfNeeded(clientIp);
 	}

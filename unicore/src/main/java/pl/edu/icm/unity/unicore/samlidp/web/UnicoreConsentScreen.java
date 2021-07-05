@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -62,7 +62,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 	public UnicoreConsentScreen(MessageSource msg, ImageAccessService imageAccessService, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan, 
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebLogoutHandler authnProcessor,
 			IdentityTypeSupport identityTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
 			List<IdentityParam> validIdentities,

@@ -156,6 +156,22 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		return PostAuthenticationStepDecision.completed();
 	}
 	
+	@Override
+	public void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
+			List<SessionParticipant> participants,
+			AuthenticationOptionKey authnOptionKey,
+			AuthenticationRealm realm,
+			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse)
+	{
+		LoginSession loginSession = getLoginSessionForEntity(authenticatedEntity, realm,
+				authnOptionKey, null);
+
+		logged(authenticatedEntity, loginSession, realm, machineDetails, setRememberMe,
+				participants, 
+				httpRequest, httpResponse);
+	}
+	
 	private PostAuthenticationStepDecision interpretAuthnException(AuthenticationException e, HttpServletRequest httpRequest,
 			String ip)
 	{

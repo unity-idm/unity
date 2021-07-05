@@ -39,7 +39,7 @@ import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -64,7 +64,7 @@ class OAuthConsentScreen extends CustomComponent
 	
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private OAuthSessionService sessionMan;
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityTypeSupport idTypeSupport;
@@ -82,7 +82,7 @@ class OAuthConsentScreen extends CustomComponent
 	OAuthConsentScreen(MessageSource msg, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
-			StandardWebAuthenticationProcessor authnProcessor, 
+			StandardWebLogoutHandler authnProcessor, 
 			IdentityTypeSupport idTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
 			OAuthSessionService sessionMan,

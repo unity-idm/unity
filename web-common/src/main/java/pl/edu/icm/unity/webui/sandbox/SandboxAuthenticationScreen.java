@@ -76,9 +76,9 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				cancelHandler, idsMan, 
 				execService, false, 
 				SandboxAuthenticationScreen::disabledUnknownUserProvider, 
-				authnProcessor, 
 				localeChoice, 
-				authenticators);
+				authenticators,
+				authnProcessor);
 		this.sandboxRouter = sandboxRouter;
 	}
 
