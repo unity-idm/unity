@@ -13,11 +13,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
@@ -139,8 +141,30 @@ public class BaseFormValidator
 					throw new IllegalArgumentException("Agreement text must not be empty.");
 			}
 		}
+		
+		if (form.getDisplayedName() != null)
+		{
+			validateFreemarkerTemplate("Displayed name", form.getDisplayedName());
+		}
+		
+		if (form.getFormInformation() != null)
+		{
+			validateFreemarkerTemplate("Form information", form.getFormInformation());
+		}
+		
 	}
 	
+	public void validateFreemarkerTemplate(String fieldName, I18nString value)
+	{
+		for (String sValue : value.getMap().values())
+		{
+			if (!FreemarkerUtils.validateStringTemplate(sValue))
+			{
+				throw new IllegalArgumentException(fieldName + " text must be valid freemarker template.");
+
+			}			
+		}
+	}
 	
 	
 	public void checkTemplate(String tpl, String compatibleDef, String purpose) throws EngineException

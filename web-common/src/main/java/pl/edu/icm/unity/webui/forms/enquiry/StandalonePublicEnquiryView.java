@@ -27,6 +27,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
@@ -146,7 +147,9 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(invitation, currentUserData, form);
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 			
-			editor = editorController.getEditorInstanceForUnauthenticatedUser(form, invitation.getMessageParams(),
+			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
+					invitation.getMessageParamsWithCustomVarObject(
+							MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
 					RemotelyAuthenticatedContext.getLocalContext(), prefilled,
 					new EntityParam(invitation.getEntity()));
 
