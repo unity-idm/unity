@@ -4,14 +4,10 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import java.util.Optional;
 import java.util.function.Supplier;
-
-import javax.servlet.http.Cookie;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
 
@@ -30,7 +26,6 @@ import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
-import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -82,7 +77,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		log.trace("Received authentication result of the primary authenticator " + result);
 		AuthenticationStepContext stepContext = new AuthenticationStepContext(realm, 
-				selectedAuthnFlow, authnId, FactorOrder.FIRST);
+				selectedAuthnFlow, authnId, FactorOrder.FIRST, endpointPath);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
@@ -118,8 +113,6 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		if (authNListener != null)
 			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
-		//TODO KB we can now move it to be set after successful authN
-		setLastIdpCookie(authnId);
 	}
 
 	@Override
@@ -182,12 +175,6 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 			log.trace("Authentication successful, user unknown, no registration form");
 			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
 		}
-	}
-	
-	private void setLastIdpCookie(AuthenticationOptionKey idpKey)
-	{
-		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(endpointPath, idpKey);
-		lastIdpCookie.ifPresent(cookie -> VaadinService.getCurrentResponse().addCookie(cookie));
 	}
 	
 	/**

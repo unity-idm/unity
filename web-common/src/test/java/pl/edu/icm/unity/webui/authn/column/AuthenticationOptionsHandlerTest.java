@@ -36,7 +36,7 @@ public class AuthenticationOptionsHandlerTest
 		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn2", "o3");
 		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
-				"endp", mock(AuthenticationRealm.class));
+				"endp", mock(AuthenticationRealm.class), "/path");
 		handler.getMatchingAuthnOptions("authn.o2");
 		
 		List<AuthNOption> result = handler.getRemainingAuthnOptions();
@@ -52,7 +52,7 @@ public class AuthenticationOptionsHandlerTest
 		AuthenticationFlow flow1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn3", "o3");
 		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
-				"endp", mock(AuthenticationRealm.class));
+				"endp", mock(AuthenticationRealm.class), "/path");
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1");
 		
@@ -67,7 +67,7 @@ public class AuthenticationOptionsHandlerTest
 		AuthenticationFlow flow1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn3", "o3");
 		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
-				"endp", mock(AuthenticationRealm.class));
+				"endp", mock(AuthenticationRealm.class), "/path");
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1.o2");
 		
@@ -81,7 +81,7 @@ public class AuthenticationOptionsHandlerTest
 		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
 		AuthenticationFlow flow2 = getMockAuthnOption("authn2", "o3");
 		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2), 
-				"endp", mock(AuthenticationRealm.class));
+				"endp", mock(AuthenticationRealm.class), "/path");
 		handler.getMatchingAuthnOptions("authn");
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn2");
@@ -95,7 +95,7 @@ public class AuthenticationOptionsHandlerTest
 	{
 		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
 		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1), "endp",
-				mock(AuthenticationRealm.class));
+				mock(AuthenticationRealm.class), "/path");
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn.o2");
 		

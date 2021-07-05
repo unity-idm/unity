@@ -72,7 +72,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 		log.trace("Received authentication result of the 2nd authenticator" + result);
 		AuthenticationStepContext stepContext = new AuthenticationStepContext(realm, 
 				partialState.getAuthenticationFlow(), 
-				authNPanel.getAuthenticationOptionId(), FactorOrder.SECOND);
+				authNPanel.getAuthenticationOptionId(), FactorOrder.SECOND, null);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor

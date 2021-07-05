@@ -73,7 +73,7 @@ public class ECPStep1Handler
 		//TODO KB
 		Function<RemoteAuthnState, AuthenticationResult> responseHandler = null;
 		AuthenticationStepContext authenticationContext = new AuthenticationStepContext(null, null, 
-				new AuthenticationOptionKey("-", "-"), FactorOrder.FIRST);
+				new AuthenticationOptionKey("-", "-"), FactorOrder.FIRST, null);
 		ECPAuthnState context = new ECPAuthnState(authenticationContext, responseHandler, 
 				LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest(),
 				null);

@@ -15,17 +15,20 @@ public class AuthenticatorStepContext
 	public final AuthenticationRealm realm; 
 	public final AuthenticationFlow selectedAuthnFlow; 
 	public final FactorOrder factor; 
+	public final String endpointPath;
 	
-	public AuthenticatorStepContext(AuthenticationRealm realm, AuthenticationFlow selectedAuthnFlow, FactorOrder factor)
+	public AuthenticatorStepContext(AuthenticationRealm realm, AuthenticationFlow selectedAuthnFlow, 
+			String endpointPath, FactorOrder factor)
 	{
 		this.realm = realm;
 		this.selectedAuthnFlow = selectedAuthnFlow;
+		this.endpointPath = endpointPath;
 		this.factor = factor;
 	}
 	
 	public AuthenticatorStepContext(AuthenticatorStepContext toClone)
 	{
-		this(toClone.realm, toClone.selectedAuthnFlow, toClone.factor);
+		this(toClone.realm, toClone.selectedAuthnFlow, toClone.endpointPath, toClone.factor);
 	}
 	
 	public static enum FactorOrder

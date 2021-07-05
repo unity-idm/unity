@@ -146,7 +146,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		log.debug("Authn screen init");
 		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows, endpointDescription.getName(), 
-				endpointDescription.getRealm());
+				endpointDescription.getRealm(), endpointDescription.getEndpoint().getContextAddress());
 		
 		VerticalLayout topLevelLayout = new VerticalLayout();
 		topLevelLayout.setMargin(new MarginInfo(false, true, true, true));
@@ -359,7 +359,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
 		
 		AuthenticatorStepContext context = new AuthenticatorStepContext(endpointDescription.getRealm(), 
-				partialState.getAuthenticationFlow(), FactorOrder.SECOND);
+				partialState.getAuthenticationFlow(), null, FactorOrder.SECOND);
 		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN,
 				context);
 		if (secondaryAuthnUIs.size() > 1)

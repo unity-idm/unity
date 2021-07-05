@@ -196,7 +196,7 @@ public class ProxyAuthenticationFilter implements Filter
 						authenticator.getAuthenticatorId());
 				
 				AuthenticatorStepContext authnContext = new AuthenticatorStepContext(
-						realm, authenticatorParam.flow, FactorOrder.FIRST);
+						realm, authenticatorParam.flow, endpointPath, FactorOrder.FIRST);
 				boolean result = authenticator.triggerAutomatedAuthentication(
 						httpRequest, httpResponse, endpointPath, authnContext);
 				if (result)

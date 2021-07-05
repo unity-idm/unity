@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -25,14 +26,15 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.SecondFactorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.UnknownRemoteUserDetail;
+import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
-import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -101,6 +103,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 							machineDetails.getIp(), stepContext.realm, getLoginCounter(httpRequest));
 			if (!loginSessionFromRememberMe.isPresent())
 			{
+				setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
 				return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail(authnState));
 			} else
 			{
@@ -128,6 +131,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		logged(authnEntity, loginSession, stepContext.realm, machineDetails, setRememberMe,
 				AuthenticationProcessor.extractParticipants(result), httpRequest, httpResponse);
 
+		setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
+		
 		return PostAuthenticationStepDecision.completed();
 	}
 
@@ -297,5 +302,13 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			Object value = attrs.get(name);
 			newSession.setAttribute(name, value);
 		}
+	}
+	
+	private void setLastIdpCookie(HttpServletResponse response, AuthenticationOptionKey idpKey, String endpointPath)
+	{
+		if (endpointPath == null)
+			return;
+		Optional<Cookie> lastIdpCookie = LastAuthenticationCookie.createLastIdpCookie(endpointPath, idpKey);
+		lastIdpCookie.ifPresent(response::addCookie);
 	}
 }

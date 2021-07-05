@@ -16,9 +16,9 @@ public class AuthenticationStepContext extends AuthenticatorStepContext
 	public final AuthenticationOptionKey authnOptionId;
 	
 	public AuthenticationStepContext(AuthenticationRealm realm, AuthenticationFlow selectedAuthnFlow,
-			AuthenticationOptionKey authnOptionId, FactorOrder factor)
+			AuthenticationOptionKey authnOptionId, FactorOrder factor, String endpointPath)
 	{
-		super(realm, selectedAuthnFlow, factor);
+		super(realm, selectedAuthnFlow, endpointPath, factor);
 		this.authnOptionId = authnOptionId;
 	}
 

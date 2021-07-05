@@ -77,6 +77,6 @@ public class AuthnColumnComponentHelper
 
 	private static AuthenticatorStepContext getMockContext(AuthenticationFlow flow)
 	{
-		return new AuthenticatorStepContext(null, flow, FactorOrder.FIRST);
+		return new AuthenticatorStepContext(null, flow, null, FactorOrder.FIRST);
 	}
 }

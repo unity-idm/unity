@@ -37,16 +37,18 @@ public class AuthenticationOptionsHandler
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
 	private final String endpoint;
 	private final AuthenticationRealm realm;
+	private final String endpointPath;
 
 	private Set<String> consumedAuthenticators = new HashSet<>();
 
 	private Set<String> consumedAuthenticatorEntries = new HashSet<>();
 
 	public AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint,
-			AuthenticationRealm realm)
+			AuthenticationRealm realm, String endpointPath)
 	{
 		this.endpoint = endpoint;
 		this.realm = realm;
+		this.endpointPath = endpointPath;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
 			for (AuthenticatorInstance a: ao.getFirstFactorAuthenticators())
 			{
@@ -97,7 +99,7 @@ public class AuthenticationOptionsHandler
 		
 		VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
 		AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 
-				FactorOrder.FIRST);
+				endpointPath, FactorOrder.FIRST);
 		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(
 				Context.LOGIN, authenticatorContext);
 		List<AuthNOption> ret = new ArrayList<>();
@@ -131,7 +133,7 @@ public class AuthenticationOptionsHandler
 
 			VaadinAuthentication retrieval = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
 			AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 
-					FactorOrder.FIRST);
+					endpointPath, FactorOrder.FIRST);
 			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance(Context.LOGIN,
 					authenticatorContext);
 			for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)

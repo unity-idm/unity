@@ -67,7 +67,7 @@ public class AdditionalAuthnHandler
 		AuthenticatorWithFlow authnPlusFlow = getRetrieval(authenticator);
 		
 		AuthenticatorStepContext context = new AuthenticatorStepContext(InvocationContext.getCurrent().getRealm(),
-				authnPlusFlow.flow, FactorOrder.FIRST);
+				authnPlusFlow.flow, null, FactorOrder.FIRST);
 		VaadinAuthenticationUI authenticationUI = authnPlusFlow.authenticator.createUIInstance(Context.LOGIN,
 				context).iterator().next();
 		Entity entity = getCurrentEntity();

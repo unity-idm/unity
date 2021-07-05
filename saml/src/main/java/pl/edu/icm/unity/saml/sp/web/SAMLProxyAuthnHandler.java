@@ -5,10 +5,8 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Set;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -118,17 +116,8 @@ class SAMLProxyAuthnHandler
 			throw new IllegalStateException("Can not create SAML authN request", e);
 		}
 		
-		setLastIdpCookie(httpResponse, idpConfigKey, endpointPath);
-		
 		RedirectRequestHandler.handleRequest(context, httpResponse);
 		return true;
-	}
-	
-	private void setLastIdpCookie(HttpServletResponse httpResponse, String idpConfigKey, String endpointPath)
-	{
-		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
-				endpointPath, getAuthnOptionId(idpConfigKey));
-		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 	
 	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)

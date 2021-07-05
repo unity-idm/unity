@@ -355,7 +355,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
 				String authenticatorKey = vaadinAuthenticator.getAuthenticatorId();
 				AuthenticatorStepContext context = new AuthenticatorStepContext(
-						InvocationContext.getCurrent().getRealm(), flow, FactorOrder.FIRST);
+						InvocationContext.getCurrent().getRealm(), flow, null, FactorOrder.FIRST);
 				Collection<VaadinAuthenticationUI> optionUIInstances = 
 						vaadinAuthenticator.createUIInstance(Context.REGISTRATION, context);
 				for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)

@@ -81,6 +81,6 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 	
 	private static AuthenticatorStepContext getMockContext()
 	{
-		return new AuthenticatorStepContext(null, null, FactorOrder.FIRST);
+		return new AuthenticatorStepContext(null, null, null, FactorOrder.FIRST);
 	}
 }
