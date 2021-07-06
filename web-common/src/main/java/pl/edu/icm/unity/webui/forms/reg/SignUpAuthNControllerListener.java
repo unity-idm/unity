@@ -23,5 +23,5 @@ public interface SignUpAuthNControllerListener
 
 	public void onAuthnCancelled();
 
-	public void onAuthnStarted(boolean showProgress);
+	public void onAuthnStarted();
 }

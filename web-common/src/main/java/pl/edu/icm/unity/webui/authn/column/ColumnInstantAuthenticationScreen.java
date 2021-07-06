@@ -454,7 +454,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		}
 
 		@Override
-		public void authenticationStarted(boolean showProgress)
+		public void authenticationStarted()
 		{
 			authNPanelInProgress = authNPanel;
 			authNColumns.disableAllExcept(optionId);
@@ -489,7 +489,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		}
 
 		@Override
-		public void authenticationStarted(boolean showProgress)
+		public void authenticationStarted()
 		{
 			enableSharedWidgets(false);
 		}

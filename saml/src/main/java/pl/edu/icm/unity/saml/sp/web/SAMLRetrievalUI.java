@@ -37,7 +37,6 @@ import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -207,7 +206,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}
 		log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
 		idpComponent.setEnabled(false);
-		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+		callback.onStartedAuthentication();
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
 

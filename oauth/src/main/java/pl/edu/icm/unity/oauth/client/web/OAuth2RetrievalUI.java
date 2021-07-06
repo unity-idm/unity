@@ -38,7 +38,6 @@ import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -226,7 +225,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 					authenticationStepContext, callback.isSetRememberMe(), loginMachineDetails,  
 					currentRelativeURI, callback.getPostFirstFactorAuthnState());
 			idpComponent.setEnabled(false);
-			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+			callback.onStartedAuthentication();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);

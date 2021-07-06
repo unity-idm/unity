@@ -27,7 +27,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -108,11 +107,11 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public void onStartedAuthentication(AuthenticationStyle style)
+	public void onStartedAuthentication()
 	{
 		clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		if (authNListener != null)
-			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+			authNListener.authenticationStarted();
 	}
 
 	@Override
@@ -182,7 +181,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	 */
 	interface AuthenticationListener
 	{
-		void authenticationStarted(boolean showProgress);
+		void authenticationStarted();
 		void authenticationAborted();
 		void authenticationCompleted();
 		void switchTo2ndFactor(PartialAuthnState partialState);

@@ -11,12 +11,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.column.AuthNOption;
 
 /**
@@ -97,10 +96,10 @@ public class SignUpAuthNController
 		}
 
 		@Override
-		public void onStartedAuthentication(AuthenticationStyle authenticationStyle)
+		public void onStartedAuthentication()
 		{
 			selectedAuthNOption = authNOption;
-			listener.onAuthnStarted(authenticationStyle == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+			listener.onAuthnStarted();
 		}
 
 		@Override

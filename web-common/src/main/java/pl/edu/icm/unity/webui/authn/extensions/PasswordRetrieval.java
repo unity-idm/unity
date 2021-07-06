@@ -214,7 +214,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 						msg.getMessage("WebPasswordRetrieval.noUser"));
 			} else 
 			{
-				callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+				callback.onStartedAuthentication();
 				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
 				callback.onCompletedAuthentication(authenticationResult);
 			}

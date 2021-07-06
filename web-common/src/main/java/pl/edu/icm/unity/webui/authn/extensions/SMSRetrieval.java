@@ -334,7 +334,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCodeButton.setVisible(false);
 			answerField.focus();
 			if (callback != null)
-				callback.onStartedAuthentication(AuthenticationStyle.WITH_EMBEDDED_CANCEL);
+				callback.onStartedAuthentication();
 		}
 
 		private void triggerAuthentication()

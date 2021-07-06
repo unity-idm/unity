@@ -507,7 +507,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		}
 
 		@Override
-		public void onAuthnStarted(boolean showProgress)
+		public void onAuthnStarted()
 		{
 			log.debug("External authentication started");
 			enableSharedWidgets(false);

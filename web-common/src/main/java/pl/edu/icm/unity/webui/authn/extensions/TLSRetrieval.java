@@ -193,7 +193,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		
 		private void triggerAuthentication()
 		{
-			callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+			callback.onStartedAuthentication();
 			AuthenticationResult authenticationResult = getAuthenticationResult();
 			if (authenticationResult.getStatus() == Status.success)
 				component.setEnabled(false);

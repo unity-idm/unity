@@ -20,7 +20,6 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
 
 /**
@@ -67,7 +66,7 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	}
 	
 	@Override
-	public void onStartedAuthentication(AuthenticationStyle style)
+	public void onStartedAuthentication()
 	{
 	}
 

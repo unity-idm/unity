@@ -154,13 +154,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		}
 	}
 
-	enum AuthenticationStyle 
-	{
-		IMMEDIATE,
-		WITH_EMBEDDED_CANCEL,
-		WITH_EXTERNAL_CANCEL
-	}
-	
 	/**
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
 	 * @author K. Benedyczak
@@ -170,7 +163,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		/**
 		 * Should be always called after authentication is started
 		 */
-		void onStartedAuthentication(AuthenticationStyle authenticationStyle);
+		void onStartedAuthentication();
 		
 		/**
 		 * Should be called after authentication result is obtained
