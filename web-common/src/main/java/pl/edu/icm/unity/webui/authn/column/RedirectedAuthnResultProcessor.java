@@ -51,6 +51,7 @@ class RedirectedAuthnResultProcessor
 		case ERROR:
 			log.trace("Authentication failed ");
 			handleError(postAuthnStepDecision.getErrorDetail().error.resovle(msg), clientIp);
+			return;
 		case GO_TO_2ND_FACTOR:
 			log.trace("Authentication requires 2nd factor");
 			switchUITo2ndFactor.accept(postAuthnStepDecision.getSecondFactorDetail().postFirstFactorResult);
