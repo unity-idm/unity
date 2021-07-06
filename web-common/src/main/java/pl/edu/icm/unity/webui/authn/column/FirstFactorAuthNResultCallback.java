@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
+import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -145,6 +146,13 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		if (authNListener != null)
 			authNListener.authenticationCompleted();
+		UI ui = UI.getCurrent();
+		if (ui == null)
+		{
+			log.error("BUG Can't get UI to redirect the authenticated user.");
+			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
+		}
+		ui.getPage().reload();
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
