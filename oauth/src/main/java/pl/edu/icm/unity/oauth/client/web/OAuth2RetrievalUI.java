@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
-import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
@@ -40,7 +39,6 @@ import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -56,7 +54,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private final MessageSource msg;
 	private final ImageAccessService imageAccessService;
 	private final OAuthExchange credentialExchange;
-	private final OAuthContextsManagement contextManagement;
 	private final String configKey;
 	private final String idpKey;
 	private final Context context;
@@ -74,14 +71,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 
 	public OAuth2RetrievalUI(MessageSource msg, ImageAccessService imageAccessService, OAuthExchange credentialExchange,
-			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
+			ExecutorsService executorsService, 
 			String configKey, Context context, 
 			AuthenticationStepContext authenticationStepContext)
 	{
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
 		this.credentialExchange = credentialExchange;
-		this.contextManagement = contextManagement;
 		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();;
 		this.configKey = configKey;
 		this.context = context;
@@ -161,7 +157,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void clear()
 	{
-		breakLogin();
 		idpComponent.setEnabled(true);
 	}
 	
@@ -182,36 +177,9 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		return rh.getTriggeringParam();
 	}
 	
-	private void breakLogin()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		OAuthContext context = (OAuthContext) session.getAttribute(
-				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			session.removeAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-			contextManagement.removeAuthnContext(context.getRelayState());
-		}
-	}
-	
 	void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		OAuthContext context = (OAuthContext) session.getAttribute(
-				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg, 
-					msg.getMessage("OAuth2Retrieval.breakLoginInProgressConfirm"), 
-					() -> {
-						breakLogin();
-						startFreshLogin(session);	
-					});
-			confirmKillingPreviousAuthn.setSizeEm(35, 20);
-			confirmKillingPreviousAuthn.setHTMLContent(true);
-			confirmKillingPreviousAuthn.show();
-			return;
-		}
 		startFreshLogin(session);
 	}
 
@@ -227,7 +195,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication();
 			context.setReturnUrl(currentRelativeURI);
-			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
+			session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{

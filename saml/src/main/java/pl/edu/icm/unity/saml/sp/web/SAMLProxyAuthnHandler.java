@@ -86,19 +86,12 @@ class SAMLProxyAuthnHandler
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			log.debug("Ignoring automated login as the previous remote SAML authentication "
-					+ "is still in progress.");
-			return false;
-		}
 		
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		log.info("Starting automatic proxy authentication with remote SAML IdP "
 				+ "configured under {}, current relative URI is {}", idpConfigKey, currentRelativeURI);	
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+		RemoteAuthnContext context;
 		try
 		{
 			AuthenticationStepContext authnStepContext = new AuthenticationStepContext(authnContext, 
@@ -108,7 +101,6 @@ class SAMLProxyAuthnHandler
 					loginMachineDetails,
 					currentRelativeURI,
 					null);
-			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)

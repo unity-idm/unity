@@ -24,8 +24,7 @@ import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
  */
 class RedirectRequestHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
-			RedirectRequestHandler.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
 	
 	static boolean handleRequest(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{

@@ -26,7 +26,6 @@ import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -45,20 +44,17 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 {
 	public static final String NAME = "web-oauth2";
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
-	public static final String REMOTE_AUTHN_CONTEXT = OAuth2Retrieval.class.getName()+".authnContext";
 	private MessageSource msg;
 	private ImageAccessService imageService;
-	private OAuthContextsManagement contextManagement;
 	private ExecutorsService executorsService;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 	
 	@Autowired
-	public OAuth2Retrieval(MessageSource msg, ImageAccessService imageService, OAuthContextsManagement contextManagement, 
+	public OAuth2Retrieval(MessageSource msg, ImageAccessService imageService, 
 			ExecutorsService executorsService)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
-		this.contextManagement = contextManagement;
 		this.executorsService = executorsService;
 		this.imageService = imageService;
 	}
@@ -93,7 +89,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 					key.length()-1);
 			AuthenticationOptionKey authenticationOptionKey = 
 					new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
-			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange, contextManagement, 
+			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,  
 					executorsService, key, context,
 					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey)));
 		}

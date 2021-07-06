@@ -83,16 +83,9 @@ class OAuthProxyAuthnHandler
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
-		OAuthContext context = (OAuthContext) session.getAttribute(
-				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			log.debug("Ignoring automated login as the previous authentication "
-					+ "is still in progress.");
-			return false;
-		}
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+		OAuthContext context;
 		try
 		{
 			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
@@ -102,7 +95,6 @@ class OAuthProxyAuthnHandler
 					currentRelativeURI,
 					null);
 			context.setReturnUrl(currentRelativeURI);
-			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 		} catch (Exception e)
 		{

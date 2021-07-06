@@ -39,7 +39,6 @@ import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -154,35 +153,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		return rh.getTriggeringParam();
 	}
 
-	private void breakLogin()
-	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session
-				.getAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-			samlContextManagement.removeAuthnContext(context.getRelayState());
-		}
-	}
-
 	void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session
-				.getAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg,
-					msg.getMessage("WebSAMLRetrieval.breakLoginInProgressConfirm"), () -> {
-						breakLogin();
-						startFreshLogin(session);
-					});
-			confirmKillingPreviousAuthn.setHTMLContent(true);
-			confirmKillingPreviousAuthn.setSizeEm(35, 20);
-			confirmKillingPreviousAuthn.show();
-			return;
-		}
 		startFreshLogin(session);
 	}
 
@@ -207,7 +180,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
 		idpComponent.setEnabled(false);
 		callback.onStartedAuthentication();
-		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+		session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
 
 		URI requestURI = Page.getCurrent().getLocation();
@@ -257,7 +230,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void clear()
 	{
-		breakLogin();
 		idpComponent.setEnabled(true);
 	}
 

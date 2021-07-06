@@ -47,7 +47,6 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 {
 	public static final String NAME = "web-saml2";
 	public static final String DESC = "WebSAMLRetrievalFactory.desc";
-	public static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
 	
 	private MessageSource msg;
 	private SamlContextManagement samlContextManagement;
