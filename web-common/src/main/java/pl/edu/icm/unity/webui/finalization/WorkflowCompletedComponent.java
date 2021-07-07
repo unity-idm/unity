@@ -78,9 +78,9 @@ public class WorkflowCompletedComponent extends CustomComponent
 		if (config.redirectURL != null)
 		{
 			Button redirectB;
-			if (config.redirectAfterTime > 0)
+			if (config.redirectAfterTime != null && config.redirectAfterTime.getSeconds() > 0)
 			{
-				redirectB = new AutoClickButton(config.redirectButtonText, UI.getCurrent(), config.redirectAfterTime);
+				redirectB = new AutoClickButton(config.redirectButtonText, UI.getCurrent(), config.redirectAfterTime.getSeconds());
 			}else
 			{
 				redirectB = new Button(config.redirectButtonText);	

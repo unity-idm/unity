@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.time.Duration;
 import java.util.Objects;
 
 import pl.edu.icm.unity.types.I18nString;
@@ -64,7 +65,7 @@ public class RegistrationWrapUpConfig
 	private I18nString redirectCaption;
 	private boolean automatic;
 	private String redirectURL;
-	private int redirectAfterTime;
+	private Duration redirectAfterTime;
 
 	public RegistrationWrapUpConfig(TriggeringState state)
 	{
@@ -72,7 +73,7 @@ public class RegistrationWrapUpConfig
 	}
 
 	public RegistrationWrapUpConfig(TriggeringState state, I18nString title, I18nString info,
-			I18nString redirectCaption, boolean automatic, String redirectURL, int redirectAfter)
+			I18nString redirectCaption, boolean automatic, String redirectURL, Duration redirectAfter)
 	{
 		this.state = state;
 		this.title = title;
@@ -97,7 +98,7 @@ public class RegistrationWrapUpConfig
 		return redirectURL;
 	}
 
-	public int getRedirectAfterTime()
+	public Duration getRedirectAfterTime()
 	{
 		return redirectAfterTime;
 	}

@@ -19,6 +19,6 @@ public class ObjectMapperSpringProvider
 	@Bean
 	public ObjectMapper defaultObjectMapper()
 	{
-		return new ObjectMapper();
+		return new ObjectMapper().findAndRegisterModules();
 	}
 }
