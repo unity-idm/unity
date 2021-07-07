@@ -20,19 +20,20 @@ import com.vaadin.ui.UI;
 public class AutoClickButton extends Button
 {
 	private static int COUNTDOWN_PROGRESS = 1000;
-
-	private int seconds;
+	private static int UI_POOL_INTERVAL = 100;
+	
+	private long seconds;
 	private Timer timer;
 	private UI currentUI;
 	private String caption;
 
-	public AutoClickButton(String caption, UI ui, int seconds)
+	public AutoClickButton(String caption, UI ui, long seconds)
 	{
 		super();
 		this.seconds = seconds;
 		this.caption = caption;
 		currentUI = ui;
-		currentUI.setPollInterval(10);
+		currentUI.setPollInterval(UI_POOL_INTERVAL);
 		ui.addDetachListener(e -> timer.cancel());
 		startCountdown();
 	}

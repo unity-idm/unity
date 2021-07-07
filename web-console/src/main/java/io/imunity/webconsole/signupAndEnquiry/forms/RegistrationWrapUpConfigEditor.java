@@ -6,6 +6,7 @@ package io.imunity.webconsole.signupAndEnquiry.forms;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.function.Predicate;
 
 import org.vaadin.risto.stepper.IntStepper;
@@ -68,7 +69,8 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 			redirectCaption.setValue(toEdit.getRedirectCaption());
 		if (toEdit.getRedirectURL() != null)
 			redirectURL.setValue(toEdit.getRedirectURL());
-		redirectAfter.setValue(toEdit.getRedirectAfterTime());
+		if (toEdit.getRedirectAfterTime() != null)
+			redirectAfter.setValue(new Long(toEdit.getRedirectAfterTime().getSeconds()).intValue());
 		trigger.setValue(toEdit.getState());
 		automatic.setValue(toEdit.isAutomatic());
 		setState();
@@ -91,9 +93,15 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 		{
 			throw new FormValidationException(msg.getMessage("RegistrationFormEditor.invalidRedirectURL", trigger.getValue().name()));
 		}
+		
+		if (redirectAfter.getValue() < 0)
+		{
+			throw new FormValidationException(msg.getMessage("RegistrationFormEditor.invalidRedirectAfter", trigger.getValue().name()));
+		}
+		
 
 		return new RegistrationWrapUpConfig(trigger.getValue(), title.getValue(), info.getValue(), 
 				redirectCaption.getValue(), 
-				automatic.getValue(), redirectURL.getValue(), redirectAfter.getValue());
+				automatic.getValue(), redirectURL.getValue(), Duration.ofSeconds(redirectAfter.getValue()));
 	}
 }
