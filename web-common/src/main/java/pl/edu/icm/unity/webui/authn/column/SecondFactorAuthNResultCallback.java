@@ -83,13 +83,13 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 		switch (postSecondFactorDecision.getDecision())
 		{
 		case COMPLETED:
-			log.trace("Authentication completed");
+			log.debug("Authentication completed");
 			setAuthenticationCompleted();
 			return;
 		case ERROR:
-			log.trace("Authentication failed ");
 			handleError(postSecondFactorDecision.getErrorDetail().error.resovle(msg));
 			switchToPrimaryAuthentication();
+			return;
 		case GO_TO_2ND_FACTOR:
 			log.error("2nd factor required after 2nd factor? {}", result);
 			throw new IllegalStateException("authentication error");
@@ -129,6 +129,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	
 	private void handleError(String errorToShow)
 	{
+		log.info("Authentication failed {}", errorToShow);
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
 		NotificationPopup.showError(errorToShow, "");

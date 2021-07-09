@@ -94,6 +94,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		case ERROR:
 			log.trace("Authentication failed ");
 			handleError(postFirstFactorDecision.getErrorDetail().error.resovle(msg));
+			return;
 		case GO_TO_2ND_FACTOR:
 			log.trace("Authentication requires 2nd factor");
 			switchToSecondaryAuthentication(postFirstFactorDecision.getSecondFactorDetail().postFirstFactorResult);

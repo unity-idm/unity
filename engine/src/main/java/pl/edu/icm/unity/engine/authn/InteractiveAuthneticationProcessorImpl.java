@@ -134,7 +134,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				AuthenticationProcessor.extractParticipants(result), httpRequest, httpResponse);
 
 		setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
-		
+		log.info("Successful authentication after first factor for {}", result);
 		return PostAuthenticationStepDecision.completed();
 	}
 
@@ -185,10 +185,12 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter(httpRequest);
 		if (e instanceof UnknownRemoteUserException)
 		{
+			log.info("Unknown remote user for {}", e.getResult().asRemote().getUnknownRemotePrincipalResult());
 			return PostAuthenticationStepDecision.unknownRemoteUser(
 					new UnknownRemoteUserDetail(e.getResult().asRemote().getUnknownRemotePrincipalResult()));
 		} else
 		{
+			log.info("Authentication failure: {} {}", e.getMessage(), e.getResult());
 			counter.unsuccessfulAttempt(ip);
 			return PostAuthenticationStepDecision.error(new ErrorDetail(new ResolvableError(e.getMessage())));
 		}
