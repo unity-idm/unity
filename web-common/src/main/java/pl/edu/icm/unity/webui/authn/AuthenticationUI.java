@@ -173,7 +173,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		setContent(authenticationUI);
 		authenticationUI.reset();
-		registrationFormController.resetSessionRegistraionAttribute();
+		registrationFormController.resetSessionRegistrationAttribute();
 	}
 
 	private void scheduleResetToFreshState()
@@ -256,7 +256,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			return;
 		}
 		
-		StandaloneRegistrationView registrationFormView = registrationFormController.getSessionRegistraionAttribute();
+		StandaloneRegistrationView registrationFormView = registrationFormController.getSessionRegistrationAttribute();
 		if (registrationFormView != null)
 		{
 			registrationFormView.refresh(request);

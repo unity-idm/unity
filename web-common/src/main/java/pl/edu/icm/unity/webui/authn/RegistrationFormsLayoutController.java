@@ -86,7 +86,7 @@ class RegistrationFormsLayoutController
 		}
 	}
 	
-	public void resetSessionRegistraionAttribute()
+	public void resetSessionRegistrationAttribute()
 	{
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
 		if (vaadinSession != null)
@@ -95,7 +95,7 @@ class RegistrationFormsLayoutController
 		}
 	}
 	
-	public StandaloneRegistrationView getSessionRegistraionAttribute()
+	public StandaloneRegistrationView getSessionRegistrationAttribute()
 	{
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
 		if (vaadinSession != null)

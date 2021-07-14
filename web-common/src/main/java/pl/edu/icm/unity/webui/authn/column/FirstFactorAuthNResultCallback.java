@@ -33,9 +33,9 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 /**
  * Collects authN result from the first authenticator of the selected flow
  * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
- * and if needed proceeds to 2nd authenticator. 
+ * and if needed proceeds to 2nd authenticator.
  * 
- * @author K. Benedyczak
+ * Responsible only for processing results in cases when authentication was not using redirect.
  */
 class FirstFactorAuthNResultCallback implements AuthenticationCallback
 {

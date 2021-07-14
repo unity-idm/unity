@@ -127,9 +127,7 @@ public class PublicRegistrationURLProvider extends PublicFormURLProviderBase
 				if (requestedFormName != null && Objects.equals(requestedFormName, cachedFormName))
 				{
 					view.refresh(request);
-				}
-				
-				else
+				} else
 				{
 					navigator.navigateTo(viewName);
 				}
