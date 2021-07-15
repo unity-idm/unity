@@ -110,4 +110,12 @@ class SandboxAuthenticationProcessor implements InteractiveAuthenticationProcess
 		JavaScript.getCurrent().execute("window.close();");
 	}
 
+	@Override
+	public PostAuthenticationStepDecision processRemoteRegistrationResult(AuthenticationResult result,
+			AuthenticationStepContext stepContext, LoginMachineDetails machineDetails,
+			HttpServletRequest httpRequest)
+	{
+		throw new UnsupportedOperationException("we are in sandbox mode");
+	}
+
 }

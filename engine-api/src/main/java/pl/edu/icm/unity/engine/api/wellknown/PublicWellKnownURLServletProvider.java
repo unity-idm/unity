@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.wellknown;
 
-import javax.servlet.Filter;
-
-import org.eclipse.jetty.servlet.ServletHolder;
+import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
 
 /**
  * Provides servlet which gives access to public well known-links handler. 
@@ -14,10 +12,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
  * @author K. Benedyczak
  *
  */
-public interface PublicWellKnownURLServletProvider
+public interface PublicWellKnownURLServletProvider extends ServletProvider
 {
 	public static final String SERVLET_PATH = "/pub";
-	
-	ServletHolder getServiceServlet();
-	Filter getServiceFilter();
 }

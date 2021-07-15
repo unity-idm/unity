@@ -9,6 +9,7 @@ import java.util.function.Function;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 
 /**
@@ -25,7 +26,8 @@ public class ECPAuthnState extends RemoteAuthnState
 			LoginMachineDetails initialLoginMachine, 
 			String ultimateReturnURL) 
 	{
-		super(authenticationContext, responseHandler, false, initialLoginMachine, ultimateReturnURL, null);
+		super(authenticationContext, responseHandler, initialLoginMachine, ultimateReturnURL, 
+				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
 	}
 
 	public void setRequestId(String requestId)

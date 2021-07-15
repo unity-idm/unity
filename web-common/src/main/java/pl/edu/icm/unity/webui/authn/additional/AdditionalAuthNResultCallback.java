@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -77,14 +77,8 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public boolean isSetRememberMe()
+	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return false;
-	}
-	
-	@Override
-	public PartialAuthnState getPostFirstFactorAuthnState()
-	{
-		return null;
+		return AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false);
 	}
 }

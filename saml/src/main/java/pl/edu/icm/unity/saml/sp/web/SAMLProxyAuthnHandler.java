@@ -17,6 +17,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -97,10 +98,9 @@ class SAMLProxyAuthnHandler
 			AuthenticationStepContext authnStepContext = new AuthenticationStepContext(authnContext, 
 					getAuthnOptionId(idpConfigKey));
 			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext, 
-					false,
 					loginMachineDetails,
 					currentRelativeURI,
-					null);
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)

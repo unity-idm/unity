@@ -190,8 +190,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			String currentRelativeURI = UrlHelper.getCurrentVaadingRelativeURI();
 			LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-					authenticationStepContext, callback.isSetRememberMe(), loginMachineDetails,  
-					currentRelativeURI, callback.getPostFirstFactorAuthnState());
+					authenticationStepContext, loginMachineDetails,  
+					currentRelativeURI, callback.getTriggeringContext());
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication();
 			context.setReturnUrl(currentRelativeURI);

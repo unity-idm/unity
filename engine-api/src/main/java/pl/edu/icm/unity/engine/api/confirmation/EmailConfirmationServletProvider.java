@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation;
 
-import javax.servlet.Filter;
-
-import org.eclipse.jetty.servlet.ServletHolder;
+import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
 
 /**
  * Provides servlet used as a email confirmation endpoint
@@ -14,11 +12,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
  * @author P. Piernik
  *
  */
-public interface EmailConfirmationServletProvider
+public interface EmailConfirmationServletProvider extends ServletProvider
 {
 	public static final String SERVLET_PATH = "/confirmation";
 	public static final String CONFIRMATION_TOKEN_ARG ="token";
-	
-	ServletHolder getServiceServlet();
-	Filter getServiceFilter();
 }

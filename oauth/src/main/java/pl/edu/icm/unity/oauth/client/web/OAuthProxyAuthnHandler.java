@@ -18,6 +18,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
@@ -90,10 +91,9 @@ class OAuthProxyAuthnHandler
 		{
 			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
 					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)),
-					false, 
 					loginMachineDetails,
 					currentRelativeURI,
-					null);
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 		} catch (Exception e)

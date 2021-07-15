@@ -62,23 +62,25 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 public class StandaloneRegistrationView extends CustomComponent implements StandalonePublicView
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);
+	private final RegistrationsManagement regMan;
+	private final MessageSource msg;
+	private final UnityServerConfiguration cfg;
+	private final IdPLoginController idpLoginController;
+	private final RequestEditorCreator editorCreator;
+	private final SignUpAuthNController signUpAuthNController;
+	private final AutoLoginAfterSignUpProcessor autoLoginProcessor;
+	private final ImageAccessService imageAccessService;
+
 	private RegistrationForm form;
-	private RegistrationsManagement regMan;
-	private MessageSource msg;
-	private UnityServerConfiguration cfg;
-	private IdPLoginController idpLoginController;
+	
+	private PostFillingHandler postFillHandler;
 	private VerticalLayout main;
-	private RequestEditorCreator editorCreator;
-	private RegistrationRequestEditor currentRegistrationFormEditor;
-	private SignUpAuthNController signUpAuthNController;
 	private SignUpTopHeaderComponent header;
 	private HorizontalLayout formButtons;
-	private PostFillingHandler postFillHandler;
+	private RegistrationRequestEditor currentRegistrationFormEditor;
 	private Runnable customCancelHandler;
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
-	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
-	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public StandaloneRegistrationView(MessageSource msg,

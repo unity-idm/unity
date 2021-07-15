@@ -65,12 +65,12 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
@@ -180,10 +180,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	@Override
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationStepContext authnStepContext, boolean rememberMeEnabled,
+			AuthenticationStepContext authnStepContext, 
 			LoginMachineDetails initialLoginMachine, 
 			String ultimateReturnURL,
-			PartialAuthnState firstFactorAuthnState) 
+			AuthenticationTriggeringContext authnTriggeringContext) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -194,9 +194,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
 		RemoteAuthnState baseAuthnContext = new RemoteAuthnState(authnStepContext, this::processResponse, 
-				rememberMeEnabled,
 				initialLoginMachine, ultimateReturnURL, 
-				firstFactorAuthnState);
+				authnTriggeringContext);
 		OAuthContext context = new OAuthContext(baseAuthnContext);
 		AuthorizationRequest req;
 		if (openidMode)

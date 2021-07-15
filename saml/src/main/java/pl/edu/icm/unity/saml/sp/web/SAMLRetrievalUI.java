@@ -167,8 +167,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		{
 			LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
-					authenticationStepContext, callback.isSetRememberMe(),
-					loginMachineDetails, currentRelativeURI, callback.getPostFirstFactorAuthnState());
+					authenticationStepContext, 
+					loginMachineDetails, currentRelativeURI, callback.getTriggeringContext());
 			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{

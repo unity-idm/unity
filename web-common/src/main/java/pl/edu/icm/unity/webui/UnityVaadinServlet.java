@@ -77,7 +77,6 @@ public class UnityVaadinServlet extends VaadinServlet
 			UnityBootstrapHandler bootstrapHandler,
 			String theme)
 	{
-		super();
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;

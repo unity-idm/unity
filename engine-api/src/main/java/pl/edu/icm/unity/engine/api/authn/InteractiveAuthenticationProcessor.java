@@ -32,6 +32,11 @@ public interface InteractiveAuthenticationProcessor
 			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, boolean setRememberMe,
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse);
+
+	PostAuthenticationStepDecision processRemoteRegistrationResult(AuthenticationResult result, 
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails, 
+			HttpServletRequest httpRequest);
 	
 	void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,

@@ -474,7 +474,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			} else
 			{
 				option.authenticatorUI
-						.setAuthenticationCallback(signUpAuthNController.buildCallback(option));
+						.setAuthenticationCallback(signUpAuthNController.buildCallback(option, form));
 			}
 		}
 
@@ -552,7 +552,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			if (signUpAuthNController != null)
 			{
 				authnOption.authenticatorUI.setAuthenticationCallback(
-						signUpAuthNController.buildCallback(authnOption));
+						signUpAuthNController.buildCallback(authnOption, form));
 			}
 
 			return authNPanel;

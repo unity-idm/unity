@@ -29,24 +29,39 @@ class RemoteAuthnResponseProcessor
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
 	{
 		AuthenticationResult authnResult = authnContext.processAnswer();
+		if (authnContext.getAuthenticationTriggeringContext().isRegistrationTriggered())
+		{
+			return authnProcessor.processRemoteRegistrationResult(authnResult, 
+					authnContext.getAuthenticationStepContext(), 
+					authnContext.getInitialLoginMachine(), 
+					httpRequest);
+		} else
+		{
+			return processRegularAuthenticationResult(authnContext, httpRequest, httpResponse, authnResult);
+		}
+	}
+
+	private PostAuthenticationStepDecision processRegularAuthenticationResult(RemoteAuthnState authnContext, 
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse, AuthenticationResult authnResult)
+	{
 		FactorOrder factor = authnContext.getAuthenticationStepContext().factor; 
-		PostAuthenticationStepDecision postFirstFactorDecision =
-				factor == FactorOrder.FIRST ? 
-						authnProcessor.processFirstFactorResult(
-								authnResult, 
-								authnContext.getAuthenticationStepContext(), 
-								authnContext.getInitialLoginMachine(), 
-								authnContext.isRememberMeEnabled(),
-								httpRequest, 
-								httpResponse) :
-						authnProcessor.processSecondFactorResult(
-								authnContext.getFirstFactorAuthnState(),
-								authnResult, 
-								authnContext.getAuthenticationStepContext(), 
-								authnContext.getInitialLoginMachine(), 
-								authnContext.isRememberMeEnabled(),
-								httpRequest, 
-								httpResponse);
+		PostAuthenticationStepDecision postFirstFactorDecision = factor == FactorOrder.FIRST ? 
+					authnProcessor.processFirstFactorResult(
+							authnResult, 
+							authnContext.getAuthenticationStepContext(), 
+							authnContext.getInitialLoginMachine(), 
+							authnContext.getAuthenticationTriggeringContext().rememberMeSet,
+							httpRequest, 
+							httpResponse) :
+					authnProcessor.processSecondFactorResult(
+							authnContext.getAuthenticationTriggeringContext().firstFactorAuthnState,
+							authnResult, 
+							authnContext.getAuthenticationStepContext(), 
+							authnContext.getInitialLoginMachine(), 
+							authnContext.getAuthenticationTriggeringContext().rememberMeSet,
+							httpRequest, 
+							httpResponse);
 		return postFirstFactorDecision;
 	}
 }

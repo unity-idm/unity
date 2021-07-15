@@ -5,18 +5,21 @@
 package pl.edu.icm.unity.webui;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
-import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.collect.Lists;
 import com.vaadin.server.Constants;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 /**
@@ -26,10 +29,10 @@ import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
  * @author P. Piernik
  * @author K. Benedyczak
  */
-public class SimpleVaadinServletFactory
+public class SimpleVaadinServletFactory implements ServletProvider
 {
 	private ApplicationContext applicationContext;
-	private UnityServerConfiguration config;
+	protected final UnityServerConfiguration config;
 	private String uiClassName;
 	private Properties configuration;
 	private MessageSource msg;
@@ -54,6 +57,7 @@ public class SimpleVaadinServletFactory
 		this.configuration = configuration;
 	}
 	
+	@Override
 	public ServletHolder getServiceServlet()
 	{
 		Servlet servlet = new UnityVaadinServlet(applicationContext, uiClassName, null, 
@@ -62,16 +66,16 @@ public class SimpleVaadinServletFactory
 				getBootstrapHandlerGeneric(servletPath));
 
 		ServletHolder holder = new ServletHolder(servlet);
-		holder.setInitParameter(VaadinEndpoint.PRODUCTION_MODE_PARAM, 
-				"true");
-		holder.setInitParameter(Constants.PARAMETER_WIDGETSET, 
-				"pl.edu.icm.unity.webui.customWidgetset");
+		holder.setInitParameter(VaadinEndpoint.PRODUCTION_MODE_PARAM, "true");
+		holder.setInitParameter(Constants.PARAMETER_WIDGETSET, "pl.edu.icm.unity.webui.customWidgetset");
 		return holder;
 	}
 	
-	public Filter getServiceFilter()
+	@Override
+	public List<FilterHolder> getServiceFilters()
 	{
-		return new InvocationContextSetupFilter(config, null, null, Collections.emptyList());
+		return Lists.newArrayList(
+				new FilterHolder(new InvocationContextSetupFilter(config, null, null, Collections.emptyList())));
 	}
 
 	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath)

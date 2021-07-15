@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -84,7 +85,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 				.getLoginMachineDetailsFromCurrentRequest();
 		PostAuthenticationStepDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
 				result, 
-				stepContext, loginMachineDetails, isSetRememberMe(), servletRequest, servletResponse);
+				stepContext, loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse);
 		switch (postFirstFactorDecision.getDecision())
 		{
 		case COMPLETED:
@@ -123,15 +124,9 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public boolean isSetRememberMe()
+	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return rememberMeProvider.get();
-	}
-
-	@Override
-	public PartialAuthnState getPostFirstFactorAuthnState()
-	{
-		return null;
+		return AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(rememberMeProvider.get());
 	}
 	
 	/**

@@ -8,8 +8,8 @@ import java.util.Locale;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 
 /**
@@ -24,10 +24,9 @@ public interface SAMLExchange extends CredentialExchange
 	public static final String ID = "SAML2 exchange";
 	
 	RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationStepContext authnContext,
-			boolean enableRememberMe,
 			LoginMachineDetails initialLoginMachine, 
 			String ultimateReturnURL,
-			PartialAuthnState firstFactorAuthnState);
+			AuthenticationTriggeringContext triggeringContext);
 	SAMLSPProperties getSamlValidatorSettings();
 	IdPVisalSettings getVisualSettings(String configKey, Locale locale);
 	void destroy();

@@ -12,9 +12,10 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.column.AuthNOption;
 
@@ -42,9 +43,9 @@ public class SignUpAuthNController
 		this.msg = msg;
 	}
 
-	public AuthenticationCallback buildCallback(AuthNOption option)
+	public AuthenticationCallback buildCallback(AuthNOption option, RegistrationForm form)
 	{
-		return new SignUpAuthnCallback(option);
+		return new SignUpAuthnCallback(option, form);
 	}
 	
 	private void processAuthn(AuthenticationResult result)
@@ -89,10 +90,12 @@ public class SignUpAuthNController
 	private class SignUpAuthnCallback implements AuthenticationCallback
 	{
 		private final AuthNOption authNOption;
+		private final RegistrationForm form;
 
-		SignUpAuthnCallback(AuthNOption option)
+		SignUpAuthnCallback(AuthNOption option, RegistrationForm form)
 		{
 			this.authNOption = option;
+			this.form = form;
 		}
 
 		@Override
@@ -116,15 +119,9 @@ public class SignUpAuthNController
 		}
 
 		@Override
-		public boolean isSetRememberMe()
+		public AuthenticationTriggeringContext getTriggeringContext()
 		{
-			return false;
-		}
-		
-		@Override
-		public PartialAuthnState getPostFirstFactorAuthnState()
-		{
-			return null;
+			return AuthenticationTriggeringContext.registrationTriggeredAuthn(form);
 		}
 	}
 }

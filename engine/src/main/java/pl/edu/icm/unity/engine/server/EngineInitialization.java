@@ -61,6 +61,7 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
+import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -476,69 +477,44 @@ public class EngineInitialization extends LifecycleBase
 
 	private void deployPublicWellKnownURLServlet()
 	{
-		if (publicWellKnownURLServlet == null)
-		{
-			log.info("Public well-known URL servlet is not available, skipping its deploymnet");
-			return;
-		}
-
-		log.info("Deploing public well-known URL servlet");
-		ServletHolder holder = publicWellKnownURLServlet.getServiceServlet();
-		FilterHolder filterHolder = new FilterHolder(publicWellKnownURLServlet.getServiceFilter());
-		try
-		{
-			sharedEndpointManagement.deployInternalEndpointServlet(
-					PublicWellKnownURLServletProvider.SERVLET_PATH, holder, true);
-			sharedEndpointManagement.deployInternalEndpointFilter(
-					PublicWellKnownURLServletProvider.SERVLET_PATH, filterHolder);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Cannot deploy public well-known URL servlet", e);
-		}
+		deploySharedEndpointServlet(publicWellKnownURLServlet, PublicWellKnownURLServletProvider.SERVLET_PATH,
+				"public well-known URL");
 	}
 
 	private void deployConfirmationServlet()
 	{
-		if (confirmationServletFactory == null)
-		{
-			log.info("Confirmation servlet factory is not available, skipping its deploymnet");
-			return;
-		}
-
-		log.info("Deploing confirmation servlet");
-		ServletHolder holder = confirmationServletFactory.getServiceServlet();
-		FilterHolder filterHolder = new FilterHolder(confirmationServletFactory.getServiceFilter());
-		try
-		{
-			sharedEndpointManagement.deployInternalEndpointServlet(
-					EmailConfirmationServletProvider.SERVLET_PATH, holder, true);
-			sharedEndpointManagement.deployInternalEndpointFilter(
-					EmailConfirmationServletProvider.SERVLET_PATH, filterHolder);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Cannot deploy internal confirmation servlet", e);
-		}
+		deploySharedEndpointServlet(confirmationServletFactory, EmailConfirmationServletProvider.SERVLET_PATH,
+				"confirmation");
 	}
-
+	
 	private void deployAttributeContentPublicServlet()
 	{
-		if (attributesContentServletFactory == null)
+		deploySharedEndpointServlet(attributesContentServletFactory, AttributesContentPublicServletProvider.SERVLET_PATH,
+				"public attribute exposure");
+	}
+
+	private void deploySharedEndpointServlet(ServletProvider servletProvider, String path, String name)
+	{
+		if (servletProvider == null)
 		{
-			log.info("Public attribute exposure servlet factory is not available, skipping its deploymnet");
+			log.info("{} servlet factory is not available, skipping its deploymnet", name);
 			return;
 		}
-		
-		log.info("Deploing attribute content servlet");
-		ServletHolder holder = attributesContentServletFactory.getServiceServlet();
+
+		log.info("Deploing {} servlet", name);
+		ServletHolder holder = servletProvider.getServiceServlet();
+		List<FilterHolder> filterHolders = servletProvider.getServiceFilters();
 		try
 		{
-			sharedEndpointManagement.deployInternalEndpointServlet(
-					AttributesContentPublicServletProvider.SERVLET_PATH, holder, false);
+			sharedEndpointManagement.deployInternalEndpointServlet(path, holder, true);
+			for (FilterHolder filter: filterHolders)
+				sharedEndpointManagement.deployInternalEndpointFilter(path, filter);
 		} catch (EngineException e)
 		{
-			throw new InternalException("Cannot deploy internal public attribute exposure servlet", e);
+			throw new InternalException("Can not deploy " + name + " servlet", e);
 		}
 	}
+	
 
 	private void initializeIdentityTypes()
 	{

@@ -162,6 +162,25 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 		return PostAuthenticationStepDecision.completed();
 	}
+
+	@Override
+	public PostAuthenticationStepDecision processRemoteRegistrationResult(AuthenticationResult result,
+			AuthenticationStepContext stepContext, LoginMachineDetails machineDetails,
+			HttpServletRequest httpRequest)
+	{
+		log.info("Processing results of remote authentication {}", result);
+		if (log.isDebugEnabled())
+			log.debug("Complete remote authn context:\n{}", result.toStringFull());
+		try
+		{
+			basicAuthnProcessor.processPrimaryAuthnResult(result,
+					stepContext.selectedAuthnFlow, stepContext.authnOptionId);
+			return PostAuthenticationStepDecision.completed();
+		} catch (AuthenticationException e)
+		{
+			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
+		}
+	}
 	
 	@Override
 	public void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
@@ -315,4 +334,5 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		Optional<Cookie> lastIdpCookie = LastAuthenticationCookie.createLastIdpCookie(endpointPath, idpKey);
 		lastIdpCookie.ifPresent(response::addCookie);
 	}
+
 }

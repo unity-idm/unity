@@ -37,12 +37,12 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
-import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -278,14 +278,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, 
 			AuthenticationStepContext authnStepContext,
-			boolean enableRememberMe,
 			LoginMachineDetails initialLoginMachine, 
 			String ultimateReturnURL,
-			PartialAuthnState firstFactorAuthnState)
+			AuthenticationTriggeringContext triggeringContext)
 	{
 		RemoteAuthnState baseState = new RemoteAuthnState(authnStepContext, this::processResponse, 
-				enableRememberMe, 
-				initialLoginMachine, ultimateReturnURL, firstFactorAuthnState);
+				initialLoginMachine, ultimateReturnURL, triggeringContext);
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
 				baseState);
 		
