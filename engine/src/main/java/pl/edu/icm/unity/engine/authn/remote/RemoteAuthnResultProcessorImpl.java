@@ -130,7 +130,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 			throw new RemoteAuthenticationException("The remotely authenticated principal " +
 					"was not mapped to a local representation.");
 		if (remoteContext.getLocalMappedPrincipal() == null)
-			handleUnknownUser(remoteContext, registrationForm, allowAssociation);
+			return handleUnknownUser(remoteContext, registrationForm, allowAssociation);
 		try
 		{
 			EntityParam mappedEntity = remoteContext.getLocalMappedPrincipal();
@@ -150,8 +150,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 			return RemoteAuthenticationResult.successful(remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)
 		{
-			handleUnknownUser(remoteContext, registrationForm, allowAssociation);
-			return null; //dummy - above line always throws exception
+			return handleUnknownUser(remoteContext, registrationForm, allowAssociation);
 		} catch (EngineException e)
 		{
 			throw new RemoteAuthenticationException("Problem occured when searching for the " +
@@ -159,13 +158,10 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		}
 	}
 	
-	private void handleUnknownUser(RemotelyAuthenticatedPrincipal remotePrincipal, String registrationForm, 
-			boolean allowAssociation) throws RemoteAuthenticationException
+	private RemoteAuthenticationResult handleUnknownUser(RemotelyAuthenticatedPrincipal remotePrincipal, String registrationForm, 
+			boolean allowAssociation)
 	{
-		RemoteAuthenticationResult r = RemoteAuthenticationResult.unknownRemotePrincipal(remotePrincipal, 
-				registrationForm, allowAssociation);
-		throw new RemoteAuthenticationException(r, "The mapped identity is not present in the local " +
-				"user store.");
+		return RemoteAuthenticationResult.unknownRemotePrincipal(remotePrincipal, registrationForm, allowAssociation);
 	}
 	
 	/**

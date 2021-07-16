@@ -12,12 +12,6 @@ public class RemoteAuthenticationException extends AuthenticationException
 {
 	private RemoteAuthenticationResult result;
 
-	public RemoteAuthenticationException(RemoteAuthenticationResult result, String msg)
-	{
-		super(msg);
-		this.result = result;
-	}
-
 	public RemoteAuthenticationException(String msg)
 	{
 		super(msg);

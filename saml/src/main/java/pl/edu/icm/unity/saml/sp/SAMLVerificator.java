@@ -333,10 +333,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			
 			
-			AuthenticationResult result = getResult(input, profile, state, context.getRegistrationFormForUnknown(),
+			return getResult(input, profile, state, context.getRegistrationFormForUnknown(),
 					context.isEnableAssociation());
-
-			return result;
 		} catch (RemoteAuthenticationException e)
 		{
 			finishAuthnResponseProcessing(state, e);
