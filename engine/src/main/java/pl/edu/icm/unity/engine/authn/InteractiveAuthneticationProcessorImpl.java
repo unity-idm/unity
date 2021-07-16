@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.NoopFailedAuthnCounter;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
@@ -269,8 +270,12 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	
 	private static UnsuccessfulAuthenticationCounter getLoginCounter(HttpServletRequest httpRequest)
 	{
-		return (UnsuccessfulAuthenticationCounter) httpRequest.getServletContext().getAttribute(
-				UnsuccessfulAuthenticationCounter.class.getName());
+		UnsuccessfulAuthenticationCounter sessionSet = (UnsuccessfulAuthenticationCounter) 
+				httpRequest.getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
+		if (sessionSet != null)
+			return sessionSet;
+		return NoopFailedAuthnCounter.INSTANCE;
+		
 	}
 	
 	private String getLabel(long entityId)

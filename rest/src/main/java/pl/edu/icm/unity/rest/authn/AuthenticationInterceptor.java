@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounterImpl;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -77,7 +78,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		this.authenticators = authenticators;
 		this.endpointProperties = endpointProperties;
 		this.entityMan = entityMan;
-		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
+		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounterImpl(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
 		this.notProtectedPaths.addAll(notProtectedPaths);

@@ -49,12 +49,12 @@ public class RequestEditorCreator
 	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
 	private CredentialManagement credMan;
-	private SignUpAuthNController signUpAuthNController;
 	private AuthenticatorSupportService authnSupport;
 	private String registrationCode;
 	private FormsInvitationHelper invitationHelper;
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
 	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
+	private boolean enableRemoteSignup;
 
 	@Autowired
 	public RequestEditorCreator(MessageSource msg, ImageAccessService imageAccessService,
@@ -84,18 +84,18 @@ public class RequestEditorCreator
 	}
 	
 
-	public RequestEditorCreator init(RegistrationForm form, SignUpAuthNController signUpAuthNController,
+	public RequestEditorCreator init(RegistrationForm form, boolean enableRemoteSignup,
 			RemotelyAuthenticatedPrincipal context)
 	{
 		this.form = form;
+		this.enableRemoteSignup = enableRemoteSignup;
 		this.remotelyAuthenticated = context;
-		this.signUpAuthNController = signUpAuthNController;
 		return this;
 	}
 	
 	public RequestEditorCreator init(RegistrationForm form, RemotelyAuthenticatedPrincipal context)
 	{
-		return init(form, null, context);
+		return init(form, false, context);
 	}
 
 	public void createFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
@@ -200,8 +200,8 @@ public class RequestEditorCreator
 				remotelyAuthenticated, identityEditorRegistry, 
 				credentialEditorRegistry, attributeHandlerRegistry, 
 				aTypeMan, credMan, groupsMan, imageAccessService,
-				registrationCode, invitation, authnSupport, signUpAuthNController, 
-				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder);
+				registrationCode, invitation, authnSupport,  
+				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, enableRemoteSignup);
 	}
 	
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException

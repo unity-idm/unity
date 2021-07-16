@@ -30,6 +30,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounterImpl;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -63,7 +64,7 @@ public class AuthenticationFilter implements Filter
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
-		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
+		dosGauard = new UnsuccessfulAuthenticationCounterImpl(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
 		sessionCookie = InteractiveAuthenticationProcessor.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;

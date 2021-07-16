@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -23,11 +24,8 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
@@ -43,6 +41,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -67,7 +66,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private final UnityServerConfiguration cfg;
 	private final IdPLoginController idpLoginController;
 	private final RequestEditorCreator editorCreator;
-	private final SignUpAuthNController signUpAuthNController;
 	private final AutoLoginAfterSignUpProcessor autoLoginProcessor;
 	private final ImageAccessService imageAccessService;
 
@@ -88,7 +86,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			UnityServerConfiguration cfg, 
 			IdPLoginController idpLoginController,
 			RequestEditorCreator editorCreator,
-			AuthenticationProcessor authnProcessor,
 			AutoLoginAfterSignUpProcessor autoLogin, ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
@@ -96,7 +93,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
 		this.editorCreator = editorCreator;
-		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener(), msg);
 		this.autoLoginProcessor = autoLogin;
 		this.imageAccessService = imageAccessService;
 	}
@@ -141,14 +137,51 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.customCancelHandler = customCancelHandler;
 		this.completedRegistrationHandler = completedRegistrationHandler;
 		this.gotoSignInRedirector = gotoSignInRedirector;
-		showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
+		selectInitialView(mode);
 	}
+	
+	private void selectInitialView(TriggeringMode mode) 
+	{
+		WrappedSession session = VaadinSession.getCurrent().getSession();
+		PostAuthenticationStepDecision postAuthnStepDecision = (PostAuthenticationStepDecision) session
+				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+		if (postAuthnStepDecision != null)
+		{
+			session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+			processRemoteAuthnResult(postAuthnStepDecision, mode);
+		} else
+		{
+			showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
+		}
+	}
+
+	private void processRemoteAuthnResult(PostAuthenticationStepDecision postAuthnStepDecision, TriggeringMode mode)
+	{
+		log.debug("Remote authentication result found in session, triggering its processing");
+		switch (postAuthnStepDecision.getDecision())
+		{
+		case COMPLETED:
+			onUserExists();
+			return;
+		case ERROR:
+			onAuthnError(postAuthnStepDecision.getErrorDetail().error.resovle(msg), mode);
+			return;
+		case GO_TO_2ND_FACTOR:
+			throw new IllegalStateException("2nd factor authN makes no sense upon registration");
+		case UNKNOWN_REMOTE_USER:
+			showSecondStage(postAuthnStepDecision.getUnknownRemoteUserDetail()
+						.unknownRemotePrincipal.remotePrincipal, 
+					TriggeringMode.afterRemoteLoginFromRegistrationForm, false);
+			return;
+		}
+	}
+	
 	
 	private void showFirstStage(RemotelyAuthenticatedPrincipal context, TriggeringMode mode)
 	{
 		initUIBase();
 		
-		editorCreator.init(form, signUpAuthNController, context);
+		editorCreator.init(form, true, context);
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
 	}
 
@@ -157,7 +190,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	{
 		initUIBase();
 
-		editorCreator.init(form, signUpAuthNController, context);
+		editorCreator.init(form, true, context);
 		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 
@@ -186,8 +219,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	
 	private void showEditorContent(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		header = new SignUpTopHeaderComponent(cfg, msg, this::onUserAuthnCancel, 
-				getGoToSignInRedirector(editor));
+		header = new SignUpTopHeaderComponent(cfg, msg, getGoToSignInRedirector(editor));
 		main.addComponent(header);
 		main.setComponentAlignment(header, Alignment.TOP_RIGHT);
 
@@ -281,6 +313,21 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
 				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
 		gotoFinalStep(finalScreenConfig);
+	}
+	
+	private void onUserExists()
+	{
+		log.debug("External authentication resulted in existing user, aborting registration");
+		WorkflowFinalizationConfiguration finalScreenConfig = 
+				postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
+		gotoFinalStep(finalScreenConfig);
+	}
+
+	private void onAuthnError(String authenticatorError, TriggeringMode mode)
+	{
+		log.info("External authentication failed, aborting: {}", authenticatorError);
+		NotificationPopup.showError(authenticatorError, "");
+		showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
 	}
 	
 	private void onLocalSignupClickHandler()
@@ -389,42 +436,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
 	
-	public void refresh(VaadinRequest request)
-	{
-		if (currentRegistrationFormEditor != null)
-			currentRegistrationFormEditor.focusFirst();
-	}
-	
-	/**
-	 * When user clicks cancel button on unity side.
-	 */
-	private void onUserAuthnCancel()
-	{
-		signUpAuthNController.manualCancel();
-		enableSharedComponentsAndHideAuthnProgress();
-	}
-	
-	private void enableSharedComponentsAndHideAuthnProgress()
-	{
-		enableSharedWidgets(true);
-	}
-	
-	private void enableSharedWidgets(boolean isEnabled)
-	{
-		if (currentRegistrationFormEditor != null)
-			currentRegistrationFormEditor.setEnabled(isEnabled);
-		if (formButtons != null)
-			formButtons.setEnabled(isEnabled);
-		header.setInteractionsEnabled(isEnabled);
-	}
-
-	private void switchTo2ndStagePostAuthn(RemoteAuthenticationResult result)
-	{
-		enableSharedComponentsAndHideAuthnProgress();
-		showSecondStage(result.getRemotelyAuthenticatedPrincipal(), TriggeringMode.afterRemoteLoginFromRegistrationForm,
-				false);
-	}
-	
 	private static void redirect(String redirectUrl, IdPLoginController loginController)
 	{
 		loginController.breakLogin();
@@ -469,50 +480,6 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		public void onCancel()
 		{
 			//nop
-		}
-	}
-	
-	private class SignUpAuthListener implements SignUpAuthNControllerListener
-	{
-		@Override
-		public void onUnknownUser(AuthenticationResult result)
-		{
-			log.info("External authentication resulted in unknown user, proceeding to 2nd stage");
-			switchTo2ndStagePostAuthn(result.asRemote());
-		}
-
-		@Override
-		public void onUserExists(AuthenticationResult result)
-		{
-			log.debug("External authentication resulted in existing user, aborting registration");
-			enableSharedComponentsAndHideAuthnProgress();
-			WorkflowFinalizationConfiguration finalScreenConfig = 
-					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
-			gotoFinalStep(finalScreenConfig);
-		}
-
-		@Override
-		public void onAuthnError(AuthenticationException e, String authenticatorError)
-		{
-			log.info("External authentication failed, aborting: {}, {}", e.toString(), authenticatorError);
-			enableSharedComponentsAndHideAuthnProgress();
-			String genericError = msg.getMessage(e.getMessage());
-			String errorToShow = authenticatorError == null ? genericError : authenticatorError;
-			NotificationPopup.showError(errorToShow, "");
-		}
-
-		@Override
-		public void onAuthnCancelled()
-		{
-			log.debug("External authentication cancelled, performing reset");
-			enableSharedComponentsAndHideAuthnProgress();
-		}
-
-		@Override
-		public void onAuthnStarted()
-		{
-			log.debug("External authentication started");
-			enableSharedWidgets(false);
 		}
 	}
 }

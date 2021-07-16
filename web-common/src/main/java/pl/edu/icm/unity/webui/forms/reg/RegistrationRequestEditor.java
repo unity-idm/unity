@@ -105,13 +105,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private String regCodeProvided;
 	private RegistrationInvitationParam invitation;
 	private AuthenticatorSupportService authnSupport;
-	private SignUpAuthNController signUpAuthNController;
 	private Map<AuthenticationOptionKey, AuthNOption> externalSignupOptions;
 	private Runnable onLocalSignupHandler;
 	private FormLayout effectiveLayout;
 	private Stage stage;
 	private RegistrationLayoutsContainer layoutContainer;
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
+	private final boolean enableRemoteRegistration;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -126,9 +126,9 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
-			SignUpAuthNController signUpAuthNController,
 			URLQueryPrefillCreator urlQueryPrefillCreator, 
-			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
+			boolean enableRemoteRegistration)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService,
@@ -136,9 +136,9 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation2;
-		this.signUpAuthNController = signUpAuthNController;
 		this.authnSupport = authnSupport;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
+		this.enableRemoteRegistration = enableRemoteRegistration;
 	}
 	
 	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
@@ -441,10 +441,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		
 		registrationFormLayout.addComponent(grid);
 		registrationFormLayout.setComponentAlignment(grid, Alignment.MIDDLE_CENTER);
-		if(signUpAuthNController == null)
-		{
-			grid.setEnabled(false); //for some UIs (admin) we can't really trigger external authN
-		}
+		if (!enableRemoteRegistration)
+			grid.setEnabled(false);
 	
 		return true;		
 	}
@@ -468,13 +466,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			layout.addComponent(signupOptionComponent);
 			layout.setComponentAlignment(signupOptionComponent, Alignment.MIDDLE_CENTER);
 
-			if (signUpAuthNController == null)
+			if (!enableRemoteRegistration)
 			{
-				signupOptionComponent.setEnabled(false); //for some UIs (admin) we can't really trigger external authN
+				signupOptionComponent.setEnabled(false);
 			} else
 			{
-				option.authenticatorUI
-						.setAuthenticationCallback(signUpAuthNController.buildCallback(option, form));
+				option.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form));
 			}
 		}
 
@@ -549,12 +546,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(msg, null, null, null, true,
 					authnOption.authenticatorUI, optionId);
 
-			if (signUpAuthNController != null)
-			{
-				authnOption.authenticatorUI.setAuthenticationCallback(
-						signUpAuthNController.buildCallback(authnOption, form));
-			}
-
+			if (enableRemoteRegistration)
+				authnOption.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form));
 			return authNPanel;
 		}
 	}

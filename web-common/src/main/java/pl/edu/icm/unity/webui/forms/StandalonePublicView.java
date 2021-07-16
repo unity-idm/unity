@@ -7,7 +7,6 @@
 package pl.edu.icm.unity.webui.forms;
 
 import com.vaadin.navigator.View;
-import com.vaadin.server.VaadinRequest;
 
 /**
  * Implementations provide public registration or enquiry form view
@@ -17,5 +16,4 @@ import com.vaadin.server.VaadinRequest;
 public interface StandalonePublicView extends View
 {
 	String getFormName();
-	void refresh(VaadinRequest request);
 }

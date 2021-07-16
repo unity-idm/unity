@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -369,11 +368,5 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	{	
 		return postFillHandler.getFinalRegistrationConfigurationOnError(
 				TriggeringState.CANCELLED);
-	}
-
-	public void refresh(VaadinRequest request)
-	{
-		if (editor != null)
-			editor.focusFirst();	
 	}
 }

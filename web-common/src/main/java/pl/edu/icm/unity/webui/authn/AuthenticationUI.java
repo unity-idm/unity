@@ -79,7 +79,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen authenticationUI;
-	private boolean resetScheduled;
 	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 	
 	@Autowired
@@ -173,17 +172,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		setContent(authenticationUI);
 		authenticationUI.reset();
-		registrationFormController.resetSessionRegistrationAttribute();
-	}
-
-	private void scheduleResetToFreshState()
-	{
-		resetScheduled = true;
 	}
 
 	private void resetToFreshState()
 	{
-		scheduleResetToFreshState();
 		refresh(VaadinRequest.getCurrent());
 	}
 	
@@ -240,33 +232,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private void formSelected(RegistrationForm form)
 	{
 		StandaloneRegistrationView view = registrationFormController.createRegistrationView(form);
-		registrationFormController.setSessionRegistrationAttribute(view);
 		view.enter(TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen, 
-				this::scheduleResetToFreshState, this::resetToFreshState);
+				this::resetToFreshState, this::resetToFreshState);
 		setContent(view);
 	}
-	
-	@Override
-	protected void refresh(VaadinRequest request) 
-	{
-		if (resetScheduled)
-		{
-			resetScheduled = false;
-			resetToFreshAuthenticationScreen();
-			return;
-		}
-		
-		StandaloneRegistrationView registrationFormView = registrationFormController.getSessionRegistrationAttribute();
-		if (registrationFormView != null)
-		{
-			registrationFormView.refresh(request);
-		} else
-		{
-			authenticationUI.refresh(request);
-			showOutdatedCredentialDialog();
-		}
-	}
-	
 	
 	private class CredentialResetLauncherImpl implements CredentialResetLauncher
 	{

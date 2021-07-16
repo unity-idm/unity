@@ -27,7 +27,7 @@ public class SignUpTopHeaderComponent extends CustomComponent
 	private LocaleChoiceComponent localeChoice;
 
 	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, MessageSource msg, 
-			Runnable remoteSignupCancelHandler, Optional<Runnable> signInRedirector)
+			Optional<Runnable> signInRedirector)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);

@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -13,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -25,7 +21,6 @@ import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.forms.PublicFormURLProviderBase;
-import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 
 /**
  * Provides access to public registration forms via well-known links
@@ -108,49 +103,5 @@ public class PublicRegistrationURLProvider extends PublicFormURLProviderBase
 			LOG.error("Can't load registration forms", e);
 		}
 		return null;
-	}
-
-	@Override
-	public void refresh(VaadinRequest request, Navigator navigator)
-	{
-		
-		VaadinSession vaadinSession = VaadinSession.getCurrent();
-		if (vaadinSession != null)
-		{
-			StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
-			if (view != null)
-			{
-				LOG.debug("Registration form refreshed");
-				String viewName = getCurrentViewName();
-				String requestedFormName = getFormName(getCurrentViewName());
-				String cachedFormName = view.getFormName();
-				if (requestedFormName != null && Objects.equals(requestedFormName, cachedFormName))
-				{
-					view.refresh(request);
-				} else
-				{
-					navigator.navigateTo(viewName);
-				}
-			}
-		}
-	}
-	
-	private String getCurrentViewName()
-	{
-		String viewName = Page.getCurrent().getUriFragment();
-		if (viewName.startsWith("!"))
-			viewName = viewName.substring(1);
-		return viewName;
-	}
-
-	@Override
-	protected StandalonePublicView getViewFromSession()
-	{
-		VaadinSession vaadinSession  = VaadinSession.getCurrent();
-		if (vaadinSession == null)
-			return null;
-		
-		StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
-		return view;
 	}
 }

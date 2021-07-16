@@ -10,7 +10,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
@@ -79,11 +78,5 @@ public class PolicyDocumentViewProvider implements PublicViewProvider
 			log.error("Unknown policy document id", e);
 			return null;
 		}
-	}
-
-	@Override
-	public void refresh(VaadinRequest request, Navigator navigator)
-	{
-
 	}
 }

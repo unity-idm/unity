@@ -32,7 +32,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounterImpl;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -133,7 +133,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Optional<LoginSession> loginSession = rememberMeProcessor
 				.processRememberedWholeAuthn(setupRequest(addedCookie), response,
 						"0.0.0.0", realm,
-						new UnsuccessfulAuthenticationCounter(10, 10));
+						new UnsuccessfulAuthenticationCounterImpl(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
 		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
@@ -157,7 +157,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Optional<LoginSession> loginSession = rememberMeProcessor
 				.processRememberedSecondFactor(setupRequest(addedCookie), response,
 						1, "0.0.0.0", realm,
-						new UnsuccessfulAuthenticationCounter(10, 10));
+						new UnsuccessfulAuthenticationCounterImpl(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
 		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
@@ -183,7 +183,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Optional<LoginSession> loginSession = rememberMeProcessor
 				.processRememberedSecondFactor(setupRequest(addedCookie), response2,
 						1, "0.0.0.0", realm,
-						new UnsuccessfulAuthenticationCounter(10, 10));
+						new UnsuccessfulAuthenticationCounterImpl(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(false));
 		
@@ -202,7 +202,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 	{
 		ArgumentCaptor<Cookie> addedCookieArgument = ArgumentCaptor.forClass(Cookie.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
-		UnsuccessfulAuthenticationCounter counter = mock(UnsuccessfulAuthenticationCounter.class);
+		UnsuccessfulAuthenticationCounterImpl counter = mock(UnsuccessfulAuthenticationCounterImpl.class);
 		
 		AuthenticationRealm realm = getRealm(RememberMePolicy.allowForWholeAuthn);
 		addCookieAndToken(realm, response);
