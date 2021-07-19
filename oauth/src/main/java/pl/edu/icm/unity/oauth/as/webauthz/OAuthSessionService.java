@@ -42,7 +42,7 @@ class OAuthSessionService
 	private static final String SESSION_OAUTH_CONTEXT = "oauth2AuthnContextKey";
 	static final String URL_PARAM_CONTEXT_KEY = "ctx";
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthSessionService.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_OAUTH, OAuthSessionService.class);
 	private final SessionManagement sessionMan;
 	
 	OAuthSessionService(SessionManagement sessionMan)
@@ -124,25 +124,28 @@ class OAuthSessionService
 	
 	void cleanupBeforeResponseSent(OAuthContextSession session)
 	{
-		log.trace("Cleaning OAuth session auto-proxy state");
+		LOG.trace("Cleaning OAuth session auto-proxy state");
 		session.removeAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED);
 	}
 	
 	void cleanupAfterResponseSent(OAuthContextSession session, boolean invalidateSSOSession)
 	{
-		log.trace("Cleaning OAuth session (sso logout={})", invalidateSSOSession);
+		LOG.trace("Cleaning OAuth session (sso logout={})", invalidateSSOSession);
 		if (session != null)
 		{
 			OAuthContexts contexts = (OAuthContexts) session.getAttribute(SESSION_OAUTH_CONTEXT);
+			LOG.trace("OAuth contexts: {}", contexts);
 			if (contexts != null)
 			{
+				ContextKey key = session.get();
+				contexts.remove(key);
 				if (contexts.isEmpty())
 				{
+					LOG.trace("Removing {} from session", SESSION_OAUTH_CONTEXT);
 					session.removeAttribute(SESSION_OAUTH_CONTEXT);
 				} else
 				{
-					ContextKey key = session.get();
-					contexts.remove(key);
+					LOG.trace("Removing {} key from context", key);
 				}
 			}
 			
