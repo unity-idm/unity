@@ -50,6 +50,8 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
@@ -132,9 +134,34 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				unknownUserDialogProvider, 
 				localeChoice, authnFlows,
 				interactiveAuthnProcessor);
-		setContent(authenticationUI);
+		loadInitialState();
 		setSizeFull();
 	}
+	
+	private void loadInitialState() 
+	{
+		WrappedSession session = VaadinSession.getCurrent().getSession();
+		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
+				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+		if (postAuthnStepDecision != null)
+		{
+			LOG.debug("Remote authentication result found in session, triggering its processing");
+			if (postAuthnStepDecision.triggeringContext.isRegistrationTriggered())
+			{
+				//note that reg view will clean the session attribute on its own.
+				formSelected(postAuthnStepDecision.triggeringContext.form);
+			} else
+			{
+				session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+				authenticationUI.initializeAfterReturnFromExternalAuthn(postAuthnStepDecision.postFirstFactorDecision);
+				setContent(authenticationUI);
+			}
+		} else
+		{
+			setContent(authenticationUI);
+		}
+	}
+	
 	
 	/**
 	 * We may end up in authentication UI also after being properly logged in,

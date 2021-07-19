@@ -17,8 +17,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -55,7 +53,6 @@ import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -131,9 +128,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
-		log.debug("Refresh called on authN screen");
-		refreshAuthenticationState();
-		authNColumns.focusFirst();
 	}
 
 	@Override
@@ -170,7 +164,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			log.info("Launched outdated credential dialog");
 			return;
 		}
-		refreshAuthenticationState();
 	}
 	
 	/**
@@ -328,21 +321,14 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		return rememberMe != null && rememberMe.getValue();
 	}
 
-	private void refreshAuthenticationState() 
+	@Override
+	public void initializeAfterReturnFromExternalAuthn(PostAuthenticationStepDecision postAuthnStepDecision)
 	{
-		WrappedSession session = VaadinSession.getCurrent().getSession();
-		PostAuthenticationStepDecision postAuthnStepDecision = (PostAuthenticationStepDecision) session
-				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
-		if (postAuthnStepDecision != null)
-		{
-			log.debug("Remote authentication result found in session, triggering its processing");
-			session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
-			RedirectedAuthnResultProcessor remoteFirstFactorResultProcessor = 
-					new RedirectedAuthnResultProcessor(msg, execService, 
-							unknownUserDialogProvider,
-							this::switchToSecondaryAuthentication);
-			remoteFirstFactorResultProcessor.onCompletedAuthentication(postAuthnStepDecision);
-		}
+		RedirectedAuthnResultProcessor remoteFirstFactorResultProcessor = 
+				new RedirectedAuthnResultProcessor(msg, execService, 
+						unknownUserDialogProvider,
+						this::switchToSecondaryAuthentication);
+		remoteFirstFactorResultProcessor.onCompletedAuthentication(postAuthnStepDecision);
 	}
 
 	private void onAbortedAuthentication()

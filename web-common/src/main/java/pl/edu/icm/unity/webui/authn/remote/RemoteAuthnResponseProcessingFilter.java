@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -76,7 +77,9 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		PostAuthenticationStepDecision postFirstFactorDecision = remoteAuthnResponseProcessor
 				.processResponse(authnContext, httpRequest, httpResponse);
 
-		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, postFirstFactorDecision);
+		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, 
+				new PostAuthenticationDecissionWithContext(postFirstFactorDecision, 
+						authnContext.getAuthenticationTriggeringContext()));
 		log.debug("Authentication result was set in session");
 
 		httpResponse.sendRedirect(authnContext.getUltimateReturnURL());
@@ -90,5 +93,18 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 	@Override
 	public void destroy()
 	{
+	}
+	
+	public static class PostAuthenticationDecissionWithContext 
+	{
+		public final PostAuthenticationStepDecision postFirstFactorDecision;
+		public final AuthenticationTriggeringContext triggeringContext;
+
+		public PostAuthenticationDecissionWithContext(PostAuthenticationStepDecision postFirstFactorDecision,
+				AuthenticationTriggeringContext triggeringContext)
+		{
+			this.postFirstFactorDecision = postFirstFactorDecision;
+			this.triggeringContext = triggeringContext;
+		}
 	}
 }

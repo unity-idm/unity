@@ -43,4 +43,12 @@ public class AuthenticationTriggeringContext
 	{
 		return form != null;
 	}
+
+	@Override
+	public String toString()
+	{
+		return String.format(
+				"AuthenticationTriggeringContext [rememberMeSet=%s, firstFactorAuthnState=%s, form=%s]",
+				rememberMeSet, firstFactorAuthnState, form);
+	}
 }
