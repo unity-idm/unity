@@ -152,16 +152,18 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			if (!postAuthnStepDecision.triggeringContext.isRegistrationTriggered())
 				log.error("Got to standalone registration view with not-registration triggered "
 						+ "remote authn results, {}", postAuthnStepDecision.triggeringContext);
-			processRemoteAuthnResult(postAuthnStepDecision.postFirstFactorDecision, mode);
+			processRemoteAuthnResult(postAuthnStepDecision, mode);
 		} else
 		{
 			showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
 		}
 	}
 
-	private void processRemoteAuthnResult(PostAuthenticationStepDecision postAuthnStepDecision, TriggeringMode mode)
+	private void processRemoteAuthnResult(PostAuthenticationDecissionWithContext postAuthnStepDecisionWithContext, 
+			TriggeringMode mode)
 	{
 		log.debug("Remote authentication result found in session, triggering its processing");
+		PostAuthenticationStepDecision postAuthnStepDecision = postAuthnStepDecisionWithContext.postFirstFactorDecision;
 		switch (postAuthnStepDecision.getDecision())
 		{
 		case COMPLETED:
@@ -173,9 +175,9 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		case GO_TO_2ND_FACTOR:
 			throw new IllegalStateException("2nd factor authN makes no sense upon registration");
 		case UNKNOWN_REMOTE_USER:
-			showSecondStage(postAuthnStepDecision.getUnknownRemoteUserDetail()
-						.unknownRemotePrincipal.remotePrincipal, 
-					TriggeringMode.afterRemoteLoginFromRegistrationForm, false);
+			showSecondStage(postAuthnStepDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal.remotePrincipal, 
+					TriggeringMode.afterRemoteLoginFromRegistrationForm, false,
+					postAuthnStepDecisionWithContext.triggeringContext.invitationCode);
 			return;
 		}
 	}
@@ -185,16 +187,16 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	{
 		initUIBase();
 		
-		editorCreator.init(form, true, context);
+		editorCreator.init(form, true, context, null);
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
 	}
 
 	private void showSecondStage(RemotelyAuthenticatedPrincipal context, TriggeringMode mode, 
-			boolean withCredentials)
+			boolean withCredentials, String presetRegistrationCode)
 	{
 		initUIBase();
 
-		editorCreator.init(form, true, context);
+		editorCreator.init(form, true, context, presetRegistrationCode);
 		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 
@@ -337,7 +339,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private void onLocalSignupClickHandler()
 	{
 		showSecondStage(RemotelyAuthenticatedPrincipal.getLocalContext(), TriggeringMode.manualStandalone,
-				true);
+				true, null);
 	}
 	
 	private void onCancel()

@@ -85,17 +85,18 @@ public class RequestEditorCreator
 	
 
 	public RequestEditorCreator init(RegistrationForm form, boolean enableRemoteSignup,
-			RemotelyAuthenticatedPrincipal context)
+			RemotelyAuthenticatedPrincipal context, String presetRegistrationCode)
 	{
 		this.form = form;
 		this.enableRemoteSignup = enableRemoteSignup;
 		this.remotelyAuthenticated = context;
+		this.registrationCode = presetRegistrationCode;
 		return this;
 	}
 	
 	public RequestEditorCreator init(RegistrationForm form, RemotelyAuthenticatedPrincipal context)
 	{
-		return init(form, false, context);
+		return init(form, false, context, null);
 	}
 
 	public void createFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)

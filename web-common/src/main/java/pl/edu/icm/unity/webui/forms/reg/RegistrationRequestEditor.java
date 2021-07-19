@@ -471,7 +471,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				signupOptionComponent.setEnabled(false);
 			} else
 			{
-				option.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form));
+				option.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form, regCodeProvided));
 			}
 		}
 
@@ -547,7 +547,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					authnOption.authenticatorUI, optionId);
 
 			if (enableRemoteRegistration)
-				authnOption.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form));
+				authnOption.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form, regCodeProvided));
 			return authNPanel;
 		}
 	}

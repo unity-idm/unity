@@ -12,10 +12,12 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 public class SignUpAuthnCallback implements AuthenticationCallback
 {
 	private final RegistrationForm form;
+	private final String registrationCode;
 
-	SignUpAuthnCallback(RegistrationForm form)
+	SignUpAuthnCallback(RegistrationForm form, String registrationCode)
 	{
 		this.form = form;
+		this.registrationCode = registrationCode;
 	}
 
 	@Override
@@ -36,6 +38,6 @@ public class SignUpAuthnCallback implements AuthenticationCallback
 	@Override
 	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return AuthenticationTriggeringContext.registrationTriggeredAuthn(form);
+		return AuthenticationTriggeringContext.registrationTriggeredAuthn(form, registrationCode);
 	}
 }
