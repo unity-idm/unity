@@ -16,8 +16,8 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.SessionAttributes;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.VaadinSessionAttributes;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.OAuthContextSession;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.VaadinContextSession;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -66,7 +66,7 @@ public class OAuthResponseHandler
 					.getAttribute(AuthorizationResponse.class.getName());
 			if (oauthResponse != null)
 			{
-				Optional<SessionAttributes> sessionAttributes = VaadinSessionAttributes.getCurrent();
+				Optional<OAuthContextSession> sessionAttributes = VaadinContextSession.getCurrent();
 				oauthSessionService.cleanupBeforeResponseSent(sessionAttributes);
 				try
 				{
