@@ -4,15 +4,21 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
+
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.webui.LoginInProgressService;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
+import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
@@ -48,10 +54,40 @@ public class SamlSessionService
 	{
 		return LOGIN_IN_PROGRESS_SERVICE.getVaadinContext();
 	}
+	
+	public static SAMLAuthnContext getVaadinContext(VaadinContextSessionWithRequest session)
+	{
+		return LOGIN_IN_PROGRESS_SERVICE.getContext(session).orElseThrow(noSignInContextException());
+	}
 
 	public static void cleanContext(SignInContextSession session)
 	{
 		LOGIN_IN_PROGRESS_SERVICE.cleanUpSignInContextAttribute(session);
 		session.removeAttribute(ResponseDocument.class.getName());
+	}
+	
+	static class VaadinContextSessionWithRequest extends VaadinContextSession
+	{
+		private final SignInContextKey key;
+		
+		VaadinContextSessionWithRequest(VaadinSession session, VaadinRequest request)
+		{
+			super(session.getSession());
+			this.key = get(request);
+		}
+
+		private static SignInContextKey get(VaadinRequest request)
+		{
+			String key = request.getParameter(URL_PARAM_CONTEXT_KEY);
+			if (key != null)
+				return new SignInContextKey(key);
+			return SignInContextKey.DEFAULT;
+		}
+		
+		@Override
+		public SignInContextKey get()
+		{
+			return key;
+		}
 	}
 }

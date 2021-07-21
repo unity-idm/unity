@@ -56,7 +56,7 @@ public class LoginInProgressService<AUTHZ_CTX>
 		return key;
 	}
 	
-	private Optional<AUTHZ_CTX> getContext(SignInContextSession session)
+	public Optional<AUTHZ_CTX> getContext(SignInContextSession session)
 	{
 		SignInContexts<AUTHZ_CTX> contexts = getAttribute(session);
 		if (contexts == null)
