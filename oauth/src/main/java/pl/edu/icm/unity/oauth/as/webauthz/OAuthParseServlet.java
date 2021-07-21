@@ -37,7 +37,7 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthContexts.ContextKey;
+import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 
@@ -56,13 +56,15 @@ public class OAuthParseServlet extends HttpServlet
 	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(
 			ResponseType.Value.CODE, ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
 	
-	private OAuthASProperties oauthConfig;
-	private String oauthUiServletPath;
-	private ErrorHandler errorHandler;
-	private OAuthWebRequestValidator validator;
+	private final OAuthASProperties oauthConfig;
+	private final String oauthUiServletPath;
+	private final ErrorHandler errorHandler;
+	private final OAuthWebRequestValidator validator;
 	
-	public OAuthParseServlet(OAuthASProperties oauthConfig, 
-			String oauthUiServletPath, ErrorHandler errorHandler, EntityManagement identitiesMan,
+	public OAuthParseServlet(OAuthASProperties oauthConfig,
+			String oauthUiServletPath,
+			ErrorHandler errorHandler,
+			EntityManagement identitiesMan,
 			AttributesManagement attributesMan)
 	{
 		this.oauthConfig = oauthConfig;
@@ -165,7 +167,7 @@ public class OAuthParseServlet extends HttpServlet
 			return;
 		}
 		
-		ContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
+		SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
@@ -177,7 +179,7 @@ public class OAuthParseServlet extends HttpServlet
 	 * We are passing all unknown to OAuth query parameters to downstream servlet. This may help to build 
 	 * extended UIs, which can interpret those parameters. 
 	 */
-	private String getQueryToAppend(AuthorizationRequest authzRequest, ContextKey contextKey)
+	private String getQueryToAppend(AuthorizationRequest authzRequest, SignInContextKey contextKey)
 	{
 		Map<String, List<String>> customParameters = authzRequest.getCustomParameters();
 		URIBuilder b = new URIBuilder();
@@ -186,7 +188,7 @@ public class OAuthParseServlet extends HttpServlet
 			for (String value: entry.getValue())
 				b.addParameter(entry.getKey(), value);
 		}
-		if (!ContextKey.DEFAULT.equals(contextKey))
+		if (!SignInContextKey.DEFAULT.equals(contextKey))
 		{
 			b.addParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
 		}

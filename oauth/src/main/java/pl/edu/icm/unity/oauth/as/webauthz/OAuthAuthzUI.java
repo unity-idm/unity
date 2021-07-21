@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.getVaadinContext;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -84,11 +82,17 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
 
 	@Autowired
-	public OAuthAuthzUI(MessageSource msg, OAuthProcessor oauthProcessor, AttributeHandlerRegistry handlersRegistry,
-			PreferencesManagement preferencesMan, StandardWebAuthenticationProcessor authnProcessor,
-			IdPEngine idpEngine, EnquiresDialogLauncher enquiryDialogLauncher,
-			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
-			OAuthSessionService oauthSessionService, PolicyAgreementManagement policyAgreementsMan,
+	public OAuthAuthzUI(MessageSource msg,
+			OAuthProcessor oauthProcessor,
+			AttributeHandlerRegistry handlersRegistry,
+			PreferencesManagement preferencesMan,
+			StandardWebAuthenticationProcessor authnProcessor,
+			IdPEngine idpEngine,
+			EnquiresDialogLauncher enquiryDialogLauncher,
+			IdentityTypeSupport idTypeSupport,
+			AttributeTypeSupport aTypeSupport,
+			OAuthSessionService oauthSessionService,
+			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
 	{
 		super(msg, enquiryDialogLauncher);
@@ -108,7 +112,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		OAuthAuthzContext ctx = getVaadinContext();
+		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		OAuthASProperties config = ctx.getConfig();
 
 		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(config);
@@ -179,14 +183,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (getVaadinContext().getConfig().isSkipConsent())
+		if (OAuthSessionService.getVaadinContext().getConfig().isSkipConsent())
 		{
 			onFinalConfirm(identity, attributes);
 			return;
 		}
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
-				authnProcessor, idTypeSupport, aTypeSupport, oauthSessionService, identity, attributes,
-				this::onDecline, this::onFinalConfirm);
+				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
+				this::onDecline, this::onFinalConfirm, oauthSessionService);
 		setContent(consentScreen);
 	}
 
@@ -233,7 +237,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void onDecline()
 	{
-		OAuthAuthzContext ctx = getVaadinContext();
+		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());
@@ -242,7 +246,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
 	{
-		OAuthAuthzContext ctx = getVaadinContext();
+		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor

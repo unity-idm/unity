@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.web;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController.IdPLoginHandler;
+import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
 
 @Component
 public class SAMLIdPLoginHandlerImpl implements IdPLoginHandler
@@ -14,12 +15,12 @@ public class SAMLIdPLoginHandlerImpl implements IdPLoginHandler
 	@Override
 	public boolean isLoginInProgress()
 	{
-		return SAMLContextSupport.hasContext();
+		return SamlSessionService.hasVaadinContext();
 	}
 
 	@Override
 	public void breakLogin()
 	{
-		SAMLContextSupport.cleanContext();
+		VaadinContextSession.getCurrent().ifPresent(SamlSessionService::cleanContext);
 	}
 }

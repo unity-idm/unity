@@ -35,11 +35,10 @@ public class OAuthGuardFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthGuardFilter.class);
 	
-	protected ErrorHandler errorHandler;
+	protected final ErrorHandler errorHandler;
 
 	public OAuthGuardFilter(ErrorHandler errorHandler)
 	{
-		super();
 		this.errorHandler = errorHandler;
 	}
 

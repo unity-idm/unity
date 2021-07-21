@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,13 +16,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -64,11 +65,9 @@ public class SamlGuardFilter implements Filter
 			throw new ServletException("This filter can be used only for HTTP servlets");
 		HttpServletRequest request = (HttpServletRequest) requestBare;
 		HttpServletResponse response = (HttpServletResponse) responseBare;
-		HttpSession session = request.getSession();
-		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(
-				SamlParseServlet.SESSION_SAML_CONTEXT); 
-
-		if (context == null)
+		
+		Optional<SAMLAuthnContext> context = SamlSessionService.getContext(request); 
+		if (!context.isPresent())
 		{
 			if (log.isDebugEnabled())
 			{
@@ -78,7 +77,7 @@ public class SamlGuardFilter implements Filter
 					dumpRequest(request);
 			}
 			errorHandler.showErrorPage(new SAMLProcessingException("No SAML context"), 
-					(HttpServletResponse) response);
+					response);
 			return;
 		} else
 		{

@@ -107,7 +107,7 @@ public class SamlConsentScreen extends CustomComponent
 
 	protected void initUI()
 	{
-		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 		
 		VerticalLayout vmain = new VerticalLayout();
 		vmain.setMargin(false);
@@ -257,7 +257,7 @@ public class SamlConsentScreen extends CustomComponent
 	{
 		try
 		{
-			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+			SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 			SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferences.savePreferences(preferencesMan, preferences);

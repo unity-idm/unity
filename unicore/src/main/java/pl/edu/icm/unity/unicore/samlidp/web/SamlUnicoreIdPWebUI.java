@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import pl.edu.icm.unity.saml.idp.web.SAMLContextSupport;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -76,7 +76,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, samlCtx, 
 				Calendar.getInstance());
 		super.enter(request);
@@ -85,7 +85,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (SAMLContextSupport.getContext().getSamlConfiguration().getBooleanValue(CommonIdPProperties.SKIP_CONSENT))
+		if (SamlSessionService.getVaadinContext().getSamlConfiguration().getBooleanValue(CommonIdPProperties.SKIP_CONSENT))
 		{
 			onAccepted(validIdentities.get(0), attributes.stream()
 					.map(da -> da.getAttribute())
@@ -111,7 +111,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	private void onAccepted(IdentityParam selectedIdentity, Collection<Attribute> attributes, 
 			DelegationRestrictions restrictions)
 	{
-		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 		ResponseDocument respDoc;
 		try
 		{

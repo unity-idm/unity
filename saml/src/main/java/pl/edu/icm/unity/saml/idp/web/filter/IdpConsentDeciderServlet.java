@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,7 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -54,10 +55,12 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -274,7 +277,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		{
 			TranslationResult userInfo = getUserInfo(samlCtx.getSamlConfiguration(), samlProcessor, 
 					SAMLConstants.BINDING_HTTP_POST);
-			handleRedirectIfNeeded(userInfo, request.getSession(), response);
+			handleRedirectIfNeeded(userInfo, request, response);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.info("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
@@ -299,7 +302,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		}
 	}
 	
-	private void handleRedirectIfNeeded(TranslationResult userInfo, HttpSession session,
+	private void handleRedirectIfNeeded(TranslationResult userInfo, HttpServletRequest request,
 			HttpServletResponse response) 
 			throws IOException, EopException
 	{
@@ -307,7 +310,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		if (redirectURL != null)
 		{
 			response.sendRedirect(redirectURL);
-			session.removeAttribute(SamlParseServlet.SESSION_SAML_CONTEXT);
+			SamlSessionService.cleanContext(new HttpContextSession(request));
 			throw new EopException();
 		}
 	}
@@ -360,14 +363,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	private SAMLAuthnContext getSamlContext(HttpServletRequest req)
 	{
-		HttpSession httpSession = req.getSession();
-		SAMLAuthnContext ret = (SAMLAuthnContext) httpSession.getAttribute(
-				SamlParseServlet.SESSION_SAML_CONTEXT);
-		if (ret == null)
-			throw new IllegalStateException("No SAML context in UI");
-		return ret;
+		return SamlSessionService.getContext(req).orElseThrow(noSignInContextException());
 	}
-	
 	
 	@Component
 	@Primary
