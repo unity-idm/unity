@@ -33,7 +33,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -127,7 +126,6 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	{	
 		private Component component = new TLSAuthnComponent();
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		
 		public TLSRetrievalUI()
 		{
@@ -153,7 +151,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 				return LocalAuthenticationResult.notApplicable();
 
 			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert,
-					sandboxCallback, registrationFormForUnknown, enableAssociation);
+					registrationFormForUnknown, enableAssociation, callback.getTriggeringContext());
 			return authenticationResult;
 		}
 
@@ -211,12 +209,6 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		public void clear()
 		{
 			//nop
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
-		{
-			sandboxCallback = callback;
 		}
 
 		/**

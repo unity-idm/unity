@@ -34,8 +34,7 @@ public interface RemoteAuthnResultProcessor
 			throws RemoteAuthenticationException;
 	
 	/**
-	 * Equivalent
-	 * to{@link #getResult(RemotelyAuthenticatedInput, String, boolean, Optional)}
+	 * Equivalent to {@link #getResult(RemotelyAuthenticatedInput, String, boolean, Optional)}
 	 * but translation profile is given directly
 	 */
 	RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, boolean dryRun,

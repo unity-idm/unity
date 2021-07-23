@@ -8,7 +8,7 @@ import java.security.cert.X509Certificate;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 
 /**
  * Exchange for checking if the presented certificate is in the DB. It is assumed that the
@@ -20,6 +20,6 @@ public interface CertificateExchange extends CredentialExchange
 {
 	public static final String ID = "certificate exchange";
 	
-	AuthenticationResult checkCertificate(X509Certificate[] chain, SandboxAuthnResultCallback sandboxCallback,
-			String formForUnknown, boolean enableAssociation); 
+	AuthenticationResult checkCertificate(X509Certificate[] chain, String formForUnknown, 
+			boolean enableAssociation, AuthenticationTriggeringContext triggeringContext); 
 }

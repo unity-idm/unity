@@ -25,8 +25,6 @@ public class RemoteAuthnState
 	private final LoginMachineDetails initialLoginMachine;
 	private final String ultimateReturnURL;
 	private final AuthenticationTriggeringContext authenticationTriggeringContext;
-	private SandboxAuthnResultCallback sandboxCallback;
-
 	private final Function<RemoteAuthnState, AuthenticationResult> responseHandler;
 	
 	public RemoteAuthnState(AuthenticationStepContext authenticationContext, 
@@ -78,11 +76,6 @@ public class RemoteAuthnState
 		return authenticationContext;
 	}
 
-	public SandboxAuthnResultCallback getSandboxCallback()
-	{
-		return sandboxCallback;
-	}
-
 	public LoginMachineDetails getInitialLoginMachine()
 	{
 		return initialLoginMachine;
@@ -93,11 +86,6 @@ public class RemoteAuthnState
 		return ultimateReturnURL;
 	}
 
-	public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
-	{
-		this.sandboxCallback = sandboxCallback;
-	}
-	
 	public AuthenticationResult processAnswer()
 	{
 		return responseHandler.apply(this);

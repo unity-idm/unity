@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -312,7 +313,8 @@ public class PasswordVerificatorTest
 		credCfg.setScryptParams(new ScryptParams(11));
 		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
 		
-		AuthenticationResult result = verificator.checkPassword("username", "1qaZ2wsX", null, null, false);
+		AuthenticationResult result = verificator.checkPassword("username", "1qaZ2wsX", null, false, 
+				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
 		assertEquals(Status.success, result.getStatus());
 		verify(credHelper).updateCredential(eq(0L), eq(null), anyString());
 	}

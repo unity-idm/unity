@@ -37,7 +37,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -282,12 +281,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
-		{
-			// not used
 		}
 
 		/**

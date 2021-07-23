@@ -312,16 +312,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		} catch (Exception e)
 		{
 			log.error("Runtime error during SAML response processing or principal mapping", e);
-			return RemoteAuthenticationResult.failed(null, 
+			return RemoteAuthenticationResult.failed(null, e,
 					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		}
 	}
 	
 	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context)
 	{
-		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);
-		
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
@@ -333,13 +330,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			
 			
-			return getResult(input, profile, state, context.getRegistrationFormForUnknown(),
+			return getResult(input, profile, 
+					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
+					context.getRegistrationFormForUnknown(),
 					context.isEnableAssociation());
 		} catch (RemoteAuthenticationException e)
 		{
-			finishAuthnResponseProcessing(state, e);
 			log.info("SAML response verification or processing failed", e);
-			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), 
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e,
 					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		}
 	}

@@ -41,6 +41,10 @@ public class Log
 
 	public static final String SECURITY = "unicore.security"; //legacy
 
+	public static final String[] REMOTE_AUTHENTICATION_RELATED_FACILITIES = {
+			U_SERVER_SAML, U_SERVER_OAUTH, U_SERVER_LDAP, U_SERVER_PAM,
+			U_SERVER_TRANSLATION, U_SERVER_AUTHN};
+	
 	static
 	{
 		redirectJULToSLF();

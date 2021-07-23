@@ -9,7 +9,7 @@ import java.util.Properties;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewProvider;
 
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 
 /**
  * Implementations provide {@link View}s for registration in {@link SecuredNavigationUI}.

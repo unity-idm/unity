@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
@@ -74,11 +75,12 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		try
 		{
 			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd(),
-					null, null, false);
+					null, false, 
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
 		} catch (Exception e)
 		{
 			log.trace("HTTP BASIC credential is invalid");
-			return LocalAuthenticationResult.failed();
+			return LocalAuthenticationResult.failed(e);
 		}
 
 	}

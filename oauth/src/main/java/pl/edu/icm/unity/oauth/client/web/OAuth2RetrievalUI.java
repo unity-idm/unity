@@ -24,7 +24,6 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
@@ -60,7 +59,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private final AuthenticationStepContext authenticationStepContext;
 	
 	private AuthenticationCallback callback;
-	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
 	private Component main;
@@ -196,7 +194,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			callback.onStartedAuthentication();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
-			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
@@ -208,13 +205,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		URI requestURI = Page.getCurrent().getLocation();
 		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
-	}
-
-	
-	@Override
-	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
-	{
-		this.sandboxCallback = callback;
 	}
 
 	@Override

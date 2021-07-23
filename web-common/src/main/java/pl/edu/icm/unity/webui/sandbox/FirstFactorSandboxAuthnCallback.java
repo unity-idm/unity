@@ -2,15 +2,14 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.column;
+package pl.edu.icm.unity.webui.sandbox;
 
-import java.util.function.Supplier;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinServletRequest;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.JavaScript;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -22,6 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -29,50 +29,50 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Collects authN result from the first authenticator of the selected flow
- * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
- * and if needed proceeds to 2nd authenticator.
- * 
- * Responsible only for processing results in cases when authentication was not using redirect.
+ * and process it in sandbox way in case of not redirected logins. 
+ * Proper setup of contexts, remember me unsupported, 
+ * unknown remote user in the sandbox case equivalent to successful result.
  */
-class FirstFactorAuthNResultCallback implements AuthenticationCallback
+class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, FirstFactorAuthNResultCallback.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, FirstFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
 	private final InteractiveAuthenticationProcessor authnProcessor;
-	private final Supplier<Boolean> rememberMeProvider;
-	private final AuthenticationListener authNListener;
-	private final FirstFactorAuthNPanel authNPanel;
+	//TODO KB refactor to have only one dependency, listener
+//	private final AuthenticationListener authNListener;
+//	private final FirstFactorAuthNPanel authNPanel;
 	private final AuthenticationStepContext stepContext;
 
 	private String clientIp;
+	private final SandboxAuthnRouter sandboxRouter;
 	
-	public FirstFactorAuthNResultCallback(MessageSource msg,
+	FirstFactorSandboxAuthnCallback(MessageSource msg,
 			InteractiveAuthenticationProcessor authnProcessor,
 			AuthenticationStepContext stepContext,
-			Supplier<Boolean> rememberMeProvider,
-			AuthenticationListener authNListener, 
-			FirstFactorAuthNPanel authNPanel)
+			SandboxAuthnRouter sandboxRouter)
+//			AuthenticationListener authNListener, 
+//			FirstFactorAuthNPanel authNPanel)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.stepContext = stepContext;
-		this.rememberMeProvider = rememberMeProvider;
-		this.authNListener = authNListener;
-		this.authNPanel = authNPanel;
+//		this.authNListener = authNListener;
+//		this.authNPanel = authNPanel;
+		this.sandboxRouter = sandboxRouter;
+		checkNotNull(sandboxRouter);
 	}
 
 
 	@Override
 	public void onCompletedAuthentication(AuthenticationResult result)
 	{
-		log.trace("Received authentication result of the primary authenticator " + result);
+		log.trace("Received sandbox authentication result of the primary authenticator " + result);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
-		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
-		PostAuthenticationStepDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(
+		PostAuthenticationStepDecision postFirstFactorDecision = authnProcessor.processFirstFactorSandboxAuthnResult(
 				result, 
-				stepContext, loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse);
+				stepContext, loginMachineDetails, servletRequest, sandboxRouter);
 		switch (postFirstFactorDecision.getDecision())
 		{
 		case COMPLETED:
@@ -100,8 +100,8 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	public void onStartedAuthentication()
 	{
 		clientIp = HTTPRequestContext.getCurrent().getClientIP();
-		if (authNListener != null)
-			authNListener.authenticationStarted();
+//		if (authNListener != null)
+//			authNListener.authenticationStarted();
 	}
 
 	@Override
@@ -113,7 +113,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(rememberMeProvider.get());
+		return AuthenticationTriggeringContext.sandboxTriggeredFirstFactor(sandboxRouter);
 	}
 	
 	/**
@@ -121,60 +121,32 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	 */
 	private void setAuthenticationAborted()
 	{
-		if (authNListener != null)
-			authNListener.authenticationAborted();
+//		if (authNListener != null)
+//			authNListener.authenticationAborted();
 	}
 
 	private void setAuthenticationCompleted()
 	{
-		if (authNListener != null)
-			authNListener.authenticationCompleted();
-		UI ui = UI.getCurrent();
-		if (ui == null)
-		{
-			log.error("BUG Can't get UI to redirect the authenticated user.");
-			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
-		}
-		ui.getPage().reload();
+		JavaScript.getCurrent().execute("window.close();");
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
-		if (authNListener != null)
-			authNListener.switchTo2ndFactor(partialState);
+//		if (authNListener != null)
+//			authNListener.switchTo2ndFactor(partialState);
 	}
 	
 	
 	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
-		authNPanel.focusIfPossible();
+//		authNPanel.focusIfPossible();
 		NotificationPopup.showError(errorToShow, "");
-		authNPanel.showWaitScreenIfNeeded(clientIp);
+//		authNPanel.showWaitScreenIfNeeded(clientIp);
 	}
 	
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)
 	{
-		if (result.formForUnknownPrincipal != null || result.enableAssociation)
-		{
-			log.trace("Authentication successful, user unknown, showing unknown user dialog");
-			setAuthenticationAborted();
-			authNPanel.showUnknownUserDialog(result);
-		} else
-		{
-			log.trace("Authentication successful, user unknown, no registration form");
-			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
-		}
-	}
-	
-	/**
-	 * Used by upstream code holding this component to be informed about changes in this component. 
-	 */
-	interface AuthenticationListener
-	{
-		void authenticationStarted();
-		void authenticationAborted();
-		void authenticationCompleted();
-		void switchTo2ndFactor(PartialAuthnState partialState);
+		JavaScript.getCurrent().execute("window.close();");
 	}
 }

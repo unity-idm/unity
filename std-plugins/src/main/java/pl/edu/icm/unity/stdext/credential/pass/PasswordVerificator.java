@@ -51,8 +51,7 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableErr
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
-import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
@@ -254,13 +253,10 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 */
 	@Override
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback sandboxCallback,
-			String formForUnknown, boolean enableAssociation)
+			String formForUnknown, boolean enableAssociation, 
+			AuthenticationTriggeringContext triggeringContext)
 	{
-		AuthenticationResult authenticationResult = checkPasswordInternal(username, password);
-		if (sandboxCallback != null)
-			sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(authenticationResult));
-		return authenticationResult;
+		return checkPasswordInternal(username, password);
 	}
 
 	private AuthenticationResult checkPasswordInternal(String username, String password)

@@ -16,9 +16,10 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier.AuthnResultListener;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 
 /**
  * Base class for sandbox wizard providers. The class provides the common code used to activate sandbox popup
@@ -51,46 +52,49 @@ public abstract class AbstractSandboxWizardProvider
 
 	
 	protected void addSandboxListener(SandboxAuthnNotifier.AuthnResultListener callback, Wizard wizard, 
-			UI ui, boolean stopOnFinal) 
+			boolean stopOnFinal) 
 	{
 		AuthnResultListener listener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
-			private UI parentUI = ui;
+			private final UI parentUI = UI.getCurrent();
+			private final InvocationContext invocationContext = InvocationContext.getCurrent();
 			
 			@Override
 			public void onPartialAuthnResult(final SandboxAuthnEvent event) 
 			{
-				
 				if (!callerId.equals(event.getCallerId()))
-				{
 					return;
-				}
-				
-				parentUI.access(new Runnable()
+				parentUI.access(() -> invokeInOriginalContext(() -> 
 				{
-					@Override
-					public void run()
-					{
-						callback.onPartialAuthnResult(event);
-						if (!stopOnFinal)
-							parentUI.setPollInterval(-1);
-					}
-				});
+					callback.onPartialAuthnResult(event);
+					if (!stopOnFinal)
+						parentUI.setPollInterval(-1);
+				}));
 			}
 
 			@Override
 			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
 			{
-				parentUI.access(new Runnable()
+				parentUI.access(() -> invokeInOriginalContext(() ->
 				{
-					@Override
-					public void run()
-					{
-						callback.onCompleteAuthnResult(authenticatedEntity);
-						if (stopOnFinal)
-							parentUI.setPollInterval(-1);
-					}
-				});
+					callback.onCompleteAuthnResult(authenticatedEntity);
+					if (stopOnFinal)
+						parentUI.setPollInterval(-1);
+				}));
+			}
+			
+			private void invokeInOriginalContext(Runnable code)
+			{
+				if (InvocationContext.hasCurrent())
+					throw new IllegalStateException("Invocation context set in thread");
+				InvocationContext.setCurrent(invocationContext);
+				try
+				{
+					code.run();
+				} finally
+				{
+					InvocationContext.setCurrent(null);
+				}
 			}
 		};
 		sandboxNotifier.addListener(listener);

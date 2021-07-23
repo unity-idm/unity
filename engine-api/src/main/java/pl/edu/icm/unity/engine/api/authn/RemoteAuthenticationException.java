@@ -21,7 +21,7 @@ public class RemoteAuthenticationException extends AuthenticationException
 	public RemoteAuthenticationException(String msg, Exception cause)
 	{
 		super(msg, cause);
-		this.result = RemoteAuthenticationResult.failed();
+		this.result = RemoteAuthenticationResult.failed(cause);
 	}
 
 	public RemoteAuthenticationResult getResult()

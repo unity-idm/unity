@@ -19,6 +19,8 @@ import com.vaadin.shared.Registration;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
@@ -35,7 +37,7 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	{
 		authnListenerList = new HashMap<>();
 	}
-	
+
 	@Override
 	public void firePartialEvent(SandboxAuthnEvent event) 
 	{

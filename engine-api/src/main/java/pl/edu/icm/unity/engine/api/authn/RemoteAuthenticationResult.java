@@ -41,15 +41,26 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 		return new RemoteAuthenticationResult(Status.notApplicable, null, new NotApplicableResult(), null, null);
 	}
 	
-	public static RemoteAuthenticationResult failed(RemotelyAuthenticatedPrincipal remotePrincipal, ResolvableError error)
+	public static RemoteAuthenticationResult failed(RemotelyAuthenticatedPrincipal remotePrincipal, Exception cause, 
+			ResolvableError error)
 	{
 		return new RemoteAuthenticationResult(Status.deny, null, null, null, 
-				new RemoteErrorResult(error, remotePrincipal));
+				new RemoteErrorResult(error, cause, remotePrincipal));
 	}
-
+	
+	public static RemoteAuthenticationResult failed(RemotelyAuthenticatedPrincipal remotePrincipal, ResolvableError error)
+	{
+		return failed(remotePrincipal, null, error);
+	}
+	
 	public static RemoteAuthenticationResult failed()
 	{
-		return failed(null, ResolvableError.EMPTY);
+		return failed(null);
+	}
+	
+	public static RemoteAuthenticationResult failed(Exception cause)
+	{
+		return failed(null, cause, ResolvableError.EMPTY);
 	}
 
 	public static RemoteAuthenticationResult successful(RemotelyAuthenticatedPrincipal remotePrincipal,
@@ -139,9 +150,9 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	{
 		public final RemotelyAuthenticatedPrincipal remotePrincipal;
 		
-		RemoteErrorResult(ResolvableError error, RemotelyAuthenticatedPrincipal remotePrincipal)
+		RemoteErrorResult(ResolvableError error, Exception cause, RemotelyAuthenticatedPrincipal remotePrincipal)
 		{
-			super(error);
+			super(error, cause);
 			this.remotePrincipal = remotePrincipal;
 		}
 

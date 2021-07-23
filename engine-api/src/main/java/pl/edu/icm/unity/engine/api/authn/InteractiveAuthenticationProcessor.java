@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -37,6 +38,18 @@ public interface InteractiveAuthenticationProcessor
 			AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, 
 			HttpServletRequest httpRequest);
+	
+	PostAuthenticationStepDecision processFirstFactorSandboxAuthnResult(AuthenticationResult result, 
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails, 
+			HttpServletRequest httpRequest, SandboxAuthnRouter sandboxRouter);
+
+	PostAuthenticationStepDecision processSecondFactorSandboxAuthnResult(PartialAuthnState state, 
+			AuthenticationResult secondFactorResult, 
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails, 
+			HttpServletRequest httpRequest, SandboxAuthnRouter sandboxRouter);
+
 	
 	void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,

@@ -39,7 +39,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
@@ -136,7 +135,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	{
 		private CredentialEditor credEditor;
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		private String presetAuthenticatedIdentity;
 		
 		private TextField usernameField;
@@ -232,8 +230,9 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			try
 			{
 				authenticationResult = credentialExchange.checkPassword(
-						username, password, sandboxCallback, 
-						registrationFormForUnknown, enableAssociation);
+						username, password,  
+						registrationFormForUnknown, enableAssociation, 
+						callback.getTriggeringContext());
 			} catch (AuthenticationException e)
 			{
 				log.info("Authentication error during password checking", e);
@@ -241,7 +240,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			} catch (Exception e)
 			{
 				log.error("Runtime error during password checking", e);
-				authenticationResult = LocalAuthenticationResult.failed();
+				authenticationResult = LocalAuthenticationResult.failed(e);
 			}
 			if (authenticationResult.getStatus() == Status.success || 
 					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
@@ -296,11 +295,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			this.callback = callback;
 		}
 
-		public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
-		{
-			this.sandboxCallback = sandboxCallback;
-		}
-		
 		public void setAuthenticatedIdentity(String authenticatedIdentity)
 		{
 			this.presetAuthenticatedIdentity = authenticatedIdentity;
@@ -363,12 +357,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
-		{
-			theComponent.setSandboxCallback(callback);
 		}
 
 		/**

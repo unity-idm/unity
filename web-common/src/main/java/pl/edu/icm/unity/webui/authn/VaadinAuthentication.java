@@ -14,7 +14,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -83,13 +82,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		default void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
 		{
 		}
-		
-		/**
-		 * TODO do we need separate ? 
-		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
-		 * authn is returned back to the sandbox servlet. 
-		 */
-		void setSandboxAuthnCallback(SandboxAuthnResultCallback callback);
 		
 		/**
 		 * @return label for presentation in the user interface, used for presentation in grid. 

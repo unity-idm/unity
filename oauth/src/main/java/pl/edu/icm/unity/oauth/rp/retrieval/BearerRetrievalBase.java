@@ -68,11 +68,11 @@ public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<Ac
 		log.trace("HTTP Bearer access token header found");
 		try
 		{
-			return credentialExchange.checkToken(authnToken, null);
+			return credentialExchange.checkToken(authnToken);
 		} catch (Exception e)
 		{
 			log.debug("HTTP Bearer access token is invalid or its processing failed", e);
-			return LocalAuthenticationResult.failed();
+			return LocalAuthenticationResult.failed(e);
 		}
 
 	}

@@ -25,8 +25,6 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableErr
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
-import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -175,15 +173,9 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	@Override
-	public AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser,
-			AuthenticationSubject subject, SandboxAuthnResultCallback sandboxCallback)
+	public AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser, AuthenticationSubject subject)
 	{
-		AuthenticationResult authenticationResult = verifyCodeInternal(sentCode,
-				codeFromUser, subject);
-		if (sandboxCallback != null)
-			sandboxCallback.sandboxedAuthenticationDone(
-					new LocalSandboxAuthnContext(authenticationResult));
-		return authenticationResult;
+		return verifyCodeInternal(sentCode, codeFromUser, subject);
 	}
 
 	private AuthenticationResult verifyCodeInternal(SMSCode sentCode, String codeFromUser,

@@ -6,16 +6,14 @@ package pl.edu.icm.unity.webui.association.atlogin;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import com.vaadin.ui.UI;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 /**
@@ -67,7 +65,7 @@ public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvide
 				confirmationStep.setAuthenticatedUser(authenticatedEntity);
 				wizard.next();						
 			}
-		}, wizard, UI.getCurrent(), true);
+		}, wizard, true);
 		return wizard;
 	}
 

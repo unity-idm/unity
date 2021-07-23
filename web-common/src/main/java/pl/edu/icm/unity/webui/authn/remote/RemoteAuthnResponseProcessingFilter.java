@@ -37,10 +37,10 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
-	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
+	private final RemoteRedirectedAuthnResponseProcessor remoteAuthnResponseProcessor;
 	
 	public RemoteAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
+			RemoteRedirectedAuthnResponseProcessor remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;
@@ -74,11 +74,11 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		
-		PostAuthenticationStepDecision postFirstFactorDecision = remoteAuthnResponseProcessor
+		PostAuthenticationStepDecision postAuthnStepDecision = remoteAuthnResponseProcessor
 				.processResponse(authnContext, httpRequest, httpResponse);
 
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, 
-				new PostAuthenticationDecissionWithContext(postFirstFactorDecision, 
+				new PostAuthenticationDecissionWithContext(postAuthnStepDecision, 
 						authnContext.getAuthenticationTriggeringContext()));
 		log.debug("Authentication result was set in session");
 
@@ -97,13 +97,13 @@ public class RemoteAuthnResponseProcessingFilter implements Filter
 	
 	public static class PostAuthenticationDecissionWithContext 
 	{
-		public final PostAuthenticationStepDecision postFirstFactorDecision;
+		public final PostAuthenticationStepDecision decision;
 		public final AuthenticationTriggeringContext triggeringContext;
 
-		public PostAuthenticationDecissionWithContext(PostAuthenticationStepDecision postFirstFactorDecision,
+		PostAuthenticationDecissionWithContext(PostAuthenticationStepDecision decision,
 				AuthenticationTriggeringContext triggeringContext)
 		{
-			this.postFirstFactorDecision = postFirstFactorDecision;
+			this.decision = decision;
 			this.triggeringContext = triggeringContext;
 		}
 	}

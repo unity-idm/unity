@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -32,13 +31,13 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -51,6 +50,7 @@ import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Label100;
@@ -65,7 +65,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 public class ColumnInstantAuthenticationScreen extends CustomComponent implements AuthenticationScreen
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ColumnInstantAuthenticationScreen.class);
-	private final MessageSource msg;
+	protected final MessageSource msg;
 	private final ImageAccessService imageAccessService;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
@@ -80,7 +80,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final LocaleChoiceComponent localeChoice;
 	private final List<AuthenticationFlow> flows;
 
-	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
+	protected final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private FirstFactorAuthNPanel authNPanelInProgress;
@@ -88,12 +88,11 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private AuthnOptionsColumns authNColumns;
 	private VerticalLayout secondFactorHolder;
 	private Component rememberMeComponent;
-	private SandboxAuthnResultCallback sandboxCallback;
 	private Component topHeader;
 	private Component cancelComponent;
 	private CredentialResetLauncher credentialResetLauncher;
 	
-	public ColumnInstantAuthenticationScreen(MessageSource msg, ImageAccessService imageAccessService, 
+	protected ColumnInstantAuthenticationScreen(MessageSource msg, ImageAccessService imageAccessService, 
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,
@@ -121,13 +120,28 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.flows = flows;
 		this.imageAccessService = imageAccessService;
 		this.interactiveAuthnProcessor = interactiveAuthnProcessor;
-		
-		init();
 	}
-
-	@Override
-	public void refresh(VaadinRequest request) 
+	
+	public static ColumnInstantAuthenticationScreen getInstance(MessageSource msg, ImageAccessService imageAccessService, 
+			VaadinEndpointProperties config,
+			ResolvedEndpoint endpointDescription,
+			Supplier<Boolean> outdatedCredentialDialogLauncher,
+			CredentialResetLauncher credentialResetLauncher,
+			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
+			EntityManagement idsMan,
+			ExecutorsService execService, boolean enableRegistration,
+			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
+			LocaleChoiceComponent localeChoice,
+			List<AuthenticationFlow> flows,
+			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
 	{
+		ColumnInstantAuthenticationScreen instance = new ColumnInstantAuthenticationScreen(msg,
+				imageAccessService, config, endpointDescription, outdatedCredentialDialogLauncher,
+				credentialResetLauncher, registrationLayoutLauncher, cancelHandler, idsMan, execService,
+				enableRegistration, unknownUserDialogProvider, localeChoice, flows,
+				interactiveAuthnProcessor);
+		instance.init();
+		return instance;
 	}
 
 	@Override
@@ -136,7 +150,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		switchBackToPrimaryAuthentication();
 	}
 	
-	protected void init()
+	protected final void init()
 	{
 		log.debug("Authn screen init");
 		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows, endpointDescription.getName(), 
@@ -278,22 +292,30 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		AuthenticationOptionKey optionId = new AuthenticationOptionKey(authnOption.authenticator.getAuthenticatorId(), 
 				authnOption.authenticatorUI.getId());
-		if (sandboxCallback != null)
-			authnOption.authenticatorUI.setSandboxAuthnCallback(sandboxCallback);
 
 		FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(msg, execService, 
 				cancelHandler, unknownUserDialogProvider, gridCompatible, 
 				authnOption.authenticatorUI, optionId);
-		FirstFactorAuthNResultCallback controller = new FirstFactorAuthNResultCallback(
-				msg, interactiveAuthnProcessor, 
-				endpointDescription.getRealm(), authnOption.flow, 
-				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(
-						optionId.toStringEncodedKey(), authNPanel), 
-				optionId, endpointDescription.getEndpoint().getContextAddress(), 
-				authNPanel);
+		AuthenticationStepContext stepContext = new AuthenticationStepContext(endpointDescription.getRealm(), 
+				authnOption.flow, 
+				optionId, 
+				FactorOrder.FIRST, 
+				endpointDescription.getEndpoint().getContextAddress());
+		AuthenticationCallback controller = createFirstFactorAuthnCallback(optionId, authNPanel, stepContext);
 		authnOption.authenticatorUI.setAuthenticationCallback(controller);
 		authnOption.authenticatorUI.setCredentialResetLauncher(credentialResetLauncher);
 		return authNPanel;
+	}
+
+	protected AuthenticationCallback createFirstFactorAuthnCallback(AuthenticationOptionKey optionId,
+			FirstFactorAuthNPanel authNPanel, AuthenticationStepContext stepContext)
+	{
+		return new FirstFactorAuthNResultCallback(
+				msg, interactiveAuthnProcessor, 
+				stepContext, 
+				this::isSetRememberMe, 
+				new PrimaryAuthenticationListenerImpl(optionId.toStringEncodedKey(), authNPanel), 
+				authNPanel);
 	}
 
 	private SecondFactorAuthNPanel build2ndFactorAuthenticationOptionWidget(VaadinAuthenticationUI secondaryUI, 
@@ -491,11 +513,5 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		{
 			onCompletedAuthentication();
 		}
-	}
-	
-	//for sandbox extensions
-	protected void setSandboxCallbackForAuthenticators(SandboxAuthnResultCallback callback) 
-	{
-		this.sandboxCallback = callback;
 	}
 }

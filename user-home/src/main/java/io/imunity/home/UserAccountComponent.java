@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -63,7 +64,6 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
 import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
 /**
  * Component with user's account management UI.

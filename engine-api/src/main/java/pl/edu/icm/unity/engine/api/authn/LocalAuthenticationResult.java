@@ -30,12 +30,22 @@ public class LocalAuthenticationResult implements AuthenticationResult
 
 	public static LocalAuthenticationResult failed()
 	{
-		return failed(ResolvableError.EMPTY);
+		return failed(ResolvableError.EMPTY, null);
 	}
 	
+	public static LocalAuthenticationResult failed(Exception cause)
+	{
+		return failed(ResolvableError.EMPTY, cause);
+	}
+
 	public static LocalAuthenticationResult failed(ResolvableError error)
 	{
-		return new LocalAuthenticationResult(Status.deny, null, null, new ErrorResult(error));
+		return failed(error, null);
+	}
+	
+	public static LocalAuthenticationResult failed(ResolvableError error, Exception cause)
+	{
+		return new LocalAuthenticationResult(Status.deny, null, null, new ErrorResult(error, cause));
 	}
 	
 	public static LocalAuthenticationResult notApplicable()
@@ -100,16 +110,18 @@ public class LocalAuthenticationResult implements AuthenticationResult
 	public static class ErrorResult 
 	{
 		public final ResolvableError error;
+		public final Exception cause;
 		
-		ErrorResult(ResolvableError error)
+		ErrorResult(ResolvableError error, Exception cause)
 		{
 			this.error = error;
+			this.cause = cause;
 		}
 
 		@Override
 		public String toString()
 		{
-			return String.format("[error=%s, errorDetail=%s]", error);
+			return String.format("ErrorResult [error=%s, cause=%s]", error, cause);
 		}
 	}
 	

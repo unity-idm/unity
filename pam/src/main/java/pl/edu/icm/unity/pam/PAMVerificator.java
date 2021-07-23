@@ -27,9 +27,9 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
@@ -93,17 +93,16 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 
 	@Override
 	public AuthenticationResult checkPassword(String username, String password,
-			SandboxAuthnResultCallback sandboxCallback,
-			String formForUnknown, boolean enableAssociation)
+			String formForUnknown, boolean enableAssociation, 
+			AuthenticationTriggeringContext triggeringContext)
 	{
-		RemoteAuthnProcessingState state = startAuthnResponseProcessing(sandboxCallback, 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_PAM);
-		
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(
 					username, password);
-			RemoteAuthenticationResult result = getResult(input, translationProfile, state, formForUnknown, enableAssociation);
+			RemoteAuthenticationResult result = getResult(input, translationProfile, 
+					triggeringContext.isSandboxTriggered(), 
+					formForUnknown, enableAssociation);
 			return repackIfError(result, GENERIC_ERROR);
 		} catch (Exception e)
 		{
@@ -111,8 +110,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 				log.info("PAM authentication failed", e);
 			else
 				log.warn("PAM authentication failed", e);
-			finishAuthnResponseProcessing(state, e);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR, e);
 		}
 	}
 

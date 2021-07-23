@@ -39,7 +39,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -135,7 +134,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	{
 		private CredentialEditor credEditor;
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		private TextField usernameField;
 		private HtmlLabel usernameLabel;
 		private TextField answerField;
@@ -346,7 +344,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				return;
 			}
 			setAuthenticationResult(credentialExchange.verifyCode(sentCode,
-					answerField.getValue(), subjectOpt.get(), sandboxCallback));
+					answerField.getValue(), subjectOpt.get()));
 		}
 
 		private void setAuthenticationResult(AuthenticationResult authenticationResult)
@@ -419,11 +417,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
-		}
-
-		public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
-		{
-			this.sandboxCallback = sandboxCallback;
 		}
 
 		void setAuthenticatedIdentity(Entity authenticatedIdentity)
@@ -499,12 +492,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
-		{
-			theComponent.setSandboxCallback(callback);
 		}
 
 		/**

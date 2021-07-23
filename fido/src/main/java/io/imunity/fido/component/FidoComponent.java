@@ -125,7 +125,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 				} catch (FidoException e)
 				{
 					if (nonNull(authenticationResultListener))
-						authenticationResultListener.accept(LocalAuthenticationResult.failed());
+						authenticationResultListener.accept(LocalAuthenticationResult.failed(e));
 					else
 						showError(msg.getMessage("Fido.authenticationFail"), e.getLocalizedMessage());
 				}
@@ -194,7 +194,7 @@ public class FidoComponent extends AbstractJavaScriptComponent
 		} catch (FidoException e)
 		{
 			if (nonNull(authenticationResultListener))
-				authenticationResultListener.accept(LocalAuthenticationResult.failed());
+				authenticationResultListener.accept(LocalAuthenticationResult.failed(e));
 			else
 				showError(msg.getMessage("Fido.authentication"), e.getLocalizedMessage());
 		} catch (Exception e)

@@ -25,7 +25,6 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
@@ -69,7 +68,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private final Context context;
 	private IdPAuthNComponent idpComponent;
 	private AuthenticationCallback callback;
-	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
 	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
@@ -169,7 +167,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
 					authenticationStepContext, 
 					loginMachineDetails, currentRelativeURI, callback.getTriggeringContext());
-			context.setSandboxCallback(sandboxCallback);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
@@ -231,12 +228,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public void clear()
 	{
 		idpComponent.setEnabled(true);
-	}
-
-	@Override
-	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
-	{
-		sandboxCallback = callback;
 	}
 
 	@Override

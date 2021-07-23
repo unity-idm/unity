@@ -250,7 +250,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		} catch (Exception e)
 		{
 			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
-			return RemoteAuthenticationResult.failed(null, new ResolvableError("OAuth2Retrieval.authnFailedError"));
+			return RemoteAuthenticationResult.failed(null, e, new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		}
 	}
 
@@ -263,8 +263,6 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	 */
 	private AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context)
 	{
-		RemoteAuthnProcessingState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
@@ -279,17 +277,19 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			boolean enableAssociation = providerProps.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION) ?
 					providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
 					config.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
-			return getResult(input, profile, state, regFormForUnknown, enableAssociation);
+			return getResult(input, 
+					profile, 
+					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
+					regFormForUnknown, 
+					enableAssociation);
 		} catch (UnexpectedIdentityException uie)
 		{
-			finishAuthnResponseProcessing(state, uie);
-			return RemoteAuthenticationResult.failed(null, 
+			return RemoteAuthenticationResult.failed(null, uie,
 					new ResolvableError("OAuth2Retrieval.unexpectedUser", uie.expectedIdentity));
 		} catch (RemoteAuthenticationException e)
 		{
-			finishAuthnResponseProcessing(state, e);
 			log.info("OAuth2 authorization code verification or processing failed", e);
-			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), 
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e, 
 					new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		}
 		

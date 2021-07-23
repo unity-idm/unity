@@ -27,7 +27,7 @@ public class AuthenticationException extends Exception
 	public AuthenticationException(String msg, Exception cause)
 	{
 		super(msg, cause);
-		this.result = LocalAuthenticationResult.failed();
+		this.result = LocalAuthenticationResult.failed(cause);
 	}
 
 	public AuthenticationResult getResult()

@@ -65,7 +65,7 @@ public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTEx
 		} catch (Exception e)
 		{
 			log.warn("JWT credential validation failed", e);
-			return LocalAuthenticationResult.failed();
+			return LocalAuthenticationResult.failed(e);
 		}
 	}
 

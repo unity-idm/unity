@@ -17,6 +17,7 @@ import com.vaadin.ui.CustomComponent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -31,7 +32,6 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
 
 /**

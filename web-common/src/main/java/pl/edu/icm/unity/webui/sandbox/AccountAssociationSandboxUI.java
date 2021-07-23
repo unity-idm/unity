@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
@@ -20,6 +19,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -38,11 +38,10 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 @org.springframework.stereotype.Component("AccountAssociationSandboxUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-@PreserveOnRefresh
 public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWebUI
 {
 	private LocaleChoiceComponent localeChoice;
-	private SandboxAuthenticationProcessor authnProcessor;
+	private InteractiveAuthenticationProcessor authnProcessor;
 	private ExecutorsService execService;
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
@@ -52,7 +51,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	@Autowired
 	public AccountAssociationSandboxUI(MessageSource msg, ImageAccessService imageAccessService,
 			LocaleChoiceComponent localeChoice,
-			SandboxAuthenticationProcessor authnProcessor,
+			InteractiveAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorSupportService authenticatorSupport)
@@ -75,11 +74,12 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 		super.configure(description, authnFlows, registrationConfiguration, genericEndpointConfiguration);
 	}
 	
+	//TODO KB - customize appInit/loadInitialState also with 2nd F support
+	
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
 		String title = msg.getMessage("SandboxUI.authenticateToAssociateAccounts");
-		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg, 
 				imageAccessService,
 				config, 
@@ -95,11 +95,5 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 				true);
 		setContent(ui);
 		setSizeFull();
-	}
-	
-	@Override
-	protected void refresh(VaadinRequest request) 
-	{
-		ui.refresh(request);
 	}
 }

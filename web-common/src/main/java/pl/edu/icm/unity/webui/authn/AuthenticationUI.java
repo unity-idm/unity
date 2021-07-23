@@ -125,7 +125,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		authenticationUI = new ColumnInstantAuthenticationScreen(msg, imageAccessService, config, endpointDescription,
+		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config, endpointDescription,
 				this::showOutdatedCredentialDialog, 
 				new CredentialResetLauncherImpl(),
 				this::showRegistration, 
@@ -153,7 +153,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			} else
 			{
 				session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
-				authenticationUI.initializeAfterReturnFromExternalAuthn(postAuthnStepDecision.postFirstFactorDecision);
+				authenticationUI.initializeAfterReturnFromExternalAuthn(postAuthnStepDecision.decision);
 				setContent(authenticationUI);
 			}
 		} else

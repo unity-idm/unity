@@ -163,7 +163,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			TriggeringMode mode)
 	{
 		log.debug("Remote authentication result found in session, triggering its processing");
-		PostAuthenticationStepDecision postAuthnStepDecision = postAuthnStepDecisionWithContext.postFirstFactorDecision;
+		PostAuthenticationStepDecision postAuthnStepDecision = postAuthnStepDecisionWithContext.decision;
 		switch (postAuthnStepDecision.getDecision())
 		{
 		case COMPLETED:

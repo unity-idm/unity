@@ -41,7 +41,7 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableErr
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -223,8 +223,8 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 
 	@Override
 	public AuthenticationResult checkPassword(String username, String password,
-			SandboxAuthnResultCallback sandboxCallback,
-			String formForUnknown, boolean enableAssociation) throws AuthenticationException
+			String formForUnknown, boolean enableAssociation, 
+			AuthenticationTriggeringContext triggeringContext) throws AuthenticationException
 	{
 		Optional<EntityWithCredential> resolveIdentity = CompositePasswordHelper.getLocalEntity(identityResolver, 
 				AuthenticationSubject.identityBased(username));
@@ -243,7 +243,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 						username, localVerificator.getCredentialName());
 				PasswordExchange passExchange = (PasswordExchange) localVerificator;
 				return passExchange.checkPassword(username, password,
-						sandboxCallback, formForUnknown, enableAssociation);
+						formForUnknown, enableAssociation, triggeringContext);
 
 			}
 		}
@@ -254,7 +254,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 					remoteVerificator.getName());
 			PasswordExchange passExchange = (PasswordExchange) remoteVerificator;
 			AuthenticationResult result = passExchange.checkPassword(username, password,
-					sandboxCallback, formForUnknown, enableAssociation);
+					formForUnknown, enableAssociation, triggeringContext);
 			if (result.getStatus().equals(Status.deny)
 					|| result.getStatus().equals(Status.notApplicable))
 				continue;
