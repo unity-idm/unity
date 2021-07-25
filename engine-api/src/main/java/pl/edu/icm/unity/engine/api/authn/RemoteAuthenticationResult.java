@@ -4,10 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ErrorResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.NotApplicableResult;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.SuccessResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
 /**
