@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.remote;
+package pl.edu.icm.unity.engine.authn.remote;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
@@ -23,16 +24,17 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
 
 @Component
-class RemoteAuthnResponseProcessor
+class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 {
 	private final InteractiveAuthenticationProcessor authnProcessor;
 	
-	RemoteAuthnResponseProcessor(InteractiveAuthenticationProcessor authnProcessor)
+	RemoteAuthnResponseProcessorImpl(InteractiveAuthenticationProcessor authnProcessor)
 	{
 		this.authnProcessor = authnProcessor;
 	}
 
-	PostAuthenticationStepDecision processResponse(RemoteAuthnState authnContext,
+	@Override
+	public PostAuthenticationStepDecision processResponse(RemoteAuthnState authnContext,
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
 	{
 		AuthenticationResult authnResult = executeVerificator(authnContext, httpRequest.getSession().getId());
