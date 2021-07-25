@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * 
  * @author K. Benedyczak
  */
-public interface RemoteAuthnResultProcessor
+public interface RemoteAuthnResultTranslator
 {
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
@@ -28,7 +28,7 @@ public interface RemoteAuthnResultProcessor
 	 * Usually it is the only one that is used, when {@link RemotelyAuthenticatedInput} 
 	 * is obtained in an implementation specific way.
 	 */
-	RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
+	RemoteAuthenticationResult getTranslatedResult(RemotelyAuthenticatedInput input, String profile, 
 			boolean dryRun, Optional<IdentityTaV> identity, 
 			String registrationForm, boolean allowAssociation) 
 			throws RemoteAuthenticationException;
@@ -37,7 +37,7 @@ public interface RemoteAuthnResultProcessor
 	 * Equivalent to {@link #getResult(RemotelyAuthenticatedInput, String, boolean, Optional)}
 	 * but translation profile is given directly
 	 */
-	RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, boolean dryRun,
+	RemoteAuthenticationResult getTranslatedResult(RemotelyAuthenticatedInput input, TranslationProfile profile, boolean dryRun,
 			Optional<IdentityTaV> identity, 
 			String registrationForm, boolean allowAssociation) throws RemoteAuthenticationException;
 	
@@ -57,6 +57,6 @@ public interface RemoteAuthnResultProcessor
 	 * 
 	 * @param identity if not empty then fixes the identity for which the profile is executed.
 	 */
-	RemotelyAuthenticatedPrincipal processRemoteInput(RemotelyAuthenticatedInput input, 
+	RemotelyAuthenticatedPrincipal translateRemoteInput(RemotelyAuthenticatedInput input, 
 			TranslationProfile profile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException;
 }

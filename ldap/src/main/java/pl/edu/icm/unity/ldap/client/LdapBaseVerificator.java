@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
@@ -51,7 +51,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	private TranslationProfile translationProfile;
 	
 	protected LdapBaseVerificator(String name, String description, 
-			RemoteAuthnResultProcessor processor,
+			RemoteAuthnResultTranslator processor,
 			PKIManagement pkiManagement, String exchangeId)
 	{
 		super(name, description, exchangeId, processor);

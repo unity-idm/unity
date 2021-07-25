@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.ResolvableErr
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -52,7 +52,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	private TranslationProfile translationProfile;
 	
 	@Autowired
-	public PAMVerificator(RemoteAuthnResultProcessor processor)
+	public PAMVerificator(RemoteAuthnResultTranslator processor)
 	{
 		super(NAME, DESCRIPTION, PasswordExchange.ID, processor);
 	}

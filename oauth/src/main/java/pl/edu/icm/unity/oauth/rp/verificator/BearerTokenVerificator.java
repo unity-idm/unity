@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -69,7 +69,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	
 	@Autowired
 	public BearerTokenVerificator(PKIManagement pkiMan, OAuthTokenRepository tokensDAO, 
-			RemoteAuthnResultProcessor processor)
+			RemoteAuthnResultTranslator processor)
 	{
 		super(NAME, DESC, AccessTokenExchange.ID, processor);
 		this.pkiMan = pkiMan;

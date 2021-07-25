@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 
@@ -27,7 +27,7 @@ public class LdapPasswordVerificator extends LdapBaseVerificator
 	public static final String DESCRIPTION = "Verifies password using LDAPv3 protocol";
 	
 	@Autowired
-	public LdapPasswordVerificator(RemoteAuthnResultProcessor processor,
+	public LdapPasswordVerificator(RemoteAuthnResultTranslator processor,
 			PKIManagement pkiManagement)
 	{
 		super(NAME, DESCRIPTION, processor, pkiManagement, PasswordExchange.ID);

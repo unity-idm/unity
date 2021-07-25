@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -97,7 +97,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	@Autowired
 	private InputTranslationEngine inputTrEngine;
 	@Autowired
-	private RemoteAuthnResultProcessor remoteProcessor;
+	private RemoteAuthnResultTranslator remoteProcessor;
 	@Autowired
 	private InputTranslationActionsRegistry intactionReg;
 	@Autowired
@@ -597,7 +597,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
 		RemotelyAuthenticatedPrincipal processed  = tx.runInTransactionRetThrowing(() -> {
-			return remoteProcessor.processRemoteInput(input,TranslationProfileGenerator.generateIncludeInputProfile("", "p1"), false, Optional.empty());
+			return remoteProcessor.translateRemoteInput(input,TranslationProfileGenerator.generateIncludeInputProfile("", "p1"), false, Optional.empty());
 		});
 		
 		assertNotNull(processed.getLocalMappedPrincipal());

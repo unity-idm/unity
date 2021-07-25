@@ -34,7 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -63,7 +63,7 @@ public class ECPStep2Handler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ECPStep2Handler.class);
 	private RemoteMetaManager metadataManager;
 	private ECPContextManagement samlContextManagement;
-	private RemoteAuthnResultProcessor remoteAuthnProcessor;
+	private RemoteAuthnResultTranslator remoteAuthnProcessor;
 	private JWTManagement jwtGenerator;
 	private AuthenticationRealm realm;
 	private SessionManagement sessionMan;
@@ -74,7 +74,7 @@ public class ECPStep2Handler
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, 
 			TokensManagement tokensMan, PKIManagement pkiManagement, 
-			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			EntityManagement entityMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
@@ -248,7 +248,7 @@ public class ECPStep2Handler
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
-		return remoteAuthnProcessor.getResult(input, profile, false, Optional.empty(), null, false);
+		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false);
 	}
 	
 	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException

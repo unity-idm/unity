@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
@@ -44,9 +44,9 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 @Component
-public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcessor
+public class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResultProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResultTranslatorImpl.class);
 	private InputTranslationProfileRepository inputProfileRepo;
 	private IdentityResolver identityResolver;
 	private InputTranslationEngine trEngine;
@@ -54,7 +54,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	
 	
 	@Autowired
-	public RemoteAuthnResultProcessorImpl(IdentityResolver identityResolver,	
+	public RemoteAuthnResultTranslatorImpl(IdentityResolver identityResolver,	
 			InputTranslationProfileRepository profileRepo,
 			InputTranslationEngine trEngine,
 			InputTranslationActionsRegistry actionsRegistry)
@@ -67,7 +67,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 
 	@Override
 	@Transactional
-	public RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile, 
+	public RemoteAuthenticationResult getTranslatedResult(RemotelyAuthenticatedInput input, String profile, 
 			boolean dryRun, Optional<IdentityTaV> identity, 
 			String registrationForm, boolean allowAssociation) 
 			throws RemoteAuthenticationException
@@ -93,12 +93,12 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		}
 		
 		
-		return getResult(input, translationProfile, dryRun, identity, registrationForm, allowAssociation);
+		return getTranslatedResult(input, translationProfile, dryRun, identity, registrationForm, allowAssociation);
 	}
 	
 	@Override
 	@Transactional
-	public RemoteAuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, 
+	public RemoteAuthenticationResult getTranslatedResult(RemotelyAuthenticatedInput input, TranslationProfile profile, 
 			boolean dryRun, Optional<IdentityTaV> identity, 
 			String registrationForm, boolean allowAssociation) 
 			throws RemoteAuthenticationException
@@ -106,7 +106,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		RemotelyAuthenticatedPrincipal remotePrincipal;
 		try
 		{
-			remotePrincipal = processRemoteInput(input, profile, dryRun, identity);
+			remotePrincipal = translateRemoteInput(input, profile, dryRun, identity);
 		} catch (EngineException e)
 		{
 			log.warn("The mapping of the remotely authenticated principal to a local representation failed", e);
@@ -169,7 +169,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 	 * the {@link RemotelyAuthenticatedPrincipal} from the processed input containing the information about what 
 	 * from the remote data is or can be meaningful in the local DB.
 	 */
-	public final RemotelyAuthenticatedPrincipal processRemoteInput(RemotelyAuthenticatedInput input, 
+	public final RemotelyAuthenticatedPrincipal translateRemoteInput(RemotelyAuthenticatedInput input, 
 			TranslationProfile translationProfile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException
 	{
 		

@@ -24,7 +24,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
@@ -41,7 +41,7 @@ public class TestUserImportService
 	public void importSerivceLoadsConfiguredHandlerAndInvokesIt() throws InterruptedException
 	{
 		//given
-		RemoteAuthnResultProcessor verificatorUtil = mock(RemoteAuthnResultProcessor.class);
+		RemoteAuthnResultTranslator verificatorUtil = mock(RemoteAuthnResultTranslator.class);
 
 		UnityServerConfiguration mainCfg = mock(UnityServerConfiguration.class);
 		when(mainCfg.getSortedListKeys(UnityServerConfiguration.IMPORT_PFX))
@@ -95,7 +95,7 @@ public class TestUserImportService
 	public void importSerivceInvokesAllImporters() throws InterruptedException
 	{
 		//given
-		RemoteAuthnResultProcessor verificatorUtil = mock(RemoteAuthnResultProcessor.class);
+		RemoteAuthnResultTranslator verificatorUtil = mock(RemoteAuthnResultTranslator.class);
 
 		UnityServerConfiguration mainCfg = mock(UnityServerConfiguration.class);
 		when(mainCfg.getSortedListKeys(UnityServerConfiguration.IMPORT_PFX))

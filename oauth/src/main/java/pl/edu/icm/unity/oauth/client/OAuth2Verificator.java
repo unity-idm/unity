@@ -72,7 +72,7 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -119,7 +119,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
-			RemoteAuthnResultProcessor processor)
+			RemoteAuthnResultTranslator processor)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();

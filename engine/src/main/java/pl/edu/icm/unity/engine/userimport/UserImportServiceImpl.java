@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.config.ConfigurationLoader;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
@@ -47,14 +47,14 @@ public class UserImportServiceImpl implements UserImportSerivce
 	
 	@Autowired
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, Optional<List<UserImportSPIFactory>> importersF,
-			CacheProvider cacheProvider, RemoteAuthnResultProcessor remoteAuthnResultProcessor)
+			CacheProvider cacheProvider, RemoteAuthnResultTranslator remoteAuthnResultProcessor)
 	{
 		this(mainCfg, importersF.orElse(new ArrayList<>()), cacheProvider, 
 				remoteAuthnResultProcessor, new ConfigurationLoader());
 	}
 	
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, List<UserImportSPIFactory> importersF,
-			CacheProvider cacheProvider, RemoteAuthnResultProcessor verificatorUtil, 
+			CacheProvider cacheProvider, RemoteAuthnResultTranslator verificatorUtil, 
 			ConfigurationLoader configLoader)
 	{
 		Map<String, UserImportSPIFactory> importersFM = new HashMap<>();
@@ -71,7 +71,7 @@ public class UserImportServiceImpl implements UserImportSerivce
 	}
 	
 	private SingleUserImportHandler loadHandler(String importerCfg, Map<String, UserImportSPIFactory> importersFM,
-			CacheProvider cacheProvider, RemoteAuthnResultProcessor verificatorUtil, 
+			CacheProvider cacheProvider, RemoteAuthnResultTranslator verificatorUtil, 
 			ConfigurationLoader cfgLoader, String key)
 	{
 		Properties properties = cfgLoader.getProperties(importerCfg);

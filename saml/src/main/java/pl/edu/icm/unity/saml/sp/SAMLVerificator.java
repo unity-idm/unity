@@ -43,7 +43,7 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
@@ -103,7 +103,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 	
 	@Autowired
-	public SAMLVerificator(RemoteAuthnResultProcessor processor,
+	public SAMLVerificator(RemoteAuthnResultTranslator processor,
 			@Qualifier("insecure") PKIManagement pkiMan,
 			ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService,

@@ -18,17 +18,17 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
- * Minor helper for remote verificators to properly call {@link RemoteAuthnResultProcessor}
+ * Minor helper for remote verificators to properly call {@link RemoteAuthnResultTranslator}
  */
 public abstract class AbstractRemoteVerificator extends AbstractVerificator
 {
-	private RemoteAuthnResultProcessor processor;
+	private RemoteAuthnResultTranslator translator;
 	
 	public AbstractRemoteVerificator(String name, String description, String exchangeId, 
-			RemoteAuthnResultProcessor processor)
+			RemoteAuthnResultTranslator translator)
 	{
 		super(name, description, exchangeId);
-		this.processor = processor;
+		this.translator = translator;
 	}
 	
 	protected RemoteAuthenticationResult getResultForNonInteractiveAuthn(RemotelyAuthenticatedInput input, 
@@ -41,7 +41,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			boolean sandboxMode, 
 			String registrationForm, boolean allowAssociation) throws RemoteAuthenticationException
 	{
-		return processor.getResult(input, profile, 
+		return translator.getTranslatedResult(input, profile, 
 				sandboxMode, Optional.empty(), registrationForm, allowAssociation);
 	}
 	

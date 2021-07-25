@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -36,7 +36,7 @@ public class ECPServlet extends HttpServlet
 	public ECPServlet(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, 
 			String myAddress, ReplayAttackChecker replayAttackChecker, 
-			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			TokensManagement tokensMan, PKIManagement pkiManagement, EntityManagement identitiesMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
