@@ -48,7 +48,7 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
 import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
@@ -85,7 +85,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
 	protected MessageSource msg;
-	protected final RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	
 	public VaadinEndpoint(NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, 
@@ -93,7 +93,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			ApplicationContext applicationContext,
 			String uiBeanName,
 			String servletPath,
-			RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;

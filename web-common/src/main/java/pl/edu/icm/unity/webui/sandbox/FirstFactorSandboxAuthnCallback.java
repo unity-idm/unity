@@ -22,9 +22,9 @@ import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
+import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -38,26 +38,20 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, FirstFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
 	private final InteractiveAuthenticationProcessor authnProcessor;
-	//TODO KB refactor to have only one dependency, listener
-//	private final AuthenticationListener authNListener;
-//	private final FirstFactorAuthNPanel authNPanel;
+	private final FirstFactorAuthenticationListener authNListener;
 	private final AuthenticationStepContext stepContext;
-
-	private String clientIp;
 	private final SandboxAuthnRouter sandboxRouter;
 	
 	FirstFactorSandboxAuthnCallback(MessageSource msg,
 			InteractiveAuthenticationProcessor authnProcessor,
 			AuthenticationStepContext stepContext,
-			SandboxAuthnRouter sandboxRouter)
-//			AuthenticationListener authNListener, 
-//			FirstFactorAuthNPanel authNPanel)
+			SandboxAuthnRouter sandboxRouter,
+			FirstFactorAuthenticationListener authNListener) 
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.stepContext = stepContext;
-//		this.authNListener = authNListener;
-//		this.authNPanel = authNPanel;
+		this.authNListener = authNListener;
 		this.sandboxRouter = sandboxRouter;
 		checkNotNull(sandboxRouter);
 	}
@@ -77,7 +71,7 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 		{
 		case COMPLETED:
 			log.trace("Authentication completed");
-			setAuthenticationCompleted();
+			closeWindow();
 			return;
 		case ERROR:
 			log.trace("Authentication failed ");
@@ -99,9 +93,8 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 	@Override
 	public void onStartedAuthentication()
 	{
-		clientIp = HTTPRequestContext.getCurrent().getClientIP();
-//		if (authNListener != null)
-//			authNListener.authenticationStarted();
+		if (authNListener != null)
+			authNListener.authenticationStarted();
 	}
 
 	@Override
@@ -121,32 +114,30 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 	 */
 	private void setAuthenticationAborted()
 	{
-//		if (authNListener != null)
-//			authNListener.authenticationAborted();
+		if (authNListener != null)
+			authNListener.authenticationAborted();
 	}
 
-	private void setAuthenticationCompleted()
+	private void closeWindow()
 	{
 		JavaScript.getCurrent().execute("window.close();");
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
-//		if (authNListener != null)
-//			authNListener.switchTo2ndFactor(partialState);
+		if (authNListener != null)
+			authNListener.switchTo2ndFactor(partialState);
 	}
 	
 	
 	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
-//		authNPanel.focusIfPossible();
 		NotificationPopup.showError(errorToShow, "");
-//		authNPanel.showWaitScreenIfNeeded(clientIp);
 	}
 	
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)
 	{
-		JavaScript.getCurrent().execute("window.close();");
+		closeWindow();
 	}
 }

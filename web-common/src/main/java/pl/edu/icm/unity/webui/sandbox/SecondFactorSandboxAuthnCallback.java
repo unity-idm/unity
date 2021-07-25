@@ -2,15 +2,12 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.column;
-
-import java.util.function.Supplier;
+package pl.edu.icm.unity.webui.sandbox;
 
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinServletRequest;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.JavaScript;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -21,6 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener;
@@ -30,33 +28,29 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result 
  * processing is launched.
  */
-class SecondFactorAuthNResultCallback implements AuthenticationCallback
+class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			SecondFactorAuthNResultCallback.class);
+			SecondFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
 	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final SecondFactorAuthenticationListener authNListener;
-	private final Supplier<Boolean> rememberMeProvider;
 	private final PartialAuthnState partialState;
-	private final SecondFactorAuthNPanel authNPanel;
+	private final SandboxAuthnRouter sandboxRouter;
 	private final AuthenticationStepContext stepContext;
 
-
-	SecondFactorAuthNResultCallback(MessageSource msg,
+	SecondFactorSandboxAuthnCallback(MessageSource msg,
 			InteractiveAuthenticationProcessor authnProcessor, 
 			AuthenticationStepContext stepContext,
-			SecondFactorAuthenticationListener authNListener, Supplier<Boolean> rememberMeProvider,
-			PartialAuthnState partialState,
-			SecondFactorAuthNPanel authNPanel)
+			SecondFactorAuthenticationListener authNListener, SandboxAuthnRouter sandboxRouter,
+			PartialAuthnState partialState)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.stepContext = stepContext;
 		this.authNListener = authNListener;
-		this.rememberMeProvider = rememberMeProvider;
+		this.sandboxRouter = sandboxRouter;
 		this.partialState = partialState;
-		this.authNPanel = authNPanel;
 	}
 
 	@Override
@@ -67,14 +61,13 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	
 	private void processAuthn(AuthenticationResult result)
 	{
-		log.trace("Received authentication result of the 2nd authenticator" + result);
+		log.trace("Received sandbox authentication result of the 2nd authenticator" + result);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
-		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
-		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorResult(
+		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorSandboxAuthnResult(
 				partialState, result, stepContext, 
-				loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse);
+				loginMachineDetails, servletRequest, sandboxRouter);
 		switch (postSecondFactorDecision.getDecision())
 		{
 		case COMPLETED:
@@ -112,15 +105,13 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return AuthenticationTriggeringContext.authenticationTriggeredSecondFactor(rememberMeProvider.get(), 
-				partialState);
+		return AuthenticationTriggeringContext.sandboxTriggeredSecondFactor(partialState, sandboxRouter);
 	}
 	
 	private void handleError(String errorToShow)
 	{
 		log.info("Authentication failed {}", errorToShow);
 		setAuthenticationAborted();
-		authNPanel.focusIfPossible();
 		NotificationPopup.showError(errorToShow, "");
 	}
 	
@@ -143,12 +134,11 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		if (authNListener != null)
 			authNListener.authenticationCompleted();
-		UI ui = UI.getCurrent();
-		if (ui == null)
-		{
-			log.error("BUG Can't get UI to redirect the authenticated user.");
-			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
-		}
-		ui.getPage().reload();
+		closeWindow();
+	}
+	
+	private void closeWindow()
+	{
+		JavaScript.getCurrent().execute("window.close();");
 	}
 }

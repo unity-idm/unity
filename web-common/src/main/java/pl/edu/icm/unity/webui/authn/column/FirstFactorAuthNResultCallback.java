@@ -22,9 +22,9 @@ import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
+import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -40,17 +40,15 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	private final MessageSource msg;
 	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final Supplier<Boolean> rememberMeProvider;
-	private final AuthenticationListener authNListener;
+	private final FirstFactorAuthenticationListener authNListener;
 	private final FirstFactorAuthNPanel authNPanel;
 	private final AuthenticationStepContext stepContext;
 
-	private String clientIp;
-	
 	public FirstFactorAuthNResultCallback(MessageSource msg,
 			InteractiveAuthenticationProcessor authnProcessor,
 			AuthenticationStepContext stepContext,
 			Supplier<Boolean> rememberMeProvider,
-			AuthenticationListener authNListener, 
+			FirstFactorAuthenticationListener authNListener, 
 			FirstFactorAuthNPanel authNPanel)
 	{
 		this.msg = msg;
@@ -99,7 +97,6 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public void onStartedAuthentication()
 	{
-		clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		if (authNListener != null)
 			authNListener.authenticationStarted();
 	}
@@ -150,7 +147,6 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
 		NotificationPopup.showError(errorToShow, "");
-		authNPanel.showWaitScreenIfNeeded(clientIp);
 	}
 	
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)
@@ -165,16 +161,5 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 			log.trace("Authentication successful, user unknown, no registration form");
 			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
 		}
-	}
-	
-	/**
-	 * Used by upstream code holding this component to be informed about changes in this component. 
-	 */
-	interface AuthenticationListener
-	{
-		void authenticationStarted();
-		void authenticationAborted();
-		void authenticationCompleted();
-		void switchTo2ndFactor(PartialAuthnState partialState);
 	}
 }

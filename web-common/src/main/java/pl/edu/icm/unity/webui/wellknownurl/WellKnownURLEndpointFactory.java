@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 @Component
 public class WellKnownURLEndpointFactory implements EndpointFactory
@@ -35,14 +35,14 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 	private MessageSource msg;
 	private AdvertisedAddressProvider advertisedAddrProvider;
 
-	private RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	private RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
 	public WellKnownURLEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
-			RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;

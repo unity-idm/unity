@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -324,19 +325,28 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		AuthenticationOptionKey optionId = new AuthenticationOptionKey(
 				partialAuthnState.getSecondaryAuthenticator().getAuthenticatorId(), 
 				secondaryUI.getId());
-		SecondaryAuthenticationListenerImpl listener = new SecondaryAuthenticationListenerImpl();
 		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, idsMan, execService, 
 				secondaryUI, partialAuthnState, 
-				optionId, listener);
-		SecondFactorAuthNResultCallback controller = new SecondFactorAuthNResultCallback(msg, 
-				interactiveAuthnProcessor, 
-				endpointDescription.getRealm(), listener, this::isSetRememberMe, 
-				partialAuthnState, authNPanel);
+				optionId, this::switchBackToPrimaryAuthentication);
+		AuthenticationStepContext stepContext = new AuthenticationStepContext(endpointDescription.getRealm(), 
+				partialAuthnState.getAuthenticationFlow(), 
+				authNPanel.getAuthenticationOptionId(), FactorOrder.SECOND, null);
+		AuthenticationCallback controller = createSecondFactorAuthnCallback(optionId, 
+				authNPanel, stepContext, partialAuthnState);
 		secondaryUI.setAuthenticationCallback(controller);
 		secondaryUI.setCredentialResetLauncher(credentialResetLauncher);
 		return authNPanel;
 	}
 
+	protected AuthenticationCallback createSecondFactorAuthnCallback(AuthenticationOptionKey optionId,
+			SecondFactorAuthNPanel authNPanel, AuthenticationStepContext stepContext, 
+			PartialAuthnState partialAuthnState)
+	{
+		return new SecondFactorAuthNResultCallback(msg, 
+				interactiveAuthnProcessor, stepContext, 
+				new SecondaryAuthenticationListenerImpl(), this::isSetRememberMe, 
+				partialAuthnState, authNPanel);
+	}
 	
 	private boolean isSetRememberMe()
 	{
@@ -357,6 +367,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		authNColumns.enableAll();
 		enableSharedWidgets(true);
+		authNPanelInProgress.showWaitScreenIfNeeded(HTTPRequestContext.getCurrent().getClientIP());
 		authNPanelInProgress = null;
 	}
 	
@@ -450,12 +461,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		}
 	}
 	
-	private class PrimaryAuthenticationListenerImpl implements FirstFactorAuthNResultCallback.AuthenticationListener
+	public class PrimaryAuthenticationListenerImpl implements FirstFactorAuthenticationListener
 	{
 		private final String optionId;
 		private final FirstFactorAuthNPanel authNPanel;
 		
-		PrimaryAuthenticationListenerImpl(String selectedComponentId, FirstFactorAuthNPanel authNPanel)
+		public PrimaryAuthenticationListenerImpl(String selectedComponentId, FirstFactorAuthNPanel authNPanel)
 		{
 			this.optionId = selectedComponentId;
 			this.authNPanel = authNPanel;
@@ -488,7 +499,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		}
 	}
 	
-	private class SecondaryAuthenticationListenerImpl implements SecondFactorAuthNResultCallback.AuthenticationListener
+	public class SecondaryAuthenticationListenerImpl implements SecondFactorAuthenticationListener
 	{
 		@Override
 		public void switchBackToFirstFactor()
@@ -513,5 +524,29 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		{
 			onCompletedAuthentication();
 		}
+	}
+	
+	
+	/**
+	 * Used be this component to be informed about changes in authn process 
+	 */
+	public interface FirstFactorAuthenticationListener
+	{
+		void authenticationStarted();
+		void authenticationAborted();
+		void authenticationCompleted();
+		void switchTo2ndFactor(PartialAuthnState partialState);
+	}
+	
+
+	/**
+	 * Used be this component to be informed about changes in authn process 
+	 */
+	public interface SecondFactorAuthenticationListener
+	{
+		void authenticationStarted();
+		void authenticationAborted();
+		void authenticationCompleted();
+		void switchBackToFirstFactor();
 	}
 }

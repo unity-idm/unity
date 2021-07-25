@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -45,6 +46,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.column.FirstFactorAuthNPanel;
+import pl.edu.icm.unity.webui.authn.column.SecondFactorAuthNPanel;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
@@ -149,10 +151,20 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 	protected AuthenticationCallback createFirstFactorAuthnCallback(AuthenticationOptionKey optionId,
 			FirstFactorAuthNPanel authNPanel, AuthenticationStepContext stepContext)
 	{
-		return new FirstFactorSandboxAuthnCallback(msg, interactiveAuthnProcessor, stepContext, sandboxRouter);
+		return new FirstFactorSandboxAuthnCallback(msg, interactiveAuthnProcessor, stepContext, sandboxRouter,
+				new PrimaryAuthenticationListenerImpl(optionId.toStringEncodedKey(), authNPanel));
 	}
 	
-	//TODO KB add support for 2nd factor callback
+	@Override
+	protected AuthenticationCallback createSecondFactorAuthnCallback(AuthenticationOptionKey optionId,
+			SecondFactorAuthNPanel authNPanel, AuthenticationStepContext stepContext, 
+			PartialAuthnState partialAuthnState)
+	{
+		return new SecondFactorSandboxAuthnCallback(msg, interactiveAuthnProcessor, stepContext, 
+				new SecondaryAuthenticationListenerImpl(), 
+				sandboxRouter, 
+				partialAuthnState);
+	}
 	
 	private static UnknownUserDialog disabledUnknownUserProvider(UnknownRemotePrincipalResult authnResult)
 	{

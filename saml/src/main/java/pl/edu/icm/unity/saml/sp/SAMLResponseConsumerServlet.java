@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContex
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlHttpResponseServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
@@ -82,7 +82,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 		try
 		{
 			URIBuilder uriBuilder = new URIBuilder(returnURL);
-			uriBuilder.addParameter(RemoteAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
+			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
 			return uriBuilder.build().toString();
 		} catch (URISyntaxException e)
 		{

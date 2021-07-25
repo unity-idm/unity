@@ -31,16 +31,16 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
  * should be set on the proper path.
  */
 @PrototypeComponent
-public class RemoteAuthnResponseProcessingFilter implements Filter
+public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessingFilter.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteRedirectedAuthnResponseProcessingFilter.class);
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
-	private final RemoteRedirectedAuthnResponseProcessor remoteAuthnResponseProcessor;
+	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
 	
-	public RemoteAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteRedirectedAuthnResponseProcessor remoteAuthnResponseProcessor)
+	public RemoteRedirectedAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;

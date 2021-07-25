@@ -23,11 +23,11 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
 
 @Component
-class RemoteRedirectedAuthnResponseProcessor
+class RemoteAuthnResponseProcessor
 {
 	private final InteractiveAuthenticationProcessor authnProcessor;
 	
-	RemoteRedirectedAuthnResponseProcessor(InteractiveAuthenticationProcessor authnProcessor)
+	RemoteAuthnResponseProcessor(InteractiveAuthenticationProcessor authnProcessor)
 	{
 		this.authnProcessor = authnProcessor;
 	}

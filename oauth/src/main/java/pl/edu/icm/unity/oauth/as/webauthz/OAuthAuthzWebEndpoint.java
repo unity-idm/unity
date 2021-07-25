@@ -50,7 +50,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 /**
  * OAuth2 authorization endpoint, Vaadin based.
@@ -85,7 +85,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 			ASConsentDeciderServletFactory dispatcherServletFactory,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
-			RemoteAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
 				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter);

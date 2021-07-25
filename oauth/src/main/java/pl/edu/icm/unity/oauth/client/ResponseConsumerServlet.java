@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 /**
  * Awaits OAuth responses and handles them. The responses have their state extracted and OAuthn context 
@@ -89,7 +89,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		try
 		{
 			URIBuilder uriBuilder = new URIBuilder(returnURL);
-			uriBuilder.addParameter(RemoteAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
+			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
 			return uriBuilder.build().toString();
 		} catch (URISyntaxException e)
 		{

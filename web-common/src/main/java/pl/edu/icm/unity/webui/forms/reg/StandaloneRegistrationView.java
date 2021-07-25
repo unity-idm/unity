@@ -41,8 +41,8 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -145,10 +145,10 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
-				.getAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+				.getAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
 		if (postAuthnStepDecision != null)
 		{
-			session.removeAttribute(RemoteAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+			session.removeAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
 			if (!postAuthnStepDecision.triggeringContext.isRegistrationTriggered())
 				log.error("Got to standalone registration view with not-registration triggered "
 						+ "remote authn results, {}", postAuthnStepDecision.triggeringContext);

@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.webui.SimpleVaadinServletFactory;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 /**
  * Shared Vaadin servlet providing access to various views, which are publicly available under well known links.
@@ -28,12 +28,12 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnResponseProcessingFilter;
 @Component
 public class PublicWellKnownUrlServletFactory extends SimpleVaadinServletFactory implements PublicWellKnownURLServletProvider
 {
-	private final RemoteAuthnResponseProcessingFilter remoteAuthnFilter;
+	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnFilter;
 
 	@Autowired
 	public PublicWellKnownUrlServletFactory(ApplicationContext applicationContext, MessageSource msg, 
 			UnityServerConfiguration config,
-			RemoteAuthnResponseProcessingFilter remoteAuthnFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnFilter)
 	{
 		super(applicationContext, config, msg, PublicNavigationUI.class.getSimpleName(), new Properties(),
 				UnityServerConfiguration.WELL_KNOWN_URL_THEME, 
