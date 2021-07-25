@@ -22,7 +22,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 
@@ -55,8 +54,7 @@ public class LdapCertVerificator extends LdapBaseVerificator implements Certific
 				enableAssociation, triggeringContext);
 		return remoteAuthnProcessor.executeVerificator(
 				verificator, 
-				triggeringContext, 
-				HTTPRequestContext.getCurrent().getSessionId());
+				triggeringContext);
 	}
 
 	private AuthenticationResult authenticateWithCertificate(X509Certificate[] chain, 

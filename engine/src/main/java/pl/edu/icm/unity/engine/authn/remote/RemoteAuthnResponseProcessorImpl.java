@@ -13,17 +13,17 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
 
 @Component
@@ -41,34 +41,49 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
 	{
 		AuthenticationTriggeringContext triggeringContext = authnContext.getAuthenticationTriggeringContext();
-		AuthenticationResult authnResult = executeVerificator(authnContext::processAnswer, triggeringContext, 
-				httpRequest.getSession().getId());
+		return triggeringContext.isSandboxTriggered() ? 
+			processResponseInSandboxMode(authnContext, httpRequest, triggeringContext) :
+			processResponseInProductionMode(authnContext, httpRequest, httpResponse, triggeringContext);
+	}
+
+	private PostAuthenticationStepDecision processResponseInProductionMode(RemoteAuthnState authnContext, 
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse, AuthenticationTriggeringContext triggeringContext)
+	{
+		AuthenticationResult authnResult = authnContext.processAnswer();
 		if (triggeringContext.isRegistrationTriggered())
 		{
 			return authnProcessor.processRemoteRegistrationResult(authnResult, 
 					authnContext.getAuthenticationStepContext(), 
 					authnContext.getInitialLoginMachine(), 
 					httpRequest);
-		} else if (triggeringContext.isSandboxTriggered())
-		{
-			return processSandboxAuthenticationResult(authnContext, httpRequest, authnResult);
 		} else
 		{
 			return processRegularAuthenticationResult(authnContext, httpRequest, httpResponse, authnResult);
 		}
 	}
 
+	private PostAuthenticationStepDecision processResponseInSandboxMode(RemoteAuthnState authnContext, 
+			HttpServletRequest httpRequest,
+			AuthenticationTriggeringContext triggeringContext)
+	{
+		SandboxAuthenticationResult authnResult = executeVerificatorInSandboxMode(
+				authnContext::processAnswer, triggeringContext);
+		return processSandboxAuthenticationResult(authnContext, httpRequest, authnResult);
+	}
+
+	@Override
 	public AuthenticationResult executeVerificator(Supplier<AuthenticationResult> verificator, 
-			AuthenticationTriggeringContext triggeringContext, String sessionId)
+			AuthenticationTriggeringContext triggeringContext)
 	{
 		boolean sandboxMode = triggeringContext.isSandboxTriggered();
 		return sandboxMode ? 
-				executeVerificatorInSandboxMode(verificator, triggeringContext, sessionId) 
+				executeVerificatorInSandboxMode(verificator, triggeringContext) 
 				: verificator.get(); 
 	}
 	
-	private AuthenticationResult executeVerificatorInSandboxMode(Supplier<AuthenticationResult> verificator, 
-			AuthenticationTriggeringContext triggeringContext, String sessionId)
+	private SandboxAuthenticationResult executeVerificatorInSandboxMode(Supplier<AuthenticationResult> verificator, 
+			AuthenticationTriggeringContext triggeringContext)
 	{
 		LogRecorder logRecorder = new LogRecorder(Log.REMOTE_AUTHENTICATION_RELATED_FACILITIES);
 		logRecorder.startLogRecording();
@@ -83,9 +98,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 				: RemoteSandboxAuthnContext.succeededAuthn(
 						remoteAuthenticationResult.getRemotelyAuthenticatedPrincipal(), 
 						logRecorder.getCapturedLogs().toString());
-		triggeringContext.sandboxRouter.firePartialEvent(
-				new SandboxAuthnEvent(sandboxAuthnInfo, sessionId));
-		return authnResult;
+		return new SandboxAuthenticationResult(remoteAuthenticationResult, sandboxAuthnInfo);
 	}
 	
 	private PostAuthenticationStepDecision processRegularAuthenticationResult(RemoteAuthnState authnContext, 
@@ -113,7 +126,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 	
 	private PostAuthenticationStepDecision processSandboxAuthenticationResult(RemoteAuthnState authnContext, 
 			HttpServletRequest httpRequest,
-			AuthenticationResult authnResult)
+			SandboxAuthenticationResult authnResult)
 	{
 		FactorOrder factor = authnContext.getAuthenticationStepContext().factor; 
 		return factor == FactorOrder.FIRST ? 

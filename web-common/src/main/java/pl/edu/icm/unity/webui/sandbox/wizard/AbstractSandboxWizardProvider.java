@@ -62,7 +62,7 @@ public abstract class AbstractSandboxWizardProvider
 			@Override
 			public void onPartialAuthnResult(final SandboxAuthnEvent event) 
 			{
-				if (!callerId.equals(event.getCallerId()))
+				if (!callerId.equals(event.callerId))
 					return;
 				parentUI.access(() -> invokeInOriginalContext(() -> 
 				{

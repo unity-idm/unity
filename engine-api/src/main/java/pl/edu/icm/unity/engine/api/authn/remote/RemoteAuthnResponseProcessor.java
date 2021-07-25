@@ -22,6 +22,6 @@ public interface RemoteAuthnResponseProcessor
 			HttpServletResponse httpResponse);
 	
 	AuthenticationResult executeVerificator(Supplier<AuthenticationResult> verificator, 
-			AuthenticationTriggeringContext triggeringContext, String sessionId);
+			AuthenticationTriggeringContext triggeringContext);
 
 }

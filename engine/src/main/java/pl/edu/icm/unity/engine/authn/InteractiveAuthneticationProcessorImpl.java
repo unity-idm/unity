@@ -39,6 +39,8 @@ import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -201,10 +203,11 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	}
 	
 	@Override
-	public PostAuthenticationStepDecision processFirstFactorSandboxAuthnResult(AuthenticationResult result,
+	public PostAuthenticationStepDecision processFirstFactorSandboxAuthnResult(SandboxAuthenticationResult result,
 			AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, 
-			HttpServletRequest httpRequest, SandboxAuthnRouter sandboxRouter)
+			HttpServletRequest httpRequest, 
+			SandboxAuthnRouter sandboxRouter)
 	{
 		PartialAuthnState authnState;
 		try
@@ -218,26 +221,28 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		if (authnState.isSecondaryAuthenticationRequired())
 			return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail(authnState));
 
-		AuthenticatedEntity logInfo = basicAuthnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
-		sandboxRouter.fireCompleteEvent(logInfo);
+		AuthenticatedEntity authnEntity = basicAuthnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
+		sandboxRouter.fireEvent(new SandboxAuthnEvent(result.sandboxAuthnInfo, authnEntity, 
+				httpRequest.getSession().getId()));
 		return PostAuthenticationStepDecision.completed();
 	}
 	
 	@Override
 	public PostAuthenticationStepDecision processSecondFactorSandboxAuthnResult(PartialAuthnState state,
-			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
+			SandboxAuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, HttpServletRequest httpRequest,
 			SandboxAuthnRouter sandboxRouter)
 	{
-		AuthenticatedEntity logInfo;
+		AuthenticatedEntity authnEntity;
 		try
 		{
-			logInfo = basicAuthnProcessor.finalizeAfterSecondaryAuthentication(state, secondFactorResult);
+			authnEntity = basicAuthnProcessor.finalizeAfterSecondaryAuthentication(state, secondFactorResult);
 		} catch (AuthenticationException e)
 		{
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
-		sandboxRouter.fireCompleteEvent(logInfo);
+		sandboxRouter.fireEvent(new SandboxAuthnEvent(secondFactorResult.sandboxAuthnInfo, 
+				authnEntity, httpRequest.getSession().getId()));
 		return PostAuthenticationStepDecision.completed();
 	}
 	

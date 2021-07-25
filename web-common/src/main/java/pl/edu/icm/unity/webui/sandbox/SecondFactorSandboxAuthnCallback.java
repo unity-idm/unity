@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -66,7 +67,7 @@ class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
 		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorSandboxAuthnResult(
-				partialState, result, stepContext, 
+				partialState, (SandboxAuthenticationResult) result, stepContext, 
 				loginMachineDetails, servletRequest, sandboxRouter);
 		switch (postSecondFactorDecision.getDecision())
 		{

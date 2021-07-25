@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
@@ -104,10 +103,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	{
 		Supplier<AuthenticationResult> verificator = () -> authenticate(username, password, 
 				formForUnknown, enableAssociation, triggeringContext);
-		return remoteAuthnProcessor.executeVerificator(
-				verificator, 
-				triggeringContext, 
-				HTTPRequestContext.getCurrent().getSessionId());
+		return remoteAuthnProcessor.executeVerificator(verificator, triggeringContext);
 	}
 
 	private AuthenticationResult authenticate(String username, String password,

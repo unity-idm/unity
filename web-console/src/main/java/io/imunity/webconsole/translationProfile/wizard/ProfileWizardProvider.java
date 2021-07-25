@@ -61,7 +61,7 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 			@Override
 			public void onPartialAuthnResult(SandboxAuthnEvent event)
 			{
-				RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.getCtx()); 
+				RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.ctx); 
 				profileStep.handle(sandboxedCtx.getAuthnContext().getAuthnInput());
 				sandboxStep.enableNext();
 				wizard.next();

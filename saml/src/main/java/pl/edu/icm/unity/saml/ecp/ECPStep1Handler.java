@@ -70,7 +70,7 @@ public class ECPStep1Handler
 			return;
 		}
 		
-		//TODO KB
+		//FIXME KB
 		Function<RemoteAuthnState, AuthenticationResult> responseHandler = null;
 		AuthenticationStepContext authenticationContext = new AuthenticationStepContext(null, null, 
 				new AuthenticationOptionKey("-", "-"), FactorOrder.FIRST, null);

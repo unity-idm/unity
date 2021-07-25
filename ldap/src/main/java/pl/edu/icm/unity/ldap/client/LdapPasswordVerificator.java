@@ -16,16 +16,15 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
@@ -57,10 +56,7 @@ public class LdapPasswordVerificator extends LdapBaseVerificator implements Pass
 	{
 		Supplier<AuthenticationResult> verificator = () -> authenticateWithPassword(username, password, 
 				formForUnknown, enableAssociation, triggeringContext);
-		return remoteAuthnProcessor.executeVerificator(
-				verificator, 
-				triggeringContext, 
-				HTTPRequestContext.getCurrent().getSessionId());
+		return remoteAuthnProcessor.executeVerificator(verificator, triggeringContext);
 	}
 	
 	private AuthenticationResult authenticateWithPassword(String username, String password, 

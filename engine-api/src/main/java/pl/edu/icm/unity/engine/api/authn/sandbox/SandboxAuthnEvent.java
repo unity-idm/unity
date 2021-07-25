@@ -4,30 +4,23 @@
  */
 package pl.edu.icm.unity.engine.api.authn.sandbox;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+
 /**
- * Event that represents sandbox authentication. The callerId represents the session id
- * of the notifier.
+ * Event that provides details of a finished sandbox authentication.
  * 
  * @author Roman Krysinski
  */
 public class SandboxAuthnEvent 
 {
-	private String callerId;
-	private SandboxAuthnContext ctx;
+	public final String callerId;
+	public final SandboxAuthnContext ctx;
+	public final AuthenticatedEntity entity;
 	
-	public SandboxAuthnEvent(SandboxAuthnContext ctx, String callerId)
+	public SandboxAuthnEvent(SandboxAuthnContext ctx, AuthenticatedEntity entity, String callerId)
 	{
+		this.entity = entity;
 		this.callerId = callerId;
 		this.ctx = ctx;
-	}
-
-	public String getCallerId()
-	{
-		return callerId;
-	}
-
-	public SandboxAuthnContext getCtx()
-	{
-		return ctx;
 	}
 }

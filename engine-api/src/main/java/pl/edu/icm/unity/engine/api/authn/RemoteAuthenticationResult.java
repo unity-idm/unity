@@ -32,6 +32,12 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 		this.unknownRemotePrincipalResult = unknownRemotePrincipalResult;
 		this.errorResult = errorResult;
 	}
+	
+	protected RemoteAuthenticationResult(RemoteAuthenticationResult toClone)
+	{
+		this(toClone.status, toClone.successResult, toClone.notApplicableResult, 
+				toClone.unknownRemotePrincipalResult, toClone.errorResult);
+	}
 
 	public static RemoteAuthenticationResult notApplicable()
 	{
