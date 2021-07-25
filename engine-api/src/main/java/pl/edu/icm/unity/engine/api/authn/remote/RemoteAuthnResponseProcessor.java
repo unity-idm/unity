@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.util.function.Supplier;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 
 /**
@@ -17,5 +20,8 @@ public interface RemoteAuthnResponseProcessor
 {
 	PostAuthenticationStepDecision processResponse(RemoteAuthnState authnContext, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse);
+	
+	AuthenticationResult executeVerificator(Supplier<AuthenticationResult> verificator, 
+			AuthenticationTriggeringContext triggeringContext, String sessionId);
 
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
 import org.jvnet.libpam.PAM;
@@ -28,8 +29,10 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
@@ -48,13 +51,16 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	public static final String IDP = "PAM";
 	public static final String DESCRIPTION = "Verifies passwords using local OS PAM facility";
 	
+	private final RemoteAuthnResponseProcessor remoteAuthnProcessor;
 	private PAMProperties pamProperties;
 	private TranslationProfile translationProfile;
+
 	
 	@Autowired
-	public PAMVerificator(RemoteAuthnResultTranslator processor)
+	public PAMVerificator(RemoteAuthnResultTranslator translator, RemoteAuthnResponseProcessor remoteAuthnProcessor)
 	{
-		super(NAME, DESCRIPTION, PasswordExchange.ID, processor);
+		super(NAME, DESCRIPTION, PasswordExchange.ID, translator);
+		this.remoteAuthnProcessor = remoteAuthnProcessor;
 	}
 
 	@Override
@@ -96,6 +102,18 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 			String formForUnknown, boolean enableAssociation, 
 			AuthenticationTriggeringContext triggeringContext)
 	{
+		Supplier<AuthenticationResult> verificator = () -> authenticate(username, password, 
+				formForUnknown, enableAssociation, triggeringContext);
+		return remoteAuthnProcessor.executeVerificator(
+				verificator, 
+				triggeringContext, 
+				HTTPRequestContext.getCurrent().getSessionId());
+	}
+
+	private AuthenticationResult authenticate(String username, String password,
+			String formForUnknown, boolean enableAssociation, 
+			AuthenticationTriggeringContext triggeringContext)
+	{
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(
@@ -113,7 +131,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 			return LocalAuthenticationResult.failed(GENERIC_ERROR, e);
 		}
 	}
-
+	
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(String username,
 			String password) throws AuthenticationException, PAMException
 	{
