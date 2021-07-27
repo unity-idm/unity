@@ -14,13 +14,11 @@ public class HTTPRequestContext
 	private static ThreadLocal<HTTPRequestContext> threadLocal = new ThreadLocal<>();
 	private final String clientIP;
 	private final String userAgent;
-	private final String sessionId;
 	
-	public HTTPRequestContext(String clientIP, String userAgent, String sessionId)
+	public HTTPRequestContext(String clientIP, String userAgent)
 	{
 		this.clientIP = clientIP;
 		this.userAgent = userAgent;
-		this.sessionId = sessionId;
 	}
 
 	public static void setCurrent(HTTPRequestContext context)
@@ -41,10 +39,5 @@ public class HTTPRequestContext
 	public String getUserAgent()
 	{
 		return userAgent;
-	}
-	
-	public String getSessionId()
-	{
-		return sessionId;
 	}
 }

@@ -12,10 +12,7 @@ import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.webui.association.IntroStep;
@@ -57,20 +54,11 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 		
 		openSandboxPopupOnNextButton(wizard);
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
-		addSandboxListener(new AuthnResultListener()
+		addSandboxListener(event -> 
 		{
-			@Override
-			public void onPartialAuthnResult(SandboxAuthnEvent event)
-			{
-				sandboxStep.enableNext();
-				confirmationStep.setAuthnData(event);
-				wizard.next();						
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-			}
+			sandboxStep.enableNext();
+			confirmationStep.setAuthnData(event);
+			wizard.next();						
 		}, wizard, false);
 		return wizard;
 	}

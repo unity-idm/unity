@@ -7,9 +7,7 @@ package pl.edu.icm.unity.webui.association.atlogin;
 import org.vaadin.teemu.wizards.Wizard;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.webui.association.IntroStep;
@@ -51,20 +49,11 @@ public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvide
 		
 		openSandboxPopupOnNextButton(wizard);
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
-		addSandboxListener(new SandboxAuthnNotifier.AuthnResultListener()
+		addSandboxListener(event ->
 		{
-			@Override
-			public void onPartialAuthnResult(SandboxAuthnEvent event)
-			{
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-				sandboxStep.enableNext();
-				confirmationStep.setAuthenticatedUser(authenticatedEntity);
-				wizard.next();						
-			}
+			sandboxStep.enableNext();
+			confirmationStep.setAuthenticatedUser(event.entity);
+			wizard.next();						
 		}, wizard, true);
 		return wizard;
 	}

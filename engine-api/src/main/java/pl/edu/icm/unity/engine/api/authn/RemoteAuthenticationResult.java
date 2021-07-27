@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.NotApplicableResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
@@ -69,13 +71,23 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	public static RemoteAuthenticationResult successful(RemotelyAuthenticatedPrincipal remotePrincipal,
 			AuthenticatedEntity authenticatedEntity)
 	{
+		checkNotNull(authenticatedEntity);
+		checkNotNull(remotePrincipal);
 		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal), 
+				null, null, null);
+	}
+
+	public static RemoteAuthenticationResult successfulPartial(RemotelyAuthenticatedPrincipal remotePrincipal)
+	{
+		checkNotNull(remotePrincipal);
+		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(null, remotePrincipal), 
 				null, null, null);
 	}
 	
 	public static RemoteAuthenticationResult unknownRemotePrincipal(RemotelyAuthenticatedPrincipal remotePrincipal,
 			String formForUnknownPrincipal, boolean enableAssociation)
 	{
+		checkNotNull(remotePrincipal);
 		return new RemoteAuthenticationResult(Status.unknownRemotePrincipal, null, 
 				null, new UnknownRemotePrincipalResult(remotePrincipal, formForUnknownPrincipal, enableAssociation), null);
 	}

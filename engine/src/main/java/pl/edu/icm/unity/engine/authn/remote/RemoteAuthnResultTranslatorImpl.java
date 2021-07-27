@@ -113,7 +113,7 @@ public class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTransla
 			throw new RemoteAuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return dryRun ? RemoteAuthenticationResult.successful(remotePrincipal, null) : 
+		return dryRun ? RemoteAuthenticationResult.successfulPartial(remotePrincipal) : 
 			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation);
 	}
 	

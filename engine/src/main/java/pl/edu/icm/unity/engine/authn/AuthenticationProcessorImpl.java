@@ -126,6 +126,8 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
 			AuthenticationResult result, AuthenticationOptionKey firstFactorauthnOptionId)
 	{
+		if (result.getSuccessResult().authenticatedEntity == null)
+			return null;
 		AuthenticatorInstance secondFactorAuthenticator = getValidAuthenticatorForEntity(
 				authenticationFlow.getSecondFactorAuthenticators(), 
 				result.getSuccessResult().authenticatedEntity.getEntityId());

@@ -61,8 +61,7 @@ class ClientIPSettingHandler extends HandlerWrapper
 			MDC.put(MDCKeys.CLIENT_IP.key, clientIP);
 			
 			HTTPRequestContext.setCurrent(new HTTPRequestContext(clientIP, 
-					request.getHeader("User-Agent"),
-					request.getSession().getId()));
+					request.getHeader("User-Agent")));
 
 			try
 			{

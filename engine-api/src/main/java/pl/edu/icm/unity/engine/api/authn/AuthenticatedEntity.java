@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 /**
@@ -38,6 +39,7 @@ public class AuthenticatedEntity
 
 	public AuthenticatedEntity(Long entityId, Set<String> info, String outdatedCredentialId)
 	{
+		Preconditions.checkNotNull(entityId);
 		this.entityId = entityId;
 		this.authenticatedWith = new ArrayList<>(4);
 		authenticatedWith.addAll(info);

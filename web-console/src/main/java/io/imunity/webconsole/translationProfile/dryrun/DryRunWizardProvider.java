@@ -11,10 +11,7 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
@@ -68,19 +65,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 		//and when the page is loaded with back button
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
 		
-		addSandboxListener(new AuthnResultListener()
-		{
-			@Override
-			public void onPartialAuthnResult(SandboxAuthnEvent event)
-			{
-				dryrunStep.handle(event);
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-			}
-		}, wizard, false);
+		addSandboxListener(dryrunStep::handle, wizard, false);
 		return wizard;
 	}
 

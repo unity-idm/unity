@@ -15,7 +15,6 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
@@ -60,25 +59,14 @@ public abstract class AbstractSandboxWizardProvider
 			private final InvocationContext invocationContext = InvocationContext.getCurrent();
 			
 			@Override
-			public void onPartialAuthnResult(final SandboxAuthnEvent event) 
+			public void onSandboxAuthnResult(final SandboxAuthnEvent event) 
 			{
 				if (!callerId.equals(event.callerId))
 					return;
 				parentUI.access(() -> invokeInOriginalContext(() -> 
 				{
-					callback.onPartialAuthnResult(event);
+					callback.onSandboxAuthnResult(event);
 					if (!stopOnFinal)
-						parentUI.setPollInterval(-1);
-				}));
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-				parentUI.access(() -> invokeInOriginalContext(() ->
-				{
-					callback.onCompleteAuthnResult(authenticatedEntity);
-					if (stopOnFinal)
 						parentUI.setPollInterval(-1);
 				}));
 			}

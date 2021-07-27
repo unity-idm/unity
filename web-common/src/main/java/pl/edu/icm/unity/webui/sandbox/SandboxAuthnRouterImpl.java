@@ -40,12 +40,13 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	@Override
 	public void fireEvent(SandboxAuthnEvent event) 
 	{
+		LOG.debug("Fire event: {}", event);
 		synchronized (authnListenerList)
 		{
 			for (Collection<AuthnResultListener> listeners : authnListenerList.values())
 			{
 				for (AuthnResultListener listener: listeners)
-					listener.onPartialAuthnResult(event);
+					listener.onSandboxAuthnResult(event);
 			}
 		}
 	}

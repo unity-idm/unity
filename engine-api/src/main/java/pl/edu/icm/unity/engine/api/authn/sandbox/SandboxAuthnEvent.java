@@ -23,4 +23,10 @@ public class SandboxAuthnEvent
 		this.callerId = callerId;
 		this.ctx = ctx;
 	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("SandboxAuthnEvent [callerId=%s, ctx=%s, entity=%s]", callerId, ctx, entity);
+	}
 }

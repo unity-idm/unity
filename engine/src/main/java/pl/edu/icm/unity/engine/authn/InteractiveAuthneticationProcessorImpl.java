@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.NoopFailedAuthnCounter;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
@@ -215,6 +216,12 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null);
 		} catch (AuthenticationException e)
 		{
+			sandboxRouter.fireEvent(new SandboxAuthnEvent(
+					RemoteSandboxAuthnContext.failedAuthn(e, 
+							result.sandboxAuthnInfo.getLogs(), 
+							result.sandboxAuthnInfo.getAuthnContext().getAuthnInput()), 
+					null, 
+					httpRequest.getSession().getId()));
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
 
@@ -239,6 +246,12 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			authnEntity = basicAuthnProcessor.finalizeAfterSecondaryAuthentication(state, secondFactorResult);
 		} catch (AuthenticationException e)
 		{
+			sandboxRouter.fireEvent(new SandboxAuthnEvent(
+					RemoteSandboxAuthnContext.failedAuthn(e, 
+							secondFactorResult.sandboxAuthnInfo.getLogs(), 
+							secondFactorResult.sandboxAuthnInfo.getAuthnContext().getAuthnInput()), 
+					null, 
+					httpRequest.getSession().getId()));
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
 		sandboxRouter.fireEvent(new SandboxAuthnEvent(secondFactorResult.sandboxAuthnInfo, 
