@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
+import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -32,7 +34,6 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
@@ -93,10 +94,11 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
-				.getAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+				.getAttribute(DECISION_SESSION_ATTRIBUTE);
 		if (postAuthnStepDecision != null)
 		{
 			log.debug("Remote authentication result found in session, closing");
+			session.removeAttribute(DECISION_SESSION_ATTRIBUTE);
 			JavaScript.getCurrent().execute("window.close();");
 		} else
 		{

@@ -76,7 +76,6 @@ class DryRunStepComponent extends CustomComponent
 		
 		setCompositionRoot(buildMainLayout());
 		
-		capturedLogs.setContentMode(ContentMode.PREFORMATTED);
 		capturedLogs.setValue("");
 		
 		logsLabel.resetValue();
@@ -228,9 +227,11 @@ class DryRunStepComponent extends CustomComponent
 		
 		// capturedLogs
 		capturedLogs = new Label();
+		capturedLogs.setContentMode(ContentMode.PREFORMATTED);
 		capturedLogs.setWidth(100, Unit.PERCENTAGE);
 		capturedLogs.setHeight("-1px");
 		capturedLogs.setValue("Label");
+		capturedLogs.addStyleName(Styles.horizontalScroll.toString());
 		resultWrapper.addComponent(capturedLogs);
 		
 		return resultWrapper;

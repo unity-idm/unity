@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
@@ -90,11 +91,12 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 		AuthenticationResult authnResult = verificator.get();
 		logRecorder.stopLogRecording();
 		RemoteAuthenticationResult remoteAuthenticationResult = authnResult.asRemote();
+		RemotelyAuthenticatedPrincipal remotePrincipal = remoteAuthenticationResult.getRemotelyAuthenticatedPrincipal();
 		SandboxAuthnContext sandboxAuthnInfo = remoteAuthenticationResult.getStatus() == Status.deny ?
 				RemoteSandboxAuthnContext.failedAuthn(
 						remoteAuthenticationResult.getErrorResult().cause,
 						logRecorder.getCapturedLogs().toString(),
-						remoteAuthenticationResult.getRemotelyAuthenticatedPrincipal().getAuthnInput()) 
+						remotePrincipal != null ? remotePrincipal.getAuthnInput() : null) 
 				: RemoteSandboxAuthnContext.succeededAuthn(
 						remoteAuthenticationResult.getRemotelyAuthenticatedPrincipal(), 
 						logRecorder.getCapturedLogs().toString());
