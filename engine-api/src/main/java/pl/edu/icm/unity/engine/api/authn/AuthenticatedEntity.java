@@ -88,4 +88,12 @@ public class AuthenticatedEntity
 	{
 		this.outdatedCredentialId = outdatedCredentialId;
 	}
+
+	@Override
+	public String toString()
+	{
+		return String.format(
+				"AuthenticatedEntity [entityId=%s, outdatedCredentialId=%s, authenticatedWith=%s, remoteIdP=%s]",
+				entityId, outdatedCredentialId, authenticatedWith, remoteIdP);
+	}
 }

@@ -110,6 +110,9 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 							machineDetails.getIp(), stepContext.realm, getLoginCounter(httpRequest));
 			if (!loginSessionFromRememberMe.isPresent())
 			{
+				log.debug("2nd factor authentication required for {} with {}", 
+						authnState.getPrimaryResult().getSuccessResult().authenticatedEntity,
+						authnState.getSecondaryAuthenticator().getAuthenticatorId());
 				setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
 				return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail(authnState));
 			} else
@@ -161,8 +164,10 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		LoginSession loginSession = getLoginSessionForEntity(logInfo, stepContext.realm,
 				state.getFirstFactorOptionId(), stepContext.authnOptionId);
 
+		List<SessionParticipant> sessionParticipants = AuthenticationProcessor.extractParticipants(
+				state.getPrimaryResult(), secondFactorResult);
 		logged(logInfo, loginSession, stepContext.realm, machineDetails, setRememberMe,
-				AuthenticationProcessor.extractParticipants(state.getPrimaryResult()), 
+				sessionParticipants, 
 				httpRequest, httpResponse);
 
 		return PostAuthenticationStepDecision.completed();

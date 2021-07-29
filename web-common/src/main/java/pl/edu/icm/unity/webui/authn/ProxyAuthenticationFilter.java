@@ -186,10 +186,10 @@ public class ProxyAuthenticationFilter implements Filter
 			HttpServletResponse httpResponse,
 			String selectedAuthn)
 	{
-		if (authenticatorParam instanceof ProxyAuthenticationCapable)
+		if (authenticatorParam.retrieval instanceof ProxyAuthenticationCapable)
 		{
 			ProxyAuthenticationCapable authenticator = (ProxyAuthenticationCapable) 
-					authenticatorParam;
+					authenticatorParam.retrieval;
 			try
 			{
 				log.info("Invoking automated proxy authentication handler of {}",

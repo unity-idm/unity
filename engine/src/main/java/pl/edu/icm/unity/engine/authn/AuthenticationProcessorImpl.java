@@ -146,15 +146,9 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			if (authenticator != null)
 			{
 				if (!authenticator.getTypeDescription().isLocal())
-				{
-					log.info("Using remote second factor authenticator " + authenticator.getId());
 					return authn;
-
-				} else if (checkIfUserHasCredential(authenticator, entityId))
-				{
-					log.info("Using local second factor authenticator " + authenticator.getId());
+				else if (checkIfUserHasCredential(authenticator, entityId))
 					return authn;
-				}
 			}
 		}
 		return null;

@@ -367,7 +367,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		authNColumns.enableAll();
 		enableSharedWidgets(true);
-		authNPanelInProgress.showWaitScreenIfNeeded(HTTPRequestContext.getCurrent().getClientIP());
+		if (authNPanelInProgress != null)
+			authNPanelInProgress.showWaitScreenIfNeeded(HTTPRequestContext.getCurrent().getClientIP());
 		authNPanelInProgress = null;
 	}
 	
