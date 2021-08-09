@@ -19,6 +19,7 @@ public enum Styles
 	captionBold("bold"),
 	trueConditionBackground("u-trueCondition-bg"),
 	falseConditionBackground("u-falseCondition-bg"),
+	background("u-backgroud"),
 	errorBackground("u-error-bg"),
 	negativeBottomMarginSmall("u-negativeBottomMarginSmall"),
 	negativeTopMargin("u-negativeTopMargin"),

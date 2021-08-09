@@ -218,7 +218,7 @@ public class Attribute implements NamedObject
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(getName()).append(": [");
+		sb.append(getName()).append("[").append(groupPath).append("]").append(": [");
 		int size = values.size();
 		for (int i=0; i<size; i++)
 		{

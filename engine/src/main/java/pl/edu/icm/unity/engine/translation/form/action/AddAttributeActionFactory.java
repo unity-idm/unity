@@ -8,21 +8,27 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
+import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -50,7 +56,7 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 				new ActionParameterDefinition(
 						"group",
 						"RegTranslationAction.addAttribute.paramDesc.group",
-						Type.UNITY_GROUP, true),
+						Type.UNITY_DYNAMIC_GROUP, true),
 				new ActionParameterDefinition(
 						"expression",
 						"RegTranslationAction.addAttribute.paramDesc.expression",
@@ -89,7 +95,7 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 		}
 
 		@Override
-		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
+		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx, RegistrationContext context,
 				String currentProfile) throws EngineException
 		{
 			Object value = MVEL.executeExpression(expressionCompiled, mvelCtx, new HashMap<>());
@@ -101,19 +107,23 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			
 			List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
 			
-			Attribute attribute;
-			try
+			for (String group : getGroups(context))
 			{
-				attribute = externalDataParser.parseAsAttribute(at, group, aValues, 
-						null, currentProfile);
-			} catch (IllegalAttributeValueException e)
-			{
-				log.info("Can't convert attribute values returned by the action's expression "
-						+ "to the type of attribute " + unityAttribute + " , skipping it", e);
-				return;
+				Attribute attribute;
+				try
+				{
+					attribute = externalDataParser.parseAsAttribute(at, group, aValues, null,
+							currentProfile);
+				} catch (IllegalAttributeValueException e)
+				{
+					log.info("Can't convert attribute values returned by the action's expression "
+							+ "to the type of attribute " + unityAttribute
+							+ " , skipping it", e);
+					return;
+				}
+				log.debug("Mapped attribute: " + attribute);
+				state.addAttribute(attribute);
 			}
-			log.debug("Mapped attribute: " + attribute);
-			state.addAttribute(attribute);
 		}
 
 		private void setParameters(String[] parameters)
@@ -122,5 +132,23 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			group = parameters[1];
 			expressionCompiled = MVEL.compileExpression(parameters[2]);
 		}
+		
+		private Set<String> getGroups(RegistrationContext context)
+		{
+			if (DynamicGroupParam.isDynamicGroup(group))
+			{
+				int groupParamIndex = new DynamicGroupParam(group).index;
+				GroupSelection groupSelection = context.groupSelections.get(groupParamIndex);
+				if (groupSelection == null)
+				{
+					return Collections.emptySet();
+				}	
+				return Sets.newHashSet(groupSelection.getSelectedGroups());
+			} else
+			{
+				return Sets.newHashSet(group);
+			}
+		}
+		
 	}
 }

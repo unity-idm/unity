@@ -108,7 +108,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RegistrationTranslationProfileEditor profileEditor;
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
 	private RegistrationFormLayoutEditor layoutEditor;
-	private ActionParameterComponentProvider actionComponentFactory;
 	private CheckBox showCancel;
 	private CheckBox localSignupEmbeddedAsButton;
 	private ComboBox<String> realmNames;
@@ -127,16 +126,14 @@ public class RegistrationFormEditor extends BaseFormEditor
 			AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
-		super(msg, identitiesMan, attributeMan, credMan, policyAgreementConfigurationListFactory, attributeTypeSupport);
+		super(msg, identitiesMan, attributeMan, credMan, policyAgreementConfigurationListFactory, attributeTypeSupport, actionComponentFactory);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
 		this.credReqMan = credReqMan;
-		this.actionComponentFactory = actionComponentFactory;
 		this.uriAccessService = uriAccessService;
-		this.actionComponentFactory.init();
 		this.authenticatorSupport = authenticatorSupport;
 		this.realmsManagement = realmsManagement;
 		this.fileStorageService = fileStorageService;
@@ -440,7 +437,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 				.collect(Collectors.toList());
 		credentialRequirementAssignment.setItems(credentialReqirementNames);
 		
-		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentFactory);
+		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentProvider);
 		profileEditor.setValue(new TranslationProfile("form profile", "", ProfileType.REGISTRATION,
 				new ArrayList<>()));
 		main.addComponents(credentialRequirementAssignment);
@@ -450,5 +447,12 @@ public class RegistrationFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequestsAndInvitations()
 	{
 		return ignoreRequestsAndInvitation.getValue();
+	}
+	
+	@Override
+	protected void onGroupChanges()
+	{
+		super.onGroupChanges();
+		profileEditor.refresh();
 	}
 }

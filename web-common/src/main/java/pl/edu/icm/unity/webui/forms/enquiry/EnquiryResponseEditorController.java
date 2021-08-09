@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,23 +120,23 @@ public class EnquiryResponseEditorController
 		this.policyAgrMan = policyAgrMan;
 	}
 
-	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
+	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, Object> messageParams,
 			RemotelyAuthenticatedContext remoteContext, PrefilledSet set,
 			List<PolicyAgreementConfiguration> filteredPolicyAgreement) throws Exception
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, imageAccessService, 
-				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set);
+				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set, messageParams);
 	}
 
-	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, 
+	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, Map<String, Object> messageParams,
 			RemotelyAuthenticatedContext remoteContext, PrefilledSet prefilled,
 			EntityParam entityId) throws Exception
 	{
 		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
 				entityId, form.getPolicyAgreements());
-		return getEditorInstance(form, remoteContext, prefilled, filteredPolicyAgreement);
+		return getEditorInstance(form, messageParams, remoteContext, prefilled, filteredPolicyAgreement);
 	}
 	
 	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, 
@@ -144,7 +145,7 @@ public class EnquiryResponseEditorController
 		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
 				new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
 				form.getPolicyAgreements());
-		return getEditorInstance(form, remoteContext, getPrefilledForSticky(form, getLoggedEntity()),
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, getPrefilledForSticky(form, getLoggedEntity()),
 				filteredPolicyAgreement);
 	}
 	

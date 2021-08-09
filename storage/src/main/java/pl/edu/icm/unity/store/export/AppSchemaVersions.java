@@ -23,7 +23,8 @@ public enum AppSchemaVersions
 	V_SINCE_3_1_0(9, "3.1.0"),
 	V_SINCE_3_2_0(10, "3.2.0"),
 	V_SINCE_3_3_0(11, "3.3.0"),
-	V_SINCE_3_4_0(12, "3.4.0");
+	V_SINCE_3_4_0(12, "3.4.0"),
+	V_SINCE_3_5_0(13, "3.5.0");
 	
 	private String name;
 	private int appSchemaVersion;

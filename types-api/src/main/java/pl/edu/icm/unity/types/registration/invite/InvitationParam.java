@@ -122,6 +122,25 @@ public abstract class InvitationParam
 	{
 		return messageParams;
 	}
+	
+	public Map<String, Object> getMessageParamsWithCustomVarObject(String customVarPrefix)
+	{
+		Map<String, Object> ret = new HashMap<String, Object>();
+		Map<String, String> custom = new HashMap<String, String>();
+
+		for (Map.Entry<String, String> entry : messageParams.entrySet())
+		{
+			if (entry.getKey().startsWith(customVarPrefix))
+			{
+				custom.put(entry.getKey().substring(customVarPrefix.length()), entry.getValue());
+			}
+		}
+
+		ret.put(customVarPrefix.substring(0, customVarPrefix.length() - 1), custom);
+
+		return ret;
+
+	}
 
 	@JsonIgnore
 	public boolean isExpired()

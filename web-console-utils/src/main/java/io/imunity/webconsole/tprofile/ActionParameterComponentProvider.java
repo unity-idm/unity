@@ -7,11 +7,15 @@ package io.imunity.webconsole.tprofile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.base.Supplier;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
@@ -22,6 +26,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -40,7 +45,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 public class ActionParameterComponentProvider
 {
 	private MessageSource msg;
-
+	
 	private List<String> groups;
 	private Collection<String> credReqs;
 	private Collection<String> idTypes;
@@ -57,7 +62,8 @@ public class ActionParameterComponentProvider
 	private TranslationProfileManagement profileMan;
 	private MessageTemplateManagement msgTemplateMan;
 	private RegistrationsManagement registrationMan;
-
+	private List<Supplier<List<DynamicGroupParamWithLabel>>> dynamicGroupProviders;
+	
 	@Autowired
 	public ActionParameterComponentProvider(MessageSource msg,
 			AttributeTypeManagement attrsMan, IdentityTypeSupport idTypeSupport,
@@ -74,8 +80,15 @@ public class ActionParameterComponentProvider
 		this.profileMan = profileMan;
 		this.msgTemplateMan = msgTemplateMan;
 		this.registrationMan = registrationMan;
+		this.dynamicGroupProviders = new ArrayList<>();
 	}
 
+	public void init(Supplier<List<DynamicGroupParamWithLabel>> dynamicGroupProvider) throws EngineException
+	{
+		this.init();
+		this.dynamicGroupProviders.add(dynamicGroupProvider);
+	}
+	
 	public void init() throws EngineException
 	{
 		this.atTypes = new ArrayList<>(attrsMan.getAttributeTypes());
@@ -123,6 +136,8 @@ public class ActionParameterComponentProvider
 			return new AttributeActionParameterComponent(param, msg, atTypes);
 		case UNITY_GROUP:
 			return new BaseEnumActionParameterComponent(param, msg, groups);
+		case UNITY_DYNAMIC_GROUP:
+			return getUnityGroupActionParameterComponent(param);
 		case UNITY_CRED_REQ:
 			return new BaseEnumActionParameterComponent(param, msg, credReqs);
 		case UNITY_ID_TYPE:
@@ -148,5 +163,17 @@ public class ActionParameterComponentProvider
 		default: 
 			return new DefaultActionParameterComponent(param, msg);
 		}
+	}
+	
+	private BaseEnumActionParameterComponent getUnityGroupActionParameterComponent(ActionParameterDefinition param)
+	{
+		ArrayList<String> groupsWithDynamic = new ArrayList<>(groups);
+		Map<String, String> dynamicGroups = new HashMap<>();
+		dynamicGroupProviders.forEach(p -> p.get().stream().forEach(dg -> dynamicGroups.put(dg.toSelectionRepresentation(),  dg.getLabel(msg))));
+		groupsWithDynamic.addAll(dynamicGroups.keySet());
+		BaseEnumActionParameterComponent groupsCombo = new BaseEnumActionParameterComponent(param, msg,
+				groupsWithDynamic);
+		groupsCombo.setItemCaptionGenerator(i -> DynamicGroupParam.isDynamicGroup(i) ? dynamicGroups.get(i) : i);
+		return groupsCombo;
 	}
 }

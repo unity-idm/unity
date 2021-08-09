@@ -6,7 +6,9 @@ package pl.edu.icm.unity.engine.api.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -14,10 +16,12 @@ import org.apache.logging.log4j.Logger;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.StringTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 import pl.edu.icm.unity.base.utils.Log;
 
 /**
@@ -63,4 +67,56 @@ public class FreemarkerUtils
 		}
 		out.flush();
 	}
+	
+	public static String processStringTemplate(Map<String, Object> datamodel, String templateStr)
+	{
+		if (templateStr == null)
+		{
+			return null;
+		}
+		
+		StringTemplateLoader stringLoader = new StringTemplateLoader();
+		String templateName = "templateName";
+		stringLoader.putTemplate(templateName, templateStr);
+		Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
+		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
+		cfg.setTemplateLoader(stringLoader);
+		try
+		{
+			Template templateCon = cfg.getTemplate(templateName);
+			StringWriter writer = new StringWriter();
+			templateCon.process(datamodel, writer);
+			return writer.toString();
+		} catch (Exception e)
+		{
+			log.error("Can not process freemarker template from string " + templateStr, e);
+		}
+		return templateStr;
+	}
+	
+	public static boolean validateStringTemplate(String templateStr)
+	{
+		if (templateStr == null)
+		{
+			return true;
+		}
+		StringTemplateLoader stringLoader = new StringTemplateLoader();
+		String templateName = "templateName";
+		stringLoader.putTemplate(templateName, templateStr);
+		Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
+		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
+		cfg.setTemplateLoader(stringLoader);
+		Template templateCon;
+		try
+		{
+			templateCon = cfg.getTemplate(templateName);
+			StringWriter writer = new StringWriter();
+			templateCon.process(new HashMap<>(), writer);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+		
+	}
+	
 }

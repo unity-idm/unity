@@ -30,8 +30,10 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
+import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -88,7 +90,7 @@ public class TestFormProfileActions
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getAttributes().size(), is(1));
 		Attribute a = state.getAttributes().iterator().next();
@@ -96,6 +98,35 @@ public class TestFormProfileActions
 		assertThat(a.getValues().get(0), is("a1"));
 	}
 
+	@Test
+	public void testAddAttributeWithDynamicGroup() throws EngineException
+	{
+		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
+
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
+
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		Attribute attr = new Attribute("stringA", StringAttributeSyntax.ID, "/local", Lists.newArrayList("a1"));
+		when(parser.parseAsAttribute(any(), any(), eq(Lists.newArrayList("a1")), any(), any()))
+				.thenReturn(attr);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
+
+		RegistrationTranslationAction action = factory.getInstance("stringA",
+				DynamicGroupParam.DYN_GROUP_PFX + "0", "attr['attribute']");
+
+		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
+
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
+
+		assertThat(state.getAttributes().size(), is(1));
+		Attribute a = state.getAttributes().iterator().next();
+		assertThat(a.getName(), is("stringA"));
+		assertThat(a.getValues().get(0), is("a1"));
+		assertThat(a.getGroupPath(), is("/local"));
+	}
+
+	
 	@Test
 	public void testFilterAttribute() throws EngineException
 	{
@@ -111,7 +142,7 @@ public class TestFormProfileActions
 				StringAttributeSyntax.ID, "/", 
 				Lists.newArrayList("a2"))); 
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getAttributes().size(), is(1));
 		Attribute a = state.getAttributes().iterator().next();
@@ -128,7 +159,7 @@ public class TestFormProfileActions
 				
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getGroups().size(), is(1));
 		GroupParam g = state.getGroups().iterator().next();
@@ -146,7 +177,7 @@ public class TestFormProfileActions
 		state.addMembership(new GroupParam("/A/B", null, null));
 		state.addMembership(new GroupParam("/Z", null, null));
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getGroups().size(), is(1));
 		GroupParam a = state.getGroups().iterator().next();
@@ -164,7 +195,7 @@ public class TestFormProfileActions
 		state.addIdentity(new IdentityParam("idT", "idAA"));
 		state.addIdentity(new IdentityParam("idT", "bbb"));
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getIdentities().size(), is(1));
 		IdentityParam a = state.getIdentities().iterator().next();
@@ -185,7 +216,7 @@ public class TestFormProfileActions
 				
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getIdentities().size(), is(1));
 		IdentityParam mappedId = state.getIdentities().iterator().next();
@@ -201,7 +232,7 @@ public class TestFormProfileActions
 				
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		Map<String, Set<String>> attributeClasses = state.getAttributeClasses();
 		assertThat(attributeClasses.size(), is(1));
@@ -217,7 +248,7 @@ public class TestFormProfileActions
 		
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getAutoAction(), is(AutomaticRequestAction.accept));
 	}	
@@ -231,7 +262,7 @@ public class TestFormProfileActions
 		
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getEntityChange().getScheduledOperation(), is(EntityScheduledOperation.REMOVE));
 		LocalDate expected = LocalDate.now();
@@ -249,7 +280,7 @@ public class TestFormProfileActions
 		
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getCredentialRequirement(), is("credReq"));
 	}
@@ -262,7 +293,7 @@ public class TestFormProfileActions
 		
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
-		action.invoke(state, createContext(), "testProf");
+		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		assertThat(state.getEntityState(), is(EntityState.disabled));
 	}
@@ -271,7 +302,7 @@ public class TestFormProfileActions
 	@Test
 	public void testContext()
 	{
-		Map<String, Object> context = createContext();
+		Map<String, Object> context = createMvelContext();
 		
 		assertThat(((Map<String, Object>)context.get("attr")).containsKey("attribute"), is(true));
 		assertThat(((Map<String, Object>)context.get("attrs")).containsKey("attribute"), is(true));
@@ -336,8 +367,19 @@ public class TestFormProfileActions
 		assertThat(((String)context.get(RegistrationMVELContextKey.registrationForm.name())), is("form"));
 	}
 	
+	private RegistrationContext createContext()
+	{
+		RegistrationRequest request = mock(RegistrationRequest.class);
+		when(request.getGroupSelections()).thenReturn(Lists.newArrayList(
+				new GroupSelection("/local"),
+				new GroupSelection("/remote", "idp", "prof")
+				));
+		return new RegistrationContext(request);
+		
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Map<String, Object> createContext()
+	private Map<String, Object> createMvelContext()
 	{
 		RegistrationRequest request = mock(RegistrationRequest.class);
 		when(request.getAttributes()).thenReturn(Lists.newArrayList(

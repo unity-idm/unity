@@ -27,6 +27,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
@@ -147,6 +148,8 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 			
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
+					invitation.getMessageParamsWithCustomVarObject(
+							MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
 					RemotelyAuthenticatedContext.getLocalContext(), prefilled,
 					new EntityParam(invitation.getEntity()));
 
@@ -329,7 +332,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		if (config == null)
 			return;
 		if (config.autoRedirect)
-			redirect(config.redirectURL);
+			redirect(Page.getCurrent(), config.redirectURL);
 		else
 			showFinalScreen(config);
 	}
@@ -343,10 +346,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		setSizeFull();
 	}
 
-	private void redirect(String redirectUrl)
+	private void redirect(Page page, String redirectUrl)
 	{
 		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
-		Page.getCurrent().open(redirectUrl, null);
+		page.open(redirectUrl, null);
 	}
 	
 	private WorkflowFinalizationConfiguration submit(EnquiryForm form, EnquiryResponseEditor editor)

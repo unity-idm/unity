@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -20,6 +22,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +36,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
@@ -55,6 +59,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.EntityWithAttributes;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -63,6 +68,8 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 public class TestQuery extends TestRESTBase
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TestQuery.class);
+	
 	private ObjectMapper m = new ObjectMapper();
 	
 	{
@@ -92,7 +99,7 @@ public class TestQuery extends TestRESTBase
 		HttpResponse response = client.execute(host, resolve, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's info:\n" + formatJson(contents));
+		log.info("User's info:\n" + formatJson(contents));
 	}	
 	
 	@Test
@@ -108,25 +115,25 @@ public class TestQuery extends TestRESTBase
 		HttpResponse response = client.execute(host, resolve, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's info:\n" + formatJson(contents));
+		log.info("User's info:\n" + formatJson(contents));
 		
 		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+e+"/groups");
 		response = client.execute(host, getGroups, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's groups:\n" + contents);
+		log.info("User's groups:\n" + contents);
 		
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2Fexample%2Fsub");
 		response = client.execute(host, getGroupContents, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("Group's /example/sub contents:\n" + formatJson(contents));
+		log.info("Group's /example/sub contents:\n" + formatJson(contents));
 
 		HttpGet getAttributes = new HttpGet("/restadm/v1/entity/" + e + "/attributes?group=%2Fexample");
 		response = client.execute(host, getAttributes, localcontext);
 		contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("Attributes in /example:\n" + formatJson(contents));
+		log.info("Attributes in /example:\n" + formatJson(contents));
 	}
 	
 	@Test
@@ -139,9 +146,33 @@ public class TestQuery extends TestRESTBase
 		
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's info:\n" + formatJson(contents));
+		log.info("User's info:\n" + formatJson(contents));
 		Entity parsed = m.readValue(contents, Entity.class);
 		assertThat(parsed.getId(), is(e));
+	}
+	
+	
+	@Test
+	public void fullEntityWithAttributesAndGroupsIsReturned() throws Exception
+	{
+		long e = createTestContents();
+
+		HttpGet getEntity = new HttpGet("/restadm/v1/entity/" + e + "/record");
+		HttpResponse response = executeQuery(getEntity);
+
+		String contents = EntityUtils.toString(response.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		log.info("User's info:\n" + formatJson(contents));
+
+		EntityWithAttributes parsed = m.readValue(contents, EntityWithAttributes.class);
+		assertThat(parsed.entity.getId(), is(e));
+		assertThat(parsed.attributesInGroups.keySet().size(), is(2));
+		assertThat(parsed.attributesInGroups.get("/").size(), is(2));
+		assertThat(parsed.attributesInGroups.get("/").stream().map(a -> a.getName())
+				.collect(Collectors.toSet()), hasItems("emailA", "sys:CredentialRequirements"));
+		assertThat(parsed.attributesInGroups.get("/example").stream().map(a -> a.getName()).collect(
+				Collectors.toSet()), hasItems("floatA", "emailA", "intA", "jpegA", "enumA", "stringA"));
+		assertThat(parsed.groups.keySet(), hasItems("/", "/example", "/example/sub"));
 	}
 	
 	@Test
@@ -164,7 +195,7 @@ public class TestQuery extends TestRESTBase
 		HttpResponse response = client.execute(host, getGroups, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's groups:\n" + contents);
+		log.info("User's groups:\n" + contents);
 	}
 
 	@Test
@@ -177,7 +208,7 @@ public class TestQuery extends TestRESTBase
 		
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("Group's /example contents:\n" + formatJson(contents));
+		log.info("Group's /example contents:\n" + formatJson(contents));
 		ArrayNode parsed = JsonUtil.parse(contents, ArrayNode.class);
 		
 		assertThat(parsed.size(), is(1));

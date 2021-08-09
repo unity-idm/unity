@@ -372,4 +372,9 @@ public class RuleComponent extends CustomComponent
 		boolean moveBottom(RuleComponent rule);
 		boolean embedProfile(RuleComponent rule, String profile, ProfileType profileType);
 	}
+
+	public void refresh()
+	{
+		actionEditor.refresh();
+	}
 }
