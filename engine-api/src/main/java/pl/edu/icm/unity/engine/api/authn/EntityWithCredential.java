@@ -14,6 +14,16 @@ public class EntityWithCredential
 	private String credentialValue;
 	private long entityId;
 	
+	public EntityWithCredential()
+	{
+	}
+
+	public EntityWithCredential(String credentialName, String credentialValue, long entityId)
+	{
+		this.credentialName = credentialName;
+		this.credentialValue = credentialValue;
+		this.entityId = entityId;
+	}
 	public String getCredentialName()
 	{
 		return credentialName;

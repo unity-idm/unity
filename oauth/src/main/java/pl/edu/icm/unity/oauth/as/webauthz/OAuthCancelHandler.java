@@ -4,14 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
-
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.getVaadinContext;
-
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -19,7 +16,7 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
  */
 public class OAuthCancelHandler implements CancelHandler
 {
-	private OAuthResponseHandler responseH;
+	private final OAuthResponseHandler responseH;
 	
 	public OAuthCancelHandler(OAuthResponseHandler responseH)
 	{
@@ -29,7 +26,7 @@ public class OAuthCancelHandler implements CancelHandler
 	@Override
 	public void onCancel()
 	{
-		OAuthAuthzContext ctx = getVaadinContext();
+		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());

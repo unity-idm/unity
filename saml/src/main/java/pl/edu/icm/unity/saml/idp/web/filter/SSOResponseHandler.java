@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
 
@@ -19,9 +18,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.saml.slo.SamlRoutableUnsignedMessage;
+import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -48,7 +49,7 @@ public class SSOResponseHandler
 			messageHandler.sendResponse(binding, response, httpResponse, "SSO Authentication response");
 		} finally
 		{
-			cleanContext(httpRequest.getSession(), false);
+			cleanContext(httpRequest, false);
 		}
 	}
 	
@@ -72,14 +73,14 @@ public class SSOResponseHandler
 			throw new IllegalStateException("DSIG on unsigned request shouldn't happen", e);
 		} finally
 		{
-			cleanContext(httpRequest.getSession(), invalidate);
+			cleanContext(httpRequest, invalidate);
 		}
 	}
 	
-	private void cleanContext(HttpSession httpSession, boolean invalidate)
+	private void cleanContext(HttpServletRequest httpRequest, boolean invalidate)
 	{
-		httpSession.removeAttribute(SamlParseServlet.SESSION_SAML_CONTEXT);
+		SamlSessionService.cleanContext(new HttpContextSession(httpRequest));
 		if (invalidate)
-			httpSession.invalidate();
+			httpRequest.getSession().invalidate();
 	}
 }

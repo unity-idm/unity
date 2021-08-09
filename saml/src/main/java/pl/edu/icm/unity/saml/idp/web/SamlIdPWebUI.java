@@ -141,7 +141,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 		SamlIdpProperties samlConfiguration = samlCtx.getSamlConfiguration();
 		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(samlConfiguration);
 		if (!filteredAgreementToPresent.isEmpty())
@@ -219,7 +219,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 
 	protected void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (SAMLContextSupport.getContext().getSamlConfiguration().getBooleanValue(CommonIdPProperties.SKIP_CONSENT))
+		if (SamlSessionService.getVaadinContext().getSamlConfiguration().getBooleanValue(CommonIdPProperties.SKIP_CONSENT))
 		{
 			onAccepted(validIdentities.get(0), attributes.stream()
 					.map(da -> da.getAttribute())
@@ -271,7 +271,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	protected void onAccepted(IdentityParam selectedIdentity, Collection<Attribute> attributes)
 	{
-		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 		ResponseDocument respDoc;
 		try
 		{

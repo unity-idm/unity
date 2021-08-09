@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +41,8 @@ public abstract class CredentialResetBase implements CredentialReset
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, CredentialResetBase.class);
 	protected static final int MAX_ANSWER_ATTEMPTS = 2;
 	private static final int MAX_RESENDS = 3;
-	private static final long MAX_CODE_VALIDITY = 30*3600;
+	public static final Duration DEFAULT_MAX_CODE_VALIDITY = Duration.ofMinutes(30);
+	private Duration maxCodeValidity;
 	
 	private NotificationProducer notificationProducer;
 	private IdentityResolver identityResolver;
@@ -52,7 +55,7 @@ public abstract class CredentialResetBase implements CredentialReset
 	private ObjectNode completeCredentialConfiguration;
 	
 	private String codeSent;
-	private long codeValidityEnd;
+	private LocalDateTime codeValidityEnd;
 	private int dynamicAnswerAttempts = 0;
 	private int codeSendingAttempts = 0;
 	private AuthenticationSubject requestedSubject;
@@ -62,7 +65,8 @@ public abstract class CredentialResetBase implements CredentialReset
 			LocalCredentialVerificator localVerificator,
 			CredentialHelper credentialHelper,
 			String credentialId, 
-			ObjectNode completeCredentialConfiguration)
+			ObjectNode completeCredentialConfiguration,
+			Duration maxCodeValidity)
 	{
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
@@ -70,6 +74,7 @@ public abstract class CredentialResetBase implements CredentialReset
 		this.credentialId = credentialId;
 		this.localCredentialHandler = localVerificator;
 		this.completeCredentialConfiguration = completeCredentialConfiguration;
+		this.maxCodeValidity = maxCodeValidity;
 	}
 
 	public void setSubject(AuthenticationSubject subject, String[] idTypes)
@@ -135,7 +140,7 @@ public abstract class CredentialResetBase implements CredentialReset
 		{
 			codeSent = CodeGenerator.generateNumberCode(codeLen);
 		}
-		codeValidityEnd = System.currentTimeMillis() + MAX_CODE_VALIDITY;
+		codeValidityEnd = LocalDateTime.now().plus(maxCodeValidity);
 	}
 	
 	protected abstract int getCodeLength();
@@ -161,13 +166,18 @@ public abstract class CredentialResetBase implements CredentialReset
 				msgTemplate, params, locale, username, true);
 	}
 	
+	public String getSentCode()
+	{
+		return codeSent;
+	}
+	
 	@Override
 	public void verifyDynamicData(String answer) throws WrongArgumentException, TooManyAttempts
 	{
 		if (dynamicAnswerAttempts >= MAX_ANSWER_ATTEMPTS)
 			throw new TooManyAttempts();
 		dynamicAnswerAttempts++;
-		if (System.currentTimeMillis() > codeValidityEnd)
+		if (LocalDateTime.now().isAfter(codeValidityEnd))
 			throw new TooManyAttempts();
 		if (codeSent == null || !codeSent.equals(answer))
 			throw new WrongArgumentException("The code is invalid");

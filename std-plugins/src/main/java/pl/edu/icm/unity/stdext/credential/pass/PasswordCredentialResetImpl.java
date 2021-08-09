@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.credential.pass;
 
+import java.time.Duration;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -38,12 +39,26 @@ public class PasswordCredentialResetImpl extends CredentialResetBase
 			CredentialHelper credentialHelper, String credentialId,
 			ObjectNode completeCredentialConfiguration,
 			PasswordCredentialResetSettings settings,
-			PasswordEngine passwordEngine)
+			PasswordEngine passwordEngine,
+			Duration maxCodeValidity)
 	{
 		super(notificationProducer, identityResolver, localVerificator, credentialHelper,
-				credentialId, completeCredentialConfiguration);
+				credentialId, completeCredentialConfiguration, maxCodeValidity);
 		this.settings = settings;
 		this.passwordEngine = passwordEngine;
+	}
+	
+	public PasswordCredentialResetImpl(NotificationProducer notificationProducer,
+			IdentityResolver identityResolver,
+			LocalCredentialVerificator localVerificator,
+			CredentialHelper credentialHelper, String credentialId,
+			ObjectNode completeCredentialConfiguration,
+			PasswordCredentialResetSettings settings,
+			PasswordEngine passwordEngine)
+	{
+		this(notificationProducer, identityResolver, localVerificator, credentialHelper, credentialId, 
+				completeCredentialConfiguration, settings, passwordEngine, 
+				CredentialResetBase.DEFAULT_MAX_CODE_VALIDITY);
 	}
 
 	@Override

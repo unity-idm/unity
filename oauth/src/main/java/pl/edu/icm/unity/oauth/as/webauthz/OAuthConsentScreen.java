@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.getVaadinContext;
-
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -62,22 +60,22 @@ class OAuthConsentScreen extends CustomComponent
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConsentScreen.class);
 	private MessageSource msg;
 	
-	private AttributeHandlerRegistry handlersRegistry;
-	private PreferencesManagement preferencesMan;
-	private StandardWebAuthenticationProcessor authnProcessor;
-	private OAuthSessionService sessionMan;
-	private OAuthResponseHandler oauthResponseHandler;
-	private IdentityTypeSupport idTypeSupport;
-	private AttributeTypeSupport aTypeSupport; 
+	private final AttributeHandlerRegistry handlersRegistry;
+	private final PreferencesManagement preferencesMan;
+	private final StandardWebAuthenticationProcessor authnProcessor;
+	private final OAuthResponseHandler oauthResponseHandler;
+	private final IdentityTypeSupport idTypeSupport;
+	private final AttributeTypeSupport aTypeSupport; 
 	
+	private final IdentityParam identity;
+	private final Collection<DynamicAttribute> attributes;
+
+	private final Runnable declineHandler;
+	private final BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler;
+
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
 	private CheckBox rememberCB;
-	private IdentityParam identity;
-	private Collection<DynamicAttribute> attributes;
-	
-	private Runnable declineHandler;
-	private BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler; 
 	
 	OAuthConsentScreen(MessageSource msg, 
 			AttributeHandlerRegistry handlersRegistry,
@@ -85,30 +83,29 @@ class OAuthConsentScreen extends CustomComponent
 			StandardWebAuthenticationProcessor authnProcessor, 
 			IdentityTypeSupport idTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
-			OAuthSessionService sessionMan,
 			IdentityParam identity,
 			Collection<DynamicAttribute> attributes,
 			Runnable declineHandler,
-			BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler)
+			BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler,
+			OAuthSessionService oauthSessionService)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.preferencesMan = preferencesMan;
 		this.authnProcessor = authnProcessor;
-		this.sessionMan = sessionMan;
 		this.identity = identity;
 		this.attributes = attributes;
 		this.idTypeSupport = idTypeSupport;
 		this.aTypeSupport = aTypeSupport;
 		this.declineHandler = declineHandler;
 		this.acceptHandler = acceptHandler;
+		this.oauthResponseHandler = new OAuthResponseHandler(oauthSessionService);
 		initUI();
 	}
 
 	private void initUI()
 	{
-		OAuthAuthzContext ctx = getVaadinContext();
-		oauthResponseHandler = new OAuthResponseHandler(sessionMan);
+		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		
 		VerticalLayout vmain = new VerticalLayout();
 		vmain.setMargin(false);
@@ -260,7 +257,7 @@ class OAuthConsentScreen extends CustomComponent
 	{
 		try
 		{
-			OAuthAuthzContext ctx = getVaadinContext();
+			OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 			OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, ctx, defaultAccept);
 			OAuthPreferences.savePreferences(preferencesMan, preferences);

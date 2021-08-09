@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.credential.sms;
 
+import java.time.Duration;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
@@ -30,11 +32,26 @@ public class SMSCredentialResetImpl extends CredentialResetBase
 			CredentialHelper credentialHelper,
 			String credentialId, 
 			ObjectNode completeCredentialConfiguration,
-			SMSCredentialRecoverySettings settings)
+			SMSCredentialRecoverySettings settings,
+			Duration maxCodeValidity)
 	{
-		super(notificationProducer, identityResolver, localVerificator, credentialHelper, credentialId, completeCredentialConfiguration);
+		super(notificationProducer, identityResolver, localVerificator, credentialHelper, credentialId, 
+				completeCredentialConfiguration, maxCodeValidity);
 		this.settings = settings;
 	}
+
+	public SMSCredentialResetImpl(NotificationProducer notificationProducer,
+			IdentityResolver identityResolver,
+			LocalCredentialVerificator localVerificator,
+			CredentialHelper credentialHelper,
+			String credentialId, 
+			ObjectNode completeCredentialConfiguration,
+			SMSCredentialRecoverySettings settings)
+	{
+		this(notificationProducer, identityResolver, localVerificator, credentialHelper, credentialId, 
+				completeCredentialConfiguration, settings, CredentialResetBase.DEFAULT_MAX_CODE_VALIDITY);
+	}
+
 	
 	@Override
 	protected String getCredentialSettings()

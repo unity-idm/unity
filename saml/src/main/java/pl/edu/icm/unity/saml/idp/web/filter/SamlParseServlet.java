@@ -5,12 +5,13 @@
 package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
@@ -25,8 +26,10 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
+import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
@@ -43,11 +46,6 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 public class SamlParseServlet extends SamlHttpRequestServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseServlet.class);
-	
-	/**
-	 * Under this key the SAMLContext object is stored in the session.
-	 */
-	public static final String SESSION_SAML_CONTEXT = "samlAuthnContextKey";
 	
 	protected RemoteMetaManager samlConfigProvider;
 	protected String endpointAddress;
@@ -105,8 +103,6 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 	{
 		log.trace("Starting SAML request processing");
 		SamlIdpProperties samlConfig = (SamlIdpProperties) samlConfigProvider.getVirtualConfiguration();
-		HttpSession session = request.getSession();
-		SAMLAuthnContext context = (SAMLAuthnContext) session.getAttribute(SESSION_SAML_CONTEXT); 
 
 		String samlRequestStr = request.getParameter(SAMLConstants.REQ_SAML_REQUEST);
 		//do we have a new request?
@@ -116,22 +112,13 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 				log.trace("Request to SAML endpoint address, without SAML input, error: " + 
 						request.getRequestURI());
 			errorHandler.showErrorPage(new SAMLProcessingException("No SAML request"), 
-					(HttpServletResponse) response);
+					response);
 			return;
 		}
 		//ok, we do have a new request. 
 
 		
-		//is there processing in progress?
-		if (context != null)
-		{
-			if (log.isTraceEnabled() && !context.isExpired())
-				log.trace("Request to SAML consumer address, with SAML input and we are " +
-						"forced to break the previous SAML login: " + 
-						request.getRequestURI());
-			session.removeAttribute(SESSION_SAML_CONTEXT);
-		}
-		
+		SAMLAuthnContext context; 
 		if (log.isTraceEnabled())
 			log.trace("Got request with SAML input to: " + request.getRequestURI());
 		try
@@ -145,18 +132,36 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		{
 			if (log.isDebugEnabled())
 				log.warn("Processing of SAML input failed", e);
-			errorHandler.showErrorPage(e, (HttpServletResponse) response);
+			errorHandler.showErrorPage(e, response);
 			return;
 		}
 		
-		session.setAttribute(SESSION_SAML_CONTEXT, context);
+		SignInContextKey contextKey = SamlSessionService.setContext(request.getSession(), context);
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
 		//Note - this is intended, even taking into account the overhead. We don't want to pass alongside
 		//original HTTP query params, we want a clean URL in HTTP redirect case. In HTTP POST case it is
 		//even more important: web browser would warn the user about doubled POST.
-		response.sendRedirect(samlDispatcherServletPath);
+		response.sendRedirect(samlDispatcherServletPath + getQueryToAppend(contextKey));
+	}
+	
+	private String getQueryToAppend(SignInContextKey contextKey)
+	{
+		URIBuilder b = new URIBuilder();
+		if (!SignInContextKey.DEFAULT.equals(contextKey))
+		{
+			b.addParameter(SamlSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
+		}
+		String query = null;
+		try
+		{
+			query = b.build().getRawQuery();
+		} catch (URISyntaxException e)
+		{
+			log.error("Can't re-encode URL query params, shouldn't happen", e);
+		}
+		return query == null ? "" : "?" + query;
 	}
 	
 	protected SAMLAuthnContext createSamlContext(HttpServletRequest httpReq, AuthnRequestDocument samlRequest,

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -14,7 +15,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
 
@@ -35,11 +35,10 @@ public class OAuthGuardFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthGuardFilter.class);
 	
-	protected ErrorHandler errorHandler;
+	protected final ErrorHandler errorHandler;
 
 	public OAuthGuardFilter(ErrorHandler errorHandler)
 	{
-		super();
 		this.errorHandler = errorHandler;
 	}
 
@@ -63,7 +62,6 @@ public class OAuthGuardFilter implements Filter
 			throw new ServletException("This filter can be used only for HTTP servlets");
 		HttpServletRequest request = (HttpServletRequest) requestBare;
 		HttpServletResponse response = (HttpServletResponse) responseBare;
-		HttpSession session = request.getSession();
 		
 		if (VaadinRequestMatcher.isVaadinRequest(request))
 		{
@@ -72,22 +70,17 @@ public class OAuthGuardFilter implements Filter
 			return;
 		}
 		
-		OAuthAuthzContext context = (OAuthAuthzContext) session.getAttribute(
-				OAuthParseServlet.SESSION_OAUTH_CONTEXT); 
-
-		if (context == null)
+		Optional<OAuthAuthzContext> context = OAuthSessionService.getContext(request); 
+		if (!context.isPresent())
 		{
 			if (log.isDebugEnabled())
-				log.warn("Request to OAuth post-processing address, without OAuth context: " 
-						+ request.getRequestURI());
-			errorHandler.showErrorPage("No OAuth context", null, 
-					(HttpServletResponse) response);
+				log.warn("Request to OAuth post-processing address, without OAuth context: " + request.getRequestURI());
+			errorHandler.showErrorPage("No OAuth context", null, response);
 			return;
 		} else
 		{
 			if (log.isTraceEnabled())
-				log.trace("Request to OAuth post-processing address, with OAuth context: " 
-						+ request.getRequestURI());
+				log.trace("Request to OAuth post-processing address, with OAuth context: " + request.getRequestURI());
 			chain.doFilter(request, response);
 			return;
 		}

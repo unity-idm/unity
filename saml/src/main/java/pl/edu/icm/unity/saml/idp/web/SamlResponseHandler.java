@@ -24,6 +24,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService.VaadinContextSessionWithRequest;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -94,7 +95,8 @@ public class SamlResponseHandler
 			String encodedAssertion = Base64.getEncoder().encodeToString(assertion.getBytes(StandardCharsets.UTF_8));
 			SessionDisposal error = session.getAttribute(SessionDisposal.class);
 			
-			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+			VaadinContextSessionWithRequest signInContextSession = new VaadinContextSessionWithRequest(session, request);
+			SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext(signInContextSession);
 			String serviceUrl = samlCtx.getResponseDestination();
 			Map<String, String> data = new HashMap<>();
 			data.put("SAMLResponse", encodedAssertion);
@@ -114,7 +116,7 @@ public class SamlResponseHandler
 					log.trace("RelayState: " + samlCtx.getRelayState());
 			}
 
-			SAMLContextSupport.cleanContext();
+			SamlSessionService.cleanContext(signInContextSession);
 			
 			if (error!= null && error.isDestroySession())
 				session.getSession().invalidate();
