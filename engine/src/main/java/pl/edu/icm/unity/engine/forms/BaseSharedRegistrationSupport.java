@@ -39,7 +39,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
@@ -280,9 +279,8 @@ public class BaseSharedRegistrationSupport
 		}
 	}
 	
-	public <T extends UserRequestState<?>> void removeForm(String formId, 
-			boolean dropRequests, NamedCRUDDAOWithTS<T> requestDB, 
-			NamedCRUDDAOWithTS<? extends BaseForm> formDB) throws EngineException
+	public <T extends UserRequestState<?>> void preRemoveForm(String formId, 
+			boolean dropRequests, NamedCRUDDAOWithTS<T> requestDB) throws EngineException
 	{
 		List<T> requests = requestDB.getAll();
 		if (dropRequests)
@@ -298,7 +296,6 @@ public class BaseSharedRegistrationSupport
 							"to this form, and it was not chosen to drop them.");
 		}
 
-		formDB.delete(formId);
 	}
 	
 	public <T extends UserRequestState<?>> void validateIfHasPendingRequests(String formId, 

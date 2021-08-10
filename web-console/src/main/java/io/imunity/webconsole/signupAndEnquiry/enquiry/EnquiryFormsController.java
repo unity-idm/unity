@@ -76,7 +76,7 @@ public class EnquiryFormsController
 	{
 		try
 		{
-			enqMan.removeEnquiry(toRemove.getName(), dropRequests);
+			enqMan.removeEnquiry(toRemove.getName(), dropRequests, false);
 		} catch (Exception e)
 		{
 			throw new ControllerException(
