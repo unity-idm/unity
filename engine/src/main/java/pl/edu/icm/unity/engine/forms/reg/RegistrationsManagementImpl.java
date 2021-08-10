@@ -112,10 +112,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	@Override
 	@Transactional
-	public void removeForm(String formId, boolean dropRequests) throws EngineException
+	public void removeForm(String formId, boolean dropRequests, boolean ignoreDependencyChecking) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		internalManagment.removeForm(formId, dropRequests, requestDB, formsDB);
+		internalManagment.preRemoveForm(formId, dropRequests, requestDB);
+		formsDB.delete(formId, ignoreDependencyChecking);
 	}
 
 	@Override

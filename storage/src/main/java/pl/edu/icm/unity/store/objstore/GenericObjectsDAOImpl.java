@@ -154,12 +154,19 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	@Override
 	public void delete(String name)
 	{
+		delete(name, false);
+	}
+	
+	protected void delete(String name, boolean ignoreDependencyChecking)
+	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
 		if (raw == null)
 			throw new IllegalArgumentException("There is no [" + name + "] " + objectName);
 		T removed = handler.fromBlob(raw);
-		
-		firePreRemove(raw.getId(), name, removed);
+		if (!ignoreDependencyChecking)
+		{
+			firePreRemove(raw.getId(), name, removed);
+		}
 		dbGeneric.removeObject(name, type);
 	}
 

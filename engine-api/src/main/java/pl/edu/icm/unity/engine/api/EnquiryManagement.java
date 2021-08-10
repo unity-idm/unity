@@ -39,10 +39,14 @@ public interface EnquiryManagement
 	
 	/**
 	 * Remove an existing enquiry form.
-	 * @param formId
+ 	 * @param formId
+	 * @param dropRequests if true then all requests of this form are deleted. If false, the operation
+	 * will throw exception if there are any requests for the form.
+	 * @param ignoreDependencyChecking If false, the operation
+	 * will throw exception if there are any usage dependency for the form.
 	 * @throws EngineException
 	 */
-	void removeEnquiry(String formId, boolean dropRequests) throws EngineException;
+	void removeEnquiry(String formId, boolean dropRequests, boolean ignoreDependencyChecking) throws EngineException;
 	
 	/**
 	 * Updates an existing enquiry form. Will be applicable only to those users who has not yet filled the 

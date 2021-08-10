@@ -102,7 +102,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		initAndCreateEnquiry(null);
 		
-		enquiryManagement.removeEnquiry("f1", true);
+		enquiryManagement.removeEnquiry("f1", true, false);
 		
 		assertThat(enquiryManagement.getEnquires().isEmpty(), is(true));
 	}
@@ -110,7 +110,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	@Test 
 	public void missingFormCantBeRemoved() throws Exception
 	{
-		catchException(enquiryManagement).removeEnquiry("missing", true);
+		catchException(enquiryManagement).removeEnquiry("missing", true, false);
 		
 		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
