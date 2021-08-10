@@ -65,6 +65,11 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 		addUpdateHandler(changeListener);
 	}
 	
+	@Override
+	public void delete(String name, boolean ignoreDependencyChecking) {
+		super.delete(name, ignoreDependencyChecking);
+	}
+	
 	private class MessageTemplateChangeListener extends BaseTemplateChangeListener
 	{
 		@Override
