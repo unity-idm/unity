@@ -55,6 +55,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 		
 		setHeaderVisible(false);
 		setRowHeight(34);
+		setSizeFull();
 		loadNode(projectPath, null);
 		expand(treeData.getChildren(null));
 		setWidth(100, Unit.PERCENTAGE);
