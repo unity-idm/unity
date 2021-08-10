@@ -68,6 +68,11 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 		addRemovalHandler(changeListener);
 	}
 	
+	@Override
+	public void delete(String name, boolean ignoreDependencyChecking) {
+		super.delete(name, ignoreDependencyChecking);
+	}
+	
 	private void restrictCredReqRemoval(long removedId, String removedName)
 	{
 		List<RegistrationForm> forms = getAll();

@@ -137,10 +137,35 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		authz.assertManagerAuthorization(projectPath, path);
 		if (projectPath.equals(path))
 			throw new RemovalOfProjectGroupException(projectPath);
+		
+		Group group = getGroupInternal(path);
+		GroupDelegationConfiguration delegationConfig = group.getDelegationConfiguration();
+		if (delegationConfig.enabled)
+		{
+			removeRelatedForms(group.getDelegationConfiguration());
+		}
+		
 		groupMan.removeGroup(path, true);
-
 	}
-
+	
+	private void removeRelatedForms(GroupDelegationConfiguration groupConfig) throws EngineException
+	{
+		if (!Strings.isNullOrEmpty(groupConfig.registrationForm))
+		{
+			registrationsManagement.removeForm(groupConfig.registrationForm, true, true);
+		}
+		
+		if (!Strings.isNullOrEmpty(groupConfig.signupEnquiryForm))
+		{
+			enquiryManagement.removeEnquiry(groupConfig.signupEnquiryForm, true, true);
+		}
+		
+		if (!Strings.isNullOrEmpty(groupConfig.membershipUpdateEnquiryForm))
+		{
+			enquiryManagement.removeEnquiry(groupConfig.membershipUpdateEnquiryForm, true, true);
+		}		
+	}
+	
 	@Override
 	@Transactional
 	public Map<String, DelegatedGroupContents> getGroupAndSubgroups(String projectPath, String path)

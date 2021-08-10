@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -110,11 +111,38 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	@Test
 	public void shouldForwardGroupRemoveToCoreManager() throws EngineException
 	{
-		dGroupMan.removeGroup("/project1", "/project1/group1");
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project1"));
 
+		dGroupMan.removeGroup("/project1", "/project1/group1");
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockGroupMan).removeGroup(argument.capture(), eq(true));
 		assertThat(argument.getValue(), is("/project1/group1"));
+	}
+	
+	@Test
+	public void shouldRemoveFormsWhenRemoveGroup() throws EngineException
+	{
+		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
+		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, "reg", "e1", "e2", 
+				null));		
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
+		dGroupMan.removeGroup("/project1", "/project1/group1");
+		verify(mockRegistrationMan).removeForm(eq("reg"), eq(true), eq(true));
+		verify(mockEnquiryMan).removeEnquiry(eq("e2"), eq(true), eq(true));
+		verify(mockEnquiryMan).removeEnquiry(eq("e2"), eq(true), eq(true));
+	}
+	
+	@Test
+	public void shouldSkipRemoveFormsWhenRemoveGroupAndDelegationIfNotActive() throws EngineException
+	{
+		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
+		con.getGroup().setDelegationConfiguration(
+				new GroupDelegationConfiguration(false, false, null, "reg", "e1", "e2", null));
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
+		dGroupMan.removeGroup("/project1", "/project1/group1");
+		verify(mockRegistrationMan, never()).removeForm(eq("reg"), eq(true), eq(true));
+		verify(mockEnquiryMan, never()).removeEnquiry(eq("e2"), eq(true), eq(true));
+		verify(mockEnquiryMan, never()).removeEnquiry(eq("e2"), eq(true), eq(true));
 	}
 
 	@Test
