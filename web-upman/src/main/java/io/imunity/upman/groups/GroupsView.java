@@ -69,6 +69,8 @@ public class GroupsView extends CustomComponent implements UpManView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		setCompositionRoot(main);
+		main.setSizeFull();
+		setSizeFull();
 
 		GroupsComponent groupsComponent;
 		try
