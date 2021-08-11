@@ -63,16 +63,16 @@ public class SamlResponseHandler
 	
 	public void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
 	{
-		VaadinSession.getCurrent().setAttribute(SessionDisposal.class, 
-				new SessionDisposal(error, destroySession));
-		VaadinSession.getCurrent().setAttribute(SAMLServerException.class, error);
+		VaadinSession session = VaadinSession.getCurrent();
+		SamlSessionService.setAttribute(session, SessionDisposal.class, new SessionDisposal(error, destroySession));
+		SamlSessionService.setAttribute(session, SAMLServerException.class, error); // TODO: is this needed?
 		returnSamlResponse(respDoc);
 	}
 	
 	public void returnSamlResponse(ResponseDocument respDoc)
 	{
 		VaadinSession session = VaadinSession.getCurrent();
-		session.setAttribute(ResponseDocument.class, respDoc);
+		SamlSessionService.setAttribute(session, ResponseDocument.class, respDoc);
 		session.addRequestHandler(new SendResponseRequestHandler());
 		Page.getCurrent().reload();		
 	}
@@ -88,12 +88,12 @@ public class SamlResponseHandler
 		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, 
 				VaadinResponse response) throws IOException
 		{
-			ResponseDocument samlResponse = session.getAttribute(ResponseDocument.class);
+			ResponseDocument samlResponse = SamlSessionService.getAttribute(session, ResponseDocument.class);
 			if (samlResponse == null)
 				return false;
 			String assertion = samlResponse.xmlText();
 			String encodedAssertion = Base64.getEncoder().encodeToString(assertion.getBytes(StandardCharsets.UTF_8));
-			SessionDisposal error = session.getAttribute(SessionDisposal.class);
+			SessionDisposal error = SamlSessionService.getAttribute(session, SessionDisposal.class);
 			
 			VaadinContextSessionWithRequest signInContextSession = new VaadinContextSessionWithRequest(session, request);
 			SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext(signInContextSession);
