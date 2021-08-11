@@ -543,7 +543,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					authnOption.authenticator.getAuthenticatorId(),
 					authnOption.authenticatorUI.getId());
 
-			FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(msg, null, null, null, true,
+			FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(null, null, true,
 					authnOption.authenticatorUI, optionId);
 
 			if (enableRemoteRegistration)

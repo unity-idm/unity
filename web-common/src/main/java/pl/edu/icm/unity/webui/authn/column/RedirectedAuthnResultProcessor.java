@@ -80,7 +80,7 @@ class RedirectedAuthnResultProcessor
 	
 	private void handleError(String authenticatorError, String clientIp)
 	{
-		NotificationPopup.showError(authenticatorError, "");
+		NotificationPopup.showErrorAutoClosing(authenticatorError, "");
 		showWaitScreenIfNeeded(clientIp);
 	}
 	

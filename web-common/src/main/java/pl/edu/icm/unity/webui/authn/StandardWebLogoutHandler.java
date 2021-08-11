@@ -28,7 +28,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounterImpl;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
@@ -128,7 +127,7 @@ public class StandardWebLogoutHandler implements WebLogoutHandler
 	{
 		HttpSession httpSession = ((WrappedHttpSession)VaadinSession.getCurrent().getSession()).getHttpSession();
 		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
-				UnsuccessfulAuthenticationCounterImpl.class.getName());
+				UnsuccessfulAuthenticationCounter.class.getName());
 	}
 	
 	private class LogoutRedirectHandler extends SynchronizedRequestHandler

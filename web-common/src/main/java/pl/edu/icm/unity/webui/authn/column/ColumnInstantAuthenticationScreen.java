@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -45,10 +46,12 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -294,7 +297,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		AuthenticationOptionKey optionId = new AuthenticationOptionKey(authnOption.authenticator.getAuthenticatorId(), 
 				authnOption.authenticatorUI.getId());
 
-		FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(msg, execService, 
+		FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(
 				cancelHandler, unknownUserDialogProvider, gridCompatible, 
 				authnOption.authenticatorUI, optionId);
 		AuthenticationStepContext stepContext = new AuthenticationStepContext(endpointDescription.getRealm(), 
@@ -325,7 +328,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		AuthenticationOptionKey optionId = new AuthenticationOptionKey(
 				partialAuthnState.getSecondaryAuthenticator().getAuthenticatorId(), 
 				secondaryUI.getId());
-		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, idsMan, execService, 
+		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, idsMan,  
 				secondaryUI, partialAuthnState, 
 				optionId, this::switchBackToPrimaryAuthentication);
 		AuthenticationStepContext stepContext = new AuthenticationStepContext(endpointDescription.getRealm(), 
@@ -363,12 +366,18 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		remoteFirstFactorResultProcessor.onCompletedAuthentication(postAuthnStepDecision);
 	}
 
+	void showWaitScreenIfNeeded(String clientIp)
+	{
+		UnsuccessfulAuthenticationCounter counter = StandardWebLogoutHandler.getLoginCounter();
+		if (counter.getRemainingBlockedTime(clientIp) > 0)
+			new AccessBlockedDialog(msg, execService).show();
+	}
+	
 	private void onAbortedAuthentication()
 	{
 		authNColumns.enableAll();
 		enableSharedWidgets(true);
-		if (authNPanelInProgress != null)
-			authNPanelInProgress.showWaitScreenIfNeeded(HTTPRequestContext.getCurrent().getClientIP());
+		showWaitScreenIfNeeded(HTTPRequestContext.getCurrent().getClientIP());
 		authNPanelInProgress = null;
 	}
 	

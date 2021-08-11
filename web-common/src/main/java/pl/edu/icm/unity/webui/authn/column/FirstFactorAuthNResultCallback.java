@@ -146,7 +146,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	{
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
-		NotificationPopup.showError(errorToShow, "");
+		NotificationPopup.showErrorAutoClosing(errorToShow, "");
 	}
 	
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)

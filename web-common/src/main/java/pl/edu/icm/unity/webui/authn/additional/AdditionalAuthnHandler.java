@@ -17,11 +17,10 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -40,7 +39,6 @@ public class AdditionalAuthnHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalAuthnHandler.class);
 	private final MessageSource msg;
-	private final ExecutorsService execService;
 	private final SessionManagement sessionMan;
 	private final EntityManagement entityMan;
 
@@ -50,12 +48,10 @@ public class AdditionalAuthnHandler
 	}
 	
 	@Autowired
-	public AdditionalAuthnHandler(SessionManagement sessionMan, EntityManagement entityMan,
-			ExecutorsService execService, MessageSource msg)
+	public AdditionalAuthnHandler(SessionManagement sessionMan, EntityManagement entityMan, MessageSource msg)
 	{
 		this.sessionMan = sessionMan;
 		this.entityMan = entityMan;
-		this.execService = execService;
 		this.msg = msg;
 	}
 	
@@ -77,7 +73,7 @@ public class AdditionalAuthnHandler
 				entity.getId(),
 				exception.authenticationOption);
 
-		AuthNPanel authnPanel = new AuthNPanel(msg, execService, authenticationUI);
+		AuthNPanel authnPanel = new AuthNPanel(authenticationUI);
 		AdditionalAuthnDialog dialog = new AdditionalAuthnDialog(msg, header, info, authnPanel,
 				() -> onDialogClose(resultCallback));
 		AuthenticationOptionKey additionalAuthnOptionKey = new AuthenticationOptionKey(authenticator, authenticationUI.getId());

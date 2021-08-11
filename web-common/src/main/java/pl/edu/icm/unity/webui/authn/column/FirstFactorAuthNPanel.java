@@ -9,14 +9,9 @@ import java.util.function.Function;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
@@ -28,13 +23,10 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  */
 public class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {
-	private final MessageSource msg;
-	private final ExecutorsService execService;
 	private final Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider; 
 	private final boolean gridCompatible;
 	
-	public FirstFactorAuthNPanel(MessageSource msg, 
-			ExecutorsService execService,
+	public FirstFactorAuthNPanel(
 			CancelHandler cancelHandler,
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
 			boolean gridCompatible,
@@ -42,8 +34,6 @@ public class FirstFactorAuthNPanel extends AuthNPanelBase implements Authenticat
 			AuthenticationOptionKey authnId)
 	{
 		super(authnUI, authnId, new VerticalLayout());
-		this.msg = msg;
-		this.execService = execService;
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.gridCompatible = gridCompatible;
 
@@ -63,20 +53,8 @@ public class FirstFactorAuthNPanel extends AuthNPanelBase implements Authenticat
 		authenticatorContainer.addComponent(retrievalComponent);
 	}
 	
-	void showWaitScreenIfNeeded(String clientIp)
-	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebLogoutHandler.getLoginCounter();
-		if (counter.getRemainingBlockedTime(clientIp) > 0)
-		{
-			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);
-			dialog.show();
-			return;
-		}
-	}
-	
 	void showUnknownUserDialog(UnknownRemotePrincipalResult urpResult)
 	{
-		UnknownUserDialog dialog = unknownUserDialogProvider.apply(urpResult); 
-		dialog.show();
+		unknownUserDialogProvider.apply(urpResult).show(); 
 	}	
 }

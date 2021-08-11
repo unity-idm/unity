@@ -134,7 +134,7 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
-		NotificationPopup.showError(errorToShow, "");
+		NotificationPopup.showErrorAutoClosing(errorToShow, "");
 	}
 	
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)

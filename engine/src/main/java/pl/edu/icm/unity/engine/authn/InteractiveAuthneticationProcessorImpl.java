@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
@@ -34,7 +35,6 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
-import pl.edu.icm.unity.engine.api.authn.NoopFailedAuthnCounter;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
@@ -94,6 +94,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		{
 			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result,
 					stepContext.selectedAuthnFlow, stepContext.authnOptionId);
+			assertNotFailed(authnState.getPrimaryResult());
 		} catch (AuthenticationException e)
 		{
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
@@ -144,6 +145,14 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
 		log.info("Successful authentication after first factor for {}", result);
 		return PostAuthenticationStepDecision.completed();
+	}
+
+
+
+	private void assertNotFailed(AuthenticationResult result)
+	{
+		if (result.getStatus() == Status.deny)
+			throw new IllegalStateException("Exception should be thrown to signal authN failure");
 	}
 
 	@Override
@@ -219,6 +228,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		try
 		{
 			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null);
+			assertNotFailed(authnState.getPrimaryResult());
 		} catch (AuthenticationException e)
 		{
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
@@ -336,12 +346,11 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	
 	private static UnsuccessfulAuthenticationCounter getLoginCounter(HttpServletRequest httpRequest)
 	{
-		UnsuccessfulAuthenticationCounter sessionSet = (UnsuccessfulAuthenticationCounter) 
+		UnsuccessfulAuthenticationCounter servletSet = (UnsuccessfulAuthenticationCounter) 
 				httpRequest.getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
-		if (sessionSet != null)
-			return sessionSet;
-		return NoopFailedAuthnCounter.INSTANCE;
-		
+		if (servletSet == null)
+			throw new IllegalStateException("No authn failuures counter in servelt context");
+		return servletSet;
 	}
 	
 	private String getLabel(long entityId)

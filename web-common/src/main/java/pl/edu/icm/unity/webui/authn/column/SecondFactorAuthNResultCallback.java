@@ -121,7 +121,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 		log.info("Authentication failed {}", errorToShow);
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
-		NotificationPopup.showError(errorToShow, "");
+		NotificationPopup.showErrorAutoClosing(errorToShow, "");
 	}
 	
 	/**

@@ -113,7 +113,7 @@ class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 	{
 		log.info("Authentication failed {}", errorToShow);
 		setAuthenticationAborted();
-		NotificationPopup.showError(errorToShow, "");
+		NotificationPopup.showErrorAutoClosing(errorToShow, "");
 	}
 	
 	/**

@@ -64,6 +64,10 @@ public class AuthenticationFilter implements Filter
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
+		//note: this is a separate counter to the main one which is stored as a servlet's attribute.
+		// this is 'cos we need to separate regular net traffic (and not to block it - otherwise even 
+		// notification about blocking woudn't show up). Still we need to prevent brute force attacks using 
+		// fake session cookies - this object is responsible only for that.
 		dosGauard = new UnsuccessfulAuthenticationCounterImpl(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
 		sessionCookie = InteractiveAuthenticationProcessor.getSessionCookieName(realm.getName());

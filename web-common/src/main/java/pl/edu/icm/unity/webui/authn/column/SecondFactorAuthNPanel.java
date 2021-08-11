@@ -17,14 +17,10 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -38,18 +34,16 @@ public class SecondFactorAuthNPanel extends AuthNPanelBase implements Authentica
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SecondFactorAuthNPanel.class);
 	private final MessageSource msg;
 	private final EntityManagement idsMan;
-	private final ExecutorsService execService;
 	private final Runnable switchToFirstFactor;
 
 	SecondFactorAuthNPanel(MessageSource msg,
-			EntityManagement idsMan, ExecutorsService execService,
+			EntityManagement idsMan,
 			VaadinAuthenticationUI secondaryUI, PartialAuthnState partialState,
 			AuthenticationOptionKey optionId, Runnable switchToFirstFactor)
 	{
 		super(secondaryUI, optionId, new VerticalLayout());
 		this.msg = msg;
 		this.idsMan = idsMan;
-		this.execService = execService;
 		this.switchToFirstFactor = switchToFirstFactor;
 
 		authenticatorContainer.setHeight(100, Unit.PERCENTAGE);
@@ -90,17 +84,5 @@ public class SecondFactorAuthNPanel extends AuthNPanelBase implements Authentica
 	{
 		AuthenticatedEntity ae = unresolved.getSuccessResult().authenticatedEntity;
 		return idsMan.getEntity(new EntityParam(ae.getEntityId()));
-	}
-
-	
-	void showWaitScreenIfNeeded(String clientIp)
-	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebLogoutHandler.getLoginCounter();
-		if (counter.getRemainingBlockedTime(clientIp) > 0)
-		{
-			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);
-			dialog.show();
-			return;
-		}
 	}
 }
