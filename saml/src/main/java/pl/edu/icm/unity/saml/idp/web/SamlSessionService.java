@@ -66,6 +66,16 @@ public class SamlSessionService
 		session.removeAttribute(ResponseDocument.class.getName());
 	}
 	
+	public static <T> void setAttribute(VaadinSession session, Class<T> clazz, T value)
+	{ 
+		session.getSession().setAttribute(clazz.getName(), value);
+	}
+	
+	public static <T> T getAttribute(VaadinSession session, Class<T> clazz)
+	{
+		return clazz.cast(session.getSession().getAttribute(clazz.getName()));
+	}
+	
 	static class VaadinContextSessionWithRequest extends VaadinContextSession
 	{
 		private final SignInContextKey key;
