@@ -25,7 +25,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -124,7 +123,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 				log.info("PAM authentication failed", e);
 			else
 				log.warn("PAM authentication failed", e);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR, e);
+			return RemoteAuthenticationResult.failed(null, e, GENERIC_ERROR);
 		}
 	}
 	

@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.engine.api.utils.LogRecorder;
 @Component
 class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessorImpl.class);
 	private final InteractiveAuthenticationProcessor authnProcessor;
 	
 	RemoteAuthnResponseProcessorImpl(InteractiveAuthenticationProcessor authnProcessor)
@@ -88,9 +90,27 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 	{
 		LogRecorder logRecorder = new LogRecorder(Log.REMOTE_AUTHENTICATION_RELATED_FACILITIES);
 		logRecorder.startLogRecording();
-		AuthenticationResult authnResult = verificator.get();
-		logRecorder.stopLogRecording();
-		RemoteAuthenticationResult remoteAuthenticationResult = authnResult.asRemote();
+		AuthenticationResult authnResult;
+		try
+		{
+			authnResult = verificator.get();
+		} catch (Exception e)
+		{
+			return handleVerificatorException(logRecorder, e);
+		} finally 
+		{
+			logRecorder.stopLogRecording();
+		}
+		
+		if (!authnResult.isRemote())
+			return handleNonRemoteSandboxResult(logRecorder, authnResult);
+		
+		return handleRemoteSandboxResult(logRecorder, authnResult.asRemote());
+	}
+
+	private SandboxAuthenticationResult handleRemoteSandboxResult(LogRecorder logRecorder,
+			RemoteAuthenticationResult remoteAuthenticationResult)
+	{
 		RemotelyAuthenticatedPrincipal remotePrincipal = remoteAuthenticationResult.getRemotelyAuthenticatedPrincipal();
 		SandboxAuthnContext sandboxAuthnInfo = remoteAuthenticationResult.getStatus() == Status.deny ?
 				RemoteSandboxAuthnContext.failedAuthn(
@@ -101,6 +121,29 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 						remoteAuthenticationResult.getRemotelyAuthenticatedPrincipal(), 
 						logRecorder.getCapturedLogs().toString());
 		return new SandboxAuthenticationResult(remoteAuthenticationResult, sandboxAuthnInfo);
+	}
+
+	private SandboxAuthenticationResult handleVerificatorException(LogRecorder logRecorder, Exception e)
+	{
+		log.error("Verificator has thrown an exception (sandbox execution)", e);
+		return new SandboxAuthenticationResult(RemoteAuthenticationResult.failed(e), 
+				RemoteSandboxAuthnContext.failedAuthn(
+						e, logRecorder.getCapturedLogs().toString(), null));
+	}
+
+	private SandboxAuthenticationResult handleNonRemoteSandboxResult(LogRecorder logRecorder, AuthenticationResult authnResult)
+	{
+		log.error("Got non-remote authn result in sandbox mode: {}, returning failure. That's a bug.",
+				authnResult);
+		return new SandboxAuthenticationResult(RemoteAuthenticationResult.failed(new IllegalStateException(
+				"Got non-remote authn result in sandbox mode: " + 
+				authnResult + ", returning failure. That's a bug.")), 
+				RemoteSandboxAuthnContext.failedAuthn(
+						new IllegalStateException(
+								"Got non-remote authn result in sandbox mode: " + 
+								authnResult + ", returning failure. That's a bug."),
+							logRecorder.getCapturedLogs().toString(),
+							null));
 	}
 	
 	private PostAuthenticationStepDecision processRegularAuthenticationResult(RemoteAuthnState authnContext, 

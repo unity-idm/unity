@@ -6,10 +6,13 @@ package pl.edu.icm.unity.webui.sandbox;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -36,6 +39,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 {
+	private static final Duration DELAY_WINDOW_CLOSING_AFTER_ERROR_FOR = Duration.ofSeconds(5);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, FirstFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
 	private final InteractiveAuthenticationProcessor authnProcessor;
@@ -135,10 +139,26 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 	{
 		setAuthenticationAborted();
 		NotificationPopup.showErrorAutoClosing(errorToShow, "");
+		scheduleWindowClose();
 	}
 	
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)
 	{
 		closeWindow();
+	}
+	
+	private void scheduleWindowClose()
+	{
+		UI ui = UI.getCurrent();
+		new Thread(() -> {
+			try
+			{
+				Thread.sleep(DELAY_WINDOW_CLOSING_AFTER_ERROR_FOR.toMillis());
+			} catch (InterruptedException e)
+			{
+			}
+			
+			ui.access(() -> closeWindow());
+		}).start();
 	}
 }

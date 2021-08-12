@@ -17,7 +17,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
@@ -69,7 +69,7 @@ public class LdapCertVerificator extends LdapBaseVerificator implements Certific
 		} catch (Exception e)
 		{
 			log.debug("LDAP authentication with certificate failed", e);
-			return LocalAuthenticationResult.failed(e);
+			return RemoteAuthenticationResult.failed(e);
 		}
 	}
 	

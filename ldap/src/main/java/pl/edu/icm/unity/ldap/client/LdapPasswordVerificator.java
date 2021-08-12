@@ -18,7 +18,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -73,7 +72,7 @@ public class LdapPasswordVerificator extends LdapBaseVerificator implements Pass
 		} catch (Exception e)
 		{
 			log.debug("LDAP authentication with password failed", e);
-			return LocalAuthenticationResult.failed(e);
+			return RemoteAuthenticationResult.failed(e);
 		}
 	}
 	

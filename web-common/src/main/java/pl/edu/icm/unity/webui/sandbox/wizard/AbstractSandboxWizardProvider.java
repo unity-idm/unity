@@ -56,7 +56,7 @@ public abstract class AbstractSandboxWizardProvider
 		AuthnResultListener listener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
 			private final UI parentUI = UI.getCurrent();
-			private final InvocationContext invocationContext = InvocationContext.getCurrent();
+			private final InvocationContext originalInvocationContext = InvocationContext.getCurrent();
 			
 			@Override
 			public void onSandboxAuthnResult(final SandboxAuthnEvent event) 
@@ -73,15 +73,16 @@ public abstract class AbstractSandboxWizardProvider
 			
 			private void invokeInOriginalContext(Runnable code)
 			{
-				if (InvocationContext.hasCurrent())
-					throw new IllegalStateException("Invocation context set in thread");
-				InvocationContext.setCurrent(invocationContext);
+				InvocationContext threadInvocationContext = InvocationContext.hasCurrent() ? 
+					InvocationContext.getCurrent() : null;
+				
+				InvocationContext.setCurrent(originalInvocationContext);
 				try
 				{
 					code.run();
 				} finally
 				{
-					InvocationContext.setCurrent(null);
+					InvocationContext.setCurrent(threadInvocationContext);
 				}
 			}
 		};

@@ -232,7 +232,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		} catch (AuthenticationException e)
 		{
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
-					RemoteSandboxAuthnContext.failedAuthn(e, 
+					RemoteSandboxAuthnContext.failedAuthn(
+							result.sandboxAuthnInfo.getAuthnException() != null ? result.sandboxAuthnInfo.getAuthnException() : e, 
 							result.sandboxAuthnInfo.getLogs(), 
 							result.sandboxAuthnInfo.getAuthnContext() == null ? 
 									null : result.sandboxAuthnInfo.getAuthnContext().getAuthnInput()), 
