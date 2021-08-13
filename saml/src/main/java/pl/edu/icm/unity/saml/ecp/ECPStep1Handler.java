@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.ecp;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,10 @@ import org.apache.xmlbeans.XmlCursor;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
@@ -28,6 +33,7 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.IDPEntryType;
@@ -64,7 +70,13 @@ public class ECPStep1Handler
 			return;
 		}
 		
-		ECPAuthnState context = new ECPAuthnState(new AuthenticationOptionKey("-", "-"));
+		//FIXME KB
+		Function<RemoteAuthnState, AuthenticationResult> responseHandler = null;
+		AuthenticationStepContext authenticationContext = new AuthenticationStepContext(null, null, 
+				new AuthenticationOptionKey("-", "-"), FactorOrder.FIRST, null);
+		ECPAuthnState context = new ECPAuthnState(authenticationContext, responseHandler, 
+				LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest(),
+				null);
 		EnvelopeDocument envDoc = generateECPEnvelope(context);
 		samlContextManagement.addAuthnContext(context);
 		

@@ -1325,6 +1325,10 @@
  		 outline:none;
 	}
 	
+	.u-horizontalScroll {
+		overflow-x: scroll;
+	}
+	
 	.u-button-action {
 		background-image: none; 
 		background-color: $button-action-bg-color;

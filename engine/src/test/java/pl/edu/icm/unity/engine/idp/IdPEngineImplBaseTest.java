@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.successful;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +26,9 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
@@ -53,7 +55,9 @@ public class IdPEngineImplBaseTest
 		
 		when(userImportService.importUser(any())).thenReturn(
 				Lists.newArrayList(
-					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
+					new UserImportSerivce.ImportResult("imp1", successful(
+							mock(RemotelyAuthenticatedPrincipal.class), 
+							mock(AuthenticatedEntity.class)))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -92,7 +96,9 @@ public class IdPEngineImplBaseTest
 				new Entity(Lists.newArrayList(new Identity("idType", "id", 1, "id")), null, null));
 		when(userImportService.importToExistingUser(any(), any())).thenReturn(
 				Lists.newArrayList(
-					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
+					new UserImportSerivce.ImportResult("imp1", successful(
+							mock(RemotelyAuthenticatedPrincipal.class), 
+							mock(AuthenticatedEntity.class)))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -134,7 +140,9 @@ public class IdPEngineImplBaseTest
 				new Entity(Lists.newArrayList(new Identity("idType", "id", 1, "id")), null, null));
 		when(userImportService.importToExistingUser(any(), any())).thenReturn(
 				Lists.newArrayList(
-					new UserImportSerivce.ImportResult("imp1", new AuthenticationResult(Status.success, null))));
+					new UserImportSerivce.ImportResult("imp1", 
+							successful(mock(RemotelyAuthenticatedPrincipal.class), 
+									mock(AuthenticatedEntity.class)))));
 		
 		when(insecureAttributesMan.getAttributes(eq(clientEntity), eq("/GROUP"), eq(null)))
 				.thenReturn(clientAttributes);

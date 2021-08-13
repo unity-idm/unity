@@ -34,12 +34,19 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
@@ -59,7 +66,6 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -97,7 +103,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 	
 	@Autowired
-	public SAMLVerificator(RemoteAuthnResultProcessor processor,
+	public SAMLVerificator(RemoteAuthnResultTranslator processor,
 			@Qualifier("insecure") PKIManagement pkiMan,
 			ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService,
@@ -270,10 +276,16 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 	
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, AuthenticationOptionKey authnOptionId)
+	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, 
+			AuthenticationStepContext authnStepContext,
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL,
+			AuthenticationTriggeringContext triggeringContext)
 	{
+		RemoteAuthnState baseState = new RemoteAuthnState(authnStepContext, this::processResponse, 
+				initialLoginMachine, ultimateReturnURL, triggeringContext);
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				authnOptionId);
+				baseState);
 		
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))
@@ -291,12 +303,22 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		return context;
 	}
 
-	@Override
-	public AuthenticationResult verifySAMLResponse(RemoteAuthnContext context) throws AuthenticationException
+	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_SAML);
-		
+		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
+		try
+		{
+			return verifySAMLResponse(castedState);
+		} catch (Exception e)
+		{
+			log.error("Runtime error during SAML response processing or principal mapping", e);
+			return RemoteAuthenticationResult.failed(null, e,
+					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
+		}
+	}
+	
+	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context)
+	{
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
@@ -308,16 +330,20 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			
 			
-			return getResult(input, profile, state);
-		} catch (Exception e)
+			return getResult(input, profile, 
+					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
+					context.getRegistrationFormForUnknown(),
+					context.isEnableAssociation());
+		} catch (RemoteAuthenticationException e)
 		{
-			finishAuthnResponseProcessing(state, e);
-			throw e;
+			log.info("SAML response verification or processing failed", e);
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e,
+					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
 		}
 	}
 	
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext context) 
-			throws AuthenticationException 
+			throws RemoteAuthenticationException 
 	{
 		ResponseDocument responseDocument;
 		try
@@ -325,7 +351,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			responseDocument = ResponseDocument.Factory.parse(context.getResponse());
 		} catch (XmlException e)
 		{
-			throw new AuthenticationException("The SAML response can not be parsed - " +
+			throw new RemoteAuthenticationException("The SAML response can not be parsed - " +
 					"XML data is corrupted", e);
 		}
 		
@@ -368,12 +394,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		
 		@Autowired
 		public Factory(ObjectFactory<SAMLVerificator> factory, SamlContextManagement contextManagement,
-				SharedEndpointManagement sharedEndpointManagement) throws EngineException
+				SharedEndpointManagement sharedEndpointManagement,
+				SharedRemoteAuthenticationContextStore sharedRemoteAuthenticationContextStore) throws EngineException
 		{
 			super(NAME, DESC, factory);
 			
 			ServletHolder servlet = new ServletHolder(new SAMLResponseConsumerServlet(
-					contextManagement));
+					contextManagement, sharedRemoteAuthenticationContextStore));
 			sharedEndpointManagement.deployInternalEndpointServlet(
 					SAMLResponseConsumerServlet.PATH, servlet, false);
 			

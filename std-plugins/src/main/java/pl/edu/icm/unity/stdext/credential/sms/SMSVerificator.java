@@ -18,14 +18,13 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
-import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -174,24 +173,16 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	@Override
-	public AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser,
-			AuthenticationSubject subject, SandboxAuthnResultCallback sandboxCallback)
+	public AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser, AuthenticationSubject subject)
 	{
-		AuthenticationResult authenticationResult = verifyCodeInternal(sentCode,
-				codeFromUser, subject);
-		if (sandboxCallback != null)
-			sandboxCallback.sandboxedAuthenticationDone(
-					new LocalSandboxAuthnContext(authenticationResult));
-		return authenticationResult;
+		return verifyCodeInternal(sentCode, codeFromUser, subject);
 	}
 
 	private AuthenticationResult verifyCodeInternal(SMSCode sentCode, String codeFromUser,
 			AuthenticationSubject subject)
 	{
 		if (sentCode == null)
-		{
-			return new AuthenticationResult(Status.deny, null);
-		}
+			return getGenericError();
 
 		EntityWithCredential resolved;
 		try
@@ -201,29 +192,32 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		} catch (Exception e)
 		{
 			log.info("The user for sms authN can not be found: " + subject, e);
-			return new AuthenticationResult(Status.deny, null);
-
+			return getGenericError();
 		}
 
 		if (System.currentTimeMillis() > sentCode.getValidTo())
 		{
-
 			log.info("SMS code provided by " + subject + " is invalid");
-			return new AuthenticationResult(Status.deny, null);
+			return getGenericError();
 		}
 
 		if (codeFromUser == null || !sentCode.getValue().equals(codeFromUser))
 		{
 			log.info("SMS code provided by " + subject + " is incorrect");
-			return new AuthenticationResult(Status.deny, null);
+			return getGenericError();
 		}
 
 		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject,
 				null);
 		smslimitCache.reset(subject);
-		return new AuthenticationResult(Status.success, ae);
+		return LocalAuthenticationResult.successful(ae);
 	}
 
+	private static AuthenticationResult getGenericError()
+	{
+		return LocalAuthenticationResult.failed(new ResolvableError("WebSMSRetrieval.wrongCode"));
+	}
+	
 	@Override
 	public SMSCredentialResetImpl getSMSCredentialResetBackend()
 	{

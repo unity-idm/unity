@@ -18,7 +18,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
@@ -33,7 +33,7 @@ public class ActiveValueSelectionScreen extends CustomComponent
 {
 	private final AttributeProcessor attrProcessor;
 	private final MessageSource msg;
-	private final StandardWebAuthenticationProcessor authnProcessor;
+	private final StandardWebLogoutHandler authnProcessor;
 
 	private Map<DynamicAttribute, ValueSelector> selectors;
 	private Runnable declineHandler;
@@ -41,7 +41,7 @@ public class ActiveValueSelectionScreen extends CustomComponent
 	private List<DynamicAttribute> remainingAttributes;
 	
 	public ActiveValueSelectionScreen(MessageSource msg, AttributeHandlerRegistry attrHandlerRegistry, 
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebLogoutHandler authnProcessor,
 			List<DynamicAttribute> singleSelectable,
 			List<DynamicAttribute> multiSelectable,
 			List<DynamicAttribute> remainingAttributes,

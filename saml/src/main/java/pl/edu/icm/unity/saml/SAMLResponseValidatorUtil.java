@@ -21,7 +21,7 @@ import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
@@ -60,7 +60,7 @@ public class SAMLResponseValidatorUtil
 	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument, 
 			SAMLVerifiableElement verifiableResponse,
 			String requestId, SAMLBindings binding, String groupAttribute, String configKey) 
-					throws AuthenticationException
+					throws RemoteAuthenticationException
 	{
 		String consumerSamlName = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		
@@ -70,7 +70,7 @@ public class SAMLResponseValidatorUtil
 			samlTrustChecker = samlProperties.getTrustChecker();
 		} catch (ConfigurationException e1)
 		{
-			throw new AuthenticationException("The SAML response can not be verified - " +
+			throw new RemoteAuthenticationException("The SAML response can not be verified - " +
 					"there is an internal configuration error", e1);
 		}
 		
@@ -86,7 +86,7 @@ public class SAMLResponseValidatorUtil
 			validator.validate(responseDocument, verifiableResponse);
 		} catch (SAMLValidationException e)
 		{
-			throw new AuthenticationException("The SAML response is either invalid or is issued " +
+			throw new RemoteAuthenticationException("The SAML response is either invalid or is issued " +
 					"by an untrusted identity provider.", e);
 		}
 
@@ -95,7 +95,7 @@ public class SAMLResponseValidatorUtil
 	
 	
 	RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
-			SSOAuthnResponseValidator validator, String groupA, String configKey) throws AuthenticationException
+			SSOAuthnResponseValidator validator, String groupA, String configKey) throws RemoteAuthenticationException
 	{
 		xmlbeans.org.oasis.saml2.protocol.ResponseType resp = responseDocument.getResponse();
 		NameIDType issuer = resp.getIssuer();
@@ -154,7 +154,7 @@ public class SAMLResponseValidatorUtil
 		}
 	}
 	
-	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException
+	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws RemoteAuthenticationException
 	{
 		List<AssertionDocument> assertions = validator.getAttributeAssertions();
 		List<RemoteAttribute> ret = new ArrayList<>(assertions.size());
@@ -167,7 +167,7 @@ public class SAMLResponseValidatorUtil
 				parsedAttrs = parser.getAttributes();
 			} catch (SAMLValidationException e)
 			{
-				throw new AuthenticationException("Problem retrieving attributes from the SAML data", e);
+				throw new RemoteAuthenticationException("Problem retrieving attributes from the SAML data", e);
 			}
 			for (ParsedAttribute pa: parsedAttrs)
 			{

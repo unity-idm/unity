@@ -10,7 +10,7 @@ import com.vaadin.navigator.View;
 
 import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 
 /**
  * Works as {@link AppContextViewProvider} but also set {@link SandboxAuthnRouter} in {@link UnityViewWithSandbox}

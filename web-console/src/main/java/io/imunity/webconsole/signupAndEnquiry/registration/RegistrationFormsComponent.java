@@ -23,7 +23,7 @@ import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -143,7 +143,7 @@ public class RegistrationFormsComponent extends CustomComponent
 	private void createRequest(RegistrationForm form)
 	{
 		adminRegistrationFormLauncher.showRegistrationDialog(form,
-				RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualAdmin,
+				RemotelyAuthenticatedPrincipal.getLocalContext(), TriggeringMode.manualAdmin,
 				RegistrationFormsComponent.this::handleError);
 	}
 

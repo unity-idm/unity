@@ -24,9 +24,11 @@ import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
  */
 public class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
 {
+	static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
+	
 	public VaadinRedirectRequestHandler()
 	{
-		super(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+		super(REMOTE_AUTHN_CONTEXT);
 	}
 	
 	@Override

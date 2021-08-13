@@ -15,10 +15,10 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier.AuthnResultListener;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 
 /**
  * Base class for sandbox wizard providers. The class provides the common code used to activate sandbox popup
@@ -51,46 +51,39 @@ public abstract class AbstractSandboxWizardProvider
 
 	
 	protected void addSandboxListener(SandboxAuthnNotifier.AuthnResultListener callback, Wizard wizard, 
-			UI ui, boolean stopOnFinal) 
+			boolean stopOnFinal) 
 	{
 		AuthnResultListener listener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
-			private UI parentUI = ui;
+			private final UI parentUI = UI.getCurrent();
+			private final InvocationContext originalInvocationContext = InvocationContext.getCurrent();
 			
 			@Override
-			public void onPartialAuthnResult(final SandboxAuthnEvent event) 
+			public void onSandboxAuthnResult(final SandboxAuthnEvent event) 
 			{
-				
-				if (!callerId.equals(event.getCallerId()))
-				{
+				if (!callerId.equals(event.callerId))
 					return;
-				}
-				
-				parentUI.access(new Runnable()
+				parentUI.access(() -> invokeInOriginalContext(() -> 
 				{
-					@Override
-					public void run()
-					{
-						callback.onPartialAuthnResult(event);
-						if (!stopOnFinal)
-							parentUI.setPollInterval(-1);
-					}
-				});
+					callback.onSandboxAuthnResult(event);
+					if (!stopOnFinal)
+						parentUI.setPollInterval(-1);
+				}));
 			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
+			
+			private void invokeInOriginalContext(Runnable code)
 			{
-				parentUI.access(new Runnable()
+				InvocationContext threadInvocationContext = InvocationContext.hasCurrent() ? 
+					InvocationContext.getCurrent() : null;
+				
+				InvocationContext.setCurrent(originalInvocationContext);
+				try
 				{
-					@Override
-					public void run()
-					{
-						callback.onCompleteAuthnResult(authenticatedEntity);
-						if (stopOnFinal)
-							parentUI.setPollInterval(-1);
-					}
-				});
+					code.run();
+				} finally
+				{
+					InvocationContext.setCurrent(threadInvocationContext);
+				}
 			}
 		};
 		sandboxNotifier.addListener(listener);

@@ -22,7 +22,8 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 /**
  * UI Component used by {@link DryRunStep}.
@@ -76,7 +76,6 @@ class DryRunStepComponent extends CustomComponent
 		
 		setCompositionRoot(buildMainLayout());
 		
-		capturedLogs.setContentMode(ContentMode.PREFORMATTED);
 		capturedLogs.setValue("");
 		
 		logsLabel.resetValue();
@@ -93,7 +92,7 @@ class DryRunStepComponent extends CustomComponent
 
 	void handle(SandboxAuthnEvent event) 
 	{
-		RemoteSandboxAuthnContext ctx = (RemoteSandboxAuthnContext) event.getCtx();
+		RemoteSandboxAuthnContext ctx = (RemoteSandboxAuthnContext) event.ctx;
 		if (ctx.getAuthnException() == null)
 		{
 			authnResultLabel.setValue(msg.getMessage("DryRun.DryRunStepComponent.authnResultLabel.success"));
@@ -104,7 +103,7 @@ class DryRunStepComponent extends CustomComponent
 			authnResultLabel.setStyleName(Styles.error.toString());
 		}
 		logsLabel.setHtmlValue("DryRun.DryRunStepComponent.logsLabel");
-		RemotelyAuthenticatedContext remoteAuthnContext = ctx.getAuthnContext();
+		RemotelyAuthenticatedPrincipal remoteAuthnContext = ctx.getAuthnContext();
 		if (remoteAuthnContext != null)
 		{
 			remoteIdpInput.displayAuthnInput(remoteAuthnContext.getAuthnInput());
@@ -228,9 +227,11 @@ class DryRunStepComponent extends CustomComponent
 		
 		// capturedLogs
 		capturedLogs = new Label();
+		capturedLogs.setContentMode(ContentMode.PREFORMATTED);
 		capturedLogs.setWidth(100, Unit.PERCENTAGE);
 		capturedLogs.setHeight("-1px");
 		capturedLogs.setValue("Label");
+		capturedLogs.addStyleName(Styles.horizontalScroll.toString());
 		resultWrapper.addComponent(capturedLogs);
 		
 		return resultWrapper;

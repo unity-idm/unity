@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -62,7 +62,7 @@ public class SamlConsentScreen extends CustomComponent
 	protected final AttributeHandlerRegistry handlersRegistry;
 	protected final IdentityTypeSupport identityTypeSupport;
 	protected final PreferencesManagement preferencesMan;
-	protected final StandardWebAuthenticationProcessor authnProcessor;
+	protected final StandardWebLogoutHandler authnProcessor;
 	protected final AttributeTypeSupport aTypeSupport;
 	protected final ImageAccessService imageAccessService;
 
@@ -81,7 +81,7 @@ public class SamlConsentScreen extends CustomComponent
 	public SamlConsentScreen(MessageSource msg, ImageAccessService imageAccessService,  
 			AttributeHandlerRegistry handlersRegistry, 
 			PreferencesManagement preferencesMan,
-			StandardWebAuthenticationProcessor authnProcessor, 
+			StandardWebLogoutHandler authnProcessor, 
 			IdentityTypeSupport identityTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
 			List<IdentityParam> validIdentities,

@@ -8,7 +8,7 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -22,11 +22,11 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 class MergeUnknownWithExistingConfirmationStep extends AbstractConfirmationStep
 {
-	private final RemotelyAuthenticatedContext unknownUser;
+	private final RemotelyAuthenticatedPrincipal unknownUser;
 	private AuthenticatedEntity locallyAuthenticatedEntity;
 	
 	MergeUnknownWithExistingConfirmationStep(MessageSource msg, 
-			RemotelyAuthenticatedContext unknownUser,
+			RemotelyAuthenticatedPrincipal unknownUser,
 			InputTranslationEngine translationEngine,
 			Wizard wizard)
 	{

@@ -33,6 +33,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -88,8 +89,11 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 	private final AdvertisedAddressProvider addressProvider;
 
 	@Autowired
-	public FidoCredentialVerificator(final MessageSource msg, final FidoEntityHelper entityHelper, final CredentialHelper credentialHelper,
-									 final UnityFidoRegistrationStorage.UnityFidoRegistrationStorageCache fidoStorage, final AdvertisedAddressProvider addressProvider)
+	public FidoCredentialVerificator(MessageSource msg, 
+			FidoEntityHelper entityHelper, 
+			CredentialHelper credentialHelper,
+			UnityFidoRegistrationStorage.UnityFidoRegistrationStorageCache fidoStorage, 
+			AdvertisedAddressProvider addressProvider)
 	{
 		super(NAME, DESC, FidoExchange.ID, false);
 		this.msg = msg;
@@ -122,7 +126,8 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 	public CredentialPublicInformation checkCredentialState(String currentCredential)
 	{
 		String credDetails = isNull(currentCredential) ? "" : currentCredential;
-		return new CredentialPublicInformation(credDetails.isEmpty() ? LocalCredentialState.notSet : LocalCredentialState.correct, credDetails);
+		return new CredentialPublicInformation(credDetails.isEmpty() ? 
+				LocalCredentialState.notSet : LocalCredentialState.correct, credDetails);
 	}
 
 	@Override
@@ -190,7 +195,8 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 
 	private String assertFidoCredentialExists(Identities resolvedUsername)
 	{
-		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(resolvedUsername.getUsername());
+		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName())
+				.getFidoCredentialInfoForUsername(resolvedUsername.getUsername());
 		if (credentials.isEmpty())
 		{
 			log.warn("No {} credential found for user {}", getCredentialName(), resolvedUsername.getUsername());
@@ -222,7 +228,8 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 			if (result.isSuccess())
 			{
 				username = result.getUsername();
-				updateSignatureCount(username, pkc.getId(), pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter());
+				updateSignatureCount(username, pkc.getId(), 
+						pkc.getResponse().getParsedAuthenticatorData().getSignatureCounter());
 			}
 		} catch (AssertionFailedException e)
 		{
@@ -236,16 +243,19 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 		if (!result.isSuccess())
 			throw new FidoException(msg.getMessage("Fido.authFailed"));
 
-		Identities resolvedUsername = entityHelper.resolveUsername(null, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
+		Identities resolvedUsername = entityHelper.resolveUsername(null, username)
+				.orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
 		AuthenticatedEntity ae = new AuthenticatedEntity(entityHelper.getEntityId(resolvedUsername.getEntityParam()), username, null);
 
-		return new AuthenticationResult(AuthenticationResult.Status.success, ae);
+		return LocalAuthenticationResult.successful(ae);
 	}
 
 	private void updateSignatureCount(String username, ByteArray credentialId, long signatureCount) throws EngineException
 	{
-		Identities identities = entityHelper.resolveUsername(null, username).orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
-		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName()).getFidoCredentialInfoForUsername(identities.getUsername());
+		Identities identities = entityHelper.resolveUsername(null, username)
+				.orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
+		List<FidoCredentialInfo> credentials = fidoStorage.getInstance(getCredentialName())
+				.getFidoCredentialInfoForUsername(identities.getUsername());
 		List<FidoCredentialInfo> newCredentials = credentials.stream()
 				.map(c -> {
 					if (c.getCredentialId().equals(credentialId))
@@ -257,7 +267,8 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 						return c;
 				})
 				.collect(Collectors.toList());
-		credentialHelper.updateCredential(entityHelper.getEntityId(identities.getEntityParam()), getCredentialName(), FidoCredentialInfo.serializeList(newCredentials));
+		credentialHelper.updateCredential(entityHelper.getEntityId(identities.getEntityParam()), 
+				getCredentialName(), FidoCredentialInfo.serializeList(newCredentials));
 	}
 
 	private RelyingParty getRelyingParty()
@@ -265,7 +276,8 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 		return getRelyingParty(addressProvider.get().getHost(), fidoStorage.getInstance(credentialName), credential);
 	}
 
-	static RelyingParty getRelyingParty(final String hostName, final UnityFidoRegistrationStorage storage, final FidoCredential credentialConfiguration)
+	static RelyingParty getRelyingParty(String hostName, UnityFidoRegistrationStorage storage, 
+			FidoCredential credentialConfiguration)
 	{
 		return RelyingParty.builder()
 				.identity(RelyingPartyIdentity.builder()

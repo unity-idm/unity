@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.remote;
+package pl.edu.icm.unity.webui.authn;
 
 import org.apache.logging.log4j.Logger;
 
@@ -18,15 +18,15 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 /**
@@ -43,7 +43,7 @@ public class UnknownUserDialog extends AbstractDialog
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnknownUserDialog.class);
 	
-	private AuthenticationResult authNResult;
+	private UnknownRemotePrincipalResult authNResult;
 	private InsecureRegistrationFormLauncher formLauncher;
 
 	private SandboxAuthnNotifier sandboxAuthnNotifier;
@@ -51,7 +51,7 @@ public class UnknownUserDialog extends AbstractDialog
 
 	private String sandboxURL;
 
-	public UnknownUserDialog(MessageSource msg, AuthenticationResult authNResult,
+	public UnknownUserDialog(MessageSource msg, UnknownRemotePrincipalResult authNResult,
 			InsecureRegistrationFormLauncher formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
 			InputTranslationEngine inputTranslationEngine, String sandboxURL)
 	{
@@ -74,12 +74,12 @@ public class UnknownUserDialog extends AbstractDialog
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
-		if (authNResult.getFormForUnknownPrincipal() != null)
+		if (authNResult.formForUnknownPrincipal != null)
 		{
 			log.debug("Adding registration component");
 			options.addComponent(getRegistrationComponent());
 		}
-		if (authNResult.isEnableAssociation())
+		if (authNResult.enableAssociation)
 		{
 			options.addComponent(getAssociationComponent());
 		}
@@ -102,8 +102,8 @@ public class UnknownUserDialog extends AbstractDialog
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				showRegistration(authNResult.getFormForUnknownPrincipal(), 
-						authNResult.getRemoteAuthnContext());
+				showRegistration(authNResult.formForUnknownPrincipal, 
+						authNResult.getRemotelyAuthenticatedPrincipal());
 			}
 		});
 		ret.addComponents(register, label);
@@ -140,14 +140,14 @@ public class UnknownUserDialog extends AbstractDialog
 		
 		ConnectIdAtLoginWizardProvider wizardProv = new ConnectIdAtLoginWizardProvider(msg, 
 				sandboxURL, sandboxAuthnNotifier, inputTranslationEngine, 
-				authNResult.getRemoteAuthnContext());
+				authNResult.getRemotelyAuthenticatedPrincipal());
 		SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProv.getWizardInstance(), 
 				wizardProv.getCaption());
 		dialog.show();
 		close();
 	}
 	
-	protected void showRegistration(String form, RemotelyAuthenticatedContext ctx)
+	protected void showRegistration(String form, RemotelyAuthenticatedPrincipal ctx)
 	{
 		try
 		{

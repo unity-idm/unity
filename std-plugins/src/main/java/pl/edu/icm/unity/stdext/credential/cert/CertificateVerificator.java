@@ -18,12 +18,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
-import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -86,7 +85,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 
 	@Override
 	public AuthenticationResult checkCertificate(X509Certificate[] chain, 
-			SandboxAuthnResultCallback sandboxCallback)
+			String formForUnknown, boolean enableAssociation, AuthenticationTriggeringContext triggeringContext)
 	{
 		String identity = chain[0].getSubjectX500Principal().getName();
 		try
@@ -95,18 +94,11 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 				IDENTITY_TYPES, credentialName);
 			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(), 
 					X500NameUtils.getReadableForm(identity), null);
-			AuthenticationResult ret = new AuthenticationResult(Status.success, entity);
-			if (sandboxCallback != null)
-				sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(ret));
-			return ret;
+			return LocalAuthenticationResult.successful(entity);
 		} catch (Exception e)
 		{
 			log.warn("Checking certificate failed", e);
-			AuthenticationResult ret = new AuthenticationResult(Status.deny, null);
-			if (sandboxCallback != null)
-				sandboxCallback.sandboxedAuthenticationDone(
-						new LocalSandboxAuthnContext(ret));
-			return ret;
+			return LocalAuthenticationResult.failed(e);
 		}
 	}
 

@@ -12,11 +12,13 @@ import pl.edu.icm.unity.exceptions.InternalException;
 public class HTTPRequestContext
 {
 	private static ThreadLocal<HTTPRequestContext> threadLocal = new ThreadLocal<>();
-	private String clientIP;
+	private final String clientIP;
+	private final String userAgent;
 	
-	public HTTPRequestContext(String clientIP)
+	public HTTPRequestContext(String clientIP, String userAgent)
 	{
 		this.clientIP = clientIP;
+		this.userAgent = userAgent;
 	}
 
 	public static void setCurrent(HTTPRequestContext context)
@@ -32,5 +34,10 @@ public class HTTPRequestContext
 	public String getClientIP()
 	{
 		return clientIP;
+	}
+
+	public String getUserAgent()
+	{
+		return userAgent;
 	}
 }

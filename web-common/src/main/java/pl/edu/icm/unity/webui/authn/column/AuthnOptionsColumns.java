@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -93,19 +92,6 @@ public class AuthnOptionsColumns extends CustomComponent
 		focusFirst();
 	}
 
-	void refreshAuthenticatorWithId(String id, VaadinRequest request)
-	{
-		for (AuthnOptionsColumn column: columns)
-		{
-			FirstFactorAuthNPanel ffAuthnPanel = column.getAuthnOptionById(id);
-			if (ffAuthnPanel != null)
-			{
-				log.debug("Refreshing authenticator {}", id);
-				ffAuthnPanel.refresh(request);
-			}
-		}
-	}
-	
 	void disableAllExcept(String exception)
 	{
 		for (AuthnOptionsColumn column: columns)

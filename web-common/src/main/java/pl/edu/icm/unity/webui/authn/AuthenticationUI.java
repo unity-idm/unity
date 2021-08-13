@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
@@ -34,8 +33,9 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -50,7 +50,8 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
-import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
@@ -65,13 +66,12 @@ import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 @org.springframework.stereotype.Component("AuthenticationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-@PreserveOnRefresh
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private ImageAccessService imageAccessService;
 	private LocaleChoiceComponent localeChoice;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private RegistrationFormsLayoutController registrationFormController;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
@@ -81,11 +81,12 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen authenticationUI;
-	private boolean resetScheduled;
+	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 	
 	@Autowired
 	public AuthenticationUI(MessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebLogoutHandler authnProcessor,
+			InteractiveAuthenticationProcessor interactiveProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
@@ -95,6 +96,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		super(msg);
 		this.localeChoice = localeChoice;
 		this.authnProcessor = authnProcessor;
+		this.interactiveAuthnProcessor = interactiveProcessor;
 		this.registrationFormController = registrationFormController;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
@@ -119,26 +121,51 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(final VaadinRequest request)
 	{
-		Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider = 
+		Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider = 
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		authenticationUI = new ColumnInstantAuthenticationScreen(msg, imageAccessService, config, endpointDescription,
+		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config, endpointDescription,
 				this::showOutdatedCredentialDialog, 
 				new CredentialResetLauncherImpl(),
 				this::showRegistration, 
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
-				authnProcessor, localeChoice, authnFlows);
-		setContent(authenticationUI);
+				localeChoice, authnFlows,
+				interactiveAuthnProcessor);
+		loadInitialState();
 		setSizeFull();
 	}
+	
+	private void loadInitialState() 
+	{
+		WrappedSession session = VaadinSession.getCurrent().getSession();
+		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
+				.getAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+		if (postAuthnStepDecision != null)
+		{
+			LOG.debug("Remote authentication result found in session, triggering its processing");
+			if (postAuthnStepDecision.triggeringContext.isRegistrationTriggered())
+			{
+				//note that reg view will clean the session attribute on its own.
+				formSelected(postAuthnStepDecision.triggeringContext.form);
+			} else
+			{
+				session.removeAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+				authenticationUI.initializeAfterReturnFromExternalAuthn(postAuthnStepDecision.decision);
+				setContent(authenticationUI);
+			}
+		} else
+		{
+			setContent(authenticationUI);
+		}
+	}
+	
 	
 	/**
 	 * We may end up in authentication UI also after being properly logged in,
 	 * when the credential is outdated. The credential change dialog must be displayed then.
-	 * @return
 	 */
 	private boolean showOutdatedCredentialDialog()
 	{
@@ -172,17 +199,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		setContent(authenticationUI);
 		authenticationUI.reset();
-		registrationFormController.resetSessionRegistraionAttribute();
-	}
-
-	private void scheduleResetToFreshState()
-	{
-		resetScheduled = true;
 	}
 
 	private void resetToFreshState()
 	{
-		scheduleResetToFreshState();
 		refresh(VaadinRequest.getCurrent());
 	}
 	
@@ -239,33 +259,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private void formSelected(RegistrationForm form)
 	{
 		StandaloneRegistrationView view = registrationFormController.createRegistrationView(form);
-		registrationFormController.setSessionRegistrationAttribute(view);
 		view.enter(TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen, 
-				this::scheduleResetToFreshState, this::resetToFreshState);
+				this::resetToFreshState, this::resetToFreshState);
 		setContent(view);
 	}
-	
-	@Override
-	protected void refresh(VaadinRequest request) 
-	{
-		if (resetScheduled)
-		{
-			resetScheduled = false;
-			resetToFreshAuthenticationScreen();
-			return;
-		}
-		
-		StandaloneRegistrationView registrationFormView = registrationFormController.getSessionRegistraionAttribute();
-		if (registrationFormView != null)
-		{
-			registrationFormView.refresh(request);
-		} else
-		{
-			authenticationUI.refresh(request);
-			showOutdatedCredentialDialog();
-		}
-	}
-	
 	
 	private class CredentialResetLauncherImpl implements CredentialResetLauncher
 	{

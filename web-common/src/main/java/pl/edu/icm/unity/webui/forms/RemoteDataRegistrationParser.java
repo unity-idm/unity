@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 class RemoteDataRegistrationParser
 {
 	static Map<String, IdentityTaV> parseRemoteIdentities(BaseForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated)
+			RemotelyAuthenticatedPrincipal remotelyAuthenticated)
 	{
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
 		Map<String, IdentityTaV> remoteIdentitiesByType = new HashMap<>();	
@@ -70,7 +70,7 @@ class RemoteDataRegistrationParser
 
 	
 	static Map<String, Attribute> parseRemoteAttributes(BaseForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated)
+			RemotelyAuthenticatedPrincipal remotelyAuthenticated)
 	{
 		List<AttributeRegistrationParam> aParams = form.getAttributeParams();
 		Map<String, Attribute> remoteAttributes = new HashMap<>();

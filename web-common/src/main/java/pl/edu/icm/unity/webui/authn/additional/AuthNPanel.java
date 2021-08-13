@@ -8,11 +8,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**
@@ -23,16 +18,12 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  */
 class AuthNPanel extends CustomComponent
 {
-	private final MessageSource msg;
-	private final ExecutorsService execService;
 	private final VaadinAuthenticationUI authnUI;
 	private final VerticalLayout authenticatorContainer;
 
 	
-	AuthNPanel(MessageSource msg, ExecutorsService execService, VaadinAuthenticationUI authnUI)
+	AuthNPanel(VaadinAuthenticationUI authnUI)
 	{
-		this.msg = msg;
-		this.execService = execService;
 		this.authnUI = authnUI;
 		this.authenticatorContainer = new VerticalLayout();
 
@@ -50,17 +41,6 @@ class AuthNPanel extends CustomComponent
 		authnUI.disableCredentialReset();
 		Component retrievalComponent = authnUI.getComponent();
 		authenticatorContainer.addComponent(retrievalComponent);
-	}
-	
-	void showWaitScreenIfNeeded(String clientIp)
-	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
-		if (counter.getRemainingBlockedTime(clientIp) > 0)
-		{
-			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);
-			dialog.show();
-			return;
-		}
 	}
 	
 	void focusIfPossible()

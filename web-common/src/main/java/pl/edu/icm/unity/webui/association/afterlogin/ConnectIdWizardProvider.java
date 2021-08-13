@@ -11,17 +11,12 @@ import org.vaadin.teemu.wizards.event.WizardProgressListener;
 import org.vaadin.teemu.wizards.event.WizardStepActivationEvent;
 import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
-import com.vaadin.ui.UI;
-
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 /**
@@ -59,21 +54,12 @@ public class ConnectIdWizardProvider extends AbstractSandboxWizardProvider
 		
 		openSandboxPopupOnNextButton(wizard);
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
-		addSandboxListener(new AuthnResultListener()
+		addSandboxListener(event -> 
 		{
-			@Override
-			public void onPartialAuthnResult(SandboxAuthnEvent event)
-			{
-				sandboxStep.enableNext();
-				confirmationStep.setAuthnData(event);
-				wizard.next();						
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-			}
-		}, wizard, UI.getCurrent(), false);
+			sandboxStep.enableNext();
+			confirmationStep.setAuthnData(event);
+			wizard.next();						
+		}, wizard, false);
 		return wizard;
 	}
 

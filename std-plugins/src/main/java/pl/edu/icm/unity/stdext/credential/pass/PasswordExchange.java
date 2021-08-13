@@ -8,7 +8,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 
 /**
  * Allows for exchanging a regular passphrase.
@@ -20,13 +20,10 @@ public interface PasswordExchange extends CredentialExchange
 	
 	/**
 	 * Verifies the user provided credentials.
-	 * @param username
-	 * @param password
-	 * @param sandboxCallback typically null, if in sandbox mode provides callback.
-	 * @return
 	 */
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException; 
+			String formForUnknown, boolean enableAssociation, 
+			AuthenticationTriggeringContext triggeringContext) throws AuthenticationException; 
 	
 	/**
 	 * @return credential reset backend

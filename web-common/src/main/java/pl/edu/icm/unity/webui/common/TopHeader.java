@@ -12,7 +12,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 
 /**
  * Top bar with header. Allows to logout.
@@ -21,10 +21,10 @@ import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 public class TopHeader extends TopHeaderLight
 {
 	protected MessageSource msg;
-	protected StandardWebAuthenticationProcessor authnProcessor;
+	protected StandardWebLogoutHandler authnProcessor;
 	protected HorizontalLayout loggedPanel;
 	
-	public TopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, MessageSource msg)
+	public TopHeader(String title, StandardWebLogoutHandler authnProcessor, MessageSource msg)
 	{
 		super(title, msg);
 		this.msg = msg;

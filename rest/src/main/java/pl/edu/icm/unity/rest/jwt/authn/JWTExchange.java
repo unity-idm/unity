@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.rest.jwt.authn;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -17,5 +18,5 @@ public interface JWTExchange extends CredentialExchange
 {
 	public static final String ID = "JWT exchange";
 	
-	public AuthenticationResult checkJWT(String token) throws EngineException;
+	public AuthenticationResult checkJWT(String token) throws EngineException, AuthenticationException;
 }

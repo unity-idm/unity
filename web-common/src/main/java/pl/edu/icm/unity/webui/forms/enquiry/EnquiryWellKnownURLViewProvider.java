@@ -16,7 +16,8 @@ import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -25,13 +26,12 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
 
 /**
@@ -49,7 +49,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private MessageSource msg;
 	@Autowired
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	@Autowired
 	private ImageAccessService imageAccessService;
 	
@@ -89,7 +89,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		try
 		{
 			editor = editorController.getEditorInstanceForAuthenticatedUser(form,
-					RemotelyAuthenticatedContext.getLocalContext());
+					RemotelyAuthenticatedPrincipal.getLocalContext());
 		} catch (Exception e)
 		{
 			log.error("Can't load enquiry editor", e);

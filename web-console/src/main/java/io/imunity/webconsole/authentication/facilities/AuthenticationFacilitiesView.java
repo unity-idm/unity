@@ -24,9 +24,9 @@ import io.imunity.webconsole.authentication.flows.AuthenticationFlowsController;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * Lists all authenticators and flows

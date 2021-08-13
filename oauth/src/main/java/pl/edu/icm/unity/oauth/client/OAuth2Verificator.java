@@ -64,11 +64,19 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -79,7 +87,6 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -112,7 +119,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
-			RemoteAuthnResultProcessor processor)
+			RemoteAuthnResultTranslator processor)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
@@ -173,7 +180,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	@Override
 	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationOptionKey authnOptionId) 
+			AuthenticationStepContext authnStepContext, 
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL,
+			AuthenticationTriggeringContext authnTriggeringContext) 
 			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
@@ -183,7 +193,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
-		OAuthContext context = new OAuthContext(authnOptionId);
+		RemoteAuthnState baseAuthnContext = new RemoteAuthnState(authnStepContext, this::processResponse, 
+				initialLoginMachine, ultimateReturnURL, 
+				authnTriggeringContext);
+		OAuthContext context = new OAuthContext(baseAuthnContext);
 		AuthorizationRequest req;
 		if (openidMode)
 		{
@@ -229,33 +242,55 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return context;
 	}
 
+	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
+	{
+		try
+		{
+			return verifyOAuthAuthzResponse((OAuthContext) remoteAuthnState);
+		} catch (Exception e)
+		{
+			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
+			return RemoteAuthenticationResult.failed(null, e, new ResolvableError("OAuth2Retrieval.authnFailedError"));
+		}
+	}
+
+	
 	/**
 	 * The real OAuth workhorse. The authz code response verification needs not to be done: the state is 
 	 * correct as otherwise there would be no match with the {@link OAuthContext}. However we need to
 	 * use the authz code to retrieve access token. The access code may include everything we need. But it 
 	 * may also happen that we need to perform one more query to obtain additional profile information.
-	 * @throws AuthenticationException 
-	 *   
 	 */
-	@Override
-	public AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException
+	private AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context)
 	{
-		RemoteAuthnState state = startAuthnResponseProcessing(context.getSandboxCallback(), 
-				Log.U_SERVER_TRANSLATION, Log.U_SERVER_OAUTH);
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
+			CustomProviderProperties providerProps = config.getProvider(context.getProviderConfigKey());
 			TranslationProfile profile = getTranslationProfile(
-					config.getProvider(context.getProviderConfigKey()),
+					providerProps,
 					CommonWebAuthnProperties.TRANSLATION_PROFILE,
 					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
-
-			return getResult(input, profile, state);
-		} catch (Exception e)
+			
+			String regFormForUnknown = providerProps.getValue(CommonWebAuthnProperties.REGISTRATION_FORM);
+			boolean enableAssociation = providerProps.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION) ?
+					providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
+					config.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
+			return getResult(input, 
+					profile, 
+					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
+					regFormForUnknown, 
+					enableAssociation);
+		} catch (UnexpectedIdentityException uie)
 		{
-			finishAuthnResponseProcessing(state, e);
-			throw e;
+			return RemoteAuthenticationResult.failed(null, uie,
+					new ResolvableError("OAuth2Retrieval.unexpectedUser", uie.expectedIdentity));
+		} catch (RemoteAuthenticationException e)
+		{
+			log.info("OAuth2 authorization code verification or processing failed", e);
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e, 
+					new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		}
 		
 	}
@@ -282,12 +317,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
-			throws AuthenticationException 
+			throws RemoteAuthenticationException 
 	{
 		String error = context.getErrorCode();
 		if (error != null)
 		{
-			throw new AuthenticationException("OAuth provider returned an error: " + 
+			throw new RemoteAuthenticationException("OAuth provider returned an error: " + 
 					error + (context.getErrorDescription() != null ? 
 							" " + context.getErrorDescription() : ""));
 		}
@@ -302,7 +337,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				getAccessTokenAndProfilePlain(context);
 		} catch (Exception e)
 		{
-			throw new AuthenticationException("Problem during user information retrieval", e);
+			throw new RemoteAuthenticationException("Problem during user information retrieval", e);
 		}
 
 		return convertInput(context, attributes);
@@ -592,11 +627,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		@Autowired
 		public Factory(ObjectFactory<OAuth2Verificator> factory, 
 				SharedEndpointManagement sharedEndpointManagement,
-				OAuthContextsManagement contextManagement) throws EngineException
+				OAuthContextsManagement contextManagement,
+				SharedRemoteAuthenticationContextStore remoteAuthnContextStore) throws EngineException
 		{
 			super(NAME, DESC, factory);
 			
-			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement));
+			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement, 
+					remoteAuthnContextStore));
 			sharedEndpointManagement.deployInternalEndpointServlet(
 					ResponseConsumerServlet.PATH, servlet, false);
 		}

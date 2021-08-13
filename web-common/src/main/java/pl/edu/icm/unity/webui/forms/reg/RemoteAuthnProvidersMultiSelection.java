@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.remote;
+package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +10,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
@@ -50,7 +52,9 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 		for (AuthenticatorInstance authenticator : remoteAuthenticators)
 		{
 			VaadinAuthentication vaadinRetrieval = (VaadinAuthentication) authenticator.getRetrieval();
-			Collection<VaadinAuthenticationUI> uiInstances = vaadinRetrieval.createUIInstance(Context.REGISTRATION);
+			//FIXME that should be refactored - we shouldn't create UIs to get a list of available instances
+			Collection<VaadinAuthenticationUI> uiInstances = vaadinRetrieval.createUIInstance(
+					Context.REGISTRATION, getMockContext());
 			if (uiInstances.size() > 1)
 			{
 				authnOptions.add(AuthenticationOptionsSelector.allForAuthenticator(
@@ -73,5 +77,10 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 	protected void sortItems(List<AuthenticationOptionsSelector> items)
 	{
 		items.sort(null);
+	}
+	
+	private static AuthenticatorStepContext getMockContext()
+	{
+		return new AuthenticatorStepContext(null, null, null, FactorOrder.FIRST);
 	}
 }

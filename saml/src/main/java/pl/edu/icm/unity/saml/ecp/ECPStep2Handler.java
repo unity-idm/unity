@@ -27,18 +27,18 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -63,7 +63,7 @@ public class ECPStep2Handler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ECPStep2Handler.class);
 	private RemoteMetaManager metadataManager;
 	private ECPContextManagement samlContextManagement;
-	private RemoteAuthnResultProcessor remoteAuthnProcessor;
+	private RemoteAuthnResultTranslator remoteAuthnProcessor;
 	private JWTManagement jwtGenerator;
 	private AuthenticationRealm realm;
 	private SessionManagement sessionMan;
@@ -74,7 +74,7 @@ public class ECPStep2Handler
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, 
 			TokensManagement tokensMan, PKIManagement pkiManagement, 
-			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			EntityManagement entityMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
@@ -122,7 +122,7 @@ public class ECPStep2Handler
 		try
 		{
 			ctx = samlContextManagement.getAuthnContext(relayState);
-		} catch (WrongArgumentException e)
+		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Received a request with unknown relay state " + relayState);
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, 
@@ -145,7 +145,7 @@ public class ECPStep2Handler
 		}
 		
 		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
-		AuthenticationResult authenticationResult;
+		RemoteAuthenticationResult authenticationResult;
 		try
 		{
 			authenticationResult = processSamlResponse(samlProperties, respDoc, ctx);
@@ -162,7 +162,7 @@ public class ECPStep2Handler
 			return;
 		}
 		
-		AuthenticatedEntity ae = authenticationResult.getAuthenticatedEntity();
+		AuthenticatedEntity ae = authenticationResult.getSuccessResult().authenticatedEntity;
 		Long entityId = ae.getEntityId();
 		
 		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
@@ -231,9 +231,9 @@ public class ECPStep2Handler
 		return contents.getNodeValue();
 	}
 	
-	private AuthenticationResult processSamlResponse(SAMLSPProperties samlProperties, 
+	private RemoteAuthenticationResult processSamlResponse(SAMLSPProperties samlProperties, 
 			ResponseDocument responseDoc, ECPAuthnState ctx) 
-			throws ServletException, AuthenticationException
+			throws ServletException, RemoteAuthenticationException
 	{
 		String key = findIdPKey(samlProperties, responseDoc);
 		String groupAttr = samlProperties.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
@@ -248,7 +248,7 @@ public class ECPStep2Handler
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
-		return remoteAuthnProcessor.getResult(input, profile, false, Optional.empty());
+		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false);
 	}
 	
 	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException

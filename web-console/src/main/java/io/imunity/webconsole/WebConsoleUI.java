@@ -31,7 +31,7 @@ import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -49,14 +49,14 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 @Theme("unityThemeValo")
 public class WebConsoleUI extends UnityEndpointUIBase
 {
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private SidebarLayout webConsoleLayout;
 	private NavigationHierarchyManager navigationMan;
 	private AuthorizationController authzController;
 
 	@Autowired
 	public WebConsoleUI(MessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
-			StandardWebAuthenticationProcessor authnProcessor, AuthorizationController authzController,
+			StandardWebLogoutHandler authnProcessor, AuthorizationController authzController,
 			Collection<WebConsoleNavigationInfoProvider> providers,
 			Collection<WebConsoleExtNavigationInfoProvider> extProviders)
 	{

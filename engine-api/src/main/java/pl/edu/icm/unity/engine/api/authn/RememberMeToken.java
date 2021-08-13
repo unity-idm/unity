@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn;
+package pl.edu.icm.unity.engine.api.authn;
 
 import java.io.IOException;
 import java.util.Date;

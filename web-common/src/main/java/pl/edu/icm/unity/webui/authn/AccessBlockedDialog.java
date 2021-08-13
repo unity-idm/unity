@@ -66,7 +66,7 @@ public class AccessBlockedDialog extends Window
 		info.addStyleName(Styles.bold.toString());
 		ProgressBar progress = new ProgressBar(0);
 		String ip = HTTPRequestContext.getCurrent().getClientIP();		
-		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = StandardWebLogoutHandler.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 		progress.setCaption(msg.getMessage("AccessBlockedDialog.remaining", initial));
 		progress.setWidth(300, Unit.PIXELS);

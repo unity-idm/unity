@@ -30,16 +30,18 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -221,7 +223,8 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 
 	@Override
 	public AuthenticationResult checkPassword(String username, String password,
-			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException
+			String formForUnknown, boolean enableAssociation, 
+			AuthenticationTriggeringContext triggeringContext) throws AuthenticationException
 	{
 		Optional<EntityWithCredential> resolveIdentity = CompositePasswordHelper.getLocalEntity(identityResolver, 
 				AuthenticationSubject.identityBased(username));
@@ -240,7 +243,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 						username, localVerificator.getCredentialName());
 				PasswordExchange passExchange = (PasswordExchange) localVerificator;
 				return passExchange.checkPassword(username, password,
-						sandboxCallback);
+						formForUnknown, enableAssociation, triggeringContext);
 
 			}
 		}
@@ -251,7 +254,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 					remoteVerificator.getName());
 			PasswordExchange passExchange = (PasswordExchange) remoteVerificator;
 			AuthenticationResult result = passExchange.checkPassword(username, password,
-					sandboxCallback);
+					formForUnknown, enableAssociation, triggeringContext);
 			if (result.getStatus().equals(Status.deny)
 					|| result.getStatus().equals(Status.notApplicable))
 				continue;
@@ -260,7 +263,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 		}
 
 		log.info("Password provided by {} is invalid", username);
-		return new AuthenticationResult(Status.deny, null);
+		return LocalAuthenticationResult.failed(new ResolvableError("WebPasswordRetrieval.wrongPassword"));
 	}
 
 	private List<LocalCredentialVerificator> getVerificatorsWithCredentialResetSupport()

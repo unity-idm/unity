@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
-
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Set;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -18,12 +14,17 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
@@ -50,10 +51,10 @@ class SAMLProxyAuthnHandler
 	}
 	
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse, endpointPath);
+		return startLogin(idpKey, httpRequest, httpResponse, endpointPath, context);
 	}
 
 	private String getIdpConfigKey(HttpServletRequest httpRequest)
@@ -83,47 +84,32 @@ class SAMLProxyAuthnHandler
 	}
 	
 	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			log.debug("Ignoring automated login as the previous remote SAML authentication "
-					+ "is still in progress.");
-			return false;
-		}
 		
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		log.info("Starting automatic proxy authentication with remote SAML IdP "
 				+ "configured under {}, current relative URI is {}", idpConfigKey, currentRelativeURI);	
-
+		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+		RemoteAuthnContext context;
 		try
 		{
-			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, 
+			AuthenticationStepContext authnStepContext = new AuthenticationStepContext(authnContext, 
 					getAuthnOptionId(idpConfigKey));
-			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext, 
+					loginMachineDetails,
+					currentRelativeURI,
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
-			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
-					context.getAuthenticatorOptionId());
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)
 		{
 			throw new IllegalStateException("Can not create SAML authN request", e);
 		}
 		
-		setLastIdpCookie(httpResponse, idpConfigKey, endpointPath);
-		
 		RedirectRequestHandler.handleRequest(context, httpResponse);
 		return true;
-	}
-	
-	private void setLastIdpCookie(HttpServletResponse httpResponse, String idpConfigKey, String endpointPath)
-	{
-		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
-				endpointPath, getAuthnOptionId(idpConfigKey));
-		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 	
 	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)

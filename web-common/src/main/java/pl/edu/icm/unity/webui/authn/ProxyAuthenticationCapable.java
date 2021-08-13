@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
@@ -31,7 +32,7 @@ public interface ProxyAuthenticationCapable extends BindingAuthn
 	 * should be processed in regular way 
 	 */
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException;
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException;
 	
 	void triggerAutomatedUIAuthentication(VaadinAuthenticationUI authenticatorUI);
 }

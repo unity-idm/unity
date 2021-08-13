@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import com.vaadin.server.VaadinRequest;
-
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
@@ -15,7 +13,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 interface AuthenticationUIController
 {
 	void cancel();
-	void refresh(VaadinRequest request);
 	boolean focusIfPossible();
 	AuthenticationOptionKey getAuthenticationOptionId();
 }

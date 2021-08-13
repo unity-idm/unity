@@ -15,7 +15,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
@@ -30,7 +30,7 @@ public class StandaloneStickyEnquiryView extends StandaloneEnquiryView
 {
 	private Runnable removeCallback;
 
-	StandaloneStickyEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, 
+	StandaloneStickyEnquiryView(EnquiryResponseEditor editor, StandardWebLogoutHandler authnProcessor, 
 			ImageAccessService imageAccessService,
 			MessageSource msg, Callback callback, Runnable removeCallback)
 	{

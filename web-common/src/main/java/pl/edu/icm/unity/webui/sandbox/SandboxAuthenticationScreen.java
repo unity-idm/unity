@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_ADD_ALL;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS;
@@ -28,18 +29,24 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.UnknownUserDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
-import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
+import pl.edu.icm.unity.webui.authn.column.FirstFactorAuthNPanel;
+import pl.edu.icm.unity.webui.authn.column.SecondFactorAuthNPanel;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
@@ -50,16 +57,16 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthenticationScreen.class);
-	private SandboxAuthnRouter sandboxRouter;
+	private final SandboxAuthnRouter sandboxRouter;
 
-	public SandboxAuthenticationScreen(MessageSource msg, 
+	SandboxAuthenticationScreen(MessageSource msg, 
 			ImageAccessService imageAccessService,
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, 
-			SandboxAuthenticationProcessor authnProcessor,
+			InteractiveAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,
@@ -76,10 +83,12 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				cancelHandler, idsMan, 
 				execService, false, 
 				SandboxAuthenticationScreen::disabledUnknownUserProvider, 
-				authnProcessor, 
 				localeChoice, 
-				authenticators);
+				authenticators,
+				authnProcessor);
 		this.sandboxRouter = sandboxRouter;
+		init();
+		checkNotNull(sandboxRouter);
 	}
 
 	private static VaadinEndpointProperties prepareFreshConfigurationWithAllOptions(String title,
@@ -138,26 +147,28 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		return new VaadinEndpointProperties(stripDown);
 	}
 
+	@Override
+	protected AuthenticationCallback createFirstFactorAuthnCallback(AuthenticationOptionKey optionId,
+			FirstFactorAuthNPanel authNPanel, AuthenticationStepContext stepContext)
+	{
+		return new FirstFactorSandboxAuthnCallback(msg, interactiveAuthnProcessor, stepContext, sandboxRouter,
+				new PrimaryAuthenticationListenerImpl(optionId.toStringEncodedKey(), authNPanel));
+	}
 	
 	@Override
-	protected void init() 
+	protected AuthenticationCallback createSecondFactorAuthnCallback(AuthenticationOptionKey optionId,
+			SecondFactorAuthNPanel authNPanel, AuthenticationStepContext stepContext, 
+			PartialAuthnState partialAuthnState)
 	{
-		setSandboxCallbackForAuthenticators(new StandardSandboxAuthnResultCallback());
-		super.init();
+		return new SecondFactorSandboxAuthnCallback(msg, interactiveAuthnProcessor, stepContext, 
+				new SecondaryAuthenticationListenerImpl(), 
+				sandboxRouter, 
+				partialAuthnState);
 	}
 	
-	private static UnknownUserDialog disabledUnknownUserProvider(AuthenticationResult authnResult)
+	private static UnknownUserDialog disabledUnknownUserProvider(UnknownRemotePrincipalResult authnResult)
 	{
 		throw new IllegalStateException("Showing unknown user dialog on sandbox screen - should never happen");
-	}
-	
-	private class StandardSandboxAuthnResultCallback implements SandboxAuthnResultCallback
-	{
-		@Override
-		public void sandboxedAuthenticationDone(SandboxAuthnContext ctx)
-		{
-			sandboxRouter.firePartialEvent(new SandboxAuthnEvent(ctx));
-		}
 	}
 	
 	private static class NoOpCredentialRestLauncher implements CredentialResetLauncher

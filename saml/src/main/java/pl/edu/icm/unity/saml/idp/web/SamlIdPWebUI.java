@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
@@ -85,7 +85,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected AttributeHandlerRegistry handlersRegistry;
 	protected IdentityTypeSupport identityTypeSupport;
 	protected PreferencesManagement preferencesMan;
-	protected StandardWebAuthenticationProcessor authnProcessor;
+	protected StandardWebLogoutHandler authnProcessor;
 	protected SessionManagement sessionMan;
 	protected ImageAccessService imageAccessService;
 	protected PolicyAgreementManagement policyAgreementsMan;
@@ -102,7 +102,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
 			FreemarkerAppHandler freemarkerHandler,
 			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
+			StandardWebLogoutHandler authnProcessor, IdPEngine idpEngine,
 			IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan, 
 			AttributeTypeManagement attrsMan, 
 			EnquiresDialogLauncher enquiryDialogLauncher,

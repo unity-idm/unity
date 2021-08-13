@@ -8,7 +8,6 @@ package pl.edu.icm.unity.stdext.credential.sms;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -34,10 +33,9 @@ public interface SMSExchange extends CredentialExchange
 	
 	/**
 	 * Verifies the user provided sms code.
-	 * @param sandboxCallback typically null, if in sandbox mode provides callback.
 	 */
 	AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser,
-			AuthenticationSubject subject, SandboxAuthnResultCallback sandboxCallback);
+			AuthenticationSubject subject);
 	
 	/**
 	 * Check if sms authn sending limit is exceeded

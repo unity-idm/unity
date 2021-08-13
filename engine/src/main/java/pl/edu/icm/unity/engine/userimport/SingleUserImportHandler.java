@@ -15,9 +15,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
@@ -35,10 +35,10 @@ public class SingleUserImportHandler
 	private UserImportSPI facility;
 	private Ehcache negativeCache;
 	private Ehcache positiveCache;
-	private RemoteAuthnResultProcessor remoteUtil;
+	private RemoteAuthnResultTranslator remoteUtil;
 	private String translationProfile;
 	
-	public SingleUserImportHandler(RemoteAuthnResultProcessor remoteUtil, UserImportSPI facility, 
+	public SingleUserImportHandler(RemoteAuthnResultTranslator remoteUtil, UserImportSPI facility, 
 			UserImportProperties cfg,
 			CacheProvider cacheProvider, String key)
 	{
@@ -71,7 +71,7 @@ public class SingleUserImportHandler
 	
 	
 	public AuthenticationResult importUser(String identity, String type, 
-			Optional<IdentityTaV> existingUser) throws AuthenticationException
+			Optional<IdentityTaV> existingUser) throws RemoteAuthenticationException
 	{
 		String key = getCacheKey(identity, type);
 		Element negCache = negativeCache.get(key);
@@ -98,7 +98,7 @@ public class SingleUserImportHandler
 	
 	private AuthenticationResult doImport(String cacheKey, String identity, String type, 
 			Optional<IdentityTaV> existingUser) 
-			throws AuthenticationException
+			throws RemoteAuthenticationException
 	{
 		RemotelyAuthenticatedInput importedUser = facility.importUser(identity, type);
 		if (importedUser == null)
@@ -108,8 +108,8 @@ public class SingleUserImportHandler
 			return null;
 		}
 		log.debug("Caching positive import result for {}", identity);
-		AuthenticationResult result = remoteUtil.getResult(importedUser, 
-				translationProfile, false, existingUser);
+		AuthenticationResult result = remoteUtil.getTranslatedResult(importedUser, 
+				translationProfile, false, existingUser, null, false);
 		positiveCache.put(new Element(cacheKey, result));
 		return result;
 	}

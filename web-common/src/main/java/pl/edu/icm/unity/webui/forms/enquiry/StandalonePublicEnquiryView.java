@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -30,7 +29,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -150,7 +149,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
 					invitation.getMessageParamsWithCustomVarObject(
 							MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
-					RemotelyAuthenticatedContext.getLocalContext(), prefilled,
+					RemotelyAuthenticatedPrincipal.getLocalContext(), prefilled,
 					new EntityParam(invitation.getEntity()));
 
 		} catch (Exception e)
@@ -372,11 +371,5 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	{	
 		return postFillHandler.getFinalRegistrationConfigurationOnError(
 				TriggeringState.CANCELLED);
-	}
-
-	public void refresh(VaadinRequest request)
-	{
-		if (editor != null)
-			editor.focusFirst();	
 	}
 }

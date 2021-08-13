@@ -7,7 +7,7 @@
 package io.imunity.webconsole;
 
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 
 /**
  * 

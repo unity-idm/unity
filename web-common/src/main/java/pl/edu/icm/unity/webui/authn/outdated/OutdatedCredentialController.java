@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -53,7 +53,7 @@ public class OutdatedCredentialController
 	private CredentialChangePanel ui;
 	private CredentialChangeConfiguration uiConfig;
 	private MessageSource msg;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private Runnable finishHandler;
 	
 	@Autowired
@@ -72,7 +72,7 @@ public class OutdatedCredentialController
 		this.imageAccessService = imageAccessService;
 	}
 
-	public void init(CredentialChangeConfiguration uiConfig, StandardWebAuthenticationProcessor authnProcessor,
+	public void init(CredentialChangeConfiguration uiConfig, StandardWebLogoutHandler authnProcessor,
 			Runnable finishHandler)
 	{
 		this.authnProcessor = authnProcessor;

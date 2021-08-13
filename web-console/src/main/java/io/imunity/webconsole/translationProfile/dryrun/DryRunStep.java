@@ -10,8 +10,8 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 /**
  * Fourth dryrun step with profile validation - used in {@link DryRunDialogComponent}.

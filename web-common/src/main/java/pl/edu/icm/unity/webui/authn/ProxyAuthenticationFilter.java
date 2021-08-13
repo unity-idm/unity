@@ -26,8 +26,11 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 
 /**
@@ -55,30 +58,26 @@ public class ProxyAuthenticationFilter implements Filter
 	 */
 	public static final String AUTOMATED_LOGIN_FIRED = "automaticLoginWasTriggered";
 	
-	private Map<String, BindingAuthn> authenticators;
+	private Map<String, RetrievalWithFlow> authenticators;
 	private String endpointPath;
 	private boolean triggerByDefault;
+	private final AuthenticationRealm realm;
 	
 	public ProxyAuthenticationFilter(List<AuthenticationFlow> authenticators, 
-			String endpointPath, boolean triggerByDefault)
+			String endpointPath, boolean triggerByDefault, AuthenticationRealm realm)
 	{
 		this.endpointPath = endpointPath;
 		this.triggerByDefault = triggerByDefault;
+		this.realm = realm;
 		updateAuthenticators(authenticators);
 	}
 
 	public void updateAuthenticators(List<AuthenticationFlow> authenticators)
 	{
-		Map<String, BindingAuthn> newMap = new HashMap<>();
+		Map<String, RetrievalWithFlow> newMap = new HashMap<>();
 		for (AuthenticationFlow ao : authenticators)
-		{
-
 			for (AuthenticatorInstance authn : ao.getFirstFactorAuthenticators())
-			{
-				newMap.put(authn.getRetrieval().getAuthenticatorId(), authn.getRetrieval());
-			}
-
-		}
+				newMap.put(authn.getRetrieval().getAuthenticatorId(), new RetrievalWithFlow(ao, authn.getRetrieval()));
 		this.authenticators = newMap;
 	}
 	
@@ -138,7 +137,7 @@ public class ProxyAuthenticationFilter implements Filter
 					authenticators.keySet().iterator().next() :
 					AuthenticationOptionKeyUtils.decodeAuthenticator(selectedAuthn);
 			
-			BindingAuthn authenticator = authenticators.get(authenticatorId);
+			RetrievalWithFlow authenticator = authenticators.get(authenticatorId);
 			if (authenticator == null)
 			{
 				log.error("There is no authenticator which was provided as the "
@@ -182,22 +181,24 @@ public class ProxyAuthenticationFilter implements Filter
 		return session.getAttribute(AUTOMATED_LOGIN_FIRED) != null;
 	}
 	
-	private boolean triggerProxyAuthenticator(BindingAuthn authenticatorParam,
+	private boolean triggerProxyAuthenticator(RetrievalWithFlow authenticatorParam,
 			HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse,
 			String selectedAuthn)
 	{
-		if (authenticatorParam instanceof ProxyAuthenticationCapable)
+		if (authenticatorParam.retrieval instanceof ProxyAuthenticationCapable)
 		{
 			ProxyAuthenticationCapable authenticator = (ProxyAuthenticationCapable) 
-					authenticatorParam;
+					authenticatorParam.retrieval;
 			try
 			{
 				log.info("Invoking automated proxy authentication handler of {}",
 						authenticator.getAuthenticatorId());
 				
+				AuthenticatorStepContext authnContext = new AuthenticatorStepContext(
+						realm, authenticatorParam.flow, endpointPath, FactorOrder.FIRST);
 				boolean result = authenticator.triggerAutomatedAuthentication(
-						httpRequest, httpResponse, endpointPath);
+						httpRequest, httpResponse, endpointPath, authnContext);
 				if (result)
 				{
 					log.info("Automated proxy authentication of {} handled the request",
@@ -215,7 +216,7 @@ public class ProxyAuthenticationFilter implements Filter
 		{
 			log.error("The authenticator {} configured for automated "
 					+ "proxy authentication is not supporting this feature", 
-					authenticatorParam.getAuthenticatorId());
+					authenticatorParam.retrieval.getAuthenticatorId());
 			return false;
 		}
 	}
@@ -228,5 +229,17 @@ public class ProxyAuthenticationFilter implements Filter
 	@Override
 	public void destroy()
 	{
+	}
+	
+	private static class RetrievalWithFlow
+	{
+		final AuthenticationFlow flow;
+		final BindingAuthn retrieval;
+		
+		RetrievalWithFlow(AuthenticationFlow flow, BindingAuthn retrieval)
+		{
+			this.flow = flow;
+			this.retrieval = retrieval;
+		}
 	}
 }

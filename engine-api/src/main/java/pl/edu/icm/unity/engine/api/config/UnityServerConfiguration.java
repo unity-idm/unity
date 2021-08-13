@@ -374,15 +374,17 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setCategory(initAuthnCat).setDescription("Second factor authenticators, separated with a single comma (no spaces)."));
 
 		defaults.put(RE_AUTHENTICATION_POLICY, new PropertyMD("SESSION_2F CURRENT SESSION_1F ENDPOINT_2F").setCategory(reauthnCat)
-				.setDescription("Comma separated list configuring repeated or step up authentication which is"
-						+ "protecting sensitive operations like changing credentials. Entries are either "
-						+ "authenticators do not requiring redirection (as SAML or OAuth) or special entries: "
+				.setDescription("Comma separated list configuring repeated (aka step up) authentication which is "
+						+ "protecting sensitive operations like changing credentials. "
+						+ "This config option controls how to verify the user executing sensitive operation. "
+						+ "Entries are either authenticators which do not require redirection "
+						+ "(e.g. SAML or OAuth are not allowed) or any of special entries: "
 						+ "+ENDPOINT_2F+ credentials from the endpoint's 2nd factor configuration. " + 
 						"+SESSION_1F+ +SESSION_2F+ - credential used for the user's session, either 1st or 2nd factor. "
 						+ "In case of remembered logins, this falls back to the credential "
 						+ "which was originally used to authenticate the user. " + 
 						"+CURRENT+ - available only when the sensitive operation is changing an existing credential. "
-						+ "Request authenticating with the credential being changed, this credential must be enabled on the endpoint."));
+						+ "This credential must be enabled on the endpoint serving the request."));
 		defaults.put(RE_AUTHENTICATION_GRACE_TIME, new PropertyMD("600").setMin(2).setCategory(reauthnCat)
 				.setDescription("Time in seconds in which user don't have to re-authenticate again. "
 						+ "It is suggested not to set this value to less then 10 seconds"));

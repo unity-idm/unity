@@ -39,7 +39,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -115,7 +115,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected MessageSource msg;
 	protected ImageAccessService imageAccessService;
 	private BaseForm form;
-	protected RemotelyAuthenticatedContext remotelyAuthenticated;
+	protected RemotelyAuthenticatedPrincipal remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
@@ -142,7 +142,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	 * what is possible for registration form.
 	 */
 	public BaseRequestEditor(MessageSource msg, BaseForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated,
+			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,

@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.Position;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
@@ -28,6 +31,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class NotificationPopup
 {
+	private static final Duration NOTIFICATION_AUTOCLOSE_AFTER = Duration.ofSeconds(5);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NotificationPopup.class);
 	
 	
@@ -48,6 +52,17 @@ public class NotificationPopup
 	{
 		showGeneric(caption, description, Type.ERROR_MESSAGE, Images.error.getResource(),
 				ValoTheme.NOTIFICATION_CLOSABLE);
+	}
+
+	public static void showErrorAutoClosing(String caption, String description)
+	{
+		Notification notification = new Notification(caption, description, Type.ERROR_MESSAGE);
+		notification.setIcon(Images.error.getResource());
+		notification.setDelayMsec((int)NOTIFICATION_AUTOCLOSE_AFTER.toMillis());
+		StringBuilder sb = new StringBuilder(notification.getStyleName());
+		sb.append(" ").append(Styles.veryLargeIcon.toString());
+		notification.setPosition(Position.TOP_CENTER);
+		notification.show(Page.getCurrent());
 	}
 	
 	public static void showError(ControllerException exception)

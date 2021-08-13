@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -39,7 +39,7 @@ public class RemoteDataRegistrationParserTest
 			.endIdentityParam();
 		RegistrationForm form = formBuilder.build();
 
-		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
+		RemotelyAuthenticatedPrincipal remoteCtx = new RemotelyAuthenticatedPrincipal("idp", "iprof");
 		remoteCtx.addIdentities(Lists.newArrayList(new IdentityTaV(UsernameIdentity.ID, "user")));
 
 		Map<String, IdentityTaV> identities = RemoteDataRegistrationParser.parseRemoteIdentities(form, remoteCtx);
@@ -59,7 +59,7 @@ public class RemoteDataRegistrationParserTest
 			.endIdentityParam();
 		RegistrationForm form = formBuilder.build();
 
-		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
+		RemotelyAuthenticatedPrincipal remoteCtx = new RemotelyAuthenticatedPrincipal("idp", "iprof");
 		Map<String, IdentityTaV> identities = RemoteDataRegistrationParser.parseRemoteIdentities(form, remoteCtx);
 		Throwable error = catchThrowable(() -> 
 			RemoteDataRegistrationParser.assertMandatoryRemoteIdentitiesArePresent(form, identities));
@@ -78,7 +78,7 @@ public class RemoteDataRegistrationParserTest
 			.endAttributeParam();
 		RegistrationForm form = formBuilder.build();
 		
-		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
+		RemotelyAuthenticatedPrincipal remoteCtx = new RemotelyAuthenticatedPrincipal("idp", "iprof");
 		remoteCtx.addAttributes(Lists.newArrayList(StringAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "remote@example.com")));
 		
 		
@@ -101,7 +101,7 @@ public class RemoteDataRegistrationParserTest
 			.endAttributeParam();
 		RegistrationForm form = formBuilder.build();
 		
-		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
+		RemotelyAuthenticatedPrincipal remoteCtx = new RemotelyAuthenticatedPrincipal("idp", "iprof");
 		remoteCtx.addAttributes(Lists.newArrayList(StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/Addd/C/Z/B", "remote@example.com")));
 		
@@ -124,7 +124,7 @@ public class RemoteDataRegistrationParserTest
 			.endAttributeParam();
 		RegistrationForm form = formBuilder.build();
 		
-		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
+		RemotelyAuthenticatedPrincipal remoteCtx = new RemotelyAuthenticatedPrincipal("idp", "iprof");
 		Map<String, Attribute> remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx);
 		Throwable error = catchThrowable(() -> 
 			RemoteDataRegistrationParser.assertMandatoryRemoteAttributesArePresent(form, remoteAttributes));
@@ -143,7 +143,7 @@ public class RemoteDataRegistrationParserTest
 			.endAttributeParam();
 		RegistrationForm form = formBuilder.build();
 		
-		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
+		RemotelyAuthenticatedPrincipal remoteCtx = new RemotelyAuthenticatedPrincipal("idp", "iprof");
 		remoteCtx.addAttributes(Lists.newArrayList(StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/A/notMatching", "remote@example.com")));
 		

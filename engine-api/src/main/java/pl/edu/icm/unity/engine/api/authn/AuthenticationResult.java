@@ -4,16 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.MessageSource;
 
 /**
- * This class object is returned by authenticator with information about authentication result. 
- * This cover authentication result of a single authenticator, not the combined result of authentication
- * with all authenticators in the set.
- * 
- * @author K. Benedyczak
+ * Base contract of authentication result - have remote and local authn variants.
  */
-public class AuthenticationResult
+public interface AuthenticationResult
 {
 	public enum Status {
 		/**
@@ -39,77 +35,80 @@ public class AuthenticationResult
 		success
 	}
 	
-	private Status status;	
-	private RemotelyAuthenticatedContext remoteAuthnContext;
-	private AuthenticatedEntity authenticatedEntity;
-	private String formForUnknownPrincipal;
-	private boolean enableAssociation = true;
-
-	/**
-	 * Used by local verificators
-	 */
-	public AuthenticationResult(Status status, AuthenticatedEntity authenticatedEntity)
+	Status getStatus();
+	
+	boolean isRemote();
+	
+	String toStringFull();
+	
+	SuccessResult getSuccessResult();
+	
+	ErrorResult getErrorResult();
+	
+	default RemoteAuthenticationResult asRemote()
 	{
-		this.status = status;
-		this.authenticatedEntity = authenticatedEntity;
-	}
-
-	/**
-	 * Used by remote verificators
-	 */
-	public AuthenticationResult(Status status, RemotelyAuthenticatedContext remoteAuthnContext,
-			AuthenticatedEntity authenticatedEntity)
-	{
-		this.status = status;
-		this.remoteAuthnContext = remoteAuthnContext;
-		this.authenticatedEntity = authenticatedEntity;
-	}
-
-	public Status getStatus()
-	{
-		return status;
-	}
-
-	public AuthenticatedEntity getAuthenticatedEntity()
-	{
-		return authenticatedEntity;
-	}
-
-	public RemotelyAuthenticatedContext getRemoteAuthnContext()
-	{
-		return remoteAuthnContext;
-	}
-
-	public String getFormForUnknownPrincipal()
-	{
-		return formForUnknownPrincipal;
-	}
-
-	public void setFormForUnknownPrincipal(String formForUnknownPrincipal)
-	{
-		this.formForUnknownPrincipal = formForUnknownPrincipal;
+		if (!isRemote())
+			throw new IllegalStateException("This is not a remote result");
+		return (RemoteAuthenticationResult)this;
 	}
 	
-	public boolean isEnableAssociation()
+	default LocalAuthenticationResult asLocal()
 	{
-		return enableAssociation;
+		if (isRemote())
+			throw new IllegalStateException("This is not a local result");
+		return (LocalAuthenticationResult)this;
 	}
-
-	public void setEnableAssociation(boolean enableAssociation)
+	
+	class ErrorResult 
 	{
-		this.enableAssociation = enableAssociation;
+		public final ResolvableError error;
+		public final Exception cause;
+		
+		ErrorResult(ResolvableError error, Exception cause)
+		{
+			this.error = error;
+			this.cause = cause;
+		}
+
+		@Override
+		public String toString()
+		{
+			return String.format("ErrorResult [error=%s, cause=%s]", error, cause);
+		}
 	}
-
-	public String toStringFull()
+	
+	class SuccessResult 
 	{
-		return "AuthenticationResult: \nstatus=" + status + "\nremoteAuthnContext=" + remoteAuthnContext
-				+ "\nauthenticatedEntity=" + authenticatedEntity + "\nformForUnknownPrincipal="
-				+ formForUnknownPrincipal + "\nenableAssociation=" + enableAssociation;
+		public final AuthenticatedEntity authenticatedEntity;
+
+		SuccessResult(AuthenticatedEntity authenticatedEntity)
+		{
+			this.authenticatedEntity = authenticatedEntity;
+		}
+
+		@Override
+		public String toString()
+		{
+			return String.format("[authenticatedEntity=%s]", authenticatedEntity);
+		}
 	}
-
-	@Override
-	public String toString()
+	
+	
+	class ResolvableError
 	{
-		return status.toString();
+		static final ResolvableError EMPTY = new ResolvableError(null);
+		private final String errorCode;
+		private final Object[] args;
+		
+		public ResolvableError(String errorCode, Object... args)
+		{
+			this.errorCode = errorCode;
+			this.args = args;
+		}
+		
+		public String resovle(MessageSource msg)
+		{
+			return errorCode == null ? null : msg.getMessage(errorCode, args);
+		}
 	}
 }

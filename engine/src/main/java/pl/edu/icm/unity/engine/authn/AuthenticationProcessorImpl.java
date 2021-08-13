@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
-import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -40,16 +37,16 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticationProcessorImpl implements AuthenticationProcessor
+class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationProcessorImpl.class);
 	
 	private final SecondFactorOptInService secondFactorOptInService;
-	private LocalCredentialsRegistry localCred;
-	private CredentialRepository credRepo;
+	private final LocalCredentialsRegistry localCred;
+	private final CredentialRepository credRepo;
 	
 	@Autowired
-	public AuthenticationProcessorImpl(
+	AuthenticationProcessorImpl(
 			SecondFactorOptInService secondFactorOptInService,
 			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
 	{
@@ -71,7 +68,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		{
 			if (result.getStatus() == Status.unknownRemotePrincipal)
 				throw new UnknownRemoteUserException("AuthenticationProcessorImpl.authnFailed", 
-						result);
+						result.asRemote());
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
 		}
 		
@@ -91,7 +88,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		{
 
 			PartialAuthnState partialAuthnState = null;
-			if (getUserOptInAttribute(result.getAuthenticatedEntity().getEntityId()))
+			if (getUserOptInAttribute(result.getSuccessResult().authenticatedEntity.getEntityId()))
 			{
 				partialAuthnState = getSecondFactorAuthn(authenticationFlow,
 						result, authnOptionId);
@@ -126,9 +123,11 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
 			AuthenticationResult result, AuthenticationOptionKey firstFactorauthnOptionId)
 	{
+		if (result.getSuccessResult().authenticatedEntity == null)
+			return null;
 		AuthenticatorInstance secondFactorAuthenticator = getValidAuthenticatorForEntity(
 				authenticationFlow.getSecondFactorAuthenticators(), 
-				result.getAuthenticatedEntity().getEntityId());
+				result.getSuccessResult().authenticatedEntity.getEntityId());
 		if (secondFactorAuthenticator == null)
 			return null;
 		return new PartialAuthnState(firstFactorauthnOptionId, secondFactorAuthenticator.getRetrieval(), 
@@ -144,15 +143,9 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			if (authenticator != null)
 			{
 				if (!authenticator.getTypeDescription().isLocal())
-				{
-					log.info("Using remote second factor authenticator " + authenticator.getId());
 					return authn;
-
-				} else if (checkIfUserHasCredential(authenticator, entityId))
-				{
-					log.info("Using local second factor authenticator " + authenticator.getId());
+				else if (checkIfUserHasCredential(authenticator, entityId))
 					return authn;
-				}
 			}
 		}
 		return null;
@@ -192,7 +185,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		if (state.isSecondaryAuthenticationRequired() && !skipSecondFactor)
 			throw new IllegalStateException("BUG: code tried to finalize authentication "
 					+ "requiring MFA after first authentication");
-		return state.getPrimaryResult().getAuthenticatedEntity();
+		return state.getPrimaryResult().getSuccessResult().authenticatedEntity;
 	}
 
 	
@@ -211,37 +204,17 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
 		}
 		
-		Long secondId = result2.getAuthenticatedEntity().getEntityId();
-		AuthenticatedEntity firstAuthenticated = state.getPrimaryResult().getAuthenticatedEntity(); 
+		Long secondId = result2.getSuccessResult().authenticatedEntity.getEntityId();
+		AuthenticatedEntity firstAuthenticated = state.getPrimaryResult().getSuccessResult().authenticatedEntity; 
 		Long primaryId = firstAuthenticated.getEntityId();
 		if (!secondId.equals(primaryId))
 		{
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnWrongUsers");
 		}
-		AuthenticatedEntity logInfo = result2.getAuthenticatedEntity();
+		AuthenticatedEntity logInfo = result2.getSuccessResult().authenticatedEntity;
 		logInfo.getAuthenticatedWith().addAll(firstAuthenticated.getAuthenticatedWith());
 		if (firstAuthenticated.getOutdatedCredentialId() != null)
 			logInfo.setOutdatedCredentialId(firstAuthenticated.getOutdatedCredentialId());
 		return logInfo;
-	}
-	
-	/**
-	 * Extracts and returns all remote {@link SessionParticipant}s from the {@link AuthenticationResult}s.
-	 * @param results
-	 * @return
-	 * @throws AuthenticationException
-	 */
-	
-	public static List<SessionParticipant> extractParticipants(AuthenticationResult... results) 
-			throws AuthenticationException
-	{
-		List<SessionParticipant> ret = new ArrayList<>();
-		for (AuthenticationResult result: results)
-		{
-			if (result.getRemoteAuthnContext() != null && 
-					result.getRemoteAuthnContext().getSessionParticipants() != null)
-				ret.addAll(result.getRemoteAuthnContext().getSessionParticipants());
-		}
-		return ret;
 	}
 }

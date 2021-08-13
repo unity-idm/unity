@@ -34,6 +34,8 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -46,9 +48,8 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
 import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
 
@@ -84,19 +85,22 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
 	protected MessageSource msg;
+	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	
 	public VaadinEndpoint(NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, 
 			MessageSource msg,
 			ApplicationContext applicationContext,
 			String uiBeanName,
-			String servletPath)
+			String servletPath,
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.uiServletPath = servletPath;
+		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 		serverConfig = applicationContext.getBean(UnityServerConfiguration.class);		
 
 	}
@@ -134,7 +138,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		
+		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
@@ -146,7 +151,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
-				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
+				description.getRealm());
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		

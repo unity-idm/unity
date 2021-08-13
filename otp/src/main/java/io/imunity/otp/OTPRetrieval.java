@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.base.Strings;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -35,7 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -94,7 +93,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new OTPRetrievalUI(credEditorReg.getEditor(OTP.NAME)));
@@ -115,7 +114,6 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 	private class OTPRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		private TextField usernameField;
 		private HtmlLabel usernameLabel;
 		private TextField codeField;
@@ -206,7 +204,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 				return;
 			}
 				
-			AuthenticationResult authnResult = credentialExchange.verifyCode(code, subject.get(), sandboxCallback);
+			AuthenticationResult authnResult = credentialExchange.verifyCode(code, subject.get());
 			setAuthenticationResult(authnResult);
 		}
 
@@ -220,8 +218,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			} else if (authenticationResult.getStatus() == Status.deny)
 			{
 				usernameField.focus();
-				String msgErr = msg.getMessage("OTPRetrieval.wrongCode");
-				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
+				callback.onCompletedAuthentication(authenticationResult);
 			} else
 			{
 				throw new IllegalStateException("Got unsupported status from verificator: " 
@@ -263,11 +260,6 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
-		}
-
-		public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
-		{
-			this.sandboxCallback = sandboxCallback;
 		}
 
 		void setAuthenticatedEntity(Entity authenticatedEntity)
@@ -348,18 +340,6 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void refresh(VaadinRequest request)
-		{
-			// nop
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
-		{
-			theComponent.setSandboxCallback(callback);
 		}
 
 		/**

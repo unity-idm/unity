@@ -53,6 +53,7 @@ public abstract class AbstractRedirectRequestHandler implements RequestHandler
 					"but no authn context is present in the session.");
 			return false;
 		}
+		session.removeAttribute(contextKey);
 		return handleRequestInternal(context, vaadinSession, request, response);
 	}
 	

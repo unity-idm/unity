@@ -17,16 +17,11 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.authn.column.SecondFactorAuthNResultCallback.AuthenticationListener;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -34,24 +29,22 @@ import pl.edu.icm.unity.webui.common.Styles;
  * 
  * @author K. Benedyczak
  */
-class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
+public class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SecondFactorAuthNPanel.class);
 	private final MessageSource msg;
 	private final EntityManagement idsMan;
-	private final ExecutorsService execService;
-	private final AuthenticationListener externalListener;
+	private final Runnable switchToFirstFactor;
 
 	SecondFactorAuthNPanel(MessageSource msg,
-			EntityManagement idsMan, ExecutorsService execService,
+			EntityManagement idsMan,
 			VaadinAuthenticationUI secondaryUI, PartialAuthnState partialState,
-			AuthenticationOptionKey optionId, AuthenticationListener externalListener)
+			AuthenticationOptionKey optionId, Runnable switchToFirstFactor)
 	{
 		super(secondaryUI, optionId, new VerticalLayout());
 		this.msg = msg;
 		this.idsMan = idsMan;
-		this.execService = execService;
-		this.externalListener = externalListener;
+		this.switchToFirstFactor = switchToFirstFactor;
 
 		authenticatorContainer.setHeight(100, Unit.PERCENTAGE);
 		authenticatorContainer.setWidth(100, Unit.PERCENTAGE);
@@ -82,26 +75,14 @@ class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIC
 		resetMfaButton.setDescription(msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
 		resetMfaButton.addStyleName(Styles.vButtonLink.toString());
 		resetMfaButton.addStyleName("u-authn-resetMFAButton");
-		resetMfaButton.addClickListener(event -> externalListener.switchBackToFirstFactor());
+		resetMfaButton.addClickListener(event -> switchToFirstFactor.run());
 		authenticatorContainer.addComponent(resetMfaButton);
 		authenticatorContainer.setComponentAlignment(resetMfaButton, Alignment.TOP_RIGHT);
 	}
 
 	private Entity resolveEntity(AuthenticationResult unresolved) throws EngineException
 	{
-		AuthenticatedEntity ae = unresolved.getAuthenticatedEntity();
+		AuthenticatedEntity ae = unresolved.getSuccessResult().authenticatedEntity;
 		return idsMan.getEntity(new EntityParam(ae.getEntityId()));
-	}
-
-	
-	void showWaitScreenIfNeeded(String clientIp)
-	{
-		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
-		if (counter.getRemainingBlockedTime(clientIp) > 0)
-		{
-			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);
-			dialog.show();
-			return;
-		}
 	}
 }

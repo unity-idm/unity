@@ -14,7 +14,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -142,7 +142,7 @@ public class AdminEnquiryFormLauncher
 	}
 	
 	public void showDialog(final EnquiryForm form, 
-			RemotelyAuthenticatedContext remoteContext, 
+			RemotelyAuthenticatedPrincipal remoteContext, 
 			AsyncErrorHandler errorHandler)
 	{
 		EnquiryResponseEditor editor;

@@ -6,16 +6,12 @@ package pl.edu.icm.unity.webui.association.atlogin;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import com.vaadin.ui.UI;
-
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 /**
@@ -28,10 +24,10 @@ public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvide
 {
 	private MessageSource msg;
 	private InputTranslationEngine translationEngine;
-	private RemotelyAuthenticatedContext unknownUser;
+	private RemotelyAuthenticatedPrincipal unknownUser;
 
 	public ConnectIdAtLoginWizardProvider(MessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
-			InputTranslationEngine translationEngine, RemotelyAuthenticatedContext unknownUser)
+			InputTranslationEngine translationEngine, RemotelyAuthenticatedPrincipal unknownUser)
 	{
 		super(sandboxURL, sandboxNotifier);
 		this.msg = msg;
@@ -53,21 +49,12 @@ public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvide
 		
 		openSandboxPopupOnNextButton(wizard);
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
-		addSandboxListener(new SandboxAuthnNotifier.AuthnResultListener()
+		addSandboxListener(event ->
 		{
-			@Override
-			public void onPartialAuthnResult(SandboxAuthnEvent event)
-			{
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-				sandboxStep.enableNext();
-				confirmationStep.setAuthenticatedUser(authenticatedEntity);
-				wizard.next();						
-			}
-		}, wizard, UI.getCurrent(), true);
+			sandboxStep.enableNext();
+			confirmationStep.setAuthenticatedUser(event.entity);
+			wizard.next();						
+		}, wizard, true);
 		return wizard;
 	}
 
