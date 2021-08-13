@@ -8,6 +8,7 @@ import static pl.edu.icm.unity.webui.forms.FormParser.isGroupParamUsedAsMandator
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -438,7 +440,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	/**
 	 * Creates main layout, inserts title and form information
 	 */
-	protected RegistrationLayoutsContainer createLayouts()
+	protected RegistrationLayoutsContainer createLayouts(Map<String, Object> params)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
@@ -448,13 +450,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		addLogo(main);
 		
-		Label formName = new Label(form.getDisplayedName().getValue(msg));
+		Label formName = new Label(processFreeemarkerTemplate(params, form.getDisplayedName().getValue(msg)));
 		formName.addStyleName(Styles.vLabelH1.toString());
 		formName.addStyleName("u-reg-title");
 		main.addComponent(formName);
 		main.setComponentAlignment(formName, Alignment.MIDDLE_CENTER);
 		
-		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
+		String info = form.getFormInformation() == null ? null : processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
 		if (info != null)
 		{
 			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
@@ -466,6 +468,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
 		container.addFormLayoutToRootLayout(main);
 		return container;
+	}
+
+	protected String processFreeemarkerTemplate(Map<String, Object> params, String template) 
+	{
+		return FreemarkerUtils.processStringTemplate(
+				params != null ? params : Collections.emptyMap(), template);
 	}
 	
 	private void addLogo(VerticalLayout main)

@@ -82,7 +82,6 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private CheckBox byInvitationOnly;
 	
 	private RegistrationActionsRegistry actionsRegistry;
-	private ActionParameterComponentProvider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private EnquiryFormLayoutEditorTab layoutEditor;
 	//binder is only for targetCondition validation
@@ -104,7 +103,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory,
-				attributeTypeSupport);
+				attributeTypeSupport, actionComponentFactory);
 		this.actionsRegistry = actionsRegistry;
 		this.msg = msg;
 		this.groupsMan = groupsMan;
@@ -112,10 +111,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.msgTempMan = msgTempMan;
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
-		actionComponentProvider = actionComponentFactory;
 		this.serverConfig = serverConfig;
 		this.imageAccessService = imageAccessService;
-		this.actionComponentProvider.init();
 	}
 
 	public EnquiryFormEditor init(boolean copyMode)
@@ -340,5 +337,12 @@ public class EnquiryFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequestsAndInvitations()
 	{
 		return ignoreRequestsAndInvitation.getValue();
+	}
+	
+	@Override
+	protected void onGroupChanges()
+	{
+		super.onGroupChanges();
+		profileEditor.refresh();
 	}
 }

@@ -136,7 +136,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		if (config == null)
 			return;
 		if (config.autoRedirect)
-			redirect(config.redirectURL);
+			redirect(Page.getCurrent(), config.redirectURL);
 		else
 			showFinalScreen(config);
 	}
@@ -157,10 +157,10 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
 	
-	private void redirect(String redirectUrl)
+	private void redirect(Page page, String redirectUrl)
 	{
 		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
-		Page.getCurrent().open(redirectUrl, null);
+		page.open(redirectUrl, null);
 	}
 	
 	public interface Callback

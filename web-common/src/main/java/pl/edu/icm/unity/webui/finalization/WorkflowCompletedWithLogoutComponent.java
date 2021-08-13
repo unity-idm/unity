@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.webui.finalization;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
+import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -28,7 +29,7 @@ public class WorkflowCompletedWithLogoutComponent extends CustomComponent
 	private ImageAccessService imageAccessService;
 
 	public WorkflowCompletedWithLogoutComponent(WorkflowFinalizationConfiguration config, 
-			Consumer<String> redirector, String logoutCaption, Runnable logoutProcessor, ImageAccessService imageAccessService)
+			 BiConsumer<Page, String> redirector, String logoutCaption, Runnable logoutProcessor, ImageAccessService imageAccessService)
 	{
 		this.logoutCaption = logoutCaption;
 		this.logoutProcessor = logoutProcessor;
@@ -36,7 +37,7 @@ public class WorkflowCompletedWithLogoutComponent extends CustomComponent
 		createUI(config, redirector);
 	}
 	
-	private void createUI(WorkflowFinalizationConfiguration config, Consumer<String> redirector)
+	private void createUI(WorkflowFinalizationConfiguration config, BiConsumer<Page, String> redirector)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();

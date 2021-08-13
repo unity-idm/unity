@@ -425,7 +425,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		if (completedRegistrationHandler != null)
 			completedRegistrationHandler.run();
 		if (config.autoRedirect)
-			redirect(config.redirectURL, idpLoginController);
+			redirect(Page.getCurrent(), config.redirectURL, idpLoginController);
 		else
 			showFinalScreen(config);
 	}
@@ -440,17 +440,16 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		setCompositionRoot(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController), imageAccessService);
+			(p,url) -> redirect(p, url, idpLoginController), imageAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
 	
-	private static void redirect(String redirectUrl, IdPLoginController loginController)
+	private static void redirect(Page page, String redirectUrl, IdPLoginController loginController)
 	{
 		loginController.breakLogin();
-		Page.getCurrent().open(redirectUrl, null);
+		page.open(redirectUrl, null);
 	}
-	
 	
 	private RegistrationRequestState getRequestStatus(String requestId) 
 	{

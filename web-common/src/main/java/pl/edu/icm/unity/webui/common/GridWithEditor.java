@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue;
@@ -49,21 +50,32 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	public GridWithEditor(MessageSource msg, Class<T> type)
 	{
+		this(msg, type, t -> false, true);
+	}
+	
+	
+	
+	public GridWithEditor(MessageSource msg, Class<T> type, Predicate<T> disableRemovePredicate, boolean enableDrag)
+	{
 		this.type = type;
 		this.msg = msg;
 
-		SingleActionHandler<T> remove = SingleActionHandler.builder4Delete(msg, type).withHandler(r -> {
+		SingleActionHandler<T> remove = SingleActionHandler.builder4Delete(msg, type)
+				.withDisabledPredicate(disableRemovePredicate).withHandler(r -> {
 			grid.removeElement(r.iterator().next());
 			fireChange();
 		}).build();
 
-		grid = new GridWithActionColumn<>(msg, Arrays.asList(remove));
-		grid.getRowDragger().getGridDragSource().addDragStartListener(e -> {
-			if (isEditMode())
-			{
-				grid.getEditor().cancel();
-			}
-		});
+		grid = new GridWithActionColumn<>(msg, Arrays.asList(remove), enableDrag);
+		if (enableDrag)
+		{
+			grid.getRowDragger().getGridDragSource().addDragStartListener(e -> {
+				if (isEditMode())
+				{
+					grid.getEditor().cancel();
+				}
+			});
+		}
 		grid.setMinHeightByRow(3);
 		grid.getEditor().addSaveListener(e -> {
 			fireChange();
@@ -115,10 +127,17 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 			String caption, int expandRatio, boolean required, Optional<Validator<String>> validator)
 	{
 
+		return addTextColumn(valueProvider, setter, caption, expandRatio, required, validator, new TextField());
+	}
+	
+	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter,
+			String caption, int expandRatio, boolean required, Optional<Validator<String>> validator, TextField field)
+	{
+
 		Binder<T> binder = grid.getEditor().getBinder();
 		Column<T, String> column = grid.addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio)
 				.setResizable(false).setSortable(false)
-				.setEditorBinding(binder.forField(new TextField()).asRequired((v, c) -> {
+				.setEditorBinding(binder.forField(field).asRequired((v, c) -> {
 					if (required && (v == null || v.isEmpty()))
 					{
 						return ValidationResult.error(msg.getMessage("fieldRequired"));
@@ -312,7 +331,5 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	public boolean isEditMode()
 	{
 		return grid.getEditor().isOpen();
-	}
-	
-	
+	}	
 }

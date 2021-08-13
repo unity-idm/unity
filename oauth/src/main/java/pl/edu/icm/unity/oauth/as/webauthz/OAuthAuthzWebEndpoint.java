@@ -66,13 +66,14 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	public static final String OAUTH_ROUTING_SERVLET_PATH = "/oauth2-authz-web-entry";
 	public static final String OAUTH_CONSENT_DECIDER_SERVLET_PATH = "/oauth2-authz-consentdecider";
 	
+	private final FreemarkerAppHandler freemarkerHandler;
+	private final EntityManagement identitiesManagement;
+	private final AttributesManagement attributesManagement;
+	private final PKIManagement pkiManagement;
+	private final OAuthEndpointsCoordinator coordinator;
+	private final ASConsentDeciderServletFactory dispatcherServletFactory;
+	
 	private OAuthASProperties oauthProperties;
-	private FreemarkerAppHandler freemarkerHandler;
-	private EntityManagement identitiesManagement;
-	private AttributesManagement attributesManagement;
-	private PKIManagement pkiManagement;
-	private OAuthEndpointsCoordinator coordinator;
-	private ASConsentDeciderServletFactory dispatcherServletFactory;
 	
 	@Autowired
 	public OAuthAuthzWebEndpoint(NetworkServer server,
@@ -127,8 +128,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
-		OAuthSessionService oauthSessionService = applicationContext.getBean(OAuthSessionService.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		OAuthSessionService oauthSessionService = applicationContext.getBean(OAuthSessionService.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		

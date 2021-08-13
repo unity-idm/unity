@@ -24,7 +24,7 @@ public class OTPCredentialReset extends CredentialResetBase
 			OTPResetSettings resetSettings)
 	{
 		super(notificationProducer, identityResolver, localVerificator, credentialHelper, credentialId,
-				completeCredentialConfiguration);
+				completeCredentialConfiguration, CredentialResetBase.DEFAULT_MAX_CODE_VALIDITY);
 		this.resetSettings = resetSettings;
 	}
 

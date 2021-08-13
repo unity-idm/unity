@@ -84,7 +84,11 @@ class GroupsComponent extends CustomComponent
 		vl.setMargin(false);
 		vl.setSpacing(false);
 		vl.addComponents(menuBar, groupBrowser);
+		vl.setExpandRatio(menuBar, 0);
+		vl.setExpandRatio(groupBrowser, 2);
+		vl.setSizeFull();
 		setCompositionRoot(vl);
+		setSizeFull();
 	}
 
 	private SingleActionHandler<GroupNode> getMakePrivateAction()

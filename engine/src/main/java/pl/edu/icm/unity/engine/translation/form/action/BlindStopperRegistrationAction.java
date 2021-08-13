@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.translation.form.action;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,7 +32,7 @@ public class BlindStopperRegistrationAction extends RegistrationTranslationActio
 
 	@Override
 	protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
-			String currentProfile) throws EngineException
+			RegistrationContext context, String currentProfile) throws EngineException
 	{
 		log.warn("Skipping invocation of a invalid action " + getName());
 	}

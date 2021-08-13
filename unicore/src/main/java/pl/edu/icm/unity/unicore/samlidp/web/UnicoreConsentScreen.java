@@ -26,7 +26,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.ROExposedAttributesComponent;
-import pl.edu.icm.unity.saml.idp.web.SAMLContextSupport;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.idp.web.SamlConsentScreen;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -152,7 +152,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 	{
 		try
 		{
-			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
+			SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 			SamlPreferencesWithETD preferences = SamlPreferencesWithETD.getPreferences(preferencesMan);
 			updatePreferencesFromUI(preferences, samlCtx, defaultAccept);
 			SamlPreferencesWithETD.savePreferences(preferencesMan, preferences);

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
@@ -12,7 +14,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
 
@@ -40,11 +41,11 @@ import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.HttpSessionAttributes;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthSessionService.SessionAttributes;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
+import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
@@ -70,10 +71,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private final MessageSource msg;
 
 	
-	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
-			OAuthProcessor oauthProcessor, OAuthSessionService oauthSessionService,
-			String oauthUiServletPath, String authenticationUIServletPath,
-			EnquiryManagement enquiryManagement, PolicyAgreementManagement policyAgreementsMan,
+	public ASConsentDeciderServlet(PreferencesManagement preferencesMan,
+			IdPEngine idpEngine,
+			OAuthProcessor oauthProcessor,
+			OAuthSessionService oauthSessionService,
+			String oauthUiServletPath,
+			String authenticationUIServletPath,
+			EnquiryManagement enquiryManagement,
+			PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg)
 	{
 		this.oauthProcessor = oauthProcessor;
@@ -231,7 +236,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		try
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
-			handleTranslationProfileRedirectIfNeeded(userInfo, request.getSession(), response);
+			handleTranslationProfileRedirectIfNeeded(userInfo, request, response);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.info("Authentication of " + selectedIdentity);
@@ -257,7 +262,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		sendReturnRedirect(respDoc, request, response, false);
 	}
 	
-	private void handleTranslationProfileRedirectIfNeeded(TranslationResult userInfo, HttpSession session,
+	private void handleTranslationProfileRedirectIfNeeded(TranslationResult userInfo, HttpServletRequest request,
 			HttpServletResponse response) 
 			throws IOException, EopException
 	{
@@ -265,21 +270,20 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (redirectURL != null)
 		{
 			response.sendRedirect(redirectURL);
-			oauthSessionService.cleanupComplete(Optional.of(new HttpSessionAttributes(session)), false);
+			oauthSessionService.cleanupComplete(Optional.of(new HttpContextSession(request)), false);
 			throw new EopException();
 		}
 	}
 	
 	private OAuthAuthzContext getOAuthContext(HttpServletRequest req)
 	{
-		HttpSession httpSession = req.getSession();
-		return OAuthSessionService.getContext(new HttpSessionAttributes(httpSession));
+		return OAuthSessionService.getContext(req).orElseThrow(noSignInContextException());
 	}
 	
 	private void sendReturnRedirect(AuthorizationResponse oauthResponse, HttpServletRequest request, 
 			HttpServletResponse response, boolean invalidateSession) throws IOException
 	{
-		SessionAttributes session = new HttpSessionAttributes(request.getSession());
+		SignInContextSession session = new HttpContextSession(request);
 		oauthSessionService.cleanupBeforeResponseSent(session);
 		try
 		{

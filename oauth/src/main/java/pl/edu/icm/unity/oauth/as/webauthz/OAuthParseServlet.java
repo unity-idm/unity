@@ -16,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.utils.URIBuilder;
@@ -38,6 +37,7 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 
@@ -53,21 +53,18 @@ public class OAuthParseServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthParseServlet.class);
 	
-	/**
-	 * Under this key the OAuthContext object is stored in the session.
-	 */
-	public static final String SESSION_OAUTH_CONTEXT = "oauth2AuthnContextKey";
-	
 	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(
 			ResponseType.Value.CODE, ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
 	
-	private OAuthASProperties oauthConfig;
-	private String oauthUiServletPath;
-	private ErrorHandler errorHandler;
-	private OAuthWebRequestValidator validator;
+	private final OAuthASProperties oauthConfig;
+	private final String oauthUiServletPath;
+	private final ErrorHandler errorHandler;
+	private final OAuthWebRequestValidator validator;
 	
-	public OAuthParseServlet(OAuthASProperties oauthConfig, 
-			String oauthUiServletPath, ErrorHandler errorHandler, EntityManagement identitiesMan,
+	public OAuthParseServlet(OAuthASProperties oauthConfig,
+			String oauthUiServletPath,
+			ErrorHandler errorHandler,
+			EntityManagement identitiesMan,
 			AttributesManagement attributesMan)
 	{
 		this.oauthConfig = oauthConfig;
@@ -115,8 +112,6 @@ public class OAuthParseServlet extends HttpServlet
 			throws IOException, ServletException, EopException
 	{
 		log.trace("Starting OAuth2 authorization request processing");
-		HttpSession session = request.getSession();
-		OAuthAuthzContext context = (OAuthAuthzContext) session.getAttribute(SESSION_OAUTH_CONTEXT); 
 		AuthorizationRequest authzRequest;
 		
 		String queryString = getQueryString(request);
@@ -153,20 +148,12 @@ public class OAuthParseServlet extends HttpServlet
 		}
 
 		//ok, we do have a new request. 
-
-		//is there processing in progress?
-		if (context != null)
-		{
-			if (!context.isExpired() && log.isTraceEnabled())
-				log.trace("Request to OAuth2 authZ address, we are " +
-						"forced to break the previous login: " + 
-						request.getRequestURI());
-			session.removeAttribute(SESSION_OAUTH_CONTEXT);
-		}
-		
+		OAuthAuthzContext context;
 		if (log.isTraceEnabled())
 			log.trace("Request to protected address, with OAuth2 input, will be processed: " + 
 					request.getRequestURI());
+		
+		
 		try
 		{
 			if (log.isTraceEnabled())
@@ -180,19 +167,19 @@ public class OAuthParseServlet extends HttpServlet
 			return;
 		}
 		
-		session.setAttribute(SESSION_OAUTH_CONTEXT, context);
+		SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 		
-		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest));
+		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
 	
 	/**
 	 * We are passing all unknown to OAuth query parameters to downstream servlet. This may help to build 
 	 * extended UIs, which can interpret those parameters. 
 	 */
-	private String getQueryToAppend(AuthorizationRequest authzRequest)
+	private String getQueryToAppend(AuthorizationRequest authzRequest, SignInContextKey contextKey)
 	{
 		Map<String, List<String>> customParameters = authzRequest.getCustomParameters();
 		URIBuilder b = new URIBuilder();
@@ -200,6 +187,10 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			for (String value: entry.getValue())
 				b.addParameter(entry.getKey(), value);
+		}
+		if (!SignInContextKey.DEFAULT.equals(contextKey))
+		{
+			b.addParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
 		}
 		String query = null;
 		try

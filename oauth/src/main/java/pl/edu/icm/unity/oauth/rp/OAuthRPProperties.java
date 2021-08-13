@@ -162,6 +162,7 @@ public class OAuthRPProperties extends UnityPropertiesHelper implements BaseRemo
 		return mode != null ? mode : getEnumValue(CLIENT_AUTHN_MODE, ClientAuthnMode.class);
 	}
 	
+	@Override
 	public Method getClientHttpMethodForProfileAccess()
 	{
 		return (getEnumValue(CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,

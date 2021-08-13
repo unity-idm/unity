@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -230,7 +232,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private void initUI()
 	{
-		layoutContainer = createLayouts();
+		layoutContainer = createLayouts(
+				invitation != null
+						? invitation.getMessageParamsWithCustomVarObject(
+								MessageTemplateDefinition.CUSTOM_VAR_PREFIX)
+						: Collections.emptyMap());
 
 		resolveRemoteSignupOptions();
 		PrefilledSet prefilled = new PrefilledSet();
@@ -293,7 +299,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	}
 
 	@Override
-	protected RegistrationLayoutsContainer createLayouts()
+	protected RegistrationLayoutsContainer createLayouts(Map<String, Object> params)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
@@ -312,7 +318,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		}
 		
 		I18nString title = stage == Stage.FIRST ? form.getDisplayedName() : form.getTitle2ndStage();
-		Label formName = new Label(title.getValue(msg));
+		Label formName = new Label(processFreeemarkerTemplate(params, title.getValue(msg)));
 		formName.addStyleName(Styles.vLabelH1.toString());
 		formName.addStyleName("u-reg-title");
 		main.addComponent(formName);
@@ -320,7 +326,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		
 		if (stage == Stage.FIRST)
 		{
-			String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
+			String info = form.getFormInformation() == null ? null : processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
 			if (info != null)
 			{
 				HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);

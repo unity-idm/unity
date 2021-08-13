@@ -2,9 +2,12 @@ package pl.edu.icm.unity.oauth.rp.web;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
+
+import org.eclipse.jetty.util.StringUtil;
+import org.springframework.util.CollectionUtils;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -62,11 +65,10 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 		setClientHttpMethodForProfileAccess(oauthRPprop.getEnumValue(
 				OAuthRPProperties.CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,
 				ClientHttpMethod.class));
-		if (oauthRPprop.isSet(OAuthRPProperties.REQUIRED_SCOPES))
-		{	
-			setRequiredScopes(Arrays.asList(oauthRPprop.getValue(OAuthRPProperties.REQUIRED_SCOPES).split(" ")));
-
-		}
+		setRequiredScopes(oauthRPprop.getListOfValues(OAuthRPProperties.REQUIRED_SCOPES).stream()
+				.filter(StringUtil::isNotBlank)
+				.collect(Collectors.toList()));
+		
 		setClientId(oauthRPprop.getValue(OAuthRPProperties.CLIENT_ID));
 		setClientSecret(oauthRPprop.getValue(OAuthRPProperties.CLIENT_SECRET));
 		setOpenIdMode(oauthRPprop.getBooleanValue(OAuthRPProperties.OPENID_MODE));
@@ -93,10 +95,16 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 		raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_ID, getClientId());
 		raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_SECRET, getClientSecret());
 
-		if (getRequiredScopes() != null)
+		if (!CollectionUtils.isEmpty(requiredScopes))
 		{
-			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.REQUIRED_SCOPES,
-					String.join(" ", getRequiredScopes()));
+			for (int i = 0; i < requiredScopes.size(); i++)
+			{
+				String scope = requiredScopes.get(i);
+				if (StringUtil.isNotBlank(scope))
+				{
+					raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.REQUIRED_SCOPES + (i+1), scope.trim());
+				}
+			}
 		}
 
 		raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.OPENID_MODE, String.valueOf(openIdMode));

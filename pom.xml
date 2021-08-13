@@ -436,6 +436,11 @@
 				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
+    			<groupId>com.fasterxml.jackson.datatype</groupId>
+  				<artifactId>jackson-datatype-jsr310</artifactId>
+   				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>eu.unicore</groupId>
 				<artifactId>jproperties-conf</artifactId>
 				<version>1.1.0</version>

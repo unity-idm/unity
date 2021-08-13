@@ -5,11 +5,12 @@
 package pl.edu.icm.unity.webui.finalization;
 
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.util.Strings;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -17,10 +18,12 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.AutoClickButton;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
@@ -31,7 +34,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
  */
 public class WorkflowCompletedComponent extends CustomComponent
 {
-	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector,
+	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, BiConsumer<Page, String> redirector,
 			ImageAccessService imageAccessService)
 	{
 		Optional<Resource> logoResource = imageAccessService.getConfiguredImageResourceFromNullableUri(config.logoURL);
@@ -39,12 +42,12 @@ public class WorkflowCompletedComponent extends CustomComponent
 	}
 	
 	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Optional<Resource> logo, 
-			Consumer<String> redirector)
+			BiConsumer<Page, String> redirector)
 	{
 		createUI(config, logo, redirector);
 	}
 
-	private void createUI(WorkflowFinalizationConfiguration config, Optional<Resource> logo, Consumer<String> redirector)
+	private void createUI(WorkflowFinalizationConfiguration config, Optional<Resource> logo, BiConsumer<Page, String> redirector)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(true);
@@ -71,16 +74,23 @@ public class WorkflowCompletedComponent extends CustomComponent
 			main.addComponent(extraInfoL);
 			main.setComponentAlignment(extraInfoL, Alignment.MIDDLE_CENTER);
 		}
-		
+		Page p = Page.getCurrent();
 		if (config.redirectURL != null)
 		{
-			Button redirectB = new Button(config.redirectButtonText);
+			Button redirectB;
+			if (config.redirectAfterTime != null && config.redirectAfterTime.getSeconds() > 0)
+			{
+				redirectB = new AutoClickButton(config.redirectButtonText, UI.getCurrent(), config.redirectAfterTime.getSeconds());
+			}else
+			{
+				redirectB = new Button(config.redirectButtonText);	
+			}
 			redirectB.setStyleName(Styles.vButtonPrimary.toString());
 			redirectB.addStyleName("u-final-redirect");
-			redirectB.addClickListener(e -> redirector.accept(config.redirectURL));
+			redirectB.addClickListener(e -> redirector.accept(p, config.redirectURL));
 			redirectB.setClickShortcut(KeyCode.ENTER);
 			main.addComponent(redirectB);
-			main.setComponentAlignment(redirectB, Alignment.MIDDLE_CENTER);
+			main.setComponentAlignment(redirectB, Alignment.MIDDLE_CENTER);	
 		}
 		
 		setCompositionRoot(main);

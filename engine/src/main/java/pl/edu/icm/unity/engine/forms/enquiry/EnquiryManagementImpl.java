@@ -168,10 +168,11 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public void removeEnquiry(String formId, boolean dropRequests) throws EngineException
+	public void removeEnquiry(String formId, boolean dropRequests, boolean ignoreDependencyChecking) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		internalManagment.removeForm(formId, dropRequests, requestDB, enquiryFormDB);
+		internalManagment.preRemoveForm(formId, dropRequests, requestDB);
+		enquiryFormDB.delete(formId, ignoreDependencyChecking);
 	}
 	
 	@Transactional

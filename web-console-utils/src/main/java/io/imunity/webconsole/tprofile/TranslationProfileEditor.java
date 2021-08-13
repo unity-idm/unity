@@ -227,6 +227,11 @@ public class TranslationProfileEditor extends VerticalLayout
 			rulesLayout.addComponent(getDropElement(rules.indexOf(r)));	
 		}	
 	}
+	
+	public void refresh()
+	{
+		rules.forEach(r -> r.refresh());
+	}
 
 	private HorizontalLayout getDropElement(int pos)
 	{

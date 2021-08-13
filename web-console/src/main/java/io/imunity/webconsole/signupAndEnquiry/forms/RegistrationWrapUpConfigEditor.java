@@ -6,7 +6,10 @@ package io.imunity.webconsole.signupAndEnquiry.forms;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.function.Predicate;
+
+import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
@@ -27,6 +30,7 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 	private I18nTextField title;
 	private I18nTextField info;
 	private TextField redirectURL;
+	private IntStepper redirectAfter;
 	private CheckBox automatic;
 	private I18nTextField redirectCaption;
 	private MessageSource msg;
@@ -41,13 +45,15 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 		info.setWidth(100, Unit.PERCENTAGE);
 		redirectURL = new TextField(msg.getMessage("RegistrationFormEditor.wrapupRedirect"));
 		redirectURL.setWidth(100, Unit.PERCENTAGE);
+		redirectAfter = new IntStepper(msg.getMessage("RegistrationFormEditor.wrapupRedirectAfter"));
+		redirectAfter.setWidth(3, Unit.EM);
 		redirectCaption = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.wrapupRedirectCaption"));
 		automatic = new CheckBox(msg.getMessage("RegistrationFormEditor.automaticRedirect"));
 		trigger = new EnumComboBox<RegistrationWrapUpConfig.TriggeringState>(
 				msg.getMessage("RegistrationFormEditor.wrapupWhen"), msg, null, 
 				TriggeringState.class, TriggeringState.DEFAULT, filter);
 		automatic.addValueChangeListener(e -> setState());
-		layout.addComponents(trigger, title, info, redirectURL, automatic, redirectCaption);
+		layout.addComponents(trigger, title, info, redirectURL, automatic, redirectCaption, redirectAfter);
 		setCompositionRoot(layout);
 	}
 	
@@ -63,6 +69,8 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 			redirectCaption.setValue(toEdit.getRedirectCaption());
 		if (toEdit.getRedirectURL() != null)
 			redirectURL.setValue(toEdit.getRedirectURL());
+		if (toEdit.getRedirectAfterTime() != null)
+			redirectAfter.setValue(new Long(toEdit.getRedirectAfterTime().getSeconds()).intValue());
 		trigger.setValue(toEdit.getState());
 		automatic.setValue(toEdit.isAutomatic());
 		setState();
@@ -71,6 +79,7 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 	private void setState()
 	{
 		redirectCaption.setEnabled(!automatic.getValue());
+		redirectAfter.setEnabled(!automatic.getValue());
 		title.setEnabled(!automatic.getValue());
 		info.setEnabled(!automatic.getValue());
 	}
@@ -84,9 +93,15 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 		{
 			throw new FormValidationException(msg.getMessage("RegistrationFormEditor.invalidRedirectURL", trigger.getValue().name()));
 		}
+		
+		if (redirectAfter.getValue() < 0)
+		{
+			throw new FormValidationException(msg.getMessage("RegistrationFormEditor.invalidRedirectAfter", trigger.getValue().name()));
+		}
+		
 
 		return new RegistrationWrapUpConfig(trigger.getValue(), title.getValue(), info.getValue(), 
 				redirectCaption.getValue(), 
-				automatic.getValue(), redirectURL.getValue());
+				automatic.getValue(), redirectURL.getValue(), Duration.ofSeconds(redirectAfter.getValue()));
 	}
 }

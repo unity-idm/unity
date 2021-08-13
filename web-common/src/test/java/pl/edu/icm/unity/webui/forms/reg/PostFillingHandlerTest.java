@@ -58,7 +58,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 		shouldHandleConfiguredSubmitted(RegistrationRequestStatus.accepted, 
 				new RegistrationWrapUpConfig(TriggeringState.AUTO_ACCEPTED, 
 						new I18nString("title"), new I18nString("info"), 
-						new I18nString("redirect"), false, "url"));
+						new I18nString("redirect"), false, "url", null));
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 		shouldHandleConfiguredSubmitted(RegistrationRequestStatus.accepted, 
 				new RegistrationWrapUpConfig(TriggeringState.AUTO_ACCEPTED, 
 						new I18nString("title"), null, 
-						new I18nString("redirect"), false, "url"));
+						new I18nString("redirect"), false, "url", null));
 	}
 	
 	@Test
@@ -75,7 +75,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		shouldHandleConfiguredOnError(new RegistrationWrapUpConfig(TriggeringState.GENERAL_ERROR, 
 						null, null, 
-						null, true, "url"));
+						null, true, "url", null));
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		shouldHandleConfiguredOnError(new RegistrationWrapUpConfig(TriggeringState.PRESET_USER_EXISTS, 
 						new I18nString("title"), new I18nString("info"), 
-						null, false, "url"));
+						null, false, "url", null));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		shouldHandleConfiguredOnError(new RegistrationWrapUpConfig(TriggeringState.PRESET_USER_EXISTS, 
 						new I18nString("title"), new I18nString("info"), 
-						null, false, null));
+						null, false, null, null));
 	}
 
 

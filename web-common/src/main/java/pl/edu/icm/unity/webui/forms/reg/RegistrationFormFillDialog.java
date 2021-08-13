@@ -85,15 +85,15 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		setContent(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController), imageAccessService);
+			(p, url) -> redirect(p, url, idpLoginController), imageAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
 	
-	private static void redirect(String redirectUrl, IdPLoginController loginController)
+	private static void redirect(Page page, String redirectUrl, IdPLoginController loginController)
 	{
 		loginController.breakLogin();
-		Page.getCurrent().open(redirectUrl, null);
+		page.open(redirectUrl, null);
 	}
 	
 	@Override
