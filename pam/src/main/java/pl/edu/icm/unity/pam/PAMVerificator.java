@@ -116,7 +116,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 			RemoteAuthenticationResult result = getResult(input, translationProfile, 
 					triggeringContext.isSandboxTriggered(), 
 					formForUnknown, enableAssociation);
-			return repackIfError(result, GENERIC_ERROR);
+			return addGenericMessageIfError(result, GENERIC_ERROR);
 		} catch (Exception e)
 		{
 			if (e instanceof AuthenticationException)

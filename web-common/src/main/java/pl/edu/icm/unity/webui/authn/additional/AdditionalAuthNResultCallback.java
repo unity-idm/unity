@@ -79,6 +79,6 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false);
+		return AuthenticationTriggeringContext.authenticationTriggeredFirstFactor();
 	}
 }

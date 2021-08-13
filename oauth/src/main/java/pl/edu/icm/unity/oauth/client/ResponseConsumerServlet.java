@@ -16,8 +16,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 /**
@@ -59,7 +59,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		try
 		{
 			context = contextManagement.getAuthnContext(state);
-		} catch (WrongArgumentException e)
+		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Got a request to the OAuth response consumer endpoint " +
 					"with invalid state parameter");

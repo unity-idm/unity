@@ -477,23 +477,37 @@ public class EngineInitialization extends LifecycleBase
 
 	private void deployPublicWellKnownURLServlet()
 	{
-		deploySharedEndpointServlet(publicWellKnownURLServlet, PublicWellKnownURLServletProvider.SERVLET_PATH,
+		deploySharedEndpointServletWithVaadinSupport(publicWellKnownURLServlet, 
+				PublicWellKnownURLServletProvider.SERVLET_PATH,
 				"public well-known URL");
 	}
 
 	private void deployConfirmationServlet()
 	{
-		deploySharedEndpointServlet(confirmationServletFactory, EmailConfirmationServletProvider.SERVLET_PATH,
+		deploySharedEndpointServletWithVaadinSupport(confirmationServletFactory, 
+				EmailConfirmationServletProvider.SERVLET_PATH,
 				"confirmation");
 	}
 	
 	private void deployAttributeContentPublicServlet()
 	{
-		deploySharedEndpointServlet(attributesContentServletFactory, AttributesContentPublicServletProvider.SERVLET_PATH,
+		deploySharedEndpointServletWithoutVaadinSupport(attributesContentServletFactory, 
+				AttributesContentPublicServletProvider.SERVLET_PATH,
 				"public attribute exposure");
 	}
 
-	private void deploySharedEndpointServlet(ServletProvider servletProvider, String path, String name)
+	private void deploySharedEndpointServletWithVaadinSupport(ServletProvider servletProvider, String path, String name)
+	{
+		deploySharedEndpointServlet(servletProvider, path, name, true);
+	}
+
+	private void deploySharedEndpointServletWithoutVaadinSupport(ServletProvider servletProvider, String path, String name)
+	{
+		deploySharedEndpointServlet(servletProvider, path, name, false);
+	}
+	
+	private void deploySharedEndpointServlet(ServletProvider servletProvider, String path, String name, 
+			boolean mapVaadinResource)
 	{
 		if (servletProvider == null)
 		{
@@ -506,7 +520,7 @@ public class EngineInitialization extends LifecycleBase
 		List<FilterHolder> filterHolders = servletProvider.getServiceFilters();
 		try
 		{
-			sharedEndpointManagement.deployInternalEndpointServlet(path, holder, true);
+			sharedEndpointManagement.deployInternalEndpointServlet(path, holder, mapVaadinResource);
 			for (FilterHolder filter: filterHolders)
 				sharedEndpointManagement.deployInternalEndpointFilter(path, filter);
 		} catch (EngineException e)

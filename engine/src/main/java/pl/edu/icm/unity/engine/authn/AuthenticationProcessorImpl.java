@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
-import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -40,16 +37,16 @@ import pl.edu.icm.unity.types.basic.EntityParam;
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticationProcessorImpl implements AuthenticationProcessor
+class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationProcessorImpl.class);
 	
 	private final SecondFactorOptInService secondFactorOptInService;
-	private LocalCredentialsRegistry localCred;
-	private CredentialRepository credRepo;
+	private final LocalCredentialsRegistry localCred;
+	private final CredentialRepository credRepo;
 	
 	@Autowired
-	public AuthenticationProcessorImpl(
+	AuthenticationProcessorImpl(
 			SecondFactorOptInService secondFactorOptInService,
 			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
 	{
@@ -219,22 +216,5 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		if (firstAuthenticated.getOutdatedCredentialId() != null)
 			logInfo.setOutdatedCredentialId(firstAuthenticated.getOutdatedCredentialId());
 		return logInfo;
-	}
-	
-	/**
-	 * Extracts and returns all remote {@link SessionParticipant}s from the {@link AuthenticationResult}s.
-	 */
-	
-	public static List<SessionParticipant> extractParticipants(AuthenticationResult... results) 
-			throws AuthenticationException
-	{
-		List<SessionParticipant> ret = new ArrayList<>();
-		for (AuthenticationResult result: results)
-		{
-			if (result.isRemote() && result.asRemote().getRemotelyAuthenticatedPrincipal() != null && 
-					result.asRemote().getRemotelyAuthenticatedPrincipal().getSessionParticipants() != null)
-				ret.addAll(result.asRemote().getRemotelyAuthenticatedPrincipal().getSessionParticipants());
-		}
-		return ret;
 	}
 }

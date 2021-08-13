@@ -44,17 +44,17 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 @Component
-public class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
+class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResultTranslatorImpl.class);
-	private InputTranslationProfileRepository inputProfileRepo;
-	private IdentityResolver identityResolver;
-	private InputTranslationEngine trEngine;
-	private InputTranslationActionsRegistry actionsRegistry;
+	private final InputTranslationProfileRepository inputProfileRepo;
+	private final IdentityResolver identityResolver;
+	private final InputTranslationEngine trEngine;
+	private final InputTranslationActionsRegistry actionsRegistry;
 	
 	
 	@Autowired
-	public RemoteAuthnResultTranslatorImpl(IdentityResolver identityResolver,	
+	RemoteAuthnResultTranslatorImpl(IdentityResolver identityResolver,	
 			InputTranslationProfileRepository profileRepo,
 			InputTranslationEngine trEngine,
 			InputTranslationActionsRegistry actionsRegistry)
@@ -169,6 +169,7 @@ public class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTransla
 	 * the {@link RemotelyAuthenticatedPrincipal} from the processed input containing the information about what 
 	 * from the remote data is or can be meaningful in the local DB.
 	 */
+	@Override
 	public final RemotelyAuthenticatedPrincipal translateRemoteInput(RemotelyAuthenticatedInput input, 
 			TranslationProfile translationProfile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException
 	{

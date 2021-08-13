@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
  */
 public class RemoteAuthenticationResult implements AuthenticationResult
 {
-	private Status status;	
+	private final Status status;	
 	private final RemoteSuccessResult successResult;
 	private final NotApplicableResult notApplicableResult;
 	private final UnknownRemotePrincipalResult unknownRemotePrincipalResult;

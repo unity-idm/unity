@@ -27,7 +27,7 @@ public class ECPAuthnState extends RemoteAuthnState
 			String ultimateReturnURL) 
 	{
 		super(authenticationContext, responseHandler, initialLoginMachine, ultimateReturnURL, 
-				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
+				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 	}
 
 	public void setRequestId(String requestId)

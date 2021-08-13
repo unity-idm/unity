@@ -59,7 +59,7 @@ public abstract class TLSRetrievalBase extends AbstractCredentialRetrieval<Certi
 		try
 		{
 			return credentialExchange.checkCertificate(certificates, null, false,
-					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 		} catch (Exception e)
 		{
 			return LocalAuthenticationResult.failed(e);

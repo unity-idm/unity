@@ -36,9 +36,15 @@ public class AuthenticationTriggeringContext
 		return new AuthenticationTriggeringContext(false, null, form, invitationCode, null);
 	}
 	
+
 	public static AuthenticationTriggeringContext authenticationTriggeredFirstFactor(boolean rememberMeSet)
 	{
 		return new AuthenticationTriggeringContext(rememberMeSet, null, null, null, null);
+	}
+
+	public static AuthenticationTriggeringContext authenticationTriggeredFirstFactor()
+	{
+		return new AuthenticationTriggeringContext(false, null, null, null, null);
 	}
 	
 	public static AuthenticationTriggeringContext authenticationTriggeredSecondFactor(boolean rememberMeSet, 

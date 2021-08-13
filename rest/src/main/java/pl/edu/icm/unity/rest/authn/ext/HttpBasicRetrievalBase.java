@@ -76,7 +76,7 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		{
 			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd(),
 					null, false, 
-					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 		} catch (Exception e)
 		{
 			log.trace("HTTP BASIC credential is invalid");

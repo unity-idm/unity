@@ -18,8 +18,8 @@ import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlHttpResponseServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
@@ -58,7 +58,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 		try
 		{
 			context = contextManagement.getAuthnContext(relayState);
-		} catch (WrongArgumentException e)
+		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Got a request to the SAML response consumer endpoint, " +
 					"with invalid relay state.");

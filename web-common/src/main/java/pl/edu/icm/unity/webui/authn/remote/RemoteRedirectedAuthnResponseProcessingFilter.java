@@ -20,11 +20,11 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 /**
  * Common filter to be installed on endpoints which can receive response of remote authentication.
@@ -65,7 +65,7 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 			authnContext = remoteAuthnContextStore.getAuthnContext(requestId);
 			log.debug("Got remote context associated with id {}", requestId);
 			remoteAuthnContextStore.removeAuthnContext(requestId);
-		} catch (WrongArgumentException e)
+		} catch (UnboundRelayStateException e)
 		{
 			log.debug("Request with invalid remote authn context {}, ignoring it", requestId);
 			chain.doFilter(request, response);

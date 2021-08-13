@@ -61,10 +61,11 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		}
 	}
 	
-	protected AuthenticationResult repackIfError(RemoteAuthenticationResult result, ResolvableError genericError)
+	protected AuthenticationResult addGenericMessageIfError(RemoteAuthenticationResult result, 
+			ResolvableError errorMessage)
 	{
 		if (result.getStatus() == Status.deny && result.asRemote().getErrorResult().error == null)
-			return RemoteAuthenticationResult.failed(result.asRemote().getErrorResult().remotePrincipal, genericError);
+			return RemoteAuthenticationResult.failed(result.asRemote().getErrorResult().remotePrincipal, errorMessage);
 		return result;
 	}
 }

@@ -68,7 +68,7 @@ public class LdapPasswordVerificator extends LdapBaseVerificator implements Pass
 			RemoteAuthenticationResult result = getResult(input, translationProfile, 
 					triggeringContext.isSandboxTriggered(), 
 					formForUnknown, enableAssociation);
-			return repackIfError(result, new ResolvableError("WebPasswordRetrieval.wrongPassword"));
+			return addGenericMessageIfError(result, new ResolvableError("WebPasswordRetrieval.wrongPassword"));
 		} catch (Exception e)
 		{
 			log.debug("LDAP authentication with password failed", e);

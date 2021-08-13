@@ -23,9 +23,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * Supports features like remember me etc.
  */
 public interface InteractiveAuthenticationProcessor
-{
-	static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
-	
+{	
 	PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result, AuthenticationStepContext stepContext,
 			LoginMachineDetails machineDetails, boolean setRememberMe,
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse);
@@ -59,11 +57,6 @@ public interface InteractiveAuthenticationProcessor
 			AuthenticationRealm realm,
 			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse);
-	
-	static String getSessionCookieName(String realmName)
-	{
-		return UNITY_SESSION_COOKIE_PFX+realmName;
-	}
 	
 	public class PostAuthenticationStepDecision
 	{

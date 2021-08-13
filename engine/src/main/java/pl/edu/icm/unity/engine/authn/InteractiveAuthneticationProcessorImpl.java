@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.SessionCookie;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
@@ -48,7 +49,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.session.SessionParticipants;
-import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -331,7 +331,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 					ls.getLogin2ndFactorOptionId());
 		}
 
-		addSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), httpResponse);
+		addSessionCookie(realm.getName(), ls.getId(), httpResponse);
 		
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
@@ -370,15 +370,9 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		return null;
 	}
 	
-	private static String getSessionCookieName(String realmName)
+	private void addSessionCookie(String realmName, String sessionId, HttpServletResponse servletResponse)
 	{
-		return UNITY_SESSION_COOKIE_PFX+realmName;
-	}
-	
-	private void addSessionCookie(String cookieName, String sessionId,
-			HttpServletResponse servletResponse)
-	{
-		servletResponse.addCookie(CookieHelper.setupHttpCookie(cookieName, sessionId, -1));
+		servletResponse.addCookie(new SessionCookie(realmName, sessionId).toHttpCookie());
 	}
 	
 	private static void reinitializeSession(HttpServletRequest request) 

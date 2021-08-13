@@ -34,7 +34,6 @@ import com.vaadin.util.CurrentInstance;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounterImpl;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -100,7 +99,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		{
 			AuthenticationRealm realm = description.getRealm();
 			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
-					new UnsuccessfulAuthenticationCounterImpl(realm.getBlockAfterUnsuccessfulLogins(),
+					new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(),
 							realm.getBlockFor()*1000));
 		}
 		

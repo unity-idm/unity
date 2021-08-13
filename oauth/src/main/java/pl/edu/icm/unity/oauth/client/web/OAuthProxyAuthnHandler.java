@@ -93,7 +93,7 @@ class OAuthProxyAuthnHandler
 					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)),
 					loginMachineDetails,
 					currentRelativeURI,
-					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 		} catch (Exception e)

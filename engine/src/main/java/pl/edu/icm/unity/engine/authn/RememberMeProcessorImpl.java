@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -35,6 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement.TokenNotFoundException;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -70,20 +73,20 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	@Override
 	public Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
-			UnsuccessfulAuthenticationCounter dosGauard)
+			UnsuccessfulAuthenticationCounter dosGuard)
 	{
 
-		return processRememberedFactor(httpRequest, response, clientIp, realm, dosGauard,
+		return processRememberedFactor(httpRequest, response, clientIp, realm, dosGuard,
 				RememberMePolicy.allowForWholeAuthn);
 	}
 
 	@Override
 	public Optional<LoginSession> processRememberedSecondFactor(HttpServletRequest httpRequest,
 			ServletResponse response, long entityId, String clientIp,
-			AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGauard)
+			AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGuard)
 	{
 		Optional<LoginSession> loginSession = processRememberedFactor(httpRequest, response,
-				clientIp, realm, dosGauard, RememberMePolicy.allowFor2ndFactor);
+				clientIp, realm, dosGuard, RememberMePolicy.allowFor2ndFactor);
 
 		if (loginSession.isPresent())
 		{
@@ -93,7 +96,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 						+ entityId + " is owned by entity "
 						+ loginSession.get().getEntityId()
 						+ ", may signal malicious action");
-				dosGauard.unsuccessfulAttempt(clientIp);
+				dosGuard.unsuccessfulAttempt(clientIp);
 				return Optional.empty();
 
 			}
@@ -104,7 +107,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	
 	private Optional<LoginSession> processRememberedFactor(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
-			UnsuccessfulAuthenticationCounter dosGauard, RememberMePolicy policy)
+			UnsuccessfulAuthenticationCounter dosGuard, RememberMePolicy policy)
 	{
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		Optional<LoginSession> loginSessionFromRememberMe = Optional.empty();
@@ -122,10 +125,14 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 							rememberMeCookie.get(), realm,
 							policy.equals(RememberMePolicy.allowForWholeAuthn));
 				}
+			} catch (CookieParseException e)
+			{
+				log.warn("Remember me cookie can not be parsed", e);
+				dosGuard.unsuccessfulAttempt(clientIp);
 			} catch (AuthenticationException e)
 			{
 				log.warn("Remember me cookie is invalid", e);
-				dosGauard.unsuccessfulAttempt(clientIp);
+				dosGuard.unsuccessfulAttempt(clientIp);
 			}
 
 		} else
@@ -176,8 +183,8 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 			return;
 		}
 
-		Date expiration = new Date(System.currentTimeMillis()
-				+ (getAbsoluteRememberMeCookieTTL(realm) * 1000));
+		Duration absoluteRememberMeCookieTTL = getAbsoluteRememberMeCookieTTL(realm);
+		Date expiration = getExpirationDateAfter(absoluteRememberMeCookieTTL);
 
 		try
 		{
@@ -190,14 +197,19 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 			return;
 		}
 		
-		String rememberMeCookieValue = rememberMeSeriesToken.toString() + "|"
-				+ rememberMeToken.toString();
-		Cookie unityRememberMeCookie = getRememberMeRawCookie(realm.getName(), rememberMeCookieValue,
-				getAbsoluteRememberMeCookieTTL(realm));		
+		String rememberMeCookieValue = new RememberMeCookie(rememberMeSeriesToken.toString(), 
+				rememberMeToken.toString()).toHttpCookieValue();
+		Cookie unityRememberMeCookie = buildRememberMeHttpCookie(realm.getName(), rememberMeCookieValue,
+				absoluteRememberMeCookieTTL);		
 		log.info("Adding remember me cookie and token for {}", entityId);
 		response.addCookie(unityRememberMeCookie);
 	}
 
+	private Date getExpirationDateAfter(Duration durationFromNow)
+	{
+		return new Date(System.currentTimeMillis() + durationFromNow.toMillis());
+	}
+	
 	@Override
 	public void removeRememberMeWithWholeAuthn(String realmName,
 			HttpServletRequest request, HttpServletResponse httpResponse)
@@ -207,7 +219,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 		try
 		{
 			unityRememberMeCookie = getRememberMeUnityCookie(request, realmName);
-		} catch (AuthenticationException e)
+		} catch (CookieParseException e)
 		{
 			log.warn("Can not remove remember me token, the cookie content is incorrect", e);
 			removeRememberMeCookie(realmName, httpResponse);
@@ -236,10 +248,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	
 	private void removeRememberMeCookie(String realmName, HttpServletResponse httpResponse)
 	{
-		
-		Cookie rememberMeCookie = getRememberMeRawCookie(realmName, "", 0);
-		log.debug("Remove unity remember me cookie");
-		httpResponse.addCookie(rememberMeCookie);
+		httpResponse.addCookie(buildRememberMeHttpCookieCleaner(realmName));
 	}
 	
 	private void removeRememberMeUnityToken(String rememberMeSeriesToken)
@@ -250,52 +259,28 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 			log.debug("Remove remember me unity token " + rememberMeSeriesToken);
 		} catch (Exception e)
 		{
-			// ok maybe token is not set or expired
-			log.warn("Can not remove remember me token + " + rememberMeSeriesToken
-					+ ". The token was removed or expired");
+			log.info("Can not remove remember me token {}. The token was removed or expired", 
+					rememberMeSeriesToken, e);
 		}
 	}
 
-	private Optional<String> getRawRememberMeCookie(HttpServletRequest httpRequest,
-			String realmName)
+	private Optional<String> getHttpRememberMeCookieValue(HttpServletRequest httpRequest, String realmName)
 	{
-		String cookie = CookieHelper.getCookie(httpRequest,
-				getRememberMeCookieName(realmName));
-		if (cookie == null || cookie.isEmpty())
-			return Optional.empty();
-
-		return Optional.ofNullable(cookie);
+		String cookie = CookieHelper.getCookie(httpRequest, getRememberMeCookieName(realmName));
+		return cookie == null || cookie.isEmpty() ? Optional.empty() : Optional.ofNullable(cookie);
 	}
 
-	private Optional<RememberMeCookie> getRememberMeUnityCookie(HttpServletRequest httpRequest,
-			String realmName) throws AuthenticationException
+	private Optional<RememberMeCookie> getRememberMeUnityCookie(HttpServletRequest httpRequest, String realmName) 
 	{
-		RememberMeCookie rememberMeCookie = null;
-		Optional<String> rawRememberMeCookie = getRawRememberMeCookie(httpRequest,
-				realmName);
-		if (rawRememberMeCookie.isPresent())
-		{
-			String[] cookieSplit = rawRememberMeCookie.get().split("\\|");
-			if (cookieSplit.length == 2)
-			{
-				rememberMeCookie = new RememberMeCookie(cookieSplit[0],
-						cookieSplit[1]);
-			} else
-			{
-				throw new AuthenticationException(
-						"Remember me cookie does not contain two remember me tokens, may signal malicious action");
-			}
-		}
-		return Optional.ofNullable(rememberMeCookie);
-
+		Optional<String> httpRememberMeCookieValue = getHttpRememberMeCookieValue(httpRequest, realmName);
+		return httpRememberMeCookieValue.map(RememberMeCookie::parseHttpCookieValue);
 	}
 
 	private Optional<RememberMeToken> getAndCheckRememberMeUnityToken(
 			RememberMeCookie rememberMeCookie, AuthenticationRealm realm)
 			throws AuthenticationException
 	{
-		Optional<RememberMeToken> unityRememberMeToken = getRememberMeUnityToken(
-				rememberMeCookie);
+		Optional<RememberMeToken> unityRememberMeToken = getRememberMeUnityToken(rememberMeCookie);
 
 		if (!unityRememberMeToken.isPresent())
 			return Optional.empty();
@@ -362,13 +347,11 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	
 	private Optional<RememberMeToken> getRememberMeUnityToken(RememberMeCookie rememberMeCookie)
 	{
-
 		Token tokenById = null;
 		try
 		{
-			tokenById = tokenMan.getTokenById(REMEMBER_ME_TOKEN_TYPE,
-					rememberMeCookie.rememberMeSeriesToken);
-		} catch (IllegalArgumentException e)
+			tokenById = tokenMan.getTokenById(REMEMBER_ME_TOKEN_TYPE, rememberMeCookie.rememberMeSeriesToken);
+		} catch (TokenNotFoundException e)
 		{
 			log.debug("Can not get rememberMeToken, token was removed or expired");
 		}
@@ -377,8 +360,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 
 			try
 			{
-				return Optional.ofNullable(RememberMeToken
-						.getInstanceFromJson(tokenById.getContents()));
+				return Optional.ofNullable(RememberMeToken.getInstanceFromJson(tokenById.getContents()));
 			} catch (IllegalArgumentException e)
 			{
 				log.warn("Can not parse rememberMe token", e);
@@ -387,14 +369,20 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 		return Optional.empty();
 	}
 
-	private Cookie getRememberMeRawCookie(String realmName, String value, int maxAge)
+	private Cookie buildRememberMeHttpCookie(String realmName, String value, Duration maxAge)
 	{
-		return CookieHelper.setupHttpCookie(getRememberMeCookieName(realmName), value,
-				maxAge);
+		return CookieHelper.setupHttpCookie(getRememberMeCookieName(realmName), value, 
+				(int)maxAge.get(ChronoUnit.SECONDS));
 	}
 
+	private Cookie buildRememberMeHttpCookieCleaner(String realmName)
+	{
+		return CookieHelper.setupHttpCookie(getRememberMeCookieName(realmName), "", 0);
+	}
+	
 	private RememberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
-			byte[] rememberMeTokenHash, Date loginTime, LoginMachineDetails machineDetails, AuthenticationOptionKey firstFactorOptionId,
+			byte[] rememberMeTokenHash, Date loginTime, LoginMachineDetails machineDetails, 
+			AuthenticationOptionKey firstFactorOptionId,
 			AuthenticationOptionKey secondFactorOptionId)
 	{
 		return new RememberMeToken(entityId, machineDetails, loginTime, firstFactorOptionId,
@@ -417,26 +405,23 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 		return REMEMBER_ME_COOKIE_PFX + realmName;
 	}
 
-	private static int getAbsoluteRememberMeCookieTTL(AuthenticationRealm realm)
+	private static Duration getAbsoluteRememberMeCookieTTL(AuthenticationRealm realm)
 	{
-		return 3600 * 24 * realm.getAllowForRememberMeDays();
+		return Duration.ofDays(realm.getAllowForRememberMeDays());
 	}
 
 	private void updateRememberMeCookieAndUnityToken(RememberMeCookie rememberMeCookie,
 			AuthenticationRealm realm, HttpServletResponse httpResponse)
 	{
 		log.debug("Update remember me cookie and token");
-		Optional<RememberMeToken> unityRememberMeToken = getRememberMeUnityToken(
-				rememberMeCookie);
-
-		Cookie unityRememberMeCookie = getRememberMeRawCookie(realm.getName(), "", 0);
+		Optional<RememberMeToken> unityRememberMeToken = getRememberMeUnityToken(rememberMeCookie);
 
 		if (unityRememberMeToken.isPresent())
 		{
 			String newToken = UUID.randomUUID().toString();
 			unityRememberMeToken.get().setRememberMeTokenHash(hash(newToken));
-			Date expiration = new Date(System.currentTimeMillis()
-					+ (getAbsoluteRememberMeCookieTTL(realm) * 1000));
+			Duration absoluteRememberMeCookieTTL = getAbsoluteRememberMeCookieTTL(realm);
+			Date expiration = getExpirationDateAfter(absoluteRememberMeCookieTTL);
 			byte[] serializedToken = null;
 			try
 			{
@@ -448,29 +433,49 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 			}
 
 			tokenMan.updateToken(REMEMBER_ME_TOKEN_TYPE,
-					rememberMeCookie.rememberMeSeriesToken, expiration,
-					serializedToken);
+					rememberMeCookie.rememberMeSeriesToken, expiration, serializedToken);
 
-			unityRememberMeCookie.setValue(
-					rememberMeCookie.rememberMeSeriesToken + "|" + newToken);
-			unityRememberMeCookie.setMaxAge(getAbsoluteRememberMeCookieTTL(realm));
+			String updatedValue = new RememberMeCookie(rememberMeCookie.rememberMeSeriesToken, newToken)
+						.toHttpCookieValue();
+			httpResponse.addCookie(buildRememberMeHttpCookie(realm.getName(), 
+					updatedValue, absoluteRememberMeCookieTTL));
+		} else
+		{
+			removeRememberMeCookie(realm.getName(), httpResponse);
 		}
-
-		httpResponse.addCookie(unityRememberMeCookie);
 	}
 
-	public static class RememberMeCookie
+	private static class RememberMeCookie
 	{
-		public final String rememberMeSeriesToken;
+		private final String rememberMeSeriesToken;
+		private final String rememberMeToken;
 
-		public final String rememberMeToken;
-
-		public RememberMeCookie(String rememberMeSeriesToken, String rememberMeToken)
+		private RememberMeCookie(String rememberMeSeriesToken, String rememberMeToken)
 		{
 
 			this.rememberMeSeriesToken = rememberMeSeriesToken;
 			this.rememberMeToken = rememberMeToken;
 		}
-
+		
+		static RememberMeCookie parseHttpCookieValue(String httpCookieValue)
+		{
+			String[] cookieSplit = httpCookieValue.split("\\|");
+			if (cookieSplit.length == 2)
+			{
+				return new RememberMeCookie(cookieSplit[0], cookieSplit[1]);
+			} else
+			{
+				throw new CookieParseException();
+			}
+		}
+		
+		String toHttpCookieValue()
+		{
+			return rememberMeSeriesToken + "|" + rememberMeToken;
+		}
+	}
+	
+	private static class CookieParseException extends RuntimeException
+	{
 	}
 }

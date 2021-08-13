@@ -100,7 +100,7 @@ class SAMLProxyAuthnHandler
 			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext, 
 					loginMachineDetails,
 					currentRelativeURI,
-					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(false));
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)

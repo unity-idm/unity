@@ -9,7 +9,7 @@ package pl.edu.icm.unity.engine.api.authn;
  */
 public class LocalAuthenticationResult implements AuthenticationResult
 {
-	private Status status;	
+	private final Status status;	
 	private final SuccessResult successResult;
 	private final NotApplicableResult notApplicableResult;
 	private final ErrorResult errorResult;

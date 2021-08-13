@@ -115,7 +115,7 @@ public class TokensManagementImpl implements TokensManagement
 	{
 		Token token = dbTokens.get(type, value);
 		if (token.isExpired())
-			throw new IllegalArgumentException("There is no such token");
+			throw new TokenNotFoundException();
 		return token;
 	}
 	

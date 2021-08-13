@@ -179,6 +179,9 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 					TriggeringMode.afterRemoteLoginFromRegistrationForm, false,
 					postAuthnStepDecisionWithContext.triggeringContext.invitationCode);
 			return;
+		default:
+			throw new IllegalStateException("Unsupported post-authn decission for registration view: " 
+					+ postAuthnStepDecision.getDecision());
 		}
 	}
 	
