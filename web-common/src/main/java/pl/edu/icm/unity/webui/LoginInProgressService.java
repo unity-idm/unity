@@ -295,9 +295,11 @@ public class LoginInProgressService<AUTHZ_CTX>
 		@Override
 		public SignInContextKey get()
 		{
-			String queryString = UI.getCurrent().getPage().getLocation().getQuery();
-			
 			SignInContextKey key = SignInContextKey.DEFAULT;
+			
+			String queryString = UI.getCurrent() != null
+					? UI.getCurrent().getPage().getLocation().getQuery()
+					: null;
 			
 			if (!StringUtils.isEmpty(queryString))
 			{
