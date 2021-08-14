@@ -96,7 +96,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			SecondFactorOptInService secondFactorOptInService)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper, entityCredentialsHelper,
-				facilitiesManagement, invitationDB, policyAgreementManagement, secondFactorOptInService);
+				facilitiesManagement, invitationDB, policyAgreementManagement, secondFactorOptInService, enquiryResponseDB);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;

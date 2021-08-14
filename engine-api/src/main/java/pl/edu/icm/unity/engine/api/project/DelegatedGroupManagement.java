@@ -41,6 +41,16 @@ public interface DelegatedGroupManagement
 	void removeGroup(String projectPath, String path) throws EngineException;
 	
 	/**
+	 * Removes subproject
+	 * 
+	 * @param projectPath project group path
+	 * @param subProjectPath removed subproject group path
+	 * @throws EngineException
+	 */
+	void removeProject(String projectPath, String subProjectPath) throws EngineException;
+
+	
+	/**
 	 * Allows to retrieve group's contents and metadata. 
 	 * 
 	 * @param path group to be queried.
@@ -172,4 +182,5 @@ public interface DelegatedGroupManagement
 	List<DelegatedGroupMember> getDelegatedGroupMemebers(String projectPath, String groupPath)
 			throws EngineException;
 
+	
 }

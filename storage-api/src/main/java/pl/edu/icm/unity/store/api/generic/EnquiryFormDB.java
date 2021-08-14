@@ -13,5 +13,5 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
  */
 public interface EnquiryFormDB extends NamedCRUDDAOWithTS<EnquiryForm>
 {
-	void delete(String id, boolean ignoreDependencyChecking);
+	void deleteWithoutDependencyChecking(String id);
 }

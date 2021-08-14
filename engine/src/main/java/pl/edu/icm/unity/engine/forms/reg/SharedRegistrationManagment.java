@@ -105,7 +105,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper, facilitiesManagement, invitationDB, policyAgreementManagement,
-				secondFactorOptInService);
+				secondFactorOptInService, requestDB);
 		this.requestDB = requestDB;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;

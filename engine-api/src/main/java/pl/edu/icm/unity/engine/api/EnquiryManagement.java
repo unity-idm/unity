@@ -42,11 +42,9 @@ public interface EnquiryManagement
  	 * @param formId
 	 * @param dropRequests if true then all requests of this form are deleted. If false, the operation
 	 * will throw exception if there are any requests for the form.
-	 * @param ignoreDependencyChecking If false, the operation
-	 * will throw exception if there are any usage dependency for the form.
 	 * @throws EngineException
 	 */
-	void removeEnquiry(String formId, boolean dropRequests, boolean ignoreDependencyChecking) throws EngineException;
+	void removeEnquiry(String formId, boolean dropRequests) throws EngineException;
 	
 	/**
 	 * Updates an existing enquiry form. Will be applicable only to those users who has not yet filled the 
@@ -149,5 +147,12 @@ public interface EnquiryManagement
 	 * @throws EngineException 
 	 */
 	void removePendingStickyRequest(String form, EntityParam entity) throws EngineException;
+
+	/**
+	 * Remove an existing enquiry form with no dependency checking
+	 * @param formId
+	 * @throws EngineException
+	 */
+	void removeEnquiryWithoutDependencyChecking(String formId) throws EngineException;
 
 }
