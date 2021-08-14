@@ -77,7 +77,7 @@ public class RegistrationFormsController
 	{
 		try
 		{
-			regMan.removeForm(toRemove.getName(), dropRequests, false);
+			regMan.removeForm(toRemove.getName(), dropRequests);
 		} catch (Exception e)
 		{
 			throw new ControllerException(

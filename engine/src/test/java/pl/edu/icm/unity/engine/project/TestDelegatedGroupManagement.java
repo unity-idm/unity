@@ -27,8 +27,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
@@ -38,13 +41,18 @@ import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroup
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupNameException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.OneManagerRemainsException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RemovalOfProjectGroupException;
+import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RemovalOfSubProjectGroupException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RenameProjectGroupException;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -67,13 +75,27 @@ import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 @RunWith(MockitoJUnitRunner.class)
 public class TestDelegatedGroupManagement extends TestProjectBase
 {
-	private DelegatedGroupManagementImpl dGroupMan;
+	private DelegatedGroupManagementImpl dGroupManNoAuthz;
+	private DelegatedGroupManagementImpl dGroupManWithMockAuthz;
+	@Mock
+	private GroupDAO mockGroupDao;
 
+	@Mock
+	private AttributeDAO mockAttrDao;
+	
 	@Before
-	public void initDelegatedGroupMan()
+	public void initDelegatedGroupMan() 
 	{
-		dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService, mockAttrTypeMan,
-				mockIdMan, mockAttrHelper, mockRegistrationMan, mockEnquiryMan, mockConfigGenerator, new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz);
+
+		ProjectAuthorizationManager mockAuthz2 = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+		dGroupManWithMockAuthz = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService,
+				mockAttrTypeMan, mockIdMan, mockAttrHelper, mockRegistrationMan, mockEnquiryMan, mockConfigGenerator,
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz2);
+
+		dGroupManNoAuthz = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService,
+				mockAttrTypeMan, mockIdMan, mockAttrHelper, mockRegistrationMan, mockEnquiryMan, mockConfigGenerator,
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz);
+
 	}
 
 	@Test
@@ -82,7 +104,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project"));
 
 		I18nString groupName = new I18nString("GroupName");
-		dGroupMan.addGroup("/project1", "project1/subgroup", groupName, false);
+		dGroupManNoAuthz.addGroup("/project1", "project1/subgroup", groupName, false);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).addGroup(argument.capture());
@@ -96,7 +118,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project1"));
 
 		Throwable exception = catchThrowable(
-				() -> dGroupMan.addGroup("/project1", "project1/subgroup", new I18nString(), false));
+				() -> dGroupManNoAuthz.addGroup("/project1", "project1/subgroup", new I18nString(), false));
 		assertExceptionType(exception, IllegalGroupNameException.class);
 	}
 
@@ -104,7 +126,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForbidRemoveOfProjectGroup() throws EngineException
 	{
 
-		Throwable exception = catchThrowable(() -> dGroupMan.removeGroup("/project1", "/project1"));
+		Throwable exception = catchThrowable(() -> dGroupManNoAuthz.removeGroup("/project1", "/project1"));
 		assertExceptionType(exception, RemovalOfProjectGroupException.class);
 	}
 
@@ -113,12 +135,75 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project1"));
 
-		dGroupMan.removeGroup("/project1", "/project1/group1");
+		dGroupManNoAuthz.removeGroup("/project1", "/project1/group1");
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockGroupMan).removeGroup(argument.capture(), eq(true));
 		assertThat(argument.getValue(), is("/project1/group1"));
 	}
 	
+	@Test
+	public void shouldForbidGroupRemoveWhenIsSubprojectGroup() throws EngineException
+	{
+		when(mockGroupMan.getContents(eq("/project/sub"), anyInt()))
+				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project/sub"));
+
+		Throwable exception = catchThrowable(() -> dGroupManNoAuthz.removeGroup("/project", "/project/sub"));
+		assertExceptionType(exception, RemovalOfSubProjectGroupException.class);
+	}
+
+	
+	@Test
+	public void shouldForbidSubProjectRemoveWhenIsOnlyMananger() throws EngineException
+	{
+		setupInvocationContext();
+		when(mockAttrDao.getAttributes(anyString(), any(),
+				eq("/project")))
+						.thenReturn(
+								Arrays.asList(
+										new StoredAttribute(
+												new AttributeExt(
+														new Attribute(null, null, null,
+																Arrays.asList(
+																		GroupAuthorizationRole.manager.toString())),
+														false),
+												1L)));
+		Group group = new Group("/project");
+		group.setDelegationConfiguration(
+				new GroupDelegationConfiguration(true, true, null, null, null, null, Lists.emptyList()));
+		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
+		Throwable exception = catchThrowable(() -> dGroupManWithMockAuthz.removeProject("/project", "/project/sub"));
+		assertExceptionType(exception, AuthorizationException.class);
+	}
+	
+	@Test
+	public void shouldForwardSubprojectRemoveToCoreManager() throws EngineException
+	{
+		setupInvocationContext();
+
+		when(mockAttrDao.getAttributes(anyString(), any(),
+				eq("/project")))
+						.thenReturn(
+								Arrays.asList(
+										new StoredAttribute(
+												new AttributeExt(
+														new Attribute(null, null, null,
+																Arrays.asList(
+																		GroupAuthorizationRole.projectsAdmin.toString())),
+														false),
+											1L)));
+		Group group = new Group("/project");
+		group.setDelegationConfiguration(
+				new GroupDelegationConfiguration(true, true, null, null, null, null, Lists.emptyList()));
+		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getEnabledGroupContentsWithDefaultMember("/project1"));
+
+		dGroupManWithMockAuthz.removeProject("/project", "/project/sub");
+		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+		verify(mockGroupMan).removeGroup(argument.capture(), eq(true));
+		assertThat(argument.getValue(), is("/project/sub"));
+	}
+	
+
 	@Test
 	public void shouldRemoveFormsWhenRemoveGroup() throws EngineException
 	{
@@ -126,10 +211,10 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, "reg", "e1", "e2", 
 				null));		
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
-		dGroupMan.removeGroup("/project1", "/project1/group1");
-		verify(mockRegistrationMan).removeForm(eq("reg"), eq(true), eq(true));
-		verify(mockEnquiryMan).removeEnquiry(eq("e2"), eq(true), eq(true));
-		verify(mockEnquiryMan).removeEnquiry(eq("e2"), eq(true), eq(true));
+		dGroupManNoAuthz.removeProject("/project1", "/project1/group1");
+		verify(mockRegistrationMan).removeFormWithoutDependencyChecking(eq("reg"));
+		verify(mockEnquiryMan).removeEnquiryWithoutDependencyChecking(eq("e2"));
+		verify(mockEnquiryMan).removeEnquiryWithoutDependencyChecking(eq("e2"));
 	}
 	
 	@Test
@@ -139,10 +224,10 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		con.getGroup().setDelegationConfiguration(
 				new GroupDelegationConfiguration(false, false, null, "reg", "e1", "e2", null));
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
-		dGroupMan.removeGroup("/project1", "/project1/group1");
-		verify(mockRegistrationMan, never()).removeForm(eq("reg"), eq(true), eq(true));
-		verify(mockEnquiryMan, never()).removeEnquiry(eq("e2"), eq(true), eq(true));
-		verify(mockEnquiryMan, never()).removeEnquiry(eq("e2"), eq(true), eq(true));
+		dGroupManNoAuthz.removeGroup("/project1", "/project1/group1");
+		verify(mockRegistrationMan, never()).removeFormWithoutDependencyChecking(eq("reg"));
+		verify(mockEnquiryMan, never()).removeEnquiryWithoutDependencyChecking(eq("e2"));
+		verify(mockEnquiryMan, never()).removeEnquiryWithoutDependencyChecking(eq("e2"));
 	}
 
 	@Test
@@ -154,7 +239,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		groupsWithSubgroups.put("/project", getGroupContent("/project", Lists.list("/project/subgroup")));
 		groupsWithSubgroups.put("/project/subgroup", getGroupContent("/project/subgroup"));
 		when(mockBulkQueryService.getGroupAndSubgroups(any())).thenReturn(groupsWithSubgroups);
-		Map<String, DelegatedGroupContents> groupAndSubgroups = dGroupMan.getGroupAndSubgroups("/project",
+		Map<String, DelegatedGroupContents> groupAndSubgroups = dGroupManNoAuthz.getGroupAndSubgroups("/project",
 				"/project");
 
 		assertThat(groupAndSubgroups.size(), is(2));
@@ -167,7 +252,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project/subGroup"));
 
-		DelegatedGroupContents contents = dGroupMan.getContents("/project", "/project/subGroup");
+		DelegatedGroupContents contents = dGroupManNoAuthz.getContents("/project", "/project/subGroup");
 
 		assertThat(contents.group.path, is("/project/subGroup"));
 	}
@@ -206,7 +291,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		when(mockAttrMan.getAttributes(any(), eq("/project"), eq("extraAttr")))
 				.thenReturn(Arrays.asList(getAttributeExt("extraValue")));
 
-		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupMan.getDelegatedGroupMemebers("/project",
+		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupManNoAuthz.getDelegatedGroupMemebers("/project",
 				"/project");
 
 		assertThat(delegatedGroupMemebers.size(), is(1));
@@ -227,7 +312,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 				null, Arrays.asList("extraAttr")));
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(contents);
 
-		Throwable exception = catchThrowable(() -> dGroupMan.getAttributeDisplayedName("/project", "demo"));
+		Throwable exception = catchThrowable(() -> dGroupManNoAuthz.getAttributeDisplayedName("/project", "demo"));
 		assertExceptionType(exception, IllegalGroupAttributeException.class);
 	}
 
@@ -236,7 +321,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 
 		Throwable exception = catchThrowable(
-				() -> dGroupMan.setGroupDisplayedName("/project", "/project", null));
+				() -> dGroupManNoAuthz.setGroupDisplayedName("/project", "/project", null));
 		assertExceptionType(exception, RenameProjectGroupException.class);
 	}
 
@@ -247,7 +332,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project"));
 
 		I18nString newName = new I18nString("demoName");
-		dGroupMan.setGroupDisplayedName("/project", "/project/subgroup", newName);
+		dGroupManNoAuthz.setGroupDisplayedName("/project", "/project/subgroup", newName);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture(), eq("set displayed name"), eq("demoName"));
@@ -264,7 +349,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		when(mockGroupMan.getContents(eq("/project/subgroup"), anyInt())).thenReturn(
 				getGroupContent("/project/subgroup", Arrays.asList("/project/subgroup/subgroup2")));
 
-		dGroupMan.setGroupAccessMode("/project", "/project/subgroup", true);
+		dGroupManNoAuthz.setGroupAccessMode("/project", "/project/subgroup", true);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture(), eq("set access mode"), eq("public"));
@@ -275,7 +360,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForwardSetGroupAuthAttributeToCoreManager() throws EngineException
 	{
 
-		dGroupMan.setGroupAuthorizationRole("/project", "/project", 1L, GroupAuthorizationRole.manager);
+		dGroupManNoAuthz.setGroupAuthorizationRole("/project", "/project", 1L, GroupAuthorizationRole.manager);
 
 		ArgumentCaptor<Attribute> argument = ArgumentCaptor.forClass(Attribute.class);
 		verify(mockAttrHelper).addSystemAttribute(eq(1L), argument.capture(), eq(true));
@@ -302,7 +387,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
 
-		Throwable exception = catchThrowable(() -> dGroupMan.setGroupAuthorizationRole("/project", "/project", 1L,
+		Throwable exception = catchThrowable(() -> dGroupManNoAuthz.setGroupAuthorizationRole("/project", "/project", 1L,
 				GroupAuthorizationRole.regular));
 		assertExceptionType(exception, OneManagerRemainsException.class);
 	}
@@ -323,7 +408,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
 
-		List<DelegatedGroup> projectsForEntity = dGroupMan.getProjectsForEntity(1L);
+		List<DelegatedGroup> projectsForEntity = dGroupManNoAuthz.getProjectsForEntity(1L);
 
 		assertThat(projectsForEntity.size(), is(1));
 		assertThat(projectsForEntity.iterator().next().path, is("/project"));
@@ -337,7 +422,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		groups.put("/project", null);
 		when(mockIdMan.getGroups(any())).thenReturn(groups);
 
-		dGroupMan.addMemberToGroup("/project", "/project/destination", 1L);
+		dGroupManNoAuthz.addMemberToGroup("/project", "/project/destination", 1L);
 
 		verify(mockGroupMan).addMemberFromParent(eq("/project/destination"), any());
 	}
@@ -346,7 +431,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForwardRemoveMemberToCoreManager() throws EngineException
 	{
 
-		dGroupMan.removeMemberFromGroup("/project", "/project/destination", 1L);
+		dGroupManNoAuthz.removeMemberFromGroup("/project", "/project/destination", 1L);
 		verify(mockGroupMan).removeMember(eq("/project/destination"), any());
 	}
 	
@@ -377,7 +462,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 								.withType(EnquiryForm.EnquiryType.STICKY)
 								.withName("test").build());
 
-		dGroupMan.setGroupDelegationConfiguration("/project", "/project/sub", new SubprojectGroupDelegationConfiguration(true, false, "https://test/test.jpg"));
+		dGroupManNoAuthz.setGroupDelegationConfiguration("/project", "/project/sub", new SubprojectGroupDelegationConfiguration(true, false, "https://test/test.jpg"));
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/sub"), argument.capture());
@@ -412,4 +497,12 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		content.setMembers(Lists.list(member));
 		return content;
 	}
+	
+	private void setupInvocationContext()
+	{
+		InvocationContext invContext = new InvocationContext(null, null, null);
+		invContext.setLoginSession(new LoginSession("1", null, null, 100, 1L, null, null, null, null));
+		InvocationContext.setCurrent(invContext);
+	}
+
 }

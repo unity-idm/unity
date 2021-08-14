@@ -65,6 +65,7 @@ class GroupsComponent extends CustomComponent
 
 		List<SingleActionHandler<GroupNode>> rawActions = new ArrayList<>();
 		rawActions.add(getDeleteGroupAction());
+		rawActions.add(getDeleteProjectGroupAction());
 		rawActions.add(getAddToGroupAction());
 		rawActions.add(getMakePublicAction());
 		rawActions.add(getMakePrivateAction());
@@ -173,13 +174,22 @@ class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.deleteGroupAction"))
 				.withIcon(Images.removeFromGroup.getResource())
-				.withDisabledPredicate(n -> n.getPath().equals(project.path)).hideIfInactive()
-				.withHandler(this::confirmDelete).build();
+				.withDisabledPredicate(n -> n.getPath().equals(project.path) || n.group.delegationConfiguration.enabled)
+				.hideIfInactive().withHandler(this::confirmDelete).build();
+	}
+
+	private SingleActionHandler<GroupNode> getDeleteProjectGroupAction()
+	{
+		return SingleActionHandler.builder(GroupNode.class)
+				.withCaption(msg.getMessage("GroupsComponent.deleteSubprojectGroupAction"))
+				.withIcon(Images.removeFromGroup.getResource())
+				.withDisabledPredicate(n -> !checkIfAdminCanChangeDelegationConfig(n.getPath())
+						|| n.getPath().equals(project.path) || !n.group.delegationConfiguration.enabled)
+				.hideIfInactive().withHandler(this::confirmSubprojectDelete).build();
 	}
 
 	private void confirmDelete(Set<GroupNode> items)
 	{
-
 		if (items.isEmpty())
 			return;
 
@@ -189,12 +199,23 @@ class GroupsComponent extends CustomComponent
 
 		).show();
 	}
+	
+	private void confirmSubprojectDelete(Set<GroupNode> items)
+	{
+		if (items.isEmpty())
+			return;
+
+		GroupNode groupNode = items.iterator().next();
+		new ConfirmDialog(msg, msg.getMessage("RemoveGroupDialog.confirmSubprojectDelete", groupNode.toString()),
+				() -> deleteSubProjectGroup(groupNode)
+
+		).show();
+	}
 
 	private void deleteGroup(GroupNode group)
 	{
 		try
 		{
-
 			controller.deleteGroup(project.path, group.getPath());
 			groupBrowser.reloadNode(group.parent);
 
@@ -205,6 +226,20 @@ class GroupsComponent extends CustomComponent
 
 	}
 
+	private void deleteSubProjectGroup(GroupNode group)
+	{
+		try
+		{
+			controller.deleteSubProjectGroup(project.path, group.getPath());
+			groupBrowser.reloadNode(group.parent);
+
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+	}
+
+	
 	private SingleActionHandler<GroupNode> getAddToGroupAction()
 	{
 		return SingleActionHandler.builder(GroupNode.class)

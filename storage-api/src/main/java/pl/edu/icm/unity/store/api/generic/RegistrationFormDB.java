@@ -13,5 +13,5 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
  */
 public interface RegistrationFormDB extends NamedCRUDDAOWithTS<RegistrationForm>
 {
-	void delete(String id, boolean ignoreDependencyChecking);
+	void deleteWithoutDependencyChecking(String id);
 }

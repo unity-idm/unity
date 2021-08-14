@@ -67,6 +67,7 @@ public class BaseSharedRegistrationSupport
 	private InvitationDB invitationDB;
 	protected PolicyAgreementManagement policyAgreementManagement;
 	private final SecondFactorOptInService secondFactorOptInService;
+	private final NamedCRUDDAOWithTS<? extends UserRequestState<?>> requestDB;
 
 	public BaseSharedRegistrationSupport(MessageSource msg,
 			NotificationProducer notificationProducer,
@@ -74,7 +75,8 @@ public class BaseSharedRegistrationSupport
 			EntityCredentialsHelper entityCredentialsHelper,
 			InternalFacilitiesManagement facilitiesManagement,
 			InvitationDB invitationDB, PolicyAgreementManagement policyAgreementManagement,
-			SecondFactorOptInService secondFactorOptInService)
+			SecondFactorOptInService secondFactorOptInService,
+			NamedCRUDDAOWithTS<? extends UserRequestState<?>> requestDB)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -85,6 +87,7 @@ public class BaseSharedRegistrationSupport
 		this.invitationDB =  invitationDB;
 		this.policyAgreementManagement = policyAgreementManagement;
 		this.secondFactorOptInService = secondFactorOptInService;
+		this.requestDB = requestDB;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
@@ -279,30 +282,39 @@ public class BaseSharedRegistrationSupport
 		}
 	}
 	
-	public <T extends UserRequestState<?>> void preRemoveForm(String formId, 
-			boolean dropRequests, NamedCRUDDAOWithTS<T> requestDB) throws EngineException
+	public void dropOrValidateFormRequests(String formId, 
+			boolean dropRequests) throws EngineException
 	{
-		List<T> requests = requestDB.getAll();
+		List<? extends UserRequestState<?>> requests = requestDB.getAll();
 		if (dropRequests)
 		{
-			for (T req: requests)
-				if (formId.equals(req.getRequest().getFormId()))
-					requestDB.delete(req.getRequestId());
+			dropFormRequests(formId, requests);
 		} else
 		{
-			for (T req: requests)
-				if (formId.equals(req.getRequest().getFormId()))
-					throw new SchemaConsistencyException("There are requests bound " +
-							"to this form, and it was not chosen to drop them.");
+			assertThereAreNoRequests(formId, requests);
 		}
-
 	}
 	
-	public <T extends UserRequestState<?>> void validateIfHasPendingRequests(String formId, 
-			NamedCRUDDAOWithTS<T> requestDB) throws EngineException
+	private void dropFormRequests(String formId, List<? extends UserRequestState<?>> requests)
 	{
-		List<T> requests = requestDB.getAll();
-		for (T req: requests)
+		for (UserRequestState<?> req: requests)
+			if (formId.equals(req.getRequest().getFormId()))
+				requestDB.delete(req.getRequestId());
+		
+	}
+	
+	private void assertThereAreNoRequests(String formId, List<? extends UserRequestState<?>> requests) throws SchemaConsistencyException
+	{
+		for (UserRequestState<?> req: requests)
+			if (formId.equals(req.getRequest().getFormId()))
+				throw new SchemaConsistencyException("There are requests bound " +
+						"to this form, and it was not chosen to drop them.");	
+	}
+	
+	public void validateIfHasPendingRequests(String formId) throws EngineException
+	{
+		List<? extends UserRequestState<?>> requests = requestDB.getAll();
+		for (UserRequestState<?> req: requests)
 			if (formId.equals(req.getRequest().getFormId()) && 
 					req.getStatus() == RegistrationRequestStatus.pending)
 				throw new SchemaConsistencyException("There are requests bound to " +

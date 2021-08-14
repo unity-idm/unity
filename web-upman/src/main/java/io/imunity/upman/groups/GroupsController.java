@@ -36,8 +36,8 @@ public class GroupsController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, GroupsController.class);
 
-	private DelegatedGroupManagement delGroupMan;
-	private MessageSource msg;
+	private final DelegatedGroupManagement delGroupMan;
+	private final MessageSource msg;
 
 	@Autowired
 	public GroupsController(MessageSource msg, DelegatedGroupManagement delGroupMan)
@@ -98,18 +98,27 @@ public class GroupsController
 			delGroupMan.removeGroup(projectPath, groupPath);
 		} catch (Exception e)
 		{
-
 			log.warn("Can not remove group " + groupPath, e);
 			throw new ServerFaultException(msg);
 		}
-
+	}
+	
+	public void deleteSubProjectGroup(String projectPath, String groupPath) throws ControllerException
+	{
+		try
+		{
+			delGroupMan.removeProject(projectPath, groupPath);
+		} catch (Exception e)
+		{
+			log.warn("Can not remove sub-project group " + groupPath, e);
+			throw new ServerFaultException(msg);
+		}
 	}
 
 	public void setGroupAccessMode(String projectPath, String groupPath, boolean isOpen) throws ControllerException
 	{
 		try
 		{
-
 			delGroupMan.setGroupAccessMode(projectPath, groupPath, isOpen);
 
 		} catch (Exception e)
