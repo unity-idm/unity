@@ -66,8 +66,8 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 	}
 	
 	@Override
-	public void delete(String name, boolean ignoreDependencyChecking) {
-		super.delete(name, ignoreDependencyChecking);
+	public void deleteWithoutDependencyChecking(String name) {
+		super.delete(name, true);
 	}
 	
 	private class MessageTemplateChangeListener extends BaseTemplateChangeListener

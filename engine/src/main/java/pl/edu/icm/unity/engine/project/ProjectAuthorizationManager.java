@@ -81,7 +81,7 @@ public class ProjectAuthorizationManager
 	}
 
 	@Transactional
-	public void assertProjectsAdminSubprojectCreationAuthorization(String projectPath, String groupPath)
+	public void assertProjectsAdminAuthorization(String projectPath, String groupPath)
 			throws AuthorizationException
 
 	{

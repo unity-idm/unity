@@ -112,13 +112,22 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	@Override
 	@Transactional
-	public void removeForm(String formId, boolean dropRequests, boolean ignoreDependencyChecking) throws EngineException
+	public void removeForm(String formId, boolean dropRequests) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		internalManagment.preRemoveForm(formId, dropRequests, requestDB);
-		formsDB.delete(formId, ignoreDependencyChecking);
+		internalManagment.dropOrValidateFormRequests(formId, dropRequests);
+		formsDB.delete(formId);
 	}
 
+	@Override
+	@Transactional
+	public void removeFormWithoutDependencyChecking(String formId) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		internalManagment.dropOrValidateFormRequests(formId, true);
+		formsDB.deleteWithoutDependencyChecking(formId);
+	}
+	
 	@Override
 	@Transactional
 	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations)
@@ -129,7 +138,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		String formId = updatedForm.getName();
 		if (!ignoreRequestsAndInvitations)
 		{
-			internalManagment.validateIfHasPendingRequests(formId, requestDB);
+			internalManagment.validateIfHasPendingRequests(formId);
 			internalManagment.validateIfHasInvitations(formId, InvitationType.REGISTRATION);
 		}
 		formsDB.update(updatedForm);

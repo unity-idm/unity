@@ -69,8 +69,8 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 	}
 	
 	@Override
-	public void delete(String name, boolean ignoreDependencyChecking) {
-		super.delete(name, ignoreDependencyChecking);
+	public void deleteWithoutDependencyChecking(String name) {
+		super.delete(name, true);
 	}
 	
 	private void restrictCredReqRemoval(long removedId, String removedName)

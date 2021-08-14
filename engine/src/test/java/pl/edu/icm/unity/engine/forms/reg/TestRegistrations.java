@@ -79,7 +79,7 @@ public class TestRegistrations extends RegistrationTestBase
 	{
 		initAndCreateForm(false, null);
 		
-		registrationsMan.removeForm("f1", false, false);
+		registrationsMan.removeForm("f1", false);
 		
 		assertEquals(0, registrationsMan.getForms().size());
 	}
@@ -89,7 +89,7 @@ public class TestRegistrations extends RegistrationTestBase
 	{
 		try
 		{
-			registrationsMan.removeForm("mising", true, false);
+			registrationsMan.removeForm("mising", true);
 			fail("Removed non existing form");
 		} catch (IllegalArgumentException e) {/*ok*/}
 	}
@@ -190,7 +190,7 @@ public class TestRegistrations extends RegistrationTestBase
 		
 		try
 		{
-			registrationsMan.removeForm(form.getName(), false, false);
+			registrationsMan.removeForm(form.getName(), false);
 		} catch (SchemaConsistencyException e)
 		{
 			//OK
@@ -206,7 +206,7 @@ public class TestRegistrations extends RegistrationTestBase
 		registrationsMan.submitRegistrationRequest(getRequest(), 
 				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		
-		registrationsMan.removeForm(form.getName(), true, false);
+		registrationsMan.removeForm(form.getName(), true);
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
 	}
 	
