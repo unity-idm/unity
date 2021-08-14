@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Preconditions;
+
 import pl.edu.icm.unity.base.utils.Log;
 
 /**
@@ -48,6 +50,7 @@ public class UnsuccessfulAuthenticationCounter
 	
 	public synchronized void unsuccessfulAttempt(String ip)
 	{
+		Preconditions.checkNotNull(ip);
 		ClientInfo clientInfo = accessMap.get(ip);
 		if (clientInfo == null)
 		{
@@ -55,18 +58,19 @@ public class UnsuccessfulAuthenticationCounter
 			accessMap.put(ip, clientInfo);
 		}
 		clientInfo.unsuccessfulAttempts++;
-		log.trace("New unsuccessful attempts count for " + ip + " is " + clientInfo.unsuccessfulAttempts);
+		log.debug("Unsuccessful attempts count for {} is {}", ip, clientInfo.unsuccessfulAttempts);
 		if (clientInfo.unsuccessfulAttempts >= maxAttepts)
 		{
-			log.info("Blocking access for IP " + ip + " after " + clientInfo.unsuccessfulAttempts +
-					" unsuccessful login attempts for " + blockTime + "ms");
+			log.info("Blocking access for IP {} after {} unsuccessful login attempts for {}ms", 
+					ip, clientInfo.unsuccessfulAttempts, blockTime);
 			clientInfo.blockedStartTime = System.currentTimeMillis();
 		}
 	}
 	
 	public synchronized void successfulAttempt(String ip)
 	{
-		log.trace("Cleaning unsuccessful attempts for " + ip);
+		if (accessMap.containsKey(ip))
+			log.info("Cleaning unsuccessful attempts for {}", ip);
 		accessMap.remove(ip);
 	}
 	

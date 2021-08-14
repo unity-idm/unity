@@ -18,8 +18,9 @@ import eu.unicore.security.HTTPAuthNTokens;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
@@ -68,17 +69,18 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		if (authnTokens == null)
 		{
 			log.trace("No HTTP BASIC auth header was found");
-			return new AuthenticationResult(Status.notApplicable, null);
+			return LocalAuthenticationResult.notApplicable();
 		}
 		log.trace("HTTP BASIC auth header found");
 		try
 		{
 			return credentialExchange.checkPassword(authnTokens.getUserName(), authnTokens.getPasswd(),
-					null);
+					null, false, 
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 		} catch (Exception e)
 		{
 			log.trace("HTTP BASIC credential is invalid");
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed(e);
 		}
 
 	}

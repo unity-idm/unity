@@ -13,7 +13,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -26,11 +26,11 @@ public class IdPButtonsBar extends CustomComponent
 	public enum Action {ACCEPT, DENY, LOGIN_AS_ANOTHER};
 
 	private MessageSource msg;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private ActionListener listener;
 	private Button confirmB;
 	
-	public IdPButtonsBar(MessageSource msg, StandardWebAuthenticationProcessor authnProcessor,
+	public IdPButtonsBar(MessageSource msg, StandardWebLogoutHandler authnProcessor,
 			ActionListener listener)
 	{
 		this.msg = msg;

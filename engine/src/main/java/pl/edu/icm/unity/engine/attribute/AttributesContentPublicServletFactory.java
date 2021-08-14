@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,5 +35,11 @@ class AttributesContentPublicServletFactory implements AttributesContentPublicSe
 		AttributesContentPublicServlet servlet = new AttributesContentPublicServlet(attributesSupport,
 				attributeTypeSupport);
 		return new ServletHolder(servlet);
+	}
+
+	@Override
+	public List<FilterHolder> getServiceFilters()
+	{
+		return Collections.emptyList();
 	}
 }

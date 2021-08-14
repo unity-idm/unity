@@ -24,7 +24,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
@@ -68,7 +68,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
 	private MessageSource msg;
-	private RemoteAuthnResultProcessor remoteAuthnProcessor;
+	private RemoteAuthnResultTranslator remoteAuthnProcessor;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
 	
@@ -77,7 +77,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			@Qualifier("insecure") PKIManagement pkiManagement,
 			ECPContextManagement samlContextManagement,
 			ReplayAttackChecker replayAttackChecker,
-			RemoteAuthnResultProcessor remoteAuthnProcessor,
+			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			TokensManagement tokensMan,
 			EntityManagement identitiesMan,
 			SessionManagement sessionMan,

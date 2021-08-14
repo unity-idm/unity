@@ -11,11 +11,11 @@ import java.util.Optional;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
 /**
@@ -29,8 +29,9 @@ public interface OAuthExchange extends CredentialExchange
 	OAuthClientProperties getSettings();
 	
 	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationOptionKey authnOptionId) 
+			AuthenticationStepContext authnStepContext, 
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL,
+			AuthenticationTriggeringContext authnTriggeringContext) 
 			throws URISyntaxException, SerializeException, ParseException, IOException;
-	
-	AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context) throws AuthenticationException;
 }

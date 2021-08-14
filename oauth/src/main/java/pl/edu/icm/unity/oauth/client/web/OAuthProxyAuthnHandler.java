@@ -4,13 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import static pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState.CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -18,11 +15,16 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
@@ -72,39 +74,32 @@ class OAuthProxyAuthnHandler
 	}
 
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse, endpointPath);
+		return startLogin(idpKey, httpRequest, httpResponse, endpointPath, context);
 	}
 	
 	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath) throws IOException
+			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
-		OAuthContext context = (OAuthContext) session.getAttribute(
-				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
-		if (context != null)
-		{
-			log.debug("Ignoring automated login as the previous authentication "
-					+ "is still in progress.");
-			return false;
-		}
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
+		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+		OAuthContext context;
 		try
 		{
 			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
-					getAuthnOptionId(idpConfigKey));
+					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)),
+					loginMachineDetails,
+					currentRelativeURI,
+					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 			context.setReturnUrl(currentRelativeURI);
-			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
-			session.setAttribute(CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE, 
-					context.getAuthenticatorOptionId());
 		} catch (Exception e)
 		{
 			throw new IllegalStateException("Can not create OAuth2 authN request", e);
 		}
-		setLastIdpCookie(httpResponse, idpConfigKey, endpointPath);
 		handleRequestInternal(context, httpRequest, httpResponse);
 		return true;
 	}
@@ -123,13 +118,6 @@ class OAuthProxyAuthnHandler
 	{
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
-	}
-	
-	private void setLastIdpCookie(HttpServletResponse httpResponse, String idpConfigKey, String endpointPath)
-	{
-		Optional<Cookie> lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
-				endpointPath, getAuthnOptionId(idpConfigKey));
-		lastIdpCookie.ifPresent(cookie -> httpResponse.addCookie(cookie));
 	}
 	
 	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)

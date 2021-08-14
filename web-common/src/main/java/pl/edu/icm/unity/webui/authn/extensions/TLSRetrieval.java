@@ -19,7 +19,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -32,7 +31,8 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -96,7 +96,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}
@@ -126,7 +126,6 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	{	
 		private Component component = new TLSAuthnComponent();
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		
 		public TLSRetrievalUI()
 		{
@@ -149,13 +148,10 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			X509Certificate[] clientCert = getTLSCertificate();
 
 			if (clientCert == null)
-				return new AuthenticationResult(Status.notApplicable, null);
+				return LocalAuthenticationResult.notApplicable();
 
 			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert,
-					sandboxCallback);
-			if (registrationFormForUnknown != null)
-				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-			authenticationResult.setEnableAssociation(enableAssociation);
+					registrationFormForUnknown, enableAssociation, callback.getTriggeringContext());
 			return authenticationResult;
 		}
 
@@ -195,7 +191,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		
 		private void triggerAuthentication()
 		{
-			callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+			callback.onStartedAuthentication();
 			AuthenticationResult authenticationResult = getAuthenticationResult();
 			if (authenticationResult.getStatus() == Status.success)
 				component.setEnabled(false);
@@ -213,18 +209,6 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		public void clear()
 		{
 			//nop
-		}
-
-		@Override
-		public void refresh(VaadinRequest request) 
-		{
-			//nop
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
-		{
-			sandboxCallback = callback;
 		}
 
 		/**

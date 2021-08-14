@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.base.Strings;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -38,7 +37,8 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -112,7 +112,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME)));
@@ -134,7 +134,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	{
 		private CredentialEditor credEditor;
 		private AuthenticationCallback callback;
-		private SandboxAuthnResultCallback sandboxCallback;
 		private TextField usernameField;
 		private HtmlLabel usernameLabel;
 		private TextField answerField;
@@ -333,7 +332,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCodeButton.setVisible(false);
 			answerField.focus();
 			if (callback != null)
-				callback.onStartedAuthentication(AuthenticationStyle.WITH_EMBEDDED_CANCEL);
+				callback.onStartedAuthentication();
 		}
 
 		private void triggerAuthentication()
@@ -341,12 +340,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			Optional<AuthenticationSubject> subjectOpt = getAuthenticationSubject();
 			if (!subjectOpt.isPresent())
 			{
-				setAuthenticationResult(new AuthenticationResult(
-						Status.notApplicable, null));
+				setAuthenticationResult(LocalAuthenticationResult.notApplicable());
 				return;
 			}
 			setAuthenticationResult(credentialExchange.verifyCode(sentCode,
-					answerField.getValue(), subjectOpt.get(), sandboxCallback));
+					answerField.getValue(), subjectOpt.get()));
 		}
 
 		private void setAuthenticationResult(AuthenticationResult authenticationResult)
@@ -364,8 +362,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			{
 				setError();
 				usernameField.focus();
-				String msgErr = msg.getMessage("WebSMSRetrieval.wrongCode");
-				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
+				callback.onCompletedAuthentication(authenticationResult);
 			}
 		}
 		
@@ -420,11 +417,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
-		}
-
-		public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
-		{
-			this.sandboxCallback = sandboxCallback;
 		}
 
 		void setAuthenticatedIdentity(Entity authenticatedIdentity)
@@ -500,18 +492,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void refresh(VaadinRequest request)
-		{
-			// nop
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
-		{
-			theComponent.setSandboxCallback(callback);
 		}
 
 		/**

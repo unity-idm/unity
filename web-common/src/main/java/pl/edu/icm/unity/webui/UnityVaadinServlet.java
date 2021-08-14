@@ -34,11 +34,11 @@ import com.vaadin.util.CurrentInstance;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 
 /**
@@ -77,7 +77,6 @@ public class UnityVaadinServlet extends VaadinServlet
 			UnityBootstrapHandler bootstrapHandler,
 			String theme)
 	{
-		super();
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;

@@ -14,7 +14,6 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.column.RemoteAuthenticationProgress;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -24,12 +23,11 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class SignUpTopHeaderComponent extends CustomComponent
 {
-	private RemoteAuthenticationProgress authNProgress;
 	private Button gotoSignIn;
 	private LocaleChoiceComponent localeChoice;
 
 	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, MessageSource msg, 
-			Runnable remoteSignupCancelHandler, Optional<Runnable> signInRedirector)
+			Optional<Runnable> signInRedirector)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
@@ -51,19 +49,9 @@ public class SignUpTopHeaderComponent extends CustomComponent
 			main.setComponentAlignment(gotoSignIn, Alignment.TOP_RIGHT);
 		}
 		
-		authNProgress = new RemoteAuthenticationProgress(msg, remoteSignupCancelHandler);
-		authNProgress.setInternalVisibility(false);
-		main.addComponent(authNProgress);
-		main.setComponentAlignment(authNProgress, Alignment.TOP_RIGHT);
-
 		setCompositionRoot(main);
 	}
 
-	public void setAuthNProgressVisibility(boolean visible)
-	{
-		authNProgress.setInternalVisibility(visible);
-	}
-	
 	void setInteractionsEnabled(boolean enabled)
 	{
 		localeChoice.setEnabled(enabled);

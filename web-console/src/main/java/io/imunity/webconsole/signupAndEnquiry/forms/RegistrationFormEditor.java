@@ -55,13 +55,13 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.authn.remote.RemoteAuthnProvidersMultiSelection;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
+import pl.edu.icm.unity.webui.forms.reg.RemoteAuthnProvidersMultiSelection;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)

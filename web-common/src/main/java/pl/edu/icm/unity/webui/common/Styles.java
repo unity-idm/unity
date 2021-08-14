@@ -106,6 +106,8 @@ public enum Styles
 	policyAgreementItem("u-policyagreement-item"),
 	dragButton("u-dragButton"),
 	varPickerButton("u-varPickerButton"),
+	horizontalScroll("u-horizontalScroll"),
+	
 	
 	//Sidebar
 	sidebar("u-sidebar"),

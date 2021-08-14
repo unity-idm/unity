@@ -15,9 +15,9 @@ import com.vaadin.server.UIProvider;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 
 /**
  * Creates UI object by retrieving it from Spring context.
@@ -41,7 +41,6 @@ public class VaadinUIProvider extends UIProvider
 			EndpointRegistrationConfiguration registrationConfiguraiton,
 			Properties properties, String themeConfigKey)
 	{
-		super();
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;

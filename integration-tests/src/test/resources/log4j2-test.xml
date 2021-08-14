@@ -13,7 +13,7 @@
 		</Root>
 	
 		<!-- Everything produced by Unity (unless overwritten below) -->
-		<Logger name="unity.server" level="INFO"/>
+		<Logger name="unity.server" level="DEBUG"/>
 		
 		<!-- Loading of any configuration -->
 		<Logger name="unity.server.config" level="INFO"/>
@@ -55,7 +55,7 @@
 		<!-- Security related - low level (SAML processing, XML DSig, X.509 PKI)  -->
 		<!-- <Logger name="unicore.security" level="INFO"/> -->
 
-
+		<Logger name="unity.server.authn" level="DEBUG"/>
 		<!-- 
 			3rd party subsystems 
 		-->

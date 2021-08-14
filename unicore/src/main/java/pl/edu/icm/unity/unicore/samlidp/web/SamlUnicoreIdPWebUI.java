@@ -38,7 +38,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
@@ -62,7 +62,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Autowired
 	public SamlUnicoreIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
 			FreemarkerAppHandler freemarkerHandler, AttributeHandlerRegistry handlersRegistry,
-			PreferencesManagement preferencesMan, StandardWebAuthenticationProcessor authnProcessor,
+			PreferencesManagement preferencesMan, StandardWebLogoutHandler authnProcessor,
 			IdPEngine idpEngine, IdentityTypeSupport idTypeSupport, SessionManagement sessionMan,
 			AttributeTypeManagement attrMan, EnquiresDialogLauncher enquiryDialogLauncher,
 			AttributeTypeSupport aTypeSupport, PolicyAgreementManagement policyAgreementsMan,

@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-
 /**
  * Maintains a map of remote authentication contexts matched by some string key.
  * The contexts are matched by the random relay state. The in-memory store of contexts is purged, so the stale 
@@ -40,12 +38,12 @@ public class RemoteAuthenticationContextManagement<T extends RemoteAuthnState>
 		contexts.put(relayState, context);
 	}
 	
-	public synchronized T getAuthnContext(String relayState) throws WrongArgumentException
+	public synchronized T getAuthnContext(String relayState)
 	{
 		cleanup();
 		T ret = contexts.get(relayState);
 		if (ret == null)
-			throw new WrongArgumentException("The relay state " + relayState + " is not assigned");
+			throw new UnboundRelayStateException(relayState);
 		return ret;
 	}
 	
@@ -69,6 +67,14 @@ public class RemoteAuthenticationContextManagement<T extends RemoteAuthnState>
 			T ctx = it.next();
 			if (ctx.getCreationTime().before(oldestAllowed))
 				it.remove();
+		}
+	}
+	
+	public static class UnboundRelayStateException extends RuntimeException
+	{
+		public UnboundRelayStateException(String relayState)
+		{
+			super("The relay state " + relayState + " is not assigned");
 		}
 	}
 }

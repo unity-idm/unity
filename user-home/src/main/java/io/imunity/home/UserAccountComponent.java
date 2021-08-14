@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -48,7 +49,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -63,7 +64,6 @@ import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
 import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
 /**
  * Component with user's account management UI.
@@ -82,7 +82,7 @@ public class UserAccountComponent extends VerticalLayout
 	private PreferencesManagement prefMan;
 	private EndpointManagement endpMan; 
 	private AttributeSupport atSupport;
-	private StandardWebAuthenticationProcessor authnProcessor;
+	private StandardWebLogoutHandler authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -105,7 +105,7 @@ public class UserAccountComponent extends VerticalLayout
 			@Qualifier("insecure") EntityManagement insecureIdsMan,
 			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
 			EndpointManagement endpMan, AttributeSupport attrMan,
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebLogoutHandler authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,

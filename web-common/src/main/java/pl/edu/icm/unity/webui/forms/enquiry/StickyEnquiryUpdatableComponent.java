@@ -19,7 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -103,7 +103,7 @@ public class StickyEnquiryUpdatableComponent extends CustomComponent
 		try
 		{
 
-			editor = controller.getEditorInstanceForAuthenticatedUser(form, RemotelyAuthenticatedContext.getLocalContext());
+			editor = controller.getEditorInstanceForAuthenticatedUser(form, RemotelyAuthenticatedPrincipal.getLocalContext());
 		} catch (Exception e)
 		{
 			log.error("Can not get editor for enquiry form " + form.getName());

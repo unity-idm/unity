@@ -18,7 +18,10 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -33,14 +36,19 @@ public class AuthenticationOptionsHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationOptionsHandler.class);
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
 	private final String endpoint;
+	private final AuthenticationRealm realm;
+	private final String endpointPath;
 
 	private Set<String> consumedAuthenticators = new HashSet<>();
 
 	private Set<String> consumedAuthenticatorEntries = new HashSet<>();
 
-	public AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint)
+	public AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint,
+			AuthenticationRealm realm, String endpointPath)
 	{
 		this.endpoint = endpoint;
+		this.realm = realm;
+		this.endpointPath = endpointPath;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
 			for (AuthenticatorInstance a: ao.getFirstFactorAuthenticators())
 			{
@@ -90,7 +98,10 @@ public class AuthenticationOptionsHandler
 		}
 		
 		VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(Context.LOGIN);
+		AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 
+				endpointPath, FactorOrder.FIRST);
+		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(
+				Context.LOGIN, authenticatorContext);
 		List<AuthNOption> ret = new ArrayList<>();
 		for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 		{
@@ -121,7 +132,10 @@ public class AuthenticationOptionsHandler
 				continue;
 
 			VaadinAuthentication retrieval = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance(Context.LOGIN);
+			AuthenticatorStepContext authenticatorContext = new AuthenticatorStepContext(realm, authenticatorWF.flow, 
+					endpointPath, FactorOrder.FIRST);
+			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance(Context.LOGIN,
+					authenticatorContext);
 			for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 			{
 				if (!vaadinAuthenticationUI.isAvailable())

@@ -4,28 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.exceptions.EngineException;
-
 /**
  * Thrown on authentication problem.
  * @author K. Benedyczak
  */
-public class AuthenticationException extends EngineException
+public class AuthenticationException extends Exception
 {
 	private AuthenticationResult result;
-
-	/**
-	 * 
-	 * @param result authentication result - should be failed, not successful.
-	 * @param msg
-	 * @param cause
-	 */
-	public AuthenticationException(AuthenticationResult result, String msg, Throwable cause)
-	{
-		super(msg, cause);
-		this.result = result;
-	}
 
 	public AuthenticationException(AuthenticationResult result, String msg)
 	{
@@ -36,13 +21,13 @@ public class AuthenticationException extends EngineException
 	public AuthenticationException(String msg)
 	{
 		super(msg);
-		this.result = new AuthenticationResult(Status.deny, null);
+		this.result = LocalAuthenticationResult.failed();
 	}
 
 	public AuthenticationException(String msg, Exception cause)
 	{
 		super(msg, cause);
-		this.result = new AuthenticationResult(Status.deny, null);
+		this.result = LocalAuthenticationResult.failed(cause);
 	}
 
 	public AuthenticationResult getResult()

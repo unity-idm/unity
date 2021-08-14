@@ -728,6 +728,12 @@
 				<artifactId>webauthn-server-core</artifactId>
 				<version>1.5.0</version>
 			</dependency>
+			<dependency>
+				<groupId>com.github.ua-parser</groupId>
+				<artifactId>uap-java</artifactId>
+				<version>1.5.2</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>

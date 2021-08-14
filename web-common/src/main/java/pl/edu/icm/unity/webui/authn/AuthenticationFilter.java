@@ -28,14 +28,16 @@ import com.vaadin.shared.ApplicationConstants;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.SessionCookie;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.webui.CookieHelper;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -48,7 +50,7 @@ public class AuthenticationFilter implements Filter
 
 	private List<String> protectedServletPaths;
 	private String authnServletPath;
-	private final String sessionCookie;
+	private final String sessionCookieName;
 	private UnsuccessfulAuthenticationCounter dosGauard;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
@@ -61,9 +63,13 @@ public class AuthenticationFilter implements Filter
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
+		//note: this is a separate counter to the main one which is stored as a servlet's attribute.
+		// this is 'cos we need to separate regular net traffic (and not to block it - otherwise even 
+		// notification about blocking woudn't show up). Still we need to prevent brute force attacks using 
+		// fake session cookies - this object is responsible only for that.
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
-		sessionCookie = StandardWebAuthenticationProcessor.getSessionCookieName(realm.getName());
+		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 		this.rememberMeHelper = rememberMeHelper;
@@ -175,7 +181,7 @@ public class AuthenticationFilter implements Filter
 			HttpServletResponse httpResponse, FilterChain chain, String clientIp)
 			throws IOException, ServletException, EopException
 	{
-		String loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
+		String loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookieName);
 		if (loginSessionId == null)
 		{
 			return;
@@ -276,7 +282,7 @@ public class AuthenticationFilter implements Filter
 
 	private void clearSessionCookie(HttpServletResponse response)
 	{
-		response.addCookie(CookieHelper.setupHttpCookie(sessionCookie, "", 0));
+		response.addCookie(CookieHelper.setupHttpCookie(sessionCookieName, "", 0));
 	}
 
 	@Override

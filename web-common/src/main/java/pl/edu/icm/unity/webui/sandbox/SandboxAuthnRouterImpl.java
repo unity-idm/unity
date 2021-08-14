@@ -18,7 +18,8 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.shared.Registration;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 
 /**
  * Simple implementation of {@link SandboxAuthnRouter} interface, used by
@@ -35,33 +36,21 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	{
 		authnListenerList = new HashMap<>();
 	}
-	
+
 	@Override
-	public void firePartialEvent(SandboxAuthnEvent event) 
+	public void fireEvent(SandboxAuthnEvent event) 
 	{
+		LOG.debug("Fire event: {}", event);
 		synchronized (authnListenerList)
 		{
 			for (Collection<AuthnResultListener> listeners : authnListenerList.values())
 			{
 				for (AuthnResultListener listener: listeners)
-					listener.onPartialAuthnResult(event);
+					listener.onSandboxAuthnResult(event);
 			}
 		}
 	}
 
-	@Override
-	public void fireCompleteEvent(AuthenticatedEntity entity) 
-	{
-		synchronized (authnListenerList)
-		{
-			for (Collection<AuthnResultListener> listeners : authnListenerList.values())
-			{
-				for (AuthnResultListener listener: listeners)
-					listener.onCompleteAuthnResult(entity);
-			}
-		}
-	}
-	
 	@Override
 	public void addListener(AuthnResultListener listener) 
 	{

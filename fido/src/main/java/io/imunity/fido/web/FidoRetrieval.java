@@ -5,29 +5,38 @@
 
 package io.imunity.fido.web;
 
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.fido.FidoExchange;
 import io.imunity.fido.component.FidoComponent;
 import io.imunity.fido.service.FidoCredentialVerificator;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -37,13 +46,6 @@ import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * Retrieves FIDO authentication input and validate FIDO authentication using FidoComponent.
@@ -97,7 +99,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new FidoRetrievalUI(credEditorReg.getEditor(FidoCredentialVerificator.NAME)));
@@ -187,13 +189,15 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			{
 				clear();
 				usernameField.focus();
-				String msgErr = msg.getMessage("Fido.invalidUsername");
-				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
+				AuthenticationResult exposedError = LocalAuthenticationResult.failed(
+						new ResolvableError("Fido.invalidUsername"));
+				callback.onCompletedAuthentication(exposedError);
 			} else
 			{
 				usernameField.focus();
-				String msgErr = msg.getMessage("Fido.authFailed");
-				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
+				AuthenticationResult exposedError = LocalAuthenticationResult.failed(
+						new ResolvableError("Fido.authFailed"));
+				callback.onCompletedAuthentication(exposedError);
 			}
 		}
 
@@ -277,18 +281,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		public void clear()
 		{
 			theComponent.clear();
-		}
-
-		@Override
-		public void refresh(VaadinRequest request)
-		{
-			// not used
-		}
-
-		@Override
-		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
-		{
-			// not used
 		}
 
 		/**

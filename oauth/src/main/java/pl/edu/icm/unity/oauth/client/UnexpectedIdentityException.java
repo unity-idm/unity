@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
-public class UnexpectedIdentityException extends RuntimeException
+class UnexpectedIdentityException extends RuntimeException
 {
-	public final String expectedIdentity;
+	final String expectedIdentity;
 
-	public UnexpectedIdentityException(String expectedIdentity)
+	UnexpectedIdentityException(String expectedIdentity)
 	{
 		this.expectedIdentity = expectedIdentity;
 	}

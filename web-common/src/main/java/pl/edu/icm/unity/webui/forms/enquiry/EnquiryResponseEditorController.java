@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -121,7 +121,7 @@ public class EnquiryResponseEditorController
 	}
 
 	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, Object> messageParams,
-			RemotelyAuthenticatedContext remoteContext, PrefilledSet set,
+			RemotelyAuthenticatedPrincipal remoteContext, PrefilledSet set,
 			List<PolicyAgreementConfiguration> filteredPolicyAgreement) throws Exception
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
@@ -131,7 +131,7 @@ public class EnquiryResponseEditorController
 	}
 
 	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, Map<String, Object> messageParams,
-			RemotelyAuthenticatedContext remoteContext, PrefilledSet prefilled,
+			RemotelyAuthenticatedPrincipal remoteContext, PrefilledSet prefilled,
 			EntityParam entityId) throws Exception
 	{
 		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
@@ -140,7 +140,7 @@ public class EnquiryResponseEditorController
 	}
 	
 	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, 
-			RemotelyAuthenticatedContext remoteContext) throws Exception
+			RemotelyAuthenticatedPrincipal remoteContext) throws Exception
 	{
 		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
 				new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),

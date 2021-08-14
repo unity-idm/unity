@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -26,8 +25,6 @@ import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class RegistrationFormsLayoutController
 {
-	private static final String REGISTRATION_VIEW_ATTRIBUTE_KEY = "AuthenticationUI_StandaloneRegistrationView";
-	
 	private EndpointRegistrationConfiguration registrationConfiguration;
 	private RegistrationsManagement registrationsManagement;
 	private ObjectFactory<StandaloneRegistrationView> viewFactory;
@@ -75,33 +72,5 @@ class RegistrationFormsLayoutController
 	public StandaloneRegistrationView createRegistrationView(RegistrationForm form)
 	{
 		return viewFactory.getObject().init(form);
-	}
-	
-	public void setSessionRegistrationAttribute(StandaloneRegistrationView view)
-	{
-		VaadinSession vaadinSession = VaadinSession.getCurrent();
-		if (vaadinSession != null)
-		{
-			vaadinSession.setAttribute(REGISTRATION_VIEW_ATTRIBUTE_KEY, view);
-		}
-	}
-	
-	public void resetSessionRegistraionAttribute()
-	{
-		VaadinSession vaadinSession = VaadinSession.getCurrent();
-		if (vaadinSession != null)
-		{
-			vaadinSession.setAttribute(REGISTRATION_VIEW_ATTRIBUTE_KEY, null);
-		}
-	}
-	
-	public StandaloneRegistrationView getSessionRegistraionAttribute()
-	{
-		VaadinSession vaadinSession = VaadinSession.getCurrent();
-		if (vaadinSession != null)
-		{
-			return (StandaloneRegistrationView) vaadinSession.getAttribute(REGISTRATION_VIEW_ATTRIBUTE_KEY);
-		}
-		return null;
 	}
 }

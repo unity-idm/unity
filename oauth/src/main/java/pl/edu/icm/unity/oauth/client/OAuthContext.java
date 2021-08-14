@@ -9,7 +9,6 @@ import java.net.URI;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
 
@@ -30,9 +29,9 @@ public class OAuthContext extends RemoteAuthnState
 	private String providerConfigKey;
 	private ExpectedIdentity expectedIdentity; 
 
-	public OAuthContext(AuthenticationOptionKey authenticatorOptionId)
+	public OAuthContext(RemoteAuthnState base)
 	{
-		super(authenticatorOptionId);
+		super(base);
 	}
 
 	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)

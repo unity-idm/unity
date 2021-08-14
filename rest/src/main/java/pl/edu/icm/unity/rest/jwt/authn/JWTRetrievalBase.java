@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 
@@ -57,7 +57,7 @@ public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTEx
 	{
 		String token = getToken();
 		if (token == null)
-			return new AuthenticationResult(Status.notApplicable, null);
+			return LocalAuthenticationResult.notApplicable();
 		log.debug("JWT token found: " + token);
 		try
 		{
@@ -65,7 +65,7 @@ public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTEx
 		} catch (Exception e)
 		{
 			log.warn("JWT credential validation failed", e);
-			return new AuthenticationResult(Status.deny, null);
+			return LocalAuthenticationResult.failed(e);
 		}
 	}
 

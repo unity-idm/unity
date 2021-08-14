@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -30,12 +29,6 @@ abstract class AuthNPanelBase extends CustomComponent implements AuthenticationU
 		this.authenticatorContainer = authenticatorContainer;
 	}
 
-	@Override
-	public void refresh(VaadinRequest request)
-	{
-		authnUI.refresh(request);
-	}
-	
 	@Override
 	public boolean focusIfPossible()
 	{

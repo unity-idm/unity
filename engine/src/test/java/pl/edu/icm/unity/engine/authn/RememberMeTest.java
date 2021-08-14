@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn;
+package pl.edu.icm.unity.engine.authn;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,6 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -58,7 +61,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 	
 	private void addCookieAndToken(AuthenticationRealm realm, HttpServletResponse response)
 	{
-		rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, "0.0.0.0", 1,
+		LoginMachineDetails loginMachine = new LoginMachineDetails("0.0.0.0", "OS", "Browser");
+		rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, loginMachine, 1,
 				new Date(), 
 				new AuthenticationOptionKey("firstFactor", "o1"), 
 				new AuthenticationOptionKey("secondFactor", "o2"));
@@ -78,7 +82,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(cookieSplit.length, is(2));
 		String rememberMeSeriesToken = cookieSplit[0];
 		
-		Token tokenById = tokenMan.getTokenById(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE,
+		Token tokenById = tokenMan.getTokenById(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE,
 				rememberMeSeriesToken);
 		assertThat(tokenById, notNullValue());
 		RememberMeToken rememberMeUnityToken = RememberMeToken
@@ -103,7 +107,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 
 		verify(response).addCookie(cookieArgument.capture());
 		assertThat(cookieArgument.getValue().getValue(), notNullValue());
-		assertThat(tokenMan.getAllTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE).size(),
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
 				is(1));
 		Cookie added = cookieArgument.getValue();
 		when(request.getCookies()).thenReturn(new Cookie[] { added });
@@ -111,7 +115,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		rememberMeProcessor.removeRememberMeWithWholeAuthn(realm.getName(), request,
 				response);
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE).size(),
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
 				is(0));
 	}
 	
@@ -189,7 +193,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Cookie removedCookie = removedCookieArgument.getValue();
 		assertThat(removedCookie.getMaxAge(), is(0));
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE).size(),
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
 				is(0));
 	}
 
@@ -218,7 +222,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		
 		assertThat(counterArgument.getValue(), is("0.0.0.0"));
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE).size(),
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
 				is(0));
 	}
 	

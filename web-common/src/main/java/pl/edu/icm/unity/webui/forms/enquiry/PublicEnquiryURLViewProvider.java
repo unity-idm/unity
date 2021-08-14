@@ -22,7 +22,6 @@ import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webui.forms.PublicFormURLProviderBase;
-import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
 /**
@@ -101,15 +100,4 @@ public class PublicEnquiryURLViewProvider extends PublicFormURLProviderBase
 		}
 		return null;
 	}
-
-	@Override
-	protected StandalonePublicView getViewFromSession()
-	{
-		VaadinSession vaadinSession  = VaadinSession.getCurrent();
-		if (vaadinSession == null)
-			return null;
-		
-		return vaadinSession.getAttribute(StandalonePublicEnquiryView.class);
-	}
-	
 }

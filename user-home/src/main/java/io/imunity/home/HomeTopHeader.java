@@ -12,7 +12,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeader;
@@ -27,7 +27,7 @@ public class HomeTopHeader extends TopHeader
 {
 	private Optional<String> projectManLink;
 
-	public HomeTopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, MessageSource msg,
+	public HomeTopHeader(String title, StandardWebLogoutHandler authnProcessor, MessageSource msg,
 			Optional<String> upManLink)
 	{
 		super(title, authnProcessor, msg);

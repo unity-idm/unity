@@ -6,8 +6,12 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.function.Function;
 
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 
 /**
  * Base class for storing some context information related to external login.
@@ -15,19 +19,46 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
  */
 public class RemoteAuthnState
 {
-	public static final String CURRENT_REMOTE_AUTHN_OPTION_SESSION_ATTRIBUTE = RemoteAuthnState.class.getName() 
-			+ "_authenticatorOptionId";
-	
 	private final String relayState;
 	private final Date creationTime;
-	private final AuthenticationOptionKey authenticatorOptionId;
-	private SandboxAuthnResultCallback sandboxCallback;
+	private final AuthenticationStepContext authenticationContext;
+	private final LoginMachineDetails initialLoginMachine;
+	private final String ultimateReturnURL;
+	private final AuthenticationTriggeringContext authenticationTriggeringContext;
+	private final Function<RemoteAuthnState, AuthenticationResult> responseHandler;
 	
-	public RemoteAuthnState(AuthenticationOptionKey authenticatorOptionId)
+	public RemoteAuthnState(AuthenticationStepContext authenticationContext, 
+			Function<RemoteAuthnState, AuthenticationResult> responseHandler,
+			LoginMachineDetails initialLoginMachine, 
+			String ultimateReturnURL,
+			AuthenticationTriggeringContext authenticationTriggeringContext)
 	{
-		this.authenticatorOptionId = authenticatorOptionId;
+		if (authenticationTriggeringContext.firstFactorAuthnState != null 
+				&& authenticationContext.factor == FactorOrder.FIRST)
+			throw new IllegalArgumentException("Can't set first factor result for the first factor state");
+		if (authenticationTriggeringContext.firstFactorAuthnState == null 
+				&& authenticationContext.factor == FactorOrder.SECOND)
+			throw new IllegalArgumentException("Must set first factor result for the second factor state");
+		this.authenticationContext = authenticationContext;
+		this.responseHandler = responseHandler;
+		this.initialLoginMachine = initialLoginMachine;
+		this.ultimateReturnURL = ultimateReturnURL;
+		this.authenticationTriggeringContext = authenticationTriggeringContext;
 		this.relayState = UUID.randomUUID().toString();
 		this.creationTime = new Date();
+	}
+
+	public RemoteAuthnState(RemoteAuthnState toCopy)
+	{
+		this(toCopy.authenticationContext, toCopy.responseHandler, 
+				toCopy.initialLoginMachine, 
+				toCopy.ultimateReturnURL, 
+				toCopy.authenticationTriggeringContext);
+	}
+	
+	public AuthenticationTriggeringContext getAuthenticationTriggeringContext()
+	{
+		return authenticationTriggeringContext;
 	}
 
 	public String getRelayState()
@@ -40,18 +71,23 @@ public class RemoteAuthnState
 		return creationTime;
 	}
 
-	public AuthenticationOptionKey getAuthenticatorOptionId() 
+	public AuthenticationStepContext getAuthenticationStepContext() 
 	{
-		return authenticatorOptionId;
+		return authenticationContext;
 	}
 
-	public SandboxAuthnResultCallback getSandboxCallback()
+	public LoginMachineDetails getInitialLoginMachine()
 	{
-		return sandboxCallback;
+		return initialLoginMachine;
 	}
 
-	public void setSandboxCallback(SandboxAuthnResultCallback sandboxCallback)
+	public String getUltimateReturnURL()
 	{
-		this.sandboxCallback = sandboxCallback;
+		return ultimateReturnURL;
+	}
+
+	public AuthenticationResult processAnswer()
+	{
+		return responseHandler.apply(this);
 	}
 }

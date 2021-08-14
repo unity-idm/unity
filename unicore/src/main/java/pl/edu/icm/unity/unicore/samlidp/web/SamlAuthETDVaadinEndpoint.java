@@ -25,6 +25,7 @@ import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 
 /**
@@ -52,11 +53,13 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlUnicoreIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory,
-				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService);
+				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
+				remoteAuthnResponseProcessingFilter);
 	}
 
 	@Override

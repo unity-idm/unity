@@ -57,19 +57,14 @@ public interface AuthenticationProcessor
 	
 	/**
 	 * Extracts and returns all remote {@link SessionParticipant}s from the {@link AuthenticationResult}s.
-	 * @param results
-	 * @return
-	 * @throws AuthenticationException
 	 */
 	public static List<SessionParticipant> extractParticipants(AuthenticationResult... results) 
-			throws AuthenticationException
 	{
 		List<SessionParticipant> ret = new ArrayList<>();
 		for (AuthenticationResult result: results)
 		{
-			if (result.getRemoteAuthnContext() != null && 
-					result.getRemoteAuthnContext().getSessionParticipants() != null)
-				ret.addAll(result.getRemoteAuthnContext().getSessionParticipants());
+			if (result.isRemote() && result.asRemote().getSuccessResult().remotePrincipal.getSessionParticipants() != null)
+				ret.addAll(result.asRemote().getSuccessResult().remotePrincipal.getSessionParticipants());
 		}
 		return ret;
 	}

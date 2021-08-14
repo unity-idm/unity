@@ -30,6 +30,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
@@ -69,7 +70,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -119,11 +120,13 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
-				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService);
+				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
+				remoteAuthnResponseProcessingFilter);
 	}
 
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath,
@@ -140,9 +143,11 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			MessageSource msg,
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
-			URIAccessService uriAccessService)
+			URIAccessService uriAccessService,
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
-		super(server, advertisedAddrProvider, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
+		super(server, advertisedAddrProvider, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH,
+				remoteAuthnResponseProcessingFilter);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
 		this.dispatcherServletFactory = dispatcherServletFactory;
@@ -202,6 +207,9 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
 		context.addServlet(samlParseHolder, publicEntryPointPath + "/*");
 
+		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST));
+		
 		Filter samlGuardFilter = new SamlGuardFilter(new ErrorHandler(aTypeSupport, freemarkerHandler));
 		context.addFilter(new FilterHolder(samlGuardFilter), SAML_ENTRY_SERVLET_PATH, 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
@@ -242,7 +250,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
-				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
+				description.getRealm());
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 

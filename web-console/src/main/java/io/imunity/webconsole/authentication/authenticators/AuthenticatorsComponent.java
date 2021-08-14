@@ -21,6 +21,7 @@ import io.imunity.webconsole.translationProfile.dryrun.DryRunWizardProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 /**

@@ -9,7 +9,7 @@ import java.util.function.Function;
 import org.springframework.beans.factory.ObjectFactory;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
@@ -41,7 +41,7 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 			TriggeringMode mode);
 	
 	@Override
-	public void showRegistrationDialog(RegistrationForm form, RemotelyAuthenticatedContext remoteContext,
+	public void showRegistrationDialog(RegistrationForm form, RemotelyAuthenticatedPrincipal remoteContext,
 			TriggeringMode mode, AsyncErrorHandler errorHandler)
 	{
 		if (isRemoteLoginWhenUnknownUser(mode))
@@ -59,7 +59,7 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 	}
 
 	private EditorCreatedCallbackImpl showFistStageDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
+			RemotelyAuthenticatedPrincipal remoteContext, TriggeringMode mode,
 			AsyncErrorHandler errorHandler)
 	{
 		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
@@ -77,7 +77,7 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 	}
 	
 	private EditorCreatedCallbackImpl showSecondStageDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
+			RemotelyAuthenticatedPrincipal remoteContext, TriggeringMode mode,
 			AsyncErrorHandler errorHandler)
 	{
 		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();

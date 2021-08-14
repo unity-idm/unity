@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.JsonError;
 
 /**
@@ -23,11 +22,11 @@ import pl.edu.icm.unity.types.JsonError;
  * @author K. Benedyczak
  */
 @Provider
-public class EngineExceptionMapper implements ExceptionMapper<EngineException>
+public class EngineExceptionMapper implements ExceptionMapper<Exception>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, EngineExceptionMapper.class);
 	
-	public Response toResponse(EngineException ex)
+	public Response toResponse(Exception ex)
 	{
 		if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
 		{

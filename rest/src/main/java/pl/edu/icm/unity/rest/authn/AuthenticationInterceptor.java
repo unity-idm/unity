@@ -58,7 +58,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private MessageSource msg;
 	private AuthenticationProcessor authenticationProcessor;
 	protected List<AuthenticationFlow> authenticators;
-	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
+	protected UnsuccessfulAuthenticationCounter UnsuccessfulAuthenticationCounterImpl;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
@@ -77,7 +77,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		this.authenticators = authenticators;
 		this.endpointProperties = endpointProperties;
 		this.entityMan = entityMan;
-		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
+		this.UnsuccessfulAuthenticationCounterImpl = new UnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
 		this.notProtectedPaths.addAll(notProtectedPaths);
@@ -87,7 +87,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	public void handleMessage(Message message) throws Fault
 	{
 		String ip = getClientIP();
-		if (unsuccessfulAuthenticationCounter.getRemainingBlockedTime(ip) > 0)
+		if (UnsuccessfulAuthenticationCounterImpl.getRemainingBlockedTime(ip) > 0)
 		{
 			log.info("Authentication blocked for client with IP " + ip);
 			throw new Fault(new Exception("Too many invalid authentication attempts, try again later"));
@@ -125,7 +125,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		if (client == null)
 		{
 			log.info("Authentication failed for client");
-			unsuccessfulAuthenticationCounter.unsuccessfulAttempt(ip);
+			UnsuccessfulAuthenticationCounterImpl.unsuccessfulAttempt(ip);
 			throw new Fault(firstError == null ? new Exception("Authentication failed") : firstError);
 		} else
 		{
@@ -157,7 +157,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		if (log.isDebugEnabled())
 			log.info("Client was successfully authenticated: [" + 
 					client.entity.getEntityId() + "] " + client.entity.getAuthenticatedWith().toString());
-		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
+		UnsuccessfulAuthenticationCounterImpl.successfulAttempt(ip);
 		
 		String label = getLabel(client.entity.getEntityId());
 		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 

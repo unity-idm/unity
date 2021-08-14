@@ -5,16 +5,20 @@
 package pl.edu.icm.unity.oauth.client;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 /**
  * Awaits OAuth responses and handles them. The responses have their state extracted and OAuthn context 
@@ -27,11 +31,14 @@ public class ResponseConsumerServlet extends HttpServlet
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ResponseConsumerServlet.class);
 	public static final String PATH = "/oauth2ResponseConsumer";
 	
-	private OAuthContextsManagement contextManagement;
+	private final OAuthContextsManagement contextManagement;
+	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 
-	public ResponseConsumerServlet(OAuthContextsManagement contextManagement)
+	public ResponseConsumerServlet(OAuthContextsManagement contextManagement, 
+			SharedRemoteAuthenticationContextStore remoteAuthnContextStore)
 	{
 		this.contextManagement = contextManagement;
+		this.remoteAuthnContextStore = remoteAuthnContextStore;
 	}
 	
 	@Override
@@ -52,7 +59,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		try
 		{
 			context = contextManagement.getAuthnContext(state);
-		} catch (WrongArgumentException e)
+		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Got a request to the OAuth response consumer endpoint " +
 					"with invalid state parameter");
@@ -71,9 +78,22 @@ public class ResponseConsumerServlet extends HttpServlet
 		{
 			context.setAuthzCode(req.getParameter("code"));
 		}
-		
+		remoteAuthnContextStore.addAuthnContext(context);
 		log.debug("Received OAuth response for authenticator {} with valid state {}, redirecting to {}", 
-				context.getAuthenticatorOptionId(), state, context.getReturnUrl());
-		resp.sendRedirect(context.getReturnUrl());
+				context.getAuthenticationStepContext().authnOptionId, state, context.getReturnUrl());
+		resp.sendRedirect(getRedirectWithContextIdParam(context.getReturnUrl(), state));
+	}
+	
+	private String getRedirectWithContextIdParam(String returnURL, String relayState) throws IOException
+	{
+		try
+		{
+			URIBuilder uriBuilder = new URIBuilder(returnURL);
+			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
+			return uriBuilder.build().toString();
+		} catch (URISyntaxException e)
+		{
+			throw new IOException("Can't build return URL", e);
+		}
 	}
 }

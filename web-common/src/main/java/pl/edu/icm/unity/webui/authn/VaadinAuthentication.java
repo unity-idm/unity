@@ -5,16 +5,15 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
-import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -39,7 +38,7 @@ public interface VaadinAuthentication extends BindingAuthn
 	 * @return a new instance of the credential retrieval UIs. The collection is returned as one authenticator 
 	 * may provide many authN options (e.g. many remote IdPs). 
 	 */
-	Collection<VaadinAuthenticationUI> createUIInstance(Context context);
+	Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext);
 	
 	/**
 	 * @return true only if {@link VaadinAuthenticationUI#getGridCompatibleComponent()} 
@@ -85,13 +84,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		}
 		
 		/**
-		 * TODO do we need separate ? 
-		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
-		 * authn is returned back to the sandbox servlet. 
-		 */
-		void setSandboxAuthnCallback(SandboxAuthnResultCallback callback);
-		
-		/**
 		 * @return label for presentation in the user interface, used for presentation in grid. 
 		 * Not used without grid.
 		 */
@@ -112,12 +104,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * Called after login was cancelled or finished, so the component can clear its state. 
 		 */
 		void clear();
-
-		/**
-		 * Invoked when browser refreshes.
-		 * @param request that caused UI to be reloaded 
-		 */
-		void refresh(VaadinRequest request);
 
 		/**
 		 * @return unique identifier of this authentication option. The id must be unique among  
@@ -160,13 +146,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		}
 	}
 
-	enum AuthenticationStyle 
-	{
-		IMMEDIATE,
-		WITH_EMBEDDED_CANCEL,
-		WITH_EXTERNAL_CANCEL
-	}
-	
 	/**
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
 	 * @author K. Benedyczak
@@ -176,7 +155,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		/**
 		 * Should be always called after authentication is started
 		 */
-		void onStartedAuthentication(AuthenticationStyle authenticationStyle);
+		void onStartedAuthentication();
 		
 		/**
 		 * Should be called after authentication result is obtained
@@ -184,14 +163,11 @@ public interface VaadinAuthentication extends BindingAuthn
 		void onCompletedAuthentication(AuthenticationResult result);
 
 		/**
-		 * Should be called after authentication result is obtained and authentication has failed
-		 */
-		void onFailedAuthentication(AuthenticationResult result, String error, Optional<String> errorDetail);
-		
-		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 
 		 * in the component
 		 */
 		void onCancelledAuthentication();
+		
+		AuthenticationTriggeringContext getTriggeringContext();
 	}
 }

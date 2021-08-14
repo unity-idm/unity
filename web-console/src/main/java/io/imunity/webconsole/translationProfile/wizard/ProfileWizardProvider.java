@@ -6,18 +6,13 @@ package io.imunity.webconsole.translationProfile.wizard;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import com.vaadin.ui.UI;
-
-import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.tprofile.TranslationProfileEditDialog.Callback;
+import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 /**
@@ -58,23 +53,14 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 		//and when the page is loaded with back button
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
 
-		addSandboxListener(new AuthnResultListener()
+		addSandboxListener(event ->
 		{
-			@Override
-			public void onPartialAuthnResult(SandboxAuthnEvent event)
-			{
-				RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.getCtx()); 
-				profileStep.handle(sandboxedCtx.getAuthnContext().getAuthnInput());
-				sandboxStep.enableNext();
-				wizard.next();
-				wizard.getBackButton().setEnabled(false);				
-			}
-
-			@Override
-			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
-			{
-			}
-		}, wizard, UI.getCurrent(), false);
+			RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.ctx); 
+			profileStep.handle(sandboxedCtx.getAuthnContext().getAuthnInput());
+			sandboxStep.enableNext();
+			wizard.next();
+			wizard.getBackButton().setEnabled(false);				
+		}, wizard, false);
 		
 		return wizard;
 	}

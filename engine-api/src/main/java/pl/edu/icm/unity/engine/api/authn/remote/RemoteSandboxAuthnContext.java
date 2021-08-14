@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
-import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 
 
 /**
  * Stores full information on the remote sandboxed authentication.
- * Either {@link RemotelyAuthenticatedContext} is
+ * Either {@link RemotelyAuthenticatedPrincipal} is
  * provided (successful authN) or exception with unprocessed {@link RemotelyAuthenticatedInput}.
  * The most of the information is in authnContext, which is enriched with logs and potential error.
  * User should be careful when using the authnResult. It may happen that many of the 
@@ -19,36 +19,47 @@ import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
  */
 public class RemoteSandboxAuthnContext implements SandboxAuthnContext
 {
-	private RemotelyAuthenticatedContext authnContext;
-	private Exception authnException;
-	private String logs;
+	private final RemotelyAuthenticatedPrincipal authnContext;
+	private final Exception authnException;
+	private final String logs;
 
-	public RemoteSandboxAuthnContext(RemotelyAuthenticatedContext authnResult, String logs)
+	private RemoteSandboxAuthnContext(RemotelyAuthenticatedPrincipal authnContext, Exception authnException,
+			String logs)
 	{
-		this.authnContext = authnResult;
-		this.logs = logs;
-	}
-	
-	public RemoteSandboxAuthnContext(Exception authnException, String logs, 
-			RemotelyAuthenticatedInput input)
-	{
+		this.authnContext = authnContext;
 		this.authnException = authnException;
 		this.logs = logs;
-		if (input != null)
-		{
-			authnContext = new RemotelyAuthenticatedContext(input.getIdpName(), null);
-			authnContext.setAuthnInput(input);
-		}
 	}
 
-	public RemotelyAuthenticatedContext getAuthnContext()
+	public static RemoteSandboxAuthnContext succeededAuthn(RemotelyAuthenticatedPrincipal authnResult, String logs)
+	{
+		return new RemoteSandboxAuthnContext(authnResult, null, logs);
+	}
+	
+	public static RemoteSandboxAuthnContext failedAuthn(Exception authnException, String logs, 
+			RemotelyAuthenticatedInput input)
+	{
+		RemotelyAuthenticatedPrincipal authnContext;
+		if (input != null)
+		{
+			authnContext = new RemotelyAuthenticatedPrincipal(input.getIdpName(), null);
+			authnContext.setAuthnInput(input);
+		} else
+			authnContext = null;
+		return new RemoteSandboxAuthnContext(authnContext, authnException, logs);
+	}
+
+	@Override
+	public RemotelyAuthenticatedPrincipal getAuthnContext()
 	{
 		return authnContext;
 	}
+	@Override
 	public Exception getAuthnException()
 	{
 		return authnException;
 	}
+	@Override
 	public String getLogs()
 	{
 		return logs;
