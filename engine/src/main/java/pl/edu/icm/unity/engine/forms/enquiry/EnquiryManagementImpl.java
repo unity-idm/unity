@@ -168,11 +168,20 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public void removeEnquiry(String formId, boolean dropRequests, boolean ignoreDependencyChecking) throws EngineException
+	public void removeEnquiry(String formId, boolean dropRequests) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		internalManagment.preRemoveForm(formId, dropRequests, requestDB);
-		enquiryFormDB.delete(formId, ignoreDependencyChecking);
+		internalManagment.dropOrValidateFormRequests(formId, dropRequests);
+		enquiryFormDB.delete(formId);
+	}
+	
+	@Transactional
+	@Override
+	public void removeEnquiryWithoutDependencyChecking(String formId) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		internalManagment.dropOrValidateFormRequests(formId, true);
+		enquiryFormDB.deleteWithoutDependencyChecking(formId);
 	}
 	
 	@Transactional
@@ -185,7 +194,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		String formId = updatedForm.getName();
 		if (!ignoreRequestsAndInvitations)
 		{
-			internalManagment.validateIfHasPendingRequests(formId, requestDB);
+			internalManagment.validateIfHasPendingRequests(formId);
 			internalManagment.validateIfHasInvitations(formId, InvitationType.ENQUIRY);
 		}
 		enquiryFormDB.update(updatedForm);

@@ -791,7 +791,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (dropRequests == null)
 			dropRequests = false;
-		registrationManagement.removeForm(formId, dropRequests, false);
+		registrationManagement.removeForm(formId, dropRequests);
 	}
 	
 	@Path("/registrationForm")

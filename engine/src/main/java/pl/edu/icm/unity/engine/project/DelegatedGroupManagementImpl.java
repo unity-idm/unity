@@ -142,27 +142,45 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		GroupDelegationConfiguration delegationConfig = group.getDelegationConfiguration();
 		if (delegationConfig.enabled)
 		{
-			removeRelatedForms(group.getDelegationConfiguration());
+			throw new RemovalOfSubProjectGroupException(projectPath);
 		}
 		
 		groupMan.removeGroup(path, true);
+	}
+	
+	@Override
+	@Transactional
+	public void removeProject(String projectPath, String subProjectPath) throws EngineException
+	{
+		authz.assertProjectsAdminAuthorization(projectPath, subProjectPath);
+		if (projectPath.equals(subProjectPath))
+			throw new RemovalOfProjectGroupException(projectPath);
+		
+		Group group = getGroupInternal(subProjectPath);
+		GroupDelegationConfiguration delegationConfig = group.getDelegationConfiguration();
+		if (delegationConfig.enabled)
+		{
+			removeRelatedForms(group.getDelegationConfiguration());
+		} 
+		
+		groupMan.removeGroup(subProjectPath, true);
 	}
 	
 	private void removeRelatedForms(GroupDelegationConfiguration groupConfig) throws EngineException
 	{
 		if (!Strings.isNullOrEmpty(groupConfig.registrationForm))
 		{
-			registrationsManagement.removeForm(groupConfig.registrationForm, true, true);
+			registrationsManagement.removeFormWithoutDependencyChecking(groupConfig.registrationForm);
 		}
 		
 		if (!Strings.isNullOrEmpty(groupConfig.signupEnquiryForm))
 		{
-			enquiryManagement.removeEnquiry(groupConfig.signupEnquiryForm, true, true);
+			enquiryManagement.removeEnquiryWithoutDependencyChecking(groupConfig.signupEnquiryForm);
 		}
 		
 		if (!Strings.isNullOrEmpty(groupConfig.membershipUpdateEnquiryForm))
 		{
-			enquiryManagement.removeEnquiry(groupConfig.membershipUpdateEnquiryForm, true, true);
+			enquiryManagement.removeEnquiryWithoutDependencyChecking(groupConfig.membershipUpdateEnquiryForm);
 		}		
 	}
 	
@@ -333,7 +351,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public void setGroupDelegationConfiguration(String projectPath, String groupPath, SubprojectGroupDelegationConfiguration subprojectDelegationConfiguration) throws EngineException
 	{
 
-		authz.assertProjectsAdminSubprojectCreationAuthorization(projectPath, groupPath);
+		authz.assertProjectsAdminAuthorization(projectPath, groupPath);
 		Group projectGroup = getGroupInternal(projectPath);
 		GroupDelegationConfiguration projectDelConfig = projectGroup.getDelegationConfiguration();
 		Group group = getGroupInternal(groupPath);
@@ -550,6 +568,14 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		public RemovalOfProjectGroupException(String group)
 		{
 			super("Can not remove the main project group " + group);
+		}
+	}
+	
+	public static class RemovalOfSubProjectGroupException extends InternalException
+	{
+		public RemovalOfSubProjectGroupException(String group)
+		{
+			super("Can not remove the sub-project group " + group);
 		}
 	}
 

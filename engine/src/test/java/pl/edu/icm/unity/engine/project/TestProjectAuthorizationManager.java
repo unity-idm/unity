@@ -169,7 +169,7 @@ public class TestProjectAuthorizationManager
 
 		
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.assertProjectsAdminSubprojectCreationAuthorization("/project", "/project/sub"));
+				() -> mockAuthz.assertProjectsAdminAuthorization("/project", "/project/sub"));
 		assertAuthzException(ex);
 	}
 	
@@ -188,7 +188,7 @@ public class TestProjectAuthorizationManager
 								GroupAuthorizationRole.manager.toString())),
 						false), 1L)));
 		Throwable ex = catchThrowable(
-				() -> mockAuthz.assertProjectsAdminSubprojectCreationAuthorization("/project", "/project/sub"));
+				() -> mockAuthz.assertProjectsAdminAuthorization("/project", "/project/sub"));
 		assertAuthzException(ex);
 	}
 
