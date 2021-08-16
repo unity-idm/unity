@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -282,7 +282,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			String ultimateReturnURL,
 			AuthenticationTriggeringContext triggeringContext)
 	{
-		RemoteAuthnState baseState = new RemoteAuthnState(authnStepContext, this::processResponse, 
+		RedirectedAuthnState baseState = new RedirectedAuthnState(authnStepContext, this::processResponse, 
 				initialLoginMachine, ultimateReturnURL, triggeringContext);
 		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
 				baseState);
@@ -303,7 +303,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		return context;
 	}
 
-	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
+	private AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState)
 	{
 		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
 		try

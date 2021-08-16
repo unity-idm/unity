@@ -8,7 +8,7 @@ import java.net.URI;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
 
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.authn.ExpectedIdentity;
  * This class is thread safe.
  * @author K. Benedyczak
  */
-public class OAuthContext extends RemoteAuthnState
+public class OAuthContext extends RedirectedAuthnState
 {
 	private AuthorizationRequest request;
 	private URI requestURI;
@@ -29,7 +29,7 @@ public class OAuthContext extends RemoteAuthnState
 	private String providerConfigKey;
 	private ExpectedIdentity expectedIdentity; 
 
-	public OAuthContext(RemoteAuthnState base)
+	public OAuthContext(RedirectedAuthnState base)
 	{
 		super(base);
 	}

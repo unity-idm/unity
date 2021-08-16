@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
@@ -40,7 +40,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 	}
 
 	@Override
-	public PostAuthenticationStepDecision processResponse(RemoteAuthnState authnContext,
+	public PostAuthenticationStepDecision processResponse(RedirectedAuthnState authnContext,
 			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
 	{
 		AuthenticationTriggeringContext triggeringContext = authnContext.getAuthenticationTriggeringContext();
@@ -49,7 +49,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 			processResponseInProductionMode(authnContext, httpRequest, httpResponse, triggeringContext);
 	}
 
-	private PostAuthenticationStepDecision processResponseInProductionMode(RemoteAuthnState authnContext, 
+	private PostAuthenticationStepDecision processResponseInProductionMode(RedirectedAuthnState authnContext, 
 			HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, AuthenticationTriggeringContext triggeringContext)
 	{
@@ -66,7 +66,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 		}
 	}
 
-	private PostAuthenticationStepDecision processResponseInSandboxMode(RemoteAuthnState authnContext, 
+	private PostAuthenticationStepDecision processResponseInSandboxMode(RedirectedAuthnState authnContext, 
 			HttpServletRequest httpRequest,
 			AuthenticationTriggeringContext triggeringContext)
 	{
@@ -146,7 +146,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 							null));
 	}
 	
-	private PostAuthenticationStepDecision processRegularAuthenticationResult(RemoteAuthnState authnContext, 
+	private PostAuthenticationStepDecision processRegularAuthenticationResult(RedirectedAuthnState authnContext, 
 			HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, AuthenticationResult authnResult)
 	{
@@ -169,7 +169,7 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 							httpResponse);
 	}
 	
-	private PostAuthenticationStepDecision processSandboxAuthenticationResult(RemoteAuthnState authnContext, 
+	private PostAuthenticationStepDecision processSandboxAuthenticationResult(RedirectedAuthnState authnContext, 
 			HttpServletRequest httpRequest,
 			SandboxAuthenticationResult authnResult)
 	{

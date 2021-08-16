@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -59,7 +59,7 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 		}
 		log.debug("Processing remote authentication with context id {}", requestId);
 
-		RemoteAuthnState authnContext;
+		RedirectedAuthnState authnContext;
 		try
 		{
 			authnContext = remoteAuthnContextStore.getAuthnContext(requestId);
