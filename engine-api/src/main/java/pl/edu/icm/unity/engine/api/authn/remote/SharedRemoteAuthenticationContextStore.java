@@ -7,6 +7,6 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SharedRemoteAuthenticationContextStore extends RemoteAuthenticationContextManagement<RemoteAuthnState>
+public class SharedRemoteAuthenticationContextStore extends RemoteAuthenticationContextManagement<RedirectedAuthnState>
 {
 }
