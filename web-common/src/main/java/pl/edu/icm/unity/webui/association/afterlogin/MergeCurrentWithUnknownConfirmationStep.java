@@ -44,8 +44,9 @@ class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 	void setAuthnData(SandboxAuthnEvent event)
 	{
 		SandboxAuthnContext ctx = event.ctx;
-		if (ctx.getAuthnException() != null)
+		if (ctx.getAuthnException().isPresent())
 		{
+			log.info("Sandbox got authn error", ctx.getAuthnException().get());
 			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
 		} else if (!ctx.getRemotePrincipal().isPresent())
 		{
