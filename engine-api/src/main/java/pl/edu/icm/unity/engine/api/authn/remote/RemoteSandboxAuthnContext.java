@@ -68,4 +68,11 @@ public class RemoteSandboxAuthnContext implements SandboxAuthnContext
 	{
 		return logs;
 	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("RemoteSandboxAuthnContext [authnContext=%s, authnException=%s]",
+				authnContext, authnException);
+	}
 }
