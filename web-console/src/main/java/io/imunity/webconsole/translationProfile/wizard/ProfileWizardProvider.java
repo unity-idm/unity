@@ -55,8 +55,8 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 
 		addSandboxListener(event ->
 		{
-			RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.ctx); 
-			profileStep.handle(sandboxedCtx.getAuthnContext().getAuthnInput());
+			RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.ctx);
+			profileStep.handle(sandboxedCtx.getRemotePrincipal().get().getAuthnInput());
 			sandboxStep.enableNext();
 			wizard.next();
 			wizard.getBackButton().setEnabled(false);				

@@ -66,8 +66,9 @@ class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
+		SandboxAuthenticationResult sandboxAuthnResult = SandboxAuthenticationResult.getInstanceFromResult(result);
 		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorSandboxAuthnResult(
-				partialState, (SandboxAuthenticationResult) result, stepContext, 
+				partialState, sandboxAuthnResult, stepContext, 
 				loginMachineDetails, servletRequest, sandboxRouter);
 		switch (postSecondFactorDecision.getDecision())
 		{

@@ -47,12 +47,16 @@ class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 		if (ctx.getAuthnException() != null)
 		{
 			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
+		} else if (!ctx.getRemotePrincipal().isPresent())
+		{
+			log.error("Bug: sandbox authn context without remote principal used for merge with unknown remote user: {}", ctx);
+			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
 		} else
 		{
-			if (!translationEngine.identitiesNotPresentInDb(ctx.getAuthnContext().getMappingResult()))
+			if (!translationEngine.identitiesNotPresentInDb(ctx.getRemotePrincipal().get().getMappingResult()))
 			{
 				MappedIdentity existingIdentity = translationEngine.getExistingIdentity(
-						ctx.getAuthnContext().getMappingResult());
+						ctx.getRemotePrincipal().get().getMappingResult());
 				Entity existingEntity;
 				try
 				{
@@ -69,7 +73,7 @@ class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 				}
 			} else
 			{
-				authnContext = ctx.getAuthnContext();
+				authnContext = ctx.getRemotePrincipal().get();
 				introLabel.setHtmlValue("ConnectId.ConfirmStep.info", authnContext.getRemoteIdPName());
 			}
 		}
