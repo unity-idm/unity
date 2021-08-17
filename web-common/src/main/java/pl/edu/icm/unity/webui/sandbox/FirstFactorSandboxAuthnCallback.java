@@ -69,9 +69,9 @@ class FirstFactorSandboxAuthnCallback implements AuthenticationCallback
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
+		SandboxAuthenticationResult sandboxAuthnResult = SandboxAuthenticationResult.getInstanceFromResult(result);
 		PostAuthenticationStepDecision postFirstFactorDecision = authnProcessor.processFirstFactorSandboxAuthnResult(
-				(SandboxAuthenticationResult) result, 
-				stepContext, loginMachineDetails, servletRequest, sandboxRouter);
+				sandboxAuthnResult, stepContext, loginMachineDetails, servletRequest, sandboxRouter);
 		switch (postFirstFactorDecision.getDecision())
 		{
 		case COMPLETED:

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 
 
@@ -19,15 +21,15 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
  */
 public class RemoteSandboxAuthnContext implements SandboxAuthnContext
 {
-	private final RemotelyAuthenticatedPrincipal authnContext;
-	private final Exception authnException;
+	private final Optional<RemotelyAuthenticatedPrincipal> authnContext;
+	private final Optional<Exception> authnException;
 	private final String logs;
 
 	private RemoteSandboxAuthnContext(RemotelyAuthenticatedPrincipal authnContext, Exception authnException,
 			String logs)
 	{
-		this.authnContext = authnContext;
-		this.authnException = authnException;
+		this.authnContext = Optional.ofNullable(authnContext);
+		this.authnException = Optional.ofNullable(authnException);
 		this.logs = logs;
 	}
 
@@ -50,15 +52,17 @@ public class RemoteSandboxAuthnContext implements SandboxAuthnContext
 	}
 
 	@Override
-	public RemotelyAuthenticatedPrincipal getAuthnContext()
+	public Optional<RemotelyAuthenticatedPrincipal> getRemotePrincipal()
 	{
 		return authnContext;
 	}
+	
 	@Override
-	public Exception getAuthnException()
+	public Optional<Exception> getAuthnException()
 	{
 		return authnException;
 	}
+	
 	@Override
 	public String getLogs()
 	{

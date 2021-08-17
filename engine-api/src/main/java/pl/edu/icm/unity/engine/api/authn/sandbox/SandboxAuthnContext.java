@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.authn.sandbox;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
 public interface SandboxAuthnContext
 {
-	RemotelyAuthenticatedPrincipal getAuthnContext();
-	Exception getAuthnException();
+	Optional<RemotelyAuthenticatedPrincipal> getRemotePrincipal();
+	Optional<Exception> getAuthnException();
 	String getLogs();
 }
