@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.AdminComment;
+import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
@@ -321,10 +322,10 @@ public class BaseSharedRegistrationSupport
 						"this form, and it was not chosen to ignore them.");
 	}
 	
-	public void validateIfHasInvitations(String formId, InvitationType type) throws EngineException
+	public void validateIfHasInvitations(BaseForm formId, InvitationType type) throws EngineException
 	{
 		if (invitationDB.getAll().stream().filter(i -> i.getInvitation().getType().equals(type)
-				&& i.getInvitation().getFormId().equals(formId)).count() > 0)
+				&& i.getInvitation().matchForm(formId)).count() > 0)
 			throw new SchemaConsistencyException("There are invitations created for "
 					+ "this form, and it was not chosen to ignore them.");
 	}

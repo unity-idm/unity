@@ -18,12 +18,14 @@ import pl.edu.icm.unity.engine.forms.PolicyAgreementsValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 
 /**
@@ -37,13 +39,15 @@ public class EnquiryResponsePreprocessor
 	
 	private final PolicyAgreementsValidator agreementValidator;
 	private final BaseRequestPreprocessor basePreprocessor;
+	private final EnquiryFormDB enquiryFormDB;
 	
 	@Autowired
 	public EnquiryResponsePreprocessor(PolicyAgreementsValidator agreementValidator,
-			BaseRequestPreprocessor baseRequestPreprocessor)
+			BaseRequestPreprocessor baseRequestPreprocessor, EnquiryFormDB enquiryFormDB)
 	{
 		this.agreementValidator = agreementValidator;
 		this.basePreprocessor = baseRequestPreprocessor;
+		this.enquiryFormDB = enquiryFormDB;
 	}
 
 	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponseState response,
@@ -91,7 +95,7 @@ public class EnquiryResponsePreprocessor
 			
 		InvitationParam invitation = basePreprocessor.getInvitation(code).getInvitation();
 		
-		if (!invitation.getFormId().equals(formId))
+		if (!invitation.matchForm(enquiryFormDB.get(formId)))
 			throw new IllegalFormContentsException("The invitation is for different enquiry form");
 		
 		if (invitation.isExpired())
@@ -114,12 +118,21 @@ public class EnquiryResponsePreprocessor
 		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
 		
 		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
+		FormPrefill formInfo;
+		try
+		{
+			formInfo = invitation.getPrefillForForm(form);
+		} catch (EngineException e)
+		{
+			throw new IllegalFormContentsException("Form " + form.getName() + " not match to invitation", e);
+		}
+		
 		basePreprocessor.processInvitationElements(form.getIdentityParams(), response.getIdentities(), 
-				invitation.getIdentities(), "identity");
+				formInfo.getIdentities(), "identity");
 		basePreprocessor.processInvitationElements(form.getAttributeParams(), response.getAttributes(), 
-				invitation.getAttributes(), "attribute");
+				formInfo.getAttributes(), "attribute");
 		basePreprocessor.processInvitationElements(form.getGroupParams(), response.getGroupSelections(), 
-				basePreprocessor.filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
+				basePreprocessor.filterValueReadOnlyAndHiddenGroupFromInvitation(formInfo.getGroupSelections(), form.getGroupParams()), 
 				"group");
 		return invitationInfo;
 	}

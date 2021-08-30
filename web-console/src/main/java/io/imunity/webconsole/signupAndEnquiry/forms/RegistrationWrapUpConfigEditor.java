@@ -70,7 +70,7 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 		if (toEdit.getRedirectURL() != null)
 			redirectURL.setValue(toEdit.getRedirectURL());
 		if (toEdit.getRedirectAfterTime() != null)
-			redirectAfter.setValue(new Long(toEdit.getRedirectAfterTime().getSeconds()).intValue());
+			redirectAfter.setValue(Long.valueOf(toEdit.getRedirectAfterTime().getSeconds()).intValue());
 		trigger.setValue(toEdit.getState());
 		automatic.setValue(toEdit.isAutomatic());
 		setState();

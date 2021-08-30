@@ -62,12 +62,10 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Before
 	public void initProjectInvitationMan()
 	{
-		ExistingUserFinder userFinder = new ExistingUserFinder(mockBulkQueryService, 
+		ExistingUserFinder userFinder = new ExistingUserFinder(mockBulkQueryService,
 				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper));
-		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan,
-				mockRegistrationMan, mockEnquiryMan, 
-				mockIdMan,
-				mockSharedEndpointMan, mockAuthz, userFinder, mockMsg);
+		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan, mockRegistrationMan,
+				mockEnquiryMan, mockIdMan, mockSharedEndpointMan, mockAuthz, userFinder, mockMsg);
 	}
 
 	@Test
@@ -86,13 +84,14 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		InvitationParam targetParam = argument.getValue();
 
 		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormId(), is("regForm"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("regForm"));
 		assertThat(targetParam.getType(), is(InvitationType.REGISTRATION));
-		assertThat(targetParam.getIdentities().get(0).getEntry().getValue(), is("demo@demo.com"));
-		assertThat(targetParam.getAllowedGroups().get(0).getSelectedGroups(), hasItems("/project/a"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getIdentities().get(0).getEntry().getValue(),
+				is("demo@demo.com"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups(),
+				hasItems("/project/a"));
 	}
 
-	
 	@Test
 	public void shouldForwardToCoreManagerWithRegistrationParamAndFixedGroups() throws EngineException
 	{
@@ -109,10 +108,11 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		InvitationParam targetParam = argument.getValue();
 
 		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormId(), is("regForm"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("regForm"));
 		assertThat(targetParam.getType(), is(InvitationType.REGISTRATION));
-		assertThat(targetParam.getIdentities().get(0).getEntry().getValue(), is("demo@demo.com"));
-		assertThat(targetParam.getGroupSelections().get(0).getEntry().getSelectedGroups(),
+		assertThat(targetParam.getFormsPrefillData().get(0).getIdentities().get(0).getEntry().getValue(),
+				is("demo@demo.com"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getGroupSelections().get(0).getEntry().getSelectedGroups(),
 				hasItems("/project/a"));
 
 	}
@@ -124,8 +124,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
 		EntityInGroupData info = new EntityInGroupData(
-				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null,
-				null, null);
+				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null, null, null);
 		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
 		infoMap.put(1L, info);
 		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
@@ -138,9 +137,10 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		InvitationParam targetParam = argument.getValue();
 		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormId(), is("enqForm"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("enqForm"));
 		assertThat(targetParam.getType(), is(InvitationType.ENQUIRY));
-		assertThat(targetParam.getAllowedGroups().get(0).getSelectedGroups(), hasItems("/project/a"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups(),
+				hasItems("/project/a"));
 	}
 
 	@Test
@@ -150,8 +150,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
 		EntityInGroupData info = new EntityInGroupData(
-				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null,
-				null, null);
+				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null, null, null);
 		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
 		infoMap.put(1L, info);
 		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
@@ -164,9 +163,9 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		InvitationParam targetParam = argument.getValue();
 		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormId(), is("enqForm"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("enqForm"));
 		assertThat(targetParam.getType(), is(InvitationType.ENQUIRY));
-		assertThat(targetParam.getGroupSelections().get(0).getEntry().getSelectedGroups(),
+		assertThat(targetParam.getFormsPrefillData().get(0).getGroupSelections().get(0).getEntry().getSelectedGroups(),
 				hasItems("/project/a"));
 	}
 
@@ -179,8 +178,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		when(mockRegistrationMan.getForms()).thenReturn(Arrays.asList(rform));
 
 		EnquiryForm eform = new EnquiryFormBuilder().withByInvitationOnly(false).withName("enqForm")
-				.withType(EnquiryType.REQUESTED_OPTIONAL).withTargetGroups(new String[] { "/" })
-				.build();
+				.withType(EnquiryType.REQUESTED_OPTIONAL).withTargetGroups(new String[]
+				{ "/" }).build();
 		when(mockEnquiryMan.getEnquires()).thenReturn(Arrays.asList(eform));
 
 		RegistrationInvitationParam inv1 = RegistrationInvitationParam.builder().withForm("regForm")
@@ -189,8 +188,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		EnquiryInvitationParam inv2 = EnquiryInvitationParam.builder().withForm("enqForm")
 				.withExpiration(Instant.now().plusSeconds(1000)).build();
 
-		when(mockInvitationMan.getInvitations()).thenReturn(Arrays.asList(new InvitationWithCode(inv1, "code1"),
-				new InvitationWithCode(inv2, "code2")));
+		when(mockInvitationMan.getInvitations()).thenReturn(
+				Arrays.asList(new InvitationWithCode(inv1, "code1"), new InvitationWithCode(inv2, "code2")));
 
 		List<ProjectInvitation> invitations = projectInvMan.getInvitations("/project");
 
@@ -200,6 +199,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Test
 	public void shouldForwardSendRegistrationInvToCoreManager() throws EngineException
 	{
+		when(mockRegistrationMan.getForm("regForm")).thenReturn(
+				new RegistrationFormBuilder().withDefaultCredentialRequirement("").withName("regForm").build());
 		shouldForwardSendInvToCoreManager(getRegistrationInvitation("regForm", Instant.now().plusSeconds(1000)),
 				"code1");
 	}
@@ -207,9 +208,10 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Test
 	public void shouldForwardSendEnquiryInvToCoreManager() throws EngineException
 	{
-
-		shouldForwardSendInvToCoreManager(getEnquiryInvitation("enqForm", Instant.now().plusSeconds(1000)),
-				"code2");
+		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(new EnquiryFormBuilder().withName("enqForm")
+				.withType(EnquiryType.REQUESTED_MANDATORY).withTargetGroups(new String[]
+				{}).build());
+		shouldForwardSendInvToCoreManager(getEnquiryInvitation("enqForm", Instant.now().plusSeconds(1000)), "code2");
 	}
 
 	private void shouldForwardSendInvToCoreManager(InvitationWithCode inv, String code) throws EngineException
@@ -225,6 +227,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Test
 	public void shouldOverwriteExpiredRegInvitation() throws EngineException
 	{
+		when(mockRegistrationMan.getForm("regForm")).thenReturn(
+				new RegistrationFormBuilder().withDefaultCredentialRequirement("").withName("regForm").build());
 		shouldOverwriteExpiredInvitation(getRegistrationInvitation("regForm", Instant.now().minusSeconds(1000)),
 				"code1");
 	}
@@ -232,8 +236,10 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Test
 	public void shouldOverwriteExpiredEnqInvitation() throws EngineException
 	{
-		shouldOverwriteExpiredInvitation(getEnquiryInvitation("enqForm", Instant.now().minusSeconds(1000)),
-				"code2");
+		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(new EnquiryFormBuilder().withName("enqForm")
+				.withType(EnquiryType.REQUESTED_MANDATORY).withTargetGroups(new String[]
+				{}).build());
+		shouldOverwriteExpiredInvitation(getEnquiryInvitation("enqForm", Instant.now().minusSeconds(1000)), "code2");
 	}
 
 	private void shouldOverwriteExpiredInvitation(InvitationWithCode inv, String code) throws EngineException
@@ -248,9 +254,10 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		InvitationParam param = argument.getValue();
 
-		assertThat(param.getFormId(), is(inv.getInvitation().getFormId()));
+		assertThat(param.getFormsPrefillData().get(0).getFormId(),
+				is(inv.getInvitation().getFormsPrefillData().get(0).getFormId()));
 		assertThat(param.getContactAddress(), is("demo@demo.com"));
-		assertThat(param.getAllowedGroups().get(0).getSelectedGroups().get(0), is("/A"));
+		assertThat(param.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups().get(0), is("/A"));
 
 		verify(mockInvitationMan).removeInvitation(code);
 		verify(mockInvitationMan).sendInvitation(any());
@@ -262,8 +269,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 
-		when(mockInvitationMan.getInvitations()).thenReturn(
-				Arrays.asList(getRegistrationInvitation("regForm", Instant.now().plusSeconds(1000))));
+		when(mockInvitationMan.getInvitations())
+				.thenReturn(Arrays.asList(getRegistrationInvitation("regForm", Instant.now().plusSeconds(1000))));
 
 		Throwable exception = catchThrowable(() -> projectInvMan.sendInvitation("/project", "code"));
 		assertExceptionType(exception, IllegalInvitationException.class);
@@ -274,8 +281,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	{
 
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockInvitationMan.getInvitations()).thenReturn(
-				Arrays.asList(getRegistrationInvitation("regForm1", Instant.now().plusSeconds(1000))));
+		when(mockInvitationMan.getInvitations())
+				.thenReturn(Arrays.asList(getRegistrationInvitation("regForm1", Instant.now().plusSeconds(1000))));
 		Throwable exception = catchThrowable(() -> projectInvMan.sendInvitation("/project", "code1"));
 		assertExceptionType(exception, NotProjectInvitation.class);
 	}
@@ -283,14 +290,12 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	private InvitationWithCode getRegistrationInvitation(String form, Instant exp)
 	{
 		return new InvitationWithCode(RegistrationInvitationParam.builder().withForm(form).withExpiration(exp)
-				.withAllowedGroups(Arrays.asList("/A")).withContactAddress("demo@demo.com").build(),
-				"code1");
+				.withAllowedGroups(Arrays.asList("/A")).withContactAddress("demo@demo.com").build(), "code1");
 	}
 
 	private InvitationWithCode getEnquiryInvitation(String form, Instant exp)
 	{
 		return new InvitationWithCode(EnquiryInvitationParam.builder().withForm(form).withExpiration(exp)
-				.withAllowedGroups(Arrays.asList("/A")).withContactAddress("demo@demo.com").build(),
-				"code2");
+				.withAllowedGroups(Arrays.asList("/A")).withContactAddress("demo@demo.com").build(), "code2");
 	}
 }

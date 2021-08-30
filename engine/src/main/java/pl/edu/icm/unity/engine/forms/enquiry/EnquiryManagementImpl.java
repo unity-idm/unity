@@ -195,7 +195,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		if (!ignoreRequestsAndInvitations)
 		{
 			internalManagment.validateIfHasPendingRequests(formId);
-			internalManagment.validateIfHasInvitations(formId, InvitationType.ENQUIRY);
+			internalManagment.validateIfHasInvitations(updatedForm, InvitationType.ENQUIRY);
 		}
 		enquiryFormDB.update(updatedForm);
 	}

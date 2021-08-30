@@ -36,7 +36,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -131,17 +131,18 @@ public class TestMultipleAutoProcessInvitationActions extends DBIntegrationTestB
 	
 	private String createAndGetInvitationCode(String formName, String cnName, String groupName) throws EngineException
 	{
-		InvitationParam invitation = RegistrationInvitationParam.builder()
-				.withForm(formName)
+		RegistrationInvitationParam invitation = RegistrationInvitationParam.builder()
 				.withContactAddress("email1@email.io")
 				.withExpiration(Instant.now().plusSeconds(100))
+				.withForm(FormPrefill.builder() 
+				.withForm(formName)
 				.withAttribute(
 						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"), 
 						PrefilledEntryMode.DEFAULT)
 				.withAttribute(
 						StringAttribute.of(InitializerCommon.CN_ATTR, "", cnName),
 						PrefilledEntryMode.HIDDEN)
-				.withGroup(groupName, PrefilledEntryMode.HIDDEN)
+				.withGroup(groupName, PrefilledEntryMode.HIDDEN).build())
 				.build();
 		return invitationMan.addInvitation(invitation);
 	}

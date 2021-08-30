@@ -51,10 +51,14 @@ public class InvitationWithCode implements NamedObject
 		{
 			invitation = new RegistrationInvitationParam(json);
 		}
-		else
+		else if (type.equals(InvitationType.ENQUIRY))
 		{
 			invitation = new EnquiryInvitationParam(json);
-		}	
+		} else
+		{
+			invitation = new ComboInvitationParam(json);
+		}
+		
 		fromJson(json);
 	}
 	

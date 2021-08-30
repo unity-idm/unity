@@ -2,7 +2,7 @@
  * Copyright (c) 2015, Jirav All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webconsole.signupAndEnquiry.invitations;
+package io.imunity.webconsole.signupAndEnquiry.invitations.editor;
 
 import java.util.List;
 import java.util.Optional;

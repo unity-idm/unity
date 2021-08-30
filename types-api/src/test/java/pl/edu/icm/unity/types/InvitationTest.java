@@ -47,12 +47,14 @@ public class InvitationTest
 		List<String> vals = new ArrayList<>();
 		vals.add("value");
 		Attribute attrP = new Attribute("attr", "string", "/", vals);
-		complete.getInvitation().getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
-		complete.getInvitation().getIdentities().put(0, new PrefilledEntry<>(new IdentityParam("idType", 
+		RegistrationInvitationParam registrationInvitationParam = (RegistrationInvitationParam) complete.getInvitation();
+		
+		registrationInvitationParam.getFormPrefill().getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
+		registrationInvitationParam.getFormPrefill().getIdentities().put(0, new PrefilledEntry<>(new IdentityParam("idType", 
 				"user-id"), PrefilledEntryMode.READ_ONLY));
-		complete.getInvitation().getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/foo"), 
+		registrationInvitationParam.getFormPrefill().getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/foo"), 
 				PrefilledEntryMode.READ_ONLY));
-		complete.getInvitation().getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
+		registrationInvitationParam.getFormPrefill().getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
 		
 		String jsonStr = JsonUtil.toJsonString(complete);
 		

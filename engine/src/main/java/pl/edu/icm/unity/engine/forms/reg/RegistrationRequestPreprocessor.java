@@ -25,6 +25,7 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 
 /**
@@ -161,20 +162,29 @@ public class RegistrationRequestPreprocessor
 		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
 		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
 		
-		if (!invitation.getFormId().equals(form.getName()))
+		if (!invitation.matchForm(form))
 			throw new IllegalFormContentsException("The invitation is for different registration form");
 		
 		if (invitation.isExpired())
 			throw new IllegalFormContentsException("The invitation has already expired");
 		
+		FormPrefill formInfo;
+		try
+		{
+			formInfo = invitation.getPrefillForForm(form);
+		} catch (EngineException e)
+		{
+			throw new IllegalFormContentsException("Form " + form.getName() + " not match to invitation", e);
+		}
+		
 		log.debug("Will apply invitation parameter to the request:\n{}", invitation.toString());
 		log.debug("Request before applying the invitation:\n{}", request.toString());
 		basePreprocessor.processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
-				invitation.getIdentities(), "identity");
+				formInfo.getIdentities(), "identity");
 		basePreprocessor.processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
-				invitation.getAttributes(), "attribute");
+				formInfo.getAttributes(), "attribute");
 		basePreprocessor.processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
-				basePreprocessor.filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), 
+				basePreprocessor.filterValueReadOnlyAndHiddenGroupFromInvitation(formInfo.getGroupSelections(), form.getGroupParams()), 
 				"group");
 		return invitationInfo;
 	}

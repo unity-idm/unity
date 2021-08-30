@@ -6,6 +6,7 @@
 package io.imunity.webconsole.signupAndEnquiry.invitations;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
@@ -39,7 +40,8 @@ public class InvitationEntry implements FilterableEntry
 
 	public String getForm()
 	{
-		return invitation.getFormId();
+		return invitation.getFormsPrefillData().stream().map(i -> i.getFormId()).collect(Collectors.joining(", "));
+		
 	}
 
 	public String getCode()

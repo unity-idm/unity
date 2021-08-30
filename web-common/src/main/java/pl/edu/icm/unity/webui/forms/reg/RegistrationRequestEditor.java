@@ -55,6 +55,7 @@ import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSetti
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
@@ -234,18 +235,19 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		layoutContainer = createLayouts(
 				invitation != null
-						? invitation.getMessageParamsWithCustomVarObject(
+						? invitation.getFormPrefill().getMessageParamsWithCustomVarObject(
 								MessageTemplateDefinition.CUSTOM_VAR_PREFIX)
 						: Collections.emptyMap());
 
 		resolveRemoteSignupOptions();
 		PrefilledSet prefilled = new PrefilledSet();
 		if (invitation != null)
-		{
-			prefilled = new PrefilledSet(invitation.getIdentities(),
-					invitation.getGroupSelections(),
-					invitation.getAttributes(),
-					invitation.getAllowedGroups());
+		{	
+			FormPrefill formPrefill = invitation.getFormPrefill();
+			prefilled = new PrefilledSet(formPrefill.getIdentities(),
+					formPrefill.getGroupSelections(),
+					formPrefill.getAttributes(),
+					formPrefill.getAllowedGroups());
 		}
 		prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 		createControls(layoutContainer, effectiveLayout, prefilled);

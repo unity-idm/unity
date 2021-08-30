@@ -212,7 +212,7 @@ public class RequestEditorCreator
 
 		InvitationParam invitation = invitationHelper.getInvitationByCode(registrationCode, InvitationType.REGISTRATION);
 		
-		if (invitation != null && !invitation.getFormId().equals(form.getName()))
+		if (invitation != null && !invitation.matchForm(form))
 			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
 		if (form.isByInvitationOnly() &&  invitation == null)
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);

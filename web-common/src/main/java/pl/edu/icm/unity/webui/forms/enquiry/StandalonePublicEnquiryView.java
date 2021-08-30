@@ -42,6 +42,7 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
@@ -147,7 +148,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 			
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
-					invitation.getMessageParamsWithCustomVarObject(
+					invitation.getFormPrefill().getMessageParamsWithCustomVarObject(
 							MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
 					RemotelyAuthenticatedPrincipal.getLocalContext(), prefilled,
 					new EntityParam(invitation.getEntity()));
@@ -162,14 +163,15 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		showEditorContent(editor);
 	}
 
-	private PrefilledSet mergeInvitationAndCurrentUserData(InvitationParam invitation, PrefilledSet fromUser, 
+	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser, 
 			EnquiryForm form)
 	{
 
-		return new PrefilledSet(invitation.getIdentities(),
-				mergePreffiledGroups(invitation.getAllowedGroups(),invitation.getGroupSelections(), fromUser.groupSelections, form),
-				mergePreffiledAttributes(invitation.getAttributes(), fromUser.attributes),
-				invitation.getAllowedGroups());
+		FormPrefill formPrefill = invitation.getFormPrefill();
+		return new PrefilledSet(formPrefill.getIdentities(),
+				mergePreffiledGroups(formPrefill.getAllowedGroups(), formPrefill.getGroupSelections(), fromUser.groupSelections, form),
+				mergePreffiledAttributes(formPrefill.getAttributes(), fromUser.attributes),
+				formPrefill.getAllowedGroups());
 	}
 
 	private Map<Integer, PrefilledEntry<Attribute>> mergePreffiledAttributes(
@@ -248,7 +250,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		if (invitation.isExpired())
 			throw new RegCodeException(ErrorCause.EXPIRED_INVITATION);
-		if (!invitation.getFormId().equals(form.getName()))
+		if (!invitation.matchForm(form))
 			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
 
 		return invitation;
