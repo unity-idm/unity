@@ -352,7 +352,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		UnsuccessfulAuthenticationCounter servletSet = (UnsuccessfulAuthenticationCounter) 
 				httpRequest.getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (servletSet == null)
-			throw new IllegalStateException("No authn failuures counter in servelt context");
+			throw new IllegalStateException("No authn failures counter in servlet context");
 		return servletSet;
 	}
 	
