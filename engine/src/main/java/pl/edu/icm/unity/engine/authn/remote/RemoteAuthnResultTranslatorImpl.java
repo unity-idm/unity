@@ -113,8 +113,24 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			throw new RemoteAuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return dryRun ? RemoteAuthenticationResult.successfulPartial(remotePrincipal) : 
+		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal) : 
 			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation);
+	}
+
+	private RemoteAuthenticationResult assembleDryRunAuthenticationResult(RemotelyAuthenticatedPrincipal remotePrincipal)
+	{
+		AuthenticatedEntity authenticatedEntity = null;
+		if (remotePrincipal.getLocalMappedPrincipal() != null)
+		{
+			try
+			{
+				authenticatedEntity = resolveAuthenticatedEntity(remotePrincipal);
+			} catch (RemoteAuthenticationException | EngineException e)
+			{
+				log.debug("Exception resolving remote principal", e);
+			}
+		}
+		return RemoteAuthenticationResult.successfulPartial(remotePrincipal, authenticatedEntity);
 	}
 	
 	/**
@@ -133,20 +149,7 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			return handleUnknownUser(remoteContext, registrationForm, allowAssociation);
 		try
 		{
-			EntityParam mappedEntity = remoteContext.getLocalMappedPrincipal();
-			long resolved = mappedEntity.getEntityId() != null ? 
-					mappedEntity.getEntityId() : 
-					identityResolver.resolveIdentity(mappedEntity.getIdentity().getValue(), 
-					new String[] {mappedEntity.getIdentity().getTypeId()}, 
-					null, null);
-			
-			if (!identityResolver.isEntityEnabled(resolved))
-				throw new RemoteAuthenticationException("The remotely authenticated principal "
-						+ "was mapped to a disabled account");
-			
-			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
-					remoteContext.getMappingResult().getAuthenticatedWith(), null);
-			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
+			AuthenticatedEntity authenticatedEntity = resolveAuthenticatedEntity(remoteContext);
 			return RemoteAuthenticationResult.successful(remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)
 		{
@@ -156,6 +159,26 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			throw new RemoteAuthenticationException("Problem occured when searching for the " +
 					"mapped, remotely authenticated identity in the local user store", e);
 		}
+	}
+
+	private AuthenticatedEntity resolveAuthenticatedEntity(RemotelyAuthenticatedPrincipal remoteContext)
+			throws EngineException, RemoteAuthenticationException
+	{
+		EntityParam mappedEntity = remoteContext.getLocalMappedPrincipal();
+		long resolved = mappedEntity.getEntityId() != null ? 
+				mappedEntity.getEntityId() : 
+				identityResolver.resolveIdentity(mappedEntity.getIdentity().getValue(), 
+				new String[] {mappedEntity.getIdentity().getTypeId()}, 
+				null, null);
+		
+		if (!identityResolver.isEntityEnabled(resolved))
+			throw new RemoteAuthenticationException("The remotely authenticated principal "
+					+ "was mapped to a disabled account");
+		
+		AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
+				remoteContext.getMappingResult().getAuthenticatedWith(), null);
+		authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
+		return authenticatedEntity;
 	}
 	
 	private RemoteAuthenticationResult handleUnknownUser(RemotelyAuthenticatedPrincipal remotePrincipal, String registrationForm, 

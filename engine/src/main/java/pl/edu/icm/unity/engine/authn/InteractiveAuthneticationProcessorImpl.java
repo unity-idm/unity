@@ -40,6 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.SessionCookie;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
@@ -233,10 +234,10 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		{
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
 					RemoteSandboxAuthnContext.failedAuthn(
-							result.sandboxAuthnInfo.getAuthnException() != null ? result.sandboxAuthnInfo.getAuthnException() : e, 
+							result.sandboxAuthnInfo.getAuthnException().orElse(e), 
 							result.sandboxAuthnInfo.getLogs(), 
-							result.sandboxAuthnInfo.getAuthnContext() == null ? 
-									null : result.sandboxAuthnInfo.getAuthnContext().getAuthnInput()), 
+							result.sandboxAuthnInfo.getRemotePrincipal()
+								.map(RemotelyAuthenticatedPrincipal::getAuthnInput).orElse(null)), 
 					null, 
 					httpRequest.getSession().getId()));
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
@@ -266,7 +267,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
 					RemoteSandboxAuthnContext.failedAuthn(e, 
 							secondFactorResult.sandboxAuthnInfo.getLogs(), 
-							secondFactorResult.sandboxAuthnInfo.getAuthnContext().getAuthnInput()), 
+							secondFactorResult.sandboxAuthnInfo.getRemotePrincipal()
+								.map(RemotelyAuthenticatedPrincipal::getAuthnInput).orElse(null)), 
 					null, 
 					httpRequest.getSession().getId()));
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
@@ -350,7 +352,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		UnsuccessfulAuthenticationCounter servletSet = (UnsuccessfulAuthenticationCounter) 
 				httpRequest.getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (servletSet == null)
-			throw new IllegalStateException("No authn failuures counter in servelt context");
+			throw new IllegalStateException("No authn failures counter in servlet context");
 		return servletSet;
 	}
 	

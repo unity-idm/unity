@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
  */
 public class RemoteAuthenticationResult implements AuthenticationResult
 {
-	private final Status status;	
+	private final Status status;
 	private final RemoteSuccessResult successResult;
 	private final NotApplicableResult notApplicableResult;
 	private final UnknownRemotePrincipalResult unknownRemotePrincipalResult;
@@ -77,10 +77,11 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 				null, null, null);
 	}
 
-	public static RemoteAuthenticationResult successfulPartial(RemotelyAuthenticatedPrincipal remotePrincipal)
+	public static RemoteAuthenticationResult successfulPartial(RemotelyAuthenticatedPrincipal remotePrincipal,
+			AuthenticatedEntity authenticatedEntity)
 	{
 		checkNotNull(remotePrincipal);
-		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(null, remotePrincipal), 
+		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal), 
 				null, null, null);
 	}
 	

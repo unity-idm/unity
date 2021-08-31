@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.shared.ApplicationConstants;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.SessionCookie;
@@ -67,7 +68,7 @@ public class AuthenticationFilter implements Filter
 		// this is 'cos we need to separate regular net traffic (and not to block it - otherwise even 
 		// notification about blocking woudn't show up). Still we need to prevent brute force attacks using 
 		// fake session cookies - this object is responsible only for that.
-		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
+		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
 		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;

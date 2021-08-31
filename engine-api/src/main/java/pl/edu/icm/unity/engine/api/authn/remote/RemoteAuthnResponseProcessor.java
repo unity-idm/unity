@@ -13,12 +13,12 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 
 /**
- * Process remotely obtained authentication data ({@link RemoteAuthnState}), to obtain the final decision.
+ * Process remotely obtained authentication data ({@link RedirectedAuthnState}), to obtain the final decision.
  * All external authentications should be finished using this processor: both redirected and local.
  */
 public interface RemoteAuthnResponseProcessor
 {
-	PostAuthenticationStepDecision processResponse(RemoteAuthnState authnContext, HttpServletRequest httpRequest,
+	PostAuthenticationStepDecision processResponse(RedirectedAuthnState authnContext, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse);
 	
 	AuthenticationResult executeVerificator(Supplier<AuthenticationResult> verificator, 

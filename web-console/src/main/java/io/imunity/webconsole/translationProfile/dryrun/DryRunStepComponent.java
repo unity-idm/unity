@@ -103,9 +103,9 @@ class DryRunStepComponent extends CustomComponent
 			authnResultLabel.setStyleName(Styles.error.toString());
 		}
 		logsLabel.setHtmlValue("DryRun.DryRunStepComponent.logsLabel");
-		RemotelyAuthenticatedPrincipal remoteAuthnContext = ctx.getAuthnContext();
-		if (remoteAuthnContext != null)
+		if (ctx.getRemotePrincipal().isPresent())
 		{
+			RemotelyAuthenticatedPrincipal remoteAuthnContext = ctx.getRemotePrincipal().get();
 			remoteIdpInput.displayAuthnInput(remoteAuthnContext.getAuthnInput());
 			mappingResult.displayMappingResult(remoteAuthnContext.getMappingResult(), 
 				remoteAuthnContext.getInputTranslationProfile());
@@ -115,12 +115,11 @@ class DryRunStepComponent extends CustomComponent
 			profileViewer.setVisible(false);
 			hr_2.setVisible(false);
 		}
-		Exception e = ctx.getAuthnException();
 		StringBuilder logs = new StringBuilder(ctx.getLogs());
-		if (e != null)
+		if (ctx.getAuthnException().isPresent())
 		{
 			CharArrayWriter writer = new CharArrayWriter();
-			e.printStackTrace(new PrintWriter(writer));
+			ctx.getAuthnException().get().printStackTrace(new PrintWriter(writer));
 			logs.append("\n\n").append(writer.toString());
 		}
 		capturedLogs.setValue(logs.toString());

@@ -20,7 +20,7 @@ import java.util.Map;
 
  * @author K. Benedyczak
  */
-public class RemoteAuthenticationContextManagement<T extends RemoteAuthnState>
+public class RemoteAuthenticationContextManagement<T extends RelayedAuthnState>
 {
 	public static final long MAX_TTL = 15*3600*1000;
 	public static final long CLEANUP_INTERVAL = 3600*1000;

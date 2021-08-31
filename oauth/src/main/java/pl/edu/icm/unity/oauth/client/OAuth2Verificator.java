@@ -73,7 +73,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
@@ -193,7 +193,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
 		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
 
-		RemoteAuthnState baseAuthnContext = new RemoteAuthnState(authnStepContext, this::processResponse, 
+		RedirectedAuthnState baseAuthnContext = new RedirectedAuthnState(authnStepContext, this::processResponse, 
 				initialLoginMachine, ultimateReturnURL, 
 				authnTriggeringContext);
 		OAuthContext context = new OAuthContext(baseAuthnContext);
@@ -242,7 +242,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return context;
 	}
 
-	private AuthenticationResult processResponse(RemoteAuthnState remoteAuthnState)
+	private AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState)
 	{
 		try
 		{

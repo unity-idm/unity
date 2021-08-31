@@ -4,31 +4,16 @@
  */
 package pl.edu.icm.unity.saml.ecp;
 
-import java.util.function.Function;
-
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RelayedAuthnState;
 
 /**
  * State of the ECP authentication, i.e. records the info about a request provided via PAOS, 
  * to be correlated with a further response.
  * @author K. Benedyczak
  */
-public class ECPAuthnState extends RemoteAuthnState
+public class ECPAuthnState extends RelayedAuthnState
 {
 	private String requestId;
-
-	public ECPAuthnState(AuthenticationStepContext authenticationContext, 
-			Function<RemoteAuthnState, AuthenticationResult> responseHandler,
-			LoginMachineDetails initialLoginMachine, 
-			String ultimateReturnURL) 
-	{
-		super(authenticationContext, responseHandler, initialLoginMachine, ultimateReturnURL, 
-				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
-	}
 
 	public void setRequestId(String requestId)
 	{

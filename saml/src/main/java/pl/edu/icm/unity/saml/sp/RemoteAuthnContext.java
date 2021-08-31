@@ -7,7 +7,7 @@ package pl.edu.icm.unity.saml.sp;
 import java.io.Serializable;
 
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  * during authentication configuration valid at the beginning of authentication is stored internally. 
  * @author K. Benedyczak
  */
-public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
+public class RemoteAuthnContext extends RedirectedAuthnState implements Serializable
 {
 	private String request;
 	private String requestId;
@@ -29,7 +29,7 @@ public class RemoteAuthnContext extends RemoteAuthnState implements Serializable
 	private SAMLSPProperties samlProperties;
 	private String idpKey;
 
-	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, RemoteAuthnState baseState)
+	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, RedirectedAuthnState baseState)
 	{
 		super(baseState);
 		this.samlProperties = config.clone();
