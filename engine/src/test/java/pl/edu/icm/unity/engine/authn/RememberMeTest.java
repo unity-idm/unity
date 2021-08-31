@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
@@ -133,7 +134,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Optional<LoginSession> loginSession = rememberMeProcessor
 				.processRememberedWholeAuthn(setupRequest(addedCookie), response,
 						"0.0.0.0", realm,
-						new UnsuccessfulAuthenticationCounter(10, 10));
+						new DefaultUnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
 		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
@@ -157,7 +158,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Optional<LoginSession> loginSession = rememberMeProcessor
 				.processRememberedSecondFactor(setupRequest(addedCookie), response,
 						1, "0.0.0.0", realm,
-						new UnsuccessfulAuthenticationCounter(10, 10));
+						new DefaultUnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
 		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
@@ -183,7 +184,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Optional<LoginSession> loginSession = rememberMeProcessor
 				.processRememberedSecondFactor(setupRequest(addedCookie), response2,
 						1, "0.0.0.0", realm,
-						new UnsuccessfulAuthenticationCounter(10, 10));
+						new DefaultUnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(false));
 		

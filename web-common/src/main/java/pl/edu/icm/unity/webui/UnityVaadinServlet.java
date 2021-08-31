@@ -33,9 +33,10 @@ import com.vaadin.ui.UI;
 import com.vaadin.util.CurrentInstance;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.NoOpLoginCounter;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -95,12 +96,14 @@ public class UnityVaadinServlet extends VaadinServlet
 		restoreThreadLocalState(saved);
 		
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
-		if (counter == null && description != null)
+		if (counter == null)
 		{
-			AuthenticationRealm realm = description.getRealm();
-			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(),
-					new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(),
-							realm.getBlockFor()*1000));
+			UnsuccessfulAuthenticationCounter newCounter = description != null ? 
+					new DefaultUnsuccessfulAuthenticationCounter(
+							description.getRealm().getBlockAfterUnsuccessfulLogins(),
+							description.getRealm().getBlockFor()*1000) : 
+					new NoOpLoginCounter();
+			getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(), newCounter);
 		}
 		
 		SystemMessagesProvider msgProvider = new SystemMessagesProvider() 
