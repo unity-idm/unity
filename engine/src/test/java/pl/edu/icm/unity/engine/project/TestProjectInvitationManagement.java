@@ -6,8 +6,8 @@
 package pl.edu.icm.unity.engine.project;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -30,11 +30,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalInvitationException;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.NotProjectInvitation;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -55,7 +55,7 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 public class TestProjectInvitationManagement extends TestProjectBase
 {
 	@Mock
-	SharedEndpointManagement mockSharedEndpointMan;
+	PublicRegistrationURLSupport mockPublicRegistrationURLSupport;
 
 	private ProjectInvitationsManagementImpl projectInvMan;
 
@@ -65,7 +65,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		ExistingUserFinder userFinder = new ExistingUserFinder(mockBulkQueryService,
 				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper));
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan, mockRegistrationMan,
-				mockEnquiryMan, mockIdMan, mockSharedEndpointMan, mockAuthz, userFinder, mockMsg);
+				mockEnquiryMan, mockIdMan, mockPublicRegistrationURLSupport, mockAuthz, userFinder, mockMsg);
 	}
 
 	@Test

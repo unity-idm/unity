@@ -23,9 +23,9 @@ import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill.FormType;
 
 /**
  * 
@@ -126,25 +126,33 @@ public class RegistrationInvitationParam extends InvitationParam
 		RegistrationInvitationParam other = (RegistrationInvitationParam) obj;
 		return Objects.equals(expectedIdentity, other.expectedIdentity) && Objects.equals(formPrefill, other.formPrefill);
 	}
-	
-	public void validateUpdate(InvitationValidator validator, InvitationParam toUpdate) throws EngineException
+		
+	public void validate(FormProvider formProvider) throws EngineException
 	{
-		validator.validateUpdate(this, toUpdate);
+		if (getFormPrefill().getFormId() == null)
+		{
+			throw new WrongArgumentException("The invitation has no form configured");
+		}
+
+		RegistrationForm form = formProvider.getRegistrationForm(getFormPrefill().getFormId());
+		if (!form.isPubliclyAvailable())
+			throw new WrongArgumentException("Invitations can be attached to public forms only");
+		if (form.getRegistrationCode() != null)
+			throw new WrongArgumentException("Invitations can not be attached to forms with a fixed registration code");
+		assertPrefillMatchesForm(getFormPrefill(), form);	
 	}
 	
-	public void validate(InvitationValidator validator) throws EngineException
+	public void validateUpdate(InvitationParam newRegistrationInvitationParam) throws WrongArgumentException
 	{
-		validator.validate(this);
-	}
-	
-	@Override
-	public void send(InvitationSender sender, String code) throws EngineException
-	{
-		sender.send(this, code);
+		assertTypesAreTheSame(newRegistrationInvitationParam);
+		RegistrationInvitationParam newInv = (RegistrationInvitationParam) newRegistrationInvitationParam;
+		if (!Objects.equals(getFormPrefill().getFormId(),
+				newInv.getFormPrefill().getFormId()))
+			throw new WrongArgumentException("Can not update registration form of an invitation");
 	}
 
 	@Override
-	public boolean matchForm(BaseForm form)
+	public boolean matchesForm(BaseForm form)
 	{
 		if (form instanceof RegistrationForm)
 		{
@@ -182,7 +190,14 @@ public class RegistrationInvitationParam extends InvitationParam
 				return getFormPrefill();
 			}			
 		} 
-		throw new WrongArgumentException("Invitation not match to form " + form.getName());
+		throw new WrongArgumentException("Invitation does not match to form " + form.getName());
+	}
+	
+	@Override
+	public InvitationSendData getSendData()
+	{
+		return new InvitationSendData(formPrefill.getFormId(),  formPrefill.getFormType(), getContactAddress(), getExpiration(),
+				formPrefill.getGroupSelections(), formPrefill.getMessageParams());
 	}
 	
 	public static Builder builder()

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.PolicyAgreementsValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -88,14 +89,14 @@ public class EnquiryResponsePreprocessor
 	}
 	
 	public Long getEntityFromInvitationAndValidateCode(String formId, String code) 
-			throws IllegalFormContentsException
+			throws IllegalFormContentsException, IllegalFormTypeException
 	{
 		if (code == null)
 			return null;
 			
 		InvitationParam invitation = basePreprocessor.getInvitation(code).getInvitation();
 		
-		if (!invitation.matchForm(enquiryFormDB.get(formId)))
+		if (!invitation.matchesForm(enquiryFormDB.get(formId)))
 			throw new IllegalFormContentsException("The invitation is for different enquiry form");
 		
 		if (invitation.isExpired())

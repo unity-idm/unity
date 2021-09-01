@@ -24,6 +24,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -73,7 +74,16 @@ class InvitationsView extends CustomComponent implements UnityView
 			return;
 		}
 
-		invitationsGrid.addValueChangeListener(invitation -> viewer.setInput(invitation));
+		invitationsGrid.addValueChangeListener(invitation -> {
+			try
+			{
+				viewer.setInput(invitation);
+			} catch (IllegalFormTypeException e)
+			{
+				NotificationPopup.showError(msg, "Invalid form type", e);
+				return;
+			}
+		});
 
 		Panel viewerPanel = new Panel();
 		viewerPanel.setContent(viewer);

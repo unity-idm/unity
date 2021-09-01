@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.Arrays;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.registration.invite.FormProvider;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
@@ -41,6 +43,14 @@ public class InvitationValidatorTest
 	@Mock
 	private EnquiryFormDB enquiryFormDB;
 	
+	private FormProvider formProvider;
+	
+	@Before
+	public void init()
+	{
+		formProvider = new FormProviderImpl(registrationFormDB, enquiryFormDB);
+	}
+	
 	@Test
 	public void shouldNotAcceptTooManyPrefilledAttributes()
 	{
@@ -52,7 +62,7 @@ public class InvitationValidatorTest
 				.build();
 		
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);	
 	}
@@ -73,7 +83,7 @@ public class InvitationValidatorTest
 				.endAttributeParam()
 				.build();
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);	
 		
@@ -90,7 +100,7 @@ public class InvitationValidatorTest
 				.build();
 		
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);	
 
@@ -107,7 +117,7 @@ public class InvitationValidatorTest
 				.withAddedIdentityParam().withIdentityType(EmailIdentity.ID).endIdentityParam()
 				.build();
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);	
 
@@ -123,7 +133,7 @@ public class InvitationValidatorTest
 		RegistrationForm form = getMinimalRegFormBuilder()
 				.build();
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);
 	}
@@ -142,7 +152,7 @@ public class InvitationValidatorTest
 				.endGroupParam()
 				.build();
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);
 	}
@@ -161,7 +171,7 @@ public class InvitationValidatorTest
 				.endGroupParam()
 				.build();
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNotNull().isInstanceOf(IllegalArgumentException.class);
 	}
@@ -189,7 +199,7 @@ public class InvitationValidatorTest
 				.withAddedIdentityParam().withIdentityType(UsernameIdentity.ID).endIdentityParam()
 				.build();
 		when(registrationFormDB.get("form")).thenReturn(form);
-		Throwable exception = catchThrowable(() -> invitation.validate(new InvitationValidator(registrationFormDB, enquiryFormDB)));
+		Throwable exception = catchThrowable(() -> invitation.validate(formProvider));
 
 		assertThat(exception).isNull();
 	}

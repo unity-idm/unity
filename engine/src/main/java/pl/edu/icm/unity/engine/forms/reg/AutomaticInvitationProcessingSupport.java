@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessInvitationsActionFactory.AutoProcessInvitationsAction;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AdminComment;
@@ -183,8 +184,14 @@ class AutomaticInvitationProcessingSupport
 			
 			for (String form : formsToProcess)
 			{
-				if  (invitation.getInvitation().matchForm(allForms.get(form)))
-					return true;
+				try
+				{
+					if  (invitation.getInvitation().matchesForm(allForms.get(form)))
+						return true;
+				} catch (IllegalFormTypeException e)
+				{
+					LOG.error("Invalid form type", e);
+				}
 			}
 			
 			return false;

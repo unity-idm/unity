@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -139,6 +140,11 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			log.error("Can not get invitation", e);
 			handleError(e, e.cause);
 			return;
+		} catch (IllegalFormTypeException e)
+		{
+			log.error("Can not get invitation", e);
+			handleError(e, ErrorCause.MISCONFIGURED);
+			return;
 		}
 		try
 		{
@@ -239,7 +245,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		return mergedGroups;
 	}
 	
-	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
+	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException, IllegalFormTypeException
 	{
 		if (registrationCode == null)
 			throw new RegCodeException(ErrorCause.MISSING_CODE);
@@ -250,7 +256,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		if (invitation.isExpired())
 			throw new RegCodeException(ErrorCause.EXPIRED_INVITATION);
-		if (!invitation.matchForm(form))
+		if (!invitation.matchesForm(form))
 			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
 
 		return invitation;

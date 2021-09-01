@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
@@ -134,6 +135,10 @@ public class RequestEditorCreator
 		{
 			callback.onCreationError(e1, e1.cause);
 			return;
+		}catch (IllegalFormTypeException e)
+		{
+			callback.onCreationError(e, ErrorCause.MISCONFIGURED);
+			return;
 		}
 		
 		try
@@ -157,6 +162,10 @@ public class RequestEditorCreator
 		} catch (RegCodeException e1)
 		{
 			callback.onCreationError(e1, e1.cause);
+			return;
+		}catch (IllegalFormTypeException e)
+		{
+			callback.onCreationError(e, ErrorCause.MISCONFIGURED);
 			return;
 		}
 		try
@@ -205,14 +214,14 @@ public class RequestEditorCreator
 				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, enableRemoteSignup);
 	}
 	
-	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
+	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException, IllegalFormTypeException
 	{
 		if (form.isByInvitationOnly() && registrationCode == null)
 			throw new RegCodeException(ErrorCause.MISSING_CODE);
 
 		InvitationParam invitation = invitationHelper.getInvitationByCode(registrationCode, InvitationType.REGISTRATION);
 		
-		if (invitation != null && !invitation.matchForm(form))
+		if (invitation != null && !invitation.matchesForm(form))
 			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
 		if (form.isByInvitationOnly() &&  invitation == null)
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);

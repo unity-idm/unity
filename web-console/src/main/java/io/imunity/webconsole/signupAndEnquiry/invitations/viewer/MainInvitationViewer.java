@@ -18,6 +18,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -68,7 +69,7 @@ public class MainInvitationViewer extends CustomComponent
 		setVisible(false);
 	}
 
-	public void setInput(InvitationWithCode invitationWithCode)
+	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException
 	{
 		if (invitationWithCode == null)
 		{

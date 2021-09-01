@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
@@ -60,7 +59,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	private RegistrationsManagement registrationMan;
 	private EnquiryManagement enquiryMan;
 	private GroupsManagement groupMan;
-	private SharedEndpointManagement sharedEndpointMan;
+	private PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private EntityManagement idMan;
 	private ProjectAttributeHelper projectAttrHelper;
 
@@ -68,13 +67,13 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") GroupsManagement groupMan, @Qualifier("insecure") EntityManagement idMan,
-			ProjectAttributeHelper projectAttrHelper, SharedEndpointManagement sharedEndpointMan)
+			ProjectAttributeHelper projectAttrHelper, PublicRegistrationURLSupport publicRegistrationURLSupport)
 	{
 		this.authz = authz;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.groupMan = groupMan;
-		this.sharedEndpointMan = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.idMan = idMan;
 		this.projectAttrHelper = projectAttrHelper;
 	}
@@ -138,8 +137,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		if (registrationForm.isByInvitationOnly())
 			return Optional.empty();
 
-		return Optional.ofNullable(PublicRegistrationURLSupport.getPublicRegistrationLink(registrationForm,
-				sharedEndpointMan));
+		return Optional.ofNullable(publicRegistrationURLSupport.getPublicRegistrationLink(registrationForm));
 	}
 
 	@Transactional
@@ -179,7 +177,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			return Optional.empty();
 
 		return Optional.ofNullable(
-				PublicRegistrationURLSupport.getWellknownEnquiryLink(formId, sharedEndpointMan));
+				publicRegistrationURLSupport.getWellknownEnquiryLink(formId));
 	}
 	
 

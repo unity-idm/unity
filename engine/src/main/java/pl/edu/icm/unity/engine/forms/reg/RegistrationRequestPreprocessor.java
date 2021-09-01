@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.PolicyAgreementsValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -143,9 +144,10 @@ public class RegistrationRequestPreprocessor
 	 * Code is validated, wrt to invitation or form fixed code. What is more the request attributes
 	 * groups and identities are set to those from invitation when necessary and errors are reported
 	 * if request tries to overwrite mandatory elements from invitation.
+	 * @throws IllegalFormTypeException 
 	 */
 	private InvitationPrefillInfo processInvitationAndValidateCode(RegistrationForm form, RegistrationRequest request) 
-			throws IllegalFormContentsException
+			throws IllegalFormContentsException, IllegalFormTypeException
 	{
 		String codeFromRequest = request.getRegistrationCode();
 
@@ -162,7 +164,7 @@ public class RegistrationRequestPreprocessor
 		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
 		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
 		
-		if (!invitation.matchForm(form))
+		if (!invitation.matchesForm(form))
 			throw new IllegalFormContentsException("The invitation is for different registration form");
 		
 		if (invitation.isExpired())
@@ -174,7 +176,7 @@ public class RegistrationRequestPreprocessor
 			formInfo = invitation.getPrefillForForm(form);
 		} catch (EngineException e)
 		{
-			throw new IllegalFormContentsException("Form " + form.getName() + " not match to invitation", e);
+			throw new IllegalFormContentsException("Form " + form.getName() + " does not match to invitation", e);
 		}
 		
 		log.debug("Will apply invitation parameter to the request:\n{}", invitation.toString());

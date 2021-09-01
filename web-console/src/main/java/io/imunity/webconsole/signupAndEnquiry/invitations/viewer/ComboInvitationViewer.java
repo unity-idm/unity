@@ -6,8 +6,8 @@
 package io.imunity.webconsole.signupAndEnquiry.invitations.viewer;
 
 import java.util.Map;
-import java.util.stream.Stream;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.CustomComponent;
@@ -15,10 +15,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -28,7 +29,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 class ComboInvitationViewer extends CustomComponent implements InvitationViewer
 {
 	private final MessageSource msg;
-	private final SharedEndpointManagement sharedEndpointManagement;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private final CommonInvitationFieldViewer baseViewer;
 	private final PrefilledEntriesViewer regPrefillViewer;
 	private final PrefilledEntriesViewer enqPrefillViewer;
@@ -37,12 +38,12 @@ class ComboInvitationViewer extends CustomComponent implements InvitationViewer
 	private Label regFormId;
 	private Label enqFormId;
 
-	ComboInvitationViewer(SharedEndpointManagement sharedEndpointMan, MessageSource msg,
+	ComboInvitationViewer(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
 			CommonInvitationFieldViewer baseViewer, PrefilledEntriesViewer regPrefillViewer,
 			PrefilledEntriesViewer enqPrefillViewer, ViewerUtils utils)
 	{
 		this.msg = msg;
-		this.sharedEndpointManagement = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.utils = utils;
 		this.baseViewer = baseViewer;
 		this.regPrefillViewer = regPrefillViewer;
@@ -77,7 +78,7 @@ class ComboInvitationViewer extends CustomComponent implements InvitationViewer
 
 	}
 
-	public void setInput(InvitationWithCode invitationWithCode)
+	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException
 	{
 		if (invitationWithCode == null)
 		{
@@ -101,8 +102,8 @@ class ComboInvitationViewer extends CustomComponent implements InvitationViewer
 		enqPrefillViewer.setInput(enqForm, comboParam.getEnquiryFormPrefill());
 
 		baseViewer.setInput(invitationWithCode, utils.getChannel(regForm),
-				PublicRegistrationURLSupport.getPublicRegistrationLink(regForm,
-						invitationWithCode.getRegistrationCode(), sharedEndpointManagement),
+				publicRegistrationURLSupport.getPublicFormLink(regForm.getName(), FormType.REGISTRATION,
+						invitationWithCode.getRegistrationCode()),
 				Stream.concat(comboParam.getRegistrationFormPrefill().getMessageParams().entrySet().stream(),
 						comboParam.getEnquiryFormPrefill().getMessageParams().entrySet().stream()).distinct()
 						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));

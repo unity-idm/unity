@@ -15,23 +15,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -56,12 +58,15 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 @Primary
 public class ProjectInvitationsManagementImpl implements ProjectInvitationsManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS,
+			ProjectInvitationsManagementImpl.class);
+	
 	public static final String INVITATION_PROJECT_NAME_PARAM = "upmanProject";
 	
 	private final ProjectAuthorizationManager authz;
 	private final InvitationManagement invitationMan;
 	private final GroupsManagement groupMan;
-	private final SharedEndpointManagement sharedEndpointMan;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private final RegistrationsManagement registrationMan;
 	private final EnquiryManagement enquiryMan;
 	private final EntityManagement entityMan;
@@ -73,7 +78,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") EntityManagement entityMan,
-			SharedEndpointManagement sharedEndpointMan, 
+			PublicRegistrationURLSupport publicRegistrationURLSupport, 
 			ProjectAuthorizationManager authz,
 			ExistingUserFinder existingUserFinder,
 			MessageSource msg)
@@ -81,7 +86,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		this.invitationMan = invitationMan;
 		this.groupMan = groupMan;
 		this.entityMan = entityMan;
-		this.sharedEndpointMan = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.authz = authz;
@@ -211,23 +216,32 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			return Collections.emptyList();
 
 		return allInv.stream()
-				.filter(f -> f.getInvitation().getType().equals(type)
-						&& f.getInvitation().matchForm(form))
+				.filter(f -> {
+					try
+					{
+						return f.getInvitation().getType().equals(type)
+								&& f.getInvitation().matchesForm(form);
+					} catch (IllegalFormTypeException e)
+					{
+						log.error("Invalid form type", e);
+						return false;
+					}
+				})
 				.collect(Collectors.toList());
 	}
 
 	private ProjectInvitation createProjectRegistrationInvitation(String projectPath, InvitationWithCode invitation,
 			RegistrationForm form) throws EngineException
 	{
-		return new ProjectInvitation(projectPath, form, invitation, PublicRegistrationURLSupport
-				.getPublicRegistrationLink(form, invitation.getRegistrationCode(), sharedEndpointMan));
+		return new ProjectInvitation(projectPath, form, invitation, publicRegistrationURLSupport
+				.getPublicRegistrationLink(form.getName(), invitation.getRegistrationCode()));
 	}
 
 	private ProjectInvitation createProjectEnquiryInvitation(String projectPath, InvitationWithCode invitation,
 			EnquiryForm form) throws EngineException
 	{
-		return new ProjectInvitation(projectPath, form, invitation, PublicRegistrationURLSupport
-				.getPublicEnquiryLink(form, invitation.getRegistrationCode(), sharedEndpointMan));
+		return new ProjectInvitation(projectPath, form, invitation, publicRegistrationURLSupport
+				.getPublicEnquiryLink(form.getName(), invitation.getRegistrationCode()));
 	}
 
 	private GroupDelegationConfiguration getDelegationConfiguration(String projectPath) throws EngineException
@@ -298,7 +312,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 						orgInvitation.getContactAddress());
 				rnewInvitation.setExpectedIdentity(
 						((RegistrationInvitationParam) orgInvitation).getExpectedIdentity());
-				setCommonFormInfo(rnewInvitation.getFormPrefill(), orgRegistrationInvitationParam.getFormPrefill());
+				rnewInvitation.getFormPrefill().fill(orgRegistrationInvitationParam.getFormPrefill());
 				newInvitation = rnewInvitation;
 			} else
 			{
@@ -307,7 +321,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 						orgEnquiryInvitationParam.getFormPrefill().getFormId(), newExpiration,
 						orgInvitation.getContactAddress());
 				enewInvitation.setEntity(((EnquiryInvitationParam) orgInvitation).getEntity());
-				setCommonFormInfo(enewInvitation.getFormPrefill(), orgEnquiryInvitationParam.getFormPrefill());
+				enewInvitation.getFormPrefill().fill(orgEnquiryInvitationParam.getFormPrefill());
 				newInvitation = enewInvitation;
 			}
 
@@ -318,15 +332,6 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		{
 			invitationMan.sendInvitation(orgInvitationWithCode.getRegistrationCode());
 		}
-	}
-
-	void setCommonFormInfo(FormPrefill toSet, FormPrefill from)
-	{
-		toSet.getGroupSelections().putAll(from.getGroupSelections());
-		toSet.getAllowedGroups().putAll(from.getAllowedGroups());
-		toSet.getAttributes().putAll(from.getAttributes());
-		toSet.getIdentities().putAll(from.getIdentities());
-		toSet.getMessageParams().putAll(from.getMessageParams());
 	}
 		
 	private InvitationWithCode assertIfIsProjectInvitation(String projectPath, String code) throws EngineException
@@ -341,8 +346,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		InvitationWithCode orgInvitationWithCode = invO.get();
 		InvitationParam invParam = orgInvitationWithCode.getInvitation();
 
-		if (invParam == null || !(invParam.matchForm(registrationMan.getForm(config.registrationForm))
-				|| invParam.matchForm(enquiryMan.getEnquiry(config.signupEnquiryForm))))
+		if (invParam == null || !(invParam.matchesForm(registrationMan.getForm(config.registrationForm))
+				|| invParam.matchesForm(enquiryMan.getEnquiry(config.signupEnquiryForm))))
 		{
 			throw new NotProjectInvitation(projectPath, orgInvitationWithCode.getRegistrationCode());
 		}

@@ -9,6 +9,7 @@ package pl.edu.icm.unity.types.registration.invite;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,16 +22,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 
 public class FormPrefill
 {
 	private static final Logger log = LogManager.getLogger(FormPrefill.class);
-	
-	public static enum FormType
-	{
-		REGISTRATION, ENQUIRY
-	};
 	
 	private String formId;
 	private FormType formType;
@@ -126,6 +123,38 @@ public class FormPrefill
 	public void setMessageParams(Map<String, String> messageParams)
 	{
 		this.messageParams = messageParams;
+	}
+
+	public void fill(FormPrefill from)
+	{
+		getGroupSelections().putAll(from.getGroupSelections());
+		getAllowedGroups().putAll(from.getAllowedGroups());
+		getAttributes().putAll(from.getAttributes());
+		getIdentities().putAll(from.getIdentities());
+		getMessageParams().putAll(from.getMessageParams());	
+	}
+	
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(allowedGroups, attributes, formId, formType, groupSelections, identities, messageParams);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FormPrefill other = (FormPrefill) obj;
+		return Objects.equals(allowedGroups, other.allowedGroups) && Objects.equals(attributes, other.attributes)
+				&& Objects.equals(formId, other.formId) && formType == other.formType
+				&& Objects.equals(groupSelections, other.groupSelections)
+				&& Objects.equals(identities, other.identities) && Objects.equals(messageParams, other.messageParams);
 	}
 
 	public static Builder builder()

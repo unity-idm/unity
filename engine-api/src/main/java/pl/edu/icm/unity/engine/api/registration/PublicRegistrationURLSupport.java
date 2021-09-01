@@ -8,10 +8,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
-import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 /**
@@ -22,6 +26,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
  * 
  * @author Krzysztof Benedyczak
  */
+@Component
 public class PublicRegistrationURLSupport
 {
 	public static final String REGISTRATION_VIEW = "registration";
@@ -30,12 +35,20 @@ public class PublicRegistrationURLSupport
 	public static final String CODE_PARAM = "regcode";
 	public static final String FORM_PARAM = "form";
 	
+	private final SharedEndpointManagement sharedEndpointMan;
+	
+	@Autowired
+	public PublicRegistrationURLSupport(SharedEndpointManagement sharedEndpointManagement)
+	{
+		this.sharedEndpointMan = sharedEndpointManagement;
+	}
+
 	/**
 	 * @param formName
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a registration form
 	 */
-	public static String getPublicRegistrationLink(RegistrationForm form, SharedEndpointManagement sharedEndpointMan)
+	public String getPublicRegistrationLink(RegistrationForm form)
 	{
 		String formName = form.getName();
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
@@ -48,7 +61,7 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of an enquiry form
 	 */
-	public static String getWellknownEnquiryLink(String formName, SharedEndpointManagement sharedEndpointMan)
+	public String getWellknownEnquiryLink(String formName)
 	{
 		return sharedEndpointMan.getServerAddress() + 
 				SecuredWellKnownURLServlet.DEFAULT_CONTEXT + 
@@ -62,12 +75,11 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a registration form with included registration code
 	 */
-	public static String getPublicRegistrationLink(BaseForm form, String code, 
-			SharedEndpointManagement sharedEndpointMan)
+	public String getPublicRegistrationLink(String form, String code)
 	{
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
 				"?" + CODE_PARAM + "=" + code +
-				"&" + FORM_PARAM + "=" + urlEncodePath(form.getName()) +
+				"&" + FORM_PARAM + "=" + urlEncodePath(form) +
 				"#!" + REGISTRATION_VIEW;
 	}
 	
@@ -76,16 +88,28 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a enquiry form with included registration code
 	 */
-	public static String getPublicEnquiryLink(BaseForm form, String code, 
-			SharedEndpointManagement sharedEndpointMan)
+	public String getPublicEnquiryLink(String form, String code)
 	{
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
 				"?" + CODE_PARAM + "=" + code +
-				"&" + FORM_PARAM + "=" + urlEncodePath(form.getName()) +
+				"&" + FORM_PARAM + "=" + urlEncodePath(form) +
 				"#!" + ENQUIRY_VIEW;
 	}
 	
-	private static String urlEncodePath(String pathElement)
+	public String getPublicFormLink(String form, FormType formType, String code) throws IllegalFormTypeException
+	{
+		switch (formType)
+		{
+		case REGISTRATION:
+			return getPublicRegistrationLink(form, code);
+		case ENQUIRY:
+			return getPublicEnquiryLink(form, code);
+		default:
+			throw new IllegalFormTypeException("Invalid form type");
+		}
+	}
+	
+	private String urlEncodePath(String pathElement)
 	{
 		try
 		{

@@ -15,10 +15,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill.FormType;
+import pl.edu.icm.unity.types.registration.FormType;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 public class ComboInvitationParam extends InvitationParam
 {
@@ -130,42 +132,43 @@ public class ComboInvitationParam extends InvitationParam
 	}
 
 	@Override
-	public void validateUpdate(InvitationValidator validator, InvitationParam toUpdate) throws EngineException
+	public void validateUpdate(InvitationParam newInvitationParam) throws WrongArgumentException
 	{
-		validator.validateUpdate(this, toUpdate);
-	}
+		assertTypesAreTheSame(newInvitationParam);
+		ComboInvitationParam newInv = (ComboInvitationParam) newInvitationParam;
 
-	public void validate(InvitationValidator validator) throws EngineException
-	{
-		validator.validate(this);
-	}
+		if (!Objects.equals(getRegistrationFormPrefill().getFormId(), newInv.getRegistrationFormPrefill().getFormId()))
+			throw new WrongArgumentException("Can not update registration form of an invitation");
 
-	@Override
-	public void send(InvitationSender sender, String code) throws EngineException
-	{
-		sender.send(
-				RegistrationInvitationParam.builder().withContactAddress(this.getContactAddress())
-						.withExpiration(this.getExpiration()).withForm(this.getRegistrationFormPrefill()).build(),
-				code);
+		if (!Objects.equals(getEnquiryFormPrefill().getFormId(), newInv.getEnquiryFormPrefill().getFormId()))
+			throw new WrongArgumentException("Can not update enquiry form of an invitation");
 	}
 
 	@Override
-	public boolean matchForm(BaseForm form)
+	public void validate(FormProvider formProvider) throws EngineException
+	{
+		if (getRegistrationFormPrefill().getFormId() == null || getEnquiryFormPrefill().getFormId() == null)
+		{
+			throw new WrongArgumentException("The invitation has no form configured");
+		}
+		EnquiryForm enquiryForm = formProvider.getEnquiryForm(getEnquiryFormPrefill().getFormId());
+		assertPrefillMatchesForm(getEnquiryFormPrefill(), enquiryForm);
+		RegistrationForm form = formProvider.getRegistrationForm(getRegistrationFormPrefill().getFormId());
+		assertPrefillMatchesForm(getRegistrationFormPrefill(), form);
+	}
+
+	@Override
+	public boolean matchesForm(BaseForm form) throws IllegalFormTypeException
 	{
 		if (form instanceof EnquiryForm)
 		{
-			if (form.getName().equals(getEnquiryFormPrefill().getFormId()))
-			{
-				return true;
-			}
-		} else
+			return form.getName().equals(getEnquiryFormPrefill().getFormId());
+			
+		} else if (form instanceof RegistrationForm)
 		{
-			if (form.getName().equals(getRegistrationFormPrefill().getFormId()))
-			{
-				return true;
-			}
-		}
-
+				return form.getName().equals(getRegistrationFormPrefill().getFormId());	
+		} 
+		
 		return false;
 	}
 
@@ -190,7 +193,7 @@ public class ComboInvitationParam extends InvitationParam
 			{
 				return getEnquiryFormPrefill();
 			}
-			throw new WrongArgumentException("Invitation not match to enquiry form " + form.getName());
+			throw new WrongArgumentException("Invitation does not match to enquiry form " + form.getName());
 
 		} else
 		{
@@ -199,7 +202,7 @@ public class ComboInvitationParam extends InvitationParam
 				return getRegistrationFormPrefill();
 			}
 
-			throw new WrongArgumentException("Invitation not match to registration form " + form.getName());
+			throw new WrongArgumentException("Invitation does not match to registration form " + form.getName());
 		}
 	}
 
@@ -229,5 +232,12 @@ public class ComboInvitationParam extends InvitationParam
 			instance.enquiryFormPrefill = formPrefill;
 			return this;
 		}
+	}
+
+	@Override
+	public InvitationSendData getSendData()
+	{
+		return new InvitationSendData(registrationFormPrefill.getFormId(),  registrationFormPrefill.getFormType(), getContactAddress(), getExpiration(),
+				registrationFormPrefill.getGroupSelections(), registrationFormPrefill.getMessageParams());
 	}
 }

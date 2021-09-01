@@ -15,12 +15,13 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -33,7 +34,7 @@ class EnquiryInvitationViewer extends CustomComponent implements InvitationViewe
 
 	private final MessageSource msg;
 	private final EntityManagement entityMan;
-	private final SharedEndpointManagement sharedEndpointManagement;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private final CommonInvitationFieldViewer baseViewer;
 	private final PrefilledEntriesViewer prefillViewer;
 	private final ViewerUtils utils;
@@ -41,13 +42,13 @@ class EnquiryInvitationViewer extends CustomComponent implements InvitationViewe
 	private Label entity;
 	private Label formId;
 
-	EnquiryInvitationViewer(SharedEndpointManagement sharedEndpointMan, MessageSource msg,
+	EnquiryInvitationViewer(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
 			CommonInvitationFieldViewer baseViewer, PrefilledEntriesViewer prefillViewer,
 			EntityManagement entityManagement, ViewerUtils utils)
 	{
 		this.msg = msg;
 		this.entityMan = entityManagement;
-		this.sharedEndpointManagement = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.baseViewer = baseViewer;
 		this.prefillViewer = prefillViewer;
 		this.utils = utils;
@@ -79,7 +80,7 @@ class EnquiryInvitationViewer extends CustomComponent implements InvitationViewe
 		main.addComponent(prefill);
 	}
 
-	public void setInput(InvitationWithCode invitationWithCode)
+	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException
 	{
 		if (invitationWithCode == null)
 		{
@@ -101,8 +102,8 @@ class EnquiryInvitationViewer extends CustomComponent implements InvitationViewe
 		formId.setValue(form.getName());
 		prefillViewer.setInput(form, enqParam.getFormPrefill());
 		baseViewer.setInput(
-				invitationWithCode, utils.getChannel(form), PublicRegistrationURLSupport.getPublicRegistrationLink(form,
-						invitationWithCode.getRegistrationCode(), sharedEndpointManagement),
+				invitationWithCode, utils.getChannel(form), publicRegistrationURLSupport
+						.getPublicFormLink(form.getName(), FormType.ENQUIRY, invitationWithCode.getRegistrationCode()),
 				enqParam.getFormPrefill().getMessageParams());
 	}
 

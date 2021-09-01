@@ -22,8 +22,8 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill.FormType;
 
 public class EnquiryInvitationParam extends InvitationParam
 {
@@ -121,25 +121,28 @@ public class EnquiryInvitationParam extends InvitationParam
 		return new EnquiryInvitationParam(this.toJson());
 	}
 	
-	@Override
-	public void validateUpdate(InvitationValidator validator, InvitationParam toUpdate) throws EngineException
+	public void validateUpdate(InvitationParam newInvitationParam)
+			throws WrongArgumentException
 	{
-		validator.validateUpdate(this, toUpdate);		
-	}	
-	
-	public void validate(InvitationValidator validator) throws EngineException
-	{
-		validator.validate(this);
-	}
-
-	@Override
-	public void send(InvitationSender sender, String code) throws EngineException
-	{
-		sender.send(this, code);
+		assertTypesAreTheSame(newInvitationParam);
+		EnquiryInvitationParam newInv = (EnquiryInvitationParam) newInvitationParam;
+		if (!Objects.equals(getFormPrefill().getFormId(),
+				newInv.getFormPrefill().getFormId()))
+			throw new WrongArgumentException("Can not update enquiry form of an invitation");
 	}
 	
+	public void validate(FormProvider formProvider) throws EngineException
+	{
+		if (getFormPrefill().getFormId() == null)
+		{
+			throw new WrongArgumentException("The invitation has no form configured");
+		}
+		EnquiryForm enquiryForm = formProvider.getEnquiryForm(getFormPrefill().getFormId());
+		assertPrefillMatchesForm(getFormPrefill(), enquiryForm);
+	}
+	
 	@Override
-	public boolean matchForm(BaseForm form)
+	public boolean matchesForm(BaseForm form)
 	{
 		if (form instanceof EnquiryForm)
 		{
@@ -173,12 +176,22 @@ public class EnquiryInvitationParam extends InvitationParam
 				return getFormPrefill();
 			}			
 		} 
-		throw new WrongArgumentException("Invitation not match to form " + form.getName());
+		throw new WrongArgumentException("Invitation does not match to form " + form.getName());
 	}
 	
 	public static Builder builder()
 	{
 		return new Builder();
+	}
+	
+	@Override
+	public InvitationSendData getSendData() throws EngineException
+	{
+		if (getEntity() == null)
+			throw new WrongArgumentException("The invitation has no entity configured");
+		
+		return new InvitationSendData(formPrefill.getFormId(),  formPrefill.getFormType(), getContactAddress(), getExpiration(),
+				formPrefill.getGroupSelections(), formPrefill.getMessageParams());
 	}
 	
 	public static class Builder extends InvitationParam.Builder<Builder>

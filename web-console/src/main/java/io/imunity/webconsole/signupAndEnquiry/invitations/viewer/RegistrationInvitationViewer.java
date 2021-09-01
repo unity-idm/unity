@@ -11,10 +11,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
@@ -24,7 +25,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 class RegistrationInvitationViewer extends CustomComponent implements InvitationViewer
 {
 	private final MessageSource msg;
-	private final SharedEndpointManagement sharedEndpointManagement;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private final CommonInvitationFieldViewer baseViewer;
 	private final PrefilledEntriesViewer prefillViewer;
 	private final ViewerUtils utils;
@@ -32,11 +33,11 @@ class RegistrationInvitationViewer extends CustomComponent implements Invitation
 	private Label expectedIdentity;
 	private Label formId;
 
-	RegistrationInvitationViewer(SharedEndpointManagement sharedEndpointMan, MessageSource msg,
+	RegistrationInvitationViewer(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
 			CommonInvitationFieldViewer baseViewer, PrefilledEntriesViewer prefillViewer, ViewerUtils utils)
 	{
 		this.msg = msg;
-		this.sharedEndpointManagement = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.baseViewer = baseViewer;
 		this.prefillViewer = prefillViewer;
 		this.utils = utils;
@@ -69,7 +70,7 @@ class RegistrationInvitationViewer extends CustomComponent implements Invitation
 		main.addComponent(prefill);
 	}
 
-	public void setInput(InvitationWithCode invitationWithCode)
+	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException
 	{
 
 		if (invitationWithCode == null)
@@ -92,9 +93,11 @@ class RegistrationInvitationViewer extends CustomComponent implements Invitation
 		}
 		formId.setValue(form.getName());
 		prefillViewer.setInput(form, regParam.getFormPrefill());
-		baseViewer.setInput(invitationWithCode, utils.getChannel(form), PublicRegistrationURLSupport
-				.getPublicRegistrationLink(form, invitationWithCode.getRegistrationCode(), sharedEndpointManagement),
-				regParam.getFormPrefill().getMessageParams());
+		baseViewer
+				.setInput(invitationWithCode, utils.getChannel(form),
+						publicRegistrationURLSupport.getPublicFormLink(form.getName(), FormType.REGISTRATION,
+								invitationWithCode.getRegistrationCode()),
+						regParam.getFormPrefill().getMessageParams());
 
 	}
 

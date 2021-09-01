@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Objects;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -22,7 +24,10 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.invite.FormProvider;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationSendData;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 @Component
@@ -30,28 +35,32 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 @InvocationEventProducer
 @Transactional
 public class InvitationManagementImpl implements InvitationManagement
-{	
+{
 	private final InternalAuthorizationManager authz;
 	private final InvitationDB invitationDB;
-	private final InvitationValidator validator;
-
+	private final FormProvider formProvider;
 	private final InvitationSender sender;
+	private final MessageSource msg;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 
 	@Autowired
 	public InvitationManagementImpl(InternalAuthorizationManager authz, InvitationDB invitationDB,
-			InvitationValidator validator, InvitationSender sender)
+			InvitationSender sender, FormProvider formProvider, MessageSource msg,
+			PublicRegistrationURLSupport publicRegistrationURLSupport)
 	{
 		this.authz = authz;
 		this.invitationDB = invitationDB;
-		this.validator = validator;
 		this.sender = sender;
+		this.formProvider = formProvider;
+		this.msg = msg;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 	}
 
 	@Override
 	public String addInvitation(InvitationParam invitation) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		validateInvitation(invitation);
+		invitation.validate(formProvider);
 
 		String randomUUID = UUID.randomUUID().toString();
 		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID, null, 0);
@@ -68,7 +77,11 @@ public class InvitationManagementImpl implements InvitationManagement
 		InvitationParam invitation = invitationWithCode.getInvitation();
 		if (invitation.getExpiration().isBefore(Instant.now()))
 			throw new WrongArgumentException("The invitation is expired");
-		invitation.send(sender, code);
+		InvitationSendData sendData = invitation.getSendData();
+		BaseForm form = formProvider.getForm(sendData.form, sendData.formType);
+		sender.sendInvitation(new ResolvedInvitationSendData(invitation.getSendData(),
+				form.getNotificationsConfiguration().getInvitationTemplate(), form.getDisplayedName().getValue(msg),
+				code, publicRegistrationURLSupport.getPublicFormLink(form.getName(), sendData.formType, code)));
 		Instant sentTime = Instant.now();
 		invitationWithCode.setLastSentTime(sentTime);
 		invitationWithCode.setNumberOfSends(invitationWithCode.getNumberOfSends() + 1);
@@ -107,14 +120,9 @@ public class InvitationManagementImpl implements InvitationManagement
 			throw new WrongArgumentException("Can not update type of invitation");
 		if (!Objects.equal(current.getContactAddress(), invitation.getContactAddress()))
 			throw new WrongArgumentException("Can not update contact address of an invitation");
-		current.validateUpdate(validator, invitation);
+		current.validateUpdate(invitation);
 		InvitationWithCode updated = new InvitationWithCode(invitation, currentWithCode.getRegistrationCode(),
 				currentWithCode.getLastSentTime(), currentWithCode.getNumberOfSends());
 		invitationDB.update(updated);
-	}
-
-	private void validateInvitation(InvitationParam invitation) throws EngineException
-	{
-		invitation.validate(validator);
 	}
 }

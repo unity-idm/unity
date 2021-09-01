@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.util.AntPathMatcher;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -17,7 +19,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 
 /**
  * Base data of invitation parameter. It is extracted as we have two ways to represent attributes:
@@ -75,13 +82,93 @@ public abstract class InvitationParam
 		return contactAddress;
 	}
 
-	public abstract void validateUpdate(InvitationValidator validator, InvitationParam toUpdate) throws EngineException;
-	public abstract void validate(InvitationValidator validator) throws EngineException;
-	public abstract void send(InvitationSender sender, String code) throws EngineException;
-	public abstract boolean matchForm(BaseForm form);
+	public abstract void validateUpdate(InvitationParam toUpdate) throws EngineException;
+	public abstract void validate(FormProvider formProvider) throws EngineException;
+	public abstract boolean matchesForm(BaseForm form) throws IllegalFormTypeException;
+	
+	/**
+	 * Get prefill data associated with given form
+	 * @throws EngineException
+	 */
 	public abstract FormPrefill getPrefillForForm(BaseForm form) throws EngineException;
+
+	/**
+	 * Get prefill data used in auto processing invitation action.  
+	 * @return
+	 */
 	public abstract FormPrefill getPrefillForAutoProcessing();
 	public abstract List<FormPrefill> getFormsPrefillData();
+	public abstract InvitationSendData getSendData() throws EngineException;
+	
+	protected void assertTypesAreTheSame(InvitationParam newInvitationParam)
+			throws WrongArgumentException
+	{
+		if (!Objects.equals(type, newInvitationParam.getType()))
+			throw new WrongArgumentException("Can not update invitation, the types of invitations are not the same");
+	}
+	
+	protected void assertPrefillMatchesForm(FormPrefill invitation, BaseForm form)
+	{
+		assertIdentitiesMatch(invitation, form);
+		assertAttributesMatch(invitation, form);
+		assertPrefilledGroupsMatch(invitation, form);
+	}
+
+	private void assertPrefilledGroupsMatch(FormPrefill invitation, BaseForm form)
+	{
+		int maxIndex = form.getGroupParams().size() - 1;
+		invitation.getGroupSelections().forEach((index, param) ->
+		{
+			if (index > maxIndex)
+				throw new IllegalArgumentException(
+						"Prefilled group index " + index + " has no corresponding group parameter in the form");
+			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(index);
+			if (!groupRegistrationParam.isMultiSelect() && param.getEntry().getSelectedGroups().size() > 1)
+				throw new IllegalArgumentException("Prefilled group with index " + index
+						+ " has multiple groups selected while only one is allowed.");
+			for (String prefilledGroup : param.getEntry().getSelectedGroups())
+				if (!groupMatches(prefilledGroup, groupRegistrationParam.getGroupPath()))
+					throw new IllegalArgumentException("Prefilled group " + prefilledGroup
+							+ " is not matching allowed groups spec " + groupRegistrationParam.getGroupPath());
+		});
+	}
+	private boolean groupMatches(String group, String pattern)
+	{
+		AntPathMatcher matcher = new AntPathMatcher();
+		return matcher.match(pattern, group);
+	}
+	
+	private void assertAttributesMatch(FormPrefill invitation, BaseForm form)
+	{
+		int maxIndex = form.getAttributeParams().size() - 1;
+		invitation.getAttributes().forEach((index, param) ->
+		{
+			if (index > maxIndex)
+				throw new IllegalArgumentException(
+						"Prefilled attribute index " + index + " has no corresponding attribute parameter in the form");
+			AttributeRegistrationParam attributeRegistrationParam = form.getAttributeParams().get(index);
+			if (!attributeRegistrationParam.getAttributeType().equals(param.getEntry().getName()))
+				throw new IllegalArgumentException("Prefilled attribute at index " + index
+						+ " has other attribute then the one in the form: " + param.getEntry().getName()
+						+ " while expected " + attributeRegistrationParam.getAttributeType());
+		});
+	}
+
+	private void assertIdentitiesMatch(FormPrefill invitation, BaseForm form)
+	{
+		int maxIndex = form.getIdentityParams().size() - 1;
+		invitation.getIdentities().forEach((index, param) ->
+		{
+			if (index > maxIndex)
+				throw new IllegalArgumentException(
+						"Prefilled identity index " + index + " has no corresponding identity parameter in the form");
+			IdentityRegistrationParam identityRegistrationParam = form.getIdentityParams().get(index);
+			if (!identityRegistrationParam.getIdentityType().equals(param.getEntry().getTypeId()))
+				throw new IllegalArgumentException("Prefilled identity index " + index
+						+ " has different type then the form's param: " + param.getEntry().getTypeId()
+						+ ", while expected: " + identityRegistrationParam.getIdentityType());
+		});
+	}
 	
 	@JsonIgnore
 	public boolean isExpired()

@@ -17,9 +17,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RegistrationWithCommentsTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -31,6 +34,7 @@ import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
@@ -56,6 +60,9 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
  */
 public class BaseSharedRegistrationSupport
 {	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS,
+			BaseSharedRegistrationSupport.class);
+	
 	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
 	public static final String AUTO_PROCESS_INVITATIONS_COMMENT = "Automatically processed invitations";
 
@@ -324,8 +331,17 @@ public class BaseSharedRegistrationSupport
 	
 	public void validateIfHasInvitations(BaseForm formId, InvitationType type) throws EngineException
 	{
-		if (invitationDB.getAll().stream().filter(i -> i.getInvitation().getType().equals(type)
-				&& i.getInvitation().matchForm(formId)).count() > 0)
+		if (invitationDB.getAll().stream().filter(i -> {
+			try
+			{
+				return i.getInvitation().getType().equals(type)
+						&& i.getInvitation().matchesForm(formId);
+			} catch (IllegalFormTypeException e)
+			{
+				log.error("Invalid form type", e);
+				return false;
+			}
+		}).count() > 0)
 			throw new SchemaConsistencyException("There are invitations created for "
 					+ "this form, and it was not chosen to ignore them.");
 	}

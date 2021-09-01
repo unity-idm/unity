@@ -60,9 +60,7 @@ class ViewerUtils
 			return null;
 		}
 		Optional<EnquiryForm> found = forms.stream().filter(form -> form.getName().equals(id)).findAny();
-		if (found.isPresent())
-			return found.get();
-		return null;
+		return found.orElse(null);
 	}
 
 	String getChannel(BaseForm form)
