@@ -169,7 +169,7 @@ class OAuthTokenViewer extends VerticalLayout
 		{
 			jwtClaimsSet.setVisible(true);
 			jwtInfo.setVisible(true);
-			JsonNode tree = JsonUtil.parse(claims.get().toJSONObject().toJSONString());
+			JsonNode tree = JsonUtil.parse(claims.get().toString());
 			jwtClaimsSet.setValue(JsonUtil.serializeHumanReadable(tree));
 			jwtInfo.setValue(jwt.get().getHeader().toString());
 		} else

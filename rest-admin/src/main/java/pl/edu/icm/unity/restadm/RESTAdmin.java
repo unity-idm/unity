@@ -42,7 +42,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
@@ -1019,12 +1018,9 @@ public class RESTAdmin implements RESTAdminHandler
 			throw new EngineException("Cannot get tokens - invalid type or owner");
 		}
 		
-		JSONArray jsonArray = new JSONArray();
-		for(Token t : tokens)
-		{
+		ArrayNode jsonArray = mapper.createArrayNode();
+		for (Token t : tokens)
 			jsonArray.add(jsonFormatter.toJson(t));
-		}
-		
 		return mapper.writeValueAsString(jsonArray);
 	}
 	

@@ -52,7 +52,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://127.0.0.1:1234/some/path"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -69,7 +69,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://[::1]:1234/some/path"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -86,7 +86,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://127.0.0.1/some/path"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -103,7 +103,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://[::1]:1234/some/path"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -120,7 +120,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://127.0.0.1/OTHER"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -137,7 +137,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://[::1]/OTHER"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -154,7 +154,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("http://222.2.2.2:9999"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -171,7 +171,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("private:/some/path"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -188,7 +188,7 @@ public class OAuthWebRequestValidatorTest
 		
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
 				.redirectionURI(new URI("private.scheme:/some/path"))
-				.codeChallenge(new CodeVerifier("************************************************"), S256)
+				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
 				.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
 		
@@ -202,7 +202,7 @@ public class OAuthWebRequestValidatorTest
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.signingAlgorithm", "HS256");
-		config.setProperty("unity.oauth2.as.signingSecret", "*************************************************************");
+		config.setProperty("unity.oauth2.as.signingSecret", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		return new OAuthASProperties(config, null, null);
 	}
 

@@ -161,7 +161,7 @@ public class TestECP extends AbstractTestIdpBase
 			String resp = EntityUtils.toString(entity);
 			System.out.println(resp);
 			JWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
-			System.out.println("GOT:\n" + claims.toJSONObject().toJSONString());
+			System.out.println("GOT:\n" + claims.toString());
 			Assert.assertTrue(claims.getIssuer().contains("https://localhost:52443"));
 		} else
 			Assert.fail("No HTTP response");
