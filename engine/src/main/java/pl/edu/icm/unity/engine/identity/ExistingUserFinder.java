@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.project;
+package pl.edu.icm.unity.engine.identity;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
@@ -27,10 +28,10 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 class ExistingUserFinder
 {
 	private final BulkGroupQueryService bulkService;
-	private final ProjectAttributeHelper attrHelper;
+	private final AttributesHelper attrHelper;
 	
 	@Autowired
-	ExistingUserFinder(@Qualifier("insecure") BulkGroupQueryService bulkService, ProjectAttributeHelper attrHelper)
+	ExistingUserFinder(@Qualifier("insecure") BulkGroupQueryService bulkService, AttributesHelper attrHelper)
 	{
 		this.bulkService = bulkService;
 		this.attrHelper = attrHelper;

@@ -7,29 +7,30 @@ package pl.edu.icm.unity.webui.forms.reg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.vaadin.server.Page;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
-import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
+import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
-import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
+import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 
 /**
  * Creates instances of {@link RegistrationRequestEditor}. May ask for a registration/invitation code if needed first
@@ -40,21 +41,23 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 @PrototypeComponent
 public class RequestEditorCreator
 {
-	private MessageSource msg;
-	private ImageAccessService imageAccessService;
+	private final MessageSource msg;
+	private final ImageAccessService imageAccessService;
+	private final IdentityEditorRegistry identityEditorRegistry;
+	private final CredentialEditorRegistry credentialEditorRegistry;
+	private final AttributeHandlerRegistry attributeHandlerRegistry;
+	private final AttributeTypeManagement aTypeMan;
+	private final GroupsManagement groupsMan;
+	private final CredentialManagement credMan;
+	private final AuthenticatorSupportService authnSupport;
+	private final InvitationResolver invitationResolver;
+	private final URLQueryPrefillCreator urlQueryPrefillCreator;
+	private final PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+	
 	private RegistrationForm form;
 	private RemotelyAuthenticatedPrincipal remotelyAuthenticated;
-	private IdentityEditorRegistry identityEditorRegistry;
-	private CredentialEditorRegistry credentialEditorRegistry;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributeTypeManagement aTypeMan;
-	private GroupsManagement groupsMan;
-	private CredentialManagement credMan;
-	private AuthenticatorSupportService authnSupport;
 	private String registrationCode;
-	private FormsInvitationHelper invitationHelper;
-	private URLQueryPrefillCreator urlQueryPrefillCreator;
-	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 	private boolean enableRemoteSignup;
 
 	@Autowired
@@ -65,10 +68,12 @@ public class RequestEditorCreator
 			@Qualifier("insecure") AttributeTypeManagement aTypeMan,
 			@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure") CredentialManagement credMan,
-			@Qualifier("insecure") InvitationManagement invitationMan,
 			AuthenticatorSupportService authnSupport,
 			URLQueryPrefillCreator urlQueryPrefillCreator,
-			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
+			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
+			PublicRegistrationURLSupport publicRegistrationURLSupport,
+			InvitationResolver invitationResolver
+			)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -78,10 +83,11 @@ public class RequestEditorCreator
 		this.groupsMan = groupsMan;
 		this.credMan = credMan;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
-		this.invitationHelper = new FormsInvitationHelper(invitationMan);
+		this.invitationResolver = invitationResolver;
 		this.authnSupport = authnSupport;
 		this.imageAccessService = imageAccessService;
 		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 	}
 	
 
@@ -127,7 +133,7 @@ public class RequestEditorCreator
 
 	private void doCreateFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
 	{
-		InvitationParam invitation;
+		ResolvedInvitationParam invitation;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -135,15 +141,16 @@ public class RequestEditorCreator
 		{
 			callback.onCreationError(e1, e1.cause);
 			return;
-		}catch (IllegalFormTypeException e)
+		}
+		
+		if (redirectToPublicEnquiryViewIfPossible(invitation))
 		{
-			callback.onCreationError(e, ErrorCause.MISCONFIGURED);
 			return;
 		}
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, (RegistrationInvitationParam) invitation);
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation == null ? null : invitation.getAsRegistration());
 			editor.showFirstStage(onLocalSignupHandler);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -155,7 +162,7 @@ public class RequestEditorCreator
 	
 	private void doCreateSecondStage(RequestEditorCreatedCallback callback, boolean withCredentials)
 	{
-		InvitationParam invitation;
+		ResolvedInvitationParam invitation = null;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -163,20 +170,35 @@ public class RequestEditorCreator
 		{
 			callback.onCreationError(e1, e1.cause);
 			return;
-		}catch (IllegalFormTypeException e)
+		}
+		
+		if (redirectToPublicEnquiryViewIfPossible(invitation))
 		{
-			callback.onCreationError(e, ErrorCause.MISCONFIGURED);
 			return;
 		}
+		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, (RegistrationInvitationParam) invitation);
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation == null ? null : invitation.getAsRegistration());
 			editor.showSecondStage(withCredentials);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
 		{
 			callback.onCreationError(e, ErrorCause.MISCONFIGURED);
 		}
+	}
+	
+	private boolean redirectToPublicEnquiryViewIfPossible(ResolvedInvitationParam invitation)
+	{
+		if (invitation != null && invitation.canBeProcessedAsEnquiryWithResolvedUser())
+		{
+			EnquiryInvitationParam enqInv = invitation.getAsEnquiryInvitationParam();
+			String url = publicRegistrationURLSupport.getPublicEnquiryLink(enqInv.getFormPrefill().getFormId(),
+					registrationCode);
+			Page.getCurrent().open(url, null);
+			return true;
+		}
+		return false;
 	}
 	
 	private void askForCode(RequestEditorCreatedCallback callback, Runnable uiCreator)
@@ -214,19 +236,25 @@ public class RequestEditorCreator
 				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, enableRemoteSignup);
 	}
 	
-	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException, IllegalFormTypeException
+	private ResolvedInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
-		if (form.isByInvitationOnly() && registrationCode == null)
-			throw new RegCodeException(ErrorCause.MISSING_CODE);
+		ResolvedInvitationParam invitation = null;
+		try
+		{
+			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
+		} catch (RegCodeException e)
+		{
+			if (form.isByInvitationOnly() && e.cause.equals(RegCodeException.ErrorCause.MISSING_CODE))
+			{
+				throw new RegCodeException(ErrorCause.MISSING_CODE);
+			}
 
-		InvitationParam invitation = invitationHelper.getInvitationByCode(registrationCode, InvitationType.REGISTRATION);
-		
-		if (invitation != null && !invitation.matchesForm(form))
-			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
-		if (form.isByInvitationOnly() &&  invitation == null)
-			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
-		if (form.isByInvitationOnly() &&  invitation.isExpired())
-			throw new RegCodeException(ErrorCause.EXPIRED_INVITATION);
+			if (form.isByInvitationOnly() && e.cause.equals(RegCodeException.ErrorCause.UNRESOLVED_INVITATION))
+			{
+				throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
+			}
+		}
+
 		return invitation;
 	}
 	

@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
+import pl.edu.icm.unity.exceptions.UnknownEmailException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -70,7 +71,6 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private final RegistrationsManagement registrationMan;
 	private final EnquiryManagement enquiryMan;
 	private final EntityManagement entityMan;
-	private final ExistingUserFinder existingUserFinder;
 	private final MessageSource msg;
 	
 	public ProjectInvitationsManagementImpl(@Qualifier("insecure") InvitationManagement invitationMan,
@@ -80,7 +80,6 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			@Qualifier("insecure") EntityManagement entityMan,
 			PublicRegistrationURLSupport publicRegistrationURLSupport, 
 			ProjectAuthorizationManager authz,
-			ExistingUserFinder existingUserFinder,
 			MessageSource msg)
 	{
 		this.invitationMan = invitationMan;
@@ -90,7 +89,6 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.authz = authz;
-		this.existingUserFinder = existingUserFinder;
 		this.msg = msg;
 	}
 
@@ -98,8 +96,15 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	public String addInvitation(ProjectInvitationParam param) throws EngineException
 	{
 		authz.assertManagerAuthorization(param.project);
-
-		Long entity = existingUserFinder.getEntityIdByContactAddress(param.contactAddress);
+		
+		Long entity = null;
+		try
+		{
+			entity = entityMan.getEntityByContactEmail(param.contactAddress).getId();
+		} catch (UnknownEmailException e)
+		{
+			// ok
+		}
 		String code = null;
 		if (entity == null)
 		{

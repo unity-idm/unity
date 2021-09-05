@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -28,12 +27,10 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -44,13 +41,11 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
-import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
 import pl.edu.icm.unity.webui.forms.FormsUIHelper;
+import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
@@ -75,7 +70,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private VerticalLayout main;
 	private String registrationCode;
 	private EnquiryResponseEditorController editorController;
-	private FormsInvitationHelper invitationHelper;
+	private InvitationResolver invitationResolver;
 	private PostFillingHandler postFillHandler;
 
 	private EnquiryForm form;
@@ -86,12 +81,12 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			@Qualifier("insecure") InvitationManagement invitationMan, MessageSource msg, 
+			InvitationResolver invitationResolver, MessageSource msg, 
 			ImageAccessService imageAccessService, URLQueryPrefillCreator urlQueryPrefillCreator)
 	{
 		this.editorController = editorController;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
-		this.invitationHelper = new FormsInvitationHelper(invitationMan);
+		this.invitationResolver = invitationResolver;
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
 	}
@@ -134,18 +129,14 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		EnquiryInvitationParam invitation;
 		try
 		{
-			invitation = (EnquiryInvitationParam) getInvitationByCode(registrationCode);
+			invitation = invitationResolver.getInvitationByCode(registrationCode, form).getAsEnquiryInvitationParam();
 		} catch (RegCodeException e)
 		{
 			log.error("Can not get invitation", e);
 			handleError(e, e.cause);
 			return;
-		} catch (IllegalFormTypeException e)
-		{
-			log.error("Can not get invitation", e);
-			handleError(e, ErrorCause.MISCONFIGURED);
-			return;
-		}
+		} 
+		
 		try
 		{
 			PrefilledSet currentUserData = editorController.getPrefilledForSticky(form, 
@@ -243,23 +234,6 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		}
 		return mergedGroups;
-	}
-	
-	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException, IllegalFormTypeException
-	{
-		if (registrationCode == null)
-			throw new RegCodeException(ErrorCause.MISSING_CODE);
-		
-		InvitationParam invitation = invitationHelper.getInvitationByCode(registrationCode, InvitationType.ENQUIRY);
-		
-		if (invitation == null)
-			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
-		if (invitation.isExpired())
-			throw new RegCodeException(ErrorCause.EXPIRED_INVITATION);
-		if (!invitation.matchesForm(form))
-			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
-
-		return invitation;
 	}
 
 	private void showEditorContent(EnquiryResponseEditor editor)

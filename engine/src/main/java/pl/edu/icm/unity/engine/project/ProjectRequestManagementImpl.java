@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
@@ -55,19 +56,22 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 @Component
 public class ProjectRequestManagementImpl implements ProjectRequestManagement
 {
-	private ProjectAuthorizationManager authz;
-	private RegistrationsManagement registrationMan;
-	private EnquiryManagement enquiryMan;
-	private GroupsManagement groupMan;
-	private PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private EntityManagement idMan;
-	private ProjectAttributeHelper projectAttrHelper;
-
+	private final ProjectAuthorizationManager authz;
+	private final RegistrationsManagement registrationMan;
+	private final EnquiryManagement enquiryMan;
+	private final GroupsManagement groupMan;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+	private final EntityManagement idMan;
+	private final ProjectAttributeHelper projectAttrHelper;
+	private final AttributesHelper attributesHelper;
+	
 	public ProjectRequestManagementImpl(ProjectAuthorizationManager authz,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") GroupsManagement groupMan, @Qualifier("insecure") EntityManagement idMan,
-			ProjectAttributeHelper projectAttrHelper, PublicRegistrationURLSupport publicRegistrationURLSupport)
+			ProjectAttributeHelper projectAttrHelper,
+			AttributesHelper attributesHelper,
+			PublicRegistrationURLSupport publicRegistrationURLSupport)
 	{
 		this.authz = authz;
 		this.registrationMan = registrationMan;
@@ -76,6 +80,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.idMan = idMan;
 		this.projectAttrHelper = projectAttrHelper;
+		this.attributesHelper = attributesHelper;
 	}
 
 	@Transactional
@@ -318,11 +323,11 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throws EngineException
 	{
 
-		String name = projectAttrHelper.searchAttributeValueByMeta(EntityNameMetadataProvider.NAME,
+		String name = attributesHelper.searchAttributeValueByMeta(EntityNameMetadataProvider.NAME,
 				registrationRequest.getAttributes());
 		VerifiableElementBase email = getEmailIdentity(registrationRequest.getIdentities());
 		if (email == null)
-			email = projectAttrHelper.searchVerifiableAttributeValueByMeta(
+			email = attributesHelper.searchVerifiableAttributeValueByMeta(
 					ContactEmailMetadataProvider.NAME, registrationRequest.getAttributes());
 
 		return mapToProjectRequest(projectPath, registrationRequestState, registrationRequest, name, email,

@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.project;
+package pl.edu.icm.unity.engine.identity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -33,7 +34,7 @@ public class ExistingUserFinderTest
 {
 	private static final EmailIdentity emailIdType = new EmailIdentity();
 	private BulkGroupQueryService bulkService = mock(BulkGroupQueryService.class);
-	private ProjectAttributeHelper attrHelper = mock(ProjectAttributeHelper.class);
+	private AttributesHelper attrHelper = mock(AttributesHelper.class);
 	
 	@Test
 	public void shouldFindByIdentityCaseInsensitive() throws EngineException

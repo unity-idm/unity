@@ -60,7 +60,7 @@ public class TestRequestManagement extends TestProjectBase
 	{
 		projectRequestMan = new ProjectRequestManagementImpl(mockAuthz, mockRegistrationMan, mockEnquiryMan,
 				mockGroupMan, mockIdMan,
-				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper),
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAttrHelper,
 				mockPublicRegistrationURLSupport);
 	}
 

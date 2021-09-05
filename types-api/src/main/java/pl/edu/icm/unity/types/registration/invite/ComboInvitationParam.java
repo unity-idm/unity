@@ -206,6 +206,19 @@ public class ComboInvitationParam extends InvitationParam
 		}
 	}
 
+	public RegistrationInvitationParam getAsRegistration()
+	{
+		return RegistrationInvitationParam.builder().withForm(getRegistrationFormPrefill())
+				.withContactAddress(getContactAddress()).withExpiration(getExpiration()).build();
+	}
+
+	public EnquiryInvitationParam getAsEnquiry(Long resolvedEntity)
+	{
+		return EnquiryInvitationParam.builder().withForm(getEnquiryFormPrefill()).withEntity(resolvedEntity)
+				.withContactAddress(getContactAddress()).withExpiration(getExpiration()).build();
+	}
+
+
 	public static class Builder extends InvitationParam.Builder<Builder>
 	{
 		private ComboInvitationParam instance;

@@ -17,10 +17,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,17 +26,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalInvitationException;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.NotProjectInvitation;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.exceptions.UnknownEmailException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
@@ -62,17 +57,16 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	@Before
 	public void initProjectInvitationMan()
 	{
-		ExistingUserFinder userFinder = new ExistingUserFinder(mockBulkQueryService,
-				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper));
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan, mockRegistrationMan,
-				mockEnquiryMan, mockIdMan, mockPublicRegistrationURLSupport, mockAuthz, userFinder, mockMsg);
+				mockEnquiryMan, mockIdMan, mockPublicRegistrationURLSupport, mockAuthz, mockMsg);
 	}
 
 	@Test
 	public void shouldForwardToCoreManagerWithRegistrationParamWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(Collections.emptyMap());
+		when(mockIdMan.getEntityByContactEmail("demo@demo.com")).thenThrow(UnknownEmailException.class);
+
 
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
@@ -96,8 +90,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWithRegistrationParamAndFixedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(Collections.emptyMap());
-
+		when(mockIdMan.getEntityByContactEmail("demo@demo.com")).thenThrow(UnknownEmailException.class);
+	
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);
@@ -121,13 +115,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWithEnquiryParamWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-
-		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
-		EntityInGroupData info = new EntityInGroupData(
-				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null, null, null);
-		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
-		infoMap.put(1L, info);
-		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
+		when(mockIdMan.getEntityByContactEmail("demo@demo.com")).thenReturn(new Entity(null, new EntityInformation(1L), null));
+		
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);
@@ -147,13 +136,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWithEnquiryParamWithFixedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-
-		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
-		EntityInGroupData info = new EntityInGroupData(
-				new Entity(Arrays.asList(emailId), new EntityInformation(1), null), "/", null, null, null, null);
-		Map<Long, EntityInGroupData> infoMap = new HashMap<>();
-		infoMap.put(1L, info);
-		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);
+		when(mockIdMan.getEntityByContactEmail("demo@demo.com")).thenReturn(new Entity(null, new EntityInformation(1L), null));
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);
