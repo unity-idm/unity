@@ -269,6 +269,153 @@ Example output:
 ]
 ----
 
+=== Get complete user record
+
++@Path("/entity/{entityId}/record")+ +
++@GET+ +
+
+Returns a complete record with information about a given entity. Includes:
+
+. entity state
+. identities
+. status of credentials
+. membership in groups
+. attributes in all groups
+
+Example output:
+
+----
+{
+  "entity": {
+    "entityInformation": {
+      "state": "valid",
+      "entityId": 1
+    },
+    "identities": [
+      {
+        "value": "a",
+        "confirmationInfo": {
+          "confirmed": false,
+          "confirmationDate": 0,
+          "sentRequestAmount": 0
+        },
+        "comparableValue": "a",
+        "creationTs": 1630876607610,
+        "updateTs": 1630876607610,
+        "typeId": "userName",
+        "entityId": 1
+      },
+      {
+        "value": "6cfb445e-ddb5-43d0-9141-63acf8b662e4",
+        "confirmationInfo": {
+          "confirmed": false,
+          "confirmationDate": 0,
+          "sentRequestAmount": 0
+        },
+        "comparableValue": "6cfb445e-ddb5-43d0-9141-63acf8b662e4",
+        "creationTs": 1630876607643,
+        "updateTs": 1630876607643,
+        "typeId": "persistent",
+        "entityId": 1
+      }
+    ],
+    "credentialInfo": {
+      "credentialRequirementId": "sys:all",
+      "credentialsState": {
+        "certificate credential": {
+          "state": "correct",
+          "stateDetail": null,
+          "extraInformation": ""
+        },
+        "fido": {
+          "state": "notSet",
+          "stateDetail": null,
+          "extraInformation": ""
+        },
+        "sys:password": {
+          "state": "correct",
+          "stateDetail": null,
+          "extraInformation": "{\"lastChange\":1630876608112}"
+        },
+        "customPassword": {
+          "state": "notSet",
+          "stateDetail": null,
+          "extraInformation": ""
+        },
+        "sys:sms": {
+          "state": "notSet",
+          "stateDetail": null,
+          "extraInformation": ""
+        }
+      }
+    }
+  },
+  "groups": {
+    "/projects": {
+      "creationTs": 1630876712555,
+      "group": "/projects",
+      "entityId": 1
+    },
+    "/": {
+      "creationTs": 1630876607615,
+      "group": "/",
+      "entityId": 1
+    }
+  },
+  "attributesInGroups": {
+    "/projects": [
+      {
+        "values": [
+          "1234"
+        ],
+        "creationTs": 1630876729838,
+        "updateTs": 1630876729838,
+        "direct": true,
+        "name": "code",
+        "groupPath": "/projects",
+        "valueSyntax": "string"
+      }
+    ],
+    "/": [
+      {
+        "values": [
+          "Default Administrator"
+        ],
+        "creationTs": 1630876609099,
+        "updateTs": 1630876609099,
+        "direct": false,
+        "name": "name",
+        "groupPath": "/",
+        "valueSyntax": "string"
+      },
+      {
+        "values": [
+          "2021-09-05T23:18:24"
+        ],
+        "creationTs": 1630876633643,
+        "updateTs": 1630876704874,
+        "direct": true,
+        "name": "sys:LastAuthentication",
+        "groupPath": "/",
+        "valueSyntax": "string"
+      },
+      {
+        "values": [
+          "sys:all"
+        ],
+        "creationTs": 1630876607623,
+        "updateTs": 1630876607623,
+        "direct": true,
+        "name": "sys:CredentialRequirements",
+        "groupPath": "/",
+        "valueSyntax": "string"
+      }
+    ]
+  }
+}
+
+----
+
 
 === Get group metadata
 
