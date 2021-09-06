@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -105,16 +107,12 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		{
 			// ok
 		}
-		String code = null;
-		if (entity == null)
-		{
-			code = invitationMan.addInvitation(getRegistrationInvitation(param));
-		} else
+		if (entity != null)
 		{
 			assertNotMemberAlready(entity, param.project);
-			code = invitationMan.addInvitation(getEnquiryInvitation(param, entity));
 		}
-
+	
+		String code = invitationMan.addInvitation(getComboInvitation(param));
 		invitationMan.sendInvitation(code);
 		return code;
 	}
@@ -125,37 +123,32 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		if (groups.containsKey(projectGroup))
 			throw new AlreadyMemberException();
 	}
-	
-	private EnquiryInvitationParam getEnquiryInvitation(ProjectInvitationParam param, Long entityId)
-			throws EngineException
+
+	private ComboInvitationParam getComboInvitation(ProjectInvitationParam param) throws EngineException
 	{
-		EnquiryInvitationParam invitationParam = new EnquiryInvitationParam(
+		ComboInvitationParam invitationParam = new ComboInvitationParam(getRegistrationFormForProject(param.project),
 				getEnquiryFormForProject(param.project), param.expiration, param.contactAddress);
-		setGroups(invitationParam.getFormPrefill(), param);
-		invitationParam.getFormPrefill().getMessageParams().put(
-				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
-				getProjectDisplayedName(param.project));
-		invitationParam.setEntity(entityId);
-		return invitationParam;
-	}
-
-	private RegistrationInvitationParam getRegistrationInvitation(ProjectInvitationParam param)
-			throws EngineException
-	{
-		RegistrationInvitationParam invitationParam = new RegistrationInvitationParam(
-				getRegistrationFormForProject(param.project), param.expiration, param.contactAddress);
-		setGroups(invitationParam.getFormPrefill(), param);
-		invitationParam.getFormPrefill().getMessageParams().put(
-				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
-				getProjectDisplayedName(param.project));
-
+		
+		fillGroups(invitationParam.getEnquiryFormPrefill(), param);
+		fillGroups(invitationParam.getRegistrationFormPrefill(), param);
+		fillProjectDisplayedNameParam(invitationParam.getRegistrationFormPrefill().getMessageParams(), param);
+		fillProjectDisplayedNameParam(invitationParam.getEnquiryFormPrefill().getMessageParams(), param);
+		
 		IdentityParam emailId = new IdentityParam(EmailIdentity.ID, param.contactAddress);
 		emailId.setConfirmationInfo(new ConfirmationInfo(true));
-		invitationParam.getFormPrefill().getIdentities().put(0, new PrefilledEntry<>(emailId, PrefilledEntryMode.HIDDEN));
-		return invitationParam;
+		invitationParam.getRegistrationFormPrefill().getIdentities().put(0, new PrefilledEntry<>(emailId, PrefilledEntryMode.HIDDEN));
+		
+		return invitationParam;	
 	}
 	
-	private void setGroups(FormPrefill toSet, ProjectInvitationParam param)
+	private void fillProjectDisplayedNameParam(Map<String, String> msgParamsToSet, ProjectInvitationParam param) throws EngineException
+	{
+		msgParamsToSet.put(
+				MessageTemplateDefinition.CUSTOM_VAR_PREFIX + INVITATION_PROJECT_NAME_PARAM,
+				getProjectDisplayedName(param.project));
+	}
+	
+	private void fillGroups(FormPrefill toSet, ProjectInvitationParam param)
 	{
 		if (param.groups == null || param.groups.isEmpty())
 		{
@@ -200,24 +193,28 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		List<ProjectInvitation> ret = new ArrayList<>();
 		
 		
-		for (InvitationWithCode invitation : filterInvitations(allInv, registrationForm, InvitationType.REGISTRATION))
+		for (InvitationWithCode invitation : filterInvitations(allInv, Arrays.asList(registrationForm), InvitationType.REGISTRATION))
 		{
 			ret.add(createProjectRegistrationInvitation(projectPath, invitation, registrationForm));
 		}
 
-		for (InvitationWithCode invitation : filterInvitations(allInv, enquiryForm, InvitationType.ENQUIRY))
+		for (InvitationWithCode invitation : filterInvitations(allInv, Arrays.asList(enquiryForm), InvitationType.ENQUIRY))
 		{
 			ret.add(createProjectEnquiryInvitation(projectPath, invitation, enquiryForm));
+		}
+		
+		for (InvitationWithCode invitation : filterInvitations(allInv, Arrays.asList(registrationForm, enquiryForm), InvitationType.COMBO))
+		{
+			ret.add(createProjectComboInvitation(projectPath, invitation, registrationForm));
 		}
 		
 
 		return ret;
 	}
 
-	private List<InvitationWithCode> filterInvitations(List<InvitationWithCode> allInv, BaseForm form,
-			InvitationType type)
+	private List<InvitationWithCode> filterInvitations(List<InvitationWithCode> allInv, List<BaseForm> forms, InvitationType type)
 	{
-		if (form == null)
+		if (forms.isEmpty())
 			return Collections.emptyList();
 
 		return allInv.stream()
@@ -225,7 +222,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 					try
 					{
 						return f.getInvitation().getType().equals(type)
-								&& f.getInvitation().matchesForm(form);
+								&& formsMatch(f.getInvitation(), forms);
 					} catch (IllegalFormTypeException e)
 					{
 						log.error("Invalid form type", e);
@@ -234,7 +231,17 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 				})
 				.collect(Collectors.toList());
 	}
-
+	
+	private boolean formsMatch(InvitationParam invitation, List<BaseForm> forms) throws IllegalFormTypeException
+	{
+		boolean match = true;
+		for (BaseForm form : forms)
+		{
+			match = match && invitation.matchesForm(form);
+		}
+		return match;
+		
+	}
 	private ProjectInvitation createProjectRegistrationInvitation(String projectPath, InvitationWithCode invitation,
 			RegistrationForm form) throws EngineException
 	{
@@ -247,6 +254,13 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		return new ProjectInvitation(projectPath, form, invitation, publicRegistrationURLSupport
 				.getPublicEnquiryLink(form.getName(), invitation.getRegistrationCode()));
+	}
+	
+	private ProjectInvitation createProjectComboInvitation(String projectPath, InvitationWithCode invitation,
+			RegistrationForm form) throws EngineException
+	{
+		return new ProjectInvitation(projectPath, form, invitation, publicRegistrationURLSupport
+				.getPublicRegistrationLink(form.getName(), invitation.getRegistrationCode()));
 	}
 
 	private GroupDelegationConfiguration getDelegationConfiguration(String projectPath) throws EngineException
@@ -308,26 +322,15 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			}
 
 			InvitationParam newInvitation = null;
-
 			if (orgInvitation.getType().equals(InvitationType.REGISTRATION))
 			{
-				RegistrationInvitationParam orgRegistrationInvitationParam = (RegistrationInvitationParam) orgInvitation;
-				RegistrationInvitationParam rnewInvitation = new RegistrationInvitationParam(
-						orgRegistrationInvitationParam.getFormPrefill().getFormId(), newExpiration,
-						orgInvitation.getContactAddress());
-				rnewInvitation.setExpectedIdentity(
-						((RegistrationInvitationParam) orgInvitation).getExpectedIdentity());
-				rnewInvitation.getFormPrefill().fill(orgRegistrationInvitationParam.getFormPrefill());
-				newInvitation = rnewInvitation;
+				newInvitation = copyRegistrationInvitation(newExpiration, orgInvitation);
+			} else if (orgInvitation.getType().equals(InvitationType.ENQUIRY))
+			{
+				newInvitation = copyEnquiryInvitation(newExpiration, orgInvitation);
 			} else
 			{
-				EnquiryInvitationParam orgEnquiryInvitationParam = (EnquiryInvitationParam) orgInvitation;
-				EnquiryInvitationParam enewInvitation = new EnquiryInvitationParam(
-						orgEnquiryInvitationParam.getFormPrefill().getFormId(), newExpiration,
-						orgInvitation.getContactAddress());
-				enewInvitation.setEntity(((EnquiryInvitationParam) orgInvitation).getEntity());
-				enewInvitation.getFormPrefill().fill(orgEnquiryInvitationParam.getFormPrefill());
-				newInvitation = enewInvitation;
+				newInvitation = copyComboInvitation(newExpiration, orgInvitation);
 			}
 
 			String newCode = invitationMan.addInvitation(newInvitation);
@@ -338,7 +341,42 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			invitationMan.sendInvitation(orgInvitationWithCode.getRegistrationCode());
 		}
 	}
-		
+	
+	private InvitationParam copyRegistrationInvitation(Instant newExpiration, InvitationParam orgInvitation)
+	{
+		RegistrationInvitationParam orgRegistrationInvitationParam = (RegistrationInvitationParam) orgInvitation;
+		RegistrationInvitationParam rnewInvitation = new RegistrationInvitationParam(
+				orgRegistrationInvitationParam.getFormPrefill().getFormId(), newExpiration,
+				orgInvitation.getContactAddress());
+		rnewInvitation.setExpectedIdentity(
+				((RegistrationInvitationParam) orgInvitation).getExpectedIdentity());
+		rnewInvitation.getFormPrefill().fill(orgRegistrationInvitationParam.getFormPrefill());
+		return rnewInvitation;
+	}
+	
+	private InvitationParam copyEnquiryInvitation(Instant newExpiration, InvitationParam orgInvitation)
+	{
+		EnquiryInvitationParam orgEnquiryInvitationParam = (EnquiryInvitationParam) orgInvitation;
+		EnquiryInvitationParam enewInvitation = new EnquiryInvitationParam(
+				orgEnquiryInvitationParam.getFormPrefill().getFormId(), newExpiration,
+				orgInvitation.getContactAddress());
+		enewInvitation.setEntity(((EnquiryInvitationParam) orgInvitation).getEntity());
+		enewInvitation.getFormPrefill().fill(orgEnquiryInvitationParam.getFormPrefill());
+		return enewInvitation;
+	}
+	
+	private InvitationParam copyComboInvitation(Instant newExpiration, InvitationParam orgInvitation)
+	{
+		ComboInvitationParam orgComboInvitationParam = (ComboInvitationParam) orgInvitation;
+		ComboInvitationParam enewInvitation = new ComboInvitationParam(
+				orgComboInvitationParam.getRegistrationFormPrefill().getFormId(),
+				orgComboInvitationParam.getEnquiryFormPrefill().getFormId(), 
+				orgComboInvitationParam.getExpiration(),
+				orgComboInvitationParam.getContactAddress());
+		enewInvitation.getRegistrationFormPrefill().fill(orgComboInvitationParam.getRegistrationFormPrefill());
+		enewInvitation.getEnquiryFormPrefill().fill(orgComboInvitationParam.getEnquiryFormPrefill());
+		return enewInvitation;
+	}
 	private InvitationWithCode assertIfIsProjectInvitation(String projectPath, String code) throws EngineException
 	{
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
@@ -352,7 +390,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		InvitationParam invParam = orgInvitationWithCode.getInvitation();
 
 		if (invParam == null || !(invParam.matchesForm(registrationMan.getForm(config.registrationForm))
-				|| invParam.matchesForm(enquiryMan.getEnquiry(config.signupEnquiryForm))))
+				&& invParam.matchesForm(enquiryMan.getEnquiry(config.signupEnquiryForm))))
 		{
 			throw new NotProjectInvitation(projectPath, orgInvitationWithCode.getRegistrationCode());
 		}
