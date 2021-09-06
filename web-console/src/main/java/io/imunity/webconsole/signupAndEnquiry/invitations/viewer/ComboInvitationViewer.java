@@ -71,11 +71,10 @@ class ComboInvitationViewer extends CustomComponent implements InvitationViewer
 
 		FormLayoutWithFixedCaptionWidth prefill = FormLayoutWithFixedCaptionWidth.withMediumCaptions();
 		prefill.setMargin(false);
-		enqPrefillViewer.setCaption(msg.getMessage("InvitationEditor.enquiryPrefillInfo"));
-		regPrefillViewer.setCaption(msg.getMessage("EnquiryInvitationViewer.enquiryPrefillInfo"));
+		enqPrefillViewer.setCaption(msg.getMessage("EnquiryInvitationViewer.enquiryPrefillInfo"));
+		regPrefillViewer.setCaption(msg.getMessage("RegistrationInvitationViewer.registrationPrefillInfo"));
 		prefill.addComponents(regPrefillViewer, enqPrefillViewer);
 		main.addComponent(prefill);
-
 	}
 
 	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException
