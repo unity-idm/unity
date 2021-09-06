@@ -116,6 +116,14 @@ only see it or neither see nor change.
 
 Finally invitation can contain custom parameters which can be used in invitation message template.
 
+=== Parameterization of forms
+
+Registration forms can have dynamic parameters, which are filled by invitations.
+
+Parameters can be used in form displayed name (title) of both first and second stage, as well as in the form information text. Parameters need to be of the form ```${custom.NAME}```, where the ```NAME``` is the name of the variable. When creating an invitation to the form add a parameter value using the same name.
+
+Pro tip: the texts where you can use variables are in fact Freemarker templates. You can use any directives that Freemarker allows in them, e.g. to conditionally output different text depending on variable presence.
+
 === Registration request processing automation
 
 Each registration form can have a translation profile attached to it. The registration translation profile 
