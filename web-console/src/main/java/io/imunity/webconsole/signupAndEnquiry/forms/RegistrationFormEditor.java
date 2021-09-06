@@ -59,6 +59,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 import pl.edu.icm.unity.webui.forms.reg.RemoteAuthnProvidersMultiSelection;
@@ -98,6 +99,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private TextField signInUrl;
 	private TextField registrationCode;
 	private RemoteAuthnProvidersMultiSelection remoteAuthnSelections;
+	private I18nTextArea switchToEnquiryInfo;
+
 	
 	private RemoteAuthnProvidersMultiSelection remoteAuthnGridSelections;
 	private IntStepper remoteAuthnGridHeight;
@@ -214,6 +217,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		settings.setShowCancel(showCancel.getValue());
 		builder.withFormLayoutSettings(settings);
 		builder.withTitle2ndStage(title2ndStage.getValue());
+		builder.withSwitchToEnquiryInfo(switchToEnquiryInfo.getValue());
 		builder.withShowGotoSignIn(showGotoSignin.getValue(), signInUrl.getValue());
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts(); //FIXME
 		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
@@ -259,6 +263,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 			gsettings = new AuthnGridSettings();
 		remoteAuthnGridSearchable.setValue(gsettings.searchable);
 		remoteAuthnGridHeight.setValue(gsettings.height);
+		switchToEnquiryInfo.setValue(toEdit.getSwitchToEnquiryInfoFallbackToDefault(msg));
+		
 		refreshRemoteAuthGridSettingsControls();
 
 	}
@@ -338,8 +344,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 		signInUrl.setEnabled(false);
 		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
 		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
+		switchToEnquiryInfo = new I18nTextArea(msg, msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo"));
+		switchToEnquiryInfo.setValue(RegistrationForm.getDefaultSwitchToEnquiryInfo(msg));
 		
-		main.addComponents(displayedName, title2ndStage, formInformation, pageTitle, 
+		
+		main.addComponents(displayedName, title2ndStage, formInformation, switchToEnquiryInfo, pageTitle, 
 				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
 
 		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, 

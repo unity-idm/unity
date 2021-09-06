@@ -62,7 +62,7 @@ public class EnquiryResponseEditorControllerTest
 	EnquiryManagement mockEnquiryMan;
 	
 	@Test
-	public void shouldGetCorrectPreffiledSet() throws EngineException
+	public void shouldGetCorrectPreffiledSet() throws Exception
 	{
 		Map<String, GroupMembership> userGroups = new HashMap<>();
 		userGroups.put("/", null);
@@ -80,7 +80,7 @@ public class EnquiryResponseEditorControllerTest
 				null, null, null, mockGroupMan, mockIdMan, mockAttrMan, null, null, null, null);
 
 		
-		PrefilledSet prefilledForSticky = controller.getPrefilledForSticky(getForm());
+		PrefilledSet prefilledForSticky = controller.getPrefilledSetForSticky(getForm());
 		
 		assertThat(prefilledForSticky.groupSelections.keySet().size(), is(1));
 		assertThat(prefilledForSticky.groupSelections.get(0).getEntry().getSelectedGroups().size(), is(2));

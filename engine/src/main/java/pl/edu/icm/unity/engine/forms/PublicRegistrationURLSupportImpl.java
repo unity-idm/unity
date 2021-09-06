@@ -45,6 +45,14 @@ public class PublicRegistrationURLSupportImpl implements PublicRegistrationURLSu
 				+ SecuredWellKnownURLServlet.SERVLET_PATH + "?" + FORM_PARAM + "=" + urlEncodePath(formName) + "#!"
 				+ ENQUIRY_VIEW;
 	}
+	
+	@Override
+	public String getWellknownEnquiryLink(String formName, String code)
+	{
+		return sharedEndpointMan.getServerAddress() + SecuredWellKnownURLServlet.DEFAULT_CONTEXT
+				+ SecuredWellKnownURLServlet.SERVLET_PATH + "?" + CODE_PARAM + "=" + code + "&" + FORM_PARAM + "="
+				+ urlEncodePath(formName) + "#!" + ENQUIRY_VIEW;
+	}
 
 	@Override
 	public String getPublicRegistrationLink(String form, String code)

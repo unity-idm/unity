@@ -61,6 +61,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
+import pl.edu.icm.unity.webui.forms.RegCodeException;
 
 /**
  * Logic behind {@link EnquiryResponseEditor}. Provides a simple method to create editor instance and to handle 
@@ -86,7 +87,6 @@ public class EnquiryResponseEditorController
 	private IdPLoginController idpLoginController;
 	private ImageAccessService imageAccessService;
 	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
-
 	private PolicyAgreementManagement policyAgrMan;
 
 	@Autowired
@@ -142,28 +142,40 @@ public class EnquiryResponseEditorController
 	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, 
 			RemotelyAuthenticatedPrincipal remoteContext) throws Exception
 	{
+		EntityParam loggedEntity = getLoggedEntity();
 		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
-				new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+				loggedEntity,
 				form.getPolicyAgreements());
-		return getEditorInstance(form, Collections.emptyMap(), remoteContext, getPrefilledForSticky(form, getLoggedEntity()),
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, getPrefilledSetForSticky(form, loggedEntity),
 				filteredPolicyAgreement);
 	}
 	
-	public PrefilledSet getPrefilledForSticky(EnquiryForm form) throws EngineException
+	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, PrefilledSet prefilled,
+			RemotelyAuthenticatedPrincipal remoteContext) throws Exception
 	{
-		return getPrefilledForSticky(form, getLoggedEntity());
+		EntityParam loggedEntity = getLoggedEntity();
+		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
+				loggedEntity,
+				form.getPolicyAgreements());
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, prefilled,
+				filteredPolicyAgreement);
+	}
+	
+	public PrefilledSet getPrefilledSetForSticky(EnquiryForm form) throws EngineException, RegCodeException
+	{
+		return getPrefilledSetForSticky(form, getLoggedEntity());
 	}
 
-	public PrefilledSet getPrefilledForSticky(EnquiryForm form, EntityParam entity) throws EngineException
-	{
+	public PrefilledSet getPrefilledSetForSticky(EnquiryForm form, EntityParam entity) throws EngineException, RegCodeException
+	{		
 		if (form.getType().equals(EnquiryType.STICKY))
 		{	
 			return new PrefilledSet(null, getPreffiledGroup(entity, form), getPrefilledAttribute(entity, form), null);
 		
-		}else
-		{
-			return new PrefilledSet();
-		}	
+		}
+			
+		return new PrefilledSet();
+		
 	}
 
 	private Map<Integer, PrefilledEntry<GroupSelection>> getPreffiledGroup(EntityParam entity, EnquiryForm form)

@@ -20,7 +20,6 @@ import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -54,6 +53,7 @@ public class RequestEditorCreator
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
 	
 	private RegistrationForm form;
 	private RemotelyAuthenticatedPrincipal remotelyAuthenticated;
@@ -72,7 +72,8 @@ public class RequestEditorCreator
 			URLQueryPrefillCreator urlQueryPrefillCreator,
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 			PublicRegistrationURLSupport publicRegistrationURLSupport,
-			InvitationResolver invitationResolver
+			InvitationResolver invitationResolver,
+			SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider
 			)
 	{
 		this.msg = msg;
@@ -88,6 +89,7 @@ public class RequestEditorCreator
 		this.imageAccessService = imageAccessService;
 		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
+		this.toEnquirySwitchLabelProvider = toEnquirySwitchLabelProvider;
 	}
 	
 
@@ -150,7 +152,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation == null ? null : invitation.getAsRegistration());
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation);
 			editor.showFirstStage(onLocalSignupHandler);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -179,7 +181,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation == null ? null : invitation.getAsRegistration());
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation);
 			editor.showSecondStage(withCredentials);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -225,7 +227,7 @@ public class RequestEditorCreator
 	}
 
 	private RegistrationRequestEditor doCreateEditor(String registrationCode, 
-			RegistrationInvitationParam invitation) 
+			ResolvedInvitationParam invitation) 
 			throws AuthenticationException
 	{
 		return new RegistrationRequestEditor(msg, form, 
@@ -233,7 +235,7 @@ public class RequestEditorCreator
 				credentialEditorRegistry, attributeHandlerRegistry, 
 				aTypeMan, credMan, groupsMan, imageAccessService,
 				registrationCode, invitation, authnSupport,  
-				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, enableRemoteSignup);
+				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, toEnquirySwitchLabelProvider, enableRemoteSignup);
 	}
 	
 	private ResolvedInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException

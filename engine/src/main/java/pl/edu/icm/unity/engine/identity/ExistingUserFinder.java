@@ -39,6 +39,11 @@ class ExistingUserFinder
 
 	Long getEntityIdByContactAddress(String contactAddress) throws EngineException
 	{
+		if (contactAddress == null || contactAddress.isEmpty())
+		{
+			return null;
+		}
+		
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 		Map<Long, EntityInGroupData> members = bulkService.getMembershipInfo(bulkMembershipData);
 

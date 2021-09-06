@@ -139,7 +139,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		
 		try
 		{
-			PrefilledSet currentUserData = editorController.getPrefilledForSticky(form, 
+			PrefilledSet currentUserData = editorController.getPrefilledSetForSticky(form, 
 					new EntityParam(invitation.getEntity()));
 			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(invitation, currentUserData, form);
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));

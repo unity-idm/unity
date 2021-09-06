@@ -62,7 +62,7 @@ public class InvitationResolver
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		}
 
-		return new ResolvedInvitationParam(resolveEntity(invitation.getInvitation()).orElse(null),
+		return new ResolvedInvitationParam(resolveEntity(invitation.getInvitation()).orElse(null), registrationCode,
 				invitation.getInvitation());
 	}
 

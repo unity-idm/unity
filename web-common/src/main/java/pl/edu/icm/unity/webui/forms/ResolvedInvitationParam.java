@@ -13,13 +13,15 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class ResolvedInvitationParam
 {
+	public final String code;
 	public final Long entity;
 	private final InvitationParam invitationParam;
 
-	ResolvedInvitationParam(Long entity, InvitationParam invitationParam)
+	ResolvedInvitationParam(Long entity, String code, InvitationParam invitationParam)
 	{
 		this.entity = entity;
 		this.invitationParam = invitationParam;
+		this.code = code;
 	}
 
 	public RegistrationInvitationParam getAsRegistration()
@@ -51,5 +53,10 @@ public class ResolvedInvitationParam
 	public boolean canBeProcessedAsEnquiryWithResolvedUser()
 	{
 		return invitationParam.getType().equals(InvitationType.COMBO) && entity != null;
+	}
+	
+	public InvitationType getType()
+	{
+		return invitationParam.getType();
 	}
 }

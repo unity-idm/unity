@@ -38,6 +38,13 @@ public interface PublicRegistrationURLSupport
 	 * @return a link to a standalone UI of an enquiry form
 	 */
 	String getWellknownEnquiryLink(String formName);
+	
+	/**
+	 * @param formName
+	 * @param sharedEndpointMan
+	 * @return a link to a standalone UI of an enquiry form
+	 */
+	String getWellknownEnquiryLink(String formName, String code);
 
 	/**
 	 * @param formName

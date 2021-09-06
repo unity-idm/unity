@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +85,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 
 /**
@@ -98,6 +98,8 @@ import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
  */
 public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
+	private static final String INVITATION_EMAIL_VAR = "invitationEmail";
+	
 	enum Stage {FIRST, SECOND}
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
@@ -106,7 +108,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private TextField registrationCode;
 	private CaptchaComponent captcha;
 	private String regCodeProvided;
-	private RegistrationInvitationParam invitation;
+	private ResolvedInvitationParam invitation;
 	private AuthenticatorSupportService authnSupport;
 	private Map<AuthenticationOptionKey, AuthNOption> externalSignupOptions;
 	private Runnable onLocalSignupHandler;
@@ -115,10 +117,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private RegistrationLayoutsContainer layoutContainer;
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final boolean enableRemoteRegistration;
+	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
 	 * what is possible for registration form.
+	 * @param toEnquirySwitchLabelProvider 
 	 */
 	public RegistrationRequestEditor(MessageSource msg, RegistrationForm form,
 			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
@@ -127,21 +131,22 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
-			String registrationCode, RegistrationInvitationParam invitation2, 
+			String registrationCode, ResolvedInvitationParam invitation, 
 			AuthenticatorSupportService authnSupport, 
 			URLQueryPrefillCreator urlQueryPrefillCreator, 
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
-			boolean enableRemoteRegistration)
+			SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider, boolean enableRemoteRegistration)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService,
 				policyAgreementsRepresentationBuilder);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
-		this.invitation = invitation2;
+		this.invitation = invitation;
 		this.authnSupport = authnSupport;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 		this.enableRemoteRegistration = enableRemoteRegistration;
+		this.toEnquirySwitchLabelProvider =  toEnquirySwitchLabelProvider;
 	}
 	
 	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
@@ -233,17 +238,16 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private void initUI()
 	{
-		layoutContainer = createLayouts(
-				invitation != null
-						? invitation.getFormPrefill().getMessageParamsWithCustomVarObject(
-								MessageTemplateDefinition.CUSTOM_VAR_PREFIX)
-						: Collections.emptyMap());
+		
+		RegistrationInvitationParam regInv = invitation == null ? null : invitation.getAsRegistration();
+		
+		layoutContainer = createLayouts(buildVarsToFreemarkerTemplates(Optional.ofNullable(regInv)));
 
 		resolveRemoteSignupOptions();
 		PrefilledSet prefilled = new PrefilledSet();
-		if (invitation != null)
+		if (regInv != null)
 		{	
-			FormPrefill formPrefill = invitation.getFormPrefill();
+			FormPrefill formPrefill = regInv.getFormPrefill();
 			prefilled = new PrefilledSet(formPrefill.getIdentities(),
 					formPrefill.getGroupSelections(),
 					formPrefill.getAttributes(),
@@ -328,13 +332,22 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		
 		if (stage == Stage.FIRST)
 		{
-			String info = form.getFormInformation() == null ? null : processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
+			String info = form.getFormInformation() == null ? null
+					: processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
 			if (info != null)
 			{
 				HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
 				formInformation.addStyleName("u-reg-info");
 				main.addComponent(formInformation);
 				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
+			}
+
+			Optional<HtmlConfigurableLabel> switchToEnquiryLabel = toEnquirySwitchLabelProvider
+					.getSwitchToEnquiryLabel(form.getSwitchToEnquiryInfoFallbackToDefault(msg), invitation, params);
+			if (switchToEnquiryLabel.isPresent())
+			{
+				main.addComponent(switchToEnquiryLabel.get());
+				main.setComponentAlignment(switchToEnquiryLabel.get(), Alignment.MIDDLE_CENTER);
 			}
 		}
 		
@@ -386,8 +399,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		if (invitation == null)
 			return;
-		if (invitation.getExpectedIdentity() != null)
-			vaadinAuthenticationUI.setExpectedIdentity(invitation.getExpectedIdentity());
+		if (invitation.getAsRegistration().getExpectedIdentity() != null)
+			vaadinAuthenticationUI.setExpectedIdentity(invitation.getAsRegistration().getExpectedIdentity());
 	}
 	
 	@Override
@@ -559,4 +572,19 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			return authNPanel;
 		}
 	}
+	
+	protected Map<String, Object> buildVarsToFreemarkerTemplates(Optional<RegistrationInvitationParam> invitation)
+	{
+		Map<String, Object> ret = new HashMap<>();
+		if (invitation.isPresent())
+		{
+			ret.putAll(invitation.get().getFormPrefill().getMessageParamsWithCustomVarObject(
+								MessageTemplateDefinition.CUSTOM_VAR_PREFIX));
+			ret.put(INVITATION_EMAIL_VAR, invitation.get().getContactAddress());	
+		}
+		
+		return ret;
+	}
+	
+	
 }
