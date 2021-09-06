@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
@@ -75,6 +77,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
+	private ResolvedInvitationParam invitation;
 
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	
@@ -126,10 +129,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void doShowEditorOrSkipToFinalStep()
 	{
-		EnquiryInvitationParam invitation;
+		
 		try
 		{
-			invitation = invitationResolver.getInvitationByCode(registrationCode, form).getAsEnquiryInvitationParam();
+			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
 		} catch (RegCodeException e)
 		{
 			log.error("Can not get invitation", e);
@@ -137,18 +140,21 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			return;
 		} 
 		
+		
+		EnquiryInvitationParam enqInvitation = invitation.getAsEnquiryInvitationParam();
+		
 		try
 		{
 			PrefilledSet currentUserData = editorController.getPrefilledSetForSticky(form, 
-					new EntityParam(invitation.getEntity()));
-			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(invitation, currentUserData, form);
+					new EntityParam(enqInvitation.getEntity()));
+			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(enqInvitation, currentUserData, form);
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 			
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
-					invitation.getFormPrefill().getMessageParamsWithCustomVarObject(
+					enqInvitation.getFormPrefill().getMessageParamsWithCustomVarObject(
 							MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
 					RemotelyAuthenticatedPrincipal.getLocalContext(), prefilled,
-					new EntityParam(invitation.getEntity()));
+					new EntityParam(enqInvitation.getEntity()));
 
 		} catch (Exception e)
 		{
@@ -341,7 +347,9 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		request.setRegistrationCode(registrationCode);
 		try
 		{
-			return editorController.submitted(request, form, TriggeringMode.manualStandalone);
+			return editorController.submitted(request, form, TriggeringMode.manualStandalone,
+					invitation == null ? Optional.empty()
+							: Optional.of(new RewriteComboToEnquiryRequest(invitation.code, invitation.entity, form)));
 		} catch (WrongArgumentException e)
 		{
 			FormsUIHelper.handleFormSubmissionError(e, msg, editor);

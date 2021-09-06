@@ -134,16 +134,32 @@ public class ComboInvitationParam extends InvitationParam
 	@Override
 	public void validateUpdate(InvitationParam newInvitationParam) throws WrongArgumentException
 	{
-		assertTypesAreTheSame(newInvitationParam);
-		ComboInvitationParam newInv = (ComboInvitationParam) newInvitationParam;
+		if (newInvitationParam.getType().equals(InvitationType.COMBO))
+		{
+			assertTypesAreTheSame(newInvitationParam);
+			ComboInvitationParam newInv = (ComboInvitationParam) newInvitationParam;
 
-		if (!Objects.equals(getRegistrationFormPrefill().getFormId(), newInv.getRegistrationFormPrefill().getFormId()))
-			throw new WrongArgumentException("Can not update registration form of an invitation");
+			if (!Objects.equals(getRegistrationFormPrefill().getFormId(),
+					newInv.getRegistrationFormPrefill().getFormId()))
+				throw new WrongArgumentException("Can not update registration form of an invitation");
 
-		if (!Objects.equals(getEnquiryFormPrefill().getFormId(), newInv.getEnquiryFormPrefill().getFormId()))
-			throw new WrongArgumentException("Can not update enquiry form of an invitation");
+			if (!Objects.equals(getEnquiryFormPrefill().getFormId(), newInv.getEnquiryFormPrefill().getFormId()))
+				throw new WrongArgumentException("Can not update enquiry form of an invitation");
+		} else if (newInvitationParam.getType().equals(InvitationType.ENQUIRY))
+		{
+			EnquiryInvitationParam newInv = (EnquiryInvitationParam) newInvitationParam;
+
+			if (!Objects.equals(getEnquiryFormPrefill().getFormId(), newInv.getFormPrefill().getFormId()))
+				throw new WrongArgumentException("Can not update enquiry form of an invitation");
+		} else
+		{
+			throw new WrongArgumentException("Can not update combo invitation to registration invitation");
+		}
 	}
 
+	
+	
+	
 	@Override
 	public void validate(FormProvider formProvider) throws EngineException
 	{

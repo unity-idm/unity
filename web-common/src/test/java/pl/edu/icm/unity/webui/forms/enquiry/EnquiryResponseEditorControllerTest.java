@@ -77,7 +77,7 @@ public class EnquiryResponseEditorControllerTest
 		
 		initContext();
 		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, null, null, null,
-				null, null, null, mockGroupMan, mockIdMan, mockAttrMan, null, null, null, null);
+				null, null, null, mockGroupMan, mockIdMan, mockAttrMan, null, null, null, null, null);
 
 		
 		PrefilledSet prefilledForSticky = controller.getPrefilledSetForSticky(getForm());
@@ -94,7 +94,7 @@ public class EnquiryResponseEditorControllerTest
 	{
 
 		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan,
-				null, null, null, null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null, null, null, null);
 		initContext();
 		controller.getStickyForms();
 		verify(mockEnquiryMan).getAvailableStickyEnquires(any());
@@ -105,7 +105,7 @@ public class EnquiryResponseEditorControllerTest
 	{
 
 		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan,
-				null, null, null, null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null, null, null, null);
 
 		when(mockEnquiryMan.getAvailableStickyEnquires(any())).thenReturn(Arrays.asList(getForm()));
 		initContext();

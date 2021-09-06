@@ -28,7 +28,6 @@ import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Helper component with methods to validate {@link EnquiryResponse}.
@@ -89,7 +88,7 @@ public class EnquiryResponsePreprocessor
 		}
 	}
 	
-	public Long getEntityFromInvitationAndValidateCode(String formId, String code, Long loggedEntity) 
+	public Long getEntityFromInvitationAndValidateCode(String formId, String code) 
 			throws IllegalFormContentsException, IllegalFormTypeException
 	{
 		if (code == null)
@@ -102,11 +101,6 @@ public class EnquiryResponsePreprocessor
 		
 		if (invitation.isExpired())
 			throw new IllegalFormContentsException("The invitation has already expired");
-		
-		if (invitation.getType().equals(InvitationType.COMBO))
-		{
-			return loggedEntity;
-		}
 	
 		EnquiryInvitationParam enquiryInvitation = (EnquiryInvitationParam) invitation;
 		if (enquiryInvitation.getEntity() == null)

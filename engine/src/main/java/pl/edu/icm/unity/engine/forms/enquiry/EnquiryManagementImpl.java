@@ -262,7 +262,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 
 		return tx.runInTransactionRetThrowing(() -> {
-			return enquiryResponseValidator.getEntityFromInvitationAndValidateCode(formId, code, getLoggedEntity());
+			return enquiryResponseValidator.getEntityFromInvitationAndValidateCode(formId, code);
 		});
 	}
 

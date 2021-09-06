@@ -115,9 +115,6 @@ public class InvitationManagementImpl implements InvitationManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		InvitationWithCode currentWithCode = invitationDB.get(code);
 		InvitationParam current = currentWithCode.getInvitation();
-
-		if (!Objects.equal(current.getType(), invitation.getType()))
-			throw new WrongArgumentException("Can not update type of invitation");
 		if (!Objects.equal(current.getContactAddress(), invitation.getContactAddress()))
 			throw new WrongArgumentException("Can not update contact address of an invitation");
 		current.validateUpdate(invitation);

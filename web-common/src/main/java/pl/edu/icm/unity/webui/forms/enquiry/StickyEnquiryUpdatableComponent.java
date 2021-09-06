@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
@@ -122,7 +123,7 @@ public class StickyEnquiryUpdatableComponent extends CustomComponent
 			try
 			{
 				WorkflowFinalizationConfiguration workflowConfig = controller.submitted(request, form,
-						TriggeringMode.manualStandalone);
+						TriggeringMode.manualStandalone, Optional.empty());
 				showNotificationAfterSubmit(workflowConfig);
 			} catch (Exception e)
 			{

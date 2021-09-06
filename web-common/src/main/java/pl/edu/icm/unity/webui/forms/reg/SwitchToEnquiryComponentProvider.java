@@ -68,6 +68,6 @@ class SwitchToEnquiryComponentProvider
 	{
 		String link = publicRegistrationURLSupport.getWellknownEnquiryLink(
 				invitation.getAsEnquiryInvitationParam().getFormPrefill().getFormId(), invitation.code);
-		return "<a href=\"" + link + "\" target=\"_blank\">" + disp + "</a>";
+		return "<a href=\"" + link + "\">" + disp + "</a>";
 	}
 }

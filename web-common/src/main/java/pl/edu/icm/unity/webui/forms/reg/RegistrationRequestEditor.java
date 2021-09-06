@@ -539,7 +539,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return false;
 	}
 	
-	RegistrationForm getForm()
+	public RegistrationForm getForm()
 	{
 		return form;
 	}

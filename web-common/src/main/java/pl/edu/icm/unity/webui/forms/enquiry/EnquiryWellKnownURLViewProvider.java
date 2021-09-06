@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,7 @@ import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
@@ -35,6 +37,7 @@ import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
@@ -92,13 +95,15 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			return new ErrorView(form, TriggeringState.NOT_APPLICABLE_ENQUIRY);
 		}
 
-		PrefilledSet prefilledSet = null;	
 		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
-		
+		ResolvedInvitationParam resolvedInvitationParam = null;
+		PrefilledSet prefilledSet = null;	
 		if (registrationCode != null)
 		{	try
 			{
-				prefilledSet = getPrefilledFromInvitation(registrationCode, form);
+				resolvedInvitationParam = invitationResolver.getInvitationByCode(registrationCode, form);
+				prefilledSet = getPrefilledFromInvitation(resolvedInvitationParam.getAsEnquiryInvitationParam());
+				
 			} catch (RegCodeException e)
 			{
 				log.error("Can not get invitation", e);
@@ -106,13 +111,13 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			}
 		}
 			
-		EnquiryResponseEditorWithRegistrationCodePreserve editorWithCode;
+		EnquiryResponseEditorWithInvitationSupport editorWithCode;
 		try
 		{
-			editorWithCode = new EnquiryResponseEditorWithRegistrationCodePreserve(
+			editorWithCode = new EnquiryResponseEditorWithInvitationSupport(
 					editorController.getEditorInstanceForAuthenticatedUser(form, prefilledSet,
 							RemotelyAuthenticatedPrincipal.getLocalContext()),
-					registrationCode);
+					resolvedInvitationParam);
 
 		} catch (Exception e)
 		{
@@ -153,10 +158,8 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 				: new StandaloneEnquiryView(editorWithCode.editor, authnProcessor, imageAccessService,  msg, callback);
 	}
 	
-	private PrefilledSet getPrefilledFromInvitation(String registrationCode, EnquiryForm form) throws RegCodeException
+	private PrefilledSet getPrefilledFromInvitation(EnquiryInvitationParam invitation) throws RegCodeException
 	{
-		EnquiryInvitationParam invitation = invitationResolver.getInvitationByCode(registrationCode, form)
-				.getAsEnquiryInvitationParam();
 		if (invitation != null)
 		{
 			FormPrefill formPrefill = invitation.getFormPrefill();
@@ -178,14 +181,14 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		}
 	}
 
-	private WorkflowFinalizationConfiguration onSubmission(EnquiryForm form, EnquiryResponseEditorWithRegistrationCodePreserve editor)
+	private WorkflowFinalizationConfiguration onSubmission(EnquiryForm form, EnquiryResponseEditorWithInvitationSupport editor)
 	{
 		EnquiryResponse request = editor.getRequest();
 		if (request == null)
 			return null;
 		try
 		{
-			return editorController.submitted(request, form, TriggeringMode.manualStandalone);
+			return editorController.submitted(request, form, TriggeringMode.manualStandalone, editor.getRewriteComboToEnquiryRequest());
 		} catch (WrongArgumentException e)
 		{
 			FormsUIHelper.handleFormSubmissionError(e, msg, editor.editor);
@@ -241,23 +244,35 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		}
 	}
 	
-	private static class EnquiryResponseEditorWithRegistrationCodePreserve
+	private static class EnquiryResponseEditorWithInvitationSupport
 	{
 		private final EnquiryResponseEditor editor;
-		private final String code;
-		
-		private EnquiryResponseEditorWithRegistrationCodePreserve(EnquiryResponseEditor editor, String code)
+		private final ResolvedInvitationParam invitation;
+
+		private EnquiryResponseEditorWithInvitationSupport(EnquiryResponseEditor editor,
+				ResolvedInvitationParam invitation)
 		{
 			this.editor = editor;
-			this.code = code;
+			this.invitation = invitation;
 		}
-		
+
 		EnquiryResponse getRequest()
 		{
 			EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
-			if (request != null)
-				request.setRegistrationCode(code);
+			if (request != null && invitation != null)
+				request.setRegistrationCode(invitation.code);
 			return request;
-		}	
+		}
+
+		Optional<RewriteComboToEnquiryRequest> getRewriteComboToEnquiryRequest()
+		{
+			if (invitation == null)
+			{
+				return Optional.empty();
+			}
+			return Optional.of(new RewriteComboToEnquiryRequest(invitation.code,
+					InvocationContext.getCurrent().getLoginSession().getEntityId(), editor.getForm()));
+
+		}
 	}
 }
