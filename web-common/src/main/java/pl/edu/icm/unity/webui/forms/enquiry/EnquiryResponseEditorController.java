@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -52,6 +53,10 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.WebSession;
@@ -61,6 +66,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
+import pl.edu.icm.unity.webui.forms.RegCodeException;
 
 /**
  * Logic behind {@link EnquiryResponseEditor}. Provides a simple method to create editor instance and to handle 
@@ -73,21 +79,21 @@ public class EnquiryResponseEditorController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryResponseEditorController.class);
 	
-	private MessageSource msg;
-	private EnquiryManagement enquiryManagement;
-	private IdentityEditorRegistry identityEditorRegistry;
-	private CredentialEditorRegistry credentialEditorRegistry;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributeTypeManagement atMan;	
-	private CredentialManagement credMan;
-	private GroupsManagement groupsMan;
-	private EntityManagement idMan;	
-	private AttributesManagement attrMan;
-	private IdPLoginController idpLoginController;
-	private ImageAccessService imageAccessService;
-	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
-
-	private PolicyAgreementManagement policyAgrMan;
+	private final MessageSource msg;
+	private final EnquiryManagement enquiryManagement;
+	private final IdentityEditorRegistry identityEditorRegistry;
+	private final CredentialEditorRegistry credentialEditorRegistry;
+	private final AttributeHandlerRegistry attributeHandlerRegistry;
+	private final AttributeTypeManagement atMan;	
+	private final CredentialManagement credMan;
+	private final GroupsManagement groupsMan;
+	private final EntityManagement idMan;	
+	private final AttributesManagement attrMan;
+	private final IdPLoginController idpLoginController;
+	private final ImageAccessService imageAccessService;
+	private final PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
+	private final PolicyAgreementManagement policyAgrMan;
+	private final InvitationManagement invitationManagement;
 
 	@Autowired
 	public EnquiryResponseEditorController(MessageSource msg,
@@ -99,7 +105,9 @@ public class EnquiryResponseEditorController
 			@Qualifier("insecure") CredentialManagement credMan,
 			@Qualifier("insecure") GroupsManagement groupsMan,
 			@Qualifier("insecure") EntityManagement idMan,
-			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController,
+			@Qualifier("insecure") AttributesManagement attrMan,
+			@Qualifier("insecure") InvitationManagement invitationMan,
+			IdPLoginController idpLoginController,
 			ImageAccessService imageAccessService,
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 			PolicyAgreementManagement policyAgrMan)
@@ -118,6 +126,7 @@ public class EnquiryResponseEditorController
 		this.imageAccessService = imageAccessService;
 		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 		this.policyAgrMan = policyAgrMan;
+		this.invitationManagement = invitationMan;
 	}
 
 	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, Object> messageParams,
@@ -142,28 +151,40 @@ public class EnquiryResponseEditorController
 	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, 
 			RemotelyAuthenticatedPrincipal remoteContext) throws Exception
 	{
+		EntityParam loggedEntity = getLoggedEntity();
 		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
-				new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+				loggedEntity,
 				form.getPolicyAgreements());
-		return getEditorInstance(form, Collections.emptyMap(), remoteContext, getPrefilledForSticky(form, getLoggedEntity()),
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, getPrefilledSetForSticky(form, loggedEntity),
 				filteredPolicyAgreement);
 	}
 	
-	public PrefilledSet getPrefilledForSticky(EnquiryForm form) throws EngineException
+	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, PrefilledSet prefilled,
+			RemotelyAuthenticatedPrincipal remoteContext) throws Exception
 	{
-		return getPrefilledForSticky(form, getLoggedEntity());
+		EntityParam loggedEntity = getLoggedEntity();
+		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
+				loggedEntity,
+				form.getPolicyAgreements());
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, prefilled,
+				filteredPolicyAgreement);
+	}
+	
+	public PrefilledSet getPrefilledSetForSticky(EnquiryForm form) throws EngineException, RegCodeException
+	{
+		return getPrefilledSetForSticky(form, getLoggedEntity());
 	}
 
-	public PrefilledSet getPrefilledForSticky(EnquiryForm form, EntityParam entity) throws EngineException
-	{
+	public PrefilledSet getPrefilledSetForSticky(EnquiryForm form, EntityParam entity) throws EngineException, RegCodeException
+	{		
 		if (form.getType().equals(EnquiryType.STICKY))
 		{	
 			return new PrefilledSet(null, getPreffiledGroup(entity, form), getPrefilledAttribute(entity, form), null);
 		
-		}else
-		{
-			return new PrefilledSet();
-		}	
+		}
+			
+		return new PrefilledSet();
+		
 	}
 
 	private Map<Integer, PrefilledEntry<GroupSelection>> getPreffiledGroup(EntityParam entity, EnquiryForm form)
@@ -296,12 +317,16 @@ public class EnquiryResponseEditorController
 	}
 	
 	public WorkflowFinalizationConfiguration submitted(EnquiryResponse response, EnquiryForm form, 
-			TriggeringMode mode) throws WrongArgumentException
+			TriggeringMode mode, Optional<RewriteComboToEnquiryRequest> rewriteInvitationRequest) throws WrongArgumentException
 	{
 		RegistrationContext context = new RegistrationContext(
 				idpLoginController.isLoginInProgress(), mode);
 		try
 		{
+			if (rewriteInvitationRequest.isPresent())
+			{
+				rewriteComboToEnquiry(rewriteInvitationRequest.get());
+			}
 			String requestId = enquiryManagement.submitEnquiryResponse(response, context);
 			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(requestId));
 			return getFinalizationHandler(form).getFinalRegistrationConfigurationPostSubmit(requestId,
@@ -321,6 +346,21 @@ public class EnquiryResponseEditorController
 		}
 	}
 	
+	private void rewriteComboToEnquiry(RewriteComboToEnquiryRequest request) throws EngineException
+	{
+		InvitationWithCode invitationWithCode = invitationManagement.getInvitation(request.invitationCode);
+		if (invitationWithCode.getInvitation().getType().equals(InvitationType.COMBO))
+		{
+			FormPrefill prefill = invitationWithCode.getInvitation().getPrefillForForm(request.form);
+			EnquiryInvitationParam param = new EnquiryInvitationParam(request.form.getName(),
+					invitationWithCode.getInvitation().getExpiration(),
+					invitationWithCode.getInvitation().getContactAddress());
+			param.setFormPrefill(prefill);
+			param.setEntity(request.entity);
+			invitationManagement.updateInvitation(invitationWithCode.getRegistrationCode(), param);
+		}
+	}
+
 	private RegistrationRequestStatus getRequestStatus(String requestId) 
 	{
 		try

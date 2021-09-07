@@ -9,10 +9,10 @@ package pl.edu.icm.unity.webui.common;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -28,7 +28,7 @@ public class CollapsibleLayout extends CustomComponent
 	private Button modeButton;
 	private VerticalLayout main;
 	private Label captionLabel;		
-	public CollapsibleLayout(String caption, Layout content)
+	public CollapsibleLayout(String caption, Component content)
 	{
 		HorizontalLayout bar = new HorizontalLayout();
 		bar.setMargin(false);

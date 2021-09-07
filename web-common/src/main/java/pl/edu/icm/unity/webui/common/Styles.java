@@ -100,6 +100,7 @@ public enum Styles
 	buttonAction("u-button-action"),
 	fixedWidthCaptions("u-fixedWidthCaptions"),
 	fixedWidthShortCaptions("u-fixedWidthCaptionsSmall"),
+	fixedWidthMediumCaptions("u-fixedWidthCaptionsMedium"),
 	gridLinkButton("u-button-grid-link"),
 	viewTitle("u-viewTitle"),
 	viewSubtitle("u-viewSubtitle"),

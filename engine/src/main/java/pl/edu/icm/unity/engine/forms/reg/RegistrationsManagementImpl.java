@@ -26,9 +26,9 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
@@ -139,7 +139,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		if (!ignoreRequestsAndInvitations)
 		{
 			internalManagment.validateIfHasPendingRequests(formId);
-			internalManagment.validateIfHasInvitations(formId, InvitationType.REGISTRATION);
+			internalManagment.validateIfHasInvitations(updatedForm, InvitationType.REGISTRATION);
 		}
 		formsDB.update(updatedForm);
 	}

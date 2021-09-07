@@ -15,14 +15,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
@@ -30,8 +33,8 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
-import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
+import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -58,6 +61,7 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
@@ -72,6 +76,9 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 @Component
 public class AttributesHelper
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,	AttributesHelper.class);
+
+	
 	private final AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private final AttributeClassDB acDB;
 	private final AttributeClassUtil acUtil;
@@ -688,4 +695,76 @@ public class AttributesHelper
 				}
 		}
 	}
+	
+	public Optional<VerifiableElementBase> getFirstVerifiableAttributeValueFilteredByMeta(String metadataId, Collection<Attribute> list) throws EngineException
+	{
+		Optional<String> attrName = getAttributeName(metadataId);
+		if (!attrName.isPresent())
+			return Optional.empty();
+		return convertToVerifiableAttributeValue(attrName.get(),
+				getFirstValueOfAttributeFilteredByName(attrName.get(), list));
+	}
+	
+	private Optional<String> getAttributeName(String metadata) throws EngineException
+	{
+		AttributeType attrType = getAttributeTypeWithSingeltonMetadata(metadata);
+		if (attrType == null)
+			return Optional.empty();
+
+		return Optional.of(attrType.getName());
+	}
+	
+	private Optional<VerifiableElementBase> convertToVerifiableAttributeValue(String attributeName, Optional<String> value)
+	{
+		if (!value.isPresent())
+		{
+			return Optional.empty();
+		}
+		
+		AttributeValueSyntax<?> attributeSyntax = getAttributeSyntaxNotThrowing(attributeName);
+		
+		if (attributeSyntax != null && attributeSyntax.isEmailVerifiable())
+		{
+			return Optional.of((VerifiableElementBase) attributeSyntax.convertFromString(value.get()));
+		}else
+		{
+			return Optional.of(new VerifiableElementBase(value.get()));
+		}
+	}
+	
+	private AttributeValueSyntax<?> getAttributeSyntaxNotThrowing(String attributeName)
+	{
+		try
+		{
+			return atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);
+		} catch (Exception e)
+		{
+			// ok
+			log.debug("Can not get attribute syntax for attribute " + attributeName);
+			return null;
+		}
+	}
+
+	public Optional<String> getFirstValueOfAttributeFilteredByMeta(String metadataId, Collection<Attribute> list) throws EngineException
+	{
+		Optional<String> attrName = getAttributeName(metadataId);
+		if (!attrName.isPresent())
+			return Optional.empty();
+
+		return getFirstValueOfAttributeFilteredByName(attrName.get(), list);
+	}
+	
+	private Optional<String> getFirstValueOfAttributeFilteredByName(String attrName, Collection<Attribute> list) throws EngineException
+	{
+		for (Attribute attr : list)
+		{
+			if (attr.getName().equals(attrName) && attr.getValues() != null && !attr.getValues().isEmpty())
+			{
+				return Optional.ofNullable(attr.getValues().get(0));
+			}
+		}
+		return Optional.empty();
+		
+	}
+	
 }

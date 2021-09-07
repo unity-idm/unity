@@ -31,10 +31,10 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -131,11 +131,11 @@ public class TestMigrationFrom2_7
 		assertThat(all.size(), is(1));
 		
 		InvitationWithCode i = all.get(0);
-		InvitationParam i1 = i.getInvitation();
+		RegistrationInvitationParam i1 = (RegistrationInvitationParam) i.getInvitation();
 		assertThat(i1.getType(), is(InvitationType.REGISTRATION));
-		assertThat(i1.getGroupSelections().size(), is(2));
-		assertThat(i1.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
-		assertThat(i1.getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B")));
+		assertThat(i1.getFormPrefill().getGroupSelections().size(), is(2));
+		assertThat(i1.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
+		assertThat(i1.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B")));
 
 	}
 	

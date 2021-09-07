@@ -17,16 +17,20 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
+import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewer;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Lists all invitations
@@ -39,10 +43,10 @@ class InvitationsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Invitations";
 
-	private MessageSource msg;
-	private InvitationsController controller;
+	private final MessageSource msg;
+	private final InvitationsController controller;
 
-	private InvitationsGrid invitationsGrid;
+	private  InvitationsGrid invitationsGrid;
 
 	@Autowired
 	InvitationsView(MessageSource msg, InvitationsController controller)
@@ -60,9 +64,26 @@ class InvitationsView extends CustomComponent implements UnityView
 
 		invitationsGrid = new InvitationsGrid(msg, controller);
 
-		InvitationViewer viewer = controller.getViewer();
+		MainInvitationViewer viewer;
+		try
+		{
+			viewer = controller.getViewer();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+			return;
+		}
 
-		invitationsGrid.addValueChangeListener(invitation -> viewer.setInput(invitation));
+		invitationsGrid.addValueChangeListener(invitation -> {
+			try
+			{
+				viewer.setInput(invitation);
+			} catch (IllegalFormTypeException e)
+			{
+				NotificationPopup.showError(msg, "Invalid form type", e);
+				return;
+			}
+		});
 
 		Panel viewerPanel = new Panel();
 		viewerPanel.setContent(viewer);

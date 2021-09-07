@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,7 @@ import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
@@ -26,10 +28,16 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsUIHelper;
+import pl.edu.icm.unity.webui.forms.InvitationResolver;
+import pl.edu.icm.unity.webui.forms.PrefilledSet;
+import pl.edu.icm.unity.webui.forms.RegCodeException;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
@@ -52,6 +60,8 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	private StandardWebLogoutHandler authnProcessor;
 	@Autowired
 	private ImageAccessService imageAccessService;
+	@Autowired
+	private InvitationResolver invitationResolver;
 	
 	/**
 	 * @implNote: due to changes in the enquiry links, below format was kept for
@@ -70,7 +80,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		EnquiryForm enquiry = editorController.getForm(formName);
 		if (enquiry == null)
 			return null;
-		
+	
 		return viewAndParameters;
 	}
 	
@@ -82,20 +92,40 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		if (!editorController.isFormApplicable(formName) && !editorController.isStickyFormApplicable(formName))
 		{
 			log.debug("Enquiry form {} is not applicable", formName);
-			return new NotApplicableView(form);
+			return new ErrorView(form, TriggeringState.NOT_APPLICABLE_ENQUIRY);
 		}
 
-		EnquiryResponseEditor editor;
+		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
+		ResolvedInvitationParam resolvedInvitationParam = null;
+		PrefilledSet prefilledSet = null;
+		if (registrationCode != null)
+		{
+			try
+			{
+				resolvedInvitationParam = invitationResolver.getInvitationByCode(registrationCode, form);
+				prefilledSet = getPrefilledFromInvitation(resolvedInvitationParam.getAsEnquiryInvitationParam());
+
+			} catch (RegCodeException e)
+			{
+				log.error("Can not get invitation", e);
+				return new ErrorView(form, e.cause.getTriggerState());
+			}
+		}
+			
+		EnquiryResponseEditorWithInvitationSupport editorWithCode;
 		try
 		{
-			editor = editorController.getEditorInstanceForAuthenticatedUser(form,
-					RemotelyAuthenticatedPrincipal.getLocalContext());
+			editorWithCode = new EnquiryResponseEditorWithInvitationSupport(
+					editorController.getEditorInstanceForAuthenticatedUser(form, prefilledSet,
+							RemotelyAuthenticatedPrincipal.getLocalContext()),
+					resolvedInvitationParam);
+
 		} catch (Exception e)
 		{
 			log.error("Can't load enquiry editor", e);
-			return null;
+			return new ErrorView(form, TriggeringState.GENERAL_ERROR);
 		}
-		
+
 		boolean overwriteSticky = false;
 		if (form.getType().equals(EnquiryType.STICKY))
 		{
@@ -113,7 +143,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			@Override
 			public WorkflowFinalizationConfiguration submitted()
 			{
-				return onSubmission(form, editor);
+				return onSubmission(form, editorWithCode);
 			}
 
 			@Override
@@ -124,9 +154,20 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		};
 
 		return overwriteSticky
-				? new StandaloneStickyEnquiryView(editor, authnProcessor, imageAccessService, msg, callback,
+				? new StandaloneStickyEnquiryView(editorWithCode.editor, authnProcessor, imageAccessService, msg, callback,
 						() -> removePendingRequestSafe(form.getName()) )
-				: new StandaloneEnquiryView(editor, authnProcessor, imageAccessService,  msg, callback);
+				: new StandaloneEnquiryView(editorWithCode.editor, authnProcessor, imageAccessService,  msg, callback);
+	}
+	
+	private PrefilledSet getPrefilledFromInvitation(EnquiryInvitationParam invitation) throws RegCodeException
+	{
+		if (invitation != null)
+		{
+			FormPrefill formPrefill = invitation.getFormPrefill();
+			return new PrefilledSet(formPrefill.getIdentities(), formPrefill.getGroupSelections(),
+					formPrefill.getAttributes(), formPrefill.getAllowedGroups());
+		}
+		return null;
 	}
 	
 	private void removePendingRequestSafe(String formName)
@@ -141,17 +182,17 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		}
 	}
 
-	private WorkflowFinalizationConfiguration onSubmission(EnquiryForm form, EnquiryResponseEditor editor)
+	private WorkflowFinalizationConfiguration onSubmission(EnquiryForm form, EnquiryResponseEditorWithInvitationSupport editor)
 	{
-		EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
+		EnquiryResponse request = editor.getRequest();
 		if (request == null)
 			return null;
 		try
 		{
-			return editorController.submitted(request, form, TriggeringMode.manualStandalone);
+			return editorController.submitted(request, form, TriggeringMode.manualStandalone, editor.getRewriteComboToEnquiryRequest());
 		} catch (WrongArgumentException e)
 		{
-			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
+			FormsUIHelper.handleFormSubmissionError(e, msg, editor.editor);
 			return null;
 		}
 	}
@@ -179,13 +220,15 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	{
 	}
 	
-	private class NotApplicableView extends CustomComponent implements View
+	private class ErrorView extends CustomComponent implements View
 	{
-		private EnquiryForm form;
+		private final EnquiryForm form;
+		private final TriggeringState state;
 		
-		public NotApplicableView(EnquiryForm form)
+		public ErrorView(EnquiryForm form, TriggeringState state)
 		{
 			this.form = form;
+			this.state = state;
 		}
 		
 		@Override
@@ -193,12 +236,44 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		{
 			WorkflowFinalizationConfiguration config = editorController.getFinalizationHandler(form)
 					.getFinalRegistrationConfigurationNonSubmit(false, null,
-							TriggeringState.NOT_APPLICABLE_ENQUIRY);
+							state);
 			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> {}, 
 					imageAccessService);
 			com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 			setSizeFull();
 			setCompositionRoot(wrapper);
+		}
+	}
+	
+	private static class EnquiryResponseEditorWithInvitationSupport
+	{
+		private final EnquiryResponseEditor editor;
+		private final ResolvedInvitationParam invitation;
+
+		private EnquiryResponseEditorWithInvitationSupport(EnquiryResponseEditor editor,
+				ResolvedInvitationParam invitation)
+		{
+			this.editor = editor;
+			this.invitation = invitation;
+		}
+
+		EnquiryResponse getRequest()
+		{
+			EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
+			if (request != null && invitation != null)
+				request.setRegistrationCode(invitation.code);
+			return request;
+		}
+
+		Optional<RewriteComboToEnquiryRequest> getRewriteComboToEnquiryRequest()
+		{
+			if (invitation == null)
+			{
+				return Optional.empty();
+			}
+			return Optional.of(new RewriteComboToEnquiryRequest(invitation.code,
+					InvocationContext.getCurrent().getLoginSession().getEntityId(), editor.getForm()));
+
 		}
 	}
 }

@@ -39,6 +39,7 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -102,29 +103,30 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 public class EntityManagementImpl implements EntityManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,	EntityManagementImpl.class);
-	private IdentityTypeDAO idTypeDAO;
-	private IdentityTypeHelper idTypeHelper;
-	private IdentityDAO idDAO;
-	private EntityDAO entityDAO;
-	private GroupDAO groupDAO;
-	private AttributeTypeDAO attributeTypeDAO;
-	private MembershipDAO membershipDAO;
-	private EntityCredentialsHelper credentialsHelper;
-	private GroupHelper groupHelper;
-	private SheduledOperationHelper scheduledOperationHelper;
-	private AttributesHelper attributesHelper;
-	private IdentityHelper identityHelper;
-	private EntityResolver idResolver;
-	private InternalAuthorizationManager authz;
-	private IdentityTypesRegistry idTypesRegistry;
-	private EmailConfirmationManager confirmationManager;
-	private AttributeClassUtil acUtil;
-	private TransactionalRunner tx;
-	private UnityServerConfiguration cfg;
-	private NotificationProducer notificationProducer;
-	private AuditEventListener auditEventListener;
-	private AuditPublisher auditPublisher;
-	private InternalCapacityLimitVerificator capacityLimitVerificator;
+	private final IdentityTypeDAO idTypeDAO;
+	private final IdentityTypeHelper idTypeHelper;
+	private final IdentityDAO idDAO;
+	private final EntityDAO entityDAO;
+	private final GroupDAO groupDAO;
+	private final AttributeTypeDAO attributeTypeDAO;
+	private final MembershipDAO membershipDAO;
+	private final EntityCredentialsHelper credentialsHelper;
+	private final GroupHelper groupHelper;
+	private final SheduledOperationHelper scheduledOperationHelper;
+	private final AttributesHelper attributesHelper;
+	private final IdentityHelper identityHelper;
+	private final EntityResolver idResolver;
+	private final InternalAuthorizationManager authz;
+	private final IdentityTypesRegistry idTypesRegistry;
+	private final EmailConfirmationManager confirmationManager;
+	private final AttributeClassUtil acUtil;
+	private final TransactionalRunner tx;
+	private final UnityServerConfiguration cfg;
+	private final NotificationProducer notificationProducer;
+	private final AuditEventListener auditEventListener;
+	private final AuditPublisher auditPublisher;
+	private final InternalCapacityLimitVerificator capacityLimitVerificator;
+	private final ExistingUserFinder byEmailUserFinder;
 
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -139,7 +141,8 @@ public class EntityManagementImpl implements EntityManagement
 			TransactionalRunner tx,
 			UnityServerConfiguration cfg, NotificationProducer notificationProducer,
 			AuditEventListener auditEventListener, AuditPublisher auditPublisher,
-			InternalCapacityLimitVerificator capacityLimitVerificator)
+			InternalCapacityLimitVerificator capacityLimitVerificator,
+			ExistingUserFinder byEmailUserFinder)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -164,6 +167,7 @@ public class EntityManagementImpl implements EntityManagement
 		this.auditEventListener = auditEventListener;
 		this.auditPublisher = auditPublisher;
 		this.capacityLimitVerificator = capacityLimitVerificator;
+		this.byEmailUserFinder = byEmailUserFinder;
 	}
 
 	@Override
@@ -828,6 +832,17 @@ public class EntityManagementImpl implements EntityManagement
 		entityDAO.deleteByKey(mergedId);
 	}
 
+	@Override
+	@Transactional
+	public Entity getEntityByContactEmail(String contactEmail) throws EngineException
+	{
+		Long entityId = byEmailUserFinder.getEntityIdByContactAddress(contactEmail);
+		if (entityId == null)
+			throw new UnknownEmailException("Contact email " + contactEmail + " is not assigned to any entity");
+		return getEntity(new EntityParam(entityId));
+	}
+	
+	
 	private void mergeAttributes(long mergedId, long targetId, boolean safeMode) throws EngineException
 	{
 		Collection<AttributeExt> newAttributes = 

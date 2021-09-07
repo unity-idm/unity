@@ -32,16 +32,16 @@ import pl.edu.icm.unity.types.basic.VerifiableElementBase;
  *
  */
 @Component
-public class ProjectAttributeHelper
+class ProjectAttributeHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, ProjectAttributeHelper.class);
 
-	private AttributesManagement attrMan;
-	private AttributesHelper attrHelper;
-	private AttributeTypeHelper atHelper;
+	private final AttributesManagement attrMan;
+	private final AttributesHelper attrHelper;
+	private final AttributeTypeHelper atHelper;
 
 	@Autowired
-	public ProjectAttributeHelper(@Qualifier("insecure")AttributesManagement attrMan, AttributesHelper attrHelper,
+	ProjectAttributeHelper(@Qualifier("insecure")AttributesManagement attrMan, AttributesHelper attrHelper,
 			AttributeTypeHelper atHelper)
 	{
 		this.attrMan = attrMan;
@@ -74,48 +74,6 @@ public class ProjectAttributeHelper
 		return Optional.empty();
 	}
 
-	@Transactional
-	public String searchAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
-	{
-		String attrName = getAttributeName(metadata);
-		if (attrName == null)
-			return null;
-
-		return searchAttributeValueByName(attrName, list);
-	}
-	
-	private String searchAttributeValueByName(String attrName, Collection<Attribute> list) throws EngineException
-	{
-		for (Attribute attr : list)
-		{
-			if (attr.getName().equals(attrName) && attr.getValues() != null && !attr.getValues().isEmpty())
-			{
-				return attr.getValues().get(0);
-			}
-		}
-		return null;
-		
-	}
-	
-	@Transactional
-	public VerifiableElementBase searchVerifiableAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
-	{
-		String attrName = getAttributeName(metadata);
-		if (attrName == null)
-			return null;
-		return getVerifiableAttributeValue(attrName,
-				searchAttributeValueByName(attrName, list));
-	}
-	
-	private String getAttributeName(String metadata) throws EngineException
-	{
-		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
-		if (attrType == null)
-			return null;
-
-		return attrType.getName();
-	}
-
 	private VerifiableElementBase getVerifiableAttributeValue(String attributeName, String value)
 	{
 		if (value == null)
@@ -146,7 +104,6 @@ public class ProjectAttributeHelper
 		}
 	}
 
-	@Transactional
 	public String getAttributeFromMeta(long entityId, String path, String metadata) throws EngineException
 	{
 		VerifiableElementBase verValue = getVerifiableAttributeFromMeta(entityId, path, metadata);
@@ -155,7 +112,6 @@ public class ProjectAttributeHelper
 		return verValue.getValue();
 	}
 	
-	@Transactional
 	public VerifiableElementBase getVerifiableAttributeFromMeta(long entityId, String path, String metadata) throws EngineException
 	{
 		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);

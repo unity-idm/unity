@@ -30,5 +30,10 @@ public class FormLayoutWithFixedCaptionWidth extends FormLayout
 	{
 		return new FormLayoutWithFixedCaptionWidth(Styles.fixedWidthShortCaptions);
 	}
+	
+	public static FormLayoutWithFixedCaptionWidth withMediumCaptions()
+	{
+		return new FormLayoutWithFixedCaptionWidth(Styles.fixedWidthMediumCaptions);
+	}
 
 }

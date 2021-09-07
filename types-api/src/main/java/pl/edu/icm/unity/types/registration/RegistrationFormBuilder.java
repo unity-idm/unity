@@ -104,6 +104,12 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 	
+	public RegistrationFormBuilder withSwitchToEnquiryInfo(I18nString aValue)
+	{
+		instance.setSwitchToEnquiryInfo(aValue);
+		return this;
+	}
+	
 	public RegistrationFormBuilder withShowGotoSignIn(boolean show, String url)
 	{
 		instance.setShowSignInLink(show);

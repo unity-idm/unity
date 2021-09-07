@@ -17,13 +17,13 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
+import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
@@ -56,27 +56,31 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 @Component
 public class ProjectRequestManagementImpl implements ProjectRequestManagement
 {
-	private ProjectAuthorizationManager authz;
-	private RegistrationsManagement registrationMan;
-	private EnquiryManagement enquiryMan;
-	private GroupsManagement groupMan;
-	private SharedEndpointManagement sharedEndpointMan;
-	private EntityManagement idMan;
-	private ProjectAttributeHelper projectAttrHelper;
-
+	private final ProjectAuthorizationManager authz;
+	private final RegistrationsManagement registrationMan;
+	private final EnquiryManagement enquiryMan;
+	private final GroupsManagement groupMan;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+	private final EntityManagement idMan;
+	private final ProjectAttributeHelper projectAttrHelper;
+	private final AttributesHelper attributesHelper;
+	
 	public ProjectRequestManagementImpl(ProjectAuthorizationManager authz,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") GroupsManagement groupMan, @Qualifier("insecure") EntityManagement idMan,
-			ProjectAttributeHelper projectAttrHelper, SharedEndpointManagement sharedEndpointMan)
+			ProjectAttributeHelper projectAttrHelper,
+			AttributesHelper attributesHelper,
+			PublicRegistrationURLSupport publicRegistrationURLSupport)
 	{
 		this.authz = authz;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.groupMan = groupMan;
-		this.sharedEndpointMan = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.idMan = idMan;
 		this.projectAttrHelper = projectAttrHelper;
+		this.attributesHelper = attributesHelper;
 	}
 
 	@Transactional
@@ -138,8 +142,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		if (registrationForm.isByInvitationOnly())
 			return Optional.empty();
 
-		return Optional.ofNullable(PublicRegistrationURLSupport.getPublicRegistrationLink(registrationForm,
-				sharedEndpointMan));
+		return Optional.ofNullable(publicRegistrationURLSupport.getPublicRegistrationLink(registrationForm));
 	}
 
 	@Transactional
@@ -179,7 +182,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			return Optional.empty();
 
 		return Optional.ofNullable(
-				PublicRegistrationURLSupport.getWellknownEnquiryLink(formId, sharedEndpointMan));
+				publicRegistrationURLSupport.getWellknownEnquiryLink(formId));
 	}
 	
 
@@ -320,12 +323,12 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throws EngineException
 	{
 
-		String name = projectAttrHelper.searchAttributeValueByMeta(EntityNameMetadataProvider.NAME,
-				registrationRequest.getAttributes());
+		String name = attributesHelper.getFirstValueOfAttributeFilteredByMeta(EntityNameMetadataProvider.NAME,
+				registrationRequest.getAttributes()).orElse(null);
 		VerifiableElementBase email = getEmailIdentity(registrationRequest.getIdentities());
 		if (email == null)
-			email = projectAttrHelper.searchVerifiableAttributeValueByMeta(
-					ContactEmailMetadataProvider.NAME, registrationRequest.getAttributes());
+			email = attributesHelper.getFirstVerifiableAttributeValueFilteredByMeta(
+					ContactEmailMetadataProvider.NAME, registrationRequest.getAttributes()).orElse(null);
 
 		return mapToProjectRequest(projectPath, registrationRequestState, registrationRequest, name, email,
 				RequestOperation.SignUp, RequestType.Registration);

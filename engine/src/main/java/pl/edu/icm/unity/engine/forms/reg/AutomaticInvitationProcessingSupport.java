@@ -34,11 +34,13 @@ import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessInvitationsActionFactory.AutoProcessInvitationsAction;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
@@ -134,26 +136,31 @@ class AutomaticInvitationProcessingSupport
 		Set<String> formsToProcess = translatedRequest.getInvitationProcessingParams().stream()
 				.map(AutomaticInvitationProcessingParam::getFormName)
 				.collect(toCollection(HashSet::new));
+		Map<String, RegistrationForm> allFormsAsMap = formsDB.getAllAsMap();
+		
 		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
-			.filter(byGivenFormOrAllIfEmpty(formsToProcess))
+			.filter(byGivenFormOrAllIfEmpty(formsToProcess, allFormsAsMap))
 			.filter(invitation -> contactAddress.equals(invitation.getInvitation().getContactAddress()))
 			.collect(Collectors.toList());
 		Map<String, RegistrationForm> registrationFormById = Maps.newHashMap();
+		
 		
 		CollectedFromInvitationsContainer collected = new CollectedFromInvitationsContainer();
 		for (InvitationWithCode invitationWithCode : invitationsToProcess)
 		{
 			InvitationParam invitation = invitationWithCode.getInvitation();
+			FormPrefill formInfo = invitation.getPrefillForAutoProcessing();
 			
-			RegistrationForm invitationRegistrationForm = registrationFormById.get(invitation.getFormId());
+			RegistrationForm invitationRegistrationForm = registrationFormById.get(formInfo.getFormId());
 			if (invitationRegistrationForm == null)
 			{
-				invitationRegistrationForm = formsDB.get(invitation.getFormId());
-				registrationFormById.put(invitation.getFormId(), invitationRegistrationForm);
+				invitationRegistrationForm = formsDB.get(formInfo.getFormId());
+				registrationFormById.put(formInfo.getFormId(), invitationRegistrationForm);
 			}
-			List<Attribute> prefilledAttrs = getPrefilledAndHiddenAttributes(invitation, invitationRegistrationForm);
+			
+			List<Attribute> prefilledAttrs = getPrefilledAndHiddenAttributes(formInfo, invitationRegistrationForm);
 			collected.attributes.addAll(prefilledAttrs);
-			List<GroupParam> prefilledGroups = getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm, profileName);
+			List<GroupParam> prefilledGroups = getPrefilledAndHiddenGroups(formInfo, invitationRegistrationForm, profileName);
 			collected.groups.addAll(prefilledGroups);
 			collected.registrationCodes.add(invitationWithCode.getRegistrationCode());
 		}
@@ -168,13 +175,26 @@ class AutomaticInvitationProcessingSupport
 	}
 	
 	
-	private Predicate<? super InvitationWithCode> byGivenFormOrAllIfEmpty(Set<String> formsToProcess)
+	private Predicate<? super InvitationWithCode> byGivenFormOrAllIfEmpty(Set<String> formsToProcess, Map<String, RegistrationForm> allForms)
 	{
 		return invitation ->
 		{
 			if (formsToProcess.contains(null) || formsToProcess.contains(""))
 				return true;
-			return formsToProcess.contains(invitation.getInvitation().getFormId());
+			
+			for (String form : formsToProcess)
+			{
+				try
+				{
+					if  (invitation.getInvitation().matchesForm(allForms.get(form)))
+						return true;
+				} catch (IllegalFormTypeException e)
+				{
+					LOG.error("Invalid form type", e);
+				}
+			}
+			
+			return false;
 		};
 	}
 }

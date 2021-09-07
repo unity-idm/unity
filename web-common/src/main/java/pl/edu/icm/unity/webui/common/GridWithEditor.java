@@ -263,6 +263,12 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		grid.removeElement(el);
 		fireChange();
 	}
+	
+	public void removeAllElements()
+	{
+		grid.removeAllElements();
+		fireChange();
+	}
 
 	@Override
 	public List<T> getValue()

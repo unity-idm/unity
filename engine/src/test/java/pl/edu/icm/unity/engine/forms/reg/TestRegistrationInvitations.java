@@ -148,7 +148,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldReturnUpdatedInvitation() throws EngineException
 	{
-		InvitationParam invitation = RegistrationInvitationParam.builder()
+		RegistrationInvitationParam invitation = RegistrationInvitationParam.builder()
 				.withForm("form")
 				.withExpiration(Instant.now().plusSeconds(1000))
 				.build();
@@ -160,12 +160,12 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
 				.build());
 		String code = invitationMan.addInvitation(invitation);
-		invitation.getMessageParams().put("added", "param");
+		invitation.getFormPrefill().getMessageParams().put("added", "param");
 		
 		invitationMan.updateInvitation(code, invitation);
 		
 		InvitationWithCode returnedInvitation = invitationMan.getInvitation(code);
-		assertThat(returnedInvitation.getInvitation().getMessageParams().get("added"), is("param"));
+		assertThat(((RegistrationInvitationParam) returnedInvitation.getInvitation()).getFormPrefill().getMessageParams().get("added"), is("param"));
 	}
 	
 	@Test

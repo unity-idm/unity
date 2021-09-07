@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,7 @@ public class EnquiresDialogLauncher
 		public void newRequest(EnquiryResponse request) throws WrongArgumentException
 		{
 			WorkflowFinalizationConfiguration submitted = enquiryController.submitted(request, formsToFill.get(currentFormIndex), 
-					TriggeringMode.manualAtLogin);
+					TriggeringMode.manualAtLogin, Optional.empty());
 			//auto redirect is ignored when in dialog
 			if (!submitted.autoRedirect && !submitted.success)
 			{
