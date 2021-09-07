@@ -74,9 +74,9 @@ class ExistingUserFinder
 	{
 		for (EntityInGroupData info : membersWithGroups.values())
 		{
-			VerifiableElementBase contactEmail = attrHelper.searchVerifiableAttributeValueByMeta(ContactEmailMetadataProvider.NAME,
+			VerifiableElementBase contactEmail = attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(ContactEmailMetadataProvider.NAME,
 					info.groupAttributesByName.values().stream().map(e -> (Attribute) e)
-							.collect(Collectors.toList()));
+							.collect(Collectors.toList())).orElse(null);
 			if (contactEmail != null && contactEmail.getValue() != null)
 			{
 				VerifiableEmail verifiableEmail = (VerifiableEmail)contactEmail;

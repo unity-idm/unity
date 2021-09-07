@@ -17,6 +17,7 @@ import com.google.common.base.Objects;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
+import pl.edu.icm.unity.engine.api.registration.UnknownInvitationException;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -106,6 +107,8 @@ public class InvitationManagementImpl implements InvitationManagement
 	public InvitationWithCode getInvitation(String code) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		if (!invitationDB.exists(code))
+			throw new UnknownInvitationException("Invitation with code " + code + " is unkwnown");
 		return invitationDB.get(code);
 	}
 

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.forms;
 
 import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;

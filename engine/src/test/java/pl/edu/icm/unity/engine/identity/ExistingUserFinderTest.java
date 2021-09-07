@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -35,22 +36,17 @@ public class ExistingUserFinderTest
 	private static final EmailIdentity emailIdType = new EmailIdentity();
 	private BulkGroupQueryService bulkService = mock(BulkGroupQueryService.class);
 	private AttributesHelper attrHelper = mock(AttributesHelper.class);
-	
+
 	@Test
 	public void shouldFindByIdentityCaseInsensitive() throws EngineException
 	{
-		EntityInGroupData entityData = new EntityInGroupData(
-				createEmailEntity("addr1@EXample.com", 13), 
-				null, 
-				null, 
-				null, 
-				null, 
-				null);
+		EntityInGroupData entityData = new EntityInGroupData(createEmailEntity("addr1@EXample.com", 13), null, null,
+				null, null, null);
 		when(bulkService.getMembershipInfo(any())).thenReturn(ImmutableMap.of(13l, entityData));
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
-		
+
 		Long entityIdByContactAddress = userFinder.getEntityIdByContactAddress("Addr1@examplE.com");
-		
+
 		assertThat(entityIdByContactAddress).isEqualTo(13);
 	}
 
@@ -58,27 +54,23 @@ public class ExistingUserFinderTest
 	public void shouldFindByAttributeCaseInsensitive() throws EngineException
 	{
 		AttributeExt emailAttr = new AttributeExt(VerifiableEmailAttribute.of("email", "/", "addr1@EXample.com"), true);
-		EntityInGroupData entityData = new EntityInGroupData(
-				createEmailEntity("other@example.com", 13), 
-				null, 
-				null, 
-				ImmutableMap.of("email", emailAttr), 
-				null, 
-				null);
+		EntityInGroupData entityData = new EntityInGroupData(createEmailEntity("other@example.com", 13), null, null,
+				ImmutableMap.of("email", emailAttr), null, null);
 		when(bulkService.getMembershipInfo(any())).thenReturn(ImmutableMap.of(13l, entityData));
-		when(attrHelper.searchVerifiableAttributeValueByMeta(eq(ContactEmailMetadataProvider.NAME), any()))
-			.thenReturn(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0)));
+		when(attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(eq(ContactEmailMetadataProvider.NAME), any()))
+				.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
-		
+
 		Long entityIdByContactAddress = userFinder.getEntityIdByContactAddress("Addr1@examplE.com");
-		
-		assertThat(entityIdByContactAddress).isEqualTo(13);		
+
+		assertThat(entityIdByContactAddress).isEqualTo(13);
 	}
 
 	private Entity createEmailEntity(String email, long entityId) throws IllegalIdentityValueException
 	{
 		IdentityParam idParam = emailIdType.convertFromString(email, "ridp", null);
-		Identity identity = new Identity(idParam, entityId, emailIdType.getComparableValue(idParam.getValue(), "realm", null));
+		Identity identity = new Identity(idParam, entityId,
+				emailIdType.getComparableValue(idParam.getValue(), "realm", null));
 		return new Entity(Lists.newArrayList(identity), new EntityInformation(13), null);
 	}
 }

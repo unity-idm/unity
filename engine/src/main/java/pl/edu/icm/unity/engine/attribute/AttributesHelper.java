@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -695,41 +696,43 @@ public class AttributesHelper
 		}
 	}
 	
-	public VerifiableElementBase searchVerifiableAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
+	public Optional<VerifiableElementBase> getFirstVerifiableAttributeValueFilteredByMeta(String metadataId, Collection<Attribute> list) throws EngineException
 	{
-		String attrName = getAttributeName(metadata);
-		if (attrName == null)
-			return null;
-		return getVerifiableAttributeValue(attrName,
-				searchAttributeValueByName(attrName, list));
+		Optional<String> attrName = getAttributeName(metadataId);
+		if (!attrName.isPresent())
+			return Optional.empty();
+		return convertToVerifiableAttributeValue(attrName.get(),
+				getFirstValueOfAttributeFilteredByName(attrName.get(), list));
 	}
 	
-	private String getAttributeName(String metadata) throws EngineException
+	private Optional<String> getAttributeName(String metadata) throws EngineException
 	{
 		AttributeType attrType = getAttributeTypeWithSingeltonMetadata(metadata);
 		if (attrType == null)
-			return null;
+			return Optional.empty();
 
-		return attrType.getName();
+		return Optional.of(attrType.getName());
 	}
 	
-	private VerifiableElementBase getVerifiableAttributeValue(String attributeName, String value)
+	private Optional<VerifiableElementBase> convertToVerifiableAttributeValue(String attributeName, Optional<String> value)
 	{
-		if (value == null)
-			return null;
+		if (!value.isPresent())
+		{
+			return Optional.empty();
+		}
 		
-		AttributeValueSyntax<?> attributeSyntax = getAttributeSyntaxSafe(attributeName);
+		AttributeValueSyntax<?> attributeSyntax = getAttributeSyntaxNotThrowing(attributeName);
 		
 		if (attributeSyntax != null && attributeSyntax.isEmailVerifiable())
 		{
-			return (VerifiableElementBase) attributeSyntax.convertFromString(value);
+			return Optional.of((VerifiableElementBase) attributeSyntax.convertFromString(value.get()));
 		}else
 		{
-			return new VerifiableElementBase(value);
+			return Optional.of(new VerifiableElementBase(value.get()));
 		}
 	}
 	
-	private AttributeValueSyntax<?> getAttributeSyntaxSafe(String attributeName)
+	private AttributeValueSyntax<?> getAttributeSyntaxNotThrowing(String attributeName)
 	{
 		try
 		{
@@ -742,25 +745,25 @@ public class AttributesHelper
 		}
 	}
 
-	public String searchAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
+	public Optional<String> getFirstValueOfAttributeFilteredByMeta(String metadataId, Collection<Attribute> list) throws EngineException
 	{
-		String attrName = getAttributeName(metadata);
-		if (attrName == null)
-			return null;
+		Optional<String> attrName = getAttributeName(metadataId);
+		if (!attrName.isPresent())
+			return Optional.empty();
 
-		return searchAttributeValueByName(attrName, list);
+		return getFirstValueOfAttributeFilteredByName(attrName.get(), list);
 	}
 	
-	private String searchAttributeValueByName(String attrName, Collection<Attribute> list) throws EngineException
+	private Optional<String> getFirstValueOfAttributeFilteredByName(String attrName, Collection<Attribute> list) throws EngineException
 	{
 		for (Attribute attr : list)
 		{
 			if (attr.getName().equals(attrName) && attr.getValues() != null && !attr.getValues().isEmpty())
 			{
-				return attr.getValues().get(0);
+				return Optional.ofNullable(attr.getValues().get(0));
 			}
 		}
-		return null;
+		return Optional.empty();
 		
 	}
 	

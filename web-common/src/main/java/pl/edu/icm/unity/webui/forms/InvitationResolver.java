@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
+import pl.edu.icm.unity.engine.api.registration.UnknownInvitationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -23,11 +25,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
-/**
- *
- * @author P.Piernik
- *
- */
 @Component
 public class InvitationResolver
 {
@@ -74,11 +71,12 @@ public class InvitationResolver
 			{
 				return Optional
 						.of(entityManagement.getEntityByContactEmail(invitationParam.getContactAddress()).getId());
+			} catch (UnknownEmailException e)
+			{
+				log.debug("Email address " + invitationParam.getContactAddress() + " is unknown");
 			} catch (EngineException e)
 			{
-				// ok
-				log.debug("Email address " + invitationParam.getContactAddress() + " unknown");
-				return Optional.empty();
+				log.error("Can not get entity with contact address " + invitationParam.getContactAddress(), e);
 			}
 		}
 		return Optional.empty();
@@ -89,9 +87,8 @@ public class InvitationResolver
 		try
 		{
 			return Optional.of(invitationMan.getInvitation(code));
-		} catch (IllegalArgumentException e)
+		} catch (UnknownInvitationException e)
 		{
-			// ok
 			return Optional.empty();
 		} catch (EngineException e)
 		{

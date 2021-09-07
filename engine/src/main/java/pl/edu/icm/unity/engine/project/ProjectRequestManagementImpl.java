@@ -323,12 +323,12 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throws EngineException
 	{
 
-		String name = attributesHelper.searchAttributeValueByMeta(EntityNameMetadataProvider.NAME,
-				registrationRequest.getAttributes());
+		String name = attributesHelper.getFirstValueOfAttributeFilteredByMeta(EntityNameMetadataProvider.NAME,
+				registrationRequest.getAttributes()).orElse(null);
 		VerifiableElementBase email = getEmailIdentity(registrationRequest.getIdentities());
 		if (email == null)
-			email = attributesHelper.searchVerifiableAttributeValueByMeta(
-					ContactEmailMetadataProvider.NAME, registrationRequest.getAttributes());
+			email = attributesHelper.getFirstVerifiableAttributeValueFilteredByMeta(
+					ContactEmailMetadataProvider.NAME, registrationRequest.getAttributes()).orElse(null);
 
 		return mapToProjectRequest(projectPath, registrationRequestState, registrationRequest, name, email,
 				RequestOperation.SignUp, RequestType.Registration);
