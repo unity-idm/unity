@@ -97,13 +97,14 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 
 		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
 		ResolvedInvitationParam resolvedInvitationParam = null;
-		PrefilledSet prefilledSet = null;	
+		PrefilledSet prefilledSet = null;
 		if (registrationCode != null)
-		{	try
+		{
+			try
 			{
 				resolvedInvitationParam = invitationResolver.getInvitationByCode(registrationCode, form);
 				prefilledSet = getPrefilledFromInvitation(resolvedInvitationParam.getAsEnquiryInvitationParam());
-				
+
 			} catch (RegCodeException e)
 			{
 				log.error("Can not get invitation", e);
