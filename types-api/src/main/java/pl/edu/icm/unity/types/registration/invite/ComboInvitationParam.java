@@ -131,6 +131,11 @@ public class ComboInvitationParam extends InvitationParam
 		return new Builder();
 	}
 
+	public Builder cloningBuilder()
+	{
+		return new Builder(this);
+	}
+	
 	@Override
 	public void validateUpdate(InvitationParam newInvitationParam) throws WrongArgumentException
 	{
@@ -156,9 +161,6 @@ public class ComboInvitationParam extends InvitationParam
 			throw new WrongArgumentException("Can not update combo invitation to registration invitation");
 		}
 	}
-
-	
-	
 	
 	@Override
 	public void validate(FormProvider formProvider) throws EngineException
@@ -245,6 +247,12 @@ public class ComboInvitationParam extends InvitationParam
 			instance = (ComboInvitationParam) super.getInstance();
 		}
 
+		public Builder(ComboInvitationParam comboInvitationParam)
+		{
+			super(new ComboInvitationParam(comboInvitationParam.toJson()));
+			instance = comboInvitationParam;
+		}
+
 		public ComboInvitationParam build()
 		{
 			return instance;
@@ -266,7 +274,8 @@ public class ComboInvitationParam extends InvitationParam
 	@Override
 	public InvitationSendData getSendData()
 	{
-		return new InvitationSendData(registrationFormPrefill.getFormId(),  registrationFormPrefill.getFormType(), getContactAddress(), getExpiration(),
-				registrationFormPrefill.getGroupSelections(), registrationFormPrefill.getMessageParams());
+		return new InvitationSendData(registrationFormPrefill.getFormId(), registrationFormPrefill.getFormType(),
+				getContactAddress(), getExpiration(), registrationFormPrefill.getGroupSelections(),
+				registrationFormPrefill.getMessageParams());
 	}
 }

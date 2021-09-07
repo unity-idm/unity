@@ -205,6 +205,11 @@ public class RegistrationInvitationParam extends InvitationParam
 		return new Builder();
 	}
 	
+	public Builder cloningBuilder()
+	{
+		return new Builder(this);
+	}
+	
 	public static class Builder extends InvitationParam.Builder<Builder>
 	{
 		private RegistrationInvitationParam instance ;
@@ -220,6 +225,12 @@ public class RegistrationInvitationParam extends InvitationParam
 		public RegistrationInvitationParam build()
 		{
 			return instance;
+		}
+		
+		public Builder(RegistrationInvitationParam registrationInvitationParam)
+		{
+			super(new RegistrationInvitationParam(registrationInvitationParam.toJson()));
+			instance = registrationInvitationParam;
 		}
 		
 		public Builder withExpectedIdentity(ExpectedIdentity identity)

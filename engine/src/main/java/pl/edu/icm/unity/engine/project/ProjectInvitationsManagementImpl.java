@@ -112,7 +112,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			assertNotMemberAlready(entity, param.project);
 		}
 	
-		String code = invitationMan.addInvitation(getComboInvitation(param));
+		String code = invitationMan.addInvitation(createComboInvitation(param));
 		invitationMan.sendInvitation(code);
 		return code;
 	}
@@ -124,7 +124,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			throw new AlreadyMemberException();
 	}
 
-	private ComboInvitationParam getComboInvitation(ProjectInvitationParam param) throws EngineException
+	private ComboInvitationParam createComboInvitation(ProjectInvitationParam param) throws EngineException
 	{
 		ComboInvitationParam invitationParam = new ComboInvitationParam(getRegistrationFormForProject(param.project),
 				getEnquiryFormForProject(param.project), param.expiration, param.contactAddress);
@@ -345,37 +345,19 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private InvitationParam copyRegistrationInvitation(Instant newExpiration, InvitationParam orgInvitation)
 	{
 		RegistrationInvitationParam orgRegistrationInvitationParam = (RegistrationInvitationParam) orgInvitation;
-		RegistrationInvitationParam rnewInvitation = new RegistrationInvitationParam(
-				orgRegistrationInvitationParam.getFormPrefill().getFormId(), newExpiration,
-				orgInvitation.getContactAddress());
-		rnewInvitation.setExpectedIdentity(
-				((RegistrationInvitationParam) orgInvitation).getExpectedIdentity());
-		rnewInvitation.getFormPrefill().fill(orgRegistrationInvitationParam.getFormPrefill());
-		return rnewInvitation;
+		return  orgRegistrationInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
 	}
 	
 	private InvitationParam copyEnquiryInvitation(Instant newExpiration, InvitationParam orgInvitation)
 	{
 		EnquiryInvitationParam orgEnquiryInvitationParam = (EnquiryInvitationParam) orgInvitation;
-		EnquiryInvitationParam enewInvitation = new EnquiryInvitationParam(
-				orgEnquiryInvitationParam.getFormPrefill().getFormId(), newExpiration,
-				orgInvitation.getContactAddress());
-		enewInvitation.setEntity(((EnquiryInvitationParam) orgInvitation).getEntity());
-		enewInvitation.getFormPrefill().fill(orgEnquiryInvitationParam.getFormPrefill());
-		return enewInvitation;
+		return orgEnquiryInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
 	}
 	
 	private InvitationParam copyComboInvitation(Instant newExpiration, InvitationParam orgInvitation)
 	{
 		ComboInvitationParam orgComboInvitationParam = (ComboInvitationParam) orgInvitation;
-		ComboInvitationParam enewInvitation = new ComboInvitationParam(
-				orgComboInvitationParam.getRegistrationFormPrefill().getFormId(),
-				orgComboInvitationParam.getEnquiryFormPrefill().getFormId(), 
-				orgComboInvitationParam.getExpiration(),
-				orgComboInvitationParam.getContactAddress());
-		enewInvitation.getRegistrationFormPrefill().fill(orgComboInvitationParam.getRegistrationFormPrefill());
-		enewInvitation.getEnquiryFormPrefill().fill(orgComboInvitationParam.getEnquiryFormPrefill());
-		return enewInvitation;
+		return 	orgComboInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
 	}
 	private InvitationWithCode assertIfIsProjectInvitation(String projectPath, String code) throws EngineException
 	{
@@ -389,8 +371,14 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		InvitationWithCode orgInvitationWithCode = invO.get();
 		InvitationParam invParam = orgInvitationWithCode.getInvitation();
 
-		if (invParam == null || !(invParam.matchesForm(registrationMan.getForm(config.registrationForm))
-				&& invParam.matchesForm(enquiryMan.getEnquiry(config.signupEnquiryForm))))
+		
+		if (invParam == null)
+		{
+			throw new NotProjectInvitation(projectPath, orgInvitationWithCode.getRegistrationCode());
+		}
+		boolean matchReg = invParam.matchesForm(registrationMan.getForm(config.registrationForm));
+		boolean matchEnq = invParam.matchesForm(enquiryMan.getEnquiry(config.signupEnquiryForm));
+		if ((invParam.getType().equals(InvitationType.COMBO) && !(matchReg && matchEnq)) || !(matchReg || matchEnq))
 		{
 			throw new NotProjectInvitation(projectPath, orgInvitationWithCode.getRegistrationCode());
 		}

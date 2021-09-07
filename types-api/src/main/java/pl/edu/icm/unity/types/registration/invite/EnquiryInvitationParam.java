@@ -184,6 +184,11 @@ public class EnquiryInvitationParam extends InvitationParam
 		return new Builder();
 	}
 	
+	public Builder cloningBuilder()
+	{
+		return new Builder(this);
+	}
+	
 	@Override
 	public InvitationSendData getSendData() throws EngineException
 	{
@@ -206,6 +211,12 @@ public class EnquiryInvitationParam extends InvitationParam
 			instance.setFormPrefill(formCommon);	
 		}
 		
+		public Builder(EnquiryInvitationParam enquiryInvitationParam)
+		{
+			super(new EnquiryInvitationParam(enquiryInvitationParam.toJson()));
+			instance = enquiryInvitationParam;
+		}
+			
 		public EnquiryInvitationParam build()
 		{
 			return instance;
