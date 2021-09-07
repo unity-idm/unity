@@ -48,7 +48,7 @@ public class EnquiryTargetCondEvaluator
 		try
 		{
 			boolean ret = condition.evaluate(context);
-			log.debug("Enquiry {} condition '{}' evaluated to {}", form.getName(), 
+			log.trace("Enquiry {} condition '{}' evaluated to {}", form.getName(), 
 					form.getTargetCondition(), ret);
 			return ret;
 		} catch (EngineException e)
