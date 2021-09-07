@@ -199,17 +199,17 @@ public class FormPrefill
 		formId = json.get("formId").asText();
 
 		n = json.get("identities");
-		fill((ObjectNode) n, getIdentities(), IdentityParam.class);
+		fill((JsonNode) n, getIdentities(), IdentityParam.class);
 
 		n = json.get("groupSelections");
-		fill((ObjectNode) n, getGroupSelections(), GroupSelection.class);
+		fill((JsonNode) n, getGroupSelections(), GroupSelection.class);
 
 		n = json.get("allowedGroups");
 		if (n != null && !n.isNull())
-			fill((ObjectNode) n, getAllowedGroups());
+			fill((JsonNode) n, getAllowedGroups());
 
 		n = json.get("attributes");
-		fill((ObjectNode) n, getAttributes(), Attribute.class);
+		fill((JsonNode) n, getAttributes(), Attribute.class);
 
 		n = json.get("messageParams");
 		if (n != null)
@@ -227,7 +227,7 @@ public class FormPrefill
 		}
 	}
 
-	private void fill(ObjectNode root, Map<Integer, GroupSelection> allowedGroups)
+	private void fill(JsonNode root, Map<Integer, GroupSelection> allowedGroups)
 	{
 		root.fields().forEachRemaining(field ->
 		{
@@ -244,7 +244,7 @@ public class FormPrefill
 
 	}
 
-	protected <T> void fill(ObjectNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
+	protected <T> void fill(JsonNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
 	{
 		root.fields().forEachRemaining(field ->
 		{
