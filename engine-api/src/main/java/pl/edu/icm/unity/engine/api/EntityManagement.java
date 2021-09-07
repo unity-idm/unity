@@ -152,6 +152,14 @@ public interface EntityManagement
 
 	
 	/**
+	 * Returns information about an entity along with its all identities. Search by
+	 * verifiable email assigned to the entity.
+	 * 
+	 * @param contactEmail email assigned to the entity
+	 */
+	Entity getEntityByContactEmail(String contactEmail) throws EngineException;
+
+	/**
 	 * Returns a collection with all groups where the entity is a member. For convenience returned 
 	 * as map indexed with group paths.
 	 * @param entity

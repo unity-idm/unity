@@ -815,6 +815,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return ConfirmationEditMode.OFF;
 	}
 	
+	public BaseForm getForm()
+	{
+		return form;
+	}	
+	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<GroupSelection>> prefillFromInvitation, Map<Integer, GroupSelection> allowedFromInvitation)
 	{

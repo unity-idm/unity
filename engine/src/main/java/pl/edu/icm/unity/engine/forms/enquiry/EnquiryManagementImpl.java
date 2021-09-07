@@ -29,17 +29,16 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
@@ -83,7 +82,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private InternalAuthorizationManager authz;
 	private BaseFormValidator baseFormValidator;
 	private EnquiryResponsePreprocessor enquiryResponseValidator;
-	private SharedEndpointManagement sharedEndpointMan;
+	private PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private TransactionalRunner tx;
 	private SharedEnquiryManagment internalManagment;
 	private EntityResolver identitiesResolver;
@@ -98,7 +97,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			MessageSource msg, InternalAuthorizationManager authz,
 			BaseFormValidator baseFormValidator,
 			EnquiryResponsePreprocessor enquiryResponseValidator,
-			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
+			PublicRegistrationURLSupport publicRegistrationURLSupport, TransactionalRunner tx,
 			SharedEnquiryManagment internalManagment, EntityResolver identitiesResolver,
 			AttributesHelper dbAttributes,
 			@Qualifier("insecure")
@@ -113,7 +112,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		this.authz = authz;
 		this.baseFormValidator = baseFormValidator;
 		this.enquiryResponseValidator = enquiryResponseValidator;
-		this.sharedEndpointMan = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.tx = tx;
 		this.internalManagment = internalManagment;
 		this.identitiesResolver = identitiesResolver;
@@ -148,7 +147,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			Map<String, String> params = new HashMap<>();
 			params.put(NewEnquiryTemplateDef.FORM_NAME, form.getDisplayedName().getDefaultLocaleValue(msg));
 			params.put(NewEnquiryTemplateDef.URL, 
-					PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryId, sharedEndpointMan));
+					publicRegistrationURLSupport.getWellknownEnquiryLink(enquiryId));
 			
 			
 			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
@@ -195,7 +194,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		if (!ignoreRequestsAndInvitations)
 		{
 			internalManagment.validateIfHasPendingRequests(formId);
-			internalManagment.validateIfHasInvitations(formId, InvitationType.ENQUIRY);
+			internalManagment.validateIfHasInvitations(updatedForm, InvitationType.ENQUIRY);
 		}
 		enquiryFormDB.update(updatedForm);
 	}

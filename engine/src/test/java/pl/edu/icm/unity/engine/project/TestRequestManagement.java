@@ -24,10 +24,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -51,7 +51,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 public class TestRequestManagement extends TestProjectBase
 {
 	@Mock
-	SharedEndpointManagement mockSharedEndpointMan;
+	PublicRegistrationURLSupport mockPublicRegistrationURLSupport;
 
 	private ProjectRequestManagementImpl projectRequestMan;
 
@@ -60,8 +60,8 @@ public class TestRequestManagement extends TestProjectBase
 	{
 		projectRequestMan = new ProjectRequestManagementImpl(mockAuthz, mockRegistrationMan, mockEnquiryMan,
 				mockGroupMan, mockIdMan,
-				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper),
-				mockSharedEndpointMan);
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAttrHelper,
+				mockPublicRegistrationURLSupport);
 	}
 
 	@Test
@@ -164,7 +164,9 @@ public class TestRequestManagement extends TestProjectBase
 		RegistrationForm form = new RegistrationFormBuilder().withByInvitationOnly(false).withName("regForm")
 				.withDefaultCredentialRequirement("").build();
 		when(mockRegistrationMan.getForm(eq("regForm"))).thenReturn(form);
+		when(mockPublicRegistrationURLSupport.getPublicRegistrationLink(form)).thenReturn("link");
 
+		
 		Optional<String> projectRegistrationFormLink = projectRequestMan
 				.getProjectRegistrationFormLink("/project");
 		assertThat(projectRegistrationFormLink.isPresent(), is(true));
@@ -178,7 +180,8 @@ public class TestRequestManagement extends TestProjectBase
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withTargetGroups(new String[] { "/" })
 				.build();
 		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(form);
-
+		when(mockPublicRegistrationURLSupport.getWellknownEnquiryLink("enqForm")).thenReturn("link");
+		
 		Optional<String> projectEnquiryFormLink = projectRequestMan.getProjectSignUpEnquiryFormLink("/project");
 		assertThat(projectEnquiryFormLink.isPresent(), is(true));
 	}

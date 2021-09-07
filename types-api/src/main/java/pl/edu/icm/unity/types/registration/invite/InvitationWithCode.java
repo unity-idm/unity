@@ -44,17 +44,25 @@ public class InvitationWithCode implements NamedObject
 	}
 
 	@JsonCreator
-	public InvitationWithCode(ObjectNode json)
+	public InvitationWithCode(ObjectNode json) 
 	{
 		InvitationType type = InvitationType.valueOf(json.get("type").asText());
-		if (type.equals(InvitationType.REGISTRATION))
+
+		switch (type)
 		{
+		case REGISTRATION:
 			invitation = new RegistrationInvitationParam(json);
-		}
-		else
-		{
+			break;
+		case ENQUIRY:
 			invitation = new EnquiryInvitationParam(json);
-		}	
+			break;
+		case COMBO:
+			invitation = new ComboInvitationParam(json);
+			break;
+		default:
+			throw new IllegalArgumentException("Illegal invitation type");
+		}
+
 		fromJson(json);
 	}
 	

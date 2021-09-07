@@ -176,14 +176,14 @@ public class TestInvitations extends RESTAdminTestBase
 	
 	private InvitationParam createInvitation()
 	{
-		InvitationParam ret = new RegistrationInvitationParam("exForm", 
+		RegistrationInvitationParam ret = new RegistrationInvitationParam("exForm", 
 				Instant.now().plusSeconds(200).truncatedTo(ChronoUnit.SECONDS), 
 				"someAddr@example.com");
 		Attribute attrP = StringAttribute.of("cn", "/", "value");
-		ret.getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
-		ret.getIdentities().put(0, new PrefilledEntry<>(new IdentityParam(UsernameIdentity.ID, 
+		ret.getFormPrefill().getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
+		ret.getFormPrefill().getIdentities().put(0, new PrefilledEntry<>(new IdentityParam(UsernameIdentity.ID, 
 				"user-id"), PrefilledEntryMode.READ_ONLY));
-		ret.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/"), 
+		ret.getFormPrefill().getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/"), 
 				PrefilledEntryMode.READ_ONLY));
 		return ret;
 	}

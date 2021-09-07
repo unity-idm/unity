@@ -11,7 +11,9 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
@@ -29,12 +31,11 @@ public class ProjectInvitation extends ProjectInvitationParam
 	public final int numberOfSends;
 	public final String link;
 
-	public ProjectInvitation(String project, InvitationWithCode org, String link)
+	public ProjectInvitation(String project, BaseForm form, InvitationWithCode org, String link) throws EngineException
 	{
-
-		super(project, org.getInvitation().getContactAddress(), getGroups(org),
-				org.getInvitation().getAllowedGroups() != null
-						&& !org.getInvitation().getAllowedGroups().isEmpty(),
+		super(project, org.getInvitation().getContactAddress(), getGroups(org, form),
+				org.getInvitation().getPrefillForForm(form).getAllowedGroups() != null
+						&& !org.getInvitation().getPrefillForForm(form).getAllowedGroups().isEmpty(),
 				org.getInvitation().getExpiration());
 		this.registrationCode = org.getRegistrationCode();
 		this.lastSentTime = org.getLastSentTime();
@@ -48,9 +49,10 @@ public class ProjectInvitation extends ProjectInvitationParam
 		return Objects.hashCode(super.hashCode(), registrationCode, lastSentTime, numberOfSends, link);
 	}
 
-	private static List<String> getGroups(InvitationWithCode org)
+	private static List<String> getGroups(InvitationWithCode org, BaseForm form) throws EngineException
 	{
-		InvitationParam invParam = org.getInvitation();
+		FormPrefill invParam = org.getInvitation().getPrefillForForm(form);
+		
 		if ((invParam.getAllowedGroups() == null || invParam.getAllowedGroups().isEmpty())
 				&& (invParam.getGroupSelections() == null || invParam.getGroupSelections().isEmpty()))
 		{
@@ -59,7 +61,6 @@ public class ProjectInvitation extends ProjectInvitationParam
 
 		return !invParam.getAllowedGroups().isEmpty() ? invParam.getAllowedGroups().get(0).getSelectedGroups()
 				: invParam.getGroupSelections().get(0).getEntry().getSelectedGroups();
-
 	}
 	
 	@Override

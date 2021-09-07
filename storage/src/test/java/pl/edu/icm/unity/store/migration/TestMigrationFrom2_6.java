@@ -41,8 +41,8 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -190,16 +190,16 @@ public class TestMigrationFrom2_6
 				.collect(Collectors.toMap(i -> i.getRegistrationCode(), i->i));
 		
 		InvitationWithCode i = byCode.get("1e46b209-92ac-4f2d-a4b8-475bbe956424");
-		InvitationParam i1 = i.getInvitation();
-		assertThat(i1.getGroupSelections().size(), is(2));
-		assertThat(i1.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
-		assertThat(i1.getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B/C")));
+		RegistrationInvitationParam i1 = (RegistrationInvitationParam) i.getInvitation();
+		assertThat(i1.getFormPrefill().getGroupSelections().size(), is(2));
+		assertThat(i1.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
+		assertThat(i1.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B/C")));
 
 		i = byCode.get("7e8d72a8-22e1-40c7-872c-dcb8a85e40cc");
-		InvitationParam i2 = i.getInvitation();
-		assertThat(i2.getGroupSelections().size(), is(2));
-		assertThat(i2.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
-		assertThat(i2.getGroupSelections().get(1).getEntry().getSelectedGroups().isEmpty(), is(true));	
+		RegistrationInvitationParam i2 = (RegistrationInvitationParam) i.getInvitation();
+		assertThat(i2.getFormPrefill().getGroupSelections().size(), is(2));
+		assertThat(i2.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
+		assertThat(i2.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups().isEmpty(), is(true));	
 	}
 	
 	@Test

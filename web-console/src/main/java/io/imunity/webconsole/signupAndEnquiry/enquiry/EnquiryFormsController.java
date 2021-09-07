@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -29,19 +28,19 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class EnquiryFormsController
 {
-	private MessageSource msg;
-	private EnquiryManagement enqMan;
-	private SharedEndpointManagement sharedEndpointMan;
-	private ObjectFactory<EnquiryFormEditor> editorFactory;
+	private final MessageSource msg;
+	private final EnquiryManagement enqMan;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+	private final ObjectFactory<EnquiryFormEditor> editorFactory;
 
 	@Autowired
 	EnquiryFormsController(MessageSource msg, EnquiryManagement enqMan,
-			SharedEndpointManagement sharedEndpointMan, ObjectFactory<EnquiryFormEditor> editorFactory)
+			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<EnquiryFormEditor> editorFactory)
 	{
 		this.msg = msg;
 		this.enqMan = enqMan;
 		this.editorFactory = editorFactory;
-		this.sharedEndpointMan = sharedEndpointMan;
+		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 	}
 
 	void addEnquiryForm(EnquiryForm toAdd) throws ControllerException
@@ -108,7 +107,7 @@ public class EnquiryFormsController
 
 	String getPublicEnquiryLink(EnquiryForm form)
 	{
-		return PublicRegistrationURLSupport.getWellknownEnquiryLink(form.getName(), sharedEndpointMan);
+		return publicRegistrationURLSupport.getWellknownEnquiryLink(form.getName());
 	}
 
 	EnquiryFormEditor getEditor(EnquiryForm form, boolean copyMode) throws ControllerException

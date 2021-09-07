@@ -170,10 +170,10 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationAttributeOverwritesRequestedAttribute() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		RegistrationInvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		Attribute enforcedAttribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 				"enforced@example.com");
-		invitation.getAttributes().put(0, new PrefilledEntry<>(enforcedAttribute, PrefilledEntryMode.HIDDEN));
+		invitation.getFormPrefill().getAttributes().put(0, new PrefilledEntry<>(enforcedAttribute, PrefilledEntryMode.HIDDEN));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
@@ -188,9 +188,9 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationIdentityOverwritesRequestedIdentity() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		RegistrationInvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		IdentityParam enforced = new IdentityParam(UsernameIdentity.ID, "some-user");
-		invitation.getIdentities().put(0, new PrefilledEntry<>(enforced, PrefilledEntryMode.READ_ONLY));
+		invitation.getFormPrefill().getIdentities().put(0, new PrefilledEntry<>(enforced, PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
@@ -205,9 +205,9 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationGroupOverridesRequested() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		RegistrationInvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		GroupSelection enforced = new GroupSelection("/A");
-		invitation.getGroupSelections().put(0, new PrefilledEntry<>(enforced, PrefilledEntryMode.READ_ONLY));
+		invitation.getFormPrefill().getGroupSelections().put(0, new PrefilledEntry<>(enforced, PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
@@ -222,8 +222,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationAttributeIsAdded() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
-		invitation.getAttributes().put(0, new PrefilledEntry<>(
+		RegistrationInvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		invitation.getFormPrefill().getAttributes().put(0, new PrefilledEntry<>(
 				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 						"enforced@example.com"), PrefilledEntryMode.HIDDEN));
 		String code = invitationMan.addInvitation(invitation);
@@ -243,8 +243,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationIdentityIsAdded() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
-		invitation.getIdentities().put(0, new PrefilledEntry<>(
+		RegistrationInvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		invitation.getFormPrefill().getIdentities().put(0, new PrefilledEntry<>(
 				new IdentityParam(UsernameIdentity.ID, "some-user"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getEmptyRequest(code);
@@ -261,8 +261,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationGroupIsAdded() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
-		invitation.getGroupSelections().put(0, new PrefilledEntry<>(
+		RegistrationInvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		invitation.getFormPrefill().getGroupSelections().put(0, new PrefilledEntry<>(
 				new GroupSelection("/A"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequestWithIdentity(code);
