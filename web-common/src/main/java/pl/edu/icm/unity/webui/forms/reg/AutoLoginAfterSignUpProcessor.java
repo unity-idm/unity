@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -86,6 +87,14 @@ class AutoLoginAfterSignUpProcessor
 			return false;
 		}
 		
+		if (editor.getAuthnOptionKey() == null)
+		{
+			LOG.debug("Automatic login for registration request {} is not supported, "
+					+ "auto sign in requires information on the authentication option key used for sign in", 
+					requestState.getRequestId());
+			return false;
+		}
+		
 		AuthenticationRealm realm;
 		try
 		{
@@ -117,14 +126,14 @@ class AutoLoginAfterSignUpProcessor
 					remoteContext.getMappingResult().getAuthenticatedWith(), null);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
 			
-			loginUser(authenticatedEntity, realm, remoteContext);
+			loginUser(authenticatedEntity, realm, remoteContext, editor.getAuthnOptionKey());
 			LOG.info("Entity Id {} automatically signed into realm {}, as the result of successful "
 					+ "registration request processing: {}", requestState.getCreatedEntityId(), 
 					form.getAutoLoginToRealm(), requestState.getRequestId());
 			return true;
 		} catch (Exception e)
 		{
-			LOG.error("Failed to automatically sign in entity {}.", e);
+			LOG.error("Failed to automatically sign in entity {}", requestState.getCreatedEntityId(), e);
 			return false;
 		}
 	}
@@ -138,14 +147,14 @@ class AutoLoginAfterSignUpProcessor
 	}
 
 	private void loginUser(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, 
-			RemotelyAuthenticatedPrincipal remoteContext)
+			RemotelyAuthenticatedPrincipal remoteContext, AuthenticationOptionKey authenticationOption)
 	{
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
 		authnProcessor.syntheticAuthenticate(authenticatedEntity, extractParticipants(remoteContext), 
-				null, realm, loginMachineDetails, false, 
+				authenticationOption, realm, loginMachineDetails, false, 
 				servletRequest, servletResponse);
 	}
 	
