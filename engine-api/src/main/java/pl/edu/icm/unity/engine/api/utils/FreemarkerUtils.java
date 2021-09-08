@@ -18,7 +18,6 @@ import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.cache.TemplateLoader;
-import freemarker.core.InvalidReferenceException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -80,7 +79,7 @@ public class FreemarkerUtils
 		String templateName = "templateName";
 		stringLoader.putTemplate(templateName, templateStr);
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
-		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
 		cfg.setLogTemplateExceptions(false);
 		cfg.setTemplateLoader(stringLoader);
 		try
@@ -89,9 +88,6 @@ public class FreemarkerUtils
 			StringWriter writer = new StringWriter();
 			templateCon.process(datamodel, writer);
 			return writer.toString();
-		} catch (InvalidReferenceException e)
-		{
-			log.warn("Freemarker template proccesed with empty value", e);
 		} catch (Exception e)
 		{
 			log.error("Can not process freemarker template from string " + templateStr, e);
@@ -109,7 +105,7 @@ public class FreemarkerUtils
 		String templateName = "templateName";
 		stringLoader.putTemplate(templateName, templateStr);
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
-		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
 		cfg.setLogTemplateExceptions(false);
 		cfg.setTemplateLoader(stringLoader);
 		Template templateCon;
@@ -118,9 +114,6 @@ public class FreemarkerUtils
 			templateCon = cfg.getTemplate(templateName);
 			StringWriter writer = new StringWriter();
 			templateCon.process(new HashMap<>(), writer);
-		} catch (InvalidReferenceException e)
-		{
-			//ok
 		} catch (Exception e)
 		{
 			return false;
