@@ -4,6 +4,8 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.forms;
 
+import static io.imunity.tooltip.TooltipExtension.tooltip;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -346,7 +348,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		switchToEnquiryInfo = new I18nTextArea(msg, msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo"));
 		switchToEnquiryInfo.setValue(RegistrationForm.getDefaultSwitchToEnquiryInfo(msg));
-		
+		tooltip(switchToEnquiryInfo, msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo.tip"));	
 		
 		main.addComponents(displayedName, title2ndStage, formInformation, switchToEnquiryInfo, pageTitle, 
 				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
