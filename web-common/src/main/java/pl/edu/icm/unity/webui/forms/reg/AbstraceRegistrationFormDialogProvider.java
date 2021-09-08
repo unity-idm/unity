@@ -63,7 +63,7 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 			AsyncErrorHandler errorHandler)
 	{
 		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
-		editorCreator.init(form, remoteContext);
+		editorCreator.init(form, remoteContext, null);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
 		Runnable localSignupHandler = () -> 
@@ -81,7 +81,7 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 			AsyncErrorHandler errorHandler)
 	{
 		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
-		editorCreator.init(form, remoteContext);
+		editorCreator.init(form, remoteContext, null);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
 		editorCreator.createSecondStage(callback, true);

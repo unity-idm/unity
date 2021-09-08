@@ -6,12 +6,14 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 public class AuthenticationTriggeringContext
 {
 	public final boolean rememberMeSet;
 	public final PartialAuthnState firstFactorAuthnState;
+	public final AuthenticationOptionKey authenticationOptionKey;
 	public final RegistrationForm form;
 	public final String invitationCode;
 	public final SandboxAuthnRouter sandboxRouter;
@@ -19,51 +21,55 @@ public class AuthenticationTriggeringContext
 	private AuthenticationTriggeringContext(boolean rememberMeSet,
 			PartialAuthnState postFirstFactorAuthnState, RegistrationForm form, 
 			String invitationCode,
-			SandboxAuthnRouter sandboxRouter)
+			SandboxAuthnRouter sandboxRouter,
+			AuthenticationOptionKey authenticationOptionKey)
 	{
 		this.rememberMeSet = rememberMeSet;
 		this.firstFactorAuthnState = postFirstFactorAuthnState;
 		this.form = form;
 		this.invitationCode = invitationCode;
 		this.sandboxRouter = sandboxRouter;
+		this.authenticationOptionKey = authenticationOptionKey;
 	}
 	
 	public static AuthenticationTriggeringContext registrationTriggeredAuthn(RegistrationForm form, 
-			String invitationCode)
+			String invitationCode,
+			AuthenticationOptionKey authenticationOptionKey)
 	{
 		if (form == null)
 			throw new IllegalArgumentException("Form must be set in registration triggered remote authn");
-		return new AuthenticationTriggeringContext(false, null, form, invitationCode, null);
+		return new AuthenticationTriggeringContext(false, null, form, invitationCode, null, authenticationOptionKey);
 	}
 	
 
 	public static AuthenticationTriggeringContext authenticationTriggeredFirstFactor(boolean rememberMeSet)
 	{
-		return new AuthenticationTriggeringContext(rememberMeSet, null, null, null, null);
+		return new AuthenticationTriggeringContext(rememberMeSet, null, null, null, null, null);
 	}
 
 	public static AuthenticationTriggeringContext authenticationTriggeredFirstFactor()
 	{
-		return new AuthenticationTriggeringContext(false, null, null, null, null);
+		return new AuthenticationTriggeringContext(false, null, null, null, null, null);
 	}
 	
 	public static AuthenticationTriggeringContext authenticationTriggeredSecondFactor(boolean rememberMeSet, 
 			PartialAuthnState postFirstFactorAuthnState)
 	{
-		return new AuthenticationTriggeringContext(rememberMeSet, postFirstFactorAuthnState, null, null, null);
+		return new AuthenticationTriggeringContext(rememberMeSet, postFirstFactorAuthnState, null, null, null,
+				null);
 	}
 
 	public static AuthenticationTriggeringContext sandboxTriggeredFirstFactor(SandboxAuthnRouter sandboxRouter)
 	{
 		if (sandboxRouter == null)
 			throw new IllegalArgumentException("Sandbox router must be set in sandbox triggered remote authn");
-		return new AuthenticationTriggeringContext(false, null, null, null, sandboxRouter);
+		return new AuthenticationTriggeringContext(false, null, null, null, sandboxRouter, null);
 	}
 
 	public static AuthenticationTriggeringContext sandboxTriggeredSecondFactor(PartialAuthnState postFirstFactorAuthnState,
 			SandboxAuthnRouter sandboxRouter)
 	{
-		return new AuthenticationTriggeringContext(false, postFirstFactorAuthnState, null, null, sandboxRouter);
+		return new AuthenticationTriggeringContext(false, postFirstFactorAuthnState, null, null, sandboxRouter, null);
 	}
 	
 	public boolean isRegistrationTriggered()
