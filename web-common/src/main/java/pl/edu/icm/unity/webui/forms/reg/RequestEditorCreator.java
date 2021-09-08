@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -59,6 +60,7 @@ public class RequestEditorCreator
 	private RemotelyAuthenticatedPrincipal remotelyAuthenticated;
 	private String registrationCode;
 	private boolean enableRemoteSignup;
+	private AuthenticationOptionKey authenticationOptionKey;
 
 	@Autowired
 	public RequestEditorCreator(MessageSource msg, ImageAccessService imageAccessService,
@@ -94,18 +96,21 @@ public class RequestEditorCreator
 	
 
 	public RequestEditorCreator init(RegistrationForm form, boolean enableRemoteSignup,
-			RemotelyAuthenticatedPrincipal context, String presetRegistrationCode)
+			RemotelyAuthenticatedPrincipal context, String presetRegistrationCode,
+			AuthenticationOptionKey authenticationOptionKey)
 	{
 		this.form = form;
 		this.enableRemoteSignup = enableRemoteSignup;
 		this.remotelyAuthenticated = context;
 		this.registrationCode = presetRegistrationCode;
+		this.authenticationOptionKey = authenticationOptionKey;
 		return this;
 	}
 	
-	public RequestEditorCreator init(RegistrationForm form, RemotelyAuthenticatedPrincipal context)
+	public RequestEditorCreator init(RegistrationForm form, RemotelyAuthenticatedPrincipal context,
+			AuthenticationOptionKey authenticationOptionKey)
 	{
-		return init(form, false, context, null);
+		return init(form, false, context, null, authenticationOptionKey);
 	}
 
 	public void createFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
@@ -235,7 +240,10 @@ public class RequestEditorCreator
 				credentialEditorRegistry, attributeHandlerRegistry, 
 				aTypeMan, credMan, groupsMan, imageAccessService,
 				registrationCode, invitation, authnSupport,  
-				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, toEnquirySwitchLabelProvider, enableRemoteSignup);
+				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder, 
+				toEnquirySwitchLabelProvider, 
+				enableRemoteSignup,
+				authenticationOptionKey);
 	}
 	
 	private ResolvedInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException

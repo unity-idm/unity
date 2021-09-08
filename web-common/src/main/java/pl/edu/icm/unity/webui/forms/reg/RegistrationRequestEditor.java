@@ -118,6 +118,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final boolean enableRemoteRegistration;
 	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
+	private final AuthenticationOptionKey authnOptionKey;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -135,7 +136,9 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			AuthenticatorSupportService authnSupport, 
 			URLQueryPrefillCreator urlQueryPrefillCreator, 
 			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
-			SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider, boolean enableRemoteRegistration)
+			SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider, 
+			boolean enableRemoteRegistration,
+			AuthenticationOptionKey authnOptionKey)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, imageAccessService,
@@ -147,6 +150,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 		this.enableRemoteRegistration = enableRemoteRegistration;
 		this.toEnquirySwitchLabelProvider =  toEnquirySwitchLabelProvider;
+		this.authnOptionKey = authnOptionKey;
 	}
 	
 	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
@@ -168,6 +172,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		initUI();
 	}
 	
+	public AuthenticationOptionKey getAuthnOptionKey()
+	{
+		return authnOptionKey;
+	}
+
 	@Override
 	public RegistrationRequest getRequest(boolean withCredentials) throws FormValidationException
 	{
@@ -492,7 +501,10 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				signupOptionComponent.setEnabled(false);
 			} else
 			{
-				option.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form, regCodeProvided));
+				option.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(
+						form, regCodeProvided, 
+						new AuthenticationOptionKey(option.authenticator.getAuthenticatorId(), 
+								option.authenticatorUI.getId())));
 			}
 		}
 
@@ -568,7 +580,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					authnOption.authenticatorUI, optionId);
 
 			if (enableRemoteRegistration)
-				authnOption.authenticatorUI.setAuthenticationCallback(new SignUpAuthnCallback(form, regCodeProvided));
+				authnOption.authenticatorUI.setAuthenticationCallback(
+						new SignUpAuthnCallback(form, regCodeProvided, optionId));
 			return authNPanel;
 		}
 	}

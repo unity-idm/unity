@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -177,7 +178,8 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		case UNKNOWN_REMOTE_USER:
 			showSecondStage(postAuthnStepDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal.remotePrincipal, 
 					TriggeringMode.afterRemoteLoginFromRegistrationForm, false,
-					postAuthnStepDecisionWithContext.triggeringContext.invitationCode);
+					postAuthnStepDecisionWithContext.triggeringContext.invitationCode,
+					postAuthnStepDecisionWithContext.triggeringContext.authenticationOptionKey);
 			return;
 		default:
 			throw new IllegalStateException("Unsupported post-authn decission for registration view: " 
@@ -190,16 +192,16 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	{
 		initUIBase();
 		
-		editorCreator.init(form, true, context, null);
+		editorCreator.init(form, true, context, null, null);
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
 	}
 
 	private void showSecondStage(RemotelyAuthenticatedPrincipal context, TriggeringMode mode, 
-			boolean withCredentials, String presetRegistrationCode)
+			boolean withCredentials, String presetRegistrationCode, AuthenticationOptionKey authnOptionKey)
 	{
 		initUIBase();
 
-		editorCreator.init(form, true, context, presetRegistrationCode);
+		editorCreator.init(form, true, context, presetRegistrationCode, authnOptionKey);
 		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 
@@ -342,7 +344,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private void onLocalSignupClickHandler()
 	{
 		showSecondStage(RemotelyAuthenticatedPrincipal.getLocalContext(), TriggeringMode.manualStandalone,
-				true, null);
+				true, null, null);
 	}
 	
 	private void onCancel()
