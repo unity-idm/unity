@@ -330,12 +330,12 @@ public class RegistrationForm extends BaseForm
 	public FormLayout getDefaultSecondaryFormLayout(MessageSource msg)
 	{
 		List<FormElement> elements;
-		if (!isCredentialAvailableAtSecondaryFormLayout(this))
+		if (isCredentialAvailableAtSecondaryFormLayout(this))
 		{
-			elements = FormLayoutUtils.getDefaultFormLayoutElementsWithoutCredentials(this, msg);
+			elements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);	
 		} else
 		{
-			elements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
+			elements = FormLayoutUtils.getDefaultFormLayoutElementsWithoutCredentials(this, msg);
 		}
 		addRegistrationFormSpecificElements(msg, elements);
 		return new FormLayout(elements);
@@ -343,7 +343,7 @@ public class RegistrationForm extends BaseForm
 	
 	public static boolean isCredentialAvailableAtSecondaryFormLayout(RegistrationForm form)
 	{
-		return form.getExternalSignupSpec().isEnabled() && form.getFormLayouts().isLocalSignupEmbeddedAsButton();
+		return form.getFormLayouts().isLocalSignupEmbeddedAsButton();
 	}
 	
 	/**

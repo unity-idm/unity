@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.forms.reg.AbstraceRegistrationFormDialogProvider;
+import pl.edu.icm.unity.webui.forms.reg.AbstractRegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
@@ -50,7 +50,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class AdminRegistrationFormLauncher extends AbstraceRegistrationFormDialogProvider
+public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialogProvider
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminRegistrationFormLauncher.class);
 	protected RegistrationsManagement registrationsManagement;

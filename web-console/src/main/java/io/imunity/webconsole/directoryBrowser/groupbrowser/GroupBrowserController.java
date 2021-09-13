@@ -81,9 +81,6 @@ class GroupBrowserController
 		Map<String, GroupContents> groupAndSubgroups;
 		try
 		{
-			//check authz
-			groupsMan.getContents(path, GroupContents.GROUPS | GroupContents.METADATA);
-			
 			GroupStructuralData bulkData = bulkQueryService.getBulkStructuralData(path);
 			groupAndSubgroups = bulkQueryService.getGroupAndSubgroups(bulkData);		
 		} catch (EngineException e)
@@ -178,7 +175,6 @@ class GroupBrowserController
 			return bulkQueryService.getBulkStructuralData(path);
 		} catch (Exception e)
 		{
-
 			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupError"), e);
 		}
 
@@ -191,21 +187,29 @@ class GroupBrowserController
 			return bulkQueryService.getGroupAndSubgroups(bulkData);
 		} catch (Exception e)
 		{
-
 			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupError"), e);
 		}
 	}
 
 	GroupDelegationEditConfigDialog getGroupDelegationEditConfigDialog(EventsBus bus, Group group,
-			Consumer<Group> update)
+			Consumer<Group> update) throws ControllerException
 	{
+		GroupContents contents;
+		try
+		{
+			contents = groupsMan.getContents(group.getPathEncoded(), GroupContents.METADATA);
+		} catch (EngineException e)
+		{
+			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupError"), e);
+		}
+		
+		Group editedGroup = contents.getGroup(); 
 		return new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
-				regFormEditorFactory, enquiryFormEditorFactory, bus, delConfigUtils, group,
+				regFormEditorFactory, enquiryFormEditorFactory, bus, delConfigUtils, editedGroup,
 				delConfig -> {
-					group.setDelegationConfiguration(delConfig);
-					update.accept(group);
+					editedGroup.setDelegationConfiguration(delConfig);
+					update.accept(editedGroup);
 				});
-
 	}
 
 	void bulkAddToGroup(TreeNode node, Set<EntityWithLabel> dragData) throws ControllerException

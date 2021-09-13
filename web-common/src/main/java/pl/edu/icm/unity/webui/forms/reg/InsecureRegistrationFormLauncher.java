@@ -43,7 +43,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDialogProvider
+public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDialogProvider
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InsecureRegistrationFormLauncher.class);
 	private RegistrationsManagement registrationsManagement;

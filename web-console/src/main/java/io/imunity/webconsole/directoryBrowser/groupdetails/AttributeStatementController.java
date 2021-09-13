@@ -44,7 +44,6 @@ class AttributeStatementController
 	AttributeStatementEditDialog getEditStatementDialog(String group, AttributeStatement toEdit,
 			Consumer<AttributeStatement> callback) throws ControllerException
 	{
-
 		try
 		{
 			return new AttributeStatementEditDialog(msg, toEdit, attrsMan, group, attributeHandlerRegistry,

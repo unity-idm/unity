@@ -87,6 +87,7 @@ import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.InvitationCodeConsumer;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -111,7 +112,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private ResolvedInvitationParam invitation;
 	private AuthenticatorSupportService authnSupport;
 	private Map<AuthenticationOptionKey, AuthNOption> externalSignupOptions;
-	private Runnable onLocalSignupHandler;
+	private InvitationCodeConsumer onLocalSignupHandler;
 	private FormLayout effectiveLayout;
 	private Stage stage;
 	private RegistrationLayoutsContainer layoutContainer;
@@ -153,7 +154,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.authnOptionKey = authnOptionKey;
 	}
 	
-	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
+	public void showFirstStage(InvitationCodeConsumer onLocalSignupHandler) throws AuthenticationException
 	{
 		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;
@@ -522,7 +523,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		Button localSignup = new Button(msg.getMessage("RegistrationRequest.localSignup"));
 		localSignup.addStyleName("u-localSignUpButton");
-		localSignup.addClickListener(event -> onLocalSignupHandler.run());
+		localSignup.addClickListener(event -> onLocalSignupHandler.accept(regCodeProvided));
 		localSignup.setWidth(formWidth(), formWidthUnit());
 		layout.addComponent(localSignup);
 		layout.setComponentAlignment(localSignup, Alignment.MIDDLE_CENTER);
