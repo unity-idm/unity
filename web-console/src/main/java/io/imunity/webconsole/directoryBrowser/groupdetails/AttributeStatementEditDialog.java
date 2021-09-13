@@ -35,7 +35,6 @@ class AttributeStatementEditDialog extends AbstractDialog
 	private GroupsManagement groupsMan;
 	
 	/**
-	 * @param msg
 	 * @param attributeStatement attribute statement to be displayed initially or 
 	 * null when a new statement should be created
 	 */

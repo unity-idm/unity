@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
  */
 public abstract class AbstractAttributesClassesDialog extends AbstractDialog 
 {
-	protected final static Set<String> EMPTY = new HashSet<String>(0);
+	protected final static Set<String> EMPTY = new HashSet<>(0);
 	protected AttributeClassManagement acMan;
 	protected GroupsManagement groupsMan;
 	protected String groupPath;

@@ -133,7 +133,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			loadNode("/", null);
 			expand(treeData.getRootItems());
-			if( treeData.getRootItems().size() > 0)
+			if (treeData.getRootItems().size() > 0)
 			{
 				select(treeData.getRootItems().get(0));
 			}
@@ -148,8 +148,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	String getIcon(TreeNode node)
 	{
-		
-		
 		return authzError ? Images.noAuthzGrp.getHtml()
 				: node.isDelegated() ? Images.workplace.getHtml()
 						: isExpanded(node) ? Images.folder_open.getHtml()
@@ -368,19 +366,25 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.editDelegationConfigAction"))
 				.withIcon(Images.forward.getResource())
-				.withHandler(this::showEditDelegationCondigDialog).build();
+				.withHandler(this::showEditDelegationConfigDialog).build();
 	}
 
-	private void showEditDelegationCondigDialog(Collection<TreeNode> target)
+	private void showEditDelegationConfigDialog(Collection<TreeNode> target)
 	{
 		TreeNode node = target.iterator().next();
 		Group group = node.getGroup();
 
-		controller.getGroupDelegationEditConfigDialog(bus, group, g -> {
-			updateGroup(node.getGroup().getPathEncoded(), g);
-			node.setGroupMetadata(g);
-			dataProvider.refreshItem(node);
-		}).show();
+		try
+		{
+			controller.getGroupDelegationEditConfigDialog(bus, group, g -> {
+				updateGroup(node.getGroup().getPathEncoded(), g);
+				node.setGroupMetadata(g);
+				dataProvider.refreshItem(node);
+			}).show();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+		}
 	}
 
 	private SingleActionHandler<TreeNode> getRefreshAction()
