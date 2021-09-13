@@ -272,7 +272,10 @@ public class LoginInProgressService<AUTHZ_CTX>
 		public static Optional<SignInContextSession> getCurrent()
 		{
 			VaadinSession current = VaadinSession.getCurrent();
-			return Optional.ofNullable(current == null ? null : new VaadinContextSession(current.getSession()));
+			return Optional.ofNullable(
+					current == null || current.getSession() == null
+						? null 
+						: new VaadinContextSession(current.getSession()));
 		}
 		
 		public VaadinContextSession(WrappedSession session) 
