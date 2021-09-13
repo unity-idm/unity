@@ -16,6 +16,7 @@ import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.InvitationCodeConsumer;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 /**
@@ -25,12 +26,12 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public abstract class AbstraceRegistrationFormDialogProvider implements RegistrationFormDialogProvider
+public abstract class AbstractRegistrationFormDialogProvider implements RegistrationFormDialogProvider
 {
 	protected final MessageSource msg;
 	protected final ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory;
 	
-	public AbstraceRegistrationFormDialogProvider(MessageSource msg,
+	public AbstractRegistrationFormDialogProvider(MessageSource msg,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
 	{
 		this.msg = msg;
@@ -46,10 +47,10 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 	{
 		if (isRemoteLoginWhenUnknownUser(mode))
 		{
-			showSecondStageDialog(form, remoteContext, mode, errorHandler);
+			showSecondStageDialog(form, remoteContext, mode, null, errorHandler);
 		} else
 		{
-			showFistStageDialog(form, remoteContext, mode, errorHandler);
+			showFirstStageDialog(form, remoteContext, mode, errorHandler);
 		}
 	}
 
@@ -58,7 +59,7 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 		return mode == TriggeringMode.afterRemoteLoginWhenUnknownUser;
 	}
 
-	private EditorCreatedCallbackImpl showFistStageDialog(final RegistrationForm form, 
+	private EditorCreatedCallbackImpl showFirstStageDialog(final RegistrationForm form, 
 			RemotelyAuthenticatedPrincipal remoteContext, TriggeringMode mode,
 			AsyncErrorHandler errorHandler)
 	{
@@ -66,10 +67,10 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 		editorCreator.init(form, remoteContext, null);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
-		Runnable localSignupHandler = () -> 
+		InvitationCodeConsumer localSignupHandler = ivitationCode -> 
 		{
 			callback.getDialog().close();
-			showSecondStageDialog(form, remoteContext, mode, errorHandler);
+			showSecondStageDialog(form, remoteContext, mode, ivitationCode, errorHandler);
 		};
 		
 		editorCreator.createFirstStage(callback, localSignupHandler);
@@ -78,10 +79,11 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 	
 	private EditorCreatedCallbackImpl showSecondStageDialog(final RegistrationForm form, 
 			RemotelyAuthenticatedPrincipal remoteContext, TriggeringMode mode,
+			String registrationCode, 
 			AsyncErrorHandler errorHandler)
 	{
 		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
-		editorCreator.init(form, remoteContext, null);
+		editorCreator.init(form, false, remoteContext, registrationCode, null);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
 		editorCreator.createSecondStage(callback, true);

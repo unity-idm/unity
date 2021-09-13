@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.function.Consumer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -113,7 +115,7 @@ public class RequestEditorCreator
 		return init(form, false, context, null, authenticationOptionKey);
 	}
 
-	public void createFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
+	public void createFirstStage(RequestEditorCreatedCallback callback, InvitationCodeConsumer onLocalSignupHandler)
 	{
 		if (registrationCode == null)
 			registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
@@ -138,7 +140,7 @@ public class RequestEditorCreator
 		}
 	}
 
-	private void doCreateFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
+	private void doCreateFirstStage(RequestEditorCreatedCallback callback, InvitationCodeConsumer onLocalSignupHandler)
 	{
 		ResolvedInvitationParam invitation;
 		try
@@ -273,5 +275,9 @@ public class RequestEditorCreator
 		void onCreated(RegistrationRequestEditor editor);
 		void onCreationError(Exception e, ErrorCause cause);
 		void onCancel();
+	}
+	
+	interface InvitationCodeConsumer extends Consumer<String>
+	{
 	}
 }

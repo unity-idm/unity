@@ -341,10 +341,10 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
 	}
 	
-	private void onLocalSignupClickHandler()
+	private void onLocalSignupClickHandler(String presetInvitationCode)
 	{
 		showSecondStage(RemotelyAuthenticatedPrincipal.getLocalContext(), TriggeringMode.manualStandalone,
-				true, null, null);
+				true, presetInvitationCode, null);
 	}
 	
 	private void onCancel()
