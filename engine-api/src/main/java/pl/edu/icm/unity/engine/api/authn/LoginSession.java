@@ -276,7 +276,7 @@ public class LoginSession
 		String realm = main.get("realm").asText();
 		long maxInactive = main.get("maxInactivity").asLong();
 		long lastUsed = main.get("lastUsed").asLong();
-		String entityLabel = main.get("entityLabel").asText();
+		String entityLabel = JsonUtil.getNullable(main, "entityLabel");
 		String credentialId = null;
 		if (main.has("outdatedCredentialId"))
 			credentialId = main.get("outdatedCredentialId").asText();
