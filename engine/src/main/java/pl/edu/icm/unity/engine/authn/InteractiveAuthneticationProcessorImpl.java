@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.SecondFactorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.UnknownRemoteUserDetail;
@@ -83,12 +84,14 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		this.rememberMeProcessor = rememberMeProcessor;
 	}
 
-
-
 	@Override
 	public PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result,
-			AuthenticationStepContext stepContext, LoginMachineDetails machineDetails, boolean setRememberMe,
-			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails,
+			boolean setRememberMe,
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer)
 	{
 		PartialAuthnState authnState;
 		try
@@ -141,14 +144,12 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				authnState, loginSession.getRememberMeInfo().secondFactorSkipped);
 
 		logged(authnEntity, loginSession, stepContext.realm, machineDetails, setRememberMe,
-				AuthenticationProcessor.extractParticipants(result), httpRequest, httpResponse);
+				AuthenticationProcessor.extractParticipants(result), sessionReinitializer, httpResponse);
 
 		setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
 		log.info("Successful authentication after first factor for {}", result);
 		return PostAuthenticationStepDecision.completed();
 	}
-
-
 
 	private void assertNotFailed(AuthenticationResult result)
 	{
@@ -158,9 +159,13 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 	@Override
 	public PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state,
-			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse)
+			AuthenticationResult secondFactorResult,
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails,
+			boolean setRememberMe,
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer)
 	{
 		AuthenticatedEntity logInfo;
 		try
@@ -176,16 +181,16 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 		List<SessionParticipant> sessionParticipants = AuthenticationProcessor.extractParticipants(
 				state.getPrimaryResult(), secondFactorResult);
-		logged(logInfo, loginSession, stepContext.realm, machineDetails, setRememberMe,
-				sessionParticipants, 
-				httpRequest, httpResponse);
+		logged(logInfo, loginSession, stepContext.realm, machineDetails, setRememberMe, sessionParticipants,
+				sessionReinitializer, httpResponse);
 
 		return PostAuthenticationStepDecision.completed();
 	}
 
 	@Override
 	public PostAuthenticationStepDecision processRemoteRegistrationResult(AuthenticationResult result,
-			AuthenticationStepContext stepContext, LoginMachineDetails machineDetails,
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails,
 			HttpServletRequest httpRequest)
 	{
 		log.info("Processing results of remote authentication {}", result);
@@ -207,22 +212,22 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			List<SessionParticipant> participants,
 			AuthenticationOptionKey authnOptionKey,
 			AuthenticationRealm realm,
-			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse)
+			LoginMachineDetails machineDetails,
+			boolean setRememberMe,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer)
 	{
-		LoginSession loginSession = getLoginSessionForEntity(authenticatedEntity, realm,
-				authnOptionKey, null);
+		LoginSession loginSession = getLoginSessionForEntity(authenticatedEntity, realm, authnOptionKey, null);
 
-		logged(authenticatedEntity, loginSession, realm, machineDetails, setRememberMe,
-				participants, 
-				httpRequest, httpResponse);
+		logged(authenticatedEntity, loginSession, realm, machineDetails, setRememberMe, participants,
+				sessionReinitializer, httpResponse);
 	}
 	
 	@Override
 	public PostAuthenticationStepDecision processFirstFactorSandboxAuthnResult(SandboxAuthenticationResult result,
 			AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, 
-			HttpServletRequest httpRequest, 
+			LoginMachineDetails machineDetails,
+			HttpServletRequest httpRequest,
 			SandboxAuthnRouter sandboxRouter)
 	{
 		PartialAuthnState authnState;
@@ -254,8 +259,10 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	
 	@Override
 	public PostAuthenticationStepDecision processSecondFactorSandboxAuthnResult(PartialAuthnState state,
-			SandboxAuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, HttpServletRequest httpRequest,
+			SandboxAuthenticationResult secondFactorResult,
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails,
+			HttpServletRequest httpRequest,
 			SandboxAuthnRouter sandboxRouter)
 	{
 		AuthenticatedEntity authnEntity;
@@ -278,7 +285,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		return PostAuthenticationStepDecision.completed();
 	}
 	
-	private PostAuthenticationStepDecision interpretAuthnException(AuthenticationException e, HttpServletRequest httpRequest,
+	private PostAuthenticationStepDecision interpretAuthnException(AuthenticationException e,
+			HttpServletRequest httpRequest,
 			String ip)
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter(httpRequest);
@@ -296,7 +304,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	}
 	
 	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
-			AuthenticationRealm realm, 
+			AuthenticationRealm realm,
 			AuthenticationOptionKey firstFactorAuhtnOptionId,
 			AuthenticationOptionKey secondFactorAuhtnOptionId)
 	{
@@ -309,28 +317,28 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				secondFactorAuhtnOptionId);
 	}
 	
-	private void logged(AuthenticatedEntity authenticatedEntity, LoginSession ls, 
-			final AuthenticationRealm realm, LoginMachineDetails machineDetails, final boolean rememberMe,
+	private void logged(AuthenticatedEntity authenticatedEntity,
+			LoginSession ls,
+			final AuthenticationRealm realm,
+			LoginMachineDetails machineDetails,
+			final boolean rememberMe,
 			List<SessionParticipant> participants,
-			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
-	{	
+			SessionReinitializer sessionReinitializer,
+			HttpServletResponse httpResponse)
+	{
 		sessionMan.updateSessionAttributes(ls.getId(), 
 				new SessionParticipants.AddParticipantToSessionTask(
 						participantTypesRegistry,
 						participants.toArray(new SessionParticipant[participants.size()])));
 
-		
 		//prevent session fixation
-		reinitializeSession(httpRequest);
-		
-		HttpSession httpSession = httpRequest.getSession();
+		HttpSession httpSession = sessionReinitializer.reinitialize();
 		sessionBinder.bindHttpSession(httpSession, ls);
 
 		if (rememberMe)
 		{
 			rememberMeProcessor.addRememberMeCookieAndUnityToken(httpResponse, realm, machineDetails, ls.getEntityId(),
-					ls.getStarted(), ls.getLogin1stFactorOptionId(),
-					ls.getLogin2ndFactorOptionId());
+					ls.getStarted(), ls.getLogin1stFactorOptionId(), ls.getLogin2ndFactorOptionId());
 		}
 
 		addSessionCookie(realm.getName(), ls.getId(), httpResponse);
@@ -375,33 +383,6 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	private void addSessionCookie(String realmName, String sessionId, HttpServletResponse servletResponse)
 	{
 		servletResponse.addCookie(new SessionCookie(realmName, sessionId).toHttpCookie());
-	}
-	
-	private static void reinitializeSession(HttpServletRequest request) 
-	{
-		HttpSession oldSession = request.getSession(false);
-		if (oldSession == null)
-			return;
-
-		Enumeration<String> attributeNames = oldSession.getAttributeNames();
-		Map<String, Object> attrs = new HashMap<>();
-		
-		while (attributeNames.hasMoreElements()) 
-		{
-			String name = attributeNames.nextElement();
-			Object value = oldSession.getAttribute(name);
-			attrs.put(name, value);
-		}
-
-		oldSession.invalidate();
-
-		HttpSession newSession = request.getSession(true);
-
-		for (String name : attrs.keySet()) 
-		{
-			Object value = attrs.get(name);
-			newSession.setAttribute(name, value);
-		}
 	}
 	
 	private void setLastIdpCookie(HttpServletResponse response, AuthenticationOptionKey idpKey, String endpointPath)

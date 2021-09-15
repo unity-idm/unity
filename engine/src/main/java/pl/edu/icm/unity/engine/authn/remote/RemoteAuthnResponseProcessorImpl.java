@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
@@ -41,17 +42,22 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 
 	@Override
 	public PostAuthenticationStepDecision processResponse(RedirectedAuthnState authnContext,
-			HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer)
 	{
 		AuthenticationTriggeringContext triggeringContext = authnContext.getAuthenticationTriggeringContext();
 		return triggeringContext.isSandboxTriggered() ? 
 			processResponseInSandboxMode(authnContext, httpRequest, triggeringContext) :
-			processResponseInProductionMode(authnContext, httpRequest, httpResponse, triggeringContext);
+			processResponseInProductionMode(authnContext, httpRequest, httpResponse, triggeringContext, 
+					sessionReinitializer);
 	}
 
-	private PostAuthenticationStepDecision processResponseInProductionMode(RedirectedAuthnState authnContext, 
+	private PostAuthenticationStepDecision processResponseInProductionMode(RedirectedAuthnState authnContext,
 			HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, AuthenticationTriggeringContext triggeringContext)
+			HttpServletResponse httpResponse,
+			AuthenticationTriggeringContext triggeringContext,
+			SessionReinitializer sessionReinitializer)
 	{
 		AuthenticationResult authnResult = authnContext.processAnswer();
 		if (triggeringContext.isRegistrationTriggered())
@@ -62,7 +68,8 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 					httpRequest);
 		} else
 		{
-			return processRegularAuthenticationResult(authnContext, httpRequest, httpResponse, authnResult);
+			return processRegularAuthenticationResult(authnContext, httpRequest, httpResponse, authnResult,
+					sessionReinitializer);
 		}
 	}
 
@@ -146,9 +153,11 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 							null));
 	}
 	
-	private PostAuthenticationStepDecision processRegularAuthenticationResult(RedirectedAuthnState authnContext, 
+	private PostAuthenticationStepDecision processRegularAuthenticationResult(RedirectedAuthnState authnContext,
 			HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, AuthenticationResult authnResult)
+			HttpServletResponse httpResponse,
+			AuthenticationResult authnResult,
+			SessionReinitializer sessionReinitializer)
 	{
 		FactorOrder factor = authnContext.getAuthenticationStepContext().factor; 
 		return factor == FactorOrder.FIRST ? 
@@ -158,7 +167,8 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 							authnContext.getInitialLoginMachine(), 
 							authnContext.getAuthenticationTriggeringContext().rememberMeSet,
 							httpRequest, 
-							httpResponse) :
+							httpResponse,
+							sessionReinitializer) :
 					authnProcessor.processSecondFactorResult(
 							authnContext.getAuthenticationTriggeringContext().firstFactorAuthnState,
 							authnResult, 
@@ -166,7 +176,8 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 							authnContext.getInitialLoginMachine(), 
 							authnContext.getAuthenticationTriggeringContext().rememberMeSet,
 							httpRequest, 
-							httpResponse);
+							httpResponse,
+							sessionReinitializer);
 	}
 	
 	private PostAuthenticationStepDecision processSandboxAuthenticationResult(RedirectedAuthnState authnContext, 

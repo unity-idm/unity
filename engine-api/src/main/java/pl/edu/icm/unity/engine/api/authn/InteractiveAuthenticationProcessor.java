@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
@@ -24,39 +25,61 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 public interface InteractiveAuthenticationProcessor
 {	
-	PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result, AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, boolean setRememberMe,
-			HttpServletRequest httpRequest, HttpServletResponse httpResponse);
-	
-	PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state, 
-			AuthenticationResult secondFactorResult, AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, boolean setRememberMe,
-			HttpServletRequest httpRequest, HttpServletResponse httpResponse);
+	PostAuthenticationStepDecision processFirstFactorResult(AuthenticationResult result,
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails,
+			boolean setRememberMe,
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer);
 
-	PostAuthenticationStepDecision processRemoteRegistrationResult(AuthenticationResult result, 
+	PostAuthenticationStepDecision processSecondFactorResult(PartialAuthnState state,
+			AuthenticationResult secondFactorResult,
 			AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, 
+			LoginMachineDetails machineDetails,
+			boolean setRememberMe,
+			HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer);
+
+	PostAuthenticationStepDecision processRemoteRegistrationResult(AuthenticationResult result,
+			AuthenticationStepContext stepContext,
+			LoginMachineDetails machineDetails,
 			HttpServletRequest httpRequest);
-	
-	PostAuthenticationStepDecision processFirstFactorSandboxAuthnResult(SandboxAuthenticationResult result, 
+
+	PostAuthenticationStepDecision processFirstFactorSandboxAuthnResult(SandboxAuthenticationResult result,
 			AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, 
-			HttpServletRequest httpRequest, 
+			LoginMachineDetails machineDetails,
+			HttpServletRequest httpRequest,
 			SandboxAuthnRouter sandboxRouter);
 
-	PostAuthenticationStepDecision processSecondFactorSandboxAuthnResult(PartialAuthnState state, 
-			SandboxAuthenticationResult secondFactorResult, 
+	PostAuthenticationStepDecision processSecondFactorSandboxAuthnResult(PartialAuthnState state,
+			SandboxAuthenticationResult secondFactorResult,
 			AuthenticationStepContext stepContext,
-			LoginMachineDetails machineDetails, 
-			HttpServletRequest httpRequest, SandboxAuthnRouter sandboxRouter);
+			LoginMachineDetails machineDetails,
+			HttpServletRequest httpRequest,
+			SandboxAuthnRouter sandboxRouter);
 
-	
 	void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,
 			AuthenticationOptionKey authnOptionKey,
 			AuthenticationRealm realm,
-			LoginMachineDetails machineDetails, boolean setRememberMe, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse);
+			LoginMachineDetails machineDetails,
+			boolean setRememberMe,
+			HttpServletResponse httpResponse,
+			SessionReinitializer sessionReinitializer);
+	
+	/**
+	 * Used to prevent from session fixation attack.
+	 * https://owasp.org/www-community/attacks/Session_fixation.
+	 */
+	interface SessionReinitializer
+	{
+		/**
+		 * @return new reinitialized session.
+		 */
+		HttpSession reinitialize();
+	}
 	
 	public class PostAuthenticationStepDecision
 	{

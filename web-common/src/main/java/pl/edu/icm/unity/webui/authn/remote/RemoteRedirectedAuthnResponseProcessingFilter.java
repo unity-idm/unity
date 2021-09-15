@@ -20,9 +20,9 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -76,7 +76,8 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		
 		PostAuthenticationStepDecision postAuthnStepDecision = remoteAuthnResponseProcessor
-				.processResponse(authnContext, httpRequest, httpResponse);
+				.processResponse(authnContext, httpRequest, httpResponse, 
+						new BareSessionReinitializer(httpRequest));
 
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, 
 				new PostAuthenticationDecissionWithContext(postAuthnStepDecision, 

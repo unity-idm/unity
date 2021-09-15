@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
+import pl.edu.icm.unity.webui.authn.column.VaadinFriendlySessionReinitializer;
 
 /**
  * Used in standalone registration from to automatically sign in user, only in
@@ -149,13 +149,12 @@ class AutoLoginAfterSignUpProcessor
 	private void loginUser(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, 
 			RemotelyAuthenticatedPrincipal remoteContext, AuthenticationOptionKey authenticationOption)
 	{
-		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
 		authnProcessor.syntheticAuthenticate(authenticatedEntity, extractParticipants(remoteContext), 
 				authenticationOption, realm, loginMachineDetails, false, 
-				servletRequest, servletResponse);
+				servletResponse, new VaadinFriendlySessionReinitializer());
 	}
 	
 	private List<SessionParticipant> extractParticipants(RemotelyAuthenticatedPrincipal remoteContext)
