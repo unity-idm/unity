@@ -42,11 +42,11 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	private final SecondFactorAuthNPanel authNPanel;
 	private final AuthenticationStepContext stepContext;
 
-
 	SecondFactorAuthNResultCallback(MessageSource msg,
-			InteractiveAuthenticationProcessor authnProcessor, 
+			InteractiveAuthenticationProcessor authnProcessor,
 			AuthenticationStepContext stepContext,
-			SecondFactorAuthenticationListener authNListener, Supplier<Boolean> rememberMeProvider,
+			SecondFactorAuthenticationListener authNListener,
+			Supplier<Boolean> rememberMeProvider,
 			PartialAuthnState partialState,
 			SecondFactorAuthNPanel authNPanel)
 	{
@@ -72,9 +72,9 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
-		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorResult(
-				partialState, result, stepContext, 
-				loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse);
+		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorResult(partialState,
+				result, stepContext, loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse,
+				new VaadinFriendlySessionReinitializer());
 		switch (postSecondFactorDecision.getDecision())
 		{
 		case COMPLETED:
