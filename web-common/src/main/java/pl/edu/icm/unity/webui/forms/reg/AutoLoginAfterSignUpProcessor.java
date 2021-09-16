@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
-import pl.edu.icm.unity.webui.authn.column.VaadinFriendlySessionReinitializer;
+import pl.edu.icm.unity.webui.authn.column.VaadinSessionReinitializer;
 
 /**
  * Used in standalone registration from to automatically sign in user, only in
@@ -154,7 +154,7 @@ class AutoLoginAfterSignUpProcessor
 				.getLoginMachineDetailsFromCurrentRequest();
 		authnProcessor.syntheticAuthenticate(authenticatedEntity, extractParticipants(remoteContext), 
 				authenticationOption, realm, loginMachineDetails, false, 
-				servletResponse, new VaadinFriendlySessionReinitializer());
+				servletResponse, new VaadinSessionReinitializer());
 	}
 	
 	private List<SessionParticipant> extractParticipants(RemotelyAuthenticatedPrincipal remoteContext)

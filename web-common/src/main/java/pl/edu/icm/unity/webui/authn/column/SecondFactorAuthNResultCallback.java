@@ -74,7 +74,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 				.getLoginMachineDetailsFromCurrentRequest();
 		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorResult(partialState,
 				result, stepContext, loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse,
-				new VaadinFriendlySessionReinitializer());
+				new VaadinSessionReinitializer());
 		switch (postSecondFactorDecision.getDecision())
 		{
 		case COMPLETED:

@@ -15,9 +15,9 @@ import com.vaadin.server.WrappedHttpSession;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
 
-public class VaadinFriendlySessionReinitializer implements SessionReinitializer
+public class VaadinSessionReinitializer implements SessionReinitializer
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, VaadinFriendlySessionReinitializer.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, VaadinSessionReinitializer.class);
 
 	@Override
 	public HttpSession reinitialize()
@@ -28,7 +28,7 @@ public class VaadinFriendlySessionReinitializer implements SessionReinitializer
 			LOG.error("BUG: Can't get VaadinSession to reinitialize session.");
 			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
 		}
-		LOG.debug("Vaadin friendly session reinitialization.");
+		LOG.debug("Vaadin session reinitialization.");
 		VaadinService.reinitializeSession(VaadinService.getCurrentRequest());
 		return ((WrappedHttpSession) vss.getSession()).getHttpSession();
 	}
