@@ -70,7 +70,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 				.getLoginMachineDetailsFromCurrentRequest();
 		PostAuthenticationStepDecision postFirstFactorDecision = authnProcessor.processFirstFactorResult(result,
 				stepContext, loginMachineDetails, rememberMeProvider.get(), servletRequest, servletResponse,
-				new VaadinFriendlySessionReinitializer());
+				new VaadinSessionReinitializer());
 		switch (postFirstFactorDecision.getDecision())
 		{
 		case COMPLETED:
