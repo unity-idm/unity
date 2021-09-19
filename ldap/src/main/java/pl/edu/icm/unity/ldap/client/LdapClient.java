@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
@@ -48,7 +49,7 @@ import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.ConnectionMode;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
@@ -175,6 +176,45 @@ public class LdapClient
 		return ret;
 	}
 	
+	
+	/**
+	 * Search user attribute.  Binding as system
+	 * @param userOrig
+	 * @param attributeName
+	 * @param configuration
+	 * @return
+	 * @throws LDAPException
+	 * @throws LdapAuthenticationException
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public Optional<String> searchAttribute(String userOrig, String attributeName, LdapClientConfiguration configuration) 
+			throws LDAPException, LdapAuthenticationException, 
+			KeyManagementException, NoSuchAlgorithmException
+	{
+		if (configuration.getBindAs() != BindAs.system)
+		{
+			log.error("Bind with system credential required");
+			throw new LdapAuthenticationException("Can't authenticate");
+		}
+		
+		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
+		
+		LDAPConnection connection = createConnection(configuration);
+		
+		String dn = establishUserDN(user, configuration, connection);
+		log.info("Established user's DN is: " + dn);
+		bindAsSystem(connection, configuration);
+		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
+		connection.close();
+		Attribute attribute = entry.getAttribute(attributeName);
+		if (attribute != null)
+		{
+			return Optional.ofNullable(attribute.getValue());
+		}
+	
+		return Optional.empty();
+	}
 	
 	/**
 	 * Returns DN of the user. Depending on configuration the user's DN can be simply formed from a 

@@ -168,6 +168,31 @@ public class IdentityResolverImpl implements IdentityResolver
 		throw new IllegalIdentityValueException("No identity with value " + identity);
 	}
 	
+	private Identity getIdentity(String identity, String identityType, String target, String realm,
+			boolean requireConfirmed) throws IllegalIdentityValueException
+	{
+
+		IdentityTaV tav = new IdentityTaV(identityType, identity, target, realm);
+		try
+		{
+			Identity found = dbResolver.getFullIdentity(tav);
+			if (!requireConfirmed || isIdentityConfirmed(found))
+			{
+				return found;
+			} else
+			{
+				log.debug("Identity " + identity + " was found but is not confirmed, "
+						+ "not returning it for loggin in");
+			}
+		} catch (Exception e)
+		{
+			log.trace("Got exception searching identity, likely it simply does not exist", e);
+		}
+
+		throw new IllegalIdentityValueException("No identity with value " + identity);
+	}
+	
+	
 	private boolean isIdentityConfirmed(Identity identity)
 	{
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identity.getTypeId());
@@ -213,5 +238,34 @@ public class IdentityResolverImpl implements IdentityResolver
 			throws IllegalIdentityValueException
 	{
 		return idHelper.insertIdentity(toAdd, dbResolver.getEntityId(entity), false);
+	}
+
+	@Transactional
+	@Override
+	public Identity resolveSubject(AuthenticationSubject subject, String identityType)
+			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException
+	{
+		Identity id = null;
+		if (subject.entityId == null)
+		{
+			id = getIdentity(subject.identity, identityType, null, null, false);
+		} else
+		{
+			List<Identity> identitiesWithSearchedType = getIdentitiesForEntity(new EntityParam(subject.entityId))
+					.stream().filter(i -> i.getTypeId().equals(identityType)).collect(Collectors.toList());
+			if (identitiesWithSearchedType.isEmpty())
+				throw new IllegalIdentityValueException(
+						"Identity with type " + identityType + " is unknown for entity " + subject.entityId);
+			if (identitiesWithSearchedType.size() > 1)
+				throw new IllegalIdentityValueException(
+						"Entity " + subject.entityId + " has more than one identity with type " + identityType);
+			id = identitiesWithSearchedType.get(0);
+
+		}
+
+		if (!isEntityEnabled(id.getEntityId()))
+			throw new IllegalIdentityValueException("Authentication is disabled for this entity");
+
+		return id;
 	}
 }
