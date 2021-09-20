@@ -347,7 +347,15 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private void showEditDialog(Collection<TreeNode> target)
 	{
 		TreeNode node = target.iterator().next();
-		Group group = node.getGroup();
+		Group group;
+		try
+		{
+			group = controller.getFreshGroup(node.getGroup().getPathEncoded());
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+			return;
+		}
 
 		new GroupEditDialog(msg, group, g -> {
 			updateGroup(node.getGroup().getPathEncoded(), g);
