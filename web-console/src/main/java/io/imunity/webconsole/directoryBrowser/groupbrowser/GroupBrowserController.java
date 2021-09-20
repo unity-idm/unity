@@ -194,22 +194,28 @@ class GroupBrowserController
 	GroupDelegationEditConfigDialog getGroupDelegationEditConfigDialog(EventsBus bus, Group group,
 			Consumer<Group> update) throws ControllerException
 	{
-		GroupContents contents;
-		try
-		{
-			contents = groupsMan.getContents(group.getPathEncoded(), GroupContents.METADATA);
-		} catch (EngineException e)
-		{
-			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupError"), e);
-		}
-		
-		Group editedGroup = contents.getGroup(); 
+		Group editedGroup = getFreshGroup(group.getPathEncoded()); 
 		return new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
 				regFormEditorFactory, enquiryFormEditorFactory, bus, delConfigUtils, editedGroup,
 				delConfig -> {
 					editedGroup.setDelegationConfiguration(delConfig);
 					update.accept(editedGroup);
 				});
+	}
+
+	Group getFreshGroup(String groupPath) throws ControllerException
+	{
+		GroupContents contents;
+		try
+		{
+			contents = groupsMan.getContents(groupPath, GroupContents.METADATA);
+		} catch (EngineException e)
+		{
+			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupError"), e);
+		}
+		
+		Group editedGroup = contents.getGroup();
+		return editedGroup;
 	}
 
 	void bulkAddToGroup(TreeNode node, Set<EntityWithLabel> dragData) throws ControllerException
