@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.migration.to3_5;
+package pl.edu.icm.unity.store.migration.to3_6;
 
 import java.io.IOException;
 import java.util.List;
