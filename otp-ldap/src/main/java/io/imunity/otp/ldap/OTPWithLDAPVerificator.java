@@ -45,7 +45,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
 @PrototypeComponent
-public class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
+class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OTP, OTPWithLDAPVerificator.class);
 
@@ -54,17 +54,16 @@ public class OTPWithLDAPVerificator extends AbstractVerificator implements OTPEx
 
 	private final PKIManagement pkiManagement;
 
-	
 	private OTPWithLDAPProperties otpWithLDAPProperties;
 	private LdapClientConfiguration ldapClientConfiguration;
 	private OTPWithLDAPConfiguration otpLdapConfiguration;
 	private LdapClient ldapClient;
 	
-	public OTPWithLDAPVerificator(PKIManagement pkiManagement)
+	OTPWithLDAPVerificator(PKIManagement pkiManagement)
 	{
 		super(NAME, DESC, OTPExchange.ID);
 		this.pkiManagement = pkiManagement;
-		this.ldapClient = new LdapClient("");
+		this.ldapClient = new LdapClient();
 	}
 
 	@Override
@@ -180,12 +179,10 @@ public class OTPWithLDAPVerificator extends AbstractVerificator implements OTPEx
 	
 	private static class NoOTPCredentialResetImpl extends OTPCredentialReset
 	{
-
 		public NoOTPCredentialResetImpl()
 		{
 			super(null, null, null, null, null,
 					null, new OTPResetSettings(false, 0, null, null, null) );
-		}
-		
+		}	
 	}
 }

@@ -55,9 +55,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 	private final PKIManagement pkiMan;
 	
 	private Binder<OTPWithLDAPConfiguration> configBinder;
-	
 	private Set<String> validators;
-
 	private RadioButtonGroup<UserDNResolving> userDNResolvingMode;
 
 	
@@ -67,7 +65,6 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		super(msg);
 		this.pkiMan = pkiMan;
 		this.validators = pkiMan.getValidatorNames();
-
 	}
 
 	@Override

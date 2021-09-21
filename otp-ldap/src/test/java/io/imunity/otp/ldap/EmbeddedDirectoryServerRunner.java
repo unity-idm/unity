@@ -3,8 +3,15 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.ldap;
+package io.imunity.otp.ldap;
 
+import pl.edu.icm.unity.ldap.EmbeddedDirectoryServer;
+
+/**
+ * Usefull for manual otp-ldap authenticator tests
+ * @author P.Piernik
+ *
+ */
 public class EmbeddedDirectoryServerRunner
 {
 	public static void main(String... args) throws Exception 

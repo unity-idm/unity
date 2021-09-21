@@ -79,11 +79,16 @@ public class LdapClient
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
 
 	private String idpName;
-	private LdapGroupHelper groupHelper;
+	private final LdapGroupHelper groupHelper;
 	
 	public LdapClient(String idpName)
 	{
 		this.idpName = idpName;
+		this.groupHelper = new LdapGroupHelper();
+	}
+	
+	public LdapClient()
+	{
 		this.groupHelper = new LdapGroupHelper();
 	}
 

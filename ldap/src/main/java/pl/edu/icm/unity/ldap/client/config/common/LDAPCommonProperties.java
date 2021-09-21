@@ -72,8 +72,6 @@ public abstract class LDAPCommonProperties extends UnityPropertiesHelper
 	public static final int DEFAULT_RESULT_ENTRIES_LIMIT = 1000;
 
 	public static final DocumentationCategory main = new DocumentationCategory("General settings", "1");
-	public static final DocumentationCategory advSearch = new DocumentationCategory(
-			"Advanced attribute search settings", "5");
 
 	public static Map<String, PropertyMD> getDefaults()
 	{

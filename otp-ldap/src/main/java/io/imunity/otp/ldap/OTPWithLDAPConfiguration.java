@@ -37,7 +37,6 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 {
 	private String secretAttribute;
-
 	private int codeLength;
 	private HashFunction hashFunction;
 	private int timeStepSeconds;
@@ -57,8 +56,7 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 	public void fromProperties(OTPWithLDAPProperties otpWithLDAPProperties)
 	{
 		super.fromProperties(otpWithLDAPProperties);
-		
-		
+
 		if (otpWithLDAPProperties.getValue(OTPWithLDAPProperties.USER_DN_TEMPLATE) == null)
 		{
 			setUserDNResolving(UserDNResolving.ldapSearch);
@@ -101,16 +99,16 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 		fromProperties(otpWithLDAPProperties);
 
 		OTPRetrievalProperties retrievalProperties = new OTPRetrievalProperties(raw);
-		setRetrievalName(retrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg,
-				OTPRetrievalProperties.NAME));
-		
+		setRetrievalName(
+				retrievalProperties.getLocalizedStringWithoutFallbackToDefault(msg, OTPRetrievalProperties.NAME));
+
 	}
 
 	public String toProperties(MessageSource msg) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 		super.toProperties(OTPWithLDAPProperties.PREFIX, raw, msg);
-		
+
 		if (getSystemDN() != null)
 		{
 			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.SYSTEM_DN, getSystemDN());
@@ -120,15 +118,16 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 		{
 			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.SYSTEM_PASSWORD, getSystemPassword());
 		}
-		
+
 		if (getUserDNResolving().equals(UserDNResolving.template))
 		{
 			raw.put(OTPWithLDAPProperties.PREFIX + LDAPCommonProperties.USER_DN_TEMPLATE, getUserDNTemplate());
 		} else
-		{			
+		{
 			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.LDAP_SEARCH_BASENAME, getLdapSearchBaseName());
 			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.LDAP_SEARCH_FILTER, getLdapSearchFilter());
-			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.LDAP_SEARCH_SCOPE, getLdapSearchScope().toString());
+			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.LDAP_SEARCH_SCOPE,
+					getLdapSearchScope().toString());
 		}
 
 		raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.OTP_CODE_LENGHT, String.valueOf(codeLength));
@@ -141,11 +140,9 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 
 		if (getRetrievalName() != null && !getRetrievalName().isEmpty())
 		{
-			getRetrievalName().toProperties(raw,
-					OTPRetrievalProperties.P + OTPRetrievalProperties.NAME, msg);
+			getRetrievalName().toProperties(raw, OTPRetrievalProperties.P + OTPRetrievalProperties.NAME, msg);
 		}
-		
-		
+
 		OTPWithLDAPProperties otpLdapProp = new OTPWithLDAPProperties(raw);
 		return otpLdapProp.getAsString();
 	}
@@ -163,11 +160,11 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 	private void validateUserDNTemplate() throws ConfigurationException
 	{
 		String userDNTemplate = getUserDNTemplate();
-		
+
 		if (nonEmpty(userDNTemplate) && !userDNTemplate.contains(LdapConfiguration.USERNAME_TOKEN))
 		{
-			throw new ConfigurationException(
-					"DN template doesn't contain the mandatory token " + LdapConfiguration.USERNAME_TOKEN + ": " + userDNTemplate);
+			throw new ConfigurationException("DN template doesn't contain the mandatory token "
+					+ LdapConfiguration.USERNAME_TOKEN + ": " + userDNTemplate);
 		}
 	}
 
@@ -175,8 +172,8 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 	{
 		if (nonEmpty(getUserDNTemplate()) && nonEmpty(getLdapSearchBaseName()))
 		{
-			throw new ConfigurationException("One and only one of '" + OTPWithLDAPProperties.LDAP_SEARCH_BASENAME + "' and '"
-					+ LDAPCommonProperties.USER_DN_TEMPLATE + "' must be defined");
+			throw new ConfigurationException("One and only one of '" + OTPWithLDAPProperties.LDAP_SEARCH_BASENAME
+					+ "' and '" + LDAPCommonProperties.USER_DN_TEMPLATE + "' must be defined");
 		}
 	}
 
@@ -202,8 +199,8 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 		} else
 		{
 			if (!nonEmpty(getUserDNTemplate()) || !getUserDNTemplate().contains(LdapConfiguration.USERNAME_TOKEN))
-				throw new ConfigurationException(
-						"DN template doesn't contain the mandatory token " + LdapConfiguration.USERNAME_TOKEN + ": " + getUserDNTemplate());
+				throw new ConfigurationException("DN template doesn't contain the mandatory token "
+						+ LdapConfiguration.USERNAME_TOKEN + ": " + getUserDNTemplate());
 		}
 	}
 

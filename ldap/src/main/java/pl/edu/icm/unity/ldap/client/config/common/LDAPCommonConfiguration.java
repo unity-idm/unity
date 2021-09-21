@@ -123,7 +123,6 @@ public abstract class LDAPCommonConfiguration
 		setTrustAllCerts(ldapProp.getBooleanValue(LDAPCommonProperties.TLS_TRUST_ALL));
 		setClientTrustStore(ldapProp.getValue(LDAPCommonProperties.TRUSTSTORE));
 		setUsernameExtractorRegexp(ldapProp.getValue(LDAPCommonProperties.USER_ID_EXTRACTOR_REGEXP));
-
 	}
 
 	public void toProperties(String prefix, Properties raw , MessageSource msg) throws ConfigurationException

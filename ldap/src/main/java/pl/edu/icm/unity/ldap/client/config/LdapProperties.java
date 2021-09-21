@@ -65,7 +65,6 @@ public class LdapProperties extends LDAPCommonProperties
 	
 	static
 	{
-		DocumentationCategory main = new DocumentationCategory("General settings", "1");
 		DocumentationCategory groups = new DocumentationCategory("Group retrieval settings", "3");
 		DocumentationCategory advSearch = new DocumentationCategory("Advanced attribute search settings", "5");
 		META.putAll(getDefaults());
@@ -78,8 +77,7 @@ public class LdapProperties extends LDAPCommonProperties
 				+ "(and LDAP authorization) is run as the designated system user. In this mode, "
 				+ "the system user's DN, password and user's password attribute must be configured. "
 				+ "The +user+ option will only work with authenticator and not with importer. "
-				+ "Conversly the +none+ option is suitable for use only in case of LDAP import and not in authenticator."));
-		
+				+ "Conversly the +none+ option is suitable for use only in case of LDAP import and not in authenticator."));	
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
 				"of a special string: '\\{USERNAME\\}'. The username provided by the client" +
@@ -99,8 +97,7 @@ public class LdapProperties extends LDAPCommonProperties
 				+ "This regular expression will be applied for the username provided to the system, "
 				+ "and the contents of the matching group will be used instead of the full name, "
 				+ "in the '\\{USERNAME\\}' variable. For instance this can be used to get 'uid' "
-				+ "attribute value from a DN."));
-		
+				+ "attribute value from a DN."));	
 		META.put(BIND_ONLY, new PropertyMD(String.valueOf(DEFAULT_BIND_ONLY)).setCategory(main).setDescription("If true then the user is only authenticated" +
 				" and no LDAP attributes (including groups) are collected for the user. " +
 				"This is much faster but maximally limits an information imported to Unity."));
@@ -133,13 +130,10 @@ public class LdapProperties extends LDAPCommonProperties
 						"the group entry are given with values of a single attribute (e.g. uid), " +
 						"not with their full DNs. This property defines this attribute (should " +
 						"be present on the user's entry for which groups are searched)."));
-
 		META.put(VALID_USERS_FILTER, new PropertyMD("objectclass=*").setCategory(main).setDescription("Standard LDAP filter of valid users." +
 				" Even the users who can authenticate but are not matching this filter will " +
 				"have access denied. IMPORTANT: if the '" + BIND_ONLY + "' mode is turned on, this" +
-				" setting is ignored."));
-		
-		
+				" setting is ignored."));		
 		META.put(MEMBER_OF_ATTRIBUTE, new PropertyMD().setCategory(groups).setDescription("User's attribute name which contains " +
 				"groups of the user, usually something like 'memberOf'. If not defined then groups " +
 				"are not extracted from the user's entry (but might be retrieved by" +

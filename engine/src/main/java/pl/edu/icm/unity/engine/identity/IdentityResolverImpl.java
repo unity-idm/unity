@@ -81,7 +81,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes,
 			String credentialName) throws EngineException
 	{
-		long entityId = getEntity(identity, identityTypes, null, null, true);
+		long entityId = getIdentity(identity, identityTypes, null, null, true).getEntityId();
 		return resolveEntity(entityId, credentialName);
 	}
 
@@ -129,7 +129,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws IllegalIdentityValueException
 	{
-		return getEntity(identity, identityTypes, target, realm, false);
+		return getIdentity(identity, identityTypes, target, realm, false).getEntityId();
 	}
 	
 	@Override
@@ -142,7 +142,7 @@ public class IdentityResolverImpl implements IdentityResolver
 				resolveEntity(subject.entityId, credentialName);
 	}
 	
-	private long getEntity(String identity, String[] identityTypes, String target, String realm, 
+	private Identity getIdentity(String identity, String[] identityTypes, String target, String realm, 
 			boolean requireConfirmed) 
 			throws IllegalIdentityValueException
 	{
@@ -154,7 +154,7 @@ public class IdentityResolverImpl implements IdentityResolver
 				Identity found = dbResolver.getFullIdentity(tav);
 				if (!requireConfirmed || isIdentityConfirmed(found))
 				{
-					return found.getEntityId();
+					return found;
 				} else
 				{
 					log.debug("Identity " + identity + " was found but is not confirmed, "
@@ -166,32 +166,7 @@ public class IdentityResolverImpl implements IdentityResolver
 			}
 		}
 		throw new IllegalIdentityValueException("No identity with value " + identity);
-	}
-	
-	private Identity getIdentity(String identity, String identityType, String target, String realm,
-			boolean requireConfirmed) throws IllegalIdentityValueException
-	{
-
-		IdentityTaV tav = new IdentityTaV(identityType, identity, target, realm);
-		try
-		{
-			Identity found = dbResolver.getFullIdentity(tav);
-			if (!requireConfirmed || isIdentityConfirmed(found))
-			{
-				return found;
-			} else
-			{
-				log.debug("Identity " + identity + " was found but is not confirmed, "
-						+ "not returning it for loggin in");
-			}
-		} catch (Exception e)
-		{
-			log.trace("Got exception searching identity, likely it simply does not exist", e);
-		}
-
-		throw new IllegalIdentityValueException("No identity with value " + identity);
-	}
-	
+	}	
 	
 	private boolean isIdentityConfirmed(Identity identity)
 	{
@@ -248,7 +223,8 @@ public class IdentityResolverImpl implements IdentityResolver
 		Identity id = null;
 		if (subject.entityId == null)
 		{
-			id = getIdentity(subject.identity, identityType, null, null, false);
+			id = getIdentity(subject.identity, new String[]
+			{ identityType }, null, null, false);
 		} else
 		{
 			List<Identity> identitiesWithSearchedType = getIdentitiesForEntity(new EntityParam(subject.entityId))
@@ -260,7 +236,6 @@ public class IdentityResolverImpl implements IdentityResolver
 				throw new IllegalIdentityValueException(
 						"Entity " + subject.entityId + " has more than one identity with type " + identityType);
 			id = identitiesWithSearchedType.get(0);
-
 		}
 
 		if (!isEntityEnabled(id.getEntityId()))

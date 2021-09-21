@@ -14,7 +14,7 @@ import static pl.edu.icm.unity.configtester.ConfigurationComparator.createCompar
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import io.imunity.otp.OTPRetrievalProperties;
 import pl.edu.icm.unity.MessageSource;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 
-class OTPLDAPAuthenticatorConfigurationTest
+public class OTPLDAPAuthenticatorConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private MessageSource msg = mock(MessageSource.class);

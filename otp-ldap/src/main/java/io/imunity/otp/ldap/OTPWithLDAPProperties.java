@@ -19,7 +19,7 @@ import pl.edu.icm.unity.ldap.client.config.LdapProperties;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties;
 
-public class OTPWithLDAPProperties extends LDAPCommonProperties
+class OTPWithLDAPProperties extends LDAPCommonProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OTPWithLDAPProperties.class);
 
@@ -31,12 +31,11 @@ public class OTPWithLDAPProperties extends LDAPCommonProperties
 	public static final String OTP_ALLOWED_TIME_DRIFT_STEPS = "otpAllowedTimeDriftSteps";
 	public static final String OTP_HASH_FUNCTION = "otpHashFunction";
 	public static final String OTP_TIME_STEP_SECODS = "otpTimeStepSeconds";
-	
+
 	public static final HashFunction DEFAULT_OTP_HASH_FUNCTION = HashFunction.SHA1;
 	public static final int DEFAULT_OTP_CODE_LENGHT = 6;
 	public static final int DEFAULT_OTP_ALLOWED_TIME_DRIFT_STEPS = 3;
 	public static final int DEFAULT_OTP_TIME_STEP_SECODS = 30;
-
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "otpldap.";
@@ -49,15 +48,16 @@ public class OTPWithLDAPProperties extends LDAPCommonProperties
 		defaults.put(SYSTEM_DN, new PropertyMD().setMandatory().setCategory(main).setDescription(
 				"The value must be the DN of the system user to authenticate as before performing any queries."));
 		defaults.put(SYSTEM_PASSWORD,
-				new PropertyMD().setCategory(main).setMandatory().setDescription("The value must be the password of the system "
-						+ "user to authenticate as before performing any queries."));
+				new PropertyMD().setCategory(main).setMandatory()
+						.setDescription("The value must be the password of the system "
+								+ "user to authenticate as before performing any queries."));
 		defaults.put(VALID_USERS_FILTER,
 				new PropertyMD("objectclass=*").setCategory(main)
 						.setDescription("Standard LDAP filter of valid users."
 								+ " Even the users who can authenticate but are not matching this filter will "
 								+ "have access denied."));
-		defaults.put(OTP_SECRET_ATTRIBUTE,
-				new PropertyMD().setMandatory().setCategory(main).setDescription("Name of LDAP attribute holding otp secret"));
+		defaults.put(OTP_SECRET_ATTRIBUTE, new PropertyMD().setMandatory().setCategory(main)
+				.setDescription("Name of LDAP attribute holding otp secret"));
 		defaults.put(OTP_CODE_LENGHT, new PropertyMD(String.valueOf(DEFAULT_OTP_CODE_LENGHT)).setCategory(main)
 				.setDescription("How long each generated code is valid. 30 seconds is the safest bet."));
 		defaults.put(OTP_ALLOWED_TIME_DRIFT_STEPS,
@@ -87,7 +87,7 @@ public class OTPWithLDAPProperties extends LDAPCommonProperties
 				new PropertyMD().setCategory(main).setDescription("Template of a DN of "
 						+ "the user that should be used to log in. The tempalte must possess a single occurence "
 						+ "of a special string: '\\{USERNAME\\}'. "));
-		
+
 		defaults.put(VALID_USERS_FILTER,
 				new PropertyMD("objectclass=*").setCategory(main)
 						.setDescription("Standard LDAP filter of valid users."
@@ -98,7 +98,7 @@ public class OTPWithLDAPProperties extends LDAPCommonProperties
 
 	}
 
-	public OTPWithLDAPProperties(Properties properties)
+	OTPWithLDAPProperties(Properties properties)
 	{
 		super(PREFIX, properties, defaults, log);
 	}
@@ -131,7 +131,7 @@ public class OTPWithLDAPProperties extends LDAPCommonProperties
 		return new LdapProperties(PREFIX, ldap);
 	}
 
-	public Properties getProperties()
+	Properties getProperties()
 	{
 		return properties;
 	}
