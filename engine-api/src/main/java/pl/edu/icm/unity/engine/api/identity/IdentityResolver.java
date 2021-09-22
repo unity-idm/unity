@@ -52,6 +52,13 @@ public interface IdentityResolver
 			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
 
 	/**
+	 * Provides information about subject including its credential 
+	 */
+	Identity resolveSubject(AuthenticationSubject subject, String identityType)
+			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException;
+	
+	
+	/**
 	 * Simple version that only resolves, but doesn't establish any local credential. Useful for remote 
 	 * verificators.
 	 */

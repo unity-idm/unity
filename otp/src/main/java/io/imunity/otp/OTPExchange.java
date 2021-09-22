@@ -8,13 +8,13 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 
-interface OTPExchange extends CredentialExchange
+public interface OTPExchange extends CredentialExchange
 {
-	static final String ID = "otp-exchange";
+	public static final String ID = "otp-exchange";
 	
-	AuthenticationResult verifyCode(String code, AuthenticationSubject subject);
+	public AuthenticationResult verifyCode(String code, AuthenticationSubject subject);
 	
-	OTPCredentialReset getCredentialResetBackend();
+	public OTPCredentialReset getCredentialResetBackend();
 
-	int getCodeLength();
+	public int getCodeLength();
 }

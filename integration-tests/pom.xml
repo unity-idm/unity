@@ -162,6 +162,12 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-otp-ldap</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-fido</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

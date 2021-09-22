@@ -81,7 +81,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	public EntityWithCredential resolveIdentity(String identity, String[] identityTypes,
 			String credentialName) throws EngineException
 	{
-		long entityId = getEntity(identity, identityTypes, null, null, true);
+		long entityId = getIdentity(identity, identityTypes, null, null, true).getEntityId();
 		return resolveEntity(entityId, credentialName);
 	}
 
@@ -129,7 +129,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws IllegalIdentityValueException
 	{
-		return getEntity(identity, identityTypes, target, realm, false);
+		return getIdentity(identity, identityTypes, target, realm, false).getEntityId();
 	}
 	
 	@Override
@@ -142,7 +142,7 @@ public class IdentityResolverImpl implements IdentityResolver
 				resolveEntity(subject.entityId, credentialName);
 	}
 	
-	private long getEntity(String identity, String[] identityTypes, String target, String realm, 
+	private Identity getIdentity(String identity, String[] identityTypes, String target, String realm, 
 			boolean requireConfirmed) 
 			throws IllegalIdentityValueException
 	{
@@ -154,7 +154,7 @@ public class IdentityResolverImpl implements IdentityResolver
 				Identity found = dbResolver.getFullIdentity(tav);
 				if (!requireConfirmed || isIdentityConfirmed(found))
 				{
-					return found.getEntityId();
+					return found;
 				} else
 				{
 					log.debug("Identity " + identity + " was found but is not confirmed, "
@@ -166,7 +166,7 @@ public class IdentityResolverImpl implements IdentityResolver
 			}
 		}
 		throw new IllegalIdentityValueException("No identity with value " + identity);
-	}
+	}	
 	
 	private boolean isIdentityConfirmed(Identity identity)
 	{
@@ -182,7 +182,12 @@ public class IdentityResolverImpl implements IdentityResolver
 		EntityState entityState = dbIdentities.getByKey(entity).getEntityState();
 		return entityState != EntityState.authenticationDisabled && entityState != EntityState.disabled;
 	}
-
+	
+	private void assertEntityEnabled(long entity) throws IllegalIdentityValueException
+	{
+		if (!isEntityEnabled(entity))
+			throw new IllegalIdentityValueException("Authentication is disabled for this entity");
+	}
 	@Override
 	public String getDisplayedUserName(EntityParam entity) throws EngineException
 	{
@@ -213,5 +218,31 @@ public class IdentityResolverImpl implements IdentityResolver
 			throws IllegalIdentityValueException
 	{
 		return idHelper.insertIdentity(toAdd, dbResolver.getEntityId(entity), false);
+	}
+
+	@Transactional
+	@Override
+	public Identity resolveSubject(AuthenticationSubject subject, String identityType)
+			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException
+	{
+		if (subject.entityId == null)
+		{
+			Identity id = getIdentity(subject.identity, new String[] { identityType }, null, null, false);
+			assertEntityEnabled(id.getEntityId());
+			return id;
+		} else
+		{
+			List<Identity> identitiesWithSearchedType = getIdentitiesForEntity(new EntityParam(subject.entityId))
+					.stream().filter(i -> i.getTypeId().equals(identityType)).collect(Collectors.toList());
+			if (identitiesWithSearchedType.isEmpty())
+				throw new IllegalIdentityValueException(
+						"Entity " + subject.entityId + "  doesn't have identity of type " + identityType);
+			if (identitiesWithSearchedType.size() > 1)
+				throw new IllegalIdentityValueException(
+						"Entity " + subject.entityId + " has more than one identity of type " + identityType);
+			Identity id = identitiesWithSearchedType.get(0);
+			assertEntityEnabled(id.getEntityId());
+			return id;
+		}
 	}
 }

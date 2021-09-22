@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.LdapUnsafeArgsEscaper;
 import pl.edu.icm.unity.ldap.client.LdapUtils;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.ConnectionMode;
 
 /**
  * Manages configuration of the LDAP client.

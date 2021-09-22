@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
@@ -48,7 +49,7 @@ import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.ConnectionMode;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
@@ -78,11 +79,16 @@ public class LdapClient
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapClient.class);
 
 	private String idpName;
-	private LdapGroupHelper groupHelper;
+	private final LdapGroupHelper groupHelper;
 	
 	public LdapClient(String idpName)
 	{
 		this.idpName = idpName;
+		this.groupHelper = new LdapGroupHelper();
+	}
+	
+	public LdapClient()
+	{
 		this.groupHelper = new LdapGroupHelper();
 	}
 
@@ -175,6 +181,33 @@ public class LdapClient
 		return ret;
 	}
 	
+	public Optional<String> searchAttribute(String userOrig, String attributeName, LdapClientConfiguration configuration) 
+			throws LDAPException, LdapAuthenticationException, 
+			KeyManagementException, NoSuchAlgorithmException
+	{
+		if (configuration.getBindAs() != BindAs.system)
+		{
+			log.error("Bind with system credential required");
+			throw new LdapAuthenticationException("Can't authenticate");
+		}
+		
+		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
+		
+		LDAPConnection connection = createConnection(configuration);
+		
+		String dn = establishUserDN(user, configuration, connection);
+		log.info("Established user's DN is: " + dn);
+		bindAsSystem(connection, configuration);
+		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
+		connection.close();
+		Attribute attribute = entry.getAttribute(attributeName);
+		if (attribute != null)
+		{
+			return Optional.ofNullable(attribute.getValue());
+		}
+	
+		return Optional.empty();
+	}
 	
 	/**
 	 * Returns DN of the user. Depending on configuration the user's DN can be simply formed from a 
