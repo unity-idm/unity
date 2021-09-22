@@ -24,21 +24,21 @@ import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameCompar
 
 /**
  * {@link ChipsWithDropdown} specialization for selecting multiple groups.
- * Childs of selected groups are not available to selection
+ * Children of selected groups are not available to selection
  * 
  * @author P.Piernik
  *
  */
-public class OptionalGroupExcludeChildsSelection extends ChipsWithDropdown<Group> implements GroupsSelection
+public class OptionalGroupExcludingChildrenSelection extends ChipsWithDropdown<Group> implements GroupsSelection
 {
 	private MessageSource msg;
 
-	public OptionalGroupExcludeChildsSelection(MessageSource msg)
+	public OptionalGroupExcludingChildrenSelection(MessageSource msg)
 	{
 		this(msg, true);
 	}
 
-	public OptionalGroupExcludeChildsSelection(MessageSource msg, boolean multiSelectable)
+	public OptionalGroupExcludingChildrenSelection(MessageSource msg, boolean multiSelectable)
 	{
 		super(group -> group.getDisplayedName().getValue(msg), group -> group.getDisplayedName().getValue(msg),
 				true);
