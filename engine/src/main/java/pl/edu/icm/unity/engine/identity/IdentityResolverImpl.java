@@ -182,7 +182,12 @@ public class IdentityResolverImpl implements IdentityResolver
 		EntityState entityState = dbIdentities.getByKey(entity).getEntityState();
 		return entityState != EntityState.authenticationDisabled && entityState != EntityState.disabled;
 	}
-
+	
+	private void assertEntityEnabled(long entity) throws IllegalIdentityValueException
+	{
+		if (!isEntityEnabled(entity))
+			throw new IllegalIdentityValueException("Authentication is disabled for this entity");
+	}
 	@Override
 	public String getDisplayedUserName(EntityParam entity) throws EngineException
 	{
@@ -220,27 +225,24 @@ public class IdentityResolverImpl implements IdentityResolver
 	public Identity resolveSubject(AuthenticationSubject subject, String identityType)
 			throws IllegalIdentityValueException, IllegalTypeException, IllegalGroupValueException, EngineException
 	{
-		Identity id = null;
 		if (subject.entityId == null)
 		{
-			id = getIdentity(subject.identity, new String[]
-			{ identityType }, null, null, false);
+			Identity id = getIdentity(subject.identity, new String[] { identityType }, null, null, false);
+			assertEntityEnabled(id.getEntityId());
+			return id;
 		} else
 		{
 			List<Identity> identitiesWithSearchedType = getIdentitiesForEntity(new EntityParam(subject.entityId))
 					.stream().filter(i -> i.getTypeId().equals(identityType)).collect(Collectors.toList());
 			if (identitiesWithSearchedType.isEmpty())
 				throw new IllegalIdentityValueException(
-						"Identity with type " + identityType + " is unknown for entity " + subject.entityId);
+						"Entity " + subject.entityId + "  doesn't have identity of type " + identityType);
 			if (identitiesWithSearchedType.size() > 1)
 				throw new IllegalIdentityValueException(
-						"Entity " + subject.entityId + " has more than one identity with type " + identityType);
-			id = identitiesWithSearchedType.get(0);
+						"Entity " + subject.entityId + " has more than one identity of type " + identityType);
+			Identity id = identitiesWithSearchedType.get(0);
+			assertEntityEnabled(id.getEntityId());
+			return id;
 		}
-
-		if (!isEntityEnabled(id.getEntityId()))
-			throw new IllegalIdentityValueException("Authentication is disabled for this entity");
-
-		return id;
 	}
 }

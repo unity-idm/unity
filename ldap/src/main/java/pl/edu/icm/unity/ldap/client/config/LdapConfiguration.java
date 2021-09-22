@@ -26,7 +26,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.SearchScope;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;

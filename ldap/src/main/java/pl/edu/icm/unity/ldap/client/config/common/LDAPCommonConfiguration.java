@@ -6,8 +6,8 @@
 package pl.edu.icm.unity.ldap.client.config.common;
 
 import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
-import static pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.PORTS;
-import static pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.SERVERS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.PORTS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SERVERS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,8 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.config.ServerSpecification;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.ConnectionMode;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.SearchScope;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
 
 public abstract class LDAPCommonConfiguration
 {
@@ -62,25 +62,25 @@ public abstract class LDAPCommonConfiguration
 		setUserDNResolving(UserDNResolving.template);
 		setValidUserFilter("objectclass=*");
 		servers = new ArrayList<>();
-		setConnectionMode(LDAPCommonProperties.DEFAULT_CONNECTION_MODE);
-		setFollowReferrals(LDAPCommonProperties.DEFAULT_FOLLOW_REFERRALS);
-		setSearchTimeLimit(LDAPCommonProperties.DEFAULT_SEARCH_TIME_LIMIT);
-		setSocketTimeout(LDAPCommonProperties.DEFAULT_SOCKET_TIMEOUT);
+		setConnectionMode(LDAPConnectionProperties.DEFAULT_CONNECTION_MODE);
+		setFollowReferrals(LDAPConnectionProperties.DEFAULT_FOLLOW_REFERRALS);
+		setSearchTimeLimit(LDAPConnectionProperties.DEFAULT_SEARCH_TIME_LIMIT);
+		setSocketTimeout(LDAPConnectionProperties.DEFAULT_SOCKET_TIMEOUT);
 		setLdapSearchScope(SearchScope.base);
-		setResultEntriesLimit(LDAPCommonProperties.DEFAULT_RESULT_ENTRIES_LIMIT);
+		setResultEntriesLimit(LDAPConnectionProperties.DEFAULT_RESULT_ENTRIES_LIMIT);
 	}
 
-	public void fromProperties(LDAPCommonProperties ldapProp)
+	public void fromProperties(LDAPConnectionProperties ldapProp)
 	{
-		if (ldapProp.isSet(LDAPCommonProperties.VALID_USERS_FILTER))
+		if (ldapProp.isSet(LDAPConnectionProperties.VALID_USERS_FILTER))
 		{
-			setValidUserFilter(ldapProp.getValue(LDAPCommonProperties.VALID_USERS_FILTER));
+			setValidUserFilter(ldapProp.getValue(LDAPConnectionProperties.VALID_USERS_FILTER));
 		}
 
-		setSystemDN(ldapProp.getValue(LDAPCommonProperties.SYSTEM_DN));
-		setSystemPassword(ldapProp.getValue(LDAPCommonProperties.SYSTEM_PASSWORD));
+		setSystemDN(ldapProp.getValue(LDAPConnectionProperties.SYSTEM_DN));
+		setSystemPassword(ldapProp.getValue(LDAPConnectionProperties.SYSTEM_PASSWORD));
 		
-		setUserDNTemplate(ldapProp.getValue(LDAPCommonProperties.USER_DN_TEMPLATE));
+		setUserDNTemplate(ldapProp.getValue(LDAPConnectionProperties.USER_DN_TEMPLATE));
 		List<String> server = ldapProp.getListOfValues(SERVERS);
 		List<String> ports = ldapProp.getListOfValues(PORTS);
 
@@ -98,68 +98,68 @@ public abstract class LDAPCommonConfiguration
 
 		}
 
-		if (ldapProp.isSet(LDAPCommonProperties.CONNECTION_MODE))
+		if (ldapProp.isSet(LDAPConnectionProperties.CONNECTION_MODE))
 		{
-			setConnectionMode(ldapProp.getEnumValue(LDAPCommonProperties.CONNECTION_MODE, ConnectionMode.class));
+			setConnectionMode(ldapProp.getEnumValue(LDAPConnectionProperties.CONNECTION_MODE, ConnectionMode.class));
 		}
-		if (ldapProp.isSet(LDAPCommonProperties.FOLLOW_REFERRALS))
+		if (ldapProp.isSet(LDAPConnectionProperties.FOLLOW_REFERRALS))
 		{
-			setFollowReferrals(ldapProp.getIntValue(LDAPCommonProperties.FOLLOW_REFERRALS));
-		}
-
-		if (ldapProp.isSet(LDAPCommonProperties.SEARCH_TIME_LIMIT))
-		{
-			setSearchTimeLimit(ldapProp.getIntValue(LDAPCommonProperties.SEARCH_TIME_LIMIT));
-		}
-		if (ldapProp.isSet(LDAPCommonProperties.SOCKET_TIMEOUT))
-		{
-			setSocketTimeout(ldapProp.getIntValue(LDAPCommonProperties.SOCKET_TIMEOUT));
-		}
-		if (ldapProp.isSet(LDAPCommonProperties.RESULT_ENTRIES_LIMIT))
-		{
-			setResultEntriesLimit(ldapProp.getIntValue(LDAPCommonProperties.RESULT_ENTRIES_LIMIT));
+			setFollowReferrals(ldapProp.getIntValue(LDAPConnectionProperties.FOLLOW_REFERRALS));
 		}
 
-		setTrustAllCerts(ldapProp.getBooleanValue(LDAPCommonProperties.TLS_TRUST_ALL));
-		setClientTrustStore(ldapProp.getValue(LDAPCommonProperties.TRUSTSTORE));
-		setUsernameExtractorRegexp(ldapProp.getValue(LDAPCommonProperties.USER_ID_EXTRACTOR_REGEXP));
+		if (ldapProp.isSet(LDAPConnectionProperties.SEARCH_TIME_LIMIT))
+		{
+			setSearchTimeLimit(ldapProp.getIntValue(LDAPConnectionProperties.SEARCH_TIME_LIMIT));
+		}
+		if (ldapProp.isSet(LDAPConnectionProperties.SOCKET_TIMEOUT))
+		{
+			setSocketTimeout(ldapProp.getIntValue(LDAPConnectionProperties.SOCKET_TIMEOUT));
+		}
+		if (ldapProp.isSet(LDAPConnectionProperties.RESULT_ENTRIES_LIMIT))
+		{
+			setResultEntriesLimit(ldapProp.getIntValue(LDAPConnectionProperties.RESULT_ENTRIES_LIMIT));
+		}
+
+		setTrustAllCerts(ldapProp.getBooleanValue(LDAPConnectionProperties.TLS_TRUST_ALL));
+		setClientTrustStore(ldapProp.getValue(LDAPConnectionProperties.TRUSTSTORE));
+		setUsernameExtractorRegexp(ldapProp.getValue(LDAPConnectionProperties.USER_ID_EXTRACTOR_REGEXP));
 	}
 
 	public void toProperties(String prefix, Properties raw , MessageSource msg) throws ConfigurationException
 	{
 		if (getValidUserFilter() != null)
 		{
-			raw.put(prefix + LDAPCommonProperties.VALID_USERS_FILTER, getValidUserFilter());
+			raw.put(prefix + LDAPConnectionProperties.VALID_USERS_FILTER, getValidUserFilter());
 		}
 
 		for (int i = 0; i < servers.size(); i++)
 		{
 			ServerSpecification servConfig = servers.get(i);
-			raw.put(prefix + LDAPCommonProperties.SERVERS + (i + 1), servConfig.getServer());
-			raw.put(prefix + LDAPCommonProperties.PORTS + (i + 1),
+			raw.put(prefix + LDAPConnectionProperties.SERVERS + (i + 1), servConfig.getServer());
+			raw.put(prefix + LDAPConnectionProperties.PORTS + (i + 1),
 					String.valueOf(servConfig.getPort()));
 		}
 
 		// Server connection config
-		raw.put(prefix + LDAPCommonProperties.FOLLOW_REFERRALS, String.valueOf(getFollowReferrals()));
+		raw.put(prefix + LDAPConnectionProperties.FOLLOW_REFERRALS, String.valueOf(getFollowReferrals()));
 
-		raw.put(prefix + LDAPCommonProperties.SEARCH_TIME_LIMIT, String.valueOf(getSearchTimeLimit()));
+		raw.put(prefix + LDAPConnectionProperties.SEARCH_TIME_LIMIT, String.valueOf(getSearchTimeLimit()));
 
-		raw.put(prefix + LDAPCommonProperties.SOCKET_TIMEOUT, String.valueOf(getSocketTimeout()));
+		raw.put(prefix + LDAPConnectionProperties.SOCKET_TIMEOUT, String.valueOf(getSocketTimeout()));
 
-		raw.put(prefix + LDAPCommonProperties.TLS_TRUST_ALL, String.valueOf(isTrustAllCerts()));
-		raw.put(prefix + LDAPCommonProperties.RESULT_ENTRIES_LIMIT,
+		raw.put(prefix + LDAPConnectionProperties.TLS_TRUST_ALL, String.valueOf(isTrustAllCerts()));
+		raw.put(prefix + LDAPConnectionProperties.RESULT_ENTRIES_LIMIT,
 				String.valueOf(getResultEntriesLimit()));
 
 		if (getClientTrustStore() != null)
 		{
-			raw.put(prefix + LDAPCommonProperties.TRUSTSTORE,
+			raw.put(prefix + LDAPConnectionProperties.TRUSTSTORE,
 					String.valueOf(getClientTrustStore()));
 		}
 		
 		if (getUsernameExtractorRegexp() != null)
 		{
-			raw.put(prefix + LDAPCommonProperties.USER_ID_EXTRACTOR_REGEXP,
+			raw.put(prefix + LDAPConnectionProperties.USER_ID_EXTRACTOR_REGEXP,
 					getUsernameExtractorRegexp());
 		}
 	}

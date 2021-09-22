@@ -74,6 +74,11 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-otp-ldap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -265,6 +270,22 @@
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-upman</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>i18n</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-otp</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>i18n</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-otp-ldap</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>i18n</classifier>

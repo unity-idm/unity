@@ -49,7 +49,7 @@ import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.ConnectionMode;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
@@ -181,18 +181,6 @@ public class LdapClient
 		return ret;
 	}
 	
-	
-	/**
-	 * Search user attribute.  Binding as system
-	 * @param userOrig
-	 * @param attributeName
-	 * @param configuration
-	 * @return
-	 * @throws LDAPException
-	 * @throws LdapAuthenticationException
-	 * @throws KeyManagementException
-	 * @throws NoSuchAlgorithmException
-	 */
 	public Optional<String> searchAttribute(String userOrig, String attributeName, LdapClientConfiguration configuration) 
 			throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException

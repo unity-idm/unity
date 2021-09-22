@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.ldap.client.config;
 
 import pl.edu.icm.unity.ldap.client.LdapUnsafeArgsEscaper;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.SearchScope;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;

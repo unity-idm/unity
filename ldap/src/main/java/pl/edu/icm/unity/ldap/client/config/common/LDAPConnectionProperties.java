@@ -15,7 +15,7 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
-public abstract class LDAPCommonProperties extends UnityPropertiesHelper
+public abstract class LDAPConnectionProperties extends UnityPropertiesHelper
 {
 	public enum SearchScope 
 	{
@@ -122,7 +122,7 @@ public abstract class LDAPCommonProperties extends UnityPropertiesHelper
 		return defaults;
 	}
 
-	public LDAPCommonProperties(String prefix, Properties properties, Map<String, PropertyMD> propertiesMD, Logger log)
+	public LDAPConnectionProperties(String prefix, Properties properties, Map<String, PropertyMD> propertiesMD, Logger log)
 	{
 		super(prefix, properties, propertiesMD, log);
 	}

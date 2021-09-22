@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.identity;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -111,9 +114,48 @@ public class IdentityResolverTest
 				.thenReturn(new Identity(UsernameIdentity.ID, "id", 123l, ""));
 
 		IdentityResolver resolver = new IdentityResolverImpl(null, dbIdentities, dbResolver, null, null, null, null);
-
 		Identity id = resolver.resolveSubject(AuthenticationSubject.identityBased("id"), UsernameIdentity.ID);
-
 		assertThat(id.getValue(), is("id"));
+	}
+	
+	@Test
+	public void shouldThrowExceptionWhenNoIdentityForSubject() throws EngineException
+	{
+		EntityParam entity = new EntityParam(123l);
+		EntityDAO dbIdentities = mock(EntityDAO.class);
+		IdentityHelper idHelper = mock(IdentityHelper.class);
+		EntityResolver dbResolver = mock(EntityResolver.class);
+		when(dbIdentities.getByKey(123l)).thenReturn(new EntityInformation(123l));
+		when(dbResolver.getEntityId(entity)).thenReturn(123l);
+		when(idHelper.getIdentitiesForEntity(123l, null))
+				.thenReturn(new ArrayList<Identity>(Arrays.asList(new Identity(EmailIdentity.ID, "id", 123l, ""))));
+
+		IdentityResolver resolver = new IdentityResolverImpl(null, dbIdentities, dbResolver, null, null, idHelper,
+				null);
+
+		Throwable error = catchThrowable(
+				() -> resolver.resolveSubject(AuthenticationSubject.entityBased(123l), UsernameIdentity.ID));
+		assertThat(error).isInstanceOf(IllegalIdentityValueException.class);
+	}
+
+	@Test
+	public void shouldThrowExceptionWhenMoreThanOneIdentityForSubject() throws EngineException
+	{
+		EntityParam entity = new EntityParam(123l);
+		EntityDAO dbIdentities = mock(EntityDAO.class);
+		IdentityHelper idHelper = mock(IdentityHelper.class);
+		EntityResolver dbResolver = mock(EntityResolver.class);
+		when(dbIdentities.getByKey(123l)).thenReturn(new EntityInformation(123l));
+		when(dbResolver.getEntityId(entity)).thenReturn(123l);
+		when(idHelper.getIdentitiesForEntity(123l, null))
+				.thenReturn(new ArrayList<Identity>(Arrays.asList(new Identity(UsernameIdentity.ID, "id", 123l, ""),
+						new Identity(UsernameIdentity.ID, "id2", 123l, ""))));
+
+		IdentityResolver resolver = new IdentityResolverImpl(null, dbIdentities, dbResolver, null, null, idHelper,
+				null);
+
+		Throwable error = catchThrowable(
+				() -> resolver.resolveSubject(AuthenticationSubject.entityBased(123l), UsernameIdentity.ID));
+		assertThat(error).isInstanceOf(IllegalIdentityValueException.class);
 	}
 }

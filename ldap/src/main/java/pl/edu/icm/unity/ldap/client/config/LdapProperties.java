@@ -15,14 +15,14 @@ import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Low level configuration handling - implemented with {@link Properties} as storage format.
  * @author K. Benedyczak
  */
-public class LdapProperties extends LDAPCommonProperties
+public class LdapProperties extends LDAPConnectionProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, LdapProperties.class);
 	

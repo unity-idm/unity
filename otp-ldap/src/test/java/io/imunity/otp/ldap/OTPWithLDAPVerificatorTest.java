@@ -8,9 +8,9 @@ package io.imunity.otp.ldap;
 import static io.imunity.otp.ldap.OTPWithLDAPProperties.PREFIX;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.PORTS;
-import static pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.SERVERS;
-import static pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.USER_DN_TEMPLATE;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.PORTS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SERVERS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.USER_DN_TEMPLATE;
 import static org.hamcrest.CoreMatchers.is;
 
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class OTPWithLDAPVerificatorTest
 		p.setProperty(PREFIX + USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX + OTPWithLDAPProperties.SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX + OTPWithLDAPProperties.SYSTEM_PASSWORD, "user1");
-		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_SECRET_ATTRIBUTE, "sn");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_SECRET_ATTRIBUTE, "otp-secret");
 		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_ALLOWED_TIME_DRIFT_STEPS, "3");
 		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_TIME_STEP_SECODS, "40");
 		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_HASH_FUNCTION, HashFunction.SHA1.toString());
@@ -105,6 +105,36 @@ public class OTPWithLDAPVerificatorTest
 
 		AuthenticationResult result = verificator.verifyCode(correctCode, AuthenticationSubject.entityBased(1));
 		assertThat(result.getStatus(), is(Status.success));
+	}
+	
+	@Test
+	public void shouldNotAuthenticateUser() throws IOException, IllegalIdentityValueException,
+			IllegalTypeException, IllegalGroupValueException, EngineException
+	{
+		Properties p = new Properties();
+
+		p.setProperty(PREFIX + SERVERS + "1", hostname);
+		p.setProperty(PREFIX + PORTS + "1", port);
+		p.setProperty(PREFIX + USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.SYSTEM_PASSWORD, "user1");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_SECRET_ATTRIBUTE, "otp-secret");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_ALLOWED_TIME_DRIFT_STEPS, "3");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_TIME_STEP_SECODS, "40");
+		p.setProperty(PREFIX + OTPWithLDAPProperties.OTP_HASH_FUNCTION, HashFunction.SHA1.toString());
+
+		OTPWithLDAPProperties lp = new OTPWithLDAPProperties(p);
+
+		OTPWithLDAPVerificator verificator = new OTPWithLDAPVerificator(pkiManagement);
+		verificator.setSerializedConfiguration(getConfigAsString(lp));
+		AuthenticationSubject subject = AuthenticationSubject.entityBased(1);
+		verificator.setIdentityResolver(identityResolver);
+	
+		when(identityResolver.resolveSubject(subject, UsernameIdentity.ID))
+				.thenReturn(new Identity(UsernameIdentity.ID, "user1", 1l, ""));
+
+		AuthenticationResult result = verificator.verifyCode("123456", AuthenticationSubject.entityBased(1));
+		assertThat(result.getStatus(), is(Status.deny));
 	}
 
 	private String getConfigAsString(OTPWithLDAPProperties otpWithLDAPProperties) throws IOException

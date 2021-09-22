@@ -17,9 +17,9 @@ import io.imunity.otp.HashFunction;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties;
 
-class OTPWithLDAPProperties extends LDAPCommonProperties
+class OTPWithLDAPProperties extends LDAPConnectionProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OTPWithLDAPProperties.class);
 
@@ -94,7 +94,7 @@ class OTPWithLDAPProperties extends LDAPCommonProperties
 								+ " Even the users who can authenticate but are not matching this filter will "
 								+ "have access denied."));
 
-		defaults.putAll(LDAPCommonProperties.getDefaults());
+		defaults.putAll(LDAPConnectionProperties.getDefaults());
 
 	}
 

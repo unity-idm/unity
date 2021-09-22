@@ -24,7 +24,6 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.OTPCredentialReset;
 import io.imunity.otp.OTPExchange;
 import io.imunity.otp.OTPGenerationParams;
-import io.imunity.otp.OTPResetSettings;
 import io.imunity.otp.TOTPCodeVerificator;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -58,7 +57,7 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 	private LdapClientConfiguration ldapClientConfiguration;
 	private OTPWithLDAPConfiguration otpLdapConfiguration;
 	private LdapClient ldapClient;
-	
+
 	OTPWithLDAPVerificator(PKIManagement pkiManagement)
 	{
 		super(NAME, DESC, OTPExchange.ID);
@@ -96,9 +95,10 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 			otpWithLDAPProperties = new OTPWithLDAPProperties(properties);
 			otpLdapConfiguration = new OTPWithLDAPConfiguration();
 			otpLdapConfiguration.fromProperties(otpWithLDAPProperties);
-			ldapClientConfiguration = new LdapClientConfiguration(otpWithLDAPProperties.toFullLDAPProperties(), pkiManagement);
-	
-		} catch(ConfigurationException e)
+			ldapClientConfiguration = new LdapClientConfiguration(otpWithLDAPProperties.toFullLDAPProperties(),
+					pkiManagement);
+
+		} catch (ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OTP-LDAP verificator", e);
 		} catch (IOException e)
@@ -116,9 +116,9 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 	@Override
 	public OTPCredentialReset getCredentialResetBackend()
 	{
-		return new NoOTPCredentialResetImpl();
+		return OTPCredentialReset.createDisabled();
 	}
-	
+
 	@Override
 	public AuthenticationResult verifyCode(String code, AuthenticationSubject subject)
 	{
@@ -131,22 +131,21 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 			log.info("The user for OTP authN can not be found: " + subject, e);
 			return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"), e);
 		}
-		
+
 		OTPGenerationParams otpParams = new OTPGenerationParams(otpLdapConfiguration.getCodeLength(),
 				otpLdapConfiguration.getHashFunction(), otpLdapConfiguration.getTimeStepSeconds());
 		try
-		{	
+		{
 			String secret = getSecretFromLdap(resolved.getValue());
-			boolean valid = TOTPCodeVerificator.verifyCode(code, secret, otpParams, 
+			boolean valid = TOTPCodeVerificator.verifyCode(code, secret, otpParams,
 					otpLdapConfiguration.getAllowedTimeDriftSteps());
-			
+
 			if (!valid)
 			{
 				log.info("Code provided by {} is invalid", subject);
 				return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"));
 			}
-			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, 
-					 null);
+			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, null);
 			return LocalAuthenticationResult.successful(ae);
 		} catch (Exception e)
 		{
@@ -154,17 +153,15 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 			return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"), e);
 		}
 	}
-	
+
 	private String getSecretFromLdap(String usernameIdentity) throws AuthenticationException, KeyManagementException,
 			LDAPException, NoSuchAlgorithmException, LdapAuthenticationException
 	{
 		Optional<String> secret = ldapClient.searchAttribute(usernameIdentity,
 				otpLdapConfiguration.getSecretAttribute(), ldapClientConfiguration);
-		if (!secret.isPresent())
-		{
-			throw new AuthenticationException("OTP secret is not available for user " + usernameIdentity);
-		}
-		return secret.get();
+
+		return secret.orElseThrow(
+				() -> new AuthenticationException("OTP secret is not available for user " + usernameIdentity));
 	}
 
 	@Component
@@ -175,14 +172,5 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 		{
 			super(NAME, DESC, factory);
 		}
-	}
-	
-	private static class NoOTPCredentialResetImpl extends OTPCredentialReset
-	{
-		public NoOTPCredentialResetImpl()
-		{
-			super(null, null, null, null, null,
-					null, new OTPResetSettings(false, 0, null, null, null) );
-		}	
 	}
 }

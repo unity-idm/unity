@@ -50,4 +50,10 @@ public class OTPCredentialReset extends CredentialResetBase
 	{
 		return resetSettings;
 	}
+	
+	public static OTPCredentialReset createDisabled()
+	{
+		return new OTPCredentialReset(null, null, null, null, null,
+				null, new OTPResetSettings(false, 0, null, null, null));
+	}
 }

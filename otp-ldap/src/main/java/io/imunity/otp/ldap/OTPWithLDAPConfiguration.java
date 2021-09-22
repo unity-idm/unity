@@ -23,8 +23,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.config.LdapConfiguration;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties;
-import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonProperties.SearchScope;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 
@@ -121,7 +121,7 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 
 		if (getUserDNResolving().equals(UserDNResolving.template))
 		{
-			raw.put(OTPWithLDAPProperties.PREFIX + LDAPCommonProperties.USER_DN_TEMPLATE, getUserDNTemplate());
+			raw.put(OTPWithLDAPProperties.PREFIX + LDAPConnectionProperties.USER_DN_TEMPLATE, getUserDNTemplate());
 		} else
 		{
 			raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.LDAP_SEARCH_BASENAME, getLdapSearchBaseName());
@@ -173,7 +173,7 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 		if (nonEmpty(getUserDNTemplate()) && nonEmpty(getLdapSearchBaseName()))
 		{
 			throw new ConfigurationException("One and only one of '" + OTPWithLDAPProperties.LDAP_SEARCH_BASENAME
-					+ "' and '" + LDAPCommonProperties.USER_DN_TEMPLATE + "' must be defined");
+					+ "' and '" + LDAPConnectionProperties.USER_DN_TEMPLATE + "' must be defined");
 		}
 	}
 

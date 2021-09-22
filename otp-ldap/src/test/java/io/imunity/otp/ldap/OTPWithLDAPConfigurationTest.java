@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 
-public class OTPLDAPAuthenticatorConfigurationTest
+public class OTPWithLDAPConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private MessageSource msg = mock(MessageSource.class);
