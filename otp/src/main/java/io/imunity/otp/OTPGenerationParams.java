@@ -15,14 +15,14 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
  * THose parameters are required to generate OTP. Changing them requires update of the user credentials.
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-class OTPGenerationParams
+public class OTPGenerationParams
 {
 	final int codeLength;
 	final HashFunction hashFunction;
 	final int timeStepSeconds;
 
 	@JsonCreator
-	OTPGenerationParams(
+	public OTPGenerationParams(
 			@JsonProperty("codeLength") int codeLength, 
 			@JsonProperty("hashFunction") HashFunction hashFunction, 
 			@JsonProperty("timeStepSeconds") int timeStepSeconds)

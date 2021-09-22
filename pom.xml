@@ -75,6 +75,7 @@
 		<module>oauth</module>
 		<module>pam</module>
 		<module>otp</module>
+		<module>otp-ldap</module>
 		<module>integration-tests</module>
 		<module>distribution</module>
 		<module>documentation</module>

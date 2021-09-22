@@ -6,8 +6,6 @@
 package pl.edu.icm.unity.ldap.client.config;
 
 import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PORTS;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.SERVERS;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -17,7 +15,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -25,12 +22,11 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.SearchScope;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration;
+import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
@@ -44,33 +40,13 @@ import pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties;
  * @author P.Piernik
  *
  */
-public class LdapConfiguration
+public class LdapConfiguration extends LDAPCommonConfiguration
 {
-	public enum UserDNResolving
-	{
-		template, ldapSearch
-	}
-	
-	public static final String USERNAME_TOKEN = "{USERNAME}";
-	public static final String USER_DN_SEARCH_KEY = "searchUserDN";
 
 	private boolean bindOnly;
 	private BindAs bindAs;
 	private TranslationProfile translationProfile;
-	private String systemDN;
-	private String systemPassword;
-	private String validUserFilter;
-	private UserDNResolving userDNResolving;
-	private String userDNTemplate;
 
-	private List<ServerSpecification> servers;
-	private ConnectionMode connectionMode;
-	private int followReferrals;
-	private int searchTimeLimit;
-	private int socketTimeout;
-	private boolean trustAllCerts;
-	private String clientTrustStore;
-	private int resultEntriesLimit;
 
 	private boolean delegateGroupFiltering;
 	private String groupsBaseName;
@@ -80,40 +56,30 @@ public class LdapConfiguration
 
 	private List<String> retrievalLdapAttributes;
 	private List<SearchSpecification> searchSpecifications;
-	private String usernameExtractorRegexp;
 
-	// Ldap search option fields
 	private String userDNSearchKey;
-	private String ldapSearchBaseName;
-	private String ldapSearchFilter;
-	private SearchScope ldapSearchScope;
-
+	
 	private I18nString retrievalName;
 	private boolean accountAssociation;
 	private String registrationForm;
 	
 	public LdapConfiguration()
 	{
+		super();
 		setBindOnly(LdapProperties.DEFAULT_BIND_ONLY);
 		setBindAs(LdapProperties.DEFAULT_BIND_AS);
-		setUserDNResolving(UserDNResolving.template);
-		setValidUserFilter("objectclass=*");
 		setTranslationProfile(TranslationProfileGenerator
 				.generateIncludeInputProfile(LdapProperties.DEFAULT_TRANSLATION_PROFILE));
-		servers = new ArrayList<>();
 		searchSpecifications = new ArrayList<>();
 		groupSpecifications = new ArrayList<>();
-		setConnectionMode(LdapProperties.DEFAULT_CONNECTION_MODE);
-		setFollowReferrals(LdapProperties.DEFAULT_FOLLOW_REFERRALS);
-		setSearchTimeLimit(LdapProperties.DEFAULT_SEARCH_TIME_LIMIT);
-		setSocketTimeout(LdapProperties.DEFAULT_SOCKET_TIMEOUT);
-		setLdapSearchScope(SearchScope.base);
 		setDelegateGroupFiltering(LdapProperties.DEFAULT_GROUPS_SEARCH_IN_LDAP);
 		setResultEntriesLimit(LdapProperties.DEFAULT_RESULT_ENTRIES_LIMIT);
 	}
 
 	public void fromProperties(LdapProperties ldapProp)
 	{
+		super.fromProperties(ldapProp);
+		
 		if (ldapProp.isSet(LdapProperties.BIND_ONLY))
 		{
 			setBindOnly(ldapProp.getBooleanValue(LdapProperties.BIND_ONLY));
@@ -123,57 +89,7 @@ public class LdapConfiguration
 		{
 			setBindAs(ldapProp.getEnumValue(LdapProperties.BIND_AS, BindAs.class));
 		}
-
-		setSystemDN(ldapProp.getValue(LdapProperties.SYSTEM_DN));
-		setSystemPassword(ldapProp.getValue(LdapProperties.SYSTEM_PASSWORD));
-
-		if (ldapProp.isSet(LdapProperties.VALID_USERS_FILTER))
-		{
-			setValidUserFilter(ldapProp.getValue(LdapProperties.VALID_USERS_FILTER));
-		}
-
-		setUserDNTemplate(ldapProp.getValue(LdapProperties.USER_DN_TEMPLATE));
-		List<String> server = ldapProp.getListOfValues(SERVERS);
-		List<String> ports = ldapProp.getListOfValues(PORTS);
-
-		for (int i = 0; i < Math.max(server.size(), ports.size()); i++)
-		{
-			int port = -1;
-			try
-			{
-				port = ports.size() > i ? Integer.parseInt(ports.get(i)) : -1;
-			} catch (NumberFormatException e)
-			{
-				//ok
-			}
-			servers.add(new ServerSpecification(server.size() > i ? server.get(i) : "", port));
-
-		}
-
-		if (ldapProp.isSet(LdapProperties.CONNECTION_MODE))
-		{
-			setConnectionMode(ldapProp.getEnumValue(LdapProperties.CONNECTION_MODE, ConnectionMode.class));
-		}
-		if (ldapProp.isSet(LdapProperties.FOLLOW_REFERRALS))
-		{
-			setFollowReferrals(ldapProp.getIntValue(LdapProperties.FOLLOW_REFERRALS));
-		}
-
-		if (ldapProp.isSet(LdapProperties.SEARCH_TIME_LIMIT))
-		{
-			setSearchTimeLimit(ldapProp.getIntValue(LdapProperties.SEARCH_TIME_LIMIT));
-		}
-		if (ldapProp.isSet(LdapProperties.SOCKET_TIMEOUT))
-		{
-			setSocketTimeout(ldapProp.getIntValue(LdapProperties.SOCKET_TIMEOUT));
-		}
-		if (ldapProp.isSet(LdapProperties.RESULT_ENTRIES_LIMIT))
-		{
-			setResultEntriesLimit(ldapProp.getIntValue(LdapProperties.RESULT_ENTRIES_LIMIT));
-		}
-
-		setTrustAllCerts(ldapProp.getBooleanValue(LdapProperties.TLS_TRUST_ALL));
-		setClientTrustStore(ldapProp.getValue(LdapProperties.TRUSTSTORE));
+		
 		if (ldapProp.isSet(LdapProperties.GROUPS_SEARCH_IN_LDAP))
 		{
 			setDelegateGroupFiltering(ldapProp.getBooleanValue(LdapProperties.GROUPS_SEARCH_IN_LDAP));
@@ -213,8 +129,6 @@ public class LdapConfiguration
 		}
 
 		setRetrievalLdapAttributes(ldapProp.getListOfValues(LdapProperties.ATTRIBUTES));
-
-		setUsernameExtractorRegexp(ldapProp.getValue(LdapProperties.USER_ID_EXTRACTOR_REGEXP));
 
 		if (userDNSearchKey != null)
 		{
@@ -301,11 +215,12 @@ public class LdapConfiguration
 	public String toProperties(String type, MessageSource msg) throws ConfigurationException
 	{
 		Properties raw = new Properties();
+		super.toProperties(LdapProperties.PREFIX, raw, msg);
 
 		raw.put(LdapProperties.PREFIX + LdapProperties.BIND_AS, bindAs.toString());
 		raw.put(LdapProperties.PREFIX + LdapProperties.BIND_ONLY, String.valueOf(bindOnly));
 
-		if (bindAs.equals(BindAs.system) || userDNResolving.equals(UserDNResolving.ldapSearch))
+		if (bindAs.equals(BindAs.system) || getUserDNResolving().equals(UserDNResolving.ldapSearch))
 		{
 			if (getSystemDN() != null)
 			{
@@ -316,36 +231,6 @@ public class LdapConfiguration
 			{
 				raw.put(LdapProperties.PREFIX + LdapProperties.SYSTEM_PASSWORD, getSystemPassword());
 			}
-		}
-
-		if (getValidUserFilter() != null)
-		{
-			raw.put(LdapProperties.PREFIX + LdapProperties.VALID_USERS_FILTER, getValidUserFilter());
-		}
-
-		for (int i = 0; i < servers.size(); i++)
-		{
-			ServerSpecification servConfig = servers.get(i);
-			raw.put(LdapProperties.PREFIX + LdapProperties.SERVERS + (i + 1), servConfig.getServer());
-			raw.put(LdapProperties.PREFIX + LdapProperties.PORTS + (i + 1),
-					String.valueOf(servConfig.getPort()));
-		}
-
-		// Server connection config
-		raw.put(LdapProperties.PREFIX + LdapProperties.FOLLOW_REFERRALS, String.valueOf(getFollowReferrals()));
-
-		raw.put(LdapProperties.PREFIX + LdapProperties.SEARCH_TIME_LIMIT, String.valueOf(getSearchTimeLimit()));
-
-		raw.put(LdapProperties.PREFIX + LdapProperties.SOCKET_TIMEOUT, String.valueOf(getSocketTimeout()));
-
-		raw.put(LdapProperties.PREFIX + LdapProperties.TLS_TRUST_ALL, String.valueOf(isTrustAllCerts()));
-		raw.put(LdapProperties.PREFIX + LdapProperties.RESULT_ENTRIES_LIMIT,
-				String.valueOf(getResultEntriesLimit()));
-
-		if (getClientTrustStore() != null)
-		{
-			raw.put(LdapProperties.PREFIX + LdapProperties.TRUSTSTORE,
-					String.valueOf(getClientTrustStore()));
 		}
 
 		// Group retrieval settings
@@ -420,12 +305,6 @@ public class LdapConfiguration
 								String.join(" ", search.getAttributes()));
 					}
 				});
-			}
-
-			if (getUsernameExtractorRegexp() != null)
-			{
-				raw.put(LdapProperties.PREFIX + LdapProperties.USER_ID_EXTRACTOR_REGEXP,
-						getUsernameExtractorRegexp());
 			}
 
 			//Remote data mapping
@@ -508,43 +387,16 @@ public class LdapConfiguration
 
 	public void validateConfiguration(PKIManagement pkiMan) throws ConfigurationException
 	{
-		validateServersConfiguration();
+		super.validateConfiguration(pkiMan);
 		validateDNResolving();
-		validateUserDNTemplate();
 		validateUserDNSearch();
 		validateBindAs();
-		validateValidUserFilter();
-		validateClientTrustStore(pkiMan);
 		validateSearchSpecifications();
-	}
-
-	private void validateServersConfiguration() throws ConfigurationException
-	{
-		for (ServerSpecification conf : servers)
-		{
-			if (conf.getPort() > 65535 || conf.getPort() < 1)
-			{
-				throw new ConfigurationException("LDAP server port is out of range: " + conf.getPort());
-			}
-			if (!nonEmpty(conf.getServer()))
-			{
-				throw new ConfigurationException("LDAP server name is invalid: " + conf.getServer());
-			}
-		}
-	}
-
-	private void validateUserDNTemplate() throws ConfigurationException
-	{
-		if (nonEmpty(userDNTemplate) && !userDNTemplate.contains(USERNAME_TOKEN))
-		{
-			throw new ConfigurationException("DN template doesn't contain the mandatory token "
-					+ USERNAME_TOKEN + ": " + userDNTemplate);
-		}
 	}
 
 	private void validateDNResolving() throws ConfigurationException
 	{
-		if (nonEmpty(userDNTemplate) && nonEmpty(userDNSearchKey))
+		if (nonEmpty(getUserDNTemplate()) && nonEmpty(userDNSearchKey))
 		{
 			throw new ConfigurationException("One and only one of '" + LdapProperties.USER_DN_SEARCH_KEY
 					+ "' and '" + LdapProperties.USER_DN_TEMPLATE + "' must be defined");
@@ -554,16 +406,16 @@ public class LdapConfiguration
 	private void validateUserDNSearch() throws ConfigurationException
 	{
 
-		if (userDNResolving.equals(UserDNResolving.ldapSearch))
+		if (getUserDNResolving().equals(UserDNResolving.ldapSearch))
 		{
-			if (((!nonEmpty(systemDN)) || !nonEmpty(systemPassword)) && bindAs != BindAs.none)
+			if (((!nonEmpty(getSystemDN())) || !nonEmpty(getSystemPassword())) && bindAs != BindAs.none)
 			{
 				throw new ConfigurationException("To search for users with '"
 						+ LdapProperties.USER_DN_SEARCH_KEY
 						+ "' system credentials must be defined or bindAs must be set to 'none'.");
 			}
 
-			if (!nonEmpty(ldapSearchBaseName) || !nonEmpty(ldapSearchFilter) || ldapSearchScope == null)
+			if (!nonEmpty(getLdapSearchBaseName()) || !nonEmpty(getLdapSearchFilter()) || getLdapSearchScope() == null)
 			{
 
 				throw new ConfigurationException("A search with the key " + userDNSearchKey
@@ -572,17 +424,17 @@ public class LdapConfiguration
 
 			try
 			{
-				SearchSpecification.createFilter(ldapSearchFilter, "test");
+				SearchSpecification.createFilter(getLdapSearchFilter(), "test");
 			} catch (LDAPException e)
 			{
-				throw new ConfigurationException("A search filter " + ldapSearchFilter + "is invalid");
+				throw new ConfigurationException("A search filter " + getLdapSearchFilter() + "is invalid");
 			}
 
 		} else
 		{
-			if (!nonEmpty(userDNTemplate) || !userDNTemplate.contains(USERNAME_TOKEN))
+			if (!nonEmpty(getUserDNTemplate()) || !getUserDNTemplate().contains(USERNAME_TOKEN))
 				throw new ConfigurationException("DN template doesn't contain the mandatory token "
-						+ USERNAME_TOKEN + ": " + userDNTemplate);
+						+ USERNAME_TOKEN + ": " + getUserDNTemplate());
 		}
 	}
 
@@ -590,37 +442,9 @@ public class LdapConfiguration
 	{
 		if (bindAs == BindAs.system)
 		{
-			if (systemDN == null || systemPassword == null)
+			if (getSystemDN() == null || getSystemPassword() == null)
 				throw new ConfigurationException("When binding as system all system DN and password "
 						+ "name must be configured.");
-		}
-	}
-
-	private void validateValidUserFilter() throws ConfigurationException
-	{
-		if (validUserFilter != null)
-		{
-			try
-			{
-				Filter.create(validUserFilter);
-			} catch (LDAPException e)
-			{
-				throw new ConfigurationException("Valid users filter is invalid.", e);
-			}
-		}
-	}
-
-	private void validateClientTrustStore(PKIManagement pkiMan) throws ConfigurationException
-	{
-		if (connectionMode != ConnectionMode.plain && !trustAllCerts)
-		{
-			try
-			{
-				pkiMan.getValidator(clientTrustStore);
-			} catch (EngineException e)
-			{
-				throw new ConfigurationException("Invalid client truststore for the ldap client", e);
-			}
 		}
 	}
 
@@ -669,117 +493,7 @@ public class LdapConfiguration
 	{
 		this.translationProfile = translationProfile;
 	}
-
-	public String getSystemDN()
-	{
-		return systemDN;
-	}
-
-	public void setSystemDN(String systemDN)
-	{
-		this.systemDN = systemDN;
-	}
-
-	public String getSystemPassword()
-	{
-		return systemPassword;
-	}
-
-	public void setSystemPassword(String systemPassword)
-	{
-		this.systemPassword = systemPassword;
-	}
-
-	public String getValidUserFilter()
-	{
-		return validUserFilter;
-	}
-
-	public void setValidUserFilter(String validUserFilter)
-	{
-		this.validUserFilter = validUserFilter;
-	}
-
-	public String getUserDNTemplate()
-	{
-		return userDNTemplate;
-	}
-
-	public void setUserDNTemplate(String userDNTemplate)
-	{
-		this.userDNTemplate = userDNTemplate;
-	}
-
-	public ConnectionMode getConnectionMode()
-	{
-		return connectionMode;
-	}
-
-	public void setConnectionMode(ConnectionMode connectionMode)
-	{
-		this.connectionMode = connectionMode;
-	}
-
-	public List<ServerSpecification> getServers()
-	{
-		return servers;
-	}
-
-	public void setServers(List<ServerSpecification> servers)
-	{
-		this.servers = servers;
-	}
-
-	public int getFollowReferrals()
-	{
-		return followReferrals;
-	}
-
-	public void setFollowReferrals(int followReferrals)
-	{
-		this.followReferrals = followReferrals;
-	}
-
-	public int getSearchTimeLimit()
-	{
-		return searchTimeLimit;
-	}
-
-	public void setSearchTimeLimit(int searchTimeLimit)
-	{
-		this.searchTimeLimit = searchTimeLimit;
-	}
-
-	public int getSocketTimeout()
-	{
-		return socketTimeout;
-	}
-
-	public void setSocketTimeout(int socketTimeout)
-	{
-		this.socketTimeout = socketTimeout;
-	}
-
-	public boolean isTrustAllCerts()
-	{
-		return trustAllCerts;
-	}
-
-	public void setTrustAllCerts(boolean trustAllCerts)
-	{
-		this.trustAllCerts = trustAllCerts;
-	}
-
-	public String getClientTrustStore()
-	{
-		return clientTrustStore;
-	}
-
-	public void setClientTrustStore(String clientTrustStore)
-	{
-		this.clientTrustStore = clientTrustStore;
-	}
-
+	
 	public boolean isDelegateGroupFiltering()
 	{
 		return delegateGroupFiltering;
@@ -848,66 +562,6 @@ public class LdapConfiguration
 	public void setSearchSpecifications(List<SearchSpecification> searchSpecifications)
 	{
 		this.searchSpecifications = searchSpecifications;
-	}
-
-	public String getUsernameExtractorRegexp()
-	{
-		return usernameExtractorRegexp;
-	}
-
-	public void setUsernameExtractorRegexp(String usernameExtractorRegexp)
-	{
-		this.usernameExtractorRegexp = usernameExtractorRegexp;
-	}
-
-	public UserDNResolving getUserDNResolving()
-	{
-		return userDNResolving;
-	}
-
-	public void setUserDNResolving(UserDNResolving userDNResolving)
-	{
-		this.userDNResolving = userDNResolving;
-	}
-
-	public String getLdapSearchBaseName()
-	{
-		return ldapSearchBaseName;
-	}
-
-	public void setLdapSearchBaseName(String ldapSearchBaseName)
-	{
-		this.ldapSearchBaseName = ldapSearchBaseName;
-	}
-
-	public String getLdapSearchFilter()
-	{
-		return ldapSearchFilter;
-	}
-
-	public void setLdapSearchFilter(String ldapSearchFilter)
-	{
-		this.ldapSearchFilter = ldapSearchFilter;
-	}
-
-	public SearchScope getLdapSearchScope()
-	{
-		return ldapSearchScope;
-	}
-
-	public void setLdapSearchScope(SearchScope ldapSearchScope)
-	{
-		this.ldapSearchScope = ldapSearchScope;
-	}
-
-	public int getResultEntriesLimit()
-	{
-		return resultEntriesLimit;
-	}
-
-	public void setResultEntriesLimit(int resultEntriesLimit)
-	{
-		this.resultEntriesLimit = resultEntriesLimit;
 	}
 
 	public String getUserDNSearchKey()

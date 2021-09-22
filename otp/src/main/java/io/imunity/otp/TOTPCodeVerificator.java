@@ -4,15 +4,15 @@
  */
 package io.imunity.otp;
 
-class TOTPCodeVerificator
+public class TOTPCodeVerificator
 {
-	static boolean verifyCode(String code, String secret, OTPGenerationParams params, int allowedDriftSteps)
+	public static boolean verifyCode(String code, String secret, OTPGenerationParams params, int allowedDriftSteps)
 	{
 		long currentTime = System.currentTimeMillis();
 		return verifyCode(code, secret, currentTime, params, allowedDriftSteps);
 	}
 	
-	static boolean verifyCode(String code, String secret, long currentTime, OTPGenerationParams params, int allowedDriftSteps)
+	public static boolean verifyCode(String code, String secret, long currentTime, OTPGenerationParams params, int allowedDriftSteps)
 	{
 		long currentTimeStep = currentTime/1000;
 		for (int i=0; i<=allowedDriftSteps; i++)

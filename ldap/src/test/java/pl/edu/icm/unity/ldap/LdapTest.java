@@ -38,6 +38,7 @@ import static pl.edu.icm.unity.ldap.client.config.LdapProperties.VALID_USERS_FIL
 import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.TRANSLATION_PROFILE;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -597,6 +598,27 @@ public class LdapTest
 		assertEquals(1, ret.getAttributes().size());
 		assertTrue(containsAttribute(ret.getAttributes(), "ou", "grant2"));
 	}	
+	
+	@Test
+	public void shouldSearchSingleAttributeWhenUsingBindsAsSystem() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
+
+		p.setProperty(PREFIX+BIND_AS, "system");
+		p.setProperty(PREFIX+SYSTEM_DN, "cn=user1,ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+SYSTEM_PASSWORD, "user1");	
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		Optional<String> ret = client.searchAttribute("user1", "sn", clientConfig);
+
+		assertEquals("User1 surname", ret.get());
+	}
 	
 	
 	private boolean containsGroup(Map<String, RemoteGroupMembership> groups, String group)

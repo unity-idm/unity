@@ -1,0 +1,25 @@
+# unity-example.com
+dn: dc=unity-example,dc=com
+objectClass: dcObject
+objectClass: organization
+o: UNITY test example
+dc: unity-example
+
+# users, unity-example.com
+dn: ou=users,dc=unity-example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+# user1, users, unity-example.com
+dn: cn=user1,ou=users,dc=unity-example,dc=com
+cn: user1
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: otp
+sn: surname
+otp-secret: JBSWY3DPEHPK3PXP
+userPassword:: dXNlcjE=
+
