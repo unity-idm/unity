@@ -45,7 +45,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
-import pl.edu.icm.unity.webui.common.groups.OptionalGroupExcludeChildsSelection;
+import pl.edu.icm.unity.webui.common.groups.OptionalGroupExcludingChildrenSelection;
 
 /**
  * Integration event message configuration editor
@@ -61,7 +61,7 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 	private AttributeSupport attributeSupport;
 
 	private Binder<MessageVaadinBean> binder;
-	private OptionalGroupExcludeChildsSelection groupSelection;
+	private OptionalGroupExcludingChildrenSelection groupSelection;
 	private String trigger;
 	private CompatibleTemplatesComboBox template;
 	private ChipsWithDropdown<Long> entity;
@@ -93,7 +93,7 @@ public class MessageEditor extends CustomField<IntegrationEventConfiguration>
 		{
 			NotificationPopup.showError(msg, msg.getMessage("MessageEditor.getGroupsError"), e);
 		}
-		groupSelection = new OptionalGroupExcludeChildsSelection(msg, true);
+		groupSelection = new OptionalGroupExcludingChildrenSelection(msg, true);
 		groupSelection.setItems(groups);
 		groupSelection.setCaption(msg.getMessage("MessageEditor.groups"));
 		groupSelection.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,

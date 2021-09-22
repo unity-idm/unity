@@ -29,6 +29,7 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 {
 	private MessageSource msg;
 	private Set<Group> selectedWithNextChild;
+	private boolean multiSelectableGroups;
 	
 	public OptionalGroupsSelection(MessageSource msg)
 	{
@@ -39,16 +40,8 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 	{
 		super(group -> group.getDisplayedName().getValue(msg), group -> group.getDisplayedName().getValue(msg), true);	
 		this.msg = msg;
-		if (multiSelectable)
-		{
-			
-			addChipRemovalListener(this::onMultiGroupRemoval);
-		}else
-		{
-			setMaxSelection(1);
-			addChipRemovalListener(this::onSingleGroupRemoval);
-		}
-		
+		setMultiSelectable(multiSelectable);
+		addChipRemovalListener(this::onGroupRemoval);
 		addSelectionListener(this::onGroupSelection);
 		selectedWithNextChild = new HashSet<>();
 		setComboStyleGenerator(g -> selectedWithNextChild.contains(g) ? "inactive" : "");
@@ -57,19 +50,29 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 	@Override
 	public List<String> getSelectedGroupsWithParents()
 	{
-		return getSelectedGroupsWithoutParents(); //at selection time parents are explicitely added
+		 //at selection time parents are explicitely added
+		return getSelectedItems().stream().map(group -> group.toString()).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<String> getSelectedGroupsWithoutParents()
 	{
-		return getSelectedItems().stream().map(group -> group.toString()).collect(Collectors.toList());
+		Set<Group> allGroupsSet = new HashSet<>(getSelectedItems());
+		return Group.getOnlyChildrenOfSet(allGroupsSet).stream().map(Group::getPathEncoded).collect(Collectors.toList());
 	}
 	
 	@Override
 	public Set<String> getItems()
 	{
 		return super.getAllItems().stream().map(g -> g.toString()).collect(Collectors.toSet());
+	}
+	
+	private void onGroupRemoval(ClickEvent event)
+	{
+		if (multiSelectableGroups)
+			onMultiGroupRemoval(event);
+		else 
+			onSingleGroupRemoval(event);
 	}
 	
 	private void onMultiGroupRemoval(ClickEvent event)
@@ -155,6 +158,13 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 		
 	}
 
+	@Override
+	public void setMultiSelectable(boolean multiSelectable)
+	{
+		this.multiSelectableGroups = multiSelectable;
+		setMaxSelection(multiSelectable ? 0 : 1);
+	}
+	
 	protected void sortItems(List<Group> source)
 	{
 		GroupSelectionHelper.sort(source, new GroupNameComparator(msg));

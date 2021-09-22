@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
+import pl.edu.icm.unity.webui.common.groups.OptionalGroupsSelection;
 
 /**
  * Editor of a preset {@link GroupSelection}.
@@ -39,7 +40,7 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	@Override
 	protected Optional<GroupSelection> getValueInternal() throws FormValidationException
 	{
-		return Optional.of(new GroupSelection(selection.getSelectedGroupsWithParents()));
+		return Optional.of(new GroupSelection(selection.getSelectedGroupsWithoutParents()));
 	}
 	
 	@Override
@@ -57,7 +58,8 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	protected Component getEditorComponentsInternal(PrefilledEntry<GroupSelection> value,
 			int position)
 	{
-		selection = GroupsSelection.getGroupsSelection(msg, true, false);
+		GroupRegistrationParam groupRegistrationParam = formParams.get(position);
+		selection = new OptionalGroupsSelection(msg, groupRegistrationParam.isMultiSelect());
 		setEditedComponentPosition(position);
 		return selection;
 	}
