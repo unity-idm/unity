@@ -320,6 +320,15 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			ldapSearchBaseName.setVisible(v.equals(UserDNResolving.ldapSearch));
 			ldapSearchFilter.setVisible(v.equals(UserDNResolving.ldapSearch));
 			ldapSearchScope.setVisible(v.equals(UserDNResolving.ldapSearch));
+			if (v.equals(UserDNResolving.template))
+			{
+				ldapSearchBaseName.clear();
+				ldapSearchFilter.clear();
+
+			} else
+			{
+				userDNtemplate.clear();
+			}		
 			refreshUserDNResolvingSection();
 		});
 
