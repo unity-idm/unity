@@ -141,6 +141,7 @@ public abstract class LDAPCommonConfiguration
 		}
 
 		// Server connection config
+		raw.put(prefix + LDAPConnectionProperties.CONNECTION_MODE, String.valueOf(getConnectionMode()));
 		raw.put(prefix + LDAPConnectionProperties.FOLLOW_REFERRALS, String.valueOf(getFollowReferrals()));
 
 		raw.put(prefix + LDAPConnectionProperties.SEARCH_TIME_LIMIT, String.valueOf(getSearchTimeLimit()));
@@ -157,7 +158,7 @@ public abstract class LDAPCommonConfiguration
 					String.valueOf(getClientTrustStore()));
 		}
 		
-		if (getUsernameExtractorRegexp() != null)
+		if (getUsernameExtractorRegexp() != null && !getUsernameExtractorRegexp().isEmpty())
 		{
 			raw.put(prefix + LDAPConnectionProperties.USER_ID_EXTRACTOR_REGEXP,
 					getUsernameExtractorRegexp());
