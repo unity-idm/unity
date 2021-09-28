@@ -59,9 +59,10 @@ public class LocaleChoiceComponent extends CompactFormLayout
 			
 			chooser = new MenuBar();
 			chooser.setCaption(msg.getMessage("LanguageChoiceComponent.language"));
-			chooser.addStyleName("u-authn-languageSelector");
+			chooser.setStyleName("u-authn-languageSelector");
 
 			MenuItem current = chooser.addItem(selected, Images.getFlagForLocale(selectableLocales.get(selected.toString()).toString()), null);
+			current.setStyleName("u-authn-languageSelector-first");
 			
 			for (String locale : selectableLocales.keySet())
 			{
