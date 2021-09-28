@@ -128,14 +128,14 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		FormLayoutWithFixedCaptionWidth otp = new FormLayoutWithFixedCaptionWidth();
 		
 		ComboBox<Integer> codeLength = new ComboBox<>(msg.getMessage("OTPCredentialDefinitionEditor.codeLength"));
-		tooltip(codeLength, msg.getMessage("OTPCredentialDefinitionEditor.codeLength.tip"));
+		tooltip(codeLength, msg.getMessage("OTPWithLDAPAuthenticatorEditor.codeLength.tip"));
 		codeLength.setItems(6, 8);
 		codeLength.setEmptySelectionAllowed(false);
 		configBinder.forField(codeLength).asRequired().bind("codeLength");
 		otp.addComponent(codeLength);
 
 		IntStepper allowedTimeDrift = new IntStepper(msg.getMessage("OTPWithLDAPAuthenticatorEditor.allowedTimeDrift"));
-		tooltip(allowedTimeDrift, msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip"));
+		tooltip(allowedTimeDrift, msg.getMessage("OTPWithLDAPAuthenticatorEditor.allowedTimeDrift.tip"));
 		allowedTimeDrift.setWidth(3, Unit.EM);
 		allowedTimeDrift.setMinValue(0);
 		allowedTimeDrift.setMaxValue(2880);
@@ -143,7 +143,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		otp.addComponent(allowedTimeDrift);		
 		
 		IntStepper timeStep = new IntStepper(msg.getMessage("OTPWithLDAPAuthenticatorEditor.timeStep"));
-		tooltip(timeStep, msg.getMessage("OTPCredentialDefinitionEditor.timeStep.tip"));
+		tooltip(timeStep, msg.getMessage("OTPWithLDAPAuthenticatorEditor.timeStep.tip"));
 		timeStep.setWidth(3, Unit.EM);
 		timeStep.setMinValue(5);
 		timeStep.setMaxValue(180);
@@ -153,7 +153,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		EnumComboBox<HashFunction> hashAlgorithm = new EnumComboBox<>(
 				msg.getMessage("OTPWithLDAPAuthenticatorEditor.hashAlgorithm"), 
 				msg, "OTPWithLDAPAuthenticatorEditor.hashAlgorithm.", HashFunction.class, HashFunction.SHA1);
-		tooltip(hashAlgorithm, msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm.tip"));
+		tooltip(hashAlgorithm, msg.getMessage("OTPWithLDAPAuthenticatorEditor.hashAlgorithm.tip"));
 		configBinder.forField(hashAlgorithm).asRequired().bind("hashFunction");
 		otp.addComponent(hashAlgorithm);		
 

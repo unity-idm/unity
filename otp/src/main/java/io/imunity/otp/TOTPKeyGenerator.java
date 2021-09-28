@@ -23,12 +23,18 @@ import java.security.SecureRandom;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.http.client.utils.URIBuilder;
 
-class TOTPKeyGenerator
+public class TOTPKeyGenerator
 {
+	public static final String SECRET_URI_PARAM = "secret";
+	public static final String ISSUER_URI_PARAM = "issuer";
+	public static final String ALGORITHM_URI_PARAM = "algorithm";
+	public static final String DIGITS_URI_PARAM = "digits";
+	public static final String PERIOD_URI_PARAM = "period";
+	
 	private static final SecureRandom RNG = new SecureRandom();
 	private static final Base32 BASE32_ENCODER = new Base32();
 	
-	static String generateTOTPURI(String secretBase32, String label, String issuer, OTPGenerationParams otpParams)
+	public static String generateTOTPURI(String secretBase32, String label, String issuer, OTPGenerationParams otpParams)
 	{
 		if (issuer.contains(":"))
 			throw new IllegalArgumentException("Issuer can not contain colon");
@@ -38,11 +44,11 @@ class TOTPKeyGenerator
 		{
 			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/");
 			uriBuilder.setPath(issuer + ":" + label);
-			uriBuilder.addParameter("secret", secretBase32); 
-			uriBuilder.addParameter("issuer", issuer); 
-			uriBuilder.addParameter("algorithm", otpParams.hashFunction.toString()); 
-			uriBuilder.addParameter("digits", String.valueOf(otpParams.codeLength)); 
-			uriBuilder.addParameter("period", String.valueOf(otpParams.timeStepSeconds)); 
+			uriBuilder.addParameter(SECRET_URI_PARAM, secretBase32); 
+			uriBuilder.addParameter(ISSUER_URI_PARAM, issuer); 
+			uriBuilder.addParameter(ALGORITHM_URI_PARAM, otpParams.hashFunction.toString()); 
+			uriBuilder.addParameter(DIGITS_URI_PARAM, String.valueOf(otpParams.codeLength)); 
+			uriBuilder.addParameter(PERIOD_URI_PARAM, String.valueOf(otpParams.timeStepSeconds)); 
 			return uriBuilder.build().toASCIIString();
 		} catch (URISyntaxException e)
 		{
