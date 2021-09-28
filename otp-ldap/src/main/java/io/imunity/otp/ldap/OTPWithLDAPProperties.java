@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 
+import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import io.imunity.otp.HashFunction;
@@ -40,6 +41,7 @@ class OTPWithLDAPProperties extends LDAPConnectionProperties
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "otpldap.";
 
+	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<String, PropertyMD>();
 
 	static

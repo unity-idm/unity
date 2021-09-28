@@ -1,0 +1,49 @@
+[[otp-ldap-authenticator]]
+=== OTP verification with LDAP backend 
+
+Credential verificator name:: +otp-ldap+
+Compatible credentials:: _not used_
+
+The OTP authenticator with LDAP backend allows for configuring OTP verification with secret (and optionally other OTP parameters) stored in LDAP as user's attribute. 
+
+Authenticated user must possess the `username` identity to be authenticated. This identity is mapped to an LDAP entity DN first and then an attribute with OTP secret is retrieved from the entity. 
+
+The configuration of this authenticator consists mostly from LDAP connection options. 
+
+The most important is setting of an LDAP attribute which is storing an OTP URI with user's secret. The URI must be encoded `otpauth://` scheme. See https://github.com/google/google-authenticator/wiki/Key-Uri-Format for details of the URI format. Additional OTP key parameters as time step, hash algorithm and code length are also taken from the URI if are present. If are missing, then the values set in Unity's configuration of the authenticator are used.  
+
+
+[NOTE]
+Technically this authenticator is implemented as _local authenticator_, that is it does not support setting up an input translation profile. This decision was made as in practice OTP is used as a 2nd factor authenticator and if a deployment is using this authenticator, most likely it is accompanied with LDAP password (or certificate) authenticator, which can map and fetch LDAP users with full flexibility of Unity remote authenticator.
+
+
+==== File based configuration 
+
+This section is relevant only if Unity is configured with configuration files, instead of the Admin Console web UI.
+
+Example configuration of LDAP OTP authenticator in unityServer.conf:
+
+----
+unityServer.core.authenticators.otpldap.authenticatorName=OTP LDAP
+unityServer.core.authenticators.otpldap.authenticatorType=otp-ldap
+unityServer.core.authenticators.otpldap.configurationFile=authn/otp-ldap.properties
+----
+
+and the corresponding configuration of the authenticator:
+
+----
+otpldap.servers.1=localhost
+otpldap.ports.1=389
+
+otpldap.userDNTemplate=cn={USERNAME},ou=People,dc=srv,dc=world
+otpldap.systemDN=cn=Manager,dc=srv,dc=world
+otpldap.systemPassword=ldap-test
+
+otpldap.otpSecretURIAttribute=otp-secret
+----
+
+Full reference with all properties:
+
+include::ref-OTPLDAPProperties.txt[]
+
+
