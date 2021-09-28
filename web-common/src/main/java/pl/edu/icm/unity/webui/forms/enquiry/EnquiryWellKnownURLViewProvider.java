@@ -97,7 +97,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 
 		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
 		ResolvedInvitationParam resolvedInvitationParam = null;
-		PrefilledSet prefilledSet = null;
+		PrefilledSet prefilledSet = new PrefilledSet();
 		if (registrationCode != null)
 		{
 			try
@@ -167,7 +167,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			return new PrefilledSet(formPrefill.getIdentities(), formPrefill.getGroupSelections(),
 					formPrefill.getAttributes(), formPrefill.getAllowedGroups());
 		}
-		return null;
+		return new PrefilledSet();
 	}
 	
 	private void removePendingRequestSafe(String formName)
