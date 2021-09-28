@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentati
 @PrototypeComponent
 class EnquiryReviewPanel extends RequestReviewPanelBase
 {
-	private static final String UNKNOWN_IDENTITY = "UNKNOWN";
+	private static final String UNKNOWN_IDENTITY = "DELETED USER";
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryReviewPanel.class);
 	private Label entity;
@@ -80,21 +80,21 @@ class EnquiryReviewPanel extends RequestReviewPanelBase
 	void setInput(EnquiryResponseState requestState, EnquiryForm form)
 	{
 		super.setInput(requestState, form);
-		boolean unkwnonIdentity = false;
+		boolean unknwonIdentity = false;
 		try
 		{
 			identitiesManagement.getEntity(new EntityParam(requestState.getEntityId()));
 		} catch (Exception e)
 		{
 			log.warn("Can not establish entity ", e);
-			unkwnonIdentity = true;
+			unknwonIdentity = true;
 		}
 		
-		String label = unkwnonIdentity ? UNKNOWN_IDENTITY : getEntityLabel(requestState.getEntityId());	
+		String label = unknwonIdentity ? UNKNOWN_IDENTITY : getEntityLabel(requestState.getEntityId());	
 		label += " [" + requestState.getEntityId() + "]";
 		entity.setValue(label);
 		
-		if (!unkwnonIdentity)
+		if (!unknwonIdentity)
 		{
 			setGroupEntries(getGroupEntries(requestState, form));
 		}

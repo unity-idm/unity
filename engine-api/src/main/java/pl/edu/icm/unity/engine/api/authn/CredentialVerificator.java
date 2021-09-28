@@ -27,13 +27,8 @@ public interface CredentialVerificator extends CredentialExchange, DescribedObje
 	
 	/**
 	 * Instance name is the configured name of the authenticator to which this credential verificator belongs.
-	 * @param name
 	 */
 	void setInstanceName(String name);
 
-	/**
-	 * 
-	 * @return verificator type
-	 */
 	VerificatorType getType();
 }

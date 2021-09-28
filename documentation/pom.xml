@@ -67,6 +67,11 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-otp-ldap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -215,6 +220,7 @@
 								<argument>pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties|ref-PasswordRetrievalProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties|ref-SMSRetrievalProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties|ref-TLSRetrievalProperties.txt|</argument>
+								<argument>io.imunity.otp.ldap.OTPWithLDAPProperties|ref-OTPLDAPProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>
