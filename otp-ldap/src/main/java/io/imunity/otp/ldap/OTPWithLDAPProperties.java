@@ -26,7 +26,7 @@ class OTPWithLDAPProperties extends LDAPConnectionProperties
 	public static final String LDAP_SEARCH_BASENAME = "searchBaseName";
 	public static final String LDAP_SEARCH_FILTER = "searchFilter";
 	public static final String LDAP_SEARCH_SCOPE = "searchScope";
-	public static final String OTP_SECRET_ATTRIBUTE = "otpSecretAttribute";
+	public static final String OTP_SECRET_URI_ATTRIBUTE = "otpSecretURIAttribute";
 	public static final String OTP_CODE_LENGHT = "otpCodeLenght";
 	public static final String OTP_ALLOWED_TIME_DRIFT_STEPS = "otpAllowedTimeDriftSteps";
 	public static final String OTP_HASH_FUNCTION = "otpHashFunction";
@@ -56,21 +56,25 @@ class OTPWithLDAPProperties extends LDAPConnectionProperties
 						.setDescription("Standard LDAP filter of valid users."
 								+ " Even the users who can authenticate but are not matching this filter will "
 								+ "have access denied."));
-		defaults.put(OTP_SECRET_ATTRIBUTE, new PropertyMD().setMandatory().setCategory(main)
-				.setDescription("Name of LDAP attribute holding otp secret"));
-		defaults.put(OTP_CODE_LENGHT, new PropertyMD(String.valueOf(DEFAULT_OTP_CODE_LENGHT)).setCategory(main)
-				.setDescription("How long each generated code is valid. 30 seconds is the safest bet."));
+		defaults.put(OTP_SECRET_URI_ATTRIBUTE, new PropertyMD().setMandatory().setCategory(main)
+				.setDescription("Name of LDAP attribute holding otp secret uri"));
+		defaults.put(OTP_CODE_LENGHT,
+				new PropertyMD(String.valueOf(DEFAULT_OTP_CODE_LENGHT)).setCategory(main)
+						.setDescription("How long each generated code is valid. 30 seconds is the safest bet. "
+								+ "Used only if URI stored in LDAP doesn’t define this parameter."));
 		defaults.put(OTP_ALLOWED_TIME_DRIFT_STEPS,
 				new PropertyMD(String.valueOf(DEFAULT_OTP_ALLOWED_TIME_DRIFT_STEPS)).setCategory(main)
 						.setDescription("If larger then zero, then codes generated in that many steps behind"
-								+ "or after server''s time will be accepted.  "));
+								+ "or after server''s time will be accepted."));
 		defaults.put(OTP_TIME_STEP_SECODS,
 				new PropertyMD(String.valueOf(DEFAULT_OTP_TIME_STEP_SECODS)).setCategory(main)
 						.setDescription("How long each generated code is valid. 30 seconds is the safest bet. "
-								+ "Google and Microsoft authenticator apps only support setting of 30s"));
+								+ "Google and Microsoft authenticator apps only support setting of 30s."
+								+ " Used only if URI stored in LDAP doesn’t define this parameter."));
 		defaults.put(OTP_HASH_FUNCTION, new PropertyMD(String.valueOf(DEFAULT_OTP_HASH_FUNCTION)).setCategory(main)
 				.setDescription("Hash algorithm to be used. SHA1 is the most commonly supported, "
-						+ "other variants are more secure. Google and Microsoft authenticator apps only support SHA1"));
+						+ "other variants are more secure. Google and Microsoft authenticator apps only support SHA1. "
+						+ "Used only if URI stored in LDAP doesn’t define this parameter."));
 
 		defaults.put(LDAP_SEARCH_BASENAME,
 				new PropertyMD().setCategory(main)
@@ -107,7 +111,7 @@ class OTPWithLDAPProperties extends LDAPConnectionProperties
 	{
 		Properties ldap = new Properties();
 		ldap.putAll(properties);
-		ldap.remove(PREFIX + OTP_SECRET_ATTRIBUTE);
+		ldap.remove(PREFIX + OTP_SECRET_URI_ATTRIBUTE);
 		ldap.remove(PREFIX + OTP_ALLOWED_TIME_DRIFT_STEPS);
 		ldap.remove(PREFIX + OTP_CODE_LENGHT);
 		ldap.remove(PREFIX + OTP_TIME_STEP_SECODS);

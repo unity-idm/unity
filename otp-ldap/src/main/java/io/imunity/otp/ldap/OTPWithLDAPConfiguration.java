@@ -80,7 +80,7 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 		setTimeStepSeconds(otpWithLDAPProperties.getIntValue(OTPWithLDAPProperties.OTP_TIME_STEP_SECODS));
 		setHashFunction(
 				otpWithLDAPProperties.getEnumValue(OTPWithLDAPProperties.OTP_HASH_FUNCTION, HashFunction.class));
-		setSecretAttribute(otpWithLDAPProperties.getValue(OTPWithLDAPProperties.OTP_SECRET_ATTRIBUTE));
+		setSecretAttribute(otpWithLDAPProperties.getValue(OTPWithLDAPProperties.OTP_SECRET_URI_ATTRIBUTE));
 		setAllowedTimeDriftSteps(otpWithLDAPProperties.getIntValue(OTPWithLDAPProperties.OTP_ALLOWED_TIME_DRIFT_STEPS));
 	}
 
@@ -134,7 +134,7 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 		raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.OTP_ALLOWED_TIME_DRIFT_STEPS,
 				String.valueOf(allowedTimeDriftSteps));
 		raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.OTP_HASH_FUNCTION, hashFunction.toString());
-		raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.OTP_SECRET_ATTRIBUTE, secretAttribute);
+		raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.OTP_SECRET_URI_ATTRIBUTE, secretAttribute);
 		raw.put(OTPWithLDAPProperties.PREFIX + OTPWithLDAPProperties.OTP_TIME_STEP_SECODS,
 				String.valueOf(timeStepSeconds));
 

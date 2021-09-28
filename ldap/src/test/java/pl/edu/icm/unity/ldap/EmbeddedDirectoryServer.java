@@ -64,8 +64,12 @@ public class EmbeddedDirectoryServer
 		this(DBIntegrationTestBase.getDemoCredential(), "src/test/resources", ServerHostnameCheckingMode.WARN);
 	}
 
-	
 	public InMemoryDirectoryServer startEmbeddedServer() throws Exception
+	{
+		return startEmbeddedServer("/test-data.ldif");
+	}
+	
+	public InMemoryDirectoryServer startEmbeddedServer(String testDataFilePath) throws Exception
 	{
 		InMemoryDirectoryServerConfig config =
 				new InMemoryDirectoryServerConfig("dc=unity-example,dc=com");
@@ -96,7 +100,7 @@ public class EmbeddedDirectoryServer
 		config.setSchema(merged);
 		
 		ds = new InMemoryDirectoryServer(config);
-		ds.importFromLDIF(true, cfgDirectory + "/test-data.ldif");
+		ds.importFromLDIF(true, cfgDirectory + testDataFilePath);
 		ds.startListening();
 		return ds;
 	}

@@ -8,11 +8,16 @@ package io.imunity.otp.ldap;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +26,12 @@ import org.springframework.stereotype.Component;
 import com.unboundid.ldap.sdk.LDAPException;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPCredentialReset;
 import io.imunity.otp.OTPExchange;
 import io.imunity.otp.OTPGenerationParams;
 import io.imunity.otp.TOTPCodeVerificator;
+import io.imunity.otp.TOTPKeyGenerator;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -131,13 +138,13 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 			log.info("The user for OTP authN can not be found: " + subject, e);
 			return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"), e);
 		}
-
-		OTPGenerationParams otpParams = new OTPGenerationParams(otpLdapConfiguration.getCodeLength(),
-				otpLdapConfiguration.getHashFunction(), otpLdapConfiguration.getTimeStepSeconds());
+		
 		try
 		{
-			String secret = getSecretFromLdap(resolved.getValue());
-			boolean valid = TOTPCodeVerificator.verifyCode(code, secret, otpParams,
+			OTPURIParams otpURIParams = getOTPURIParamsFromLdapFallbackToDefaults(resolved.getValue());
+			boolean valid = TOTPCodeVerificator.verifyCode(
+					code, otpURIParams.base32Secret, new OTPGenerationParams(otpURIParams.codeLength,
+							otpURIParams.hashFunction, otpURIParams.timeStepSeconds),
 					otpLdapConfiguration.getAllowedTimeDriftSteps());
 
 			if (!valid)
@@ -154,14 +161,44 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 		}
 	}
 
-	private String getSecretFromLdap(String usernameIdentity) throws AuthenticationException, KeyManagementException,
-			LDAPException, NoSuchAlgorithmException, LdapAuthenticationException
+	private OTPURIParams getOTPURIParamsFromLdapFallbackToDefaults(String usernameIdentity) throws AuthenticationException,
+			KeyManagementException, LDAPException, NoSuchAlgorithmException, LdapAuthenticationException
 	{
-		Optional<String> secret = ldapClient.searchAttribute(usernameIdentity,
+		Optional<String> secretURIOpt = ldapClient.searchAttribute(usernameIdentity,
 				otpLdapConfiguration.getSecretAttribute(), ldapClientConfiguration);
 
-		return secret.orElseThrow(
-				() -> new AuthenticationException("OTP secret is not available for user " + usernameIdentity));
+		if (!secretURIOpt.isPresent())
+		{
+			log.error("OTP secret URI is not available for user " + usernameIdentity);
+			throw new AuthenticationException("OTP secret is not available for user " + usernameIdentity);
+		}
+		Map<String, String> queryParams = null;
+		try
+		{
+			queryParams = new URIBuilder(secretURIOpt.get()).getQueryParams().stream()
+					.collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+		} catch (URISyntaxException e)
+		{
+			log.error("Can not parse secret URI from LDAP", e);
+			throw new AuthenticationException("OTP secret is not available for user " + usernameIdentity);
+		}
+
+		String base32Secret = queryParams.get(TOTPKeyGenerator.SECRET_URI_PARAM);
+		if (base32Secret == null || base32Secret.isEmpty())
+		{
+			log.error("OTP secret is not available for user " + usernameIdentity);
+			throw new AuthenticationException("OTP secret is not available for user " + usernameIdentity);
+		}
+
+		HashFunction hashFunction = HashFunction.valueOf(queryParams.getOrDefault(TOTPKeyGenerator.ALGORITHM_URI_PARAM,
+				otpLdapConfiguration.getHashFunction().toString()));
+		int codeLenght = Integer.valueOf(queryParams.getOrDefault(TOTPKeyGenerator.DIGITS_URI_PARAM,
+				String.valueOf(otpLdapConfiguration.getCodeLength())));
+		int timeStepSeconds = Integer.valueOf(queryParams.getOrDefault(TOTPKeyGenerator.PERIOD_URI_PARAM,
+				String.valueOf(otpLdapConfiguration.getTimeStepSeconds())));
+
+		return new OTPURIParams(hashFunction, timeStepSeconds, codeLenght, base32Secret);
+
 	}
 
 	@Component
@@ -171,6 +208,24 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 		public Factory(ObjectFactory<OTPWithLDAPVerificator> factory)
 		{
 			super(NAME, DESC, factory);
+		}
+	}
+	
+	private static class OTPURIParams
+	{
+		final HashFunction hashFunction;
+		final int timeStepSeconds;
+		final int codeLength;
+		final String base32Secret;
+		
+		OTPURIParams(HashFunction hashFunction, int timeStepSeconds, int codeLength,
+				String base32Secret)
+		{
+		
+			this.hashFunction = hashFunction;
+			this.timeStepSeconds = timeStepSeconds;
+			this.codeLength = codeLength;
+			this.base32Secret = base32Secret;
 		}
 	}
 }
