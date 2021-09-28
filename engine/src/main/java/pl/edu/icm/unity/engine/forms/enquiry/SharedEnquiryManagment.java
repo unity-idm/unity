@@ -46,6 +46,7 @@ import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
@@ -82,6 +83,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private GroupDAO groupDB;
 	
 	private AttributeTypeHelper atHelper;
+	private final EntityDAO entityDAO;
 
 	@Autowired
 	public SharedEnquiryManagment(MessageSource msg, NotificationProducer notificationProducer,
@@ -93,7 +95,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			EnquiryResponsePreprocessor responseValidator, AttributeTypeHelper atHelper,
 			RegistrationConfirmationSupport confirmationsSupport, InvitationDB invitationDB, GroupDAO groupDB,
 			PolicyAgreementManagement policyAgreementManagement,
-			SecondFactorOptInService secondFactorOptInService)
+			SecondFactorOptInService secondFactorOptInService,
+			EntityDAO entityDAO)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper, entityCredentialsHelper,
 				facilitiesManagement, invitationDB, policyAgreementManagement, secondFactorOptInService, enquiryResponseDB);
@@ -105,6 +108,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
 		this.groupDB = groupDB;
+		this.entityDAO = entityDAO;
 	}
 
 	/**
@@ -131,6 +135,14 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			addAttributeToGroupsMap(a, rootAttributes, remainingAttributesByGroup);
 
 		long entityId = currentRequest.getEntityId();
+		try
+		{
+			entityDAO.getByKey(entityId);
+		} catch (IllegalArgumentException e)
+		{
+			throw new EngineException("Unknown entity " + currentRequest.getEntityId(), e);
+		}
+		
 		Collection<IdentityParam> identities = translatedRequest.getIdentities();
 		Iterator<IdentityParam> identitiesIterator = identities.iterator();
 		while (identitiesIterator.hasNext())

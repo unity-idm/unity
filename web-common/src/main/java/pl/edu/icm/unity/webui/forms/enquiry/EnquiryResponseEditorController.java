@@ -184,7 +184,6 @@ public class EnquiryResponseEditorController
 		}
 			
 		return new PrefilledSet();
-		
 	}
 
 	private Map<Integer, PrefilledEntry<GroupSelection>> getPreffiledGroup(EntityParam entity, EnquiryForm form)
