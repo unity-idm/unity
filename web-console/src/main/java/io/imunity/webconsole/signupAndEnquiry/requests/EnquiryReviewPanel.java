@@ -22,7 +22,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -42,6 +41,8 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentati
 @PrototypeComponent
 class EnquiryReviewPanel extends RequestReviewPanelBase
 {
+	private static final String UNKNOWN_IDENTITY = "UNKNOWN";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryReviewPanel.class);
 	private Label entity;
 	private EntityManagement identitiesManagement;
@@ -79,21 +80,39 @@ class EnquiryReviewPanel extends RequestReviewPanelBase
 	void setInput(EnquiryResponseState requestState, EnquiryForm form)
 	{
 		super.setInput(requestState, form);
+		boolean unkwnonIdentity = false;
+		try
+		{
+			identitiesManagement.getEntity(new EntityParam(requestState.getEntityId()));
+		} catch (Exception e)
+		{
+			log.warn("Can not establish entity ", e);
+			unkwnonIdentity = true;
+		}
+		
+		String label = unkwnonIdentity ? UNKNOWN_IDENTITY : getEntityLabel(requestState.getEntityId());	
+		label += " [" + requestState.getEntityId() + "]";
+		entity.setValue(label);
+		
+		if (!unkwnonIdentity)
+		{
+			setGroupEntries(getGroupEntries(requestState, form));
+		}
+	}
+	
+	private String getEntityLabel(long entity)
+	{
 		String label = null;
 		try
 		{
-			label = identitiesManagement.getEntityLabel(new EntityParam(requestState.getEntityId()));
-		} catch (EngineException e)
+			label = identitiesManagement.getEntityLabel(new EntityParam(entity));
+		} catch (Exception e)
 		{
 			log.warn("Can not establish entity label", e);
 		}
 		if (label == null)
 			label = "";
-		label += " [" + requestState.getEntityId() + "]";
-		entity.setValue(label);
-		
-		setGroupEntries(getGroupEntries(requestState, form));
-
+		return label;
 	}
 	
 	private List<Component> getGroupEntries(EnquiryResponseState requestState, EnquiryForm form)
@@ -103,7 +122,7 @@ class EnquiryReviewPanel extends RequestReviewPanelBase
 		{
 			allUserGroups.addAll(identitiesManagement
 					.getGroupsForPresentation(new EntityParam(requestState.getEntityId())));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.error("Can not establish entities groups", e);
 			NotificationPopup.showError(msg, msg.getMessage("EnquiryReviewPanel.errorEstablishGroups"), e);
