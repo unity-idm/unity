@@ -62,6 +62,9 @@
 	<update id="cleardb-17">
 		DROP TABLE IF EXISTS MESSAGES;
 	</update>
+	<update id="cleardb-18">
+		DROP TABLE IF EXISTS IDP_STATISTICS;
+	</update>
 	<update id="cleardb-99">
 		DROP TABLE IF EXISTS UVOS_FLAG;
 	</update>
@@ -127,6 +130,9 @@
 	</delete>
 	<delete id="deletedb-capacityLimit">
 		DELETE FROM VAR_OBJECTS WHERE TYPE = 'capacityLimit'
+	</delete>
+	<delete id="deletedb-idpStatistics">
+		DELETE FROM IDP_STATISTICS
 	</delete>
 
 	<delete id="deletedbvar" parameterType="string">

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
@@ -14,6 +15,7 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 @Component
 class ASConsentDeciderServletFactory
@@ -25,6 +27,7 @@ class ASConsentDeciderServletFactory
 	private final OAuthProcessor processor;
 	private final PolicyAgreementManagement policyAgreementManagement;
 	private final MessageSource msg;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Autowired
 	ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
@@ -33,7 +36,8 @@ class ASConsentDeciderServletFactory
 			OAuthProcessor processor,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementManagement,
-			MessageSource msg)
+			MessageSource msg,
+			ApplicationEventPublisher eventPublisher)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
@@ -42,12 +46,13 @@ class ASConsentDeciderServletFactory
 		this.enquiryManagement = enquiryManagement;
 		this.policyAgreementManagement = policyAgreementManagement;
 		this.msg = msg;
+		this.eventPublisher = eventPublisher;
 	}
 
-	ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath)
+	ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath, ResolvedEndpoint endpoint)
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
 				processor, oauthSessionService, oauthUiServletPath, authenticationUIServletPath, 
-				enquiryManagement, policyAgreementManagement, msg);
+				enquiryManagement, policyAgreementManagement, msg, eventPublisher, endpoint);
 	}
 }

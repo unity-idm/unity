@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
@@ -32,6 +34,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -54,6 +57,9 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 public class OAuthTestUtils
 {
@@ -75,7 +81,7 @@ public class OAuthTestUtils
 	public static OAuthProcessor getOAuthProcessor(TokensManagement tokensMan)
 	{
 		return new OAuthProcessor(tokensMan, new OAuthTokenRepository(tokensMan, 
-				mock(SecuredTokensManagement.class)));
+				mock(SecuredTokensManagement.class)), mock(ApplicationEventPublisher.class), mock(MessageSource.class));
 	}
 	
 	public static OAuthASProperties getConfig(int accessTokenValidity, int maxValidity, boolean oidc)
@@ -148,7 +154,7 @@ public class OAuthTestUtils
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid, 100);
 		
-		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
+		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, getEndpoint());
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(OAuthProcessor processor, 
@@ -168,7 +174,7 @@ public class OAuthTestUtils
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx);
+				attributes, identity, ctx, getEndpoint());
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
@@ -200,6 +206,13 @@ public class OAuthTestUtils
 		attrsMan.createAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", "Regular User"));
 		return clientId1;
+	}
+	
+	public static ResolvedEndpoint getEndpoint()
+	{
+		return new ResolvedEndpoint(
+				new Endpoint("name", null, null, new EndpointConfiguration(null, null, null, null, null), 0), null,
+				null);
 	}
 	
 	

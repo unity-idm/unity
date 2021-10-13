@@ -72,7 +72,8 @@ class OAuthConsentScreen extends CustomComponent
 
 	private final Runnable declineHandler;
 	private final BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler;
-
+	private final Runnable errorHandler;
+	
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
 	private CheckBox rememberCB;
@@ -87,7 +88,8 @@ class OAuthConsentScreen extends CustomComponent
 			Collection<DynamicAttribute> attributes,
 			Runnable declineHandler,
 			BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler,
-			OAuthSessionService oauthSessionService)
+			OAuthSessionService oauthSessionService,
+			Runnable errorHandler)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
@@ -100,6 +102,7 @@ class OAuthConsentScreen extends CustomComponent
 		this.declineHandler = declineHandler;
 		this.acceptHandler = acceptHandler;
 		this.oauthResponseHandler = new OAuthResponseHandler(oauthSessionService);
+		this.errorHandler = errorHandler;
 		initUI();
 	}
 
@@ -213,6 +216,7 @@ class OAuthConsentScreen extends CustomComponent
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
+			errorHandler.run();
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, true);
 		}
 	}

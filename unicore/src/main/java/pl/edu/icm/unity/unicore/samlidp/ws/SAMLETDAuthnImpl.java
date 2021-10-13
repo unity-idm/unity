@@ -9,11 +9,13 @@ import java.util.Date;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.security.etd.DelegationRestrictions;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -26,6 +28,7 @@ import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
@@ -49,9 +52,10 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	public SAMLETDAuthnImpl(AttributeTypeSupport aTypeSupport,
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan)
+			PreferencesManagement preferencesMan, ApplicationEventPublisher applicationEventPublisher,
+			MessageSource msg, Endpoint endpoint)
 	{
-		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan);
+		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, applicationEventPublisher, msg, endpoint);
 	}
 
 	@Override

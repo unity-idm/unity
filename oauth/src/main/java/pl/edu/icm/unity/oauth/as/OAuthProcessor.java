@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,6 +38,8 @@ import com.nimbusds.openid.connect.sdk.claims.CodeHash;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -47,6 +50,8 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Groups OAuth related logic for processing the request and preparing the response.  
@@ -62,12 +67,17 @@ public class OAuthProcessor
 	
 	private final TokensManagement tokensMan;
 	private final OAuthTokenRepository tokenDAO;
+	private final ApplicationEventPublisher eventPublisher;
+	private final MessageSource msg;
 	
 	@Autowired
-	public OAuthProcessor(TokensManagement tokensMan, OAuthTokenRepository tokenDAO)
+	public OAuthProcessor(TokensManagement tokensMan, OAuthTokenRepository tokenDAO,
+			ApplicationEventPublisher eventPublisher, MessageSource msg)
 	{
 		this.tokensMan = tokensMan;
 		this.tokenDAO = tokenDAO;
+		this.eventPublisher = eventPublisher;
+		this.msg = msg;
 	}
 
 	/**
@@ -87,7 +97,7 @@ public class OAuthProcessor
 	 */
 	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(
 			Collection<DynamicAttribute> attributes, 
-			IdentityParam identity,	OAuthAuthzContext ctx) 
+			IdentityParam identity,	OAuthAuthzContext ctx, ResolvedEndpoint endpoint) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
 		OAuthToken internalToken = new OAuthToken();
@@ -164,6 +174,12 @@ public class OAuthProcessor
 						ctx.getReturnURI(), null, idTokenSigned.orElse(null), 
 						accessToken, ctx.getRequest().getState(), null, 
 						ctx.getRequest().impliedResponseMode());
+			eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+					endpoint.getEndpoint().getConfiguration().getDisplayedName() != null
+							? endpoint.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
+							: null,
+					ctx.getClientUsername(), ctx.getClientName(), Status.SUCCESSFUL));
+			
 			tokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(identity), now, expiration);
 		} else if (GrantFlow.openidHybrid == ctx.getFlow())
 		{
@@ -188,6 +204,12 @@ public class OAuthProcessor
 				addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType);
 				
 				signAndRecordIdToken(idToken, config.getTokenSigner(), responseType, internalToken);
+				eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+						endpoint.getEndpoint().getConfiguration().getDisplayedName() != null
+								? endpoint.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
+								: null,
+						ctx.getClientUsername(), ctx.getClientName(), Status.SUCCESSFUL));
+				
 				tokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(identity), now, 
 						accessExpiration);
 			}

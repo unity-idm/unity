@@ -22,6 +22,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 
 import eu.unicore.samly2.SAMLConstants;
@@ -106,6 +107,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
+	private final ApplicationEventPublisher applicationEventPublisher;
 	
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
@@ -121,12 +123,13 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+			ApplicationEventPublisher applicationEventPublisher)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
 				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter);
+				remoteAuthnResponseProcessingFilter, applicationEventPublisher);
 	}
 
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath,
@@ -144,7 +147,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			AttributeTypeSupport aTypeSupport,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+			ApplicationEventPublisher applicationEventPublisher)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH,
 				remoteAuthnResponseProcessingFilter);
@@ -159,6 +163,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.aTypeSupport = aTypeSupport;
 		this.metadataService = metadataService;
 		this.uriAccessService = uriAccessService;
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 	
 	@Override
@@ -219,7 +224,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
 		
 		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(
-				SAML_UI_SERVLET_PATH, AUTHENTICATION_PATH);
+				SAML_UI_SERVLET_PATH, AUTHENTICATION_PATH, description.getEndpoint());
 		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet, true);
 		context.addServlet(samlConsentDeciderHolder, SAML_CONSENT_DECIDER_SERVLET_PATH + "/*");
 		
@@ -266,7 +271,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				registrationConfiguration, properties, 
 				getBootstrapHandler4Authn(SAML_ENTRY_SERVLET_PATH));
 		
-		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport);
+		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, applicationEventPublisher, msg, description.getEndpoint());
 		authenticationServlet.setCancelHandler(cancelHandler);
 		
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);

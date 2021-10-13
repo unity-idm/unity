@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.SynchronizedRequestHandler;
@@ -20,11 +21,15 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinSession;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService.VaadinContextSessionWithRequest;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -39,12 +44,18 @@ public class SamlResponseHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
 	protected FreemarkerAppHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
+	private ApplicationEventPublisher eventPublisher;
+	private MessageSource msg;
+	private Endpoint endpoint;
 	
 	public SamlResponseHandler(FreemarkerAppHandler freemarkerHandler,
-			AuthnResponseProcessor samlProcessor)
+			AuthnResponseProcessor samlProcessor, ApplicationEventPublisher eventPublisher, MessageSource msg, Endpoint endpoint)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.samlProcessor = samlProcessor;
+		this.eventPublisher = eventPublisher;
+		this.msg = msg;
+		this.endpoint = endpoint;
 	}
 
 	public void handleException(Exception e, boolean destroySession) throws EopException
@@ -66,15 +77,27 @@ public class SamlResponseHandler
 		VaadinSession session = VaadinSession.getCurrent();
 		SamlSessionService.setAttribute(session, SessionDisposal.class, new SessionDisposal(error, destroySession));
 		SamlSessionService.setAttribute(session, SAMLServerException.class, error); // TODO: is this needed?
-		returnSamlResponse(respDoc);
+		returnSamlResponse(respDoc, Status.FAILED);
 	}
 	
-	public void returnSamlResponse(ResponseDocument respDoc)
+	public void returnSamlResponse(ResponseDocument respDoc, Status status)
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		SamlSessionService.setAttribute(session, ResponseDocument.class, respDoc);
 		session.addRequestHandler(new SendResponseRequestHandler());
-		Page.getCurrent().reload();		
+		reportStatus(SamlSessionService.getVaadinContext(), status);
+		Page.getCurrent().reload();	
+	}
+	
+	protected void reportStatus(SAMLAuthnContext samlCtx, Status status)
+	{
+		eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+				endpoint.getConfiguration().getDisplayedName() != null
+						? endpoint.getConfiguration().getDisplayedName().getValue(msg)
+						: null,
+				samlCtx.getRequest().getIssuer().getStringValue(),
+				samlCtx.getSamlConfiguration().getDisplayedNameForRequester(samlCtx.getRequest().getIssuer()),
+				status));
 	}
 	
 	/**

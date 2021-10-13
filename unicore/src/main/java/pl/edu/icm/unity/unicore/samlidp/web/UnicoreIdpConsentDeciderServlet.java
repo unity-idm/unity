@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
@@ -41,6 +42,7 @@ import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
@@ -66,10 +68,11 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			SessionManagement sessionMan,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
-			MessageSource msg)
+			MessageSource msg,
+			ApplicationEventPublisher eventPublisher)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg);
+				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg, eventPublisher);
 	}
 	
 	
@@ -98,7 +101,7 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		{
 			AuthenticationException ea = new AuthenticationException("Authentication was declined");
 			ssoResponseHandler.handleException(samlProcessor, ea, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), request, response, false);
+					serviceUrl, samlCtx, request, response, false);
 		}
 		SamlRoutableMessage respDoc;
 		try
@@ -118,18 +121,18 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		} catch (Exception e)
 		{
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), request, response, false);
+					serviceUrl, samlCtx, request, response, false);
 			return;
 		}
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
 				samlProcessor.getSessionId(), sessionMan);
 		try
 		{
-			ssoResponseHandler.sendResponse(respDoc, Binding.HTTP_POST, request, response);
+			ssoResponseHandler.sendResponse(samlCtx, respDoc, Binding.HTTP_POST, request, response);
 		} catch (DSigException e)
 		{
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), request, response, false);
+					serviceUrl, samlCtx, request, response, false);
 			return;
 		}
 	}
@@ -141,10 +144,10 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		private ObjectFactory<UnicoreIdpConsentDeciderServlet> factory;
 		
 		@Override
-		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath)
+		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath, Endpoint endpoint)
 		{
 			UnicoreIdpConsentDeciderServlet ret = factory.getObject();
-			ret.init(uiServletPath, authenticationUIServletPath);
+			ret.init(uiServletPath, authenticationUIServletPath, endpoint);
 			return ret;
 		}
 	}

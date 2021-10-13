@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,7 @@ import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD;
 import pl.edu.icm.unity.unicore.samlidp.saml.AuthnWithETDResponseProcessor;
 import pl.edu.icm.unity.webui.UnityWebUI;
@@ -66,11 +68,12 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			IdPEngine idpEngine, IdentityTypeSupport idTypeSupport, SessionManagement sessionMan,
 			AttributeTypeManagement attrMan, EnquiresDialogLauncher enquiryDialogLauncher,
 			AttributeTypeSupport aTypeSupport, PolicyAgreementManagement policyAgreementsMan,
-			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
+			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
+			ApplicationEventPublisher applicationEventPublisher)
 	{
 		super(msg, imageAccessService, freemarkerHandler, handlersRegistry, preferencesMan, authnProcessor,
 				idpEngine, idTypeSupport, sessionMan, attrMan, enquiryDialogLauncher, aTypeSupport,
-				policyAgreementsMan, policyAgreementScreenObjectFactory);
+				policyAgreementsMan, policyAgreementScreenObjectFactory, applicationEventPublisher);
 	}
 
 	@Override
@@ -126,6 +129,6 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		}
 		addSessionParticipant(samlCtx, samlWithEtdProcessor.getAuthenticatedSubject().getNameID(), 
 				samlWithEtdProcessor.getSessionId());
-		samlResponseHandler.returnSamlResponse(respDoc);
+		samlResponseHandler.returnSamlResponse(respDoc, Status.SUCCESSFUL);
 	}
 }

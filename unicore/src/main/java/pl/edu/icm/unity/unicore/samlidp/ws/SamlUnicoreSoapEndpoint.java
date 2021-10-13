@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
@@ -67,11 +68,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			EntityManagement entityMan)
+			EntityManagement entityMan,
+			ApplicationEventPublisher applicationEventPublisher)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
-				advertisedAddrProvider, entityMan);
+				advertisedAddrProvider, entityMan, applicationEventPublisher);
 		this.servletPath = SERVLET_PATH;
 	}
 
@@ -85,7 +87,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan);
+				idpEngine, preferencesMan, applicationEventPublisher, msg, description.getEndpoint());
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}
 	

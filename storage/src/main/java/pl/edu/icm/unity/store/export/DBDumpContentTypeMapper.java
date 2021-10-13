@@ -17,6 +17,7 @@ import pl.edu.icm.unity.store.impl.files.FileIE;
 import pl.edu.icm.unity.store.impl.groups.GroupIE;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
+import pl.edu.icm.unity.store.impl.idpStatistics.IdpStatisticIE;
 import pl.edu.icm.unity.store.impl.membership.MembershipIE;
 import pl.edu.icm.unity.store.impl.messages.MessageIE;
 import pl.edu.icm.unity.store.impl.policyDocuments.PolicyDocucentIE;
@@ -87,6 +88,11 @@ public class DBDumpContentTypeMapper
 		{
 			ret.addAll(getAuditLogsElements());
 		}
+		
+		if (content.idpStatistics)
+		{
+			ret.addAll(getIdpStatisticsElements());
+		}
 
 		return ret;
 	}
@@ -113,6 +119,11 @@ public class DBDumpContentTypeMapper
 		if (content.signupRequests && !ret.containsAll(getDirSchemaElements()))
 		{
 			ret.addAll(getDirSchemaElements());
+		}
+		
+		if (content.idpStatistics)
+		{
+			ret.addAll(getIdpStatisticsElements());
 		}
 
 		return ret;
@@ -165,4 +176,9 @@ public class DBDumpContentTypeMapper
 		return Arrays.asList(AuditEventIE.AUDIT_EVENTS_OBJECT_TYPE);
 	}
 
+	public static List<String> getIdpStatisticsElements()
+	{
+		return Arrays.asList(IdpStatisticIE.IDP_STATISTIC_OBJECT_TYPE);
+
+	}
 }

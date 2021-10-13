@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -113,9 +114,9 @@ public class TokenIntrospectionResourceTest
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		TransactionalRunner tx = new TestTxRunner();
-		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement, 
-				new OAuthTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx);
+		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
+				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
+				null, tx, mock(ApplicationEventPublisher.class), null, null, OAuthTestUtils.getEndpoint());
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
 				null, null, null, null, null, null, null);

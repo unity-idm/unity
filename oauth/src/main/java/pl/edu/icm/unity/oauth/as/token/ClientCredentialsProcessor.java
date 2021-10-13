@@ -50,7 +50,6 @@ public class ClientCredentialsProcessor
 	public ClientCredentialsProcessor(OAuthRequestValidator requestValidator,
 			IdPEngine idpEngine, OAuthASProperties config)
 	{
-		super();
 		this.requestValidator = requestValidator;
 		this.idpEngine = idpEngine;
 		this.config = config;
@@ -74,9 +73,10 @@ public class ClientCredentialsProcessor
 		
 		Set<GrantFlow> allowedFlows = requestValidator.getAllowedFlows(attributes);
 		if (!allowedFlows.contains(GrantFlow.client))
+		{
 			throw new OAuthValidationException("The '" + client + 
 					"' is not authorized to use the '" + GrantFlow.client + "' grant flow.");
-		
+		}
 		OAuthToken internalToken = new OAuthToken();
 		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope);
 		

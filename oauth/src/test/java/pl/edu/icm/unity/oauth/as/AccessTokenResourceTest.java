@@ -20,6 +20,7 @@ import java.util.Locale;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.common.collect.Sets;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -223,7 +224,7 @@ public class AccessTokenResourceTest
 			TransactionalRunner tx)
 	{
 		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx);
+				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, OAuthTestUtils.getEndpoint());
 	}
 	
 	private void setupInvocationContext(long entityId)

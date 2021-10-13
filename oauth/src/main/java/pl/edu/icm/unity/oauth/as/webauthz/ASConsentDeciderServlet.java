@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
@@ -44,6 +46,8 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSetting
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
@@ -69,6 +73,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private final OAuthProcessor oauthProcessor;
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private final MessageSource msg;
+	private final ApplicationEventPublisher eventPublisher;
+	private final ResolvedEndpoint endpoint;
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan,
@@ -79,7 +85,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 			String authenticationUIServletPath,
 			EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
-			MessageSource msg)
+			MessageSource msg, ApplicationEventPublisher eventPublisher,
+			ResolvedEndpoint endpoint)
 	{
 		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
@@ -90,6 +97,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 		this.oauthUiServletPath = oauthUiServletPath;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.msg = msg;
+		this.eventPublisher = eventPublisher;
+		this.endpoint = endpoint;
 	}
 
 	@Override
@@ -140,6 +149,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 					oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
 			sendReturnRedirect(oauthResponse, req, resp, true);
+			eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+					endpoint.getEndpoint().getConfiguration().getDisplayedName() != null
+							? endpoint.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
+							: null,
+							oauthCtx.getClientUsername(), oauthCtx.getClientName(), Status.FAILED));
 			return;
 
 		}
@@ -229,6 +243,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 					OAuth2Error.ACCESS_DENIED, 
 					oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
+			eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+					endpoint.getEndpoint().getConfiguration().getDisplayedName() != null
+							? endpoint.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
+							: null,
+							oauthCtx.getClientUsername(), oauthCtx.getClientName(), Status.FAILED));
 			sendReturnRedirect(oauthResponse, request, response, false);
 		}
 		
@@ -243,9 +262,15 @@ public class ASConsentDeciderServlet extends HttpServlet
 			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo, 
 					oauthCtx.getEffectiveRequestedAttrs());
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
-					oauthCtx);
+					oauthCtx, endpoint);
 		} catch (OAuthErrorResponseException e)
 		{
+			
+			eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+					endpoint.getEndpoint().getConfiguration().getDisplayedName() != null
+							? endpoint.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
+							: null,
+							oauthCtx.getClientUsername(), oauthCtx.getClientName(), Status.FAILED));
 			sendReturnRedirect(e.getOauthResponse(), request, response, e.isInvalidateSession());
 			return;
 		} catch (Exception e)
@@ -256,6 +281,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 					OAuth2Error.SERVER_ERROR, 
 					oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
+			eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+					endpoint.getEndpoint().getConfiguration().getDisplayedName() != null
+							? endpoint.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
+							: null,
+							oauthCtx.getClientUsername(), oauthCtx.getClientName(), Status.FAILED));
 			sendReturnRedirect(oauthResponse, request, response, false);
 			return;
 		}

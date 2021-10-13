@@ -16,6 +16,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -78,6 +79,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
+	protected final ApplicationEventPublisher applicationEventPublisher;
 	
 	@Autowired
 	public SamlSoapEndpoint(MessageSource msg,
@@ -93,7 +95,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			EntityManagement entityMan)
+			EntityManagement entityMan, 
+			ApplicationEventPublisher applicationEventPublisher)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, entityMan);
 		this.idpEngine = idpEngine;
@@ -104,6 +107,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.aTypeSupport = aTypeSupport;
 		this.metadataService = metadataService;
 		this.uriAccessService = uriAccessService;
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
 	@Override
@@ -160,7 +164,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan);
+				idpEngine, preferencesMan, applicationEventPublisher, msg, description.getEndpoint());
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
 		configureSLOService(virtualConf, endpointURL);
