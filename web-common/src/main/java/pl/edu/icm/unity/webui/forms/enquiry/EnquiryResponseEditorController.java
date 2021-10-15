@@ -395,17 +395,24 @@ public class EnquiryResponseEditorController
 				pageTitle, form.getLayoutSettings().getLogoURL(), false);
 	}
 
-	public boolean checkIfRequestExists(String name) throws EngineException
+	
+	public boolean checkIfRequestExistsForLoggedUser(String formName) throws EngineException
+	{
+		long entityId = getLoggedEntity().getEntityId();	
+		return checkIfRequestExists(formName, entityId);
+	}
+	
+	public boolean checkIfRequestExists(String formName, long entity) throws EngineException
 	{
 		return !enquiryManagement.getEnquiryResponses().stream()
-				.filter(r -> r.getRequest().getFormId().equals(name)
+				.filter(r -> r.getRequest().getFormId().equals(formName)
+						&& r.getEntityId() == entity
 						&& r.getStatus().equals(RegistrationRequestStatus.pending))
 				.collect(Collectors.toList()).isEmpty();
 	}
 	
 	public void removePendingRequest(String form) throws EngineException
 	{
-	
 		enquiryManagement.removePendingStickyRequest(form, getLoggedEntity());	
 	}
 }
