@@ -179,7 +179,7 @@ public class StickyEnquiryUpdatableComponent extends CustomComponent
 		boolean requestExist = true;
 		try
 		{
-			requestExist = controller.checkIfRequestExists(form.getName());
+			requestExist = controller.checkIfRequestExistsForLoggedUser(form.getName());
 		} catch (Exception e)
 		{
 			log.error("Can not check if pending request exists for form " + form.getName(), e);

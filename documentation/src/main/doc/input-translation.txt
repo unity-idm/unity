@@ -95,8 +95,10 @@ MVEL context reference:
 is multi-valued then the first value is returned. If the attribute has no value then empty string is returned. 
 . +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
 . +id+ Value of the authenticated identity. If remote IdP returned multiple identities, then a random one is available,
-though this is a very exotic case. 
-. +idType+ The type of the identity stored in the +id+ variable.
+though this is a very exotic case. In rare cases (typically with SMAL IdPs) it may happen that IdP is not providing any 
+unique identifier of the identity. In such case this variable is set to +null+, and user should be identified 
+by some (combination of) attributes.
+. +idType+ The type of the identity stored in the +id+ variable. +null+ only if +id+ is null.
 . +idsByType+ Map of identity values indexed by type. Rarely useful.
 . +groups+ List of all remote groups. 
  

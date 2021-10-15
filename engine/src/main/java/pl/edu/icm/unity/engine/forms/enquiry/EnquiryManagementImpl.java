@@ -44,6 +44,7 @@ import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
@@ -497,14 +498,16 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		dbAttributes.addAttribute(entityId, attribute, true, false);
 	}
 	
-	private void removeAllPendingRequestsOfForm(String enquiryId, EntityParam entity)
+	private void removeAllPendingRequestsOfForm(String enquiryId, EntityParam entity) throws IllegalIdentityValueException
 	{
 		for (EnquiryResponseState en : requestDB.getAll())
 		{
 			if (!en.getStatus().equals(RegistrationRequestStatus.pending))
 				continue;
 			EnquiryResponse res = en.getRequest();
-			if (res.getFormId().equals(enquiryId))
+			long entityId = identitiesResolver.getEntityId(entity);
+
+			if (res.getFormId().equals(enquiryId) && en.getEntityId() == entityId)
 			{
 				requestDB.delete(en.getRequestId());
 			}
