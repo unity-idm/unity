@@ -15,8 +15,7 @@
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		ID="_9800bebf600a84a3a9ae734f0dd946bb2437c03c88" Version="2.0"
 		IssueInstant="2021-01-29T18:29:36Z">
-		<saml:Issuer>http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php
-		</saml:Issuer>
+		<saml:Issuer>http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php</saml:Issuer>
 		<saml:Subject>
 			<saml:SubjectConfirmation
 				Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
