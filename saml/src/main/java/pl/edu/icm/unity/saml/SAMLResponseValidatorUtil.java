@@ -120,7 +120,8 @@ public class SAMLResponseValidatorUtil
 		for (int i=0; i<authnAssertions.size(); i++)
 		{
 			NameIDType samlName = authnAssertions.get(i).getAssertion().getSubject().getNameID();
-			ret.add(new RemoteIdentity(samlName.getStringValue(), samlName.getFormat()));
+			if (samlName != null && !samlName.isNil())
+				ret.add(new RemoteIdentity(samlName.getStringValue(), samlName.getFormat()));
 		}
 		return ret;
 	}
@@ -141,7 +142,7 @@ public class SAMLResponseValidatorUtil
 			for (AuthnStatementType authNStatement: authNAss.getAuthnStatementArray())
 			{
 				sessionIndex = authNStatement.getSessionIndex();
-				if (sessionIndex != null)
+				if (sessionIndex != null && authNAss.getSubject().getNameID() != null)
 				{
 					SAMLSessionParticipant participant = new SAMLSessionParticipant(
 							issuer.getStringValue(), 

@@ -131,7 +131,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		{
 			try
 			{
-				overwriteSticky = editorController.checkIfRequestExists(form.getName());
+				overwriteSticky = editorController.checkIfRequestExistsForLoggedUser(form.getName());
 			} catch (Exception e)
 			{
 				log.warn("Can't check if enquiry request exists", e);
