@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,26 +25,20 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -56,7 +49,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLHelper;
-import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.metadata.LocalSPMetadataManager;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
@@ -70,7 +62,6 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Binding irrelevant SAML logic: creation of a SAML authentication request and verification of the answer.
@@ -92,7 +83,6 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private String responseConsumerAddress;
 	private Map<String, RemoteMetaManager> remoteMetadataManagers;
 	private RemoteMetaManager myMetadataManager;
-	private ReplayAttackChecker replayAttackChecker;
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
 	private RemoteMetadataService metadataService;
@@ -101,11 +91,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private MessageSource msg;
 
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
+
+	private final SAMLResponseVerificator responseVerificator;
 	
 	@Autowired
 	public SAMLVerificator(RemoteAuthnResultTranslator processor,
 			@Qualifier("insecure") PKIManagement pkiMan,
-			ReplayAttackChecker replayAttackChecker,
 			ExecutorsService executorsService,
 			RemoteMetadataService metadataService,
 			SLOSPManager sloManager,
@@ -113,17 +104,18 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			MessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			URIAccessService uriAccessService)
+			URIAccessService uriAccessService,
+			SAMLResponseVerificator responseVerificator)
 	{
 		super(NAME, DESC, SAMLExchange.ID, processor);
 		this.metadataService = metadataService;
 		this.pkiMan = pkiMan;
 		this.executorsService = executorsService;
 		this.msg = msg;
-		this.replayAttackChecker = replayAttackChecker;
 		this.sloManager = sloManager;
 		this.sloReplyInstaller = sloReplyInstaller;
 		this.uriAccessService = uriAccessService;
+		this.responseVerificator = responseVerificator;
 
 		URL baseAddress = advertisedAddrProvider.get();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
@@ -306,65 +298,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState)
 	{
 		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
-		try
-		{
-			return verifySAMLResponse(castedState);
-		} catch (Exception e)
-		{
-			log.error("Runtime error during SAML response processing or principal mapping", e);
-			return RemoteAuthenticationResult.failed(null, e,
-					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
-		}
-	}
-	
-	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context)
-	{
-		try
-		{
-			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
-			SAMLSPProperties config = context.getContextConfig();
-			String idpKey = context.getContextIdpKey();
-		
-			TranslationProfile profile = getTranslationProfile(
-					config, idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
-					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
-			
-			
-			return getResult(input, profile, 
-					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
-					context.getRegistrationFormForUnknown(),
-					context.isEnableAssociation());
-		} catch (RemoteAuthenticationException e)
-		{
-			log.info("SAML response verification or processing failed", e);
-			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e,
-					new ResolvableError("WebSAMLRetrieval.authnFailedError"));
-		}
-	}
-	
-	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(RemoteAuthnContext context) 
-			throws RemoteAuthenticationException 
-	{
-		ResponseDocument responseDocument;
-		try
-		{
-			responseDocument = ResponseDocument.Factory.parse(context.getResponse());
-		} catch (XmlException e)
-		{
-			throw new RemoteAuthenticationException("The SAML response can not be parsed - " +
-					"XML data is corrupted", e);
-		}
-		
-		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
-				getSamlValidatorSettings(), 
-				replayAttackChecker, responseConsumerAddress);
-
-		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
-				context.getVerifiableResponse(),
-				context.getRequestId(), 
-				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
-				context.getGroupAttribute(), context.getContextIdpKey());
-		return input;
+		SAMLSPProperties config = castedState.getContextConfig();
+		String idpKey = castedState.getContextIdpKey();
+		TranslationProfile profile = getTranslationProfile(
+				config, idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+				idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+		return responseVerificator.processResponse(remoteAuthnState, profile);
 	}
 	
 	@Override
