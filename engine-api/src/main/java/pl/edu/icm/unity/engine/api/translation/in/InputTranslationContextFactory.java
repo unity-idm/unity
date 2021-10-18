@@ -50,6 +50,10 @@ public class InputTranslationContextFactory
 			RemoteIdentity ri = input.getIdentities().values().iterator().next();
 			ret.put(ContextKey.id.name(), ri.getName());
 			ret.put(ContextKey.idType.name(), ri.getIdentityType());
+		} else
+		{
+			ret.put(ContextKey.id.name(), null);
+			ret.put(ContextKey.idType.name(), null);
 		}
 		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();

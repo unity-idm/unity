@@ -209,6 +209,46 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 	}
 	
 	@Test
+	public void shouldRemovePendingRequestOnlyForGivenEntity() throws Exception
+	{
+		
+		initAndCreateEnquiry("false");
+		EnquiryResponse response = new EnquiryResponseBuilder()
+			.withFormId("sticky")
+			.withAddedGroupSelection()
+			.withGroup("/")
+			.withGroup("/A")
+			.endGroupSelection()
+			.withAddedGroupSelection()
+			.withGroup("/B")
+			.endGroupSelection()
+			.withAddedAttribute(null)
+			.build();
+		
+		Identity addEntity1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid);
+		Identity addEntity2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser2"), 
+				CRED_REQ_PASS, EntityState.valid);
+		
+		
+		setupUserContext("tuser", null);
+
+		enquiryManagement.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
+		
+		setupUserContext("tuser2", null);
+
+		enquiryManagement.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
+
+		setupAdmin();
+		enquiryManagement.removePendingStickyRequest("sticky", new EntityParam(addEntity1.getEntityId()));
+
+		assertThat(enquiryManagement.getEnquiryResponses().stream().filter(e -> e.getEntityId() == addEntity1.getEntityId()).count(), is(0L));
+		assertThat(enquiryManagement.getEnquiryResponses().stream().filter(e -> e.getEntityId() == addEntity2.getEntityId()).count(), is(1L));
+	}
+	
+	@Test
 	public void shouldBlockMultiSelectGroupInSingleSelectGroupParam() throws Exception
 	{
 		initAndCreateEnquiry("true");
