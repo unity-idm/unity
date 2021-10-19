@@ -29,7 +29,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenSignupRequests()
 	{
-		DBDumpContentElements ct = new DBDumpContentElements(false, false, false, false, true);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, false, false, true, false);
 
 		List<String> ret = DBDumpContentTypeMapper.getDBElements(ct);
 		// Dir schema
@@ -45,7 +45,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenUsers()
 	{
-		DBDumpContentElements ct = new DBDumpContentElements(false, false, true, false, false);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, true, false, false, false);
 
 		List<String> ret = DBDumpContentTypeMapper.getDBElements(ct);
 		// Dir schema
@@ -61,7 +61,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenClearUsers()
 	{
-		DBDumpContentElements ct = new DBDumpContentElements(false, false, true, false, false);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, true, false, false, false);
 
 		List<String> ret = DBDumpContentTypeMapper.getElementsForClearDB(ct);
 		// Dir schema
@@ -74,7 +74,7 @@ public class DBDumpContentMapperTest
 	@Test
 	public void shouldGetAlsoDirectorySchemaWhenClearSignupRequests()
 	{
-		DBDumpContentElements ct = new DBDumpContentElements(false, false, false, false, true);
+		DBDumpContentElements ct = new DBDumpContentElements(false, false, false, false, true, false);
 
 		List<String> ret = DBDumpContentTypeMapper.getElementsForClearDB(ct);
 		// Dir schema

@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
@@ -43,6 +44,7 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
@@ -80,6 +82,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
+	private final OAuthIdpStatisticReporterFactory idpStatisticReporterFactory;
 
 	@Autowired
 	public OAuthAuthzUI(MessageSource msg,
@@ -93,7 +96,9 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			AttributeTypeSupport aTypeSupport,
 			OAuthSessionService oauthSessionService,
 			PolicyAgreementManagement policyAgreementsMan,
-			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory)
+			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
+			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory
+			)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -107,6 +112,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.aTypeSupport = aTypeSupport;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 	}
 
 	@Override
@@ -190,7 +196,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		}
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
-				this::onDecline, this::onFinalConfirm, oauthSessionService);
+				this::onDecline, this::onFinalConfirm, oauthResponseHandler);
 		setContent(consentScreen);
 	}
 
@@ -204,13 +210,13 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private TranslationResult getTranslationResult(OAuthAuthzContext ctx) throws EopException
 	{
-		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService);
+		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService, idpStatisticReporterFactory.getForEndpoint(endpointDescription.getEndpoint()));
 		try
 		{
 			return idpEngine.getUserInfo(ctx);
 		} catch (OAuthErrorResponseException e)
 		{
-			oauthResponseHandler.returnOauthResponse(e.getOauthResponse(), e.isInvalidateSession());
+			oauthResponseHandler.returnOauthResponseAndReportStatistic(e.getOauthResponse(), e.isInvalidateSession(), ctx, Status.FAILED);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
@@ -220,8 +226,9 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
-			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
+			oauthResponseHandler.returnOauthResponseAndReportStatistic(oauthResponse, true, ctx, Status.FAILED);
 		}
+		
 		return null; // not reachable
 	}
 
@@ -241,7 +248,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());
-		oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
+		
+		oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 	}
 
 	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
@@ -250,7 +258,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor
-					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
+					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, oauthResponseHandler.statReporter);
 
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)
@@ -259,7 +267,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
-			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
+			
+			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 		}
 	}
 }

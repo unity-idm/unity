@@ -21,6 +21,7 @@
 		<typeAlias alias="AuditEntityB" type="pl.edu.icm.unity.store.impl.audit.AuditEntityBean" />
 		<typeAlias alias="AttributeLookupB" type="pl.edu.icm.unity.store.impl.attribute.AttributeLookupBean" />
 		<typeAlias alias="MessageB" type="pl.edu.icm.unity.store.impl.messages.MessageBean" />
+		<typeAlias alias="IdpStatisticB" type="pl.edu.icm.unity.store.impl.idpStatistics.IdpStatisticBean" />
 	</typeAliases>
 	
 	<environments default="def">
@@ -71,5 +72,7 @@
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/AttributesLookup.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/PolicyDocuments.xml" />
 		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/Messages.xml" />
+		<mapper resource="pl/edu/icm/unity/store/rdbms/mapper/IdpStatistic.xml" />
+		
 	</mappers>
 </configuration>

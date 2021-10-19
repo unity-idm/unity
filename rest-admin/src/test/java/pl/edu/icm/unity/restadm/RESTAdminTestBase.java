@@ -22,7 +22,7 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 {
 	protected HttpContext localcontext;
 	
-	protected ObjectMapper m = new ObjectMapper();
+	protected ObjectMapper m = new ObjectMapper().findAndRegisterModules();
 
 	protected HttpHost host;
 

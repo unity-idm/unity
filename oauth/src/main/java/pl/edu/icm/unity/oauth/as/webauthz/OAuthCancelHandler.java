@@ -8,16 +8,18 @@ import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
- * Implements handling of cancellation of authentication in the context of OAuth processing.
+ * Implements handling of cancellation of authentication in the context of OAuth
+ * processing.
  */
 public class OAuthCancelHandler implements CancelHandler
 {
 	private final OAuthResponseHandler responseH;
-	
+
 	public OAuthCancelHandler(OAuthResponseHandler responseH)
 	{
 		this.responseH = responseH;
@@ -26,16 +28,16 @@ public class OAuthCancelHandler implements CancelHandler
 	@Override
 	public void onCancel()
 	{
+
 		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
-		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
-				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
-				ctx.getRequest().impliedResponseMode());
+		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
+				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
 		try
 		{
-			responseH.returnOauthResponse(oauthResponse, false);
+			responseH.returnOauthResponseAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 		} catch (EopException e)
 		{
-			//OK - nothing to do.
+			// OK - nothing to do.
 			return;
 		}
 	}

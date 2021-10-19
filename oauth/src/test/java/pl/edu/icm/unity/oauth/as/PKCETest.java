@@ -15,6 +15,7 @@ import java.util.Locale;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -186,7 +187,7 @@ public class PKCETest
 			TransactionalRunner tx)
 	{
 		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx);
+				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, OAuthTestUtils.getEndpoint());
 	}
 	
 	private void setupInvocationContext(long entityId)
