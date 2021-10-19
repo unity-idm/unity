@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
 
 public interface IdpStatisticManagement
 {
-	public static final int DEFAULT_STAT_SIZE_LIMIT = 100000;
+	public static final int DEFAULT_STAT_SIZE_LIMIT = Integer.MAX_VALUE;
 
 	
 	public enum GroupBy
