@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
@@ -54,12 +55,14 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory
+			)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlUnicoreIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory,
 				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter);
+				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory);
 	}
 
 	@Override

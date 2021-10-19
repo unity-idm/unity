@@ -1289,4 +1289,49 @@ then any token can be removed, otherwise it is allowed for removing owned tokens
 Triggers sending user notification of the given message template. Request may use additional, variable, query parameters
 which are used as template parameters. All such parameters should have the +custom.+ prefix (which is mandatory
 in message template for custom properties).
- 
+
+=== Get idp usage statistics
+
++@Path("/idp-stats")+ +
++@GET+ +
++@QueryParam("since")+ +
++@QueryParam("groupBy")+ +
+
+Returns idp usage statistics since a given date. Idp statistics can be grouped, allowed options are: none, day, month, total. 
+Example output:
+
+----
+[
+   {
+      "idpId":"endpointId",
+      "idpName":"endpointName",
+      "clientId":"clientId1",
+      "clientName":"clientName1",
+      "sigInStats":[
+         {
+            "periodStart":[
+               2021,
+               10,
+               19,
+               17,
+               7,
+               51,
+               224000000
+            ],
+            "periodEnd":[
+               2021,
+               10,
+               19,
+               17,
+               24,
+               31,
+               765800000
+            ],
+            "totatCount":2,
+            "successfullCount":1,
+            "failedCount":1
+         }
+      ]
+   }
+]
+----

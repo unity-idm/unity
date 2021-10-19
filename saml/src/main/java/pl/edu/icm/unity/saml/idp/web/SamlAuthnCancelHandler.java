@@ -10,40 +10,48 @@ import java.util.TimeZone;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
- * Implements handling of cancellation of authentication in the context of SAML processing.
- *  
+ * Implements handling of cancellation of authentication in the context of SAML
+ * processing.
+ * 
  * @author K. Benedyczak
  */
 public class SamlAuthnCancelHandler implements CancelHandler
 {
-	private FreemarkerAppHandler freemarkerHandler;
-	private AttributeTypeSupport aTypeSupport;
-	
-	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport)
+	private final FreemarkerAppHandler freemarkerHandler;
+	private final AttributeTypeSupport aTypeSupport;
+	private final Endpoint endpoint;
+	private final SamlIdpStatisticReporterFactory reporterFactory;
+
+	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
+			SamlIdpStatisticReporterFactory reporterFactory, Endpoint endpoint)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.aTypeSupport = aTypeSupport;
+		this.endpoint = endpoint;
+		this.reporterFactory = reporterFactory;
 	}
 
 	@Override
 	public void onCancel()
 	{
-		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, 
-				SamlSessionService.getVaadinContext(), 
-				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport,
+				SamlSessionService.getVaadinContext(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, reporterFactory,
+				endpoint);
 		AuthenticationException ea = new AuthenticationException("Authentication was declined");
 		try
 		{
 			responseHandler.handleException(ea, false);
 		} catch (EopException e)
 		{
-			//OK - nothing to do.
+			// OK - nothing to do.
 			return;
 		}
 	}

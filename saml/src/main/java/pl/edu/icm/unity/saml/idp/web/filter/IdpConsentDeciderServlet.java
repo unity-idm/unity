@@ -51,6 +51,7 @@ import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -60,6 +61,7 @@ import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -88,6 +90,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private EnquiryManagement enquiryManagement;
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private final MessageSource msg;
+	private final FreemarkerAppHandler freemarker;
+	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	
 	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
@@ -97,22 +101,25 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			SessionManagement sessionMan,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
-			MessageSource msg)
+			MessageSource msg,
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
 		this.enquiryManagement = enquiryManagement;
-		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
 		this.sessionMan = sessionMan;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.msg = msg;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
+		this.freemarker = freemarker;
 	}
 
-	protected void init(String samlUiServletPath, String authenticationUIServletPath)
+	protected void init(String samlUiServletPath, String authenticationUIServletPath, Endpoint endpoint)
 	{
 		this.samlUiServletPath = samlUiServletPath;
 		this.authenticationUIServletPath = authenticationUIServletPath;
+		this.ssoResponseHandler = new SSOResponseHandler(freemarker, idpStatisticReporterFactory, endpoint);
 	}
 	
 	@Override
@@ -172,8 +179,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
 					Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 			String serviceUrl = getServiceUrl(samlCtx);
+			
 			ssoResponseHandler.handleException(samlProcessor, e1, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), req, resp, true);
+					serviceUrl, samlCtx, req, resp, true);
 			return;
 
 		}
@@ -269,7 +277,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		{
 			AuthenticationException ea = new AuthenticationException("Authentication was declined");
 			ssoResponseHandler.handleException(samlProcessor, ea, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), request, response, false);
+					serviceUrl, samlCtx, request, response, false);
 		}
 		
 		SamlRoutableMessage respDoc;
@@ -285,8 +293,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 					samlCtx.getRelayState(), samlCtx.getResponseDestination());
 		} catch (Exception e)
 		{
+			
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), request, response, false);
+					serviceUrl, samlCtx, request, response, false);
 			return;
 		}
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
@@ -294,11 +303,12 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		
 		try
 		{
-			ssoResponseHandler.sendResponse(respDoc, Binding.HTTP_POST, request, response);
+			ssoResponseHandler.sendResponse(samlCtx, respDoc, Binding.HTTP_POST, request, response);
+
 		} catch (DSigException e)
-		{
+		{	
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 
-					serviceUrl, samlCtx.getRelayState(), request, response, false);
+					serviceUrl, samlCtx, request, response, false);
 		}
 	}
 	
@@ -374,10 +384,10 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		private ObjectFactory<IdpConsentDeciderServlet> factory;
 		
 		@Override
-		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath)
+		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath, Endpoint endpoint)
 		{
 			IdpConsentDeciderServlet ret = factory.getObject();
-			ret.init(uiServletPath, authenticationUIServletPath);
+			ret.init(uiServletPath, authenticationUIServletPath, endpoint);
 			return ret;
 		}
 	}

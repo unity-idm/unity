@@ -5,6 +5,9 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,6 +57,8 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
+import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
@@ -126,6 +131,7 @@ public class RESTAdmin implements RESTAdminHandler
 	private Token2JsonFormatter jsonFormatter;
 	private UserNotificationTriggerer userNotificationTriggerer;
 	private ExternalDataParser dataParser;
+	private IdpStatisticManagement idpStatisticManagement;
 
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan,
@@ -143,7 +149,8 @@ public class RESTAdmin implements RESTAdminHandler
 			SecuredTokensManagement securedTokenMan,
 			Token2JsonFormatter jsonFormatter,
 			UserNotificationTriggerer userNotificationTriggerer,
-			ExternalDataParser dataParser)
+			ExternalDataParser dataParser,
+			IdpStatisticManagement idpStatisticManagement)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -161,6 +168,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.jsonFormatter = jsonFormatter;
 		this.userNotificationTriggerer = userNotificationTriggerer;
 		this.dataParser = dataParser;
+		this.idpStatisticManagement = idpStatisticManagement;
 	}
 
 	
@@ -1024,7 +1032,17 @@ public class RESTAdmin implements RESTAdminHandler
 		return mapper.writeValueAsString(jsonArray);
 	}
 	
-	
+	@Path("/idp-stats")
+	@GET
+	public String getIdpStatistics(@QueryParam("since") long since, @QueryParam("groupBy") String groupBy)
+			throws EngineException, JsonProcessingException
+	{
+		LocalDateTime sinceDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(since), ZoneId.systemDefault());
+		GroupBy groupByFallbackToTotal = groupBy != null ? GroupBy.valueOf(groupBy) : GroupBy.none;
+		return mapper.writeValueAsString(idpStatisticManagement.getIdpStatisticsSinceGroupBy(sinceDate,
+				groupByFallbackToTotal, IdpStatisticManagement.DEFAULT_STAT_SIZE_LIMIT));
+	}
+
 	/**
 	 * Creates {@link EntityParam} from given entity address and optional
 	 * type, which can be null. If type is null then entityId is checked to

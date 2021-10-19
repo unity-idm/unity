@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -44,22 +45,24 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSetting
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
- * Invoked after authentication, main OAuth AS servlet. It decides whether the request should be
- * processed automatically or with manual consent. This is separated from Vaadin consent app so it is not needlessly 
- * loaded in user's browser.
+ * Invoked after authentication, main OAuth AS servlet. It decides whether the
+ * request should be processed automatically or with manual consent. This is
+ * separated from Vaadin consent app so it is not needlessly loaded in user's
+ * browser.
  * 
  * @author K. Benedyczak
  */
 public class ASConsentDeciderServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ASConsentDeciderServlet.class);
-	
+
 	private PreferencesManagement preferencesMan;
 	private OAuthIdPEngine idpEngine;
 	private OAuthSessionService oauthSessionService;
@@ -68,18 +71,13 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private EnquiryManagement enquiryManagement;
 	private final OAuthProcessor oauthProcessor;
 	private final PolicyAgreementManagement policyAgreementsMan;
+	private final OAuthIdpStatisticReporter statReporter;
 	private final MessageSource msg;
 
-	
-	public ASConsentDeciderServlet(PreferencesManagement preferencesMan,
-			IdPEngine idpEngine,
-			OAuthProcessor oauthProcessor,
-			OAuthSessionService oauthSessionService,
-			String oauthUiServletPath,
-			String authenticationUIServletPath,
-			EnquiryManagement enquiryManagement,
-			PolicyAgreementManagement policyAgreementsMan,
-			MessageSource msg)
+	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
+			OAuthProcessor oauthProcessor, OAuthSessionService oauthSessionService, String oauthUiServletPath,
+			String authenticationUIServletPath, EnquiryManagement enquiryManagement,
+			PolicyAgreementManagement policyAgreementsMan, OAuthIdpStatisticReporter idpStatisticReporter, MessageSource msg)
 	{
 		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
@@ -89,19 +87,21 @@ public class ASConsentDeciderServlet extends HttpServlet
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
 		this.policyAgreementsMan = policyAgreementsMan;
+		this.statReporter = idpStatisticReporter;
 		this.msg = msg;
 	}
 
 	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		//if we got this request here it means that this is a request from Authnentication UI
-		// which was not reloaded with something new - either regular endpoint UI or navigated away with a redirect. 
+		// if we got this request here it means that this is a request from
+		// Authnentication UI
+		// which was not reloaded with something new - either regular endpoint UI or
+		// navigated away with a redirect.
 		if (VaadinRequestMatcher.isVaadinRequest(req))
 		{
 			String forwardURI = authenticationUIServletPath;
-			if (req.getPathInfo() != null) 
+			if (req.getPathInfo() != null)
 				forwardURI += req.getPathInfo();
 			log.debug("Request to Vaadin internal address will be forwarded to authN {}", req.getRequestURI());
 			req.getRequestDispatcher(forwardURI).forward(req, resp);
@@ -109,20 +109,19 @@ public class ASConsentDeciderServlet extends HttpServlet
 		}
 		super.service(req, resp);
 	}
-	
+
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		try
 		{
 			serviceInterruptible(req, resp);
 		} catch (EopException e)
 		{
-			//OK
+			// OK
 		}
 	}
-	
+
 	protected void serviceInterruptible(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException, EopException
 	{
@@ -134,12 +133,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 		} catch (EngineException e1)
 		{
 			log.error("Engine problem when handling client request - can not load preferences", e1);
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
-					oauthCtx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR,
-					oauthCtx.getRequest().getState(),
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+					OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
 			sendReturnRedirect(oauthResponse, req, resp, true);
+			statReporter.reportStatus(oauthCtx, Status.FAILED);
 			return;
 
 		}
@@ -153,35 +151,35 @@ public class ASConsentDeciderServlet extends HttpServlet
 			autoReplay(preferences, oauthCtx, req, resp);
 		}
 	}
-	
+
 	protected OAuthClientSettings loadPreferences(OAuthAuthzContext oauthCtx) throws EngineException
 	{
 		OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
 		return preferences.getSPSettings(oauthCtx.getRequest().getClientID().getValue());
 	}
-	
+
 	private boolean isInteractiveUIRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
-		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx) 
+		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx)
 				|| isEnquiryWaiting() || isPolicyAgreementWaiting(oauthCtx);
 	}
 
-	
 	private boolean isActiveValueSelectionRequired(OAuthAuthzContext oauthCtx)
 	{
-		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig(), 
+		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig(),
 				oauthCtx.getClientUsername());
 	}
-	
+
 	/**
-	 * According to native OAuth profile, public clients needs to have consent shown regardless of 
-	 * user's saved "trust" for the client. Still we honor admin setting disabling consent globally. 
+	 * According to native OAuth profile, public clients needs to have consent shown
+	 * regardless of user's saved "trust" for the client. Still we honor admin
+	 * setting disabling consent globally.
 	 */
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
 			return false;
-		
+
 		return !oauthCtx.getConfig().isSkipConsent();
 	}
 
@@ -198,15 +196,15 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return false;
 		}
 	}
-	
+
 	private boolean isPolicyAgreementWaiting(OAuthAuthzContext oauthCtx)
 	{
 		try
 		{
-			return !policyAgreementsMan.filterAgreementToPresent(
-					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
-					CommonIdPProperties.getPolicyAgreementsConfig(msg,
-							oauthCtx.getConfig()).agreements)
+			return !policyAgreementsMan
+					.filterAgreementToPresent(
+							new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+							CommonIdPProperties.getPolicyAgreementsConfig(msg, oauthCtx.getConfig()).agreements)
 					.isEmpty();
 		} catch (EngineException e)
 		{
@@ -218,53 +216,54 @@ public class ASConsentDeciderServlet extends HttpServlet
 	/**
 	 * Automatically sends an OAuth response, without the consent screen.
 	 */
-	protected void autoReplay(OAuthClientSettings clientPreferences, OAuthAuthzContext oauthCtx, 
+	protected void autoReplay(OAuthClientSettings clientPreferences, OAuthAuthzContext oauthCtx,
 			HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
 	{
 		if (!clientPreferences.isDefaultAccept())
 		{
 			log.trace("User preferences are set to decline authZ from the client");
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
-					oauthCtx.getReturnURI(), 
-					OAuth2Error.ACCESS_DENIED, 
-					oauthCtx.getRequest().getState(),
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+					OAuth2Error.ACCESS_DENIED, oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
+			statReporter.reportStatus(oauthCtx, Status.FAILED);
+
 			sendReturnRedirect(oauthResponse, request, response, false);
 		}
-		
+
 		AuthorizationSuccessResponse respDoc;
 		try
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
 			handleTranslationProfileRedirectIfNeeded(userInfo, request, response);
-			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
+			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo,
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.info("Authentication of " + selectedIdentity);
-			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo, 
+			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
-			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, 
-					oauthCtx);
+			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, oauthCtx,
+					statReporter);
 		} catch (OAuthErrorResponseException e)
 		{
+
+			statReporter.reportStatus(oauthCtx, Status.FAILED);
+
 			sendReturnRedirect(e.getOauthResponse(), request, response, e.isInvalidateSession());
 			return;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(
-					oauthCtx.getReturnURI(), 
-					OAuth2Error.SERVER_ERROR, 
-					oauthCtx.getRequest().getState(),
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+					OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
+			statReporter.reportStatus(oauthCtx, Status.FAILED);
 			sendReturnRedirect(oauthResponse, request, response, false);
 			return;
 		}
 		sendReturnRedirect(respDoc, request, response, false);
 	}
-	
+
 	private void handleTranslationProfileRedirectIfNeeded(TranslationResult userInfo, HttpServletRequest request,
-			HttpServletResponse response) 
-			throws IOException, EopException
+			HttpServletResponse response) throws IOException, EopException
 	{
 		String redirectURL = userInfo.getRedirectURL();
 		if (redirectURL != null)
@@ -274,13 +273,13 @@ public class ASConsentDeciderServlet extends HttpServlet
 			throw new EopException();
 		}
 	}
-	
+
 	private OAuthAuthzContext getOAuthContext(HttpServletRequest req)
 	{
 		return OAuthSessionService.getContext(req).orElseThrow(noSignInContextException());
 	}
-	
-	private void sendReturnRedirect(AuthorizationResponse oauthResponse, HttpServletRequest request, 
+
+	private void sendReturnRedirect(AuthorizationResponse oauthResponse, HttpServletRequest request,
 			HttpServletResponse response, boolean invalidateSession) throws IOException
 	{
 		SignInContextSession session = new HttpContextSession(request);

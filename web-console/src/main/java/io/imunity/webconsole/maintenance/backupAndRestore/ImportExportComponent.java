@@ -108,6 +108,9 @@ class ImportExportComponent extends VerticalLayout
 		CheckBox auditLogs = new CheckBox(msg.getMessage("ImportExport.auditLogs"));
 		configBinder.forField(auditLogs).bind("auditLogs");
 		
+		CheckBox idpStatistics = new CheckBox(msg.getMessage("ImportExport.idpStatistics"));
+		configBinder.forField(idpStatistics).bind("idpStatistics");
+		
 		users.addValueChangeListener(v -> {
 			if (v.getValue())
 			{
@@ -145,6 +148,7 @@ class ImportExportComponent extends VerticalLayout
 		hl.addComponent(usersWrapper);
 		hl.addComponent(signupWrapper);
 		hl.addComponent(auditLogs);	
+		hl.addComponent(idpStatistics);	
 		
 		final DBDumpResource dumpResource = new DBDumpResource(serverManagement);
 		DeletingFileDownloader downloader = new DeletingFileDownloader(dumpResource);
@@ -156,7 +160,7 @@ class ImportExportComponent extends VerticalLayout
 		configBinder.addStatusChangeListener( v -> {
 			BinderDBDumpContentElements type = (BinderDBDumpContentElements) v.getBinder().getBean();
 			createDump.setEnabled(type.isSystemConfig() || type.isDirectorySchema() || type.isUsers() || type.isAuditLogs() || type.isSignupRequests());
-			dumpResource.setExportContent(new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(), type.isAuditLogs(), type.isSignupRequests()));
+			dumpResource.setExportContent(new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(), type.isAuditLogs(), type.isSignupRequests(), type.isIdpStatistics()));
 		});
 		configBinder.setBean(new BinderDBDumpContentElements());
 		
@@ -494,6 +498,7 @@ class ImportExportComponent extends VerticalLayout
 		private boolean users = true;
 		private boolean auditLogs = true;
 		private boolean signupRequests = true;
+		private boolean idpStatistics = true;
 
 		public BinderDBDumpContentElements()
 		{
@@ -548,6 +553,16 @@ class ImportExportComponent extends VerticalLayout
 		public void setSignupRequests(boolean signupRequests)
 		{
 			this.signupRequests = signupRequests;
+		}
+		
+		public boolean isIdpStatistics()
+		{
+			return idpStatistics;
+		}
+
+		public void setIdpStatistics(boolean idpStatistics)
+		{
+			this.idpStatistics = idpStatistics;
 		}
 	}
 }

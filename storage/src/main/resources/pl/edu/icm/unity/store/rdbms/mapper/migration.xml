@@ -68,6 +68,10 @@
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-messages"/>
 	</update>
 	
+	<update id="updateSchema-014-01">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-idpstatistics"/>
+	</update>
+	
 	<update id="updateSchema-011-03">
 		UPDATE UVOS_FLAG SET VAL = '11'
 	</update>
@@ -78,6 +82,10 @@
 
 	<update id="updateSchema-013-00">
 		UPDATE UVOS_FLAG SET VAL = '13'
+	</update>
+	
+	<update id="updateSchema-014-00">
+		UPDATE UVOS_FLAG SET VAL = '14'
 	</update>
 
 </mapper>
