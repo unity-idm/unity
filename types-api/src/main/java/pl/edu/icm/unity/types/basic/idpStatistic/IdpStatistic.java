@@ -7,55 +7,61 @@ package pl.edu.icm.unity.types.basic.idpStatistic;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class IdpStatistic
 {
-	public static enum Status { SUCCESSFUL, FAILED};
-	
-	private Date timestamp;
-	private String idpEndpointId;
-	private String idpEndpointName;
-	private String clientId;
-	private String clientName;
-	private Status status;
-	
-	public IdpStatistic()
+	public static enum Status
 	{
-		
-	}
-	
-	public Date getTimestamp()
+		SUCCESSFUL, FAILED
+	};
+
+	public final LocalDateTime timestamp;
+	public final String idpEndpointId;
+	public final String idpEndpointName;
+	public final String clientId;
+	public final String clientName;
+	public final Status status;
+
+	private IdpStatistic(Builder builder)
 	{
-		return timestamp;
+		this.timestamp = builder.timestamp;
+		this.idpEndpointId = builder.idpEndpointId;
+		this.idpEndpointName = builder.idpEndpointName;
+		this.clientId = builder.clientId;
+		this.clientName = builder.clientName;
+		this.status = builder.status;
 	}
-	public String getIdpEndpointId()
+
+	@JsonCreator
+	public IdpStatistic(@JsonProperty("timestamp") LocalDateTime timestamp,
+			@JsonProperty("idpEndpointId") String idpEndpointId,
+			@JsonProperty("idpEndpointName") String idpEndpointName, @JsonProperty("clientId") String clientId,
+			@JsonProperty("clientName") String clientName, @JsonProperty("status") Status status)
 	{
-		return idpEndpointId;
+		this.timestamp = timestamp;
+		this.idpEndpointId = idpEndpointId;
+		this.idpEndpointName = idpEndpointName;
+		this.clientId = clientId;
+		this.clientName = clientName;
+		this.status = status;
+
+		requireNonNull(timestamp, "IdpStatistic.timestamp field is required!");
+		requireNonNull(clientId, "IdpStatistic.clientId field is required!");
+		requireNonNull(idpEndpointId, "IdpStatistic.idpEndpointId field is required!");
+		requireNonNull(status, "IdpStatistic.status field is required!");
 	}
-	public String getIdpEndpointName()
-	{
-		return idpEndpointName;
-	}
-	public String getClientId()
-	{
-		return clientId;
-	}
-	public String getClientName()
-	{
-		return clientName;
-	}
-	public Status getStatus()
-	{
-		return status;
-	}
-	
+
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(clientName, clientId, idpEndpointId, idpEndpointName, status, timestamp);
 	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -66,64 +72,69 @@ public class IdpStatistic
 		if (getClass() != obj.getClass())
 			return false;
 		IdpStatistic other = (IdpStatistic) obj;
-		return Objects.equals(clientName, other.clientName)
-				&& Objects.equals(clientId, other.clientId) && Objects.equals(idpEndpointId, other.idpEndpointId)
+		return Objects.equals(clientName, other.clientName) && Objects.equals(clientId, other.clientId)
+				&& Objects.equals(idpEndpointId, other.idpEndpointId)
 				&& Objects.equals(idpEndpointName, other.idpEndpointName) && status == other.status
 				&& Objects.equals(timestamp, other.timestamp);
 	}
-	
-	public static IdpStatisticBuilder builder()
+
+	public static Builder builder()
 	{
-		return new IdpStatisticBuilder();
+		return new Builder();
 	}
 
-	public static class IdpStatisticBuilder
+	public static final class Builder
 	{
-		private IdpStatistic statistic = new IdpStatistic();
+		private LocalDateTime timestamp;
+		private String idpEndpointId;
+		private String idpEndpointName;
+		private String clientId;
+		private String clientName;
+		private Status status;
 
-		public IdpStatisticBuilder timestamp(final Date timestamp)
+		private Builder()
 		{
-			statistic.timestamp = timestamp;
-			return this;
 		}
 
-		public IdpStatisticBuilder idpEndpointId(final String idpEndpointId)
+		public Builder timestamp(LocalDateTime timestamp)
 		{
-			statistic.idpEndpointId = idpEndpointId;
-			return this;
-		}
-		
-		public IdpStatisticBuilder idpEndpointName(final String idpEndpointName)
-		{
-			statistic.idpEndpointName = idpEndpointName;
+			this.timestamp = timestamp;
 			return this;
 		}
 
-		public IdpStatisticBuilder clientId(final String clientId)
+		public Builder idpEndpointId(String idpEndpointId)
 		{
-			statistic.clientId = clientId;
+			this.idpEndpointId = idpEndpointId;
 			return this;
 		}
-		
-		public IdpStatisticBuilder clientName(final String clientDisplayedName)
+
+		public Builder idpEndpointName(String idpEndpointName)
 		{
-			statistic.clientName = clientDisplayedName;
+			this.idpEndpointName = idpEndpointName;
 			return this;
 		}
-		
-		public IdpStatisticBuilder status(final Status status)
+
+		public Builder clientId(String clientId)
 		{
-			statistic.status = status;
+			this.clientId = clientId;
 			return this;
 		}
-		
+
+		public Builder clientName(String clientName)
+		{
+			this.clientName = clientName;
+			return this;
+		}
+
+		public Builder status(Status status)
+		{
+			this.status = status;
+			return this;
+		}
+
 		public IdpStatistic build()
-		{	
-			requireNonNull(statistic.timestamp, "IdpStatistic.timestamp field is required!");
-			requireNonNull(statistic.clientId, "IdpStatistic.clientId field is required!");
-			requireNonNull(statistic.idpEndpointId, "IdpStatistic.idpEndpointId field is required!");
-			requireNonNull(statistic.status, "IdpStatistic.status field is required!");
-			return statistic;
+		{
+			return new IdpStatistic(this);
 		}
 	}
 }

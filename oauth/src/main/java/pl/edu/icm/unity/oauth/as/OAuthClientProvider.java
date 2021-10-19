@@ -41,19 +41,7 @@ public class OAuthClientProvider
 	public OAuthClient getClient(long entityId, String oauthGroup) throws OAuthValidationException
 	{
 		EntityParam clientEntity = new EntityParam(entityId);
-		Entity clientResolvedEntity;
-		try
-		{
-			clientResolvedEntity = identitiesMan.getEntity(clientEntity);
-
-		} catch (IllegalArgumentException e)
-		{
-			throw new OAuthValidationException("The client '" + entityId + "' is unknown");
-		} catch (Exception e)
-		{
-			log.error("Problem retrieving identity of the OAuth client", e);
-			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
-		}
+		Entity clientResolvedEntity = getClient(clientEntity);
 
 		Identity username = clientResolvedEntity.getIdentities().stream()
 				.filter(i -> i.getTypeId().equals(UsernameIdentity.ID)).findFirst().orElse(null);
@@ -67,22 +55,25 @@ public class OAuthClientProvider
 	public OAuthClient getClient(String username, String oauthGroup) throws OAuthValidationException
 	{
 		EntityParam clientEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, username));
-		Entity clientResolvedEntity;
+		return new OAuthClient(username, getClient(clientEntity).getId(),
+				getAttributesNoAuthZ(clientEntity, oauthGroup));
+
+	}
+
+	private Entity getClient(EntityParam clientEntity) throws OAuthValidationException
+	{
 		try
 		{
-			clientResolvedEntity = identitiesMan.getEntity(clientEntity);
+			return identitiesMan.getEntity(clientEntity);
 
 		} catch (IllegalArgumentException e)
 		{
-			throw new OAuthValidationException("The client '" + username + "' is unknown");
+			throw new OAuthValidationException("The client '" + clientEntity + "' is unknown");
 		} catch (Exception e)
 		{
 			log.error("Problem retrieving identity of the OAuth client", e);
 			throw new OAuthValidationException("Internal error, can not retrieve OAuth client's data");
 		}
-
-		return new OAuthClient(username, clientResolvedEntity.getId(), getAttributesNoAuthZ(clientEntity, oauthGroup));
-
 	}
 
 	private Map<String, AttributeExt> getAttributesNoAuthZ(EntityParam clientEntity, String oauthGroup)

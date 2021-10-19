@@ -242,10 +242,10 @@ CREATE TABLE MESSAGES (
 CREATE TABLE IDP_STATISTICS (
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.primaryKeyColumn"/>,
 		TIMESTAMP <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.dateTimeType"/> NOT NULL,
-		IDP_ENDPOINT_ID VARCHAR(100) NOT NULL,
-		IDP_ENDPOINT_NAME VARCHAR(100),
-		CLIENT_ID VARCHAR(100) NOT NULL,
-		CLIENT_NAME VARCHAR(100),
+		IDP_ENDPOINT_ID VARCHAR(300) NOT NULL,
+		IDP_ENDPOINT_NAME VARCHAR(300),
+		CLIENT_ID VARCHAR(300) NOT NULL,
+		CLIENT_NAME VARCHAR(300),
 		STATUS VARCHAR(100) NOT NULL,
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
 	</sql>

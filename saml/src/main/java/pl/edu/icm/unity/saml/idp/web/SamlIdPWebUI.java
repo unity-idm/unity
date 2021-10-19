@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +44,7 @@ import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
@@ -99,7 +99,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected AttributeTypeSupport aTypeSupport;
 	protected List<IdentityParam> validIdentities;
 	protected Map<String, AttributeType> attributeTypes;
-	protected final ApplicationEventPublisher applicationEventPublisher;
+	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 
 	@Autowired
 	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
@@ -112,7 +112,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			AttributeTypeSupport aTypeSupport,
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			ApplicationEventPublisher applicationEventPublisher)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -128,7 +128,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		this.aTypeSupport = aTypeSupport;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
-		this.applicationEventPublisher = applicationEventPublisher;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -191,7 +191,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, applicationEventPublisher, msg, endpointDescription.getEndpoint());
+		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, idpStatisticReporterFactory, endpointDescription.getEndpoint());
 
 		TranslationResult translationResult;
 		try

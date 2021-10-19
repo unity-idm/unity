@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
@@ -33,6 +32,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
@@ -69,11 +69,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan,
-			ApplicationEventPublisher applicationEventPublisher)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
-				advertisedAddrProvider, entityMan, applicationEventPublisher);
+				advertisedAddrProvider, entityMan, idpStatisticReporterFactory);
 		this.servletPath = SERVLET_PATH;
 	}
 
@@ -87,7 +87,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan, applicationEventPublisher, msg, description.getEndpoint());
+				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()));
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}
 	

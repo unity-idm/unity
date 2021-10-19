@@ -35,9 +35,7 @@ public class OAuthClient
 
 	public Optional<AttributeExt> getLogo()
 	{
-		return attributes.get(OAuthSystemAttributesProvider.CLIENT_LOGO) != null
-				? Optional.of(attributes.get(OAuthSystemAttributesProvider.CLIENT_LOGO))
-				: Optional.empty();
+		return Optional.ofNullable(attributes.get(OAuthSystemAttributesProvider.CLIENT_LOGO));
 	}
 
 	public Optional<String> getGroup()
@@ -49,9 +47,7 @@ public class OAuthClient
 
 	public Optional<AttributeExt> getAllowedUrisA()
 	{
-		return attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI) != null
-				? Optional.of(attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
-				: Optional.empty();
+		return Optional.ofNullable(attributes.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI));
 	}
 
 	public Optional<ClientType> getType()

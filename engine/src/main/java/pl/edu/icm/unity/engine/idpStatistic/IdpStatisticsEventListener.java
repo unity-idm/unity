@@ -5,10 +5,10 @@
 
 package pl.edu.icm.unity.engine.idpStatistic;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
@@ -29,13 +29,14 @@ class IdpStatisticsEventListener
 	}
 
 	@EventListener
+	@Async
 	void handleEvent(IdpStatisticEvent event)
 	{
 		tx.runInTransaction(() ->
 		{
 			dao.create(IdpStatistic.builder().idpEndpointId(event.idpEndpointId).idpEndpointName(event.idpEndpointName)
 					.clientId(event.clientId).clientName(event.clientName).status(event.status)
-					.timestamp(Date.from(Instant.now())).build());
+					.timestamp(LocalDateTime.now()).build());
 		});
 	}
 }

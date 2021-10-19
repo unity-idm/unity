@@ -18,8 +18,8 @@ public class IdpStatisticJsonSerializer implements RDBMSObjectSerializer<IdpStat
 	@Override
 	public IdpStatisticBean toDB(IdpStatistic object)
 	{
-		return new IdpStatisticBean(null, object.getTimestamp(), object.getIdpEndpointId(), object.getIdpEndpointName(),
-				object.getClientId(), object.getClientName(), object.getStatus().toString());
+		return new IdpStatisticBean(null, object.timestamp, object.idpEndpointId, object.idpEndpointName,
+				object.clientId, object.clientName, object.status.toString());
 	}
 
 	@Override

@@ -5,6 +5,9 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1031,14 +1034,15 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/idp-stats")
 	@GET
-	public String getIdpStatistics(@QueryParam("when") long since, @QueryParam("groupBy") String groupBy) 
+	public String getIdpStatistics(@QueryParam("since") long since, @QueryParam("groupBy") String groupBy)
 			throws EngineException, JsonProcessingException
 	{
-		Date sinceDate = new Date(since);
+		LocalDateTime sinceDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(since), ZoneId.systemDefault());
 		GroupBy groupByFallbackToTotal = groupBy != null ? GroupBy.valueOf(groupBy) : GroupBy.none;
-		return mapper.writeValueAsString(idpStatisticManagement.getIdpStatisticsSinceGroupBy(sinceDate, groupByFallbackToTotal));
+		return mapper.writeValueAsString(idpStatisticManagement.getIdpStatisticsSinceGroupBy(sinceDate,
+				groupByFallbackToTotal, IdpStatisticManagement.DEFAULT_STAT_SIZE_LIMIT));
 	}
-	
+
 	/**
 	 * Creates {@link EntityParam} from given entity address and optional
 	 * type, which can be null. If type is null then entityId is checked to

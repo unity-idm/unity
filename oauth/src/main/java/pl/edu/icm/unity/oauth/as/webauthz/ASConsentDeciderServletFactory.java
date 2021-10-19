@@ -6,7 +6,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
@@ -14,6 +13,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -26,18 +26,15 @@ class ASConsentDeciderServletFactory
 	private final EnquiryManagement enquiryManagement;
 	private final OAuthProcessor processor;
 	private final PolicyAgreementManagement policyAgreementManagement;
+	private final OAuthIdpStatisticReporterFactory idpStatisticReporterFactory;
 	private final MessageSource msg;
-	private final ApplicationEventPublisher eventPublisher;
 
 	@Autowired
-	ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
-			IdPEngine idpEngine, 
-			OAuthSessionService oauthSessionService,
-			OAuthProcessor processor,
+	ASConsentDeciderServletFactory(PreferencesManagement preferencesMan, IdPEngine idpEngine,
+			OAuthSessionService oauthSessionService, OAuthProcessor processor,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementManagement,
-			MessageSource msg,
-			ApplicationEventPublisher eventPublisher)
+			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory, MessageSource msg)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
@@ -45,14 +42,15 @@ class ASConsentDeciderServletFactory
 		this.processor = processor;
 		this.enquiryManagement = enquiryManagement;
 		this.policyAgreementManagement = policyAgreementManagement;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.msg = msg;
-		this.eventPublisher = eventPublisher;
 	}
 
-	ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath, ResolvedEndpoint endpoint)
+	ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath,
+			ResolvedEndpoint endpoint)
 	{
-		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
-				processor, oauthSessionService, oauthUiServletPath, authenticationUIServletPath, 
-				enquiryManagement, policyAgreementManagement, msg, eventPublisher, endpoint);
+		return new ASConsentDeciderServlet(preferencesMan, idpEngine, processor, oauthSessionService,
+				oauthUiServletPath, authenticationUIServletPath, enquiryManagement, policyAgreementManagement,
+				idpStatisticReporterFactory.getForEndpoint(endpoint.getEndpoint()), msg);
 	}
 }

@@ -19,7 +19,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -39,6 +38,7 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -74,7 +74,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	private final PKIManagement pkiManagement;
 	private final OAuthEndpointsCoordinator coordinator;
 	private final ASConsentDeciderServletFactory dispatcherServletFactory;
-	private final ApplicationEventPublisher eventPublisher;
+	private final OAuthIdpStatisticReporterFactory idpReporterFactory;
 	
 	private OAuthASProperties oauthProperties;
 
@@ -84,7 +84,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 			@Qualifier("insecure") AttributesManagement attributesManagement, PKIManagement pkiManagement,
 			OAuthEndpointsCoordinator coordinator, ASConsentDeciderServletFactory dispatcherServletFactory,
 			AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter, ApplicationEventPublisher eventPublisher)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter, OAuthIdpStatisticReporterFactory idpReporterFactory)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
 				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter);
@@ -94,7 +94,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
 		this.dispatcherServletFactory = dispatcherServletFactory;
-		this.eventPublisher = eventPublisher;
+		this.idpReporterFactory = idpReporterFactory;
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
 
 		authenticationServlet.setCancelHandler(new OAuthCancelHandler(
-				new OAuthResponseHandler(oauthSessionService), eventPublisher, description, msg));
+				new OAuthResponseHandler(oauthSessionService, idpReporterFactory.getForEndpoint(description.getEndpoint()))));
 
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH + "/*");

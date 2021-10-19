@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +51,7 @@ import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -90,8 +90,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private EnquiryManagement enquiryManagement;
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private final MessageSource msg;
-	private final ApplicationEventPublisher eventPublisher;
 	private final FreemarkerAppHandler freemarker;
+	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	
 	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
@@ -102,7 +102,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg,
-			ApplicationEventPublisher eventPublisher)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
@@ -111,7 +111,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.sessionMan = sessionMan;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.msg = msg;
-		this.eventPublisher = eventPublisher;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.freemarker = freemarker;
 	}
 
@@ -119,7 +119,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	{
 		this.samlUiServletPath = samlUiServletPath;
 		this.authenticationUIServletPath = authenticationUIServletPath;
-		this.ssoResponseHandler = new SSOResponseHandler(freemarker, eventPublisher, msg, endpoint);
+		this.ssoResponseHandler = new SSOResponseHandler(freemarker, idpStatisticReporterFactory, endpoint);
 	}
 	
 	@Override

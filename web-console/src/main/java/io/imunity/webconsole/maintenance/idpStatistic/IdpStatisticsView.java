@@ -8,7 +8,6 @@ package io.imunity.webconsole.maintenance.idpStatistic;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,7 +130,7 @@ public class IdpStatisticsView extends CustomComponent implements UnityView
 	{
 		try
 		{
-			idpStatisticController.drop(Date.from(since.getValue().atZone(ZoneId.systemDefault()).toInstant()));
+			idpStatisticController.drop(since.getValue());
 
 		} catch (ControllerException er)
 		{
@@ -145,7 +144,7 @@ public class IdpStatisticsView extends CustomComponent implements UnityView
 		try
 		{
 			statisticGrid.setItems(idpStatisticController
-					.getIdpStatistics(Date.from(since.getValue().atZone(ZoneId.systemDefault()).toInstant())));
+					.getIdpStatistics(since.getValue()));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

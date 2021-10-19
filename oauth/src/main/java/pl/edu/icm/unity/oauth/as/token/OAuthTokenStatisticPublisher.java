@@ -53,26 +53,6 @@ class OAuthTokenStatisticPublisher
 		this.endpointMan = endpointMan;
 	}
 
-	void reportSuccess(String clientUsername, String clientName)
-	{
-		Endpoint endpoint = getEndpoint();
-		eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
-				endpoint.getConfiguration().getDisplayedName() != null
-						? endpoint.getConfiguration().getDisplayedName().getValue(msg)
-						: null,
-				clientUsername, clientName, Status.SUCCESSFUL));
-	}
-
-	void reportFail(String clientUsername, String clientName)
-	{
-		Endpoint endpoint = getEndpoint();
-		eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
-				endpoint.getConfiguration().getDisplayedName() != null
-						? endpoint.getConfiguration().getDisplayedName().getValue(msg)
-						: null,
-				clientUsername, clientName, Status.FAILED));
-	}
-
 	void reportFailAsLoggedClient()
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
@@ -100,14 +80,30 @@ class OAuthTokenStatisticPublisher
 			return;
 		}
 
+		reportFail(username != null ? username.getComparableValue() : null,
+				attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME) != null
+						? attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME).getValues().get(0)
+						: null);
+	}
+
+	void reportFail(String clientUsername, String clientName)
+	{
+		report(clientUsername, clientName, Status.FAILED);
+	}
+
+	void reportSuccess(String clientUsername, String clientName)
+	{
+		report(clientUsername, clientName, Status.SUCCESSFUL);
+	}
+
+	private void report(String clientUsername, String clientName, Status status)
+	{
 		Endpoint endpoint = getEndpoint();
-		eventPublisher.publishEvent(
-				new IdpStatisticEvent(endpoint.getName(), endpoint.getConfiguration().getDisplayedName().getValue(msg),
-						username != null ? username.getComparableValue() : null,
-						attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME) != null
-								? attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME).getValues().get(0)
-								: null,
-						Status.FAILED));
+		eventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
+				endpoint.getConfiguration().getDisplayedName() != null
+						? endpoint.getConfiguration().getDisplayedName().getValue(msg)
+						: null,
+				clientUsername, clientName, status));
 	}
 
 	private Endpoint getEndpoint()

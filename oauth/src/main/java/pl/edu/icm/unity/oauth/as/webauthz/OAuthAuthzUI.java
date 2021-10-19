@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -33,11 +32,11 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
-import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
@@ -83,7 +82,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
-	private ApplicationEventPublisher eventPublisher;
+	private final OAuthIdpStatisticReporterFactory idpStatisticReporterFactory;
 
 	@Autowired
 	public OAuthAuthzUI(MessageSource msg,
@@ -98,7 +97,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			OAuthSessionService oauthSessionService,
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			ApplicationEventPublisher eventPublisher)
+			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory
+			)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -112,7 +112,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.aTypeSupport = aTypeSupport;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
-		this.eventPublisher = eventPublisher;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		}
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
-				this::onDecline, this::onFinalConfirm, oauthSessionService, () -> reportStatus(OAuthSessionService.getVaadinContext(), Status.FAILED));
+				this::onDecline, this::onFinalConfirm, oauthResponseHandler);
 		setContent(consentScreen);
 	}
 
@@ -210,14 +210,13 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private TranslationResult getTranslationResult(OAuthAuthzContext ctx) throws EopException
 	{
-		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService);
+		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService, idpStatisticReporterFactory.getForEndpoint(endpointDescription.getEndpoint()));
 		try
 		{
 			return idpEngine.getUserInfo(ctx);
 		} catch (OAuthErrorResponseException e)
 		{
-			reportStatus(ctx, Status.FAILED);
-			oauthResponseHandler.returnOauthResponse(e.getOauthResponse(), e.isInvalidateSession());
+			oauthResponseHandler.returnOauthResponseAndReportStatistic(e.getOauthResponse(), e.isInvalidateSession(), ctx, Status.FAILED);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
@@ -227,8 +226,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
-			reportStatus(ctx, Status.FAILED);
-			oauthResponseHandler.returnOauthResponse(oauthResponse, true);
+			oauthResponseHandler.returnOauthResponseAndReportStatistic(oauthResponse, true, ctx, Status.FAILED);
 		}
 		
 		return null; // not reachable
@@ -251,8 +249,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 				OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
 				ctx.getRequest().impliedResponseMode());
 		
-		reportStatus(ctx, Status.FAILED);
-		oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
+		oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 	}
 
 	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
@@ -261,7 +258,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor
-					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, endpointDescription);
+					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, oauthResponseHandler.statReporter);
 
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)
@@ -271,17 +268,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
 			
-			reportStatus(ctx, Status.FAILED);
-			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
+			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 		}
-	}
-	
-	private void reportStatus(OAuthAuthzContext ctx, Status status)
-	{
-		eventPublisher.publishEvent(new IdpStatisticEvent(endpointDescription.getName(),
-				endpointDescription.getEndpoint().getConfiguration().getDisplayedName() != null
-						? endpointDescription.getEndpoint().getConfiguration().getDisplayedName().getValue(msg)
-						: null,
-				ctx.getClientUsername(), ctx.getClientName(), Status.FAILED));
 	}
 }

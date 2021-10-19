@@ -5,8 +5,8 @@
 
 package io.imunity.webconsole.maintenance.idpStatistic;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,6 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class IdpStatisticsController
 {
-
 	private final IdpStatisticManagement idpStatisticManagement;
 	private final MessageSource msg;
 
@@ -30,11 +29,11 @@ class IdpStatisticsController
 		this.idpStatisticManagement = idpStatisticManagement;
 	}
 
-	Collection<GroupedIdpStatistic> getIdpStatistics(Date since) throws ControllerException
+	Collection<GroupedIdpStatistic> getIdpStatistics(LocalDateTime since) throws ControllerException
 	{
 		try
 		{
-			return idpStatisticManagement.getIdpStatisticsSinceGroupBy(since, GroupBy.total);
+			return idpStatisticManagement.getIdpStatisticsSinceGroupBy(since, GroupBy.total, IdpStatisticManagement.DEFAULT_STAT_SIZE_LIMIT);
 		} catch (EngineException e)
 		{
 			throw new ControllerException(msg.getMessage("IdpStatisticsController.getError"), e);
@@ -42,7 +41,7 @@ class IdpStatisticsController
 
 	}
 
-	void drop(Date since) throws ControllerException
+	void drop(LocalDateTime since) throws ControllerException
 	{
 		try
 		{

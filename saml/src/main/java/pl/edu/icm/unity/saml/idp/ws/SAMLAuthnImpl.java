@@ -10,24 +10,22 @@ import java.util.Optional;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationEventPublisher;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -38,7 +36,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -56,28 +53,21 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
 	protected AttributeTypeSupport aTypeSupport;
-
-	private final ApplicationEventPublisher applicationEventPublisher;
-	private final MessageSource msg;
-	private final Endpoint endpoint;
+	
+	private final SamlIdpStatisticReporter idpStatisticReporter;
 	
 
 	public SAMLAuthnImpl(AttributeTypeSupport aTypeSupport,
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine, PreferencesManagement preferencesMan,
-			ApplicationEventPublisher applicationEventPublisher, MessageSource msg, 
-			Endpoint endpoint)
+			SamlIdpStatisticReporter idpStatisticReporter)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.samlProperties = samlProperties;
 		this.endpointAddress = endpointAddress;
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
-		this.applicationEventPublisher = applicationEventPublisher;
-		this.msg = msg;
-		this.endpoint = endpoint;
-		
-		
+		this.idpStatisticReporter = idpStatisticReporter;
 	}
 
 	@Override
@@ -92,7 +82,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			validate(context);
 		} catch (SAMLServerException e1)
 		{
-			reportStatus(context, Status.FAILED);
+			idpStatisticReporter.reportStatus(context, Status.FAILED);
 			log.warn("Throwing SAML fault, caused by validation exception", e1);
 			throw new Fault(e1);
 		}
@@ -109,21 +99,22 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.info("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			SamlRoutableSignableMessage<ResponseDocument> routableMessage = samlProcessor.processAuthnRequestReturningResponse(
-					selectedIdentity, attributes, 
-					null, context.getResponseDestination());
+			SamlRoutableSignableMessage<ResponseDocument> routableMessage = samlProcessor
+					.processAuthnRequestReturningResponse(selectedIdentity, attributes, null,
+							context.getResponseDestination());
 			respDoc = routableMessage.getSignedMessage();
 		} catch (Exception e)
 		{
-			
+
 			log.warn("Throwing SAML fault, caused by processing exception", e);
 			SAMLServerException convertedException = samlProcessor.convert2SAMLError(e, null, true);
-			reportStatus(context, Status.FAILED);
+			idpStatisticReporter.reportStatus(context, Status.FAILED);
 			respDoc = samlProcessor.getErrorResponse(convertedException);
 		}
 		if (log.isTraceEnabled())
 			log.trace("Returning SAML Response: " + respDoc.xmlText());
-		reportStatus(context, Status.SUCCESSFUL);
+		idpStatisticReporter.reportStatus(context, Status.SUCCESSFUL);
+
 		return respDoc;
 	}
 
@@ -155,16 +146,5 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
 				samlProperties.getReplayChecker());
 		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
-	}
-	
-	private void reportStatus(SAMLAuthnContext samlCtx, Status status)
-	{
-		applicationEventPublisher.publishEvent(new IdpStatisticEvent(endpoint.getName(),
-				endpoint.getConfiguration().getDisplayedName() != null
-						? endpoint.getConfiguration().getDisplayedName().getValue(msg)
-						: null,
-				samlCtx.getRequest().getIssuer().getStringValue(),
-				samlCtx.getSamlConfiguration().getDisplayedNameForRequester(samlCtx.getRequest().getIssuer()),
-				status));
 	}
 }

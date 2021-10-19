@@ -5,21 +5,21 @@
 
 package pl.edu.icm.unity.store.impl.idpStatistics;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class IdpStatisticBean
 {
 	private Long id;
-	private Date timestamp;
+	private LocalDateTime timestamp;
 	private String idpEndpointId;
 	private String idpEndpointName;
 	private String clientId;
 	private String clientName;
 	private String status;
 
-	public IdpStatisticBean(Long id, Date timestamp, String idpEndpointId, String idpEndpointName, String clientId,
-			String clientName, String status)
+	public IdpStatisticBean(Long id, LocalDateTime timestamp, String idpEndpointId, String idpEndpointName,
+			String clientId, String clientName, String status)
 	{
 		this.id = id;
 		this.timestamp = timestamp;
@@ -46,9 +46,8 @@ public class IdpStatisticBean
 		if (getClass() != obj.getClass())
 			return false;
 		IdpStatisticBean other = (IdpStatisticBean) obj;
-		return Objects.equals(clientName, other.clientName)
-				&& Objects.equals(clientId, other.clientId) && Objects.equals(id, other.id)
-				&& Objects.equals(idpEndpointId, other.idpEndpointId)
+		return Objects.equals(clientName, other.clientName) && Objects.equals(clientId, other.clientId)
+				&& Objects.equals(id, other.id) && Objects.equals(idpEndpointId, other.idpEndpointId)
 				&& Objects.equals(idpEndpointName, other.idpEndpointName) && Objects.equals(status, other.status)
 				&& Objects.equals(timestamp, other.timestamp);
 	}
@@ -63,12 +62,12 @@ public class IdpStatisticBean
 		this.id = id;
 	}
 
-	public Date getTimestamp()
+	public LocalDateTime getTimestamp()
 	{
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp)
+	public void setTimestamp(LocalDateTime timestamp)
 	{
 		this.timestamp = timestamp;
 	}

@@ -5,12 +5,13 @@
 
 package pl.edu.icm.unity.engine.api.idp.statistic;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 
 public class GroupedIdpStatistic
 {
@@ -29,7 +30,7 @@ public class GroupedIdpStatistic
 		this.idpName = idpName;
 		this.clientId = clientId;
 		this.clientName = clientName;
-		this.sigInStats = sigInStats;
+		this.sigInStats = ImmutableList.copyOf(sigInStats);
 	}
 
 	@Override
@@ -55,14 +56,14 @@ public class GroupedIdpStatistic
 
 	public static class SigInStatistic
 	{
-		public final Date periodStart;
-		public final Date periodEnd;
+		public final LocalDateTime periodStart;
+		public final LocalDateTime periodEnd;
 		public final long totatCount;
 		public final long successfullCount;
 		public final long failedCount;
 
 		@JsonCreator
-		public SigInStatistic(@JsonProperty("periodStart") Date periodStart, @JsonProperty("periodEnd") Date periodEnd,
+		public SigInStatistic(@JsonProperty("periodStart") LocalDateTime periodStart, @JsonProperty("periodEnd") LocalDateTime periodEnd,
 				@JsonProperty("totatCount") long totatCount, @JsonProperty("successfullCount") long successfullCount,
 				@JsonProperty("failedCount") long failedCount)
 		{

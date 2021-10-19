@@ -11,7 +11,6 @@ import static org.junit.Assert.assertThat;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -40,16 +39,16 @@ public class TestIdpStatistics extends RESTAdminTestBase
 	{
 		idpStatisticManagement.addIdpStatistic(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename")
 				.clientId("c1").clientName("cName")
-				.timestamp(Date.from(LocalDateTime.now().toInstant(OffsetDateTime.now().getOffset())))
+				.timestamp(LocalDateTime.now())
 				.status(pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status.SUCCESSFUL).build());
 
 		idpStatisticManagement.addIdpStatistic(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename")
 				.clientId("c1").clientName("cName")
-				.timestamp(Date.from(LocalDateTime.now().toInstant(OffsetDateTime.now().getOffset())))
+				.timestamp(LocalDateTime.now())
 				.status(pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status.FAILED).build());
 
 		HttpGet get = new HttpGet(
-				"/restadm/v1/idp-stats?when=" + Date.from(Instant.now().minusSeconds(1000)).toInstant().toEpochMilli()
+				"/restadm/v1/idp-stats?since=" + Date.from(Instant.now().minusSeconds(1000)).toInstant().toEpochMilli()
 						+ "&groupBy=" + GroupBy.total.toString());
 		HttpResponse responseGet = client.execute(host, get, localcontext);
 

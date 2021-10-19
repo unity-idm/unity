@@ -16,7 +16,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +41,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
@@ -79,7 +79,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
-	protected final ApplicationEventPublisher applicationEventPublisher;
+	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	
 	@Autowired
 	public SamlSoapEndpoint(MessageSource msg,
@@ -96,7 +96,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan, 
-			ApplicationEventPublisher applicationEventPublisher)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, entityMan);
 		this.idpEngine = idpEngine;
@@ -107,7 +107,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.aTypeSupport = aTypeSupport;
 		this.metadataService = metadataService;
 		this.uriAccessService = uriAccessService;
-		this.applicationEventPublisher = applicationEventPublisher;
+		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 	}
 
 	@Override
@@ -164,7 +164,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan, applicationEventPublisher, msg, description.getEndpoint());
+				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()));
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
 		configureSLOService(virtualConf, endpointURL);
