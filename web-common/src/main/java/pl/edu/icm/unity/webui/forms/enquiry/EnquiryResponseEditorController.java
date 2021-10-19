@@ -402,7 +402,7 @@ public class EnquiryResponseEditorController
 		return checkIfRequestExists(formName, entityId);
 	}
 	
-	public boolean checkIfRequestExists(String formName, long entity) throws EngineException
+	boolean checkIfRequestExists(String formName, long entity) throws EngineException
 	{
 		return !enquiryManagement.getEnquiryResponses().stream()
 				.filter(r -> r.getRequest().getFormId().equals(formName)
