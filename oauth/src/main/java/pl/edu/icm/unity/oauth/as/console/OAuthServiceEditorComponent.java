@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
 import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
-public class OAuthServiceEditorComponent extends ServiceEditorBase
+class OAuthServiceEditorComponent extends ServiceEditorBase
 {
 	public static final String TOKEN_SERVICE_NAME_SUFFIX = "_TOKEN";
 
