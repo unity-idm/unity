@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.store.impl.idpStatistics;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,14 +33,14 @@ public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO
 	public void deleteOlderThan(LocalDateTime olderThan)
 	{
 		IdpStatisticMapper mapper = SQLTransactionTL.getSql().getMapper(IdpStatisticMapper.class);
-		mapper.deleteOlderThan(olderThan);
+		mapper.deleteOlderThan(Timestamp.valueOf(olderThan));
 	}
 
 	@Override
 	public List<IdpStatistic> getIdpStatistics(LocalDateTime from, LocalDateTime until, int limit)
 	{
 		IdpStatisticMapper mapper = SQLTransactionTL.getSql().getMapper(IdpStatisticMapper.class);
-		return mapper.getStatistics(from, until, limit).stream().map(jsonSerializer::fromDB)
+		return mapper.getStatistics(Timestamp.valueOf(from), Timestamp.valueOf(until), limit).stream().map(jsonSerializer::fromDB)
 				.collect(Collectors.toList());
 	}
 

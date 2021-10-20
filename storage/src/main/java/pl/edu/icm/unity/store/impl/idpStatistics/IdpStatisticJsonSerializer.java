@@ -21,8 +21,8 @@ public class IdpStatisticJsonSerializer implements RDBMSObjectSerializer<IdpStat
 	@Override
 	public IdpStatisticBean toDB(IdpStatistic object)
 	{
-		return new IdpStatisticBean(null, Timestamp.valueOf(object.timestamp), object.idpEndpointId, object.idpEndpointName,
-				object.clientId, object.clientName, object.status.toString());
+		return new IdpStatisticBean(null, Timestamp.valueOf(object.timestamp), object.idpEndpointId,
+				object.idpEndpointName, object.clientId, object.clientName, object.status.toString());
 	}
 
 	@Override
@@ -30,7 +30,8 @@ public class IdpStatisticJsonSerializer implements RDBMSObjectSerializer<IdpStat
 	{
 		return IdpStatistic.builder().clientId(bean.getClientId()).clientName(bean.getClientName())
 				.idpEndpointId(bean.getIdpEndpointId()).idpEndpointName(bean.getIdpEndpointName())
-				.status(Status.valueOf(bean.getStatus())).timestamp(bean.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).build();
+				.status(Status.valueOf(bean.getStatus()))
+				.timestamp(bean.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).build();
 	}
 
 }
