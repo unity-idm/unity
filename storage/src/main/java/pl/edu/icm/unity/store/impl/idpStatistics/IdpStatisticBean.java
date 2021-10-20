@@ -5,20 +5,20 @@
 
 package pl.edu.icm.unity.store.impl.idpStatistics;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 
 public class IdpStatisticBean
 {
 	private Long id;
-	private LocalDateTime timestamp;
+	private Date timestamp;
 	private String idpEndpointId;
 	private String idpEndpointName;
 	private String clientId;
 	private String clientName;
 	private String status;
 
-	public IdpStatisticBean(Long id, LocalDateTime timestamp, String idpEndpointId, String idpEndpointName,
+	public IdpStatisticBean(Long id, Date timestamp, String idpEndpointId, String idpEndpointName,
 			String clientId, String clientName, String status)
 	{
 		this.id = id;
@@ -62,12 +62,12 @@ public class IdpStatisticBean
 		this.id = id;
 	}
 
-	public LocalDateTime getTimestamp()
+	public Date getTimestamp()
 	{
 		return timestamp;
 	}
 
-	public void setTimestamp(LocalDateTime timestamp)
+	public void setTimestamp(Date timestamp)
 	{
 		this.timestamp = timestamp;
 	}
