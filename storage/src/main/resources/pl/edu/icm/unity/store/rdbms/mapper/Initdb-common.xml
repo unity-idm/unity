@@ -246,7 +246,7 @@ CREATE TABLE IDP_STATISTICS (
 		IDP_ENDPOINT_NAME VARCHAR(300),
 		CLIENT_ID VARCHAR(300) NOT NULL,
 		CLIENT_NAME VARCHAR(300),
-		STATUS VARCHAR(100) NOT NULL,
+		STATUS VARCHAR(100) NOT NULL
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
 	</sql>
 	
