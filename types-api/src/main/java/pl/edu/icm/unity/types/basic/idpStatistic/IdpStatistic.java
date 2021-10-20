@@ -98,7 +98,7 @@ public class IdpStatistic
 
 		public Builder timestamp(LocalDateTime timestamp)
 		{
-			this.timestamp = timestamp;
+			this.timestamp = timestamp.withNano(0);
 			return this;
 		}
 
