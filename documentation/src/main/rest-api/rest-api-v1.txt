@@ -1309,24 +1309,8 @@ Example output:
       "clientName":"clientName1",
       "sigInStats":[
          {
-            "periodStart":[
-               2021,
-               10,
-               19,
-               17,
-               7,
-               51,
-               224000000
-            ],
-            "periodEnd":[
-               2021,
-               10,
-               19,
-               17,
-               24,
-               31,
-               765800000
-            ],
+            "periodStart":"2021-10-21T15:14:09Z",
+            "periodEnd":"2021-10-21T15:15:09Z",
             "totatCount":2,
             "successfullCount":1,
             "failedCount":1
