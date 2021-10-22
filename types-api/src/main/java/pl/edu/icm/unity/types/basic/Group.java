@@ -12,8 +12,11 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -51,7 +54,9 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 	private Set<String> attributesClasses = new HashSet<String>();
 	private GroupDelegationConfiguration delegationConfiguration;
 	private boolean publicGroup = false;
-
+	private Map<String, GroupProperty> properties = new HashMap<>();
+	
+	
 	public Group(Group parent, String name)
 	{
 		if (name == null || name.equals("") || name.contains("/"))
@@ -94,6 +99,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		target.setAttributeStatements(attributeStatements.clone());
 		target.setDelegationConfiguration(delegationConfiguration);
 		target.setPublic(publicGroup);
+		target.setProperties(properties.values());
 		return target;
 	}
 
@@ -337,6 +343,16 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 	{
 		this.publicGroup = publicGroup;
 	}
+	
+	public Map<String, GroupProperty> getProperties()
+	{
+		return properties;
+	}
+
+	public void setProperties(Collection<GroupProperty> properties)
+	{
+		this.properties = properties.stream().collect(Collectors.toMap(p -> p.key, p -> p));
+	}
 
 	/**
 	 * @return last component of the group path
@@ -377,7 +393,6 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		ArrayNode aces = main.putArray("attributesClasses");
 		for (String ac : getAttributesClasses())
 			aces.add(ac);
-
 		
 		GroupDelegationConfiguration delegationConfig = getDelegationConfiguration();
 		if (delegationConfig == null)
@@ -385,6 +400,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 			delegationConfig = new GroupDelegationConfiguration(false);
 		}
 		main.set("delegationConfiguration",  Constants.MAPPER.valueToTree(delegationConfig));
+		main.set("properties",  Constants.MAPPER.valueToTree(properties.values()));
 		main.put("publicGroup", isPublic());
 
 		return main;
@@ -437,6 +453,17 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		{
 			setPublic(false);
 		}
+		
+		if (JsonUtil.notNull(main, "properties"))
+		{
+			ArrayNode attrsNode = (ArrayNode) main.get("properties");
+			attrsNode.forEach(n -> {
+				ObjectNode attrNode = (ObjectNode) n;
+				GroupProperty readP = Constants.MAPPER.convertValue(attrNode, 
+						 GroupProperty.class);
+				properties.put(readP.key, readP);				
+			});
+		}
 	}
 
 	@Override
@@ -447,6 +474,8 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		result = prime * result + Arrays.hashCode(attributeStatements);
 		result = prime * result
 				+ ((attributesClasses == null) ? 0 : attributesClasses.hashCode());
+		result = prime * result
+				+ ((properties == null) ? 0 : properties.hashCode());
 		result = prime * result + Arrays.hashCode(path);
 		return result;
 	}
@@ -475,6 +504,12 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 			if (other.attributesClasses != null)
 				return false;
 		} else if (!attributesClasses.equals(other.attributesClasses))
+			return false;
+		if (properties == null)
+		{
+			if (other.properties != null)
+				return false;
+		} else if (!properties.equals(other.properties))
 			return false;
 		if (delegationConfiguration == null)
 		{
