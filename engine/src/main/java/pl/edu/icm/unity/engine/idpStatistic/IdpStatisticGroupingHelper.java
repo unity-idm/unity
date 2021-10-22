@@ -23,29 +23,35 @@ import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 
 class IdpStatisticGroupingHelper
 {
-	static List<GroupedIdpStatistic> groupBy(LocalDateTime since, List<IdpStatistic> stats, GroupBy groupBy)
+	static List<GroupedIdpStatistic> groupBy(LocalDateTime since, List<IdpStatistic> stats, GroupBy groupBy,
+			int sigInRecordslimit, boolean skipZerosRecords)
 	{
 		Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient = stats.stream().collect(
 				Collectors.groupingBy(s -> new IdpEndpointAndClient(s.idpEndpointId, s.clientId), Collectors.toList()));
 		switch (groupBy)
 		{
 		case none:
-			return getNotGrouped(byEndpointAndClient);
+			return getNotGrouped(byEndpointAndClient, sigInRecordslimit);
 		case month:
-			return getByMonth(byEndpointAndClient, since);
+			return getByMonth(byEndpointAndClient, since, sigInRecordslimit, skipZerosRecords);
 		case day:
-			return getByDay(byEndpointAndClient, since);
+			return getByDay(byEndpointAndClient, since, sigInRecordslimit, skipZerosRecords);
 		default:
-			return getTotal(byEndpointAndClient, since);
+			return getTotal(byEndpointAndClient, since, skipZerosRecords);
 		}
 	}
 
 	private static List<GroupedIdpStatistic> getTotal(Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient,
-			LocalDateTime since)
+			LocalDateTime since, boolean skipZerosRecords)
 	{
 		List<GroupedIdpStatistic> retStats = new ArrayList<>();
 		for (Entry<IdpEndpointAndClient, List<IdpStatistic>> entry : byEndpointAndClient.entrySet())
 		{
+			if (skipZerosRecords && entry.getValue().size() == 0)
+			{
+				continue;
+			}
+
 			IdpEndpointAndClient endpointAndClient = entry.getKey();
 			List<SigInStatistic> stats = new ArrayList<>();
 			stats.add(new SigInStatistic(since, LocalDateTime.now(), entry.getValue().size(),
@@ -60,7 +66,7 @@ class IdpStatisticGroupingHelper
 	}
 
 	private static List<GroupedIdpStatistic> getNotGrouped(
-			Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient)
+			Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient, int sigInRecordlimit)
 	{
 		List<GroupedIdpStatistic> retStats = new ArrayList<>();
 		for (Entry<IdpEndpointAndClient, List<IdpStatistic>> entry : byEndpointAndClient.entrySet())
@@ -69,6 +75,10 @@ class IdpStatisticGroupingHelper
 			List<SigInStatistic> stats = new ArrayList<>();
 			for (IdpStatistic s : entry.getValue())
 			{
+				if (stats.size() >= sigInRecordlimit)
+				{
+					break;
+				}
 				stats.add(new SigInStatistic(s.timestamp, s.timestamp, 1, s.status.equals(Status.SUCCESSFUL) ? 1 : 0,
 						s.status.equals(Status.FAILED) ? 1 : 0));
 			}
@@ -79,24 +89,27 @@ class IdpStatisticGroupingHelper
 	}
 
 	private static List<GroupedIdpStatistic> getByMonth(
-			Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient, LocalDateTime since)
+			Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient, LocalDateTime since,
+			int sigInRecordlimit, boolean skipZerosRecords)
 	{
 
 		return getWithPeriodsAdjuster(byEndpointAndClient, since, d -> d.toLocalDate().withDayOfMonth(1).atStartOfDay(),
-				d -> d.toLocalDate().withDayOfMonth(d.toLocalDate().lengthOfMonth()).atTime(LocalTime.MAX));
+				d -> d.toLocalDate().withDayOfMonth(d.toLocalDate().lengthOfMonth()).atTime(LocalTime.MAX),
+				sigInRecordlimit, skipZerosRecords);
 
 	}
 
 	private static List<GroupedIdpStatistic> getByDay(Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient,
-			LocalDateTime since)
+			LocalDateTime since, int sigInRecordlimit, boolean skipZerosRecords)
 	{
 		return getWithPeriodsAdjuster(byEndpointAndClient, since, d -> d.toLocalDate().atStartOfDay(),
-				d -> d.toLocalDate().atTime(LocalTime.MAX));
+				d -> d.toLocalDate().atTime(LocalTime.MAX), sigInRecordlimit, skipZerosRecords);
 	}
 
 	private static List<GroupedIdpStatistic> getWithPeriodsAdjuster(
 			Map<IdpEndpointAndClient, List<IdpStatistic>> byEndpointAndClient, LocalDateTime since,
-			Function<LocalDateTime, LocalDateTime> adjuster, Function<LocalDateTime, LocalDateTime> endAdjuster)
+			Function<LocalDateTime, LocalDateTime> adjuster, Function<LocalDateTime, LocalDateTime> endAdjuster,
+			int sigInRecordslimit, boolean skipZerosRecords)
 	{
 		List<GroupedIdpStatistic> groupedStats = new ArrayList<>();
 		for (Entry<IdpEndpointAndClient, List<IdpStatistic>> entry : byEndpointAndClient.entrySet())
@@ -108,21 +121,28 @@ class IdpStatisticGroupingHelper
 
 			LocalDateTime actual = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
 			LocalDateTime loopDate = adjuster.apply(since);
+			
 
 			do
 			{
-				List<IdpStatistic> byMonthEntry = byPeriod.getOrDefault(adjuster.apply(loopDate), new ArrayList<>());
-				stats.add(new SigInStatistic(
-						adjuster.apply(since).equals(loopDate) ? since
-								: adjuster.apply(loopDate).toLocalDate().atStartOfDay(),
-						endAdjuster.apply(loopDate).toLocalDate().atTime(LocalTime.MAX), byMonthEntry.size(),
-						byMonthEntry.stream().filter(s -> s.status.equals(Status.SUCCESSFUL)).count(),
-						byMonthEntry.stream().filter(s -> s.status.equals(Status.FAILED)).count()));
-
+				if (stats.size() >= sigInRecordslimit)
+				{
+					break;
+				}
+				List<IdpStatistic> byPeriodEntry = byPeriod.getOrDefault(adjuster.apply(loopDate), new ArrayList<>());
+				if (!(skipZerosRecords && byPeriodEntry.size() == 0))
+				{
+					stats.add(new SigInStatistic(
+							adjuster.apply(since).equals(loopDate) ? since
+									: adjuster.apply(loopDate).toLocalDate().atStartOfDay(),
+							endAdjuster.apply(loopDate).toLocalDate().atTime(LocalTime.MAX), byPeriodEntry.size(),
+							byPeriodEntry.stream().filter(s -> s.status.equals(Status.SUCCESSFUL)).count(),
+							byPeriodEntry.stream().filter(s -> s.status.equals(Status.FAILED)).count()));
+				}
 				loopDate = endAdjuster.apply(loopDate).plusDays(1);
 			} while (!loopDate.isAfter(actual));
-			groupedStats
-					.add(new GroupedIdpStatistic(endpointAndClient.endpointId, getLastEndpointName(entry.getValue()),
+			groupedStats.add(
+					new GroupedIdpStatistic(endpointAndClient.endpointId, getLastEndpointName(entry.getValue()),
 							endpointAndClient.clientId, getLastClientName(entry.getValue()), stats));
 		}
 

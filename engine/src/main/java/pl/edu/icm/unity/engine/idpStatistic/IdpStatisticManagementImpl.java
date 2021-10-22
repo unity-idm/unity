@@ -57,10 +57,11 @@ public class IdpStatisticManagementImpl implements IdpStatisticManagement
 
 	@Override
 	@Transactional
-	public List<GroupedIdpStatistic> getIdpStatisticsSinceGroupBy(LocalDateTime since, GroupBy groupBy, int limit) throws EngineException
+	public List<GroupedIdpStatistic> getIdpStatisticsSinceGroupBy(LocalDateTime since, GroupBy groupBy,
+			int sigInRecordlimit, boolean skipZerosRecords) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		List<IdpStatistic> idpStatistics = dao.getIdpStatistics(since, LocalDateTime.now(), limit);
-		return IdpStatisticGroupingHelper.groupBy(since, idpStatistics, groupBy);
+		List<IdpStatistic> idpStatistics = dao.getIdpStatistics(since, LocalDateTime.now(), Integer.MAX_VALUE);
+		return IdpStatisticGroupingHelper.groupBy(since, idpStatistics, groupBy, sigInRecordlimit, skipZerosRecords);
 	}
 }

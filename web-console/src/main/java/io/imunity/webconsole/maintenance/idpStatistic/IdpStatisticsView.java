@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateTimeField;
@@ -94,6 +95,7 @@ public class IdpStatisticsView extends CustomComponent implements UnityView
 	private Layout initButtonsBar()
 	{
 		HorizontalLayout buttonsBar = new HorizontalLayout();
+		buttonsBar.setWidth(100, Unit.PERCENTAGE);
 		buttonsBar.setMargin(new MarginInfo(true, false));
 		LocalDateTime initialDate = LocalDateTime.now().minusDays(30);
 		since.setValue(initialDate);
@@ -103,14 +105,15 @@ public class IdpStatisticsView extends CustomComponent implements UnityView
 		sinceWrapper.addComponent(since);
 		sinceWrapper.setMargin(false);
 		buttonsBar.addComponent(sinceWrapper);
-
+		buttonsBar.setComponentAlignment(sinceWrapper, Alignment.TOP_LEFT);
+		
 		Button remove = new Button();
 		remove.setCaption(msg.getMessage("IdpStatisticsView.dropOlder"));
-		remove.addStyleName("u-button-action");
-		remove.setIcon(Images.remove.getResource());
+		remove.setIcon(Images.trash.getResource());
 		remove.addClickListener(e -> dropOlderStats());
 		buttonsBar.addComponent(remove);
-
+		buttonsBar.setComponentAlignment(remove, Alignment.TOP_RIGHT);
+		
 		return buttonsBar;
 	}
 

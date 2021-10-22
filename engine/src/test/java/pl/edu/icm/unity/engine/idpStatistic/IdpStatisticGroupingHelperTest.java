@@ -40,7 +40,7 @@ public class IdpStatisticGroupingHelperTest
 		}
 
 		List<GroupedIdpStatistic> idpStatisticsByMonth = IdpStatisticGroupingHelper
-				.groupBy(LocalDateTime.now().minusMonths(12), input, GroupBy.month);
+				.groupBy(LocalDateTime.now().minusMonths(12), input, GroupBy.month, 100, false);
 
 		assertThat(idpStatisticsByMonth.size(), is(10));
 		assertThat(idpStatisticsByMonth.get(0).sigInStats.size(), is(13));
@@ -68,7 +68,7 @@ public class IdpStatisticGroupingHelperTest
 		}
 
 		List<GroupedIdpStatistic> idpStatisticsByDay = IdpStatisticGroupingHelper
-				.groupBy(LocalDateTime.now().minusDays(12), input, GroupBy.day);
+				.groupBy(LocalDateTime.now().minusDays(12), input, GroupBy.day, 100, false);
 
 		assertThat(idpStatisticsByDay.size(), is(10));
 		assertThat(idpStatisticsByDay.get(0).sigInStats.size(), is(13));
@@ -97,7 +97,7 @@ public class IdpStatisticGroupingHelperTest
 		}
 
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
-				input, GroupBy.none);
+				input, GroupBy.none, 100, false);
 
 		assertThat(idpStatistics.size(), is(10));
 		assertThat(idpStatistics.get(0).sigInStats.size(), is(2));
@@ -108,6 +108,48 @@ public class IdpStatisticGroupingHelperTest
 		assertThat(idpStatistics.get(0).sigInStats.get(1).totatCount, is(1L));
 		assertThat(idpStatistics.get(0).sigInStats.get(1).successfullCount, is(0L));
 		assertThat(idpStatistics.get(0).sigInStats.get(1).failedCount, is(1L));
+	}
+	
+	@Test
+	public void shouldLimitSigIntStat() throws EngineException, JsonProcessingException
+	{
+		List<IdpStatistic> input = new ArrayList<>();
+		for (int i = 0; i < 10; i++)
+		{
+			input.add(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename" + i).clientId("c")
+					.clientName("cName" + i).timestamp(LocalDateTime.now().minusDays(i)).status(Status.SUCCESSFUL)
+					.build());
+
+			input.add(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename" + i).clientId("c")
+					.clientName("cName" + i).timestamp(LocalDateTime.now().minusDays(i)).status(Status.FAILED).build());
+		}
+
+		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
+				input, GroupBy.none, 5, false);
+
+		assertThat(idpStatistics.size(), is(1));
+		assertThat(idpStatistics.get(0).sigInStats.size(), is(5));
+	}
+	
+	@Test
+	public void shouldSkipZeroRecordLimitSigIntStat() throws EngineException, JsonProcessingException
+	{
+		List<IdpStatistic> input = new ArrayList<>();
+		for (int i = 0; i < 10; i++)
+		{
+			input.add(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename").clientId("c")
+					.clientName("cName").timestamp(LocalDateTime.now().minusDays(1)).status(Status.SUCCESSFUL)
+					.build());
+
+			input.add(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename").clientId("c")
+					.clientName("cName").timestamp(LocalDateTime.now().minusDays(1)).status(Status.FAILED).build());
+		}
+
+		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
+				input, GroupBy.day, 100, true);
+
+		assertThat(idpStatistics.size(), is(1));
+		assertThat(idpStatistics.get(0).sigInStats.size(), is(1));
 	}
 
 	@Test
@@ -127,7 +169,7 @@ public class IdpStatisticGroupingHelperTest
 		}
 
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
-				input, GroupBy.total);
+				input, GroupBy.total, 100, false);
 
 		assertThat(idpStatistics.size(), is(2));
 		assertThat(idpStatistics.get(0).sigInStats.size(), is(1));
@@ -153,7 +195,7 @@ public class IdpStatisticGroupingHelperTest
 
 		}
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
-				input, GroupBy.total);
+				input, GroupBy.total, 100, false);
 
 		assertThat(idpStatistics.get(0).idpName, is("eName0"));
 		assertThat(idpStatistics.get(0).clientName, is("cName0"));

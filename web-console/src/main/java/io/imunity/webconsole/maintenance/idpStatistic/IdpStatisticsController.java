@@ -33,7 +33,8 @@ class IdpStatisticsController
 	{
 		try
 		{
-			return idpStatisticManagement.getIdpStatisticsSinceGroupBy(since, GroupBy.total, IdpStatisticManagement.DEFAULT_STAT_SIZE_LIMIT);
+			return idpStatisticManagement.getIdpStatisticsSinceGroupBy(since, GroupBy.total,
+					IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, false);
 		} catch (EngineException e)
 		{
 			throw new ControllerException(msg.getMessage("IdpStatisticsController.getError"), e);

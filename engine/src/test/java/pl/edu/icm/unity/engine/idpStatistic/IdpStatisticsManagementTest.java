@@ -98,7 +98,7 @@ public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 		statMan.addIdpStatistic(s3);
 		statMan.addIdpStatistic(s4);
 		List<GroupedIdpStatistic> idpStatisticsSince = statMan
-				.getIdpStatisticsSinceGroupBy(LocalDateTime.now().minusDays(10), GroupBy.total, 1000);
+				.getIdpStatisticsSinceGroupBy(LocalDateTime.now().minusDays(10), GroupBy.total, 1000, false);
 		assertThat(idpStatisticsSince.size(), is(1));
 		assertThat(idpStatisticsSince.get(0).idpId, is("eid"));
 		assertThat(idpStatisticsSince.get(0).clientId, is("c"));
