@@ -145,7 +145,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new TokenIntrospectionResource(tokensManagement, oauthTokenRepository));
 			ret.add(new UserInfoResource(oauthTokenRepository));
 			ret.add(new RevocationResource(tokensManagement, oauthTokenRepository,
-					sessionMan, getEndpointDescription().getRealm()));
+					sessionMan, getEndpointDescription().getRealm(),
+					config.getValue(OAuthASProperties.CLIENTS_GROUP)));
 			RestEndpointHelper.installExceptionHandlers(ret);
 			return ret;
 		}

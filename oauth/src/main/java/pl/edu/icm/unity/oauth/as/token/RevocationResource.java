@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import pl.edu.icm.unity.base.token.Token;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.oauth.as.OAuthClient;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
@@ -33,7 +35,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 /**
  * Implementation of RFC 7009  https://tools.ietf.org/html/rfc7009
  * <p>
- * Limitations: token_type_hint parameter is mandatory, only access_token and refresh_token are supported.
+ * Limitations: 
  * The endpoint access is not authorized - or better said the access
  * is authorized implicitly by providing a valid access token to be revoked. The client_id must be always given. 
  * <p>
@@ -66,19 +68,23 @@ public class RevocationResource extends BaseOAuthResource
 	public static final String LOGOUT = "logout";
 	public static final String LOGOUT_SCOPE = "single-logout";
 	
-	private TokensManagement tokensManagement;
-	private SessionManagement sessionManagement;
-	private AuthenticationRealm realm;
+	private final TokensManagement tokensManagement;
+	private final SessionManagement sessionManagement;
+	private final AuthenticationRealm realm;
 	private final OAuthTokenRepository oauthTokenRepository;
+	private final String clientsGroup;
 	
 	public RevocationResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenRepository,
 			SessionManagement sessionManagement, 
-			AuthenticationRealm realm)
+			AuthenticationRealm realm,
+			String clientsGroup,
+			)
 	{
 		this.tokensManagement = tokensManagement;
 		this.oauthTokenRepository = oauthTokenRepository;
 		this.sessionManagement = sessionManagement;
 		this.realm = realm;
+		this.clientsGroup = clientsGroup;
 	}
 
 	@Path("/")
@@ -90,15 +96,8 @@ public class RevocationResource extends BaseOAuthResource
 		if (token == null)
 			return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
 					+ "a token must be provided");
-		if (clientId == null)
-			return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
-					+ "a " + CLIENT + " must be provided");
-		if (tokenHint == null)
-			return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
-					+ "a token type must be provided");
 		
-		
-		if (!(TOKEN_TYPE_ACCESS.equals(tokenHint) || TOKEN_TYPE_REFRESH.equals(tokenHint)))
+		if (tokenHint != null && !TOKEN_TYPE_ACCESS.equals(tokenHint) && !TOKEN_TYPE_REFRESH.equals(tokenHint))
 			return makeError(new ErrorObject(UNSUPPORTED_TOKEN_TYPE_ERROR, "Invalid request", 
 					HTTPResponse.SC_BAD_REQUEST), 
 					"Token type '" + tokenHint + "' is not supported");
@@ -106,9 +105,7 @@ public class RevocationResource extends BaseOAuthResource
 		Token internalToken;
 		try
 		{
-			internalToken = TOKEN_TYPE_ACCESS.equals(tokenHint) ?
-					oauthTokenRepository.readAccessToken(token) : 
-					tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
+			internalToken = loadToken(token, tokenHint);
 		} catch (IllegalArgumentException e)
 		{
 			return toResponse(Response.ok());
@@ -116,8 +113,20 @@ public class RevocationResource extends BaseOAuthResource
 		
 		OAuthToken parsedToken = parseInternalToken(internalToken);
 		
-		if (!clientId.equals(parsedToken.getClientUsername()))
+		if (clientId != null && !clientId.equals(parsedToken.getClientUsername()))
 			return makeError(OAuth2Error.INVALID_CLIENT, "Wrong client/token");
+		
+		ClientType clientType = parsedToken.getClientType() == null ? ClientType.CONFIDENTIAL : parsedToken.getClientType();
+		if (clientType == ClientType.PUBLIC)
+		{
+			if (clientId == null)
+				return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
+						+ "a " + CLIENT + " must be provided");
+		} else
+		{
+			//TODO ensure request is authenticated
+		}
+		
 		
 		if ("true".equals(logout))
 		{
@@ -134,6 +143,26 @@ public class RevocationResource extends BaseOAuthResource
 			//ok
 		}
 		return toResponse(Response.ok());
+	}
+
+	private Token loadToken(String token, String tokenHint)
+	{
+		if (TOKEN_TYPE_ACCESS.equals(tokenHint))
+		{
+			return oauthTokenRepository.readAccessToken(token);
+		} else if (TOKEN_TYPE_REFRESH.equals(tokenHint))
+		{
+			return tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
+		} else
+		{
+			try
+			{
+				return oauthTokenRepository.readAccessToken(token);
+			} catch (IllegalArgumentException notFound)
+			{
+				return tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
+			}
+		}
 	}
 	
 	private Response killSession(OAuthToken parsedAccessToken, long entity) throws EngineException
