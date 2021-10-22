@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupProperty;
 
 public class GroupTest extends AbstractNamedDAOTest<Group>
 {
@@ -246,5 +248,20 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 					"dynAt2", "dynAExpr2")
 		});
 		return ret;
+	}
+	
+	@Test
+	public void shouldSaveGroupProperties()
+	{
+		tx.runInTransaction(() -> {
+			Group g = new Group("/A");
+			g.setProperties(Lists.newArrayList(new GroupProperty("k1", "v1"), new GroupProperty("k2", "v2")));
+			dao.create(g);
+			assertThat(dao.exists("/A"), is(true));
+			Map<String, GroupProperty> properties = dao.get("/A").getProperties();
+			assertThat(properties.size(), is(2));
+			assertThat(properties.get("k1").value, is("v1"));
+			assertThat(properties.get("k2").value, is("v2"));
+		});
 	}
 }
