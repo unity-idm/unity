@@ -1296,24 +1296,28 @@ in message template for custom properties).
 +@GET+ +
 +@QueryParam("since")+ +
 +@QueryParam("groupBy")+ +
++@QueryParam("skipZeroRecords")+ +
 
 Returns idp usage statistics since a given date. Idp statistics can be grouped, allowed options are: none, day, month, total. 
-Example output:
+It is also possible to control whether all-zero records in the requested time range should be included or not with the 
++skipZeroRecords+ option, accepting +true+ (the default) and +false+ values.
+
+Example output without any grouping applied:
 
 ----
 [
    {
-      "idpId":"endpointId",
-      "idpName":"endpointName",
+      "idpId":"endpoint-id",
+      "idpName":"Endpoint name",
       "clientId":"clientId1",
-      "clientName":"clientName1",
+      "clientName":"Client Name",
       "sigInStats":[
          {
             "periodStart":"2021-10-21T15:14:09Z",
             "periodEnd":"2021-10-21T15:15:09Z",
-            "totatCount":2,
+            "totatCount":1,
             "successfullCount":1,
-            "failedCount":1
+            "failedCount":0
          }
       ]
    }
