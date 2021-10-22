@@ -14,11 +14,14 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.wellknownurl.WellKnownURLEndpointFactory;
 
 /*
@@ -36,9 +39,11 @@ public class WellKnownServiceController extends DefaultServicesControllerBase
 
 	public WellKnownServiceController(MessageSource msg, EndpointManagement endpointMan,
 			RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan, NetworkServer networkServer)
+			AuthenticatorManagement authMan, NetworkServer networkServer,
+			UnityServerConfiguration unityServerConfiguration,
+			ImageAccessService imageAccessService, ServiceFileConfigurationController serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

@@ -28,6 +28,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
@@ -50,27 +51,16 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	private ImageAccessService imageAccessService;
 	private AdvertisedAddressProvider advertisedAddrProvider;
 
-	public SAMLSoapServiceControllerBase(MessageSource msg,
-			EndpointManagement endpointMan,
-			MessageSource msg2,
-			EndpointManagement endpointMan2,
-			RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan,
-			ImageAccessService imageAccessService,
-			BulkGroupQueryService bulkService,
-			URIAccessService uriAccessService,
-			FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig,
-			IdentityTypeSupport idTypeSupport,
-			PKIManagement pkiMan,
-			NetworkServer server,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			IdpUsersHelper idpUserHelper,
-			AdvertisedAddressProvider advertisedAddrProvider)
+	public SAMLSoapServiceControllerBase(MessageSource msg, EndpointManagement endpointMan, MessageSource msg2,
+			EndpointManagement endpointMan2, RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan, AttributeTypeManagement atMan, ImageAccessService imageAccessService,
+			BulkGroupQueryService bulkService, URIAccessService uriAccessService, FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
+			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			IdpUsersHelper idpUserHelper, AdvertisedAddressProvider advertisedAddrProvider,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

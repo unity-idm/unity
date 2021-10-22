@@ -96,4 +96,9 @@ public class ServiceControllerBase
 			throw new ControllerException(msg.getMessage("ServicesController.createEditorError"), e);
 		}
 	}
+
+	public void reload(ServiceDefinition service) throws ControllerException
+	{
+		controllersRegistry.getByName(service.getType()).reloadFromConfig(service);
+	}
 }

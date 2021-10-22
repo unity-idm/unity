@@ -21,6 +21,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 
 /**
  * Rest admin service controller. 
@@ -37,9 +38,10 @@ class RestAdminServiceController extends DefaultServicesControllerBase implement
 	private NetworkServer networkServer;
 
 	RestAdminServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer)
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

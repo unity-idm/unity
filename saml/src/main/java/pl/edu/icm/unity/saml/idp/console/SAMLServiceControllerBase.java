@@ -31,6 +31,7 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
@@ -76,9 +77,10 @@ public abstract class SAMLServiceControllerBase extends DefaultServicesControlle
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper,
 			ImageAccessService imageAccessService,
-			PolicyDocumentManagement policyDocumentManagement)
+			PolicyDocumentManagement policyDocumentManagement,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

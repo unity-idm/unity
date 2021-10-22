@@ -50,10 +50,11 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
 		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService, imageAccessService,
-				fileStorageService, serverConfig, authenticatorSupportService, networkServer,
+				fileStorageService, serverConfig, authenticatorSupportService, networkServer, serviceFileConfigController, 
 				null);
 	}
 
@@ -63,9 +64,10 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer, String defaultMainTheme)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
+			ServiceFileConfigurationController serviceFileConfigController, String defaultMainTheme)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

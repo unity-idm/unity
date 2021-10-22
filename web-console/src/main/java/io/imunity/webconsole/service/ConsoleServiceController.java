@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.webui.common.ThemeConstans;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.WebServiceControllerBase;
 
 /**
@@ -37,11 +38,12 @@ class ConsoleServiceController extends WebServiceControllerBase
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
 		super(WebConsoleEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
 				uriAccessService, imageAccessService, fileStorageService, serverConfig, 
-				authenticatorSupportService, networkServer,
+				authenticatorSupportService, networkServer, serviceFileConfigController, 
 				ThemeConstans.unityTheme);
 	}
 }
