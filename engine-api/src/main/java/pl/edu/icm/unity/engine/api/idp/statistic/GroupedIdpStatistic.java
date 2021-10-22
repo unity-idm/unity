@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
@@ -56,7 +57,9 @@ public class GroupedIdpStatistic
 
 	public static class SigInStatistic
 	{
+		@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
 		public final LocalDateTime periodStart;
+		@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
 		public final LocalDateTime periodEnd;
 		public final long totatCount;
 		public final long successfullCount;

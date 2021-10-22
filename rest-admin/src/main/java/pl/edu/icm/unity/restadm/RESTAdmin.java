@@ -1034,13 +1034,15 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/idp-stats")
 	@GET
-	public String getIdpStatistics(@QueryParam("since") long since, @QueryParam("groupBy") String groupBy)
+	public String getIdpStatistics(@QueryParam("since") long since, @QueryParam("groupBy") String groupBy, @QueryParam("skipZeroRecords") Boolean skipZeroRecords)
 			throws EngineException, JsonProcessingException
 	{
 		LocalDateTime sinceDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(since), ZoneId.systemDefault());
 		GroupBy groupByFallbackToTotal = groupBy != null ? GroupBy.valueOf(groupBy) : GroupBy.none;
+		if (skipZeroRecords == null)
+			skipZeroRecords = false;
 		return mapper.writeValueAsString(idpStatisticManagement.getIdpStatisticsSinceGroupBy(sinceDate,
-				groupByFallbackToTotal, IdpStatisticManagement.DEFAULT_STAT_SIZE_LIMIT));
+				groupByFallbackToTotal, IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, skipZeroRecords));
 	}
 
 	/**
