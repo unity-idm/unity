@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
@@ -52,6 +53,7 @@ public class AttributeStatementProcessor
 		eattr,
 		groupName,
 		groups,
+		groupsObj,
 		entityId;
 	}
 	
@@ -87,7 +89,7 @@ public class AttributeStatementProcessor
 	 */
 	public Map<String, AttributeExt> getEffectiveAttributes(List<Identity> identities, String group, 
 			String queriedAttribute, 
-			Set<String> allGroups, Map<String, Map<String, AttributeExt>> directAttributesByGroup,
+			List<Group> allGroups, Map<String, Map<String, AttributeExt>> directAttributesByGroup,
 			Map<String, AttributesClass> knownClasses,
 			Function<String, Group> groupInfoProvider,
 			Function<String, AttributeType> attrTypeProvider) 
@@ -153,7 +155,7 @@ public class AttributeStatementProcessor
 			List<Identity> identities,
 			Map<String, Map<String, AttributeExt>> upOrDownAttributes, 
 			Map<String, Map<String, AttributeExt>> allAttributesByGroup,
-			Set<String> allGroups, Map<String, AttributesClass> knownClasses,
+			List<Group> allGroups, Map<String, AttributesClass> knownClasses,
 			Function<String, Group> groupInfoProvider,
 			Function<String, AttributeType> attrTypeProvider) 
 	{
@@ -172,7 +174,7 @@ public class AttributeStatementProcessor
 		}
 		for (String interestingGroup: interestingGroups)
 		{
-			if (!allGroups.contains(interestingGroup))
+			if (!allGroups.stream().filter(g -> g.getPathEncoded().equals(interestingGroup)).findAny().isPresent())
 				continue;
 			collectUpOrDownAttributes(mode, interestingGroup, queriedAttribute, identities,
 					upOrDownAttributes, allAttributesByGroup,
@@ -202,7 +204,7 @@ public class AttributeStatementProcessor
 			Map<String, Map<String, AttributeExt>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt>> downwardsAttributesByGroup,
 			String group, String queriedAttribute, List<Identity> identities, AttributeStatement[] statements, 
-			Set<String> allGroups, Map<String, AttributesClass> knownClasses,
+			List<Group> allGroups, Map<String, AttributesClass> knownClasses,
 			Function<String, AttributeType> attrTypeProvider) 
 	{
 		Map<String, AttributeExt> collectedAttributes = new HashMap<String, AttributeExt>();
@@ -273,7 +275,7 @@ public class AttributeStatementProcessor
 			Map<String, AttributeExt> collectedAttributes,
 			Map<String, AttributeExt> regularGroupAttributes,
 			Map<String, AttributeExt> extraGroupAttributes,
-			Set<String> allGroups, AttributeClassHelper acHelper,
+			List<Group> allGroups, AttributeClassHelper acHelper,
 			Function<String, AttributeType> attrTypeProvider) 
 	{
 		//we are in the recursive process of establishing downwards or upwards attributes and the
@@ -436,7 +438,7 @@ public class AttributeStatementProcessor
 		return ret;
 	}
 
-	private Map<String, Object> createMvelContext(Set<String> allGroups, String groupName, 
+	private Map<String, Object> createMvelContext(List<Group> allGroups, String groupName, 
 			List<Identity> identities,
 			Map<String, AttributeExt> directAttributes, Map<String, AttributeExt> extraAttributes)
 	{
@@ -444,8 +446,10 @@ public class AttributeStatementProcessor
 		
 		ret.put(ContextKey.entityId.name(), identities.get(0).getEntityId());
 		ret.put(ContextKey.groupName.name(), groupName);
-		ret.put(ContextKey.groups.name(), new ArrayList<String>(allGroups));
-
+		ret.put(ContextKey.groups.name(), new ArrayList<String>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
+		ret.put(ContextKey.groupsObj.name(),
+				allGroups.stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g)));
+		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
 		for (Identity id: identities)
 		{

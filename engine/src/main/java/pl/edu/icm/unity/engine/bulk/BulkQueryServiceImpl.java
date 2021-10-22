@@ -328,7 +328,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 			EntitiesData entitiesData, GlobalSystemData globalSystemData) 
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = entitiesData.getDirectAttributes().get(entityId);
-		Set<String> allGroups = entitiesData.getMemberships().get(entityId);
+		List<Group> allGroups = entitiesData.getMemberships().get(entityId).stream().map(g -> globalSystemData.getGroups().get(g)).collect(Collectors.toList());
 		List<Identity> identities = entitiesData.getIdentities().get(entityId);
 		return statementsHelper.getEffectiveAttributes(identities, 
 				group, null, allGroups, directAttributesByGroup, 

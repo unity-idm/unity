@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,9 +157,9 @@ public class AttributesHelper
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 		for (String group: groups)
 		{
-			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities,
-				group, attributeTypeName, allGroups, directAttributesByGroup, allClasses,
-				groupDAO::get, attributeTypeDAO::get);
+			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
+					attributeTypeName, allGroups.stream().map(groupDAO::get).collect(Collectors.toList()),
+					directAttributesByGroup, allClasses, groupDAO::get, attributeTypeDAO::get);
 			ret.put(group, inGroup);
 		}
 		return ret;
