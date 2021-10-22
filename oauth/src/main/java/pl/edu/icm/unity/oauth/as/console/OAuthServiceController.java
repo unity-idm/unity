@@ -81,6 +81,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -126,6 +127,7 @@ class OAuthServiceController implements IdpServiceController
 	private ImageAccessService imageService;
 	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
+	private final ServiceFileConfigurationController serviceFileConfigController;
 
 	@Autowired
 	OAuthServiceController(MessageSource msg,
@@ -152,7 +154,8 @@ class OAuthServiceController implements IdpServiceController
 			EntityCredentialManagement entityCredentialManagement,
 			ImageAccessService imageService,
 			IdpUsersHelper idpUsersHelper,
-			PolicyDocumentManagement policyDocumentManagement)
+			PolicyDocumentManagement policyDocumentManagement,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -179,6 +182,7 @@ class OAuthServiceController implements IdpServiceController
 		this.idpUsersHelper = idpUsersHelper;
 		this.server = server;
 		this.policyDocumentManagement = policyDocumentManagement;
+		this.serviceFileConfigController = serviceFileConfigController;
 	}
 
 	@Override
@@ -242,6 +246,7 @@ class OAuthServiceController implements IdpServiceController
 		serviceDef.setRealm(endpoint.getConfiguration().getRealm());
 		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
 		serviceDef.setState(endpoint.getState());
+		serviceDef.setSupportFromConfigReload(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
 		return serviceDef;
 	}
 
@@ -375,6 +380,28 @@ class OAuthServiceController implements IdpServiceController
 		{
 			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()),
 					e);
+		}
+
+	}
+	
+	@Override
+	public void reloadFromConfig(ServiceDefinition service) throws ControllerException
+	{
+		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
+		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
+		DefaultServiceDefinition tokenService = def.getTokenService();
+		try
+		{
+			endpointMan.updateEndpoint(webAuthzService.getName(),
+					serviceFileConfigController.getEndpointConfig(webAuthzService.getName()));
+			if (tokenService != null)
+			{
+				endpointMan.updateEndpoint(tokenService.getName(),
+						serviceFileConfigController.getEndpointConfig(tokenService.getName()));
+			}
+		} catch (Exception e)
+		{
+			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
 		}
 
 	}
@@ -681,5 +708,4 @@ class OAuthServiceController implements IdpServiceController
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
 				.map(e -> e.getContextAddress()).collect(Collectors.toList()), policyDocumentManagement.getPolicyDocuments());
 	}
-
 }

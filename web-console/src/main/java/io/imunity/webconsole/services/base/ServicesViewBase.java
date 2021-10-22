@@ -135,7 +135,13 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 				.withDisabledPredicate(e -> e.getState().equals(EndpointState.UNDEPLOYED))
 				.withIcon(Images.undeploy.getResource()).withHandler(r -> undeploy(r.iterator().next()))
 				.build();
-		return Arrays.asList(remove, deploy, undeploy);
+		SingleActionHandler<ServiceDefinition> reload = SingleActionHandler.builder(ServiceDefinition.class)
+				.withCaption(msg.getMessage("ServicesView.reload"))
+				.withDisabledPredicate(e -> !e.supportFromConfigReload())
+				.withIcon(Images.reload.getResource()).withHandler(r -> reload(r.iterator().next()))
+				.build();
+		
+		return Arrays.asList(remove, deploy, undeploy, reload);
 
 	}
 
@@ -157,6 +163,19 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 		{
 			controller.deploy(endpoint);
 			refresh();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+		}
+	}
+	
+	private void reload(ServiceDefinition endpoint)
+	{
+		try
+		{
+			controller.reload(endpoint);
+			refresh();
+			NotificationPopup.showSuccess(msg.getMessage("ServicesView.reloadSuccess", endpoint.getName()), "");
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);

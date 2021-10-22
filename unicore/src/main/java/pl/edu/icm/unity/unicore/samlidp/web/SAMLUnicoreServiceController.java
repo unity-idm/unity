@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.console.SAMLServiceControllerBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 @Component
@@ -56,12 +57,13 @@ public class SAMLUnicoreServiceController extends SAMLServiceControllerBase
 			IdpUsersHelper idpUserHelper,
 			ImageAccessService imageAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider, 
-			PolicyDocumentManagement policyDocumentManagement)
+			PolicyDocumentManagement policyDocumentManagement,
+			ServiceFileConfigurationController serviceFileConfigController)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService, registrationMan,
 				uriAccessService, fileStorageService, serverConfig, authenticatorSupportService, idTypeSupport, pkiMan,
 				advertisedAddrProvider, server, outputTranslationProfileFieldFactory, idpUserHelper,
-				imageAccessService, policyDocumentManagement);
+				imageAccessService, policyDocumentManagement, serviceFileConfigController);
 	}
 
 	@Override
