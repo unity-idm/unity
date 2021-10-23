@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services;
+package pl.edu.icm.unity.engine.endpoint;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,32 +14,34 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 @Component
-public class ServiceFileConfigurationController
+public class EndpointFileConfigurationManagementImpl implements EndpointFileConfigurationManagement
 {
 	private final UnityServerConfiguration config;
 	private final ServerManagement serverMan;
 	private final MessageSource msg;
 
 	@Autowired
-	public ServiceFileConfigurationController(UnityServerConfiguration config, ServerManagement serverMan, MessageSource msg)
+	public EndpointFileConfigurationManagementImpl(UnityServerConfiguration config, ServerManagement serverMan,
+			MessageSource msg)
 	{
 		this.config = config;
 		this.serverMan = serverMan;
 		this.msg = msg;
 	}
 
-	public EndpointConfiguration getEndpointConfig(String name) throws ControllerException
+	public EndpointConfiguration getEndpointConfig(String name) throws EngineException
 	{
 		Optional<String> endpointKey = getEndpointConfigKey(name);
 
 		if (!endpointKey.isPresent())
 		{
-			throw new ControllerException(msg.getMessage("ServicesController.getConfigError", name), "", null);
+			throw new EngineException("File configuration for endpoint " + name + " does not exists");
 		}
 
 		String description = config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_DESCRIPTION);
@@ -57,7 +59,7 @@ public class ServiceFileConfigurationController
 					config.getValue(endpointKey.get() + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("ServicesController.getConfigError", name), e);
+			throw new EngineException("Can not read configuration from file for endpoint " + name);
 		}
 
 		return new EndpointConfiguration(displayedName, description, authn, jsonConfig, realm);

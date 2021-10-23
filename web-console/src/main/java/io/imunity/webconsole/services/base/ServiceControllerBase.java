@@ -99,6 +99,6 @@ public class ServiceControllerBase
 
 	public void reload(ServiceDefinition service) throws ControllerException
 	{
-		controllersRegistry.getByName(service.getType()).reloadFromConfig(service);
+		controllersRegistry.getByName(service.getType()).reloadConfigFromFile(service);
 	}
 }

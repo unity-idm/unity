@@ -137,7 +137,7 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 				.build();
 		SingleActionHandler<ServiceDefinition> reload = SingleActionHandler.builder(ServiceDefinition.class)
 				.withCaption(msg.getMessage("ServicesView.reload"))
-				.withDisabledPredicate(e -> !e.supportFromConfigReload())
+				.withDisabledPredicate(e -> !e.supportsConfigReloadFromFile())
 				.withIcon(Images.reload.getResource()).withHandler(r -> reload(r.iterator().next()))
 				.build();
 		

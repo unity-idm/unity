@@ -48,6 +48,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -81,7 +82,6 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
-import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -127,7 +127,7 @@ class OAuthServiceController implements IdpServiceController
 	private ImageAccessService imageService;
 	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
-	private final ServiceFileConfigurationController serviceFileConfigController;
+	private final EndpointFileConfigurationManagement serviceFileConfigController;
 
 	@Autowired
 	OAuthServiceController(MessageSource msg,
@@ -155,7 +155,7 @@ class OAuthServiceController implements IdpServiceController
 			ImageAccessService imageService,
 			IdpUsersHelper idpUsersHelper,
 			PolicyDocumentManagement policyDocumentManagement,
-			ServiceFileConfigurationController serviceFileConfigController)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -246,7 +246,7 @@ class OAuthServiceController implements IdpServiceController
 		serviceDef.setRealm(endpoint.getConfiguration().getRealm());
 		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
 		serviceDef.setState(endpoint.getState());
-		serviceDef.setSupportFromConfigReload(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
+		serviceDef.setSupportsConfigReloadFromFile(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
 		return serviceDef;
 	}
 
@@ -385,7 +385,7 @@ class OAuthServiceController implements IdpServiceController
 	}
 	
 	@Override
-	public void reloadFromConfig(ServiceDefinition service) throws ControllerException
+	public void reloadConfigFromFile(ServiceDefinition service) throws ControllerException
 	{
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -26,7 +27,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.ws.console.SAMLSoapServiceControllerBase;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.console.services.ServiceFileConfigurationController;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 @Component
@@ -52,7 +52,7 @@ class SAMLUnicoreSoapServiceController extends SAMLSoapServiceControllerBase
 			IdpUsersHelper idpUserHelper,
 			ImageAccessService imageAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
-			ServiceFileConfigurationController serviceFileConfigController)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, imageAccessService,
 				bulkService, uriAccessService, fileStorageService, serverConfig, idTypeSupport, pkiMan, server,

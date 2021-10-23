@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -51,7 +52,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
-			ServiceFileConfigurationController serviceFileConfigController)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService, imageAccessService,
 				fileStorageService, serverConfig, authenticatorSupportService, networkServer, serviceFileConfigController, 
@@ -65,7 +66,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
-			ServiceFileConfigurationController serviceFileConfigController, String defaultMainTheme)
+			EndpointFileConfigurationManagement serviceFileConfigController, String defaultMainTheme)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
