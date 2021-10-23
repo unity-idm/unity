@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -28,10 +29,10 @@ public abstract class DefaultServicesControllerBase implements ServiceController
 {
 	protected final MessageSource msg;
 	protected final EndpointManagement endpointMan;
-	protected final ServiceFileConfigurationController serviceFileConfigController;
+	protected final EndpointFileConfigurationManagement serviceFileConfigController;
 	
 	public DefaultServicesControllerBase(MessageSource msg, EndpointManagement endpointMan,
-			ServiceFileConfigurationController serviceFileConfigController)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -150,12 +151,12 @@ public abstract class DefaultServicesControllerBase implements ServiceController
 	}
 
 	@Override
-	public void reloadFromConfig(ServiceDefinition service) throws ControllerException
+	public void reloadConfigFromFile(ServiceDefinition service) throws ControllerException
 	{
-		EndpointConfiguration config = serviceFileConfigController.getEndpointConfig(service.getName());
 		try
 		{
-			endpointMan.updateEndpoint(service.getName(), config);
+			endpointMan.updateEndpoint(service.getName(),
+					serviceFileConfigController.getEndpointConfig(service.getName()));
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("ServicesController.updateError", service.getName()), e);
@@ -174,7 +175,7 @@ public abstract class DefaultServicesControllerBase implements ServiceController
 		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
 		serviceDef.setState(endpoint.getState());
 		serviceDef.setBinding(getBinding(endpoint.getTypeId()));
-		serviceDef.setSupportFromConfigReload(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
+		serviceDef.setSupportsConfigReloadFromFile(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
 		return serviceDef;
 	}
 	

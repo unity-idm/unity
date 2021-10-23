@@ -24,5 +24,5 @@ public interface ServiceDefinition
 
 	String getBinding();
 	
-	boolean supportFromConfigReload();
+	boolean supportsConfigReloadFromFile();
 }

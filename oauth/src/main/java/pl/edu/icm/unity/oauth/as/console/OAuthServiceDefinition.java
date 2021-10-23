@@ -101,15 +101,15 @@ class OAuthServiceDefinition implements ServiceDefinition
 	}
 	
 	@Override
-	public boolean supportFromConfigReload()
+	public boolean supportsConfigReloadFromFile()
 	{
-		return webAuthzService.supportFromConfigReload() && tokenService.supportFromConfigReload();
+		return webAuthzService.supportsConfigReloadFromFile() && tokenService.supportsConfigReloadFromFile();
 	}
 
 	public void setSupportFromConfigReload(boolean supportFromConfigReload)
 	{
-		webAuthzService.setSupportFromConfigReload(supportFromConfigReload);
-		webAuthzService.setSupportFromConfigReload(supportFromConfigReload);
+		webAuthzService.setSupportsConfigReloadFromFile(supportFromConfigReload);
+		webAuthzService.setSupportsConfigReloadFromFile(supportFromConfigReload);
 	}
 
 }
