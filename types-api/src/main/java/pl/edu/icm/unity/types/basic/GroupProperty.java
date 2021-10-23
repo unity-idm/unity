@@ -19,10 +19,15 @@ public class GroupProperty
 
 	public GroupProperty(@JsonProperty("key") String key, @JsonProperty("value") String value)
 	{
-		if (Objects.isNull(key) || key.length() > MAX_KEY_LENGTH)
+		if (Objects.isNull(key))
+		{
+			throw new IllegalArgumentException("key can not be null");
+		}
+		if (key.length() > MAX_KEY_LENGTH)
 		{
 			throw new IllegalArgumentException("key is too long. Max is " + MAX_KEY_LENGTH);
 		}
+
 		if (Objects.nonNull(value) && value.length() > MAX_VALUE_LENGHT)
 		{
 			throw new IllegalArgumentException("value is too long. Max is " + MAX_VALUE_LENGHT);
