@@ -144,6 +144,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(allowForWildcardsInAllowedURI).bind("allowForWildcardsInAllowedURI");
 		advancedLayout.addComponent(allowForWildcardsInAllowedURI);
 
+		CheckBox allowForUnauthenticatedRevocation = new CheckBox(
+				msg.getMessage("OAuthEditorGeneralTab.allowForUnauthenticatedRevocation"));
+		configBinder.forField(allowForUnauthenticatedRevocation).bind("allowForUnauthenticatedRevocation");
+		advancedLayout.addComponent(allowForUnauthenticatedRevocation);
+		
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.advanced"), advancedLayout);
 	}
 

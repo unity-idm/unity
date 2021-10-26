@@ -64,7 +64,8 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected MessageSource msg;
 	protected final EntityManagement entityMan;
 
-	protected Set<String> notProtectedPaths = new HashSet<String>();
+	protected Set<String> notProtectedPaths = new HashSet<>();
+	protected Set<String> optionallyAuthenticatedPaths = new HashSet<>();
 	
 	public RESTEndpoint(MessageSource msg,
 			SessionManagement sessionMan,
@@ -105,6 +106,18 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	{
 		for (String path: paths)
 			notProtectedPaths.add(description.getEndpoint().getContextAddress() + path);
+	}
+
+	/**
+	 * @param paths paths that should have optional authentication. The paths are relative to the endpoint 
+	 * address (i.e. should start with the servlet's address). Requests to those paths will be authenticated 
+	 * if possible but if no authentication material was given the request will proceed to the handler as an 
+	 * anonymous request.
+	 */
+	protected void addOptionallyAuthenticatedPaths(String... paths)
+	{
+		for (String path: paths)
+			optionallyAuthenticatedPaths.add(description.getEndpoint().getContextAddress() + path);
 	}
 	
 	protected abstract Application getApplication();
@@ -173,7 +186,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	{
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
-				authenticationFlows, realm, sessionMan, notProtectedPaths,
+				authenticationFlows, realm, sessionMan, notProtectedPaths, optionallyAuthenticatedPaths,
 				getEndpointDescription().getType().getFeatures(), entityMan));
 		installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}

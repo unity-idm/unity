@@ -119,8 +119,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 				getServletUrl(PATH));
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
-		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH,
-				TOKEN_REVOCATION_PATH);
+		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
+		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH);
 	}
 	
 	@Override
@@ -146,7 +146,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new UserInfoResource(oauthTokenRepository));
 			ret.add(new RevocationResource(tokensManagement, oauthTokenRepository,
 					sessionMan, getEndpointDescription().getRealm(),
-					config.getValue(OAuthASProperties.CLIENTS_GROUP)));
+					config.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION)));
 			RestEndpointHelper.installExceptionHandlers(ret);
 			return ret;
 		}

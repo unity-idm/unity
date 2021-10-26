@@ -71,7 +71,9 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm"; 
 	public static final String SIGNING_SECRET = "signingSecret"; 
 	
-	public static final String ACCESS_TOKEN_FORMAT = "tokenFormat"; 
+	public static final String ACCESS_TOKEN_FORMAT = "tokenFormat";
+	
+	public static final String ALLOW_UNAUTHENTICATED_REVOCATION = "allowUnauthenticatedRevocation"; 
 
 	
 	public static final int DEFAULT_CODE_TOKEN_VALIDITY = 600;
@@ -143,6 +145,14 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		defaults.put(SIGNING_SECRET, new PropertyMD().setDescription(
 				"Secret key used when one of HS* algorithms is set for token signing "
 				+ "(both access token in JWT form and OpenId Connect id token)."));
+
+		defaults.put(ALLOW_UNAUTHENTICATED_REVOCATION, new PropertyMD("true").
+				setDescription("If set to true (the default due to backwards compatibility) revocation"
+						+ " of tokens issued to confidential clients does not require authentication. "
+						+ "It is the same as in the case of tokens issued to public clients. "
+						+ "Setting this option to false makes the authentication required and "
+						+ "in line with the RFC 7009."));
+
 		
 		defaults.putAll(CommonIdPProperties.getDefaults("Name of an output translation profile "
 				+ "which can be used to dynamically modify the "

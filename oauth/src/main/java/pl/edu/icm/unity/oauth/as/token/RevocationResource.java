@@ -13,6 +13,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
@@ -20,12 +22,13 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthClient;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
@@ -59,6 +62,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Path(OAuthTokenEndpoint.TOKEN_REVOCATION_PATH)
 public class RevocationResource extends BaseOAuthResource
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, RevocationResource.class);
 	public static final String TOKEN_TYPE = "token_type_hint";
 	public static final String TOKEN_TYPE_ACCESS = "access_token";
 	public static final String TOKEN_TYPE_REFRESH = "refresh_token";
@@ -72,19 +76,18 @@ public class RevocationResource extends BaseOAuthResource
 	private final SessionManagement sessionManagement;
 	private final AuthenticationRealm realm;
 	private final OAuthTokenRepository oauthTokenRepository;
-	private final String clientsGroup;
+	private final boolean allowUnauthenticatedRevocation;
 	
 	public RevocationResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenRepository,
 			SessionManagement sessionManagement, 
 			AuthenticationRealm realm,
-			String clientsGroup,
-			)
+			boolean allowUnauthenticatedRevocation)
 	{
 		this.tokensManagement = tokensManagement;
 		this.oauthTokenRepository = oauthTokenRepository;
 		this.sessionManagement = sessionManagement;
 		this.realm = realm;
-		this.clientsGroup = clientsGroup;
+		this.allowUnauthenticatedRevocation = allowUnauthenticatedRevocation;
 	}
 
 	@Path("/")
@@ -116,15 +119,28 @@ public class RevocationResource extends BaseOAuthResource
 		if (clientId != null && !clientId.equals(parsedToken.getClientUsername()))
 			return makeError(OAuth2Error.INVALID_CLIENT, "Wrong client/token");
 		
-		ClientType clientType = parsedToken.getClientType() == null ? ClientType.CONFIDENTIAL : parsedToken.getClientType();
-		if (clientType == ClientType.PUBLIC)
+		ClientType effectiveClientType = getEffectiveClientType(parsedToken);
+		if (effectiveClientType == ClientType.PUBLIC)
 		{
 			if (clientId == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "To access the token revocation endpoint "
 						+ "a " + CLIENT + " must be provided");
 		} else
 		{
-			//TODO ensure request is authenticated
+			InvocationContext invocationContext = InvocationContext.getCurrent();
+			LoginSession loginSession = invocationContext.getLoginSession();
+			if (loginSession == null)
+			{
+				log.info("Blocking a try to revoke OAuth token owned by confidential client {} wihtout authentication",
+						parsedToken.getClientId());
+				return makeError(OAuth2Error.INVALID_REQUEST, "Authentication is required");
+			}
+			if (parsedToken.getClientId() != loginSession.getEntityId())
+			{
+				log.warn("OAuth client authenticated with id {} tried to revoke token associated with other client {}",
+						loginSession.getEntityId(), parsedToken.getClientId());
+				return makeError(OAuth2Error.INVALID_REQUEST, "Authentication error");
+			}
 		}
 		
 		
@@ -143,6 +159,13 @@ public class RevocationResource extends BaseOAuthResource
 			//ok
 		}
 		return toResponse(Response.ok());
+	}
+
+	private ClientType getEffectiveClientType(OAuthToken parsedToken)
+	{
+		if (allowUnauthenticatedRevocation)
+			return ClientType.PUBLIC;
+		return parsedToken.getClientType() == null ? ClientType.CONFIDENTIAL : parsedToken.getClientType();
 	}
 
 	private Token loadToken(String token, String tokenHint)
