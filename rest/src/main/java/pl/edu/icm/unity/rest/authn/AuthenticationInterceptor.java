@@ -8,7 +8,6 @@ import static pl.edu.icm.unity.types.authn.AuthenticationOptionKey.authenticator
 
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -20,6 +19,8 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.ImmutableSet;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -62,13 +63,16 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	protected UnsuccessfulAuthenticationCounter UnsuccessfulAuthenticationCounterImpl;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
-	protected Set<String> notProtectedPaths = new HashSet<String>();
+	protected final Set<String> notProtectedPaths;
+	protected final Set<String> optionalAuthnPaths;
 	private Properties endpointProperties;
 	private final EntityManagement entityMan;
 	
 	public AuthenticationInterceptor(MessageSource msg, AuthenticationProcessor authenticationProcessor, 
 			List<AuthenticationFlow> authenticators,
-			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths,
+			AuthenticationRealm realm, SessionManagement sessionManagement, 
+			Set<String> notProtectedPaths,
+			Set<String> optionalAuthnPaths,
 			Properties endpointProperties, EntityManagement entityMan)
 	{
 		super(Phase.PRE_INVOKE);
@@ -81,7 +85,8 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		this.UnsuccessfulAuthenticationCounterImpl = new DefaultUnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
-		this.notProtectedPaths.addAll(notProtectedPaths);
+		this.notProtectedPaths = ImmutableSet.copyOf(notProtectedPaths);
+		this.optionalAuthnPaths = ImmutableSet.copyOf(optionalAuthnPaths);
 	}
 
 	@Override
@@ -123,35 +128,55 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			}
 			break;
 		}
+		
 		if (client == null)
 		{
-			log.info("Authentication failed for client");
-			UnsuccessfulAuthenticationCounterImpl.unsuccessfulAttempt(ip);
-			throw new Fault(firstError == null ? new Exception("Authentication failed") : firstError);
+			if (isToOptionallyAuthenticatedPath(message))
+			{
+				log.debug("Request to an address with optional authentication - {} - "
+						+ "invocation will proceed without authentication", 
+						message.get(Message.REQUEST_URI));
+				return;
+			} else
+			{
+				log.info("Authentication failed for client");
+				UnsuccessfulAuthenticationCounterImpl.unsuccessfulAttempt(ip);
+				throw new Fault(firstError == null ? new Exception("Authentication failed") : firstError);
+			}
 		} else
 		{
 			authnSuccess(client, ip, ctx);
 		}
 	}
+
+	private boolean isToOptionallyAuthenticatedPath(Message message)
+	{
+		return isToSpecialPath(message, optionalAuthnPaths);
+	}
 	
 	private boolean isToNotProtected(Message message)
 	{
-		try
+		boolean notProtected = isToSpecialPath(message, notProtectedPaths);
+		if (notProtected)
+			log.debug("Request to a not protected address - {} - invocation will proceed without authentication", 
+					message.get(Message.REQUEST_URI));
+		return notProtected;
+	}
+
+	private boolean isToSpecialPath(Message message, Set<String> paths)
+	{
+		String addressPath = (String) message.get(Message.REQUEST_URI);
+		if (addressPath == null)
 		{
-			String addressPath = (String) message.get(Message.REQUEST_URI);
-			for (String notProtected: notProtectedPaths)
-				if (addressPath.equals(notProtected))
-				{
-					log.debug("Request to a not protected address - " + addressPath 
-							+ " - invocation will proceed without authentication");
-					return true;
-				}
-		} catch (Exception e)
-		{
-			log.error("Can not establish the destination address", e);
+			log.error("Can not establish the destination address");
+			return false;
 		}
+		for (String notProtected: paths)
+			if (addressPath.equals(notProtected))
+				return true;
 		return false;
 	}
+
 	
 	private void authnSuccess(EntityWithAuthenticators client, String ip, InvocationContext ctx)
 	{

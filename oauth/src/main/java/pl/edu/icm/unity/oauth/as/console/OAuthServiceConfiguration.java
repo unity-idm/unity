@@ -60,6 +60,7 @@ public class OAuthServiceConfiguration
 	private List<UserImportConfig> userImports;
 	private boolean skipUserImport;
 	private boolean allowForWildcardsInAllowedURI;
+	private boolean allowForUnauthenticatedRevocation;
 	private int maxExtendAccessTokenValidity;
 	private boolean supportExtendTokenValidity;
 	private AccessTokenFormat accessTokenFormat;
@@ -78,6 +79,7 @@ public class OAuthServiceConfiguration
 		accessTokenExpiration = OAuthASProperties.DEFAULT_ACCESS_TOKEN_VALIDITY;
 		supportRefreshToken = false;
 		setAllowForWildcardsInAllowedURI(false);
+		setAllowForUnauthenticatedRevocation(false);
 		setIdentityTypeForSubject(TargetedPersistentIdentity.ID);
 		scopes = new ArrayList<>();
 		translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyOutputProfile();
@@ -105,6 +107,8 @@ public class OAuthServiceConfiguration
 		raw.put(OAuthASProperties.P + CommonIdPProperties.SKIP_CONSENT, String.valueOf(skipConsentScreen));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI,
 				String.valueOf(allowForWildcardsInAllowedURI));
+		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION, 
+				String.valueOf(allowForUnauthenticatedRevocation));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_FORMAT, accessTokenFormat.toString());
 		if (supportExtendTokenValidity)
 		{
@@ -245,6 +249,8 @@ public class OAuthServiceConfiguration
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
 		allowForWildcardsInAllowedURI = oauthProperties
 				.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
+		allowForUnauthenticatedRevocation = oauthProperties
+				.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION);
 		accessTokenFormat = oauthProperties.getAccessTokenFormat();
 		if (oauthProperties.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY))
 		{
@@ -562,6 +568,16 @@ public class OAuthServiceConfiguration
 		this.allowForWildcardsInAllowedURI = allowForWildcardsInAllowedURI;
 	}
 
+	public boolean isAllowForUnauthenticatedRevocation()
+	{
+		return allowForUnauthenticatedRevocation;
+	}
+
+	public void setAllowForUnauthenticatedRevocation(boolean allowForUnauthenticatedRevocation)
+	{
+		this.allowForUnauthenticatedRevocation = allowForUnauthenticatedRevocation;
+	}
+	
 	public int getMaxExtendAccessTokenValidity()
 	{
 		return maxExtendAccessTokenValidity;

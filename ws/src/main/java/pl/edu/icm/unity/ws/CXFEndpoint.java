@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.ws;
 
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -94,7 +94,8 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticationFlows, realm, sessionMan, 
-				new HashSet<>(), getEndpointDescription().getType().getFeatures(), entityMan));
+				Collections.emptySet(), Collections.emptySet(), 
+				getEndpointDescription().getType().getFeatures(), entityMan));
 		RESTEndpoint.installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 	
