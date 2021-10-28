@@ -8,10 +8,6 @@ import java.util.List;
 
 import pl.edu.icm.unity.base.token.Token;
 
-/**
- * Tokens DAO
- * @author K. Benedyczak
- */
 public interface TokenDAO extends BasicCRUDDAO<Token>
 {
 	String DAO_ID = "TokenDAO";
@@ -24,4 +20,16 @@ public interface TokenDAO extends BasicCRUDDAO<Token>
 	List<Token> getByType(String type);
 	List<Token> getOwned(String type, long entityId);
 	List<Token> getExpired();
+	
+	public class TokenNotFoundException extends IllegalArgumentException
+	{
+		public TokenNotFoundException()
+		{
+		}
+
+		public TokenNotFoundException(String msg)
+		{
+			super(msg);
+		}
+	}
 }

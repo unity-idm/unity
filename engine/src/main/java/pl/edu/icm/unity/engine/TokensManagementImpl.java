@@ -23,15 +23,11 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.TokenDAO;
+import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
-/**
- * Implementation of {@link TokensManagement}
- * 
- * @author K. Benedyczak
- */
 @Component
 public class TokensManagementImpl implements TokensManagement
 {
