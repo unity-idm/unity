@@ -37,15 +37,11 @@ public class EndpointFileConfigurationManagementImpl implements EndpointFileConf
 
 	public EndpointConfiguration getEndpointConfig(String name) throws EngineException
 	{
-		Optional<String> endpointKey = getEndpointConfigKey(name);
-
-		if (!endpointKey.isPresent())
-		{
-			throw new EngineException("File configuration for endpoint " + name + " does not exists");
-		}
+		String endpointKey = getEndpointConfigKey(name)
+				.orElseThrow(() -> new EngineException("File configuration for endpoint " + name + " does not exists"));
 
 		String description = config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-		List<String> authn = config.getEndpointAuth(endpointKey.get());
+		List<String> authn = config.getEndpointAuth(endpointKey);
 
 		String realm = config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_REALM);
 		I18nString displayedName = config.getLocalizedString(msg,
@@ -56,7 +52,7 @@ public class EndpointFileConfigurationManagementImpl implements EndpointFileConf
 		try
 		{
 			jsonConfig = serverMan.loadConfigurationFile(
-					config.getValue(endpointKey.get() + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
+					config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_CONFIGURATION));
 		} catch (Exception e)
 		{
 			throw new EngineException("Can not read configuration from file for endpoint " + name);
