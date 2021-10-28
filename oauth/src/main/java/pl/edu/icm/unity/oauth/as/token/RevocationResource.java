@@ -32,6 +32,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -109,7 +110,7 @@ public class RevocationResource extends BaseOAuthResource
 		try
 		{
 			internalToken = loadToken(token, tokenHint);
-		} catch (IllegalArgumentException e)
+		} catch (TokenNotFoundException e)
 		{
 			return toResponse(Response.ok());
 		}
@@ -154,7 +155,7 @@ public class RevocationResource extends BaseOAuthResource
 		try
 		{
 			tokensManagement.removeToken(internalToken.getType(), token);
-		} catch (IllegalArgumentException e)
+		} catch (TokenNotFoundException e)
 		{
 			//ok
 		}
@@ -181,7 +182,7 @@ public class RevocationResource extends BaseOAuthResource
 			try
 			{
 				return oauthTokenRepository.readAccessToken(token);
-			} catch (IllegalArgumentException notFound)
+			} catch (TokenNotFoundException notFound)
 			{
 				return tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
 			}
