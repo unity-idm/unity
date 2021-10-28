@@ -7,6 +7,7 @@ package io.imunity.webconsole.directoryBrowser.groupbrowser;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.vaadin.data.ValidationResult;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.CheckBox;
@@ -33,7 +34,8 @@ class GroupEditDialog extends AbstractDialog
 	private CheckBox isPublic;
 	private Group originalGroup;
 	private GridWithEditor<GroupPropertyBean> propertiesEditor;
-
+	private GroupPropertyBean edited;
+	
 	GroupEditDialog(MessageSource msg, Group group, Callback callback)
 	{
 		super(msg, msg.getMessage("GroupEditDialog.editCaption"), msg.getMessage("ok"), msg.getMessage("cancel"));
@@ -64,12 +66,21 @@ class GroupEditDialog extends AbstractDialog
 		isPublic = new CheckBox(msg.getMessage("GroupEditDialog.public"));
 		isPublic.setValue(originalGroup.isPublic());
 
-		propertiesEditor = new GridWithEditor<>(msg, GroupPropertyBean.class, t -> false, false);
+		propertiesEditor = new GridWithEditor<>(msg, GroupPropertyBean.class, t -> false, false, false);
 		propertiesEditor.setCaption(msg.getMessage("GroupEditDialog.groupProperties"));
+		propertiesEditor.getEditor().addOpenListener(e -> edited = e.getBean());
+		
 		propertiesEditor.addTextColumn(s -> s.key, (t, v) -> t.setKey(v),
-				msg.getMessage("GroupEditDialog.propertyName"), 10, true,
-				Optional.of(new StringLengthValidator(msg.getMessage("maxLength", GroupProperty.MAX_KEY_LENGTH), 0,
-						GroupProperty.MAX_KEY_LENGTH)));
+				msg.getMessage("GroupEditDialog.propertyName"), 10, true, Optional.of((value, context) ->
+				{
+					if (propertiesEditor.getValue().stream().filter(k -> !k.key.equals(edited.key)).map(k -> k.key)
+							.anyMatch(k -> k.equals(value)))
+					{
+						return ValidationResult.error(msg.getMessage("GroupEditDialog.propertyNameExists"));
+					}
+					return new StringLengthValidator(msg.getMessage("maxLength", GroupProperty.MAX_KEY_LENGTH), 0,
+							GroupProperty.MAX_KEY_LENGTH).apply(value, context);
+				}));
 		propertiesEditor.addTextColumn(s -> s.getValue(), (t, v) -> t.setValue(v),
 				msg.getMessage("GroupEditDialog.propertyValue"), 40, false,
 				Optional.of(new StringLengthValidator(msg.getMessage("maxLength", GroupProperty.MAX_VALUE_LENGHT), 0,
@@ -85,6 +96,13 @@ class GroupEditDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
+		if(propertiesEditor.isEditMode())
+		{
+			propertiesEditor.setComponentError(new UserError(msg.getMessage("GroupEditDialog.saveFirst")));
+			return;
+		}
+		
+		
 		try
 		{
 			Group group = originalGroup.clone();
@@ -115,6 +133,8 @@ class GroupEditDialog extends AbstractDialog
 
 		public GroupPropertyBean()
 		{
+			key = "";
+			value = "";
 		}
 
 		private GroupPropertyBean(GroupProperty org)
