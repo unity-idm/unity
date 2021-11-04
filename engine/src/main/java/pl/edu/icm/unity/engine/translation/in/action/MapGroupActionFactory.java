@@ -14,8 +14,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -38,7 +40,10 @@ public class MapGroupActionFactory extends AbstractInputTranslationActionFactory
 		super(NAME, new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.mapGroup.paramDesc.expression",
-				Type.EXPRESSION, true),
+				Type.EXPRESSION, true,
+				MVELExpressionContext.builder().withTitleKey("TranslationAction.mapGroup.editor.title")
+					.withEvalToKey("TranslationAction.mapGroup.editor.evalTo")
+					.withVars(InputTranslationMVELContextKey.toMap()).build()),
 			new ActionParameterDefinition(
 				"mode",
 				"TranslationAction.mapGroup.paramDesc.createMissing",

@@ -34,6 +34,12 @@ class MVELExpressionEditor
 		field.setCaption(caption);
 		field.setDescription(description, ContentMode.HTML);
 	}
+	
+	public MVELExpressionEditor(AbstractField<String> field, MessageSource msg)
+	{
+		this.field = field;
+		this.msg = msg;
+	}
 
 	void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)
 	{
@@ -65,7 +71,7 @@ class MVELExpressionEditor
 
 	}
 
-	private static Validator<String> getValidator(MessageSource msg, boolean mandatory)
+	public static Validator<String> getValidator(MessageSource msg, boolean mandatory)
 	{
 		Validator<String> expressionValidator = new Validator<String>()
 		{

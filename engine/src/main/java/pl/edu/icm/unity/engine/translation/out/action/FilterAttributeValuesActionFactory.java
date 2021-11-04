@@ -11,7 +11,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -33,16 +35,16 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 	
 	public FilterAttributeValuesActionFactory()
 	{
-		super(NAME, new ActionParameterDefinition(
-				"attribute",
-				"TranslationAction.filterAttributeValue.paramDesc.attribute",
-				Type.UNITY_ATTRIBUTE, true),
-		new ActionParameterDefinition(
-				"attributeValueRegexp",
-				"TranslationAction.filterAttributeValue.paramDesc.attributeValueRegexp",
-				Type.EXPRESSION, true));
+		super(NAME,
+				new ActionParameterDefinition("attribute", "TranslationAction.filterAttributeValue.paramDesc.attribute",
+						Type.UNITY_ATTRIBUTE, true),
+				new ActionParameterDefinition("attributeValueRegexp",
+						"TranslationAction.filterAttributeValue.paramDesc.attributeValueRegexp", Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("TranslationAction.filterAttributeValue.editor.title")
+								.withEvalToKey("TranslationAction.filterAttributeValue.editor.evalTo")
+								.withVars(OutputTranslationMVELContextKey.toMap()).build()));
 	}
-	
+
 	@Override
 	public FilterAttributeValuesAction getInstance(String... parameters)
 	{

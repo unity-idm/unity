@@ -12,7 +12,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -33,14 +35,14 @@ public class FilterIdentityActionFactory extends AbstractRegistrationTranslation
 	
 	public FilterIdentityActionFactory()
 	{
-		super(NAME, new ActionParameterDefinition[] {
-				new ActionParameterDefinition("identity", 
-						"RegTranslationAction.regFilterIdentity.paramDesc.identity",
-						Type.EXPRESSION, true),
-				new ActionParameterDefinition("type", 
-						"RegTranslationAction.regFilterIdentity.paramDesc.identityType",
-						Type.UNITY_ID_TYPE, true)
-		});
+		super(NAME, new ActionParameterDefinition[]
+		{ new ActionParameterDefinition("identity", "RegTranslationAction.regFilterIdentity.paramDesc.identity",
+				Type.EXPRESSION, true,
+				MVELExpressionContext.builder().withTitleKey("RegTranslationAction.regFilterIdentity.editor.title")
+						.withEvalToKey("RegTranslationAction.regFilterIdentity.editor.evalTo")
+						.withVars(RegistrationMVELContextKey.toMap()).build()),
+				new ActionParameterDefinition("type", "RegTranslationAction.regFilterIdentity.paramDesc.identityType",
+						Type.UNITY_ID_TYPE, true) });
 	}
 
 	@Override

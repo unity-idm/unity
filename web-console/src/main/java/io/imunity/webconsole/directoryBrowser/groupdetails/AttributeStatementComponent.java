@@ -28,6 +28,8 @@ import io.imunity.webconsole.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeStatementMVELContextKey;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -120,9 +122,13 @@ class AttributeStatementComponent extends CustomComponent
 		if (groups.isEmpty())
 			extraAttributesGroupCB.setEnabled(false);
 		
-		condition = new MVELExpressionField(msg, msg.getMessage("AttributeStatementComponent.condition"), 
-				msg.getMessage("MVELExpressionField.conditionDesc"));
-		
+		condition = new MVELExpressionField(msg, msg.getMessage("AttributeStatementComponent.condition"),
+				msg.getMessage("MVELExpressionField.conditionDesc"),
+				MVELExpressionContext.builder()
+						.withTitleKey("AttributeStatementComponent.conditionTitle")
+						.withEvalToKey("MVELExpressionField.evalToBoolean")
+						.withVars(AttributeStatementMVELContextKey.toMap()).build());
+
 		condition.setDescription(
 				msg.getMessage("AttributeStatementComponent.conditionDesc"));
 		condition.setValue("true");
@@ -143,11 +149,14 @@ class AttributeStatementComponent extends CustomComponent
 		
 		dynamicAttributeName =  new AttributeSelectionComboBox(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrName"), attributeTypes);
-		dynamicAttributeValue  = new MVELExpressionField(msg, msg.getMessage("AttributeStatementComponent.dynamicAttrValue"), 
-				msg.getMessage("MVELExpressionField.conditionDesc"));
-		dynamicAttributeValue.setDescription(
-				msg.getMessage("AttributeStatementComponent.dynamicAttrValueDesc"));
-		
+		dynamicAttributeValue = new MVELExpressionField(msg,
+				msg.getMessage("AttributeStatementComponent.dynamicAttrValue"),
+				msg.getMessage("AttributeStatementComponent.dynamicAttrValueDesc"),
+				MVELExpressionContext.builder()
+						.withTitleKey("AttributeStatementComponent.dynamicAttrValueTitle")
+						.withEvalToKey("AttributeStatementComponent.evalToListOfAttributeValues")
+						.withVars(AttributeStatementMVELContextKey.toMap()).build());
+
 		fixedAttribute = new AttributeFieldWithEdit(msg,
 				msg.getMessage("AttributeStatementComponent.fixedAttr"),
 				attrHandlerRegistry, attributeTypes, group, null, true);

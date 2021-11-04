@@ -15,8 +15,10 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -42,14 +44,15 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 	@Autowired
 	public CreatePersistentIdentityActionFactory(IdentityTypesRegistry idTypesReg, ExternalDataParser dataParser)
 	{
-		super(NAME, new ActionParameterDefinition(
-				"identityType",
-				"TranslationAction.createPersistedIdentity.paramDesc.idType",
-				Type.UNITY_ID_TYPE, true),
-		new ActionParameterDefinition(
-				"expression",
-				"TranslationAction.createPersistedIdentity.paramDesc.idValueExpression",
-				Type.EXPRESSION, true));
+		super(NAME,
+				new ActionParameterDefinition("identityType",
+						"TranslationAction.createPersistedIdentity.paramDesc.idType", Type.UNITY_ID_TYPE, true),
+				new ActionParameterDefinition("expression",
+						"TranslationAction.createPersistedIdentity.paramDesc.idValueExpression", Type.EXPRESSION, true,
+						MVELExpressionContext.builder()
+								.withTitleKey("TranslationAction.createPersistedIdentity.editor.title")
+								.withEvalToKey("TranslationAction.createPersistedIdentity.editor.evalTo")
+								.withVars(OutputTranslationMVELContextKey.toMap()).build()));
 		this.idTypesReg = idTypesReg;
 		this.dataParser = dataParser;
 	}

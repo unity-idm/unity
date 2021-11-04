@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.types.translation;
 
-
-
+import java.util.Optional;
 
 /**
  * Describes parameter of a translation action.
@@ -22,6 +21,7 @@ public class ActionParameterDefinition
 	private Type type;
 	private boolean mandatory;
 	private Class<? extends Enum<?>> enumClass;
+	private Optional<ActionParameterDefinitionDetails> details;
 	
 	public ActionParameterDefinition(String name, String descriptionKey, Type type, boolean mandatory)
 	{
@@ -29,6 +29,17 @@ public class ActionParameterDefinition
 		this.descriptionKey = descriptionKey;
 		this.type = type;
 		this.mandatory = mandatory;
+		this.setDetails(Optional.empty());
+	}
+	
+	public ActionParameterDefinition(String name, String descriptionKey, Type type, boolean mandatory,
+			ActionParameterDefinitionDetails details)
+	{
+		this.name = name;
+		this.descriptionKey = descriptionKey;
+		this.type = type;
+		this.mandatory = mandatory;
+		this.setDetails(Optional.ofNullable(details));
 	}
 
 	public ActionParameterDefinition(String name, String descriptionKey, Class<? extends Enum<?>> enumClass, boolean mandatory)
@@ -69,5 +80,15 @@ public class ActionParameterDefinition
 	public void setMandatory(boolean mandatory)
 	{
 		this.mandatory = mandatory;
+	}
+
+	public Optional<ActionParameterDefinitionDetails> getDetails()
+	{
+		return details;
+	}
+
+	public void setDetails(Optional<ActionParameterDefinitionDetails> details)
+	{
+		this.details = details;
 	}	
 }

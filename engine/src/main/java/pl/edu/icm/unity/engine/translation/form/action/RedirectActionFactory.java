@@ -8,7 +8,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -34,7 +36,10 @@ public class RedirectActionFactory extends AbstractRegistrationTranslationAction
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("URL", 
 						"RegTranslationAction.redirect.paramDesc.URL",
-						Type.EXPRESSION, true)
+						Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("RegTranslationAction.redirect.editor.title")
+							.withEvalToKey("RegTranslationAction.redirect.editor.evalTo")
+							.withVars(RegistrationMVELContextKey.toMap()).build())
 		});
 	}
 

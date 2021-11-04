@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributeStatementMVELContextKey;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -44,19 +45,6 @@ public class AttributeStatementProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, AttributeStatementProcessor.class);
 
-	public enum ContextKey
-	{
-		idsByType,
-		attrs,
-		attr,
-		eattrs,
-		eattr,
-		groupName,
-		groups,
-		groupsObj,
-		entityId;
-	}
-	
 	private AttributeTypeHelper atHelper;
 	private AttributeValueConverter attrConverter;
 
@@ -368,8 +356,8 @@ public class AttributeStatementProcessor
 		if (log.isTraceEnabled())
 		{
 			log.trace("Condition " + statement.getCondition() + " evaluated to " + 
-					result + " for " + context.get(ContextKey.entityId.name()) + " in " 
-					+ context.get(ContextKey.groupName.name()));
+					result + " for " + context.get(AttributeStatementMVELContextKey.entityId.name()) + " in " 
+					+ context.get(AttributeStatementMVELContextKey.groupName.name()));
 		}
 		return result.booleanValue();
 	}
@@ -444,10 +432,10 @@ public class AttributeStatementProcessor
 	{
 		Map<String, Object> ret = new HashMap<>();
 		
-		ret.put(ContextKey.entityId.name(), identities.get(0).getEntityId());
-		ret.put(ContextKey.groupName.name(), groupName);
-		ret.put(ContextKey.groups.name(), new ArrayList<String>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
-		ret.put(ContextKey.groupsObj.name(),
+		ret.put(AttributeStatementMVELContextKey.entityId.name(), identities.get(0).getEntityId());
+		ret.put(AttributeStatementMVELContextKey.groupName.name(), groupName);
+		ret.put(AttributeStatementMVELContextKey.groups.name(), new ArrayList<>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
+		ret.put(AttributeStatementMVELContextKey.groupsObj.name(),
 				allGroups.stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g)));
 		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
@@ -461,23 +449,23 @@ public class AttributeStatementProcessor
 			}
 			vals.add(id.getValue());
 		}
-		ret.put(ContextKey.idsByType.name(), idsByType);
+		ret.put(AttributeStatementMVELContextKey.idsByType.name(), idsByType);
 		
-		addAttributesToContext(directAttributes, ContextKey.attrs, ContextKey.attr, ret);
+		addAttributesToContext(directAttributes, AttributeStatementMVELContextKey.attrs, AttributeStatementMVELContextKey.attr, ret);
 		if (extraAttributes != null)
 		{
-			addAttributesToContext(extraAttributes, ContextKey.eattrs, ContextKey.eattr, ret);
+			addAttributesToContext(extraAttributes, AttributeStatementMVELContextKey.eattrs, AttributeStatementMVELContextKey.eattr, ret);
 		} else
 		{
-			ret.put(ContextKey.eattrs.name(), null);
-			ret.put(ContextKey.eattr.name(), null);
+			ret.put(AttributeStatementMVELContextKey.eattrs.name(), null);
+			ret.put(AttributeStatementMVELContextKey.eattr.name(), null);
 		}
 		
 		return ret;
 	}
 	
-	private void addAttributesToContext(Map<String, AttributeExt> attributes, ContextKey fullKey,
-			ContextKey oneValueKey, Map<String, Object> target)
+	private void addAttributesToContext(Map<String, AttributeExt> attributes, AttributeStatementMVELContextKey fullKey,
+			AttributeStatementMVELContextKey oneValueKey, Map<String, Object> target)
 	{
 		Map<String, Object> attr = new HashMap<>();
 		Map<String, List<String>> attrs = new HashMap<>();

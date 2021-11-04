@@ -29,10 +29,12 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -248,7 +250,12 @@ public class EnquiryFormEditor extends BaseFormEditor
 		targetGroups.setRequiredIndicatorVisible(true);
 		
 		targetCondition = new MVELExpressionField(msg, msg.getMessage("EnquiryFormEditor.targetCondition"),
-				msg.getMessage("EnquiryFormEditor.targetConditionDesc"));
+				msg.getMessage("EnquiryFormEditor.targetConditionDesc"),
+				MVELExpressionContext.builder()
+				.withTitleKey("EnquiryFormEditor.targetConditionTitle")
+				.withEvalToKey("MVELExpressionField.evalToBoolean")
+				.withVars(EntityMVELContextKey.toMap()).build()
+				);
 		targetCondition.setWidth(100, Unit.PERCENTAGE);
 		targetCondition.configureBinding(binder, "targetCondition", false);
 		

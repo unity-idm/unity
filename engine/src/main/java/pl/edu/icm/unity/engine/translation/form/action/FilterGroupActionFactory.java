@@ -12,8 +12,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -30,14 +32,15 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class FilterGroupActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "regFilterGroup";
-	
+
 	public FilterGroupActionFactory()
 	{
-		super(NAME, new ActionParameterDefinition[] {
-				new ActionParameterDefinition("group", 
-						"RegTranslationAction.regFilterGroup.paramDesc.group",
-						Type.EXPRESSION, true)
-		});
+		super(NAME, new ActionParameterDefinition[]
+		{ new ActionParameterDefinition("group", "RegTranslationAction.regFilterGroup.paramDesc.group", Type.EXPRESSION,
+				true,
+				MVELExpressionContext.builder().withTitleKey("RegTranslationAction.regFilterGroup.editor.title")
+						.withEvalToKey("RegTranslationAction.regFilterGroup.editor.evalTo")
+						.withVars(RegistrationMVELContextKey.toMap()).build()) });
 	}
 
 	@Override

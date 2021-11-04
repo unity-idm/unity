@@ -12,7 +12,9 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -33,14 +35,14 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 	
 	public CreateIdentityActionFactory()
 	{
-		super(NAME, new ActionParameterDefinition(
-				"identityType",
-				"TranslationAction.createIdentity.paramDesc.idType",
-				Type.TEXT, true),
-		new ActionParameterDefinition(
-				"expression",
-				"TranslationAction.createIdentity.paramDesc.idValueExpression",
-				Type.EXPRESSION, true));
+		super(NAME,
+				new ActionParameterDefinition("identityType", "TranslationAction.createIdentity.paramDesc.idType",
+						Type.TEXT, true),
+				new ActionParameterDefinition("expression",
+						"TranslationAction.createIdentity.paramDesc.idValueExpression", Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("TranslationAction.createIdentity.editor.title")
+								.withEvalToKey("TranslationAction.createIdentity.editor.evalTo")
+								.withVars(OutputTranslationMVELContextKey.toMap()).build()));
 	}
 	
 	@Override
