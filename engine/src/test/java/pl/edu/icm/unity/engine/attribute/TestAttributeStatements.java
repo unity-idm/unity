@@ -110,7 +110,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	{
 		setupStateForConditions();
 		AttributeStatement statement0 = new AttributeStatement("true", null, ConflictResolution.overwrite, "a2",
-				"groupsObj['/A'].properties['k1'].value");
+				"groupsObj['/A'].properties['k1']");
 		setStatments(groupA, statement0);
 
 		Collection<AttributeExt> aRet = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);

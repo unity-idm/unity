@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
+import pl.edu.icm.unity.store.api.GroupDAO;
 
 /**
  * Same as {@link IdPEngineImpl}, with a sole but very important difference: this variant 
@@ -36,6 +37,7 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 	public IdPEngineImplNoAuthz(@Qualifier("insecure") AttributesManagement attributesMan, 
 			@Qualifier("insecure") EntityManagement identitiesMan,
 			@Qualifier("insecure") GroupsManagement groupMan,
+			GroupDAO groupDao,
 			OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
@@ -46,6 +48,6 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 		super(attributesMan, attributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg), groupMan);
+						attrValueConverter, msg, groupDao::get), groupMan);
 	}
 }

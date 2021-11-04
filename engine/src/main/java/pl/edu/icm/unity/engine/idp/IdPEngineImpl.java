@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
+import pl.edu.icm.unity.store.api.GroupDAO;
 
 /**
  * IdP engine is responsible for performing common IdP-related functionality. It resolves the information
@@ -34,6 +35,7 @@ public class IdPEngineImpl extends IdPEngineImplBase
 	public IdPEngineImpl(AttributesManagement attributesMan, 
 			@Qualifier("insecure") AttributesManagement insecureAttributesMan,
 			@Qualifier("insecure") GroupsManagement groupMan,
+			GroupDAO groupDAO,
 			EntityManagement identitiesMan,
 			OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
@@ -45,6 +47,6 @@ public class IdPEngineImpl extends IdPEngineImplBase
 		super(attributesMan, insecureAttributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg), groupMan);
-	}
+						attrValueConverter, msg, groupDAO::get), groupMan);
+	}	
 }

@@ -130,7 +130,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		return isChild(group, potentialParent, true);
 	}
 
-	private static boolean isChild(String group, String potentialParent, boolean allowSame)
+	public static boolean isChild(String group, String potentialParent, boolean allowSame)
 	{
 		if (allowSame && group.equals(potentialParent))
 			return true;

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -31,19 +32,22 @@ public class TranslationProfileChecker
 	private OutputTranslationProfileRepository outputRepo;
 	private AttributeValueConverter attrConverter;
 	private OutputTranslationActionsRegistry outputActionReg;
+	private GroupDAO groupDAO;
 	
 	@Autowired
 	public TranslationProfileChecker(InputTranslationProfileRepository inputRepo,
 			InputTranslationActionsRegistry inputActionReg,
 			OutputTranslationProfileRepository outputRepo,
 			AttributeValueConverter attrConverter,
-			OutputTranslationActionsRegistry outputActionReg)
+			OutputTranslationActionsRegistry outputActionReg,
+			GroupDAO groupDao)
 	{
 		this.inputRepo = inputRepo;
 		this.inputActionReg = inputActionReg;
 		this.outputRepo = outputRepo;
 		this.attrConverter = attrConverter;
 		this.outputActionReg = outputActionReg;
+		this.groupDAO = groupDao;
 	}
 
 	public void checkBaseProfileContent(TranslationProfile profile)
@@ -62,7 +66,7 @@ public class TranslationProfileChecker
 			instance = new InputTranslationProfile(profile, inputRepo, inputActionReg);
 		else if (profile.getProfileType() == ProfileType.OUTPUT)
 			instance = new OutputTranslationProfile(profile, outputRepo,
-					outputActionReg, attrConverter);
+					outputActionReg, attrConverter, groupDAO::get);
 		else
 			throw new IllegalArgumentException(
 					"Unsupported profile type: " + profile.getProfileType());
