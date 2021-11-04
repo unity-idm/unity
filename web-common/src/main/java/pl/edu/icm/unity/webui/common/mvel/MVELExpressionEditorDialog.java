@@ -8,6 +8,8 @@ package pl.edu.icm.unity.webui.common.mvel;
 import java.util.function.Consumer;
 
 import com.vaadin.data.Binder;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -43,13 +45,25 @@ class MVELExpressionEditorDialog extends AbstractDialog
 		this.value = new TextArea();
 		this.evalTo = new Label();
 		this.context = context;
-		
+		init(initValue, mandatory);
+	
+	}
+	private void init(String initValue, boolean mandatory)
+	{
 		evalTo.setCaption(msg.getMessage("MVELExpressionField.evalTo", msg.getMessage(context.evalToKey)));
 		evalTo.setCaptionAsHtml(true);
 		configureBinding(mandatory);
 		value.setValue(initValue);
 		value.setStyleName(Styles.fontMonospace.toString());
 		value.setStyleName(Styles.textAreaResizable.toString());
+		value.addShortcutListener(new ShortcutListener("", ShortcutAction.KeyCode.TAB, null)
+		{
+			@Override
+			public void handleAction(Object sender, Object target)
+			{
+				value.setValue(value.getValue() + "\t");
+			}
+		});
 	}
 	
 	void configureBinding(boolean mandatory)
