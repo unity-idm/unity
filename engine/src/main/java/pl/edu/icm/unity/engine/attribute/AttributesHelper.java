@@ -61,6 +61,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
@@ -139,7 +140,7 @@ public class AttributesHelper
 	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
 	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
 	 */
-	public Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
+	private Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
 			boolean effective, String attributeTypeName) throws EngineException
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
@@ -148,8 +149,10 @@ public class AttributesHelper
 			groupsPaths.forEach(g -> filterMap(directAttributesByGroup, g, attributeTypeName));
 			return directAttributesByGroup;
 		}
-		Set<String> allGroups = membershipDAO.getEntityMembershipSimple(entityId);
-		List<String> groups = groupsPaths != null && groupsPaths.isEmpty() ? new ArrayList<>(allGroups) : groupsPaths;
+		Map<String, Group> allGroups = groupDAO.getAll().stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g));
+		
+		Set<String> allUserGroups = membershipDAO.getEntityMembershipSimple(entityId);
+		List<String> groups = groupsPaths != null && groupsPaths.isEmpty() ? new ArrayList<>(allUserGroups) : groupsPaths;
 		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
 
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
@@ -158,8 +161,8 @@ public class AttributesHelper
 		for (String group: groups)
 		{
 			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
-					attributeTypeName, allGroups.stream().map(groupDAO::get).collect(Collectors.toList()),
-					directAttributesByGroup, allClasses, groupDAO::get, attributeTypeDAO::get);
+					attributeTypeName, allUserGroups.stream().map(groupDAO::get).collect(Collectors.toList()),
+					directAttributesByGroup, allClasses, allGroups::get, attributeTypeDAO::get);
 			ret.put(group, inGroup);
 		}
 		return ret;

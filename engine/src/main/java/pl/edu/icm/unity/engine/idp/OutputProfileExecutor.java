@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.idp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
@@ -18,6 +19,7 @@ import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepositor
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -37,20 +39,21 @@ class OutputProfileExecutor
 	private final MessageSource msg;
 	private final AttributeValueConverter attrValueConverter; 
 	private final OutputTranslationProfile defaultProfile;
+	private final Function<String, Group> groupProvider;
 
 	
 	OutputProfileExecutor(OutputTranslationProfileRepository outputProfileRepo,
 			OutputTranslationEngine translationEngine,
 			OutputTranslationActionsRegistry actionsRegistry,
 			AttributeValueConverter attrValueConverter,
-			MessageSource msg)
+			MessageSource msg, Function<String, Group> groupProvider)
 	{
 		this.translationEngine = translationEngine;
 		this.outputProfileRepo = outputProfileRepo;
 		this.actionsRegistry = actionsRegistry;
 		this.attrValueConverter = attrValueConverter;
 		this.msg = msg;
-
+		this.groupProvider = groupProvider;
 		this.defaultProfile = createDefaultOutputProfile();
 	}
 
@@ -60,7 +63,7 @@ class OutputProfileExecutor
 		if (profile != null)
 		{
 			profileInstance = new OutputTranslationProfile(profile, outputProfileRepo, 
-					actionsRegistry, attrValueConverter);
+					actionsRegistry, attrValueConverter, groupProvider);
 		} else
 		{
 			profileInstance = defaultProfile;
@@ -83,6 +86,6 @@ class OutputProfileExecutor
 		rules.add(new TranslationRule("true", action2));
 		TranslationProfile profile = new TranslationProfile("DEFAULT OUTPUT PROFILE", "", ProfileType.OUTPUT,
 				rules);
-		return new OutputTranslationProfile(profile, outputProfileRepo, actionsRegistry, attrValueConverter);
+		return new OutputTranslationProfile(profile, outputProfileRepo, actionsRegistry, attrValueConverter, groupProvider);
 	}
 }

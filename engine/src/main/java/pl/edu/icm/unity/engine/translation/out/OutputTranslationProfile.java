@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.NDC;
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.MVELGroup;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -53,15 +55,18 @@ public class OutputTranslationProfile
 	
 	private OutputTranslationActionsRegistry registry;
 	private OutputTranslationProfileRepository profileRepo;
+	private Function<String, Group> groupProvider;
 	private AttributeValueConverter attrConverter;
 	
 	public OutputTranslationProfile(TranslationProfile profile, OutputTranslationProfileRepository profileRepo,
-			OutputTranslationActionsRegistry registry, AttributeValueConverter attrConverter)
+			OutputTranslationActionsRegistry registry, AttributeValueConverter attrConverter,
+			Function<String, Group> groupProvider)
 	{
 		super(profile, registry);
 		this.registry = registry;
 		this.profileRepo = profileRepo;
 		this.attrConverter = attrConverter;
+		this.groupProvider = groupProvider;
 	}
 	
 	public TranslationResult translate(TranslationInput input) throws EngineException
@@ -74,7 +79,7 @@ public class OutputTranslationProfile
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
 			log.debug("Unprocessed data from local database:\n" + input.getTextDump());
-		Object mvelCtx = createMvelContext(input, attrConverter);
+		Object mvelCtx = createMvelContext(input, attrConverter, groupProvider);
 		try
 		{
 			int i = 1;
@@ -127,7 +132,7 @@ public class OutputTranslationProfile
 	}
 
 	static Map<String, Object> createMvelContext(TranslationInput input, 
-			AttributeValueConverter attrConverter) throws IllegalAttributeValueException
+			AttributeValueConverter attrConverter, Function<String, Group> groupProvider) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
@@ -178,9 +183,9 @@ public class OutputTranslationProfile
 		ret.put(OutputTranslationMVELContextKey.subGroups.name(), subgroups);
 
 		
-		Map<String, Group> groupsObj = input.getGroups().stream()
+		Map<String, MVELGroup> groupsObj = input.getGroups().stream()
 				.collect(Collectors.toMap(group -> group.getName(), 
-						group -> group));
+						group -> new MVELGroup(group, groupProvider)));
 		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
 		
 		if (InvocationContext.hasCurrent())
@@ -249,7 +254,7 @@ public class OutputTranslationProfile
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
 		OutputTranslationProfile profileInstance = new OutputTranslationProfile( 
-				translationProfile, profileRepo, registry, attrConverter);
+				translationProfile, profileRepo, registry, attrConverter, groupProvider);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
 	}
