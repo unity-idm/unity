@@ -108,7 +108,8 @@ public enum Styles
 	dragButton("u-dragButton"),
 	varPickerButton("u-varPickerButton"),
 	horizontalScroll("u-horizontalScroll"),
-	
+	fontMonospace("u-fontMonospace"),
+	textAreaResizable("u-textAreaResizeable"),
 	
 	//Sidebar
 	sidebar("u-sidebar"),

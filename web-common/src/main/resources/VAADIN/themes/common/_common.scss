@@ -1605,5 +1605,13 @@
 	 .u-fidoEditorLayout > div:first-child {
 		height: 0px;
 	}
+	
+	 .u-fontMonospace {
+		font-family: monospace;
+	}
+	
+	.u-textAreaResizeable {
+		resize: both;
+	}
 }
 
