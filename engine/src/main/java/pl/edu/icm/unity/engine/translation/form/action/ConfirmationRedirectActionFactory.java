@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.translation.form.action;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
@@ -28,9 +30,12 @@ public class ConfirmationRedirectActionFactory extends AbstractRegistrationTrans
 	public ConfirmationRedirectActionFactory()
 	{
 		super(NAME, new ActionParameterDefinition[] {
-				new ActionParameterDefinition("URL", 
-						"RegTranslationAction.confirmationRedirect.paramDesc.URL",
-						Type.EXPRESSION, true)
+				new ActionParameterDefinition("URL", "RegTranslationAction.confirmationRedirect.paramDesc.URL",
+						Type.EXPRESSION, true,
+						MVELExpressionContext.builder()
+								.withTitleKey("RegTranslationAction.confirmationRedirect.editor.title")
+								.withEvalToKey("RegTranslationAction.confirmationRedirect.editor.evalTo")
+								.withVars(RegistrationMVELContextKey.toMap()).build())
 		});
 	}
 

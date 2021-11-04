@@ -17,9 +17,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -54,10 +56,11 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 				"group",
 				"TranslationAction.mapAttribute.paramDesc.group",
 				Type.UNITY_GROUP, true),
-			new ActionParameterDefinition(
-				"expression",
-				"TranslationAction.mapAttribute.paramDesc.expression",
-				Type.EXPRESSION, true),
+			new ActionParameterDefinition("expression", "TranslationAction.mapAttribute.paramDesc.expression",
+						Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("TranslationAction.mapAttribute.editor.title")
+								.withEvalToKey("TranslationAction.mapAttribute.editor.evalTo")
+								.withVars(InputTranslationMVELContextKey.toMap()).build()),
 			new ActionParameterDefinition(
 				"effect",
 				"TranslationAction.mapAttribute.paramDesc.effect",

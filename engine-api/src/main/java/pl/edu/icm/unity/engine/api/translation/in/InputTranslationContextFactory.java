@@ -16,23 +16,11 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 
 public class InputTranslationContextFactory
 {
-	public enum ContextKey
-	{
-		id,
-		idType,
-		idsByType,
-		attrs,
-		attr,
-		attrObj,
-		idp,
-		groups;
-	}
-	
 	public static Map<String, Object> createMvelContext(RemotelyAuthenticatedInput input)
 	{
 		Map<String, Object> ret = new HashMap<>();
 		
-		ret.put(ContextKey.idp.name(), input.getIdpName());
+		ret.put(InputTranslationMVELContextKey.idp.name(), input.getIdpName());
 		Map<String, Object> attr = new HashMap<>();
 		Map<String, List<Object>> attrs = new HashMap<>();
 		for (RemoteAttribute ra: input.getAttributes().values())
@@ -41,19 +29,19 @@ public class InputTranslationContextFactory
 			attr.put(ra.getName(), v);
 			attrs.put(ra.getName(), ra.getValues());
 		}
-		ret.put(ContextKey.attr.name(), attr);
-		ret.put(ContextKey.attrs.name(), attrs);
-		ret.put(ContextKey.attrObj.name(), input.getRawAttributes());
+		ret.put(InputTranslationMVELContextKey.attr.name(), attr);
+		ret.put(InputTranslationMVELContextKey.attrs.name(), attrs);
+		ret.put(InputTranslationMVELContextKey.attrObj.name(), input.getRawAttributes());
 		
 		if (!input.getIdentities().isEmpty())
 		{
 			RemoteIdentity ri = input.getIdentities().values().iterator().next();
-			ret.put(ContextKey.id.name(), ri.getName());
-			ret.put(ContextKey.idType.name(), ri.getIdentityType());
+			ret.put(InputTranslationMVELContextKey.id.name(), ri.getName());
+			ret.put(InputTranslationMVELContextKey.idType.name(), ri.getIdentityType());
 		} else
 		{
-			ret.put(ContextKey.id.name(), null);
-			ret.put(ContextKey.idType.name(), null);
+			ret.put(InputTranslationMVELContextKey.id.name(), null);
+			ret.put(InputTranslationMVELContextKey.idType.name(), null);
 		}
 		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
@@ -67,9 +55,9 @@ public class InputTranslationContextFactory
 			}
 			vals.add(ri.getName());
 		}
-		ret.put(ContextKey.idsByType.name(), idsByType);
+		ret.put(InputTranslationMVELContextKey.idsByType.name(), idsByType);
 		
-		ret.put(ContextKey.groups.name(), new ArrayList<String>(input.getGroups().keySet()));
+		ret.put(InputTranslationMVELContextKey.groups.name(), new ArrayList<String>(input.getGroups().keySet()));
 		return ret;
 	}
 	
@@ -89,13 +77,13 @@ public class InputTranslationContextFactory
 			Object contextValue = context.getValue();
 			try
 			{
-				ContextKey.valueOf(contextKey);
+				InputTranslationMVELContextKey.valueOf(contextKey);
 			} catch (Exception e)
 			{
 				throw new IllegalArgumentException("Incorrect MVEL context, unknown context key: " + 
 						context.getKey());
 			}
-			if (ContextKey.valueOf(contextKey) == ContextKey.attrObj)
+			if (InputTranslationMVELContextKey.valueOf(contextKey) == InputTranslationMVELContextKey.attrObj)
 				continue;
 			
 			if (contextValue instanceof Map)

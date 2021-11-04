@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
@@ -130,12 +131,16 @@ public class OutputTranslationProfile
 	{
 		Map<String, Object> ret = new HashMap<>();
 
-		ret.put("protocol", input.getProtocol());
-		ret.put("protocolSubtype", input.getProtocolSubType());
-		ret.put("requester", input.getRequester());
+		ret.put(OutputTranslationMVELContextKey.protocol.name(), input.getProtocol());
+		ret.put(OutputTranslationMVELContextKey.protocolSubtype.name(), input.getProtocolSubType());
+		ret.put(OutputTranslationMVELContextKey.requester.name(), input.getRequester());
 		
-		addAttributesToContext("attr", ret, input.getAttributes(), attrConverter);
-		addAttributesToContext("requesterAttr", ret, input.getRequesterAttributes(), 
+		addAttributesToContext(OutputTranslationMVELContextKey.attr.name(),
+				OutputTranslationMVELContextKey.attrObj.name(), OutputTranslationMVELContextKey.attrs.name(), ret,
+				input.getAttributes(), attrConverter);
+		addAttributesToContext(OutputTranslationMVELContextKey.requesterAttr.name(),
+				OutputTranslationMVELContextKey.requesterAttrObj.name(),
+				OutputTranslationMVELContextKey.requesterAttrs.name(), ret, input.getRequesterAttributes(),
 				attrConverter);
 
 		Map<String, List<String>> idsByType = new HashMap<>();
@@ -149,18 +154,18 @@ public class OutputTranslationProfile
 			}
 			vals.add(id.getValue());
 		}
-		ret.put("idsByType", idsByType);
+		ret.put(OutputTranslationMVELContextKey.idsByType.name(), idsByType);
 
-		ret.put("importStatus", input.getImportStatus().entrySet().stream()
+		ret.put(OutputTranslationMVELContextKey.importStatus.name(), input.getImportStatus().entrySet().stream()
 		                  .collect(Collectors.toMap(Entry::getKey, e -> String.valueOf(e.getValue()))));
 		
 		List<String> groupNames = input.getGroups().stream()
 				.map(group -> group.getName())
 				.collect(Collectors.toList());
 		
-		ret.put("groups", groupNames);
+		ret.put(OutputTranslationMVELContextKey.groups.name(), groupNames);
 
-		ret.put("usedGroup", input.getChosenGroup());
+		ret.put(OutputTranslationMVELContextKey.usedGroup.name(), input.getChosenGroup());
 
 		Group main = new Group(input.getChosenGroup());
 		List<String> subgroups = new ArrayList<String>();
@@ -170,13 +175,13 @@ public class OutputTranslationProfile
 			if (g.isChild(main))
 				subgroups.add(group);
 		}
-		ret.put("subGroups", subgroups);
+		ret.put(OutputTranslationMVELContextKey.subGroups.name(), subgroups);
 
 		
 		Map<String, Group> groupsObj = input.getGroups().stream()
 				.collect(Collectors.toMap(group -> group.getName(), 
 						group -> group));
-		ret.put("groupsObj", groupsObj);
+		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
 		
 		if (InvocationContext.hasCurrent())
 		{
@@ -184,19 +189,19 @@ public class OutputTranslationProfile
 					.getLoginSession();
 			Set<String> authenticatedIdentities = loginSession
 					.getAuthenticatedIdentities();
-			ret.put("authenticatedWith",
+			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(),
 					new ArrayList<String>(authenticatedIdentities));
-			ret.put("idp", loginSession.getRemoteIdP() == null ? "_LOCAL"
+			ret.put(OutputTranslationMVELContextKey.idp.name(), loginSession.getRemoteIdP() == null ? "_LOCAL"
 					: loginSession.getRemoteIdP());
 		} else
 		{
-			ret.put("authenticatedWith", new ArrayList<String>());
-			ret.put("idp", null);
+			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(), new ArrayList<String>());
+			ret.put(OutputTranslationMVELContextKey.idp.name(), null);
 		}
 		return ret;
 	}
 
-	private static void addAttributesToContext(String prefix, Map<String, Object> ret, 
+	private static void addAttributesToContext(String attrKey, String attrObjKey, String attrsKey, Map<String, Object> ret, 
 			Collection<Attribute> attributes, AttributeValueConverter attrConverter) 
 					throws IllegalAttributeValueException
 	{
@@ -215,9 +220,9 @@ public class OutputTranslationProfile
 					: attrConverter.internalValuesToObjectValues(ra.getName(),
 							ra.getValues()));
 		}
-		ret.put(prefix, attr);
-		ret.put(prefix+"Obj", attrObj);
-		ret.put(prefix+"s", attrs);
+		ret.put(attrKey, attr);
+		ret.put(attrObjKey, attrObj);
+		ret.put(attrsKey, attrs);
 	}
 	
 	@Override

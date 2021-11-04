@@ -15,7 +15,9 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -44,10 +46,11 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 				"attributeName",
 				"TranslationAction.createAttribute.paramDesc.attributeName",
 				Type.TEXT, true),
-		new ActionParameterDefinition(
-				"expression",
-				"TranslationAction.createAttribute.paramDesc.expression",
-				Type.EXPRESSION, true),
+		new ActionParameterDefinition("expression", "TranslationAction.createAttribute.paramDesc.expression",
+						Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("TranslationAction.createAttribute.editor.title")
+								.withEvalToKey("TranslationAction.createAttribute.editor.evalTo")
+								.withVars(OutputTranslationMVELContextKey.toMap()).build()),
 		new ActionParameterDefinition(
 				"mandatory",
 				"TranslationAction.createAttribute.paramDesc.mandatory",

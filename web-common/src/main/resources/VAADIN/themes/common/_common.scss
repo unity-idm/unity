@@ -226,8 +226,8 @@
         border: 1px solid;
         border-color: $button-border-color;
     }
-    
-     .v-grid-row-selected > td {
+	
+    .v-grid-row-selected > td {
         background: $selected-color !important;
         color: $font-color-dark;
         border-color: $color-v-table-border;

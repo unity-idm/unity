@@ -16,8 +16,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -50,10 +52,12 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 						"attributeName",
 						"TranslationAction.createPersistentAttribute.paramDesc.attributeName",
 						Type.UNITY_ATTRIBUTE, true),
-				new ActionParameterDefinition(
-						"expression",
-						"TranslationAction.createPersistentAttribute.paramDesc.expression",
-						Type.EXPRESSION, true),
+				new ActionParameterDefinition("expression",
+						"TranslationAction.createPersistentAttribute.paramDesc.expression", Type.EXPRESSION, true,
+						MVELExpressionContext.builder()
+								.withTitleKey("TranslationAction.createPersistentAttribute.editor.title")
+								.withEvalToKey("TranslationAction.createPersistentAttribute.editor.evalTo")
+								.withVars(OutputTranslationMVELContextKey.toMap()).build()),
 				new ActionParameterDefinition(
 						"mandatory",
 						"TranslationAction.createPersistentAttribute.paramDesc.mandatory",

@@ -195,7 +195,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	private RuleComponent addRuleComponentAt(TranslationRule trule, int index)
 	{
 		RuleComponent r = new RuleComponent(msg, registry, 
-				trule, actionComponentProvider, new CallbackImplementation());
+				trule, actionComponentProvider, type, new CallbackImplementation());
 		rules.add(index, r);
 		return r;
 	}

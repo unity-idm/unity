@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.UserError;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -21,6 +22,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -60,6 +62,8 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 		attributeTF.addValueChangeListener(e -> fireEvent(e));
 		Button editAssignedAttribute = new Button();
 		editAssignedAttribute.setIcon(Images.edit.getResource());
+		editAssignedAttribute.addStyleName(Styles.toolbarButton.toString());
+		editAssignedAttribute.addStyleName(Styles.vButtonLink.toString());
 		editAssignedAttribute.setDescription(msg.getMessage("AttributeField.edit"));
 		editAssignedAttribute.addClickListener(new ClickListener()
 		{
@@ -73,6 +77,7 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 		hl.setSpacing(false);
 		hl.setMargin(false);
 		hl.addComponents(attributeTF, editAssignedAttribute);
+		hl.setComponentAlignment(editAssignedAttribute, Alignment.MIDDLE_RIGHT);
 	}
 	
 	

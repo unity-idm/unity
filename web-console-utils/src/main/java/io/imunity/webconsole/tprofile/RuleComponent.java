@@ -5,6 +5,7 @@
 
 package io.imunity.webconsole.tprofile;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,11 +24,16 @@ import com.vaadin.ui.dnd.DragSourceExtension;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
@@ -69,15 +75,17 @@ public class RuleComponent extends CustomComponent
 	private Button dragImg;
 	private HamburgerMenu<String> menuBar;
 	private MenuItem embedProfileMenuItem;
+	private final ProfileType profileType;
 	
 	public RuleComponent(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
-			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
+			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, ProfileType profileType,
 			Callback callback)
 	{
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
 		this.actionComponentProvider = actionComponentProvider;
+		this.profileType = profileType;
 		editMode = toEdit != null;
 		initUI(toEdit);
 	}
@@ -148,8 +156,11 @@ public class RuleComponent extends CustomComponent
 		headerWrapper.addComponent(header);
 		headerWrapper.addComponent(HtmlTag.horizontalLine());
 			
-		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
-				msg.getMessage("MVELExpressionField.conditionDesc"));
+		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"),
+				msg.getMessage("MVELExpressionField.conditionDesc"),
+				MVELExpressionContext.builder().withTitleKey("TranslationProfileEditor.ruleConditionTitle")
+						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(getConditionContextVars())
+						.build());
 		condition.setStyleName(Styles.vTiny.toString());
 		condition.setWidth(100, Unit.PERCENTAGE);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
@@ -179,6 +190,22 @@ public class RuleComponent extends CustomComponent
 		binder.setBean(new TranslationRule(editMode? toEdit.getCondition() : "true", null));
 	}
 	
+	private Map<String, String> getConditionContextVars()
+	{
+		switch(profileType) {
+		case BULK_ENTITY_OPS:
+			return EntityMVELContextKey.toMap();
+		case INPUT:
+			return InputTranslationMVELContextKey.toMap();
+		case OUTPUT:
+			return OutputTranslationMVELContextKey.toMap();
+		case REGISTRATION:
+			return RegistrationMVELContextKey.toMap();
+		default:
+			return new HashMap<>();		
+		}
+	}
+
 	private void onEmbedProfileAction(MenuItem item)
 	{
 		TranslationAction action;

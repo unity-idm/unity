@@ -16,6 +16,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -29,11 +30,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 public class EntityMVELContextBuilder
 {
 	private static final Set<String> SENSITIVE = Sets.newHashSet("hash", "cred", "pass");
-
-	public enum ContextKey
-	{
-		idsByType, idsByTypeObj, attrs, attr, groups, status, credReq, credStatus
-	}
 
 	public static String ctx2ReadableString(Object context, String pfx)
 	{
@@ -103,20 +99,20 @@ public class EntityMVELContextBuilder
 			attr.put(attribute.getName(), v);
 			attrs.put(attribute.getName(), attribute.getValues());
 		}
-		ctx.put(ContextKey.attr.name(), attr);
-		ctx.put(ContextKey.attrs.name(), attrs);
+		ctx.put(EntityMVELContextKey.attr.name(), attr);
+		ctx.put(EntityMVELContextKey.attrs.name(), attrs);
 
-		ctx.put(ContextKey.groups.name(), groups);
-		ctx.put(ContextKey.idsByType.name(), idsByType);
-		ctx.put(ContextKey.idsByTypeObj.name(), idsByTypeObj);
-		ctx.put(ContextKey.status.name(), entityStatus);
-		ctx.put(ContextKey.credReq.name(), credentialInfo.getCredentialRequirementId());
+		ctx.put(EntityMVELContextKey.groups.name(), groups);
+		ctx.put(EntityMVELContextKey.idsByType.name(), idsByType);
+		ctx.put(EntityMVELContextKey.idsByTypeObj.name(), idsByTypeObj);
+		ctx.put(EntityMVELContextKey.status.name(), entityStatus);
+		ctx.put(EntityMVELContextKey.credReq.name(), credentialInfo.getCredentialRequirementId());
 
 		Map<String, CredentialPublicInformation> credentialsInfo = credentialInfo.getCredentialsState();
 		Map<String, String> credentialsStatus = new HashMap<>();
 		for (Entry<String, CredentialPublicInformation> entry : credentialsInfo.entrySet())
 			credentialsStatus.put(entry.getKey(), entry.getValue().getState().name());
-		ctx.put(ContextKey.credStatus.name(), credentialsStatus);
+		ctx.put(EntityMVELContextKey.credStatus.name(), credentialsStatus);
 
 		return ctx;
 	}
