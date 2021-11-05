@@ -46,6 +46,6 @@ public class IdPEngineImplNoAuthz extends IdPEngineImplBase
 		super(attributesMan, attributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg, g -> IdPEngineImpl.getGroup(groupMan, g)), groupMan);
+						attrValueConverter, msg, groupMan), groupMan);
 	}
 }

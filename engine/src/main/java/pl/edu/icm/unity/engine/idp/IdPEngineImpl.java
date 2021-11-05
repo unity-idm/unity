@@ -18,9 +18,6 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 
 /**
  * IdP engine is responsible for performing common IdP-related functionality. It resolves the information
@@ -48,18 +45,6 @@ public class IdPEngineImpl extends IdPEngineImplBase
 		super(attributesMan, insecureAttributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg, g -> getGroup(groupMan, g)), groupMan);
+						attrValueConverter, msg, groupMan), groupMan);
 	}	
-	
-	
-	public static Group getGroup(GroupsManagement groupMan, String g)
-	{
-		try
-		{
-			return groupMan.getContents(g, GroupContents.METADATA).getGroup();
-		} catch (EngineException e)
-		{
-			return new Group(g);
-		}
-	}
 }
