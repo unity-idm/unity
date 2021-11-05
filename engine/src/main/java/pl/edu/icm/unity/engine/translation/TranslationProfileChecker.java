@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
-import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -32,7 +32,7 @@ public class TranslationProfileChecker
 	private OutputTranslationProfileRepository outputRepo;
 	private AttributeValueConverter attrConverter;
 	private OutputTranslationActionsRegistry outputActionReg;
-	private GroupDAO groupDAO;
+	private GroupsManagement groupsMan;
 	
 	@Autowired
 	public TranslationProfileChecker(InputTranslationProfileRepository inputRepo,
@@ -40,14 +40,14 @@ public class TranslationProfileChecker
 			OutputTranslationProfileRepository outputRepo,
 			AttributeValueConverter attrConverter,
 			OutputTranslationActionsRegistry outputActionReg,
-			GroupDAO groupDao)
+			GroupsManagement groupsMan)
 	{
 		this.inputRepo = inputRepo;
 		this.inputActionReg = inputActionReg;
 		this.outputRepo = outputRepo;
 		this.attrConverter = attrConverter;
 		this.outputActionReg = outputActionReg;
-		this.groupDAO = groupDao;
+		this.groupsMan = groupsMan;
 	}
 
 	public void checkBaseProfileContent(TranslationProfile profile)
@@ -66,7 +66,7 @@ public class TranslationProfileChecker
 			instance = new InputTranslationProfile(profile, inputRepo, inputActionReg);
 		else if (profile.getProfileType() == ProfileType.OUTPUT)
 			instance = new OutputTranslationProfile(profile, outputRepo,
-					outputActionReg, attrConverter, groupDAO::get);
+					outputActionReg, attrConverter, groupsMan);
 		else
 			throw new IllegalArgumentException(
 					"Unsupported profile type: " + profile.getProfileType());

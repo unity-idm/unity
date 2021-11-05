@@ -72,7 +72,6 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -184,7 +183,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		tx.runInTransactionThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, 
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			TranslationResult result = tp1.translate(input);
 			outputTrEngine.process(input, result);
 		});
@@ -257,7 +256,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, 
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
 		
@@ -329,7 +328,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				Collections.emptyMap());
 		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			TranslationResult result = tp1.translate(input);
 			return result;
 		});
@@ -395,7 +394,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			TranslationResult result = tp1.translate(input);
 			return result;
 		});
@@ -439,7 +438,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
 
@@ -477,7 +476,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
 
@@ -525,7 +524,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				Collections.emptyMap());
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
 
@@ -559,7 +558,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				Collections.emptyMap());
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
 
@@ -599,7 +598,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-					outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
 		assertThat(result.getAttributes().size(), is(0));
@@ -628,7 +627,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		try{
 			TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 				OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
-						outputProfileRepo, outtactionReg, attrConverter, g -> getGroup(g));
+						outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 				return tp1.translate(input);
 			});
 			assertThat(result.getAttributes().size(), is(0));
@@ -667,7 +666,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				tp1Cfg, 
 				mock(OutputTranslationProfileRepository.class), 
 				outtactionReg, 
-				mock(AttributeValueConverter.class), g -> getGroup(g));
+				mock(AttributeValueConverter.class), groupsMan);
 		TranslationResult result = tp1.translate(input);
 
 		assertThat(result.getIdentities()).hasSize(2);
@@ -681,17 +680,6 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		Identity user = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		return idsMan.getEntity(new EntityParam(user));
-	}
-	
-	private Group getGroup(String g)
-	{
-		try
-		{
-			return groupsMan.getContents(g, GroupContents.METADATA).getGroup();
-		} catch (EngineException e)
-		{
-			return new Group(g);
-		}
 	}
 }
 
