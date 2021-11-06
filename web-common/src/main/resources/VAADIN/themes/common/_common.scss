@@ -1602,16 +1602,22 @@
 		height: 0px;
 	}
 	
-	 .u-fidoEditorLayout > div:first-child {
+	.u-fidoEditorLayout > div:first-child {
 		height: 0px;
 	}
 	
-	 .u-fontMonospace {
+	.u-fontMonospace {
 		font-family: monospace;
 	}
 	
 	.u-textAreaResizeable {
 		resize: both;
+	}
+	
+	.u-mvelFieldEditorLayout
+	{
+		overflow-y:scroll;
+		max-height: 16em;
 	}
 }
 

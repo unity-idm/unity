@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -31,6 +32,7 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
@@ -98,8 +100,9 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 	@Autowired
 	private AttributeValueConverter attrConverter;
 	@Autowired
-	OutputTranslationProfileRepository outputProfileRepo;
-
+	private OutputTranslationProfileRepository outputProfileRepo;
+	@Qualifier("insecure")
+	protected GroupsManagement insecureGroupsMan;
 	
 	@Test
 	public void testOutputPersistence() throws Exception
@@ -256,7 +259,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, 
-					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
+					outputProfileRepo, outtactionReg, attrConverter, insecureGroupsMan);
 			return tp1.translate(input);
 		});
 		
@@ -657,6 +660,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		
 		Group foo = new Group("/foo");
 		foo.setDisplayedName(new I18nString("FOO"));
+		groupsMan.addGroup(foo);
 		TranslationInput input = new TranslationInput(new ArrayList<>(), userE, 
 				"/", Arrays.asList(new Group("/"), foo),
 				"req", Collections.emptyList(), 
