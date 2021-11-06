@@ -101,8 +101,9 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 	private AttributeValueConverter attrConverter;
 	@Autowired
 	private OutputTranslationProfileRepository outputProfileRepo;
+	@Autowired
 	@Qualifier("insecure")
-	protected GroupsManagement insecureGroupsMan;
+	private GroupsManagement insecureGroupsMan;
 	
 	@Test
 	public void testOutputPersistence() throws Exception
@@ -660,7 +661,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		
 		Group foo = new Group("/foo");
 		foo.setDisplayedName(new I18nString("FOO"));
-		groupsMan.addGroup(foo);
+		insecureGroupsMan.addGroup(foo);
 		TranslationInput input = new TranslationInput(new ArrayList<>(), userE, 
 				"/", Arrays.asList(new Group("/"), foo),
 				"req", Collections.emptyList(), 
@@ -670,7 +671,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				tp1Cfg, 
 				mock(OutputTranslationProfileRepository.class), 
 				outtactionReg, 
-				mock(AttributeValueConverter.class), groupsMan);
+				mock(AttributeValueConverter.class), insecureGroupsMan);
 		TranslationResult result = tp1.translate(input);
 
 		assertThat(result.getIdentities()).hasSize(2);

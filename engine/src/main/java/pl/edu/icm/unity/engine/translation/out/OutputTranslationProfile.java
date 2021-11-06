@@ -58,7 +58,7 @@ public class OutputTranslationProfile
 	
 	private OutputTranslationActionsRegistry registry;
 	private OutputTranslationProfileRepository profileRepo;
-	private GroupsManagement groupProvider;
+	private GroupsManagement groupMan;
 	private AttributeValueConverter attrConverter;
 	
 	public OutputTranslationProfile(TranslationProfile profile, OutputTranslationProfileRepository profileRepo,
@@ -69,7 +69,7 @@ public class OutputTranslationProfile
 		this.registry = registry;
 		this.profileRepo = profileRepo;
 		this.attrConverter = attrConverter;
-		this.groupProvider = groupProvider;
+		this.groupMan = groupProvider;
 	}
 	
 	public TranslationResult translate(TranslationInput input) throws EngineException
@@ -257,7 +257,7 @@ public class OutputTranslationProfile
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
 		OutputTranslationProfile profileInstance = new OutputTranslationProfile( 
-				translationProfile, profileRepo, registry, attrConverter, groupProvider);
+				translationProfile, profileRepo, registry, attrConverter, groupMan);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
 	}
@@ -266,7 +266,7 @@ public class OutputTranslationProfile
 	{
 		try
 		{
-			return groupProvider.getGroupsChain(g);
+			return groupMan.getGroupsChain(g);
 		} catch (EngineException e)
 		{
 			log.error("Can not get group", e);
