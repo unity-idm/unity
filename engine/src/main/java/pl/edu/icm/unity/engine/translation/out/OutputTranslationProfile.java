@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
@@ -40,9 +41,8 @@ import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.MVELGroup;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -82,7 +82,7 @@ public class OutputTranslationProfile
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
 			log.debug("Unprocessed data from local database:\n" + input.getTextDump());
-		Object mvelCtx = createMvelContext(input, attrConverter, g -> getGroup(g));
+		Object mvelCtx = createMvelContext(input, attrConverter, g -> getGroupChain(g));
 		try
 		{
 			int i = 1;
@@ -135,7 +135,7 @@ public class OutputTranslationProfile
 	}
 
 	static Map<String, Object> createMvelContext(TranslationInput input, 
-			AttributeValueConverter attrConverter, Function<String, Group> groupProvider) throws IllegalAttributeValueException
+			AttributeValueConverter attrConverter, Function<String, GroupsChain> groupProvider) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
@@ -188,7 +188,7 @@ public class OutputTranslationProfile
 		
 		Map<String, MVELGroup> groupsObj = input.getGroups().stream()
 				.collect(Collectors.toMap(group -> group.getName(), 
-						group -> new MVELGroup(group, groupProvider)));
+						group -> new MVELGroup(groupProvider.apply(group.getPathEncoded()))));
 		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
 		
 		if (InvocationContext.hasCurrent())
@@ -262,11 +262,11 @@ public class OutputTranslationProfile
 		return result;
 	}
 	
-	private Group getGroup(String g) 
+	private GroupsChain getGroupChain(String g) 
 	{
 		try
 		{
-			return groupProvider.getContents(g, GroupContents.METADATA).getGroup();
+			return groupProvider.getGroupsChain(g);
 		} catch (EngineException e)
 		{
 			log.error("Can not get group", e);

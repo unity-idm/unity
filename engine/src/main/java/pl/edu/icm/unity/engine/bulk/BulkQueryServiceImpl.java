@@ -334,7 +334,8 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 				group, null, allGroups, directAttributesByGroup, 
 				globalSystemData.getAttributeClasses(),
 				globalSystemData.getGroups()::get, 
-				globalSystemData.getAttributeTypes()::get);
+				globalSystemData.getAttributeTypes()::get,
+				g -> globalSystemData.getGroupChain(g));
 	}
 	
 	private CredentialInfo getCredentialInfo(long entityId, EntitiesData entitiesData, GlobalSystemData globalSystemData)
