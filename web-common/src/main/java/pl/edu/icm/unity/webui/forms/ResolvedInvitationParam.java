@@ -5,6 +5,10 @@
 
 package pl.edu.icm.unity.webui.forms;
 
+import java.util.Collections;
+import java.util.List;
+
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -14,13 +18,15 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 public class ResolvedInvitationParam
 {
 	public final String code;
-	public final Long entity;
+	public final List<Entity> entities;
+	public final String contactAddress;
 	private final InvitationParam invitationParam;
 
-	ResolvedInvitationParam(Long entity, String code, InvitationParam invitationParam)
+	ResolvedInvitationParam(List<Entity> entities, String code, InvitationParam invitationParam)
 	{
-		this.entity = entity;
+		this.entities =  Collections.unmodifiableList(entities);
 		this.invitationParam = invitationParam;
+		this.contactAddress = invitationParam.getContactAddress();
 		this.code = code;
 	}
 
@@ -37,7 +43,7 @@ public class ResolvedInvitationParam
 		throw new UnsupportedOperationException("Enquiry invitation only");
 	}
 
-	public EnquiryInvitationParam getAsEnquiryInvitationParam()
+	public EnquiryInvitationParam getAsEnquiryInvitationParam(Long entity)
 	{
 		if (invitationParam.getType().equals(InvitationType.ENQUIRY))
 			return (EnquiryInvitationParam) invitationParam;
@@ -52,7 +58,7 @@ public class ResolvedInvitationParam
 
 	public boolean canBeProcessedAsEnquiryWithResolvedUser()
 	{
-		return invitationParam.getType().equals(InvitationType.COMBO) && entity != null;
+		return invitationParam.getType().equals(InvitationType.COMBO) && !entities.isEmpty();
 	}
 	
 	public InvitationType getType()

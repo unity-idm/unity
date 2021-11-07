@@ -7,12 +7,14 @@ package pl.edu.icm.unity.engine.bulk;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 /**
@@ -44,6 +46,11 @@ class GlobalSystemData
 	Map<String, Group> getGroups()
 	{
 		return groups;
+	}
+	
+	GroupsChain getGroupChain(String path)
+	{
+		return new GroupsChain(new Group(path).getPathsChain().stream().map(p -> groups.get(p)).collect(Collectors.toList()));
 	}
 
 	Map<String, AttributesClass> getAttributeClasses()

@@ -9,11 +9,13 @@
 package pl.edu.icm.unity.types.basic;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -81,6 +83,21 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		delegationConfiguration = new GroupDelegationConfiguration(false);
 		publicGroup = false;
 	}
+	
+	public List<String> getPathsChain()
+	{
+		List<String> paths = new ArrayList<>();	
+		paths.add(getPathEncoded());
+		if (isTopLevel())
+			return paths;
+		Group grp = clone();
+		do
+		{
+			grp = new Group(grp.getParentPath());
+			paths.add(grp.getPathEncoded());
+		} while (!grp.isTopLevel());
+		return paths;	
+	}
 
 	@JsonCreator
 	public Group(ObjectNode src)
@@ -130,7 +147,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		return isChild(group, potentialParent, true);
 	}
 
-	public static boolean isChild(String group, String potentialParent, boolean allowSame)
+	private static boolean isChild(String group, String potentialParent, boolean allowSame)
 	{
 		if (allowSame && group.equals(potentialParent))
 			return true;

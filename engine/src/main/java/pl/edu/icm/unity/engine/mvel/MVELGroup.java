@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.engine.mvel;
 
 import java.util.Map;
 import java.util.Set;
@@ -12,22 +12,22 @@ import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
 public class MVELGroup
 {
+
 	private final Group group;
 	private final MVELGroup parent;
 
-	public MVELGroup(Group group, Function<String, Group> groupProvider)
+	public MVELGroup(GroupsChain groupChain)
 	{
-		this.group = group;
-		if (group.isTopLevel())
-		{
-			this.parent = null;
-		} else
-		{
-			this.parent = new MVELGroup(groupProvider.apply(group.getParentPath()), groupProvider);
-		}
+		this.group = groupChain.getLast();
+		GroupsChain parentChain = groupChain.getParentChain();
+		this.parent = parentChain == null ? null : new MVELGroup(parentChain);
 	}
 
 	public boolean isChild(MVELGroup test)
@@ -37,7 +37,7 @@ public class MVELGroup
 
 	public boolean isChildNotSame(MVELGroup test)
 	{
-		return Group.isChild(toString(), test.group.toString(), false);
+		return group.isChildNotSame(test.group);
 	}
 
 	public boolean isTopLevel()
@@ -116,6 +116,28 @@ public class MVELGroup
 				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().value));
 	}
 
+//	public String getEncodedGroupPath(String delimiter, Function<MVELGroup, String> groupProvider)
+//	{
+//		
+//		StringBuilder ret = new StringBuilder();
+//		ret.append(group.getPathEncoded());
+//		
+//		GroupChain parentChain = groupChain.getParent();
+//		while(parentChain != null)
+//		{
+//			ret.append(delimiter);
+//			ret.append(groupProvider.apply(new MVELGroup(parentChain)));
+//			parentChain = parentChain.getParent();
+//		}
+//		
+//		if (parent == null)
+//		{
+//			return groupProvider.apply(this);
+//		} else
+//		{
+//			return parent.getEncodedGroupPath(delimiter, groupProvider) + delimiter + groupProvider.apply(this);
+//		}
+//	}
 	public String getEncodedGroupPath(String delimiter, Function<MVELGroup, String> groupProvider)
 	{
 		if (parent == null)

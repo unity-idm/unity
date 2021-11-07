@@ -3,13 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.engine.mvel;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestMVELGroup
@@ -39,8 +42,9 @@ public class TestMVELGroup
 		groupProvider.put("/", root);
 		groupProvider.put("/a", a);
 		groupProvider.put("/a/b", ab);
-		MVELGroup mvelGroup = new MVELGroup(ab, s -> groupProvider.get(s));
-		
+		MVELGroup mvelGroup = new MVELGroup(new GroupsChain(new Group("/a/b").getPathsChain().stream()
+				.map(p -> groupProvider.get(p)).collect(Collectors.toList())));
+
 		assertThat(mvelGroup.getEncodedGroupPath(":", g -> g.getDisplayedName().getDefaultValue()), is("Root:GrA:GrB"));
 
 	}

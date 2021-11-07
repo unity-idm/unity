@@ -56,6 +56,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
@@ -430,6 +431,14 @@ public class GroupsManagementImpl implements GroupsManagement
 		addGroup(toAdd, false);
 	}
 
+	@Transactional
+	@Override
+	public GroupsChain getGroupsChain(String path)
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.read);
+		return new GroupsChain(dbGroups.getGroupChain(path));
+	}
+	
 	@Transactional
 	@Override
 	public List<Group> getGroupsByWildcard(String pathWildcard)

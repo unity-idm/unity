@@ -53,6 +53,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
+import pl.edu.icm.unity.webui.forms.enquiry.InvitationEntityChooserComponent.InvitationEntityChooserComponentFactory;
 import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
@@ -66,7 +67,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 	
-	private MessageSource msg;
+	MessageSource msg;
 	private ImageAccessService imageAccessService;
 	
 	private VerticalLayout main;
@@ -78,20 +79,24 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
 	private ResolvedInvitationParam invitation;
-
+	private Long selectedEntity;
+	
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
+	private final InvitationEntityChooserComponentFactory entityChooserComponentFactory;
 	
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
 			InvitationResolver invitationResolver, MessageSource msg, 
-			ImageAccessService imageAccessService, URLQueryPrefillCreator urlQueryPrefillCreator)
+			ImageAccessService imageAccessService, URLQueryPrefillCreator urlQueryPrefillCreator,
+			InvitationEntityChooserComponentFactory entityChooserComponentFactory)
 	{
 		this.editorController = editorController;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 		this.invitationResolver = invitationResolver;
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
+		this.entityChooserComponentFactory = entityChooserComponentFactory;
 	}
 
 	@Override
@@ -129,7 +134,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void doShowEditorOrSkipToFinalStep()
 	{
-		
+
 		try
 		{
 			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
@@ -138,10 +143,22 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			log.error("Can not get invitation", e);
 			handleError(e, e.cause);
 			return;
-		} 
+		}
+
+		if (invitation.entities.size() == 1)
+		{
+			processInvitation(invitation.entities.get(0).getId());
+		} else
+		{
+			showEntityChooser();
+		}
+	}
+	
+	private void processInvitation(Long entity)
+	{
+		selectedEntity = entity;
 		
-		
-		EnquiryInvitationParam enqInvitation = invitation.getAsEnquiryInvitationParam();
+		EnquiryInvitationParam enqInvitation = invitation.getAsEnquiryInvitationParam(selectedEntity);
 		
 		try
 		{
@@ -163,8 +180,9 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			return;
 		}
 	
-		showEditorContent(editor);
+		showEditorContent();
 	}
+	
 
 	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser, 
 			EnquiryForm form)
@@ -242,14 +260,23 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		return mergedGroups;
 	}
 
-	private void showEditorContent(EnquiryResponseEditor editor)
+	private void showEditorContent()
 	{
+		main.removeAllComponents();
 		main.addComponent(editor);
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		Component buttonsBar = createButtonsBar();
 		main.addComponent(buttonsBar);
 		main.setComponentAlignment(buttonsBar, Alignment.MIDDLE_CENTER);
+	}
+	
+	private void showEntityChooser()
+	{
+		main.removeAllComponents();
+		InvitationEntityChooserComponent invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation, e -> processInvitation(e));
+		main.addComponent(invitationEntityChooserComponent);
+		main.setComponentAlignment(invitationEntityChooserComponent, Alignment.MIDDLE_CENTER);
 	}
 
 	private void askForCode(Runnable uiCreator)
@@ -349,7 +376,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		{
 			return editorController.submitted(request, form, TriggeringMode.manualStandalone,
 					invitation == null ? Optional.empty()
-							: Optional.of(new RewriteComboToEnquiryRequest(invitation.code, invitation.entity, form)));
+							: Optional.of(new RewriteComboToEnquiryRequest(invitation.code, selectedEntity, form)));
 		} catch (WrongArgumentException e)
 		{
 			FormsUIHelper.handleFormSubmissionError(e, msg, editor);

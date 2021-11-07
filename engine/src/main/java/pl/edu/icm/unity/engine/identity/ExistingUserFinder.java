@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
@@ -37,11 +40,12 @@ class ExistingUserFinder
 		this.attrHelper = attrHelper;
 	}
 
-	Long getEntityIdByContactAddress(String contactAddress) throws EngineException
+	List<Entity> getEntitiesIdsByContactAddress(String contactAddress) throws EngineException
 	{
+		List<Entity> entitiesWithContactAddress = new ArrayList<>();
 		if (contactAddress == null || contactAddress.isEmpty())
 		{
-			return null;
+			return entitiesWithContactAddress;
 		}
 		
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
@@ -57,10 +61,17 @@ class ExistingUserFinder
 					.filter(id -> emailsEqual(searchedComparable, id))
 					.findAny().orElse(null);
 			if (emailId != null)
-				return info.entity.getId();
+				entitiesWithContactAddress.add(info.entity);
 		}
 
-		return searchEntityByEmailAttr(members, searchedComparable);
+		List<Entity> entitiesByEmailAttr = searchEntitiesByEmailAttr(members, searchedComparable);
+		for (Entity attrEntity: entitiesByEmailAttr)
+		{
+			if (!entitiesWithContactAddress.contains(attrEntity))
+				entitiesWithContactAddress.add(attrEntity);
+		}
+		return entitiesWithContactAddress;
+		
 	}
 
 	private boolean emailsEqual(String comparableEmail1, Identity emailIdentity)
@@ -69,9 +80,10 @@ class ExistingUserFinder
 		return comparableEmail1.equals(verifiableEmail.getComparableValue());
 	}
 	
-	private Long searchEntityByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String comparableContactAddress)
+	private List<Entity> searchEntitiesByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String comparableContactAddress)
 			throws EngineException
 	{
+		List<Entity> entitiesWithContactAddressAttr = new ArrayList<>();
 		for (EntityInGroupData info : membersWithGroups.values())
 		{
 			VerifiableElementBase contactEmail = attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(ContactEmailMetadataProvider.NAME,
@@ -81,10 +93,10 @@ class ExistingUserFinder
 			{
 				VerifiableEmail verifiableEmail = (VerifiableEmail)contactEmail;
 				if (verifiableEmail.getComparableValue().equals(comparableContactAddress))
-					return info.entity.getId();
+					entitiesWithContactAddressAttr.add(info.entity);
 			}
 		}
 
-		return null;
+		return entitiesWithContactAddressAttr;
 	}	
 }

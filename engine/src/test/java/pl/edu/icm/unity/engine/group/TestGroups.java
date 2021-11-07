@@ -34,6 +34,7 @@ import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -316,6 +317,24 @@ public class TestGroups extends DBIntegrationTestBase
 		Throwable exception = catchThrowable(
 				() -> groupsMan.updateGroup(child1.getName(), child1));
 		assertExceptionType(exception, ParentIsPrivateGroupException.class);
+	}
+	
+	@Test
+	public void shouldGetGroupChain() throws EngineException
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+		Group abd = new Group("/A/B/D");
+		groupsMan.addGroup(abd);
+		
+		GroupsChain groupChain = groupsMan.getGroupsChain("/A/B/D");	
+		assertThat(groupChain.groups.size(), is(4));
+		assertThat(groupChain.groups.get(0).getPathEncoded(), is("/"));	
+		assertThat(groupChain.groups.get(1).getPathEncoded(), is("/A"));	
+		assertThat(groupChain.groups.get(2).getPathEncoded(), is("/A/B"));	
+		assertThat(groupChain.groups.get(3).getPathEncoded(), is("/A/B/D"));	
 	}
 
 	protected void assertExceptionType(Throwable exception, Class<?> type)

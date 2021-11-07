@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
@@ -40,9 +41,8 @@ import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.MVELGroup;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -58,7 +58,7 @@ public class OutputTranslationProfile
 	
 	private OutputTranslationActionsRegistry registry;
 	private OutputTranslationProfileRepository profileRepo;
-	private GroupsManagement groupProvider;
+	private GroupsManagement groupMan;
 	private AttributeValueConverter attrConverter;
 	
 	public OutputTranslationProfile(TranslationProfile profile, OutputTranslationProfileRepository profileRepo,
@@ -69,7 +69,7 @@ public class OutputTranslationProfile
 		this.registry = registry;
 		this.profileRepo = profileRepo;
 		this.attrConverter = attrConverter;
-		this.groupProvider = groupProvider;
+		this.groupMan = groupProvider;
 	}
 	
 	public TranslationResult translate(TranslationInput input) throws EngineException
@@ -82,7 +82,7 @@ public class OutputTranslationProfile
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
 			log.debug("Unprocessed data from local database:\n" + input.getTextDump());
-		Object mvelCtx = createMvelContext(input, attrConverter, g -> getGroup(g));
+		Object mvelCtx = createMvelContext(input, attrConverter, g -> getGroupChain(g));
 		try
 		{
 			int i = 1;
@@ -135,7 +135,7 @@ public class OutputTranslationProfile
 	}
 
 	static Map<String, Object> createMvelContext(TranslationInput input, 
-			AttributeValueConverter attrConverter, Function<String, Group> groupProvider) throws IllegalAttributeValueException
+			AttributeValueConverter attrConverter, Function<String, GroupsChain> groupProvider) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
@@ -188,7 +188,7 @@ public class OutputTranslationProfile
 		
 		Map<String, MVELGroup> groupsObj = input.getGroups().stream()
 				.collect(Collectors.toMap(group -> group.getName(), 
-						group -> new MVELGroup(group, groupProvider)));
+						group -> new MVELGroup(groupProvider.apply(group.getPathEncoded()))));
 		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
 		
 		if (InvocationContext.hasCurrent())
@@ -257,16 +257,16 @@ public class OutputTranslationProfile
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
 		OutputTranslationProfile profileInstance = new OutputTranslationProfile( 
-				translationProfile, profileRepo, registry, attrConverter, groupProvider);
+				translationProfile, profileRepo, registry, attrConverter, groupMan);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
 	}
 	
-	private Group getGroup(String g) 
+	private GroupsChain getGroupChain(String g) 
 	{
 		try
 		{
-			return groupProvider.getContents(g, GroupContents.METADATA).getGroup();
+			return groupMan.getGroupsChain(g);
 		} catch (EngineException e)
 		{
 			log.error("Can not get group", e);

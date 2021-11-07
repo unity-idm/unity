@@ -12,6 +12,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextArea;
@@ -45,7 +46,9 @@ class MVELExpressionEditorDialog extends AbstractDialog
 		this.value = new TextArea();
 		this.evalTo = new Label();
 		this.context = context;
+		setSizeMode(SizeMode.MEDIUM);
 		init(initValue, mandatory);
+		
 	
 	}
 	private void init(String initValue, boolean mandatory)
@@ -54,8 +57,8 @@ class MVELExpressionEditorDialog extends AbstractDialog
 		evalTo.setCaptionAsHtml(true);
 		configureBinding(mandatory);
 		value.setValue(initValue);
-		value.setStyleName(Styles.fontMonospace.toString());
-		value.setStyleName(Styles.textAreaResizable.toString());
+		value.addStyleName(Styles.fontMonospace.toString());
+		value.addStyleName(Styles.textAreaResizable.toString());
 		value.addShortcutListener(new ShortcutListener("", ShortcutAction.KeyCode.TAB, null)
 		{
 			@Override
@@ -85,8 +88,11 @@ class MVELExpressionEditorDialog extends AbstractDialog
 	protected Component getContents() throws Exception
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
 		main.setSizeFull();
-		main.addComponent(evalTo);
+		FormLayout wrapper = new FormLayout(evalTo);
+		wrapper.setMargin(false);
+		main.addComponent(wrapper);
 		main.addComponent(value);
 		value.setWidth(100, Unit.PERCENTAGE);
 
@@ -99,6 +105,7 @@ class MVELExpressionEditorDialog extends AbstractDialog
 		
 		FormLayoutWithFixedCaptionWidth varsL = FormLayoutWithFixedCaptionWidth.withShortCaptions();
 		varsL.setMargin(false);
+		varsL.addStyleName("u-mvelFieldEditorLayout");
 
 		context.vars.entrySet().stream().sorted(java.util.Map.Entry.comparingByKey()).forEach( e ->
 		{
@@ -115,6 +122,8 @@ class MVELExpressionEditorDialog extends AbstractDialog
 
 		FormLayoutWithFixedCaptionWidth cheatSheetL =  FormLayoutWithFixedCaptionWidth.withShortCaptions();
 		cheatSheetL.setMargin(false);
+		cheatSheetL.addStyleName("u-mvelFieldEditorLayout");
+
 		for (int i = 1; i <= CHEET_SHEET_LINES_COUNT; i++)
 		{
 			Label chLabel = new Label();
