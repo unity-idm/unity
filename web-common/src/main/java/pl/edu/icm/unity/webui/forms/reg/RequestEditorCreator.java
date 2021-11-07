@@ -201,7 +201,7 @@ public class RequestEditorCreator
 	{
 		if (invitation != null && invitation.canBeProcessedAsEnquiryWithResolvedUser())
 		{
-			EnquiryInvitationParam enqInv = invitation.getAsEnquiryInvitationParam();
+			EnquiryInvitationParam enqInv = invitation.getAsEnquiryInvitationParam(null);
 			String url = publicRegistrationURLSupport.getPublicEnquiryLink(enqInv.getFormPrefill().getFormId(),
 					registrationCode);
 			Page.getCurrent().open(url, null);

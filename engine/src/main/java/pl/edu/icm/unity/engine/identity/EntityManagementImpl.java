@@ -834,12 +834,13 @@ public class EntityManagementImpl implements EntityManagement
 
 	@Override
 	@Transactional
-	public Entity getEntityByContactEmail(String contactEmail) throws EngineException
+	public List<Entity> getAllEntitiesWithContactEmail(String contactEmail) throws EngineException
 	{
-		Long entityId = byEmailUserFinder.getEntityIdByContactAddress(contactEmail);
-		if (entityId == null)
+		List<Entity> entitiesIds = byEmailUserFinder.getEntitiesIdsByContactAddress(contactEmail);
+		if (entitiesIds.isEmpty())
 			throw new UnknownEmailException("Contact email " + contactEmail + " is not assigned to any entity");
-		return getEntity(new EntityParam(entityId));
+		
+		return entitiesIds;
 	}
 	
 	

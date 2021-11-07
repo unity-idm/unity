@@ -66,8 +66,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getEntityByContactEmail("demo@demo.com"))
-				.thenReturn(new Entity(null, new EntityInformation(1L), null));
+		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
+				.thenReturn(Arrays.asList(new Entity(null, new EntityInformation(1L), null)));
 
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
@@ -89,8 +89,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerParamWithFixedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getEntityByContactEmail("demo@demo.com"))
-				.thenReturn(new Entity(null, new EntityInformation(1L), null));
+		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
+				.thenReturn(Arrays.asList(new Entity(null, new EntityInformation(1L), null)));
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);

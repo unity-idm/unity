@@ -701,7 +701,8 @@ public class AttributesHelper
 		}
 	}
 	
-	public Optional<VerifiableElementBase> getFirstVerifiableAttributeValueFilteredByMeta(String metadataId, Collection<Attribute> list) throws EngineException
+	public Optional<VerifiableElementBase> getFirstVerifiableAttributeValueFilteredByMeta(String metadataId,
+			Collection<Attribute> list) throws EngineException
 	{
 		Optional<String> attrName = getAttributeName(metadataId);
 		if (!attrName.isPresent())

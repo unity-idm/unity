@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.webui.forms;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
@@ -19,6 +21,7 @@ import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.registration.UnknownInvitationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
@@ -59,18 +62,17 @@ public class InvitationResolver
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		}
 
-		return new ResolvedInvitationParam(resolveEntity(invitation.getInvitation()).orElse(null), registrationCode,
+		return new ResolvedInvitationParam(resolveEntity(invitation.getInvitation()), registrationCode,
 				invitation.getInvitation());
 	}
 
-	private Optional<Long> resolveEntity(InvitationParam invitationParam)
+	private List<Entity> resolveEntity(InvitationParam invitationParam)
 	{
 		if (invitationParam.getType().equals(InvitationType.COMBO))
 		{
 			try
 			{
-				return Optional
-						.of(entityManagement.getEntityByContactEmail(invitationParam.getContactAddress()).getId());
+				return entityManagement.getAllEntitiesWithContactEmail(invitationParam.getContactAddress());
 			} catch (UnknownEmailException e)
 			{
 				log.debug("Email address " + invitationParam.getContactAddress() + " is unknown");
@@ -79,7 +81,7 @@ public class InvitationResolver
 				log.error("Can not get entity with contact address " + invitationParam.getContactAddress(), e);
 			}
 		}
-		return Optional.empty();
+		return Collections.emptyList();
 	}
 
 	private Optional<InvitationWithCode> getInvitationInternal(String code)
