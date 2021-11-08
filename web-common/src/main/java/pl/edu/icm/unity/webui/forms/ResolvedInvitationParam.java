@@ -5,9 +5,14 @@
 
 package pl.edu.icm.unity.webui.forms;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
@@ -17,6 +22,8 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class ResolvedInvitationParam
 {
+	public static final List<String> NOT_ANONYMOUS_IDENTITIES_TYPES = Arrays.asList(EmailIdentity.ID, UsernameIdentity.ID, X500Identity.ID);
+	
 	public final String code;
 	public final List<Entity> entities;
 	public final String contactAddress;
@@ -64,5 +71,12 @@ public class ResolvedInvitationParam
 	public InvitationType getType()
 	{
 		return invitationParam.getType();
+	}
+	
+	public List<Entity> getEntitiesWithoutAnonymous()
+	{
+		return entities.stream().filter(e -> e.getIdentities().stream()
+				.filter(i -> !i.isLocal() || i.isLocal() && NOT_ANONYMOUS_IDENTITIES_TYPES.contains(i.getTypeId()))
+				.count() > 0).collect(Collectors.toList());
 	}
 }
