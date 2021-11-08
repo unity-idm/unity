@@ -62,11 +62,11 @@ public class InvitationResolver
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		}
 
-		return new ResolvedInvitationParam(resolveEntity(invitation.getInvitation()), registrationCode,
+		return new ResolvedInvitationParam(resolveEntities(invitation.getInvitation()), registrationCode,
 				invitation.getInvitation());
 	}
 
-	private List<Entity> resolveEntity(InvitationParam invitationParam)
+	private List<Entity> resolveEntities(InvitationParam invitationParam)
 	{
 		if (invitationParam.getType().equals(InvitationType.COMBO))
 		{
