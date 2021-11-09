@@ -64,11 +64,21 @@ class MVELExpressionEditorDialog extends AbstractDialog
 			@Override
 			public void handleAction(Object sender, Object target)
 			{
-				value.setValue(value.getValue() + "\t");
+				insertTab();
 			}
 		});
 	}
-	
+
+	private void insertTab()
+	{
+		String v = value.getValue() == null ? "" : value.getValue();
+		int cursorPos = value.getCursorPosition();
+		String st = v.substring(0, cursorPos);
+		String fi = v.substring(cursorPos);
+		value.setValue(st + "    " + fi);
+		value.setCursorPosition(cursorPos + 4);
+	}
+
 	void configureBinding(boolean mandatory)
 	{
 		binder = new Binder<>(StringBindingValue.class);
