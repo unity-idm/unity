@@ -5,17 +5,21 @@
 
 package pl.edu.icm.unity.engine.mvel;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.mvel2.ast.PrototypalFunctionInstance;
+import org.mvel2.integration.impl.MapVariableResolverFactory;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 
 public class MVELGroup
 {
@@ -116,28 +120,6 @@ public class MVELGroup
 				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().value));
 	}
 
-//	public String getEncodedGroupPath(String delimiter, Function<MVELGroup, String> groupProvider)
-//	{
-//		
-//		StringBuilder ret = new StringBuilder();
-//		ret.append(group.getPathEncoded());
-//		
-//		GroupChain parentChain = groupChain.getParent();
-//		while(parentChain != null)
-//		{
-//			ret.append(delimiter);
-//			ret.append(groupProvider.apply(new MVELGroup(parentChain)));
-//			parentChain = parentChain.getParent();
-//		}
-//		
-//		if (parent == null)
-//		{
-//			return groupProvider.apply(this);
-//		} else
-//		{
-//			return parent.getEncodedGroupPath(delimiter, groupProvider) + delimiter + groupProvider.apply(this);
-//		}
-//	}
 	public String getEncodedGroupPath(String delimiter, Function<MVELGroup, String> groupProvider)
 	{
 		if (parent == null)
@@ -146,6 +128,26 @@ public class MVELGroup
 		} else
 		{
 			return parent.getEncodedGroupPath(delimiter, groupProvider) + delimiter + groupProvider.apply(this);
+		}
+	
+	
+	}
+	
+	public String getEncodedGroupPath(String delimiter, PrototypalFunctionInstance lambda)
+	{
+		Map<String, Object> var = new HashMap<>();
+		var.put("group", this);
+		MVELGroup[] group = new MVELGroup[1];
+		group[0] = this;
+
+		if (parent == null)
+		{
+
+			return (String) lambda.call(null, null, new MapVariableResolverFactory(), group);
+		} else
+		{
+			return parent.getEncodedGroupPath(delimiter, lambda) + delimiter
+					+ (String) lambda.call(null, null, new MapVariableResolverFactory(), group);
 		}
 	}
 }

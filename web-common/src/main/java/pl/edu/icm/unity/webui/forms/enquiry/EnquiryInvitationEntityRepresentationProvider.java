@@ -66,7 +66,8 @@ class EnquiryInvitationEntityRepresentationProvider
 		try
 		{
 			URL url = new URL(identity.getRemoteIdp());
-			return url.getHost();
+			String host = url.getHost();
+			return host == null || host.isEmpty() ? identity.getRemoteIdp() : host;
 		} catch (MalformedURLException e)
 		{
 			return identity.getRemoteIdp();

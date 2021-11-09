@@ -11,12 +11,14 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Label;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 @Component
@@ -36,7 +38,7 @@ class SwitchToEnquiryComponentProvider
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 	}
 
-	Optional<HtmlConfigurableLabel> getSwitchToEnquiryLabel(I18nString switchText, ResolvedInvitationParam invitation,
+	Optional<Label> getSwitchToEnquiryLabel(I18nString switchText, ResolvedInvitationParam invitation,
 			Map<String, Object> params)
 	{
 		if (invitation == null || !invitation.getType().equals(InvitationType.COMBO) || switchText == null)
@@ -58,16 +60,19 @@ class SwitchToEnquiryComponentProvider
 		switchInfo = switchInfo.replace(linkDisp, getLink(linkDisp, invitation));
 		switchInfo = switchInfo.replace(SWITCH_START, "");
 		switchInfo = switchInfo.replace(SWITCH_END, "");
-		HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(switchInfo);
-		formInformation.addStyleName("u-reg-info");
+		Label label = new Label();
+		label.setContentMode(ContentMode.HTML);
+		label.addStyleName("wrap-line");
+		label.setValue(switchInfo);
+		label.addStyleName("u-reg-info");
 
-		return Optional.of(formInformation);
+		return Optional.of(label);
 	}
 
 	private String getLink(String disp, ResolvedInvitationParam invitation)
 	{
 		String link = publicRegistrationURLSupport.getWellknownEnquiryLink(
-				invitation.getAsEnquiryInvitationParam(null).getFormPrefill().getFormId(), invitation.code);
+				invitation.getAsEnquiryInvitationParamWithAnonymousEntity().getFormPrefill().getFormId(), invitation.code);
 		return "<a href=\"" + link + "\">" + disp + "</a>";
 	}
 }
