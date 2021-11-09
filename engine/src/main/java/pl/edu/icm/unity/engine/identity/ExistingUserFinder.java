@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +40,9 @@ class ExistingUserFinder
 		this.attrHelper = attrHelper;
 	}
 
-	List<Entity> getEntitiesIdsByContactAddress(String contactAddress) throws EngineException
+	Set<Entity> getEntitiesIdsByContactAddress(String contactAddress) throws EngineException
 	{
-		List<Entity> entitiesWithContactAddress = new ArrayList<>();
+		Set<Entity> entitiesWithContactAddress = new HashSet<>();
 		if (contactAddress == null || contactAddress.isEmpty())
 		{
 			return entitiesWithContactAddress;
@@ -64,12 +64,8 @@ class ExistingUserFinder
 				entitiesWithContactAddress.add(info.entity);
 		}
 
-		List<Entity> entitiesByEmailAttr = searchEntitiesByEmailAttr(members, searchedComparable);
-		for (Entity attrEntity: entitiesByEmailAttr)
-		{
-			if (!entitiesWithContactAddress.contains(attrEntity))
-				entitiesWithContactAddress.add(attrEntity);
-		}
+		Set<Entity> entitiesByEmailAttr = searchEntitiesByEmailAttr(members, searchedComparable);
+		entitiesWithContactAddress.addAll(entitiesByEmailAttr);
 		return entitiesWithContactAddress;
 		
 	}
@@ -80,10 +76,10 @@ class ExistingUserFinder
 		return comparableEmail1.equals(verifiableEmail.getComparableValue());
 	}
 	
-	private List<Entity> searchEntitiesByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String comparableContactAddress)
+	private Set<Entity> searchEntitiesByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String comparableContactAddress)
 			throws EngineException
 	{
-		List<Entity> entitiesWithContactAddressAttr = new ArrayList<>();
+		Set<Entity> entitiesWithContactAddressAttr = new HashSet<>();
 		for (EntityInGroupData info : membersWithGroups.values())
 		{
 			VerifiableElementBase contactEmail = attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(ContactEmailMetadataProvider.NAME,

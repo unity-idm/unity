@@ -156,7 +156,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		if (invitation.entities.size() == 1)
 		{
-			processInvitation(invitation.entities.get(0).getId());
+			processInvitation(invitation.entities.iterator().next().getId());
 		} else
 		{
 			List<Entity> entitiesWitoutAnonymous = invitation.getEntitiesWithoutAnonymous();
@@ -167,7 +167,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			{
 				log.debug("Skipping enquiry entity choose step, only anonymous entities match to contact address "
 						+ invitation.contactAddress);
-				processInvitation(invitation.entities.get(0).getId());
+				processInvitation(invitation.entities.iterator().next().getId());
 			}
 		}
 	}
@@ -294,7 +294,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	{
 		main.removeAllComponents();
 		EnquiryInvitationEntityChooser invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
-				e -> processInvitation(e));
+				e -> processInvitation(e), () -> gotoFinalStep(cancel()));
 		main.addComponent(invitationEntityChooserComponent);
 		main.setComponentAlignment(invitationEntityChooserComponent, Alignment.MIDDLE_CENTER);
 	}
@@ -326,9 +326,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		if (form.getPageTitle() != null)
 			Page.getCurrent().setTitle(form.getPageTitle().getValue(msg));
 		main = new VerticalLayout();
+		main.setSizeFull();
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
-		setWidth(100, Unit.PERCENTAGE);
+		setSizeFull();
 	}
 
 	private Component createButtonsBar()

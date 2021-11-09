@@ -12,8 +12,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -49,9 +50,9 @@ public class ExistingUserFinderTest
 		when(bulkService.getMembershipInfo(any())).thenReturn(ImmutableMap.of(13l, entityData));
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
 
-		List<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
+		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 
-		assertThat(entityIdByContactAddress.get(0).getId()).isEqualTo(13);
+		assertThat(entityIdByContactAddress.iterator().next().getId()).isEqualTo(13);
 	}
 
 	@Test
@@ -65,9 +66,9 @@ public class ExistingUserFinderTest
 				.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
 
-		List<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
+		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 
-		assertThat(entityIdByContactAddress.get(0).getId()).isEqualTo(13);
+		assertThat(entityIdByContactAddress.iterator().next().getId()).isEqualTo(13);
 	}
 
 	@Test
@@ -87,10 +88,9 @@ public class ExistingUserFinderTest
 						.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
 
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
-		List<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
+		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 		assertThat(entityIdByContactAddress.size()).isEqualTo(2);
-		assertThat(entityIdByContactAddress.get(0).getId()).isEqualTo(14l);
-		assertThat(entityIdByContactAddress.get(1).getId()).isEqualTo(13l);
+		assertThat(entityIdByContactAddress.stream().map(e -> e.getId()).collect(Collectors.toSet())).contains(14L, 13L);
 	}
 
 	private Entity createEmailEntity(String email, long entityId) throws IllegalIdentityValueException

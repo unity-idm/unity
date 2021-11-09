@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -100,7 +101,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		authz.assertManagerAuthorization(param.project);
 		
-		List<Entity> entities = null;
+		Set<Entity> entities = null;
 		try
 		{
 			entities = entityMan.getAllEntitiesWithContactEmail(param.contactAddress);
@@ -108,7 +109,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		{
 			// ok
 		}
-		if (!entities.isEmpty())
+		if (entities != null && !entities.isEmpty())
 		{
 			for (Entity en : entities)
 			{

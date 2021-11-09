@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
@@ -50,28 +51,45 @@ class EnquiryInvitationEntityChooser extends CustomComponent
 		this.entityRepresentationProvider = new EnquiryInvitationEntityRepresentationProvider(this::getDisplayName);
 	}
 
-	public EnquiryInvitationEntityChooser init(ResolvedInvitationParam invitation, Consumer<Long> callback)
+	public EnquiryInvitationEntityChooser init(ResolvedInvitationParam invitation, Consumer<Long> callback, Runnable cancel)
 	{
 		VerticalLayout main = new VerticalLayout();
 		entityChooser = new RadioButtonGroup<>();
 		entityChooser.setItems(invitation.entities);
 		entityChooser.setItemCaptionGenerator(e -> entityRepresentationProvider.getEntityRepresentation(e));
-		entityChooser.setSelectedItem(invitation.entities.get(0));
-		Button confirm = new Button("confirm");
+		entityChooser.setSelectedItem(invitation.entities.iterator().next());
+		Button confirm = new Button(msg.getMessage("EnquiryInvitationEntityChooser.proceed"));
 		confirm.setStyleName(Styles.buttonAction.toString());
 		confirm.addClickListener(e -> callback.accept(entityChooser.getSelectedItem().get().getId()));
-		Label info = new Label(msg.getMessage("StandalonePublicEnquiryView.chooseEntity", invitation.contactAddress));
-		info.setCaptionAsHtml(true);
-		info.addStyleName(Styles.textLarge.toString());
-		info.addStyleName(Styles.wordWrap.toString());
+		confirm.addStyleName("u-button-form");
+		
+		Button cancelB = new Button(msg.getMessage("cancel"));
+		cancelB.addClickListener(e -> cancel.run());
+		cancelB.addStyleName("u-button-form");
+		
+		HorizontalLayout buttons = new HorizontalLayout();
+		buttons.addComponent(cancelB);
+		buttons.addComponent(confirm);
 
-		main.addComponent(info);
+		Label infoTitle = new Label(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityTitle", invitation.contactAddress));
+		infoTitle.setCaptionAsHtml(true);
+		infoTitle.addStyleName(Styles.vLabelH1.toString());
+		infoTitle.addStyleName(Styles.wordWrap.toString());
+		
+		Label infoDesc = new Label(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityDescription", invitation.contactAddress));
+		infoDesc.setCaptionAsHtml(true);
+		infoDesc.addStyleName(Styles.wordWrap.toString());
+		
+		main.addComponent(infoTitle);
+		main.addComponent(infoDesc);
 		main.addComponent(entityChooser);
-		main.addComponent(confirm);
-		main.setComponentAlignment(info, Alignment.MIDDLE_CENTER);
+		main.addComponent(buttons);
+		main.setComponentAlignment(infoTitle, Alignment.MIDDLE_CENTER);
+		main.setComponentAlignment(infoDesc, Alignment.MIDDLE_CENTER);
 		main.setComponentAlignment(entityChooser, Alignment.MIDDLE_CENTER);
-		main.setComponentAlignment(confirm, Alignment.MIDDLE_CENTER);
+		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 		setCompositionRoot(main);
+		
 		return this;
 	}
 
@@ -99,9 +117,9 @@ class EnquiryInvitationEntityChooser extends CustomComponent
 			this.factory = factory;
 		}
 
-		EnquiryInvitationEntityChooser get(ResolvedInvitationParam invitation, Consumer<Long> callback)
+		EnquiryInvitationEntityChooser get(ResolvedInvitationParam invitation, Consumer<Long> callback, Runnable cancel)
 		{
-			return factory.getObject().init(invitation, callback);
+			return factory.getObject().init(invitation, callback, cancel);
 		}
 	}
 

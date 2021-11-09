@@ -6,8 +6,8 @@
 package pl.edu.icm.unity.webui.forms;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +66,7 @@ public class InvitationResolver
 				invitation.getInvitation());
 	}
 
-	private List<Entity> resolveEntities(InvitationParam invitationParam)
+	private Set<Entity> resolveEntities(InvitationParam invitationParam)
 	{
 		if (invitationParam.getType().equals(InvitationType.COMBO))
 		{
@@ -81,7 +81,7 @@ public class InvitationResolver
 				log.error("Can not get entity with contact address " + invitationParam.getContactAddress(), e);
 			}
 		}
-		return Collections.emptyList();
+		return Collections.emptySet();
 	}
 
 	private Optional<InvitationWithCode> getInvitationInternal(String code)

@@ -352,7 +352,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 			}
 
-			Optional<HtmlConfigurableLabel> switchToEnquiryLabel = toEnquirySwitchLabelProvider
+			Optional<Label> switchToEnquiryLabel = toEnquirySwitchLabelProvider
 					.getSwitchToEnquiryLabel(form.getSwitchToEnquiryInfoFallbackToDefault(msg), invitation, params);
 			if (switchToEnquiryLabel.isPresent())
 			{
