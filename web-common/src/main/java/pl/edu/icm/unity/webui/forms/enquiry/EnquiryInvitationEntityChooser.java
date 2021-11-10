@@ -75,11 +75,13 @@ class EnquiryInvitationEntityChooser extends CustomComponent
 		infoTitle.setCaptionAsHtml(true);
 		infoTitle.addStyleName(Styles.vLabelH1.toString());
 		infoTitle.addStyleName(Styles.wordWrap.toString());
+		infoTitle.addStyleName(Styles.textCenter.toString());
 		
-		Label infoDesc = new Label(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityDescription", invitation.contactAddress));
+		Label infoDesc = new Label(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityDescription"));
 		infoDesc.setCaptionAsHtml(true);
 		infoDesc.addStyleName(Styles.wordWrap.toString());
-		
+		infoDesc.addStyleName(Styles.textCenter.toString());
+
 		main.addComponent(infoTitle);
 		main.addComponent(infoDesc);
 		main.addComponent(entityChooser);
@@ -89,7 +91,7 @@ class EnquiryInvitationEntityChooser extends CustomComponent
 		main.setComponentAlignment(entityChooser, Alignment.MIDDLE_CENTER);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 		setCompositionRoot(main);
-		
+		setWidth(40, Unit.EM);
 		return this;
 	}
 

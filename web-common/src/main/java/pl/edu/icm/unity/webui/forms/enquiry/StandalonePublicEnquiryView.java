@@ -72,7 +72,6 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	MessageSource msg;
 	private ImageAccessService imageAccessService;
 
-	private VerticalLayout main;
 	private String registrationCode;
 	private EnquiryResponseEditorController editorController;
 	private InvitationResolver invitationResolver;
@@ -281,22 +280,30 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void showEditorContent()
 	{
+		VerticalLayout main = new VerticalLayout();
+		main.setWidth(100, Unit.PERCENTAGE);
+		main.setHeightUndefined();
 		main.removeAllComponents();
-		main.addComponent(editor);
+		main.addComponent(editor);		
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		Component buttonsBar = createButtonsBar();
 		main.addComponent(buttonsBar);
 		main.setComponentAlignment(buttonsBar, Alignment.MIDDLE_CENTER);
+		setCompositionRoot(main);
+		setHeightUndefined();
 	}
 
 	private void showEntityChooser()
 	{
-		main.removeAllComponents();
+		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		EnquiryInvitationEntityChooser invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
 				e -> processInvitation(e), () -> gotoFinalStep(cancel()));
 		main.addComponent(invitationEntityChooserComponent);
 		main.setComponentAlignment(invitationEntityChooserComponent, Alignment.MIDDLE_CENTER);
+		setCompositionRoot(main);
+		setSizeFull();
 	}
 
 	private void askForCode(Runnable uiCreator)
@@ -325,11 +332,8 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	{
 		if (form.getPageTitle() != null)
 			Page.getCurrent().setTitle(form.getPageTitle().getValue(msg));
-		main = new VerticalLayout();
-		main.setSizeFull();
+		
 		addStyleName("u-standalone-public-form");
-		setCompositionRoot(main);
-		setSizeFull();
 	}
 
 	private Component createButtonsBar()
