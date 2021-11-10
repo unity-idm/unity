@@ -8,10 +8,9 @@ package pl.edu.icm.unity.engine.mvel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.mvel2.ast.PrototypalFunctionInstance;
+import org.mvel2.ast.FunctionInstance;
 import org.mvel2.integration.impl.MapVariableResolverFactory;
 
 import pl.edu.icm.unity.MessageSource;
@@ -23,7 +22,6 @@ import pl.edu.icm.unity.types.basic.GroupsChain;
 
 public class MVELGroup
 {
-
 	private final Group group;
 	private final MVELGroup parent;
 
@@ -120,33 +118,24 @@ public class MVELGroup
 				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().value));
 	}
 
-	public String getEncodedGroupPath(String delimiter, Function<MVELGroup, String> groupProvider)
+	public String getEncodedGroupPath(String delimiter, FunctionInstance lambda)
 	{
-		if (parent == null)
-		{
-			return groupProvider.apply(this);
-		} else
-		{
-			return parent.getEncodedGroupPath(delimiter, groupProvider) + delimiter + groupProvider.apply(this);
-		}
-	
-	
+		return getEncodedGroupPath(delimiter, 0, lambda);
 	}
 	
-	public String getEncodedGroupPath(String delimiter, PrototypalFunctionInstance lambda)
+	public String getEncodedGroupPath(String delimiter, int initialParentsToSkip, FunctionInstance lambda)
 	{
 		Map<String, Object> var = new HashMap<>();
 		var.put("group", this);
 		MVELGroup[] group = new MVELGroup[1];
 		group[0] = this;
 
-		if (parent == null)
+		if (parent == null || this.group.getPath().length <= initialParentsToSkip)
 		{
-
 			return (String) lambda.call(null, null, new MapVariableResolverFactory(), group);
 		} else
 		{
-			return parent.getEncodedGroupPath(delimiter, lambda) + delimiter
+			return parent.getEncodedGroupPath(delimiter, initialParentsToSkip, lambda) + delimiter
 					+ (String) lambda.call(null, null, new MapVariableResolverFactory(), group);
 		}
 	}
