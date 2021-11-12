@@ -109,4 +109,10 @@ public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO
 		IdpStatisticMapper mapper = SQLTransactionTL.getSql().getMapper(IdpStatisticMapper.class);
 		return mapper.getCount();
 	}
+
+	@Override
+	public List<Long> createList(List<IdpStatistic> objs)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

@@ -9,6 +9,13 @@
 	<insert id="createWithKey" parameterType="BaseB">
 		INSERT INTO ENTITIES (ID, CONTENTS) VALUES (#{id}, #{contents})
 	</insert>
+
+	<insert id="createList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO ENTITIES (CONTENTS) VALUES 
+		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
+			#{element.contents}
+		</foreach>
+	</insert>
 	
 	<update id="updateByKey" parameterType="BaseB">
 		UPDATE ENTITIES SET CONTENTS = #{contents} WHERE ID = #{id}

@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
@@ -224,6 +226,24 @@ public abstract class AbstractBasicDAOTest<T>
 	public void importExportIsIdempotent()
 	{
 		importExportIsIdempotent(id -> {});
+	}
+	
+	protected void insertedListIsReturned()
+	{
+		tx.runInTransaction(() -> {
+			T obj1 = getObject("name1");
+			T obj2 = getObject("name2");
+			BasicCRUDDAO<T> dao = getDAO();
+			List<Long> ids = dao.createList(Lists.newArrayList(obj1, obj2));
+
+			List<T> ret = dao.getAll();
+
+			assertThat(ret, is(notNullValue()));
+			assertThat(ret.size(), is(2));
+			assertThat(ids.size(), is(2));
+			assertThat(ids.get(0), is(notNullValue()));
+			assertThat(ids.get(1), is(notNullValue()));
+		});
 	}
 	
 	protected T importExportIsIdempotent(Consumer<Long> preExportEntityIdConsumer)

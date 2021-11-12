@@ -14,6 +14,13 @@
 				VALUES (#{groupId}, #{elementId}, #{contents})
 	</insert>
 	
+	<insert id="createList" parameterType="java.util.List">
+		INSERT INTO GROUP_ENTITIES (GROUP_ID, ENTITY_ID, CONTENTS) VALUES 
+		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
+			#{element.groupId}, #{element.elementId}, #{element.contents}
+		</foreach>
+	</insert>
+	
 	<delete id="deleteByKey" parameterType="GroupElementB">
 		DELETE FROM GROUP_ENTITIES WHERE GROUP_ID=#{groupId} AND ENTITY_ID=#{elementId}
 	</delete>

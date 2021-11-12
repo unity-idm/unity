@@ -8,6 +8,7 @@ import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
@@ -20,6 +21,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -236,6 +239,23 @@ public class MembershipTest
 			assertThat(groupMembers.size(), is(1));
 			assertThat(groupMembers.get(0).getGroup(), is("/ZZ"));
 			assertThat(groupMembers.get(0).getEntityId(), is(entity));
+		});
+	}
+	
+	@Test
+	public void insertedListIsReturned()
+	{
+		tx.runInTransaction(() -> {
+			Date now = new Date();
+			GroupMembership gm1 = new GroupMembership("/A", entity, now);
+			GroupMembership gm2 = new GroupMembership("/B", entity2, now);
+			
+			dao.createList(Lists.newArrayList(gm1, gm2));
+
+			List<GroupMembership> ret = dao.getAll();
+
+			assertThat(ret, is(notNullValue()));
+			assertThat(ret.size(), is(2));
 		});
 	}
 }

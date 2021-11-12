@@ -89,7 +89,6 @@ public class EntityCredentialsHelper
 	public void setEntityCredentialRequirements(long entityId, String credReqId) 
 			throws EngineException
 	{
-		
 		credentialReqRepository.assertExist(credReqId);
 		setEntityCredentialRequirementsNoCheck(entityId, credReqId);
 	}

@@ -259,4 +259,9 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 		return HzTransactionTL.getHzContext().getMap(STORE_ID + "_byGroup");
 	}
 
+	@Override
+	public void createList(ArrayList<GroupMembership> memberships)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

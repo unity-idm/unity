@@ -8,6 +8,7 @@ import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -25,6 +26,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
@@ -206,6 +208,24 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 	}
 
+	@Test
+	public void insertedListIsReturned()
+	{
+		tx.runInTransaction(() -> {
+			Group obj1 = getObject("name1");
+			Group obj2 = getObject("name2");
+			BasicCRUDDAO<Group> dao = getDAO();
+			List<Long> ids = dao.createList(Lists.newArrayList(obj1, obj2));
+
+			List<Group> ret = dao.getAll();
+
+			assertThat(ret, is(notNullValue()));
+			assertThat(ret.size(), is(3)); // + '/'
+			assertThat(ids.size(), is(2));
+			assertThat(ids.get(0), is(notNullValue()));
+			assertThat(ids.get(1), is(notNullValue()));
+		});
+	}
 	
 	@Override
 	protected NamedCRUDDAO<Group> getDAO()

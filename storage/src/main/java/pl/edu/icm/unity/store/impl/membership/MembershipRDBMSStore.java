@@ -46,6 +46,22 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 	}
 
 	@Override
+	public void createList(ArrayList<GroupMembership> memberships)
+	{
+		if (memberships.isEmpty())
+			return;
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		List<GroupElementBean> converted = new ArrayList<>(memberships.size());
+		for (GroupMembership obj: memberships)
+		{
+			GroupElementBean toAdd = jsonSerializer.toDB(obj);
+			StorageLimits.checkContentsLimit(toAdd.getContents());
+			converted.add(toAdd);
+		}
+		mapper.createList(converted);
+	}
+	
+	@Override
 	public void deleteByKey(long entityId, String group)
 	{
 		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
@@ -100,5 +116,4 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 			ret.add(jsonSerializer.fromDB(geb));
 		return ret;
 	}
-
 }

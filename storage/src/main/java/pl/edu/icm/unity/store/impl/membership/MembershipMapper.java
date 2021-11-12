@@ -14,6 +14,8 @@ import java.util.List;
 public interface MembershipMapper
 {
 	long create(GroupElementBean obj);
+
+	void createList(List<GroupElementBean> objs);
 	
 	void deleteByKey(GroupElementBean param);
 

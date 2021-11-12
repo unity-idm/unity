@@ -13,6 +13,8 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
+
 
 /**
  * Group membership DAO
@@ -24,6 +26,8 @@ public interface MembershipDAO
 	String NAME = "group membership";
 	
 	void create(GroupMembership obj);
+
+	void createList(ArrayList<GroupMembership> memberships);
 	
 	void deleteByKey(long entityId, String group);
 

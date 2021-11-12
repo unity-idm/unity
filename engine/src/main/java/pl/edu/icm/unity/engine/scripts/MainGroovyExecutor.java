@@ -148,10 +148,6 @@ public class MainGroovyExecutor
 	@Autowired
 	private ApplicationContext applicationContext;
 	
-	
-	@Autowired
-	private ApplicationContext applCtx;
-	
 	public void run(ScriptConfiguration conf, PersistableEvent event)
 	{
 		if (conf == null || conf.getType() != ScriptType.groovy)
@@ -180,7 +176,7 @@ public class MainGroovyExecutor
 		try
 		{
 			InputStream is = location.startsWith("classpath:") ?
-					applCtx.getResource(location).getInputStream() :
+					applicationContext.getResource(location).getInputStream() :
 					new FileInputStream(location);
 			return new InputStreamReader(is);
 		} catch (IOException e)

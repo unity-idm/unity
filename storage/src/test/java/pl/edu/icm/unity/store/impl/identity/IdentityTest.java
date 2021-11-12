@@ -147,7 +147,12 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 	{
 		//this test is skipped: we do allow for creating identities with very long names.
 	}
-
+	
+	@Test
+	public void insertedListIsReturned()
+	{
+		super.insertedListIsReturned();
+	}
 	
 	@Override
 	protected NamedCRUDDAO<StoredIdentity> getDAO()

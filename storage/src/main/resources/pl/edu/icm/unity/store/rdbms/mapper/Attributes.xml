@@ -24,6 +24,13 @@
 			VALUES (#{id}, #{typeId}, #{entityId}, #{groupId}, #{values})  
 	</insert>
 	
+	<insert id="createList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO ATTRIBUTES (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) VALUES 
+		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
+			#{element.typeId}, #{element.entityId}, #{element.groupId}, #{element.values}
+		</foreach>
+	</insert>
+	
 	<update id="updateByKey" parameterType="AttributeB">
 		UPDATE ATTRIBUTES SET CONTENTS = #{values} 
 			WHERE ID = #{id}
