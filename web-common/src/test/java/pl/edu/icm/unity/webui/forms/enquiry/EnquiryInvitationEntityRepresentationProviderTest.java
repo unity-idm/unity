@@ -12,7 +12,11 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
@@ -21,15 +25,23 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 
 public class EnquiryInvitationEntityRepresentationProviderTest
 {
 
+	@Mock
+	private MessageSource msg;
+
 	@Test
 	public void shouldUseOnlyRemoteIds() throws Exception
 	{
+		when(msg.getMessage(any())).thenReturn("linked with");
 		EnquiryInvitationEntityRepresentationProvider repProvider = new EnquiryInvitationEntityRepresentationProvider(
-				l -> Optional.of("disp" + l));
+				l -> Optional.of("disp" + l), msg);
 
 		Entity entity = new Entity(Arrays.asList(
 				new Identity(new IdentityParam(EmailIdentity.ID, "remote@test.com", "remoteIdp1", "tp"), 1L,
@@ -40,15 +52,16 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 		), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("disp1: remoteIdp1 & remoteIdp2"));
+		assertThat(rep, is("disp1: linked with remoteIdp1 & remoteIdp2"));
 
 	}
 
 	@Test
 	public void shouldUseOnlyRemoteIdsAsHostname() throws Exception
 	{
+		when(msg.getMessage(any())).thenReturn("linked with");
 		EnquiryInvitationEntityRepresentationProvider repProvider = new EnquiryInvitationEntityRepresentationProvider(
-				l -> Optional.of("disp" + l));
+				l -> Optional.of("disp" + l), msg);
 
 		Entity entity = new Entity(Arrays.asList(
 				new Identity(new IdentityParam(EmailIdentity.ID, "remote@test.com", "https://account.google.com", "tp"),
@@ -58,7 +71,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 		), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("disp1: account.google.com & remoteIdp2"));
+		assertThat(rep, is("disp1: linked with account.google.com & remoteIdp2"));
 
 	}
 
@@ -66,7 +79,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 	public void shouldUseLocalIds() throws Exception
 	{
 		EnquiryInvitationEntityRepresentationProvider repProvider = new EnquiryInvitationEntityRepresentationProvider(
-				l -> Optional.of("disp" + l));
+				l -> Optional.of("disp" + l), msg);
 
 		Entity entity = new Entity(Arrays.asList(
 				new Identity(new IdentityParam(EmailIdentity.ID, "local@test.com", null, null), 1L, "remote@test.com"),
@@ -82,7 +95,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 	public void shouldSkipAnonymousIdentities() throws Exception
 	{
 		EnquiryInvitationEntityRepresentationProvider repProvider = new EnquiryInvitationEntityRepresentationProvider(
-				l -> Optional.of("disp" + l));
+				l -> Optional.of("disp" + l), msg);
 
 		Entity entity = new Entity(
 				Arrays.asList(new Identity(new IdentityParam(IdentifierIdentity.ID, "id", null, null), 1L, "id"),
@@ -101,7 +114,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 	public void shouldSkipDisplayedName() throws Exception
 	{
 		EnquiryInvitationEntityRepresentationProvider repProvider = new EnquiryInvitationEntityRepresentationProvider(
-				l -> Optional.empty());
+				l -> Optional.empty(), msg);
 
 		Entity entity = new Entity(Arrays.asList(
 				new Identity(new IdentityParam(IdentifierIdentity.ID, "id", null, null), 1L, "id"),

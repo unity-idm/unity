@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
@@ -19,10 +20,12 @@ import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 class EnquiryInvitationEntityRepresentationProvider
 {
 	private final Function<Long, Optional<String>> entityDisplayedNameProvider;
+	private final MessageSource msg;
 
-	EnquiryInvitationEntityRepresentationProvider(Function<Long, Optional<String>> displayedNameProvider)
+	EnquiryInvitationEntityRepresentationProvider(Function<Long, Optional<String>> displayedNameProvider, MessageSource msg)
 	{
 		this.entityDisplayedNameProvider = displayedNameProvider;
+		this.msg = msg;
 	}
 
 	String getEntityRepresentation(Entity entity)
@@ -41,6 +44,7 @@ class EnquiryInvitationEntityRepresentationProvider
 		{
 			if (displayedName.isPresent())
 				entityRep.append(": ");
+			entityRep.append(msg.getMessage("EnquiryInvitationEntityRepresentationProvider.linkedWith") + " ");
 			entityRep.append(
 					remoteIds.stream().map(i -> getRemoteIdentityRepresentation(i)).collect(Collectors.joining(" & ")));
 
