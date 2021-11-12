@@ -48,7 +48,7 @@ class EnquiryInvitationEntityChooser extends CustomComponent
 	{
 		this.msg = msg;
 		this.attributeSupport = attributeSupport;
-		this.entityRepresentationProvider = new EnquiryInvitationEntityRepresentationProvider(this::getDisplayName);
+		this.entityRepresentationProvider = new EnquiryInvitationEntityRepresentationProvider(this::getDisplayName, msg);
 	}
 
 	public EnquiryInvitationEntityChooser init(ResolvedInvitationParam invitation, Consumer<Long> callback, Runnable cancel)
