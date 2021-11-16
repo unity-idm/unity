@@ -113,11 +113,12 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			throw new RemoteAuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal) : 
+		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal, registrationForm, allowAssociation) : 
 			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation);
 	}
 
-	private RemoteAuthenticationResult assembleDryRunAuthenticationResult(RemotelyAuthenticatedPrincipal remotePrincipal)
+	private RemoteAuthenticationResult assembleDryRunAuthenticationResult(RemotelyAuthenticatedPrincipal remotePrincipal,
+			String registrationForm, boolean allowAssociation)
 	{
 		AuthenticatedEntity authenticatedEntity = null;
 		if (remotePrincipal.getLocalMappedPrincipal() != null)
@@ -129,6 +130,9 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			{
 				log.debug("Exception resolving remote principal", e);
 			}
+		} else
+		{
+				return handleUnknownUser(remotePrincipal, registrationForm, allowAssociation);
 		}
 		return RemoteAuthenticationResult.successfulPartial(remotePrincipal, authenticatedEntity);
 	}
@@ -217,6 +221,7 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			result.addIdentity(new MappedIdentity(IdentityEffectMode.REQUIRE_MATCH, 
 					presetIdParam, null));
 		}
+		trEngine.preprocess(result);
 		if (!dryRun)
 			trEngine.process(result);
 		

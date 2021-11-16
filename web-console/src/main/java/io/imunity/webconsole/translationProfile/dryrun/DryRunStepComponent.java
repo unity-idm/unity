@@ -93,7 +93,7 @@ class DryRunStepComponent extends CustomComponent
 	void handle(SandboxAuthnEvent event) 
 	{
 		RemoteSandboxAuthnContext ctx = (RemoteSandboxAuthnContext) event.ctx;
-		if (ctx.getAuthnException() == null)
+		if (!ctx.getAuthnException().isPresent())
 		{
 			authnResultLabel.setValue(msg.getMessage("DryRun.DryRunStepComponent.authnResultLabel.success"));
 			authnResultLabel.setStyleName(Styles.success.toString());

@@ -38,4 +38,6 @@ public interface InputTranslationEngine
 
 	MappedIdentity getExistingIdentity(MappingResult result);
 
+	void preprocess(MappingResult result) throws EngineException;
+
 }
