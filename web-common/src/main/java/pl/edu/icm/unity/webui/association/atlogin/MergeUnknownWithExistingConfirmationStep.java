@@ -37,16 +37,26 @@ class MergeUnknownWithExistingConfirmationStep extends AbstractConfirmationStep
 	void setAuthenticatedUser(AuthenticatedEntity ae)
 	{
 		locallyAuthenticatedEntity = ae;
-		introLabel.setHtmlValue("MergeUnknownWithExistingConfirmationStep.info", 
-				unknownUser.getRemoteIdPName(), 
-				locallyAuthenticatedEntity.getAuthenticatedWith().get(0));
+		if (ae != null)
+		{
+			introLabel.setHtmlValue("MergeUnknownWithExistingConfirmationStep.info", unknownUser.getRemoteIdPName(),
+					locallyAuthenticatedEntity.getAuthenticatedWith().get(0));
+		} else
+		{
+			introLabel.setHtmlValue("MergeUnknownWithExistingConfirmationStep.errorNotExistingIdentity");
+			//block finish button
+			errorComponent.setVisible(true);
+		}
 	}
 
 	@Override
 	protected void merge()
 	{
 		if (locallyAuthenticatedEntity == null)
+		{
+			NotificationPopup.showError(msg.getMessage("ConnectId.ConfirmStep.mergeFailed"), "");
 			return;
+		}
 		EntityParam existing = new EntityParam(locallyAuthenticatedEntity.getEntityId());
 		try
 		{

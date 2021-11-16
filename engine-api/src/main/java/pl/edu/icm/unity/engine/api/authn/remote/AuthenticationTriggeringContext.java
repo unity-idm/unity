@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.authn.remote;
 
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -32,13 +33,13 @@ public class AuthenticationTriggeringContext
 		this.authenticationOptionKey = authenticationOptionKey;
 	}
 	
-	public static AuthenticationTriggeringContext registrationTriggeredAuthn(RegistrationForm form, 
-			String invitationCode,
-			AuthenticationOptionKey authenticationOptionKey)
+	public static AuthenticationTriggeringContext registrationTriggeredAuthn(RegistrationForm form,
+			String invitationCode, AuthenticationOptionKey authenticationOptionKey)
 	{
 		if (form == null)
 			throw new IllegalArgumentException("Form must be set in registration triggered remote authn");
-		return new AuthenticationTriggeringContext(false, null, form, invitationCode, null, authenticationOptionKey);
+		return new AuthenticationTriggeringContext(false, null, form, invitationCode, new MockSandboxAuthnRouter(),
+				authenticationOptionKey);
 	}
 	
 
@@ -89,5 +90,23 @@ public class AuthenticationTriggeringContext
 		return String.format(
 				"AuthenticationTriggeringContext [rememberMeSet=%s, firstFactorAuthnState=%s, form=%s, invitationCode=%s]",
 				rememberMeSet, firstFactorAuthnState, form, invitationCode);
+	}
+	
+	private static final class MockSandboxAuthnRouter implements SandboxAuthnRouter
+	{
+		@Override
+		public void addListener(AuthnResultListener listener)
+		{
+		}
+
+		@Override
+		public void removeListener(AuthnResultListener listener)
+		{
+		}
+
+		@Override
+		public void fireEvent(SandboxAuthnEvent event)
+		{
+		}
 	}
 }

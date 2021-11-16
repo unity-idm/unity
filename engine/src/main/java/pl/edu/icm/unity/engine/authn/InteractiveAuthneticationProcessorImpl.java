@@ -231,16 +231,21 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		{
 			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null);
 			assertNotFailed(authnState.getPrimaryResult());
-		} catch (AuthenticationException e)
+		} catch (UnknownRemoteUserException e)
+		{
+			sandboxRouter.fireEvent(new SandboxAuthnEvent(result.sandboxAuthnInfo, null,
+					httpRequest.getSession() != null ? httpRequest.getSession().getId() : null));
+			return PostAuthenticationStepDecision.completed();
+		}
+
+		catch (AuthenticationException e)
 		{
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
-					RemoteSandboxAuthnContext.failedAuthn(
-							result.sandboxAuthnInfo.getAuthnException().orElse(e), 
-							result.sandboxAuthnInfo.getLogs(), 
+					RemoteSandboxAuthnContext.failedAuthn(result.sandboxAuthnInfo.getAuthnException().orElse(e),
+							result.sandboxAuthnInfo.getLogs(),
 							result.sandboxAuthnInfo.getRemotePrincipal()
-								.map(RemotelyAuthenticatedPrincipal::getAuthnInput).orElse(null)), 
-					null, 
-					httpRequest.getSession().getId()));
+									.map(RemotelyAuthenticatedPrincipal::getAuthnInput).orElse(null)),
+					null, httpRequest.getSession().getId()));
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
 

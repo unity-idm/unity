@@ -77,6 +77,35 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		this.attrTypeHelper = attrTypeHelper;
 	}
 
+
+	@Override
+	public void preprocess(MappingResult result) throws EngineException
+	{
+		Entity existing = null;
+		for (MappedIdentity checked : result.getIdentities())
+		{
+			try
+			{
+				Entity found = idsMan.getEntity(new EntityParam(checked.getIdentity()));
+				if (existing != null && !existing.getId().equals(found.getId()))
+				{
+					log.warn("Identity was mapped to two different entities: " + existing + " and "
+							+ found);
+					throw new ExecutionBreakException();
+				}
+				existing = found;
+				result.addAuthenticatedWith(checked.getIdentity().getValue());
+			} catch (IllegalArgumentException e)
+			{
+				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
+			}
+		}
+		if (existing != null)
+		{
+			result.setMappedToExistingEntity(new EntityParam(existing.getId()));
+		}
+	}
+	
 	@Override
 	public void process(MappingResult result) throws EngineException
 	{
@@ -180,7 +209,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 					throw new ExecutionBreakException();
 				}
 				existing = found;
-				result.addAuthenticatedWith(checked.getIdentity().getValue());
+				//result.addAuthenticatedWith(checked.getIdentity().getValue());
 			} catch (IllegalArgumentException e)
 			{
 				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
