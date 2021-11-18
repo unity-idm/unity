@@ -235,9 +235,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(result.sandboxAuthnInfo, null,
 					httpRequest.getSession() != null ? httpRequest.getSession().getId() : null));
 			return PostAuthenticationStepDecision.completed();
-		}
-
-		catch (AuthenticationException e)
+		} catch (AuthenticationException e)
 		{
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
 					RemoteSandboxAuthnContext.failedAuthn(result.sandboxAuthnInfo.getAuthnException().orElse(e),
@@ -252,8 +250,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail(authnState));
 
 		AuthenticatedEntity authnEntity = basicAuthnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
-		sandboxRouter.fireEvent(new SandboxAuthnEvent(result.sandboxAuthnInfo, authnEntity, 
-				httpRequest.getSession().getId()));
+		sandboxRouter.fireEvent(
+				new SandboxAuthnEvent(result.sandboxAuthnInfo, authnEntity, httpRequest.getSession().getId()));
 		return PostAuthenticationStepDecision.completed();
 	}
 	
