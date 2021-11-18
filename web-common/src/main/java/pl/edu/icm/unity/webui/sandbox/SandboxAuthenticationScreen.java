@@ -77,7 +77,6 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				prepareConfigurationBasingOnEndpoint(config.getProperties(), title) : 
 				prepareFreshConfigurationWithAllOptions(title, authenticators), 
 				endpointDescription, 
-				() -> false,
 				new NoOpCredentialRestLauncher(),
 				() -> {},
 				cancelHandler, idsMan, 

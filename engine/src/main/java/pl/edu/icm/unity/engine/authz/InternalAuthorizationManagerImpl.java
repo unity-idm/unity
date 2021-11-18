@@ -281,7 +281,7 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 	
 	private Set<AuthzCapability> getRoleCapabilities(Set<AuthzRole> roles, boolean selfAccess)
 	{
-		Set<AuthzCapability> ret = new HashSet<AuthzCapability>();
+		Set<AuthzCapability> ret = new HashSet<>();
 		for (AuthzRole role: roles)
 			Collections.addAll(ret, role.getCapabilities(selfAccess));
 		return ret;

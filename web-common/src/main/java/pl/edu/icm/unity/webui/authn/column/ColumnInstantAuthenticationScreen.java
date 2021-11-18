@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
 
@@ -37,8 +36,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -73,7 +72,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final ImageAccessService imageAccessService;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
-	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
 	private final Runnable registrationLayoutLauncher;
 	private final boolean enableRegistration;
 	private final CancelHandler cancelHandler;
@@ -99,7 +97,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	protected ColumnInstantAuthenticationScreen(MessageSource msg, ImageAccessService imageAccessService, 
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
-			Supplier<Boolean> outdatedCredentialDialogLauncher,
 			CredentialResetLauncher credentialResetLauncher,
 			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
@@ -112,7 +109,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.msg = msg;
 		this.config = config;
 		this.endpointDescription = endpointDescription;
-		this.outdatedCredentialDialogLauncher = outdatedCredentialDialogLauncher;
 		this.credentialResetLauncher = credentialResetLauncher;
 		this.registrationLayoutLauncher = registrationLayoutLauncher;
 		this.cancelHandler = cancelHandler;
@@ -129,7 +125,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	public static ColumnInstantAuthenticationScreen getInstance(MessageSource msg, ImageAccessService imageAccessService, 
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
-			Supplier<Boolean> outdatedCredentialDialogLauncher,
 			CredentialResetLauncher credentialResetLauncher,
 			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
@@ -140,7 +135,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
 	{
 		ColumnInstantAuthenticationScreen instance = new ColumnInstantAuthenticationScreen(msg,
-				imageAccessService, config, endpointDescription, outdatedCredentialDialogLauncher,
+				imageAccessService, config, endpointDescription, 
 				credentialResetLauncher, registrationLayoutLauncher, cancelHandler, idsMan, execService,
 				enableRegistration, unknownUserDialogProvider, localeChoice, flows,
 				interactiveAuthnProcessor);
@@ -176,12 +171,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		topLevelLayout.setComponentAlignment(authnOptionsComponent, Alignment.MIDDLE_CENTER);
 		
 		log.debug("Authn screen init finished loading authenticators");
-		
-		if (outdatedCredentialDialogLauncher.get())
-		{
-			log.info("Launched outdated credential dialog");
-			return;
-		}
 	}
 	
 	/**
