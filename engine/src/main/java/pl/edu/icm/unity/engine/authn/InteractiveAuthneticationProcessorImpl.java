@@ -143,7 +143,6 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				AuthenticationProcessor.extractParticipants(result), sessionReinitializer, httpResponse);
 
 		setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
-		log.info("Successful authentication after first factor for {}", result);
 		return PostAuthenticationStepDecision.completed();
 	}
 
