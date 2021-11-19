@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.idpStatistics.IdpStatisticMapper">
+	<resultMap id="idpStatisticResult" type="IdpStatisticB">
+		<result property="id" column="ID"/>
+		<result property="timestamp" column="TIMESTAMP"/>
+		<result property="idpEndpointId" column="IDP_ENDPOINT_ID"/>
+		<result property="idpEndpointName" column="IDP_ENDPOINT_NAME"/>
+		<result property="clientId" column="CLIENT_ID"/>
+		<result property="clientName" column="CLIENT_NAME"/>
+		<result property="status" column="STATUS"/>
+	</resultMap>
+	
+	<insert id="create" parameterType="IdpStatisticB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO IDP_STATISTICS (TIMESTAMP, IDP_ENDPOINT_ID, IDP_ENDPOINT_NAME, CLIENT_ID, CLIENT_NAME, STATUS)
+			VALUES (#{timestamp}, #{idpEndpointId}, #{idpEndpointName}, #{clientId}, #{clientName}, #{status})
+	</insert>
+	
+	<insert id="createWithKey" parameterType="IdpStatisticB">
+		INSERT INTO IDP_STATISTICS (ID, TIMESTAMP , IDP_ENDPOINT_ID, IDP_ENDPOINT_NAME, CLIENT_ID, CLIENT_NAME, STATUS)
+			VALUES (#{id}, #{timestamp}, #{idpEndpointId}, #{idpEndpointName}, #{clientId}, #{clientName}, #{status})
+	</insert>
+
+	<select id="getAll" resultMap="idpStatisticResult">
+		SELECT * FROM IDP_STATISTICS ORDER BY TIMESTAMP DESC
+	</select>
+
+	<select id="getStatistics" resultMap="idpStatisticResult">
+		SELECT * FROM IDP_STATISTICS
+		<if test="from != null and until != null">
+			WHERE TIMESTAMP &gt;= #{from} AND TIMESTAMP &lt;= #{until}
+		</if>
+		<if test="from != null and until == null">
+			WHERE TIMESTAMP &gt;= #{from}
+		</if>
+		<if test="from == null and until != null">
+			WHERE TIMESTAMP &lt;= #{until}
+		</if>
+		<if test="from == null and until == null">
+			WHERE TIMESTAMP &gt; <include refid="io.imunity.sql.beginningOfEpoch"/>
+		</if>
+		ORDER BY TIMESTAMP DESC
+		LIMIT #{limit}
+	</select>
+
+	<select id="deleteOlderThan" >
+		DELETE FROM IDP_STATISTICS WHERE TIMESTAMP &lt;= #{olderThan}
+	</select>
+	
+	<select id="getByKey" parameterType="long" resultMap="idpStatisticResult">
+		SELECT * FROM IDP_STATISTICS WHERE ID = #{id}
+	</select>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM IDP_STATISTICS WHERE ID = #{id}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM IDP_STATISTICS
+	</delete>
+	
+</mapper>

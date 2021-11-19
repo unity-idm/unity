@@ -18,9 +18,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -53,7 +55,10 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 				new ActionParameterDefinition(
 						"expression",
 						"TranslationAction.mapIdentity.paramDesc.expression",
-						Type.EXPRESSION, true),
+						Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("TranslationAction.mapIdentity.editor.title")
+							.withEvalToKey("TranslationAction.mapIdentity.editor.evalTo")
+							.withVars(InputTranslationMVELContextKey.toMap()).build()),
 				new ActionParameterDefinition(
 						"credential requirement",
 						"TranslationAction.mapIdentity.paramDesc.credentialRequirement",

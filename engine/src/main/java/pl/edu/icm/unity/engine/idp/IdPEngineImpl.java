@@ -45,6 +45,6 @@ public class IdPEngineImpl extends IdPEngineImplBase
 		super(attributesMan, insecureAttributesMan, identitiesMan, userImportService, 
 				new OutputProfileExecutor(outputProfileRepo, 
 						translationEngine, actionsRegistry, 
-						attrValueConverter, msg), groupMan);
-	}
+						attrValueConverter, msg, groupMan), groupMan);
+	}	
 }

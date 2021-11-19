@@ -178,7 +178,7 @@ public class TestMigrationFrom1_9
 				ie.load(new BufferedInputStream(new FileInputStream(
 						"src/test/resources/updateData/from1.9.x/"
 						+ "testbed-from1.9.5-password.json")));
-				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
+				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements(true, true, true, true, true, false));
 			} catch (Exception e)
 			{
 				e.printStackTrace();

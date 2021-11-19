@@ -19,9 +19,11 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -57,11 +59,11 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 						"group",
 						"RegTranslationAction.addAttribute.paramDesc.group",
 						Type.UNITY_DYNAMIC_GROUP, true),
-				new ActionParameterDefinition(
-						"expression",
-						"RegTranslationAction.addAttribute.paramDesc.expression",
-						Type.EXPRESSION, true)
-		});
+				new ActionParameterDefinition("expression", "RegTranslationAction.addAttribute.paramDesc.expression",
+						Type.EXPRESSION, true,
+						MVELExpressionContext.builder().withTitleKey("RegTranslationAction.addAttribute.editor.title")
+								.withEvalToKey("RegTranslationAction.addAttribute.editor.evalTo")
+								.withVars(RegistrationMVELContextKey.toMap()).build()) });
 		this.attrsSupport = attrsSupport;
 		this.externalDataParser = externalDataParser;
 	}

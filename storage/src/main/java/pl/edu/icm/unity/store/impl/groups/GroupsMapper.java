@@ -6,6 +6,8 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import pl.edu.icm.unity.store.rdbms.NamedCRUDMapper;
 
 
@@ -17,4 +19,5 @@ public interface GroupsMapper extends NamedCRUDMapper<GroupBean>
 {
 	List<GroupBean> getSubgroups(String parentPath);
 	long createRoot(GroupBean obj);
+	List<GroupBean> getByNames(@Param("groupList") List<String> groups);
 }

@@ -26,6 +26,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalInvitationException;
@@ -66,8 +68,31 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getEntityByContactEmail("demo@demo.com"))
-				.thenReturn(new Entity(null, new EntityInformation(1L), null));
+		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
+				.thenReturn(Sets.newHashSet(new Entity(null, new EntityInformation(1L), null)));
+		
+		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
+				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
+		projectInvMan.addInvitation(projectParam);
+
+		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
+		verify(mockInvitationMan).addInvitation(argument.capture());
+
+		InvitationParam targetParam = argument.getValue();
+		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("regForm"));
+		assertThat(targetParam.getFormsPrefillData().get(1).getFormId(), is("enqForm"));
+		assertThat(targetParam.getType(), is(InvitationType.COMBO));
+		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups(),
+				hasItems("/project/a"));
+	}
+	
+	@Test
+	public void shouldForwardToCoreManagerWhenEntitiesIsEmpty() throws EngineException
+	{
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
+		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
+				.thenReturn(null);
 
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
@@ -89,8 +114,8 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerParamWithFixedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getEntityByContactEmail("demo@demo.com"))
-				.thenReturn(new Entity(null, new EntityInformation(1L), null));
+		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
+				.thenReturn(Sets.newHashSet(new Entity(null, new EntityInformation(1L), null)));
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);

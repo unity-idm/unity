@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -56,12 +57,14 @@ public class SAMLServiceController extends SAMLServiceControllerBase
 			AdvertisedAddressProvider advertisedAddrProvider,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper,
-			PolicyDocumentManagement policyDocumentManagement)
+			PolicyDocumentManagement policyDocumentManagement, 
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
 				registrationMan, uriAccessService, fileStorageService, serverConfig,
 				authenticatorSupportService, idTypeSupport, pkiMan, advertisedAddrProvider, server,
-				outputTranslationProfileFieldFactory, idpUserHelper, imageAccessService, policyDocumentManagement);
+				outputTranslationProfileFieldFactory, idpUserHelper, imageAccessService, policyDocumentManagement,
+				serviceFileConfigController);
 	}
 
 	@Override

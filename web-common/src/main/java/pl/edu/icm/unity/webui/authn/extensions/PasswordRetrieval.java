@@ -204,11 +204,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 
 			if (password.equals(""))
 			{
-				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+				NotificationPopup.showErrorAutoClosing(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 						msg.getMessage("WebPasswordRetrieval.noPassword"));
 			} else if (username.equals(""))
 			{
-				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+				NotificationPopup.showErrorAutoClosing(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 						msg.getMessage("WebPasswordRetrieval.noUser"));
 			} else 
 			{

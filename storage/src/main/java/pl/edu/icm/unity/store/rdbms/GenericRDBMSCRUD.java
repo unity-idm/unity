@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
@@ -24,18 +25,29 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean> 
 		implements BasicCRUDDAO<T>, RDBMSDAO, ReferenceAwareDAO<T>
 {
-	private Class<? extends BasicCRUDMapper<DBT>> mapperClass;
+	private final Class<? extends BasicCRUDMapper<DBT>> mapperClass;
 	protected final RDBMSObjectSerializer<T, DBT> jsonSerializer;
 	protected final String elementName;
-	private Set<ReferenceRemovalHandler> deleteHandlers = new HashSet<>();
-	private Set<ReferenceUpdateHandler<T>> updateHandlers = new HashSet<>();
-	
+	private final Set<ReferenceRemovalHandler> deleteHandlers = new HashSet<>();
+	private final Set<ReferenceUpdateHandler<T>> updateHandlers = new HashSet<>();
+	private final Function<Long, RuntimeException> missingElementExceptionProvider;
+
 	public GenericRDBMSCRUD(Class<? extends BasicCRUDMapper<DBT>> mapperClass,
 			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName)
+	{
+		this(mapperClass, jsonSerializer, elementName, 
+				id -> new IllegalArgumentException(elementName + " with key [" + id + 
+						"] does not exist"));
+	}
+	
+	public GenericRDBMSCRUD(Class<? extends BasicCRUDMapper<DBT>> mapperClass,
+			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName,
+			Function<Long, RuntimeException> missingElementExceptionProvider)
 	{
 		this.mapperClass = mapperClass;
 		this.jsonSerializer = jsonSerializer;
 		this.elementName = elementName;
+		this.missingElementExceptionProvider = missingElementExceptionProvider;
 	}
 
 	@Override
@@ -64,8 +76,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT oldBean = mapper.getByKey(key);
 		if (oldBean == null)
-			throw new IllegalArgumentException(elementName + " with key [" + key + 
-					"] does not exist");
+			throw missingElementExceptionProvider.apply(key);
 		T old = jsonSerializer.fromDB(oldBean);
 		preUpdateCheck(old, obj);
 		firePreUpdate(key, null, obj, old);
@@ -93,8 +104,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT toRemove = mapper.getByKey(id);
 		if (toRemove == null)
-			throw new IllegalArgumentException(elementName + " with key [" + id + 
-					"] does not exist");
+			throw missingElementExceptionProvider.apply(id);
 		firePreRemove(id, null, toRemove);
 		mapper.deleteByKey(id);
 	}
@@ -109,8 +119,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 	protected void assertExists(long id, BasicCRUDMapper<DBT> mapper)
 	{
 		if (mapper.getByKey(id) == null)
-			throw new IllegalArgumentException(elementName + " with key [" + id + 
-					"] does not exist");
+			throw missingElementExceptionProvider.apply(id);
 	}
 
 	@Override
@@ -119,8 +128,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT byName = mapper.getByKey(id);
 		if (byName == null)
-			throw new IllegalArgumentException(elementName + " with key [" + id + 
-					"] does not exist");
+			throw missingElementExceptionProvider.apply(id);
 		return jsonSerializer.fromDB(byName);
 	}
 

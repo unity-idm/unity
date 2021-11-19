@@ -438,7 +438,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
 		wrapper.setSizeFull();
-		setSizeFull();
+		//setSizeFull();
 		setCompositionRoot(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 

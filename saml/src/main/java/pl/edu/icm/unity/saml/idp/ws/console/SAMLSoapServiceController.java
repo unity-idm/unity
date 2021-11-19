@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -50,11 +51,12 @@ class SAMLSoapServiceController extends SAMLSoapServiceControllerBase
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			ImageAccessService imageAccessService,
 			IdpUsersHelper idpUserHelper, 
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, imageAccessService,
 				bulkService, uriAccessService, fileStorageService, serverConfig, idTypeSupport, pkiMan, server,
-				outputTranslationProfileFieldFactory, idpUserHelper, advertisedAddrProvider);
+				outputTranslationProfileFieldFactory, idpUserHelper, advertisedAddrProvider, serviceFileConfigController);
 	}
 
 	@Override

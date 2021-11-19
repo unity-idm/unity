@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAuthnImpl;
@@ -49,9 +50,9 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	public SAMLETDAuthnImpl(AttributeTypeSupport aTypeSupport,
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan)
+			PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter)
 	{
-		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan);
+		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter);
 	}
 
 	@Override

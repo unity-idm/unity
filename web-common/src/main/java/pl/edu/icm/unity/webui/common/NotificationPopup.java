@@ -54,15 +54,55 @@ public class NotificationPopup
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 
+	public static void showWarningAutoClosing(String caption, String description, Runnable afterCloseHandler)
+	{
+		showAutoClosing(getWarningNotificationPlain(caption, description), Position.MIDDLE_CENTER, afterCloseHandler);
+	}
+	
+	public static void showErrorAutoClosing(String caption, String description, Runnable afterCloseHandler)
+	{
+		showAutoClosing(getErrorNotificationPlain(caption, description), Position.TOP_CENTER, afterCloseHandler);
+	}
+
+	public static void showAssistiveAutoClosing(String caption, String description)
+	{		
+		showAutoClosing(getAssistiveNotificationPlain(caption, description), Position.TOP_CENTER, () -> {});
+	}
+	
 	public static void showErrorAutoClosing(String caption, String description)
 	{
-		Notification notification = new Notification(caption, description, Type.ERROR_MESSAGE);
-		notification.setIcon(Images.error.getResource());
+		showAutoClosing(getErrorNotificationPlain(caption, description), Position.TOP_CENTER, () -> {});
+	}
+	
+	private static void showAutoClosing(Notification notification, Position position, Runnable afterCloseHandler)
+	{
 		notification.setDelayMsec((int)NOTIFICATION_AUTOCLOSE_AFTER.toMillis());
 		StringBuilder sb = new StringBuilder(notification.getStyleName());
 		sb.append(" ").append(Styles.veryLargeIcon.toString());
-		notification.setPosition(Position.TOP_CENTER);
+		notification.setPosition(position);
+		notification.addCloseListener(e -> afterCloseHandler.run());
 		notification.show(Page.getCurrent());
+	}
+	
+	private static Notification getWarningNotificationPlain(String caption, String description)
+	{
+		Notification notification = new Notification(caption, description, Type.WARNING_MESSAGE);
+		notification.setIcon(Images.info.getResource());
+		return notification;
+	}
+	
+	private static Notification getAssistiveNotificationPlain(String caption, String description)
+	{
+		Notification notification = new Notification(caption, description, Type.ASSISTIVE_NOTIFICATION);
+		notification.setIcon(Images.info.getResource());
+		return notification;
+	}
+	
+	private static Notification getErrorNotificationPlain(String caption, String description)
+	{
+		Notification notification = new Notification(caption, description, Type.ERROR_MESSAGE);
+		notification.setIcon(Images.error.getResource());
+		return notification;
 	}
 	
 	public static void showError(ControllerException exception)

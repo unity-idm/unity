@@ -13,10 +13,12 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
@@ -32,12 +34,14 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
+import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
@@ -51,18 +55,20 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 	private final IdentityResolver identityResolver;
 	private final InputTranslationEngine trEngine;
 	private final InputTranslationActionsRegistry actionsRegistry;
-	
+	private final EntityManagement idsMan;
 	
 	@Autowired
 	RemoteAuthnResultTranslatorImpl(IdentityResolver identityResolver,	
 			InputTranslationProfileRepository profileRepo,
 			InputTranslationEngine trEngine,
-			InputTranslationActionsRegistry actionsRegistry)
+			InputTranslationActionsRegistry actionsRegistry,
+			@Qualifier("insecure") EntityManagement idsMan)
 	{
 		this.identityResolver = identityResolver;
 		this.inputProfileRepo = profileRepo;
 		this.trEngine = trEngine;
 		this.actionsRegistry = actionsRegistry;
+		this.idsMan = idsMan;
 	}
 
 	@Override
@@ -72,7 +78,6 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			String registrationForm, boolean allowAssociation) 
 			throws RemoteAuthenticationException
 	{
-		
 		TranslationProfile translationProfile;
 		try
 		{
@@ -113,11 +118,12 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			throw new RemoteAuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal) : 
+		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal, registrationForm, allowAssociation) : 
 			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation);
 	}
 
-	private RemoteAuthenticationResult assembleDryRunAuthenticationResult(RemotelyAuthenticatedPrincipal remotePrincipal)
+	private RemoteAuthenticationResult assembleDryRunAuthenticationResult(RemotelyAuthenticatedPrincipal remotePrincipal,
+			String registrationForm, boolean allowAssociation)
 	{
 		AuthenticatedEntity authenticatedEntity = null;
 		if (remotePrincipal.getLocalMappedPrincipal() != null)
@@ -129,6 +135,9 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			{
 				log.debug("Exception resolving remote principal", e);
 			}
+		} else
+		{
+			return handleUnknownUser(remotePrincipal, registrationForm, allowAssociation);
 		}
 		return RemoteAuthenticationResult.successfulPartial(remotePrincipal, authenticatedEntity);
 	}
@@ -217,6 +226,7 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			result.addIdentity(new MappedIdentity(IdentityEffectMode.REQUIRE_MATCH, 
 					presetIdParam, null));
 		}
+		setMappingToExistingEntity(result);
 		if (!dryRun)
 			trEngine.process(result);
 		
@@ -231,6 +241,34 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 		ret.setCreationTime(Instant.now());
 		return ret;
 	}
+	
+	private void setMappingToExistingEntity(MappingResult result) throws EngineException
+	{
+		Entity existing = null;
+		for (MappedIdentity checked : result.getIdentities())
+		{
+			try
+			{
+				Entity found = idsMan.getEntity(new EntityParam(checked.getIdentity()));
+				if (existing != null && !existing.getId().equals(found.getId()))
+				{
+					log.warn("Identity was mapped to two different entities: " + existing + " and "
+							+ found);
+					throw new ExecutionBreakException();
+				}
+				existing = found;
+				result.addAuthenticatedWith(checked.getIdentity().getValue());
+			} catch (IllegalArgumentException e)
+			{
+				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
+			}
+		}
+		if (existing != null)
+		{
+			result.setMappedToExistingEntity(new EntityParam(existing.getId()));
+		}
+	}
+	
 	private List<IdentityTaV> extractIdentities(MappingResult input)
 	{
 		List<MappedIdentity> identities = input.getIdentities();

@@ -50,6 +50,15 @@
 		<include refid="sql-getResolvingParent"/>		
 		where T1.NAME = #{value} 
 	</select>
+		
+	<select id="getByNames" resultMap="groupResult">
+		<include refid="sql-getResolvingParent"/>		
+		where T1.NAME IN (
+		<foreach collection="groupList" item="item" index="index" separator=",">
+		#{item}
+		</foreach>
+		)
+	</select>
 
 	<select id="getByKey" parameterType="long" resultMap="groupResult">
 		<include refid="sql-getResolvingParent"/>		

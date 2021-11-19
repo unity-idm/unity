@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
@@ -31,19 +32,22 @@ public class TranslationProfileChecker
 	private OutputTranslationProfileRepository outputRepo;
 	private AttributeValueConverter attrConverter;
 	private OutputTranslationActionsRegistry outputActionReg;
+	private GroupsManagement groupsMan;
 	
 	@Autowired
 	public TranslationProfileChecker(InputTranslationProfileRepository inputRepo,
 			InputTranslationActionsRegistry inputActionReg,
 			OutputTranslationProfileRepository outputRepo,
 			AttributeValueConverter attrConverter,
-			OutputTranslationActionsRegistry outputActionReg)
+			OutputTranslationActionsRegistry outputActionReg,
+			GroupsManagement groupsMan)
 	{
 		this.inputRepo = inputRepo;
 		this.inputActionReg = inputActionReg;
 		this.outputRepo = outputRepo;
 		this.attrConverter = attrConverter;
 		this.outputActionReg = outputActionReg;
+		this.groupsMan = groupsMan;
 	}
 
 	public void checkBaseProfileContent(TranslationProfile profile)
@@ -62,7 +66,7 @@ public class TranslationProfileChecker
 			instance = new InputTranslationProfile(profile, inputRepo, inputActionReg);
 		else if (profile.getProfileType() == ProfileType.OUTPUT)
 			instance = new OutputTranslationProfile(profile, outputRepo,
-					outputActionReg, attrConverter);
+					outputActionReg, attrConverter, groupsMan);
 		else
 			throw new IllegalArgumentException(
 					"Unsupported profile type: " + profile.getProfileType());

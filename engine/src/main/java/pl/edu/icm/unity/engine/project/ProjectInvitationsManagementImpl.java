@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
@@ -99,17 +101,20 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		authz.assertManagerAuthorization(param.project);
 		
-		Long entity = null;
+		Set<Entity> entities = null;
 		try
 		{
-			entity = entityMan.getEntityByContactEmail(param.contactAddress).getId();
+			entities = entityMan.getAllEntitiesWithContactEmail(param.contactAddress);
 		} catch (UnknownEmailException e)
 		{
 			// ok
 		}
-		if (entity != null)
+		if (entities != null && !entities.isEmpty())
 		{
-			assertNotMemberAlready(entity, param.project);
+			for (Entity en : entities)
+			{
+				assertNotMemberAlready(en.getId(), param.project);
+			}
 		}
 	
 		String code = invitationMan.addInvitation(createComboInvitation(param));

@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.oauth.as.OAuthTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.text.ParseException;
@@ -53,7 +54,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx);
+				attributes, identity, ctx, null);
 		long end = System.currentTimeMillis();
 		
 		assertNull(resp.getAccessToken());
@@ -78,7 +79,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());
@@ -106,7 +107,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());

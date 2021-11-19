@@ -21,10 +21,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
@@ -32,6 +35,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -54,9 +58,14 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 public class OAuthTestUtils
 {
+	public static final String TOKEN_OWNING_CLIENT_CLIENT_ID = "clientC";
+	public static final long TOKEN_OWNING_CLIENT_ENTITY_ID = 100;
 	public static final String ISSUER = "https://localhost:233/foo/token";
 	public static final String BASE_ADDR = "https://localhost:233/foo";
 	
@@ -75,7 +84,7 @@ public class OAuthTestUtils
 	public static OAuthProcessor getOAuthProcessor(TokensManagement tokensMan)
 	{
 		return new OAuthProcessor(tokensMan, new OAuthTokenRepository(tokensMan, 
-				mock(SecuredTokensManagement.class)));
+				mock(SecuredTokensManagement.class)), mock(ApplicationEventPublisher.class), mock(MessageSource.class));
 	}
 	
 	public static OAuthASProperties getConfig(int accessTokenValidity, int maxValidity, boolean oidc)
@@ -105,50 +114,64 @@ public class OAuthTestUtils
 		AuthenticationRequest request = new AuthenticationRequest.Builder(
 					respType, 
 					new Scope(OIDCScopeValue.OPENID), 
-					new ClientID("clientC"), 
+					new ClientID(TOKEN_OWNING_CLIENT_CLIENT_ID), 
 					new URI("https://return.host.com/foo")).
 				state(new State("state123")).
 				nonce(new Nonce(nonce)).
 				build(); 
 		OAuthAuthzContext ctx = new OAuthAuthzContext(request, config);
 		ctx.setClientEntityId(clientEntityId);
-		ctx.setClientUsername("clientC");
+		ctx.setClientUsername(TOKEN_OWNING_CLIENT_CLIENT_ID);
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
 		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
 		return ctx;
 	}
-	
+
 	public static OAuthAuthzContext createContext(OAuthASProperties config, 
 			ResponseType respType, GrantFlow grant, 
 			long clientEntityId) throws Exception
 	{
+		return createContext(config, respType, grant, clientEntityId, ClientType.CONFIDENTIAL);
+	}
+	
+	public static OAuthAuthzContext createContext(OAuthASProperties config, 
+			ResponseType respType, GrantFlow grant, 
+			long clientEntityId, ClientType clientType) throws Exception
+	{
 		AuthenticationRequest request = new AuthenticationRequest(null, respType, new Scope("openid"),
-				new ClientID("clientC"), new URI("https://return.host.com/foo"), 
+				new ClientID(TOKEN_OWNING_CLIENT_CLIENT_ID), new URI("https://return.host.com/foo"), 
 				null, new Nonce("nonce"));
 		
 		OAuthAuthzContext ctx = new OAuthAuthzContext(request, config);
 		ctx.setClientEntityId(clientEntityId);
-		ctx.setClientUsername("clientC");
+		ctx.setClientUsername(TOKEN_OWNING_CLIENT_CLIENT_ID);
+		ctx.setClientType(clientType);
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
 		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
 		return ctx;
 	}
-	
+
 	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
-			OAuthProcessor processor) throws Exception
+			OAuthProcessor processor, ClientType clientType) throws Exception
 	{
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid, 100);
+				GrantFlow.openidHybrid, TOKEN_OWNING_CLIENT_ENTITY_ID, clientType);
 		
-		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx);
+		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
+	}
+	
+	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
+			OAuthProcessor processor) throws Exception
+	{
+		return initOAuthFlowHybrid(config, processor, ClientType.CONFIDENTIAL);
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(OAuthProcessor processor, 
@@ -168,7 +191,7 @@ public class OAuthTestUtils
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
@@ -200,6 +223,13 @@ public class OAuthTestUtils
 		attrsMan.createAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", "Regular User"));
 		return clientId1;
+	}
+	
+	public static ResolvedEndpoint getEndpoint()
+	{
+		return new ResolvedEndpoint(
+				new Endpoint("name", null, null, new EndpointConfiguration(null, null, null, null, null), 0), null,
+				null);
 	}
 	
 	

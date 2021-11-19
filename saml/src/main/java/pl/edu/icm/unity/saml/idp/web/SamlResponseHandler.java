@@ -22,15 +22,20 @@ import com.vaadin.server.VaadinSession;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
+import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService.VaadinContextSessionWithRequest;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
- * Code used by various components to produce and initialize sending of SAML response.
+ * Code used by various components to produce and initialize sending of SAML
+ * response.
  * 
  * @author K. Benedyczak
  */
@@ -39,12 +44,17 @@ public class SamlResponseHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
 	protected FreemarkerAppHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
-	
+	private final SamlIdpStatisticReporter reporter;
+
 	public SamlResponseHandler(FreemarkerAppHandler freemarkerHandler,
-			AuthnResponseProcessor samlProcessor)
+			AuthnResponseProcessor samlProcessor, 
+			SamlIdpStatisticReporterFactory reporterFactory,
+			Endpoint endpoint
+			)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.samlProcessor = samlProcessor;
+		this.reporter = reporterFactory.getForEndpoint(endpoint);
 	}
 
 	public void handleException(Exception e, boolean destroySession) throws EopException
@@ -60,33 +70,34 @@ public class SamlResponseHandler
 		ResponseDocument respDoc = samlProcessor.getErrorResponse(convertedException);
 		returnSamlErrorResponse(respDoc, convertedException, destroySession);
 	}
-	
+
 	public void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		SamlSessionService.setAttribute(session, SessionDisposal.class, new SessionDisposal(error, destroySession));
 		SamlSessionService.setAttribute(session, SAMLServerException.class, error); // TODO: is this needed?
-		returnSamlResponse(respDoc);
+		returnSamlResponse(respDoc, Status.FAILED);
 	}
-	
-	public void returnSamlResponse(ResponseDocument respDoc)
+
+	public void returnSamlResponse(ResponseDocument respDoc, Status status)
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		SamlSessionService.setAttribute(session, ResponseDocument.class, respDoc);
 		session.addRequestHandler(new SendResponseRequestHandler());
-		Page.getCurrent().reload();		
+		reporter.reportStatus(SamlSessionService.getVaadinContext(), status);
+		Page.getCurrent().reload();
 	}
-	
+
 	/**
-	 * This handler intercept all messages and checks if there is a SAML response in the session.
-	 * If it is present then the appropriate Freemarker page is rendered which redirects the user's browser 
-	 * back to the requesting SP.
+	 * This handler intercept all messages and checks if there is a SAML response in
+	 * the session. If it is present then the appropriate Freemarker page is
+	 * rendered which redirects the user's browser back to the requesting SP.
 	 */
 	public class SendResponseRequestHandler extends SynchronizedRequestHandler
 	{
 		@Override
-		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, 
-				VaadinResponse response) throws IOException
+		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)
+				throws IOException
 		{
 			ResponseDocument samlResponse = SamlSessionService.getAttribute(session, ResponseDocument.class);
 			if (samlResponse == null)
@@ -94,8 +105,9 @@ public class SamlResponseHandler
 			String assertion = samlResponse.xmlText();
 			String encodedAssertion = Base64.getEncoder().encodeToString(assertion.getBytes(StandardCharsets.UTF_8));
 			SessionDisposal error = SamlSessionService.getAttribute(session, SessionDisposal.class);
-			
-			VaadinContextSessionWithRequest signInContextSession = new VaadinContextSessionWithRequest(session, request);
+
+			VaadinContextSessionWithRequest signInContextSession = new VaadinContextSessionWithRequest(session,
+					request);
 			SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext(signInContextSession);
 			String serviceUrl = samlCtx.getResponseDestination();
 			Map<String, String> data = new HashMap<>();
@@ -108,8 +120,7 @@ public class SamlResponseHandler
 
 			if (log.isTraceEnabled())
 			{
-				log.trace("About to send SAML response to " + serviceUrl + 
-						", unencoded form:\n" + assertion);
+				log.trace("About to send SAML response to " + serviceUrl + ", unencoded form:\n" + assertion);
 				if (error != null)
 					log.trace("Error information: " + error.getE().getMessage());
 				if (samlCtx.getRelayState() != null)
@@ -117,24 +128,24 @@ public class SamlResponseHandler
 			}
 
 			SamlSessionService.cleanContext(signInContextSession);
-			
-			if (error!= null && error.isDestroySession())
+
+			if (error != null && error.isDestroySession())
 				session.getSession().invalidate();
 			else
 				session.getSession().setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, null);
-			
+
 			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
 			freemarkerHandler.printGenericPage(writer, "samlFinish.ftl", data);
 			return true;
 		}
 	}
-	
+
 	private static class SessionDisposal
 	{
 		private SAMLServerException e;
 		private boolean destroySession;
-		
+
 		public SessionDisposal(SAMLServerException e, boolean destroySession)
 		{
 			this.e = e;

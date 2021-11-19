@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.NDC;
@@ -19,23 +20,28 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -52,15 +58,18 @@ public class OutputTranslationProfile
 	
 	private OutputTranslationActionsRegistry registry;
 	private OutputTranslationProfileRepository profileRepo;
+	private GroupsManagement groupMan;
 	private AttributeValueConverter attrConverter;
 	
 	public OutputTranslationProfile(TranslationProfile profile, OutputTranslationProfileRepository profileRepo,
-			OutputTranslationActionsRegistry registry, AttributeValueConverter attrConverter)
+			OutputTranslationActionsRegistry registry, AttributeValueConverter attrConverter,
+			GroupsManagement groupProvider)
 	{
 		super(profile, registry);
 		this.registry = registry;
 		this.profileRepo = profileRepo;
 		this.attrConverter = attrConverter;
+		this.groupMan = groupProvider;
 	}
 	
 	public TranslationResult translate(TranslationInput input) throws EngineException
@@ -73,7 +82,7 @@ public class OutputTranslationProfile
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
 			log.debug("Unprocessed data from local database:\n" + input.getTextDump());
-		Object mvelCtx = createMvelContext(input, attrConverter);
+		Object mvelCtx = createMvelContext(input, attrConverter, g -> getGroupChain(g));
 		try
 		{
 			int i = 1;
@@ -126,16 +135,20 @@ public class OutputTranslationProfile
 	}
 
 	static Map<String, Object> createMvelContext(TranslationInput input, 
-			AttributeValueConverter attrConverter) throws IllegalAttributeValueException
+			AttributeValueConverter attrConverter, Function<String, GroupsChain> groupProvider) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
-		ret.put("protocol", input.getProtocol());
-		ret.put("protocolSubtype", input.getProtocolSubType());
-		ret.put("requester", input.getRequester());
+		ret.put(OutputTranslationMVELContextKey.protocol.name(), input.getProtocol());
+		ret.put(OutputTranslationMVELContextKey.protocolSubtype.name(), input.getProtocolSubType());
+		ret.put(OutputTranslationMVELContextKey.requester.name(), input.getRequester());
 		
-		addAttributesToContext("attr", ret, input.getAttributes(), attrConverter);
-		addAttributesToContext("requesterAttr", ret, input.getRequesterAttributes(), 
+		addAttributesToContext(OutputTranslationMVELContextKey.attr.name(),
+				OutputTranslationMVELContextKey.attrObj.name(), OutputTranslationMVELContextKey.attrs.name(), ret,
+				input.getAttributes(), attrConverter);
+		addAttributesToContext(OutputTranslationMVELContextKey.requesterAttr.name(),
+				OutputTranslationMVELContextKey.requesterAttrObj.name(),
+				OutputTranslationMVELContextKey.requesterAttrs.name(), ret, input.getRequesterAttributes(),
 				attrConverter);
 
 		Map<String, List<String>> idsByType = new HashMap<>();
@@ -149,18 +162,18 @@ public class OutputTranslationProfile
 			}
 			vals.add(id.getValue());
 		}
-		ret.put("idsByType", idsByType);
+		ret.put(OutputTranslationMVELContextKey.idsByType.name(), idsByType);
 
-		ret.put("importStatus", input.getImportStatus().entrySet().stream()
+		ret.put(OutputTranslationMVELContextKey.importStatus.name(), input.getImportStatus().entrySet().stream()
 		                  .collect(Collectors.toMap(Entry::getKey, e -> String.valueOf(e.getValue()))));
 		
 		List<String> groupNames = input.getGroups().stream()
 				.map(group -> group.getName())
 				.collect(Collectors.toList());
 		
-		ret.put("groups", groupNames);
+		ret.put(OutputTranslationMVELContextKey.groups.name(), groupNames);
 
-		ret.put("usedGroup", input.getChosenGroup());
+		ret.put(OutputTranslationMVELContextKey.usedGroup.name(), input.getChosenGroup());
 
 		Group main = new Group(input.getChosenGroup());
 		List<String> subgroups = new ArrayList<String>();
@@ -170,13 +183,13 @@ public class OutputTranslationProfile
 			if (g.isChild(main))
 				subgroups.add(group);
 		}
-		ret.put("subGroups", subgroups);
+		ret.put(OutputTranslationMVELContextKey.subGroups.name(), subgroups);
 
 		
-		Map<String, Group> groupsObj = input.getGroups().stream()
+		Map<String, MVELGroup> groupsObj = input.getGroups().stream()
 				.collect(Collectors.toMap(group -> group.getName(), 
-						group -> group));
-		ret.put("groupsObj", groupsObj);
+						group -> new MVELGroup(groupProvider.apply(group.getPathEncoded()))));
+		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
 		
 		if (InvocationContext.hasCurrent())
 		{
@@ -184,19 +197,19 @@ public class OutputTranslationProfile
 					.getLoginSession();
 			Set<String> authenticatedIdentities = loginSession
 					.getAuthenticatedIdentities();
-			ret.put("authenticatedWith",
+			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(),
 					new ArrayList<String>(authenticatedIdentities));
-			ret.put("idp", loginSession.getRemoteIdP() == null ? "_LOCAL"
+			ret.put(OutputTranslationMVELContextKey.idp.name(), loginSession.getRemoteIdP() == null ? "_LOCAL"
 					: loginSession.getRemoteIdP());
 		} else
 		{
-			ret.put("authenticatedWith", new ArrayList<String>());
-			ret.put("idp", null);
+			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(), new ArrayList<String>());
+			ret.put(OutputTranslationMVELContextKey.idp.name(), null);
 		}
 		return ret;
 	}
 
-	private static void addAttributesToContext(String prefix, Map<String, Object> ret, 
+	private static void addAttributesToContext(String attrKey, String attrObjKey, String attrsKey, Map<String, Object> ret, 
 			Collection<Attribute> attributes, AttributeValueConverter attrConverter) 
 					throws IllegalAttributeValueException
 	{
@@ -215,9 +228,9 @@ public class OutputTranslationProfile
 					: attrConverter.internalValuesToObjectValues(ra.getName(),
 							ra.getValues()));
 		}
-		ret.put(prefix, attr);
-		ret.put(prefix+"Obj", attrObj);
-		ret.put(prefix+"s", attrs);
+		ret.put(attrKey, attr);
+		ret.put(attrObjKey, attrObj);
+		ret.put(attrsKey, attrs);
 	}
 	
 	@Override
@@ -244,8 +257,20 @@ public class OutputTranslationProfile
 			throw new ConfigurationException("The output translation profile '"
 					+ profile + "' included in another profile does not exist");
 		OutputTranslationProfile profileInstance = new OutputTranslationProfile( 
-				translationProfile, profileRepo, registry, attrConverter);
+				translationProfile, profileRepo, registry, attrConverter, groupMan);
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
+	}
+	
+	private GroupsChain getGroupChain(String g) 
+	{
+		try
+		{
+			return groupMan.getGroupsChain(g);
+		} catch (EngineException e)
+		{
+			log.error("Can not get group", e);
+			throw new RuntimeEngineException(e);
+		}		
 	}
 }

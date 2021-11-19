@@ -37,5 +37,4 @@ public interface InputTranslationEngine
 	Entity resolveMappedIdentity(MappedIdentity checked) throws EngineException;
 
 	MappedIdentity getExistingIdentity(MappingResult result);
-
 }

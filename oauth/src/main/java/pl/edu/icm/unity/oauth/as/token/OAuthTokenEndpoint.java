@@ -15,10 +15,12 @@ import javax.ws.rs.core.Application;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
@@ -70,11 +72,14 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthEndpointsCoordinator coordinator;
 	private TransactionalRunner tx;
 	private IdPEngine insecureIdPEngine;
-
+	private final ApplicationEventPublisher eventPublisher;
+	
 	//insecure
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
 	private OAuthTokenRepository oauthTokenRepository;
+	private final EndpointManagement endpointMan;
+	
 	
 	@Autowired
 	public OAuthTokenEndpoint(MessageSource msg,
@@ -89,7 +94,9 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			TransactionalRunner tx,
 			@Qualifier("insecure") IdPEngine idPEngine,
 			OAuthTokenRepository oauthTokenRepository,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			ApplicationEventPublisher eventPublisher,
+			@Qualifier("insecure") EndpointManagement endpointManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.tokensManagement = tokensMan;
@@ -100,7 +107,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.tx = tx;
 		this.insecureIdPEngine = idPEngine;
 		this.oauthTokenRepository = oauthTokenRepository;
-		
+		this.eventPublisher = eventPublisher;
+		this.endpointMan = endpointManagement;
 	}
 	
 	@Override
@@ -111,8 +119,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 				getServletUrl(PATH));
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
-		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH,
-				TOKEN_REVOCATION_PATH);
+		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
+		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH);
 	}
 	
 	@Override
@@ -130,14 +138,15 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new AccessTokenResource(tokensManagement, oauthTokenRepository, config, 
 					new OAuthRequestValidator(config, identitiesMan, attributesMan), 
-					insecureIdPEngine, identitiesMan, tx));
+					insecureIdPEngine, identitiesMan, tx, eventPublisher, msg, endpointMan, description));
 			ret.add(new DiscoveryResource(config, coordinator));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(oauthTokenRepository));
 			ret.add(new TokenIntrospectionResource(tokensManagement, oauthTokenRepository));
 			ret.add(new UserInfoResource(oauthTokenRepository));
 			ret.add(new RevocationResource(tokensManagement, oauthTokenRepository,
-					sessionMan, getEndpointDescription().getRealm()));
+					sessionMan, getEndpointDescription().getRealm(),
+					config.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION)));
 			RestEndpointHelper.installExceptionHandlers(ret);
 			return ret;
 		}

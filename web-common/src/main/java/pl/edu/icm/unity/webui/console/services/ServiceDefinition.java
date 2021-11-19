@@ -23,4 +23,6 @@ public interface ServiceDefinition
 	String getType();
 
 	String getBinding();
+	
+	boolean supportsConfigReloadFromFile();
 }

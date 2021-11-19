@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -50,10 +51,11 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, uriAccessService, imageAccessService,
-				fileStorageService, serverConfig, authenticatorSupportService, networkServer,
+				fileStorageService, serverConfig, authenticatorSupportService, networkServer, serviceFileConfigController, 
 				null);
 	}
 
@@ -63,9 +65,10 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer, String defaultMainTheme)
+			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
+			EndpointFileConfigurationManagement serviceFileConfigController, String defaultMainTheme)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

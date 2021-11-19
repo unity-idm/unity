@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -152,12 +153,11 @@ public interface EntityManagement
 
 	
 	/**
-	 * Returns information about an entity along with its all identities. Search by
-	 * verifiable email assigned to the entity.
+	 * Returns entities with assigned e-mail - as attribute or identity
 	 * 
 	 * @param contactEmail email assigned to the entity
 	 */
-	Entity getEntityByContactEmail(String contactEmail) throws EngineException;
+	Set<Entity> getAllEntitiesWithContactEmail(String contactEmail) throws EngineException;
 
 	/**
 	 * Returns a collection with all groups where the entity is a member. For convenience returned 

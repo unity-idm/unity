@@ -238,7 +238,7 @@ public class ImportExportTest
 				outProfileDB.create(new TranslationProfile("test2", "test", ProfileType.OUTPUT,
 						Lists.emptyList()));
 
-				DBDumpContentElements el = new DBDumpContentElements(true, false, false, false, false);
+				DBDumpContentElements el = new DBDumpContentElements(true, false, false, false, false, false);
 				
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
@@ -303,7 +303,7 @@ public class ImportExportTest
 						new I18nMessage(new I18nString(), new I18nString()), "test",
 						MessageType.PLAIN, "test"));
 
-				DBDumpContentElements el = new DBDumpContentElements(false, true, false, false, false);
+				DBDumpContentElements el = new DBDumpContentElements(false, true, false, false, false, false);
 	
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
@@ -359,7 +359,7 @@ public class ImportExportTest
 				tk.setExpires(new Date());
 				tokenDB.create(tk);
 
-				DBDumpContentElements el = new DBDumpContentElements(false, true, true, false, false);
+				DBDumpContentElements el = new DBDumpContentElements(false, true, true, false, false, false);
 
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
@@ -400,7 +400,7 @@ public class ImportExportTest
 						.initiator(new AuditEntity(1L, "test", "test")).timestamp(new Date())
 						.name("test").build());
 
-				DBDumpContentElements el = new DBDumpContentElements(false, false, false, true, false);
+				DBDumpContentElements el = new DBDumpContentElements(false, false, false, true, false, false);
 
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 
@@ -449,7 +449,7 @@ public class ImportExportTest
 						new RegistrationInvitationParam("test", new Date().toInstant()),
 						"test"));
 
-				DBDumpContentElements el = new DBDumpContentElements(false, false, false, false, true);
+				DBDumpContentElements el = new DBDumpContentElements(false, false, false, false, true, false);
 
 				ie.store(new FileOutputStream("target/afterImport.json"), el);
 

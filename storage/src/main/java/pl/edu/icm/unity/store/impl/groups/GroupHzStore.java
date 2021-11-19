@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.groups;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,5 +93,20 @@ public class GroupHzStore extends GenericNamedHzCRUD<Group> implements GroupDAOI
 				super.updateByKey(key, gb, false);
 			}
 		}
+	}
+
+	@Override
+	public List<Group> getGroupChain(String path)
+	{
+		List<Group> ret = new ArrayList<>();
+		Group grp = new Group(path);
+		for (String id : grp.getPathsChain())
+		{
+			Long key = getNameMap().get(id);
+			if (key == null)
+				throw new IllegalArgumentException(name + " [" + id + "] does not exists");
+			ret.add(getMap().get(key));
+		}
+		return ret;
 	}
 }

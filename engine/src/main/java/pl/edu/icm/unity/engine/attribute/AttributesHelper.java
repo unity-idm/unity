@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,8 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
@@ -138,7 +141,7 @@ public class AttributesHelper
 	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
 	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
 	 */
-	public Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
+	private Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
 			boolean effective, String attributeTypeName) throws EngineException
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
@@ -147,8 +150,10 @@ public class AttributesHelper
 			groupsPaths.forEach(g -> filterMap(directAttributesByGroup, g, attributeTypeName));
 			return directAttributesByGroup;
 		}
-		Set<String> allGroups = membershipDAO.getEntityMembershipSimple(entityId);
-		List<String> groups = groupsPaths != null && groupsPaths.isEmpty() ? new ArrayList<>(allGroups) : groupsPaths;
+		Map<String, Group> allGroups = groupDAO.getAll().stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g));
+		
+		Set<String> allUserGroups = membershipDAO.getEntityMembershipSimple(entityId);
+		List<String> groups = groupsPaths != null && groupsPaths.isEmpty() ? new ArrayList<>(allUserGroups) : groupsPaths;
 		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
 
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
@@ -156,9 +161,9 @@ public class AttributesHelper
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 		for (String group: groups)
 		{
-			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities,
-				group, attributeTypeName, allGroups, directAttributesByGroup, allClasses,
-				groupDAO::get, attributeTypeDAO::get);
+			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
+					attributeTypeName, allUserGroups.stream().map(allGroups::get).collect(Collectors.toList()),
+					directAttributesByGroup, allClasses, allGroups::get, attributeTypeDAO::get, g -> new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allGroups.get(p)).collect(Collectors.toList())));
 			ret.put(group, inGroup);
 		}
 		return ret;
@@ -696,7 +701,8 @@ public class AttributesHelper
 		}
 	}
 	
-	public Optional<VerifiableElementBase> getFirstVerifiableAttributeValueFilteredByMeta(String metadataId, Collection<Attribute> list) throws EngineException
+	public Optional<VerifiableElementBase> getFirstVerifiableAttributeValueFilteredByMeta(String metadataId,
+			Collection<Attribute> list) throws EngineException
 	{
 		Optional<String> attrName = getAttributeName(metadataId);
 		if (!attrName.isPresent())

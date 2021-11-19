@@ -14,17 +14,16 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.wellknownurl.WellKnownURLEndpointFactory;
 
-/*
- * 
- * 
- */
 @Component
 public class WellKnownServiceController extends DefaultServicesControllerBase
 {
@@ -34,11 +33,12 @@ public class WellKnownServiceController extends DefaultServicesControllerBase
 	private AuthenticatorManagement authMan;
 	private NetworkServer networkServer;
 
-	public WellKnownServiceController(MessageSource msg, EndpointManagement endpointMan,
-			RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan, NetworkServer networkServer)
+	public WellKnownServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
+			UnityServerConfiguration unityServerConfiguration, ImageAccessService imageAccessService,
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
@@ -58,8 +58,8 @@ public class WellKnownServiceController extends DefaultServicesControllerBase
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
-				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
-						.collect(Collectors.toList()), networkServer.getUsedContextPaths());
+				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
+				networkServer.getUsedContextPaths());
 	}
 
 }

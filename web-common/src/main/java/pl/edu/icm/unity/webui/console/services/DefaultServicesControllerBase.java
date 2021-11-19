@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -26,13 +27,16 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public abstract class DefaultServicesControllerBase implements ServiceControllerBaseInt
 {
-	protected MessageSource msg;
-	protected EndpointManagement endpointMan;
-
-	public DefaultServicesControllerBase(MessageSource msg, EndpointManagement endpointMan)
+	protected final MessageSource msg;
+	protected final EndpointManagement endpointMan;
+	protected final EndpointFileConfigurationManagement serviceFileConfigController;
+	
+	public DefaultServicesControllerBase(MessageSource msg, EndpointManagement endpointMan,
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
+		this.serviceFileConfigController = serviceFileConfigController;
 	}
 
 	@Override
@@ -146,6 +150,19 @@ public abstract class DefaultServicesControllerBase implements ServiceController
 		}
 	}
 
+	@Override
+	public void reloadConfigFromFile(ServiceDefinition service) throws ControllerException
+	{
+		try
+		{
+			endpointMan.updateEndpoint(service.getName(),
+					serviceFileConfigController.getEndpointConfig(service.getName()));
+		} catch (Exception e)
+		{
+			throw new ControllerException(msg.getMessage("ServicesController.updateError", service.getName()), e);
+		}
+	}
+	
 	private DefaultServiceDefinition getServiceDef(Endpoint endpoint) throws ControllerException
 	{
 		DefaultServiceDefinition serviceDef = new DefaultServiceDefinition(endpoint.getTypeId());
@@ -158,9 +175,10 @@ public abstract class DefaultServicesControllerBase implements ServiceController
 		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
 		serviceDef.setState(endpoint.getState());
 		serviceDef.setBinding(getBinding(endpoint.getTypeId()));
+		serviceDef.setSupportsConfigReloadFromFile(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
 		return serviceDef;
 	}
-
+	
 	private String getBinding(String typeId) throws ControllerException
 	{
 		EndpointTypeDescription type;
@@ -180,4 +198,5 @@ public abstract class DefaultServicesControllerBase implements ServiceController
 			return type.getSupportedBinding();
 		}
 	}
+
 }

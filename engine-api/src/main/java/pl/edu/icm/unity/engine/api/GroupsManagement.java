@@ -13,6 +13,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.GroupContents;
 
 
@@ -111,5 +112,11 @@ public interface GroupsManagement
 	 * Updates the group and pass information: changed property and new value used for audit log only
 	 */
 	void updateGroup(String path, Group group, String changedProperty, String newValue) throws EngineException;
+	
+	
+	/**
+	 * @return GroupChain for given group
+	 */
+	GroupsChain getGroupsChain(String path) throws EngineException;
 }
 

@@ -29,6 +29,7 @@ public class DefaultServiceDefinition implements ServiceDefinition
 	private String realm;
 	private EndpointState state;
 	private String binding;
+	private boolean supportsConfigReloadFromFile;
 
 	public DefaultServiceDefinition()
 	{
@@ -156,5 +157,15 @@ public class DefaultServiceDefinition implements ServiceDefinition
 	{
 		this.binding = binding;
 	}
+	
+	@Override
+	public boolean supportsConfigReloadFromFile()
+	{
+		return supportsConfigReloadFromFile;
+	}
 
+	public void setSupportsConfigReloadFromFile(boolean supportsConfigReloadFromFile)
+	{
+		this.supportsConfigReloadFromFile = supportsConfigReloadFromFile;
+	}
 }

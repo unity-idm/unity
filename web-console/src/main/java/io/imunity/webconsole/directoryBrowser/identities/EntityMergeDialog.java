@@ -44,13 +44,14 @@ class EntityMergeDialog extends AbstractDialog
 	EntityMergeDialog(MessageSource msg, EntityWithLabel first, EntityWithLabel second, Group group, 
 			EntityManagement identitiesMan)
 	{
-		super(msg, msg.getMessage("EntitiesMergeDialog.caption"), msg.getMessage("EntitiesMergeDialog.doMerge"),
+		super(msg, msg.getMessage("EntityMergeDialog.caption"), msg.getMessage("EntityMergeDialog.doMerge"),
 				msg.getMessage("cancel"));
 		this.first = first;
 		this.second = second;
 		this.group = group;
 		this.identitiesMan = identitiesMan;
 		this.bus = WebSession.getCurrent().getEventBus();
+		setSizeEm(45, 30);
 	}
 
 	@Override
@@ -58,22 +59,22 @@ class EntityMergeDialog extends AbstractDialog
 	{
 		FormLayout main = new FormLayout();
 
-		Label info = new Label(msg.getMessage("EntitiesMergeDialog.info"));
+		Label info = new Label(msg.getMessage("EntityMergeDialog.info"));
 		info.setWidth(100, Unit.PERCENTAGE);
-		mergeDirection = new RadioButtonGroup<>(msg.getMessage("EntitiesMergeDialog.mergeDirection"));
+		mergeDirection = new RadioButtonGroup<>(msg.getMessage("EntityMergeDialog.mergeDirection"));
 		mergeDirection.setItems(Direction.FIRST_INTO_SECOND, Direction.SECOND_INTO_FISRT);
 		mergeDirection.setItemCaptionGenerator(value -> value == Direction.FIRST_INTO_SECOND ? 
-				msg.getMessage("EntitiesMergeDialog.mergeSpec",
+				msg.getMessage("EntityMergeDialog.mergeSpec",
 						getEntityDesc(first), getEntityDesc(second)) :
-				msg.getMessage("EntitiesMergeDialog.mergeSpec",
+				msg.getMessage("EntityMergeDialog.mergeSpec",
 						getEntityDesc(second), getEntityDesc(first))
 				);
 		mergeDirection.setValue(Direction.FIRST_INTO_SECOND);
 		
 		
-		safeMode = new CheckBox(msg.getMessage("EntitiesMergeDialog.safeMode"));
+		safeMode = new CheckBox(msg.getMessage("EntityMergeDialog.safeMode"));
 		safeMode.setValue(true);
-		safeMode.setDescription(msg.getMessage("EntitiesMergeDialog.safeModeDesc"));
+		safeMode.setDescription(msg.getMessage("EntityMergeDialog.safeModeDesc"));
 		
 		main.addComponents(info, mergeDirection, safeMode);
 		main.setSizeFull();
@@ -106,7 +107,7 @@ class EntityMergeDialog extends AbstractDialog
 			bus.fireEvent(new GroupChangedEvent(group));
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("EntitiesMergeDialog.mergeError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("EntityMergeDialog.mergeError"), e);
 		}
 		close();
 	}

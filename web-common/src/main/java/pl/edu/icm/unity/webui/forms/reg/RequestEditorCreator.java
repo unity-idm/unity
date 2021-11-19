@@ -201,7 +201,7 @@ public class RequestEditorCreator
 	{
 		if (invitation != null && invitation.canBeProcessedAsEnquiryWithResolvedUser())
 		{
-			EnquiryInvitationParam enqInv = invitation.getAsEnquiryInvitationParam();
+			EnquiryInvitationParam enqInv = invitation.getAsEnquiryInvitationParamWithAnonymousEntity();
 			String url = publicRegistrationURLSupport.getPublicEnquiryLink(enqInv.getFormPrefill().getFormId(),
 					registrationCode);
 			Page.getCurrent().open(url, null);
@@ -256,14 +256,14 @@ public class RequestEditorCreator
 			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
 		} catch (RegCodeException e)
 		{
-			if (form.isByInvitationOnly() && e.cause.equals(RegCodeException.ErrorCause.MISSING_CODE))
+			if (e.cause.equals(RegCodeException.ErrorCause.INVITATION_OF_OTHER_FORM))
+				throw e;
+			
+			if (form.isByInvitationOnly() && (e.cause.equals(RegCodeException.ErrorCause.MISSING_CODE)
+					|| e.cause.equals(RegCodeException.ErrorCause.UNRESOLVED_INVITATION)
+					|| e.cause.equals(RegCodeException.ErrorCause.EXPIRED_INVITATION)))
 			{
-				throw new RegCodeException(ErrorCause.MISSING_CODE);
-			}
-
-			if (form.isByInvitationOnly() && e.cause.equals(RegCodeException.ErrorCause.UNRESOLVED_INVITATION))
-			{
-				throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
+				throw e;
 			}
 		}
 

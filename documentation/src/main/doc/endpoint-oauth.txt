@@ -185,14 +185,15 @@ scope="openid profile read-tasks"
 ==== Revocation and logout
 
 The path +/revoke+ can be used to revoke an access token which was previously issued. This endpoint
-is implemented according to the RFC 7009, with the following Unity specifics: 
+is implemented according to the RFC 7009. Only access and refresh tokens can be revoked using this endpoint. 
 
-. The +token_type_hint+ is a mandatory argument, must be always provided (in RFC it is optional). THe allowed values
-  are +access_token+ and +refresh_token+.
-. The endpoint access is not authenticated - or better said the access is authorized implicitly by providing
-  a valid token to be revoked. The +client_id+ must be always given.
-   
-Typical usage:
+Note that this endpoint has different requirements depending on whether the client is public or confidential. For
+public clients +client_id+ parameter is mandatory but client authentication is not needed. For confidential clients
++client_id+ is not mandatory but client authentication is mandatory. See RFC for details. Note also that Unity offers
+a configuration option to allow for unauthenticated access for confidential clients. This option is for backwards 
+compatibility (pre 3.7.0 release) when authentication was not required for all types of clients. 
+
+Typical usage (public client case):
 
 ----
 POST /.../revoke HTTP/1.1

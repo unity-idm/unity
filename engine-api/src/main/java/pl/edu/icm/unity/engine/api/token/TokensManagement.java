@@ -99,8 +99,4 @@ public interface TokensManagement
 		 */
 		void tokenExpired(Token token);
 	}
-	
-	public class TokenNotFoundException extends IllegalArgumentException
-	{
-	}
 }

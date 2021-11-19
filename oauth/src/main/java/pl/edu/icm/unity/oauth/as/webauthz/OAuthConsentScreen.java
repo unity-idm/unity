@@ -37,6 +37,7 @@ import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -72,7 +73,7 @@ class OAuthConsentScreen extends CustomComponent
 
 	private final Runnable declineHandler;
 	private final BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler;
-
+	
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
 	private CheckBox rememberCB;
@@ -87,7 +88,7 @@ class OAuthConsentScreen extends CustomComponent
 			Collection<DynamicAttribute> attributes,
 			Runnable declineHandler,
 			BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler,
-			OAuthSessionService oauthSessionService)
+			OAuthResponseHandler oAuthResponseHandler)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
@@ -99,7 +100,7 @@ class OAuthConsentScreen extends CustomComponent
 		this.aTypeSupport = aTypeSupport;
 		this.declineHandler = declineHandler;
 		this.acceptHandler = acceptHandler;
-		this.oauthResponseHandler = new OAuthResponseHandler(oauthSessionService);
+		this.oauthResponseHandler = oAuthResponseHandler;
 		initUI();
 	}
 
@@ -213,7 +214,7 @@ class OAuthConsentScreen extends CustomComponent
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), 
 					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
-			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, true);
+			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, true, ctx, Status.FAILED);
 		}
 	}
 	

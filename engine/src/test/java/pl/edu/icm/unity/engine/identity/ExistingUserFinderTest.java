@@ -9,7 +9,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -45,9 +50,9 @@ public class ExistingUserFinderTest
 		when(bulkService.getMembershipInfo(any())).thenReturn(ImmutableMap.of(13l, entityData));
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
 
-		Long entityIdByContactAddress = userFinder.getEntityIdByContactAddress("Addr1@examplE.com");
+		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 
-		assertThat(entityIdByContactAddress).isEqualTo(13);
+		assertThat(entityIdByContactAddress.iterator().next().getId()).isEqualTo(13);
 	}
 
 	@Test
@@ -61,9 +66,31 @@ public class ExistingUserFinderTest
 				.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
 		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
 
-		Long entityIdByContactAddress = userFinder.getEntityIdByContactAddress("Addr1@examplE.com");
+		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 
-		assertThat(entityIdByContactAddress).isEqualTo(13);
+		assertThat(entityIdByContactAddress.iterator().next().getId()).isEqualTo(13);
+	}
+
+	@Test
+	public void shouldFindAllEntitiesWithGivenEmail() throws EngineException
+	{
+		AttributeExt emailAttr = new AttributeExt(VerifiableEmailAttribute.of("email", "/", "addr1@EXample.com"), true);
+
+		EntityInGroupData entityWithEmailAttrData = new EntityInGroupData(createEmailEntity("other@example.com", 13),
+				null, null, ImmutableMap.of("email", emailAttr), null, null);
+		EntityInGroupData entityWithIdEmailData = new EntityInGroupData(createEmailEntity("addr1@EXample.com", 14),
+				null, null, new HashMap<>(), null, null);
+
+		when(bulkService.getMembershipInfo(any()))
+				.thenReturn(ImmutableMap.of(13l, entityWithEmailAttrData, 14l, entityWithIdEmailData));
+		when(attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(eq(ContactEmailMetadataProvider.NAME),
+				eq(Arrays.asList(emailAttr))))
+						.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
+
+		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper);
+		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
+		assertThat(entityIdByContactAddress.size()).isEqualTo(2);
+		assertThat(entityIdByContactAddress.stream().map(e -> e.getId()).collect(Collectors.toSet())).contains(14L, 13L);
 	}
 
 	private Entity createEmailEntity(String email, long entityId) throws IllegalIdentityValueException
@@ -71,6 +98,6 @@ public class ExistingUserFinderTest
 		IdentityParam idParam = emailIdType.convertFromString(email, "ridp", null);
 		Identity identity = new Identity(idParam, entityId,
 				emailIdType.getComparableValue(idParam.getValue(), "realm", null));
-		return new Entity(Lists.newArrayList(identity), new EntityInformation(13), null);
+		return new Entity(Lists.newArrayList(identity), new EntityInformation(entityId), null);
 	}
 }

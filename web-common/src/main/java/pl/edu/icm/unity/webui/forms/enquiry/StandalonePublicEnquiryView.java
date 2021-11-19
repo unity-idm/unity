@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -53,6 +55,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory;
 import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
@@ -65,11 +68,10 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 public class StandalonePublicEnquiryView extends CustomComponent implements StandalonePublicView
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
-	
-	private MessageSource msg;
+
+	MessageSource msg;
 	private ImageAccessService imageAccessService;
-	
-	private VerticalLayout main;
+
 	private String registrationCode;
 	private EnquiryResponseEditorController editorController;
 	private InvitationResolver invitationResolver;
@@ -78,20 +80,23 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
 	private ResolvedInvitationParam invitation;
+	private Long selectedEntity;
 
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
-	
-	
+	private final InvitationEntityChooserComponentFactory entityChooserComponentFactory;
+
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			InvitationResolver invitationResolver, MessageSource msg, 
-			ImageAccessService imageAccessService, URLQueryPrefillCreator urlQueryPrefillCreator)
+			InvitationResolver invitationResolver, MessageSource msg, ImageAccessService imageAccessService,
+			URLQueryPrefillCreator urlQueryPrefillCreator,
+			InvitationEntityChooserComponentFactory entityChooserComponentFactory)
 	{
 		this.editorController = editorController;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
 		this.invitationResolver = invitationResolver;
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
+		this.entityChooserComponentFactory = entityChooserComponentFactory;
 	}
 
 	@Override
@@ -129,7 +134,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void doShowEditorOrSkipToFinalStep()
 	{
-		
+
 		try
 		{
 			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
@@ -138,21 +143,52 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			log.error("Can not get invitation", e);
 			handleError(e, e.cause);
 			return;
-		} 
-		
-		
-		EnquiryInvitationParam enqInvitation = invitation.getAsEnquiryInvitationParam();
-		
+		}
+
+		if (invitation.entities.size() == 0)
+		{
+			log.error(
+					"Enquiry invitation without any entities matching to contact address " + invitation.contactAddress);
+			handleError(null, ErrorCause.UNRESOLVED_INVITATION);
+			return;
+		}
+
+		if (invitation.entities.size() == 1)
+		{
+			processInvitation(invitation.entities.iterator().next().getId());
+		} else
+		{
+			List<Entity> entitiesWitoutAnonymous = invitation.getEntitiesWithoutAnonymous();
+			if (entitiesWitoutAnonymous.size() > 1)
+			{
+				showEntityChooser();
+			} else
+			{
+				log.debug("Skipping enquiry entity choose step, only anonymous entities match to contact address "
+						+ invitation.contactAddress);
+				processInvitation(invitation.entities.iterator().next().getId());
+			}
+		}
+	}
+
+	
+
+	private void processInvitation(Long entity)
+	{
+		selectedEntity = entity;
+
+		EnquiryInvitationParam enqInvitation = invitation.getAsEnquiryInvitationParam(selectedEntity);
+
 		try
 		{
-			PrefilledSet currentUserData = editorController.getPrefilledSetForSticky(form, 
+			PrefilledSet currentUserData = editorController.getPrefilledSetForSticky(form,
 					new EntityParam(enqInvitation.getEntity()));
 			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(enqInvitation, currentUserData, form);
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
-			
+
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
-					enqInvitation.getFormPrefill().getMessageParamsWithCustomVarObject(
-							MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
+					enqInvitation.getFormPrefill()
+							.getMessageParamsWithCustomVarObject(MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
 					RemotelyAuthenticatedPrincipal.getLocalContext(), prefilled,
 					new EntityParam(enqInvitation.getEntity()));
 
@@ -162,24 +198,24 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			handleError(e, ErrorCause.MISCONFIGURED);
 			return;
 		}
-	
-		showEditorContent(editor);
+
+		showEditorContent();
 	}
 
-	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser, 
+	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser,
 			EnquiryForm form)
 	{
 
 		FormPrefill formPrefill = invitation.getFormPrefill();
 		return new PrefilledSet(formPrefill.getIdentities(),
-				mergePreffiledGroups(formPrefill.getAllowedGroups(), formPrefill.getGroupSelections(), fromUser.groupSelections, form),
+				mergePreffiledGroups(formPrefill.getAllowedGroups(), formPrefill.getGroupSelections(),
+						fromUser.groupSelections, form),
 				mergePreffiledAttributes(formPrefill.getAttributes(), fromUser.attributes),
 				formPrefill.getAllowedGroups());
 	}
 
 	private Map<Integer, PrefilledEntry<Attribute>> mergePreffiledAttributes(
-			Map<Integer, PrefilledEntry<Attribute>> fromInvitation,
-			Map<Integer, PrefilledEntry<Attribute>> fromUser)
+			Map<Integer, PrefilledEntry<Attribute>> fromInvitation, Map<Integer, PrefilledEntry<Attribute>> fromUser)
 	{
 		Map<Integer, PrefilledEntry<Attribute>> mergedAttributes = new HashMap<>();
 
@@ -202,37 +238,37 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		return mergedAttributes;
 	}
 
-	private Map<Integer, PrefilledEntry<GroupSelection>> mergePreffiledGroups(Map<Integer, GroupSelection> allowedFromInvitiation,
+	private Map<Integer, PrefilledEntry<GroupSelection>> mergePreffiledGroups(
+			Map<Integer, GroupSelection> allowedFromInvitiation,
 			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation,
 			Map<Integer, PrefilledEntry<GroupSelection>> fromUser, EnquiryForm form)
 	{
-		
-		
+
 		Map<Integer, PrefilledEntry<GroupSelection>> mergedGroups = new HashMap<>();
-		
+
 		if (fromUser.isEmpty())
 		{
-			return fromInvitation;	
+			return fromInvitation;
 		}
-	
+
 		for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> entryFromUser : fromUser.entrySet())
 		{
 			PrefilledEntry<GroupSelection> fromInvitationG = fromInvitation.get(entryFromUser.getKey());
 
 			if (fromInvitationG == null)
 			{
-				mergedGroups.put(entryFromUser.getKey(),entryFromUser.getValue());
+				mergedGroups.put(entryFromUser.getKey(), entryFromUser.getValue());
 				continue;
 			}
 
 			if (fromInvitationG.getMode().isInteractivelyEntered())
 			{
-				Set<String> mergedSet = new LinkedHashSet<>(
-						fromInvitationG.getEntry().getSelectedGroups());
+				Set<String> mergedSet = new LinkedHashSet<>(fromInvitationG.getEntry().getSelectedGroups());
 				mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
-				mergedGroups.put(entryFromUser.getKey(), new PrefilledEntry<GroupSelection>(new GroupSelection(
-						mergedSet.stream().collect(Collectors.toList())),
-						entryFromUser.getValue().getMode()));
+				mergedGroups.put(entryFromUser.getKey(),
+						new PrefilledEntry<GroupSelection>(
+								new GroupSelection(mergedSet.stream().collect(Collectors.toList())),
+								entryFromUser.getValue().getMode()));
 			} else
 			{
 				mergedGroups.put(entryFromUser.getKey(), fromInvitationG);
@@ -242,14 +278,32 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		return mergedGroups;
 	}
 
-	private void showEditorContent(EnquiryResponseEditor editor)
+	private void showEditorContent()
 	{
-		main.addComponent(editor);
+		VerticalLayout main = new VerticalLayout();
+		main.setWidth(100, Unit.PERCENTAGE);
+		main.setHeightUndefined();
+		main.removeAllComponents();
+		main.addComponent(editor);		
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		Component buttonsBar = createButtonsBar();
 		main.addComponent(buttonsBar);
 		main.setComponentAlignment(buttonsBar, Alignment.MIDDLE_CENTER);
+		setCompositionRoot(main);
+		setHeightUndefined();
+	}
+
+	private void showEntityChooser()
+	{
+		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
+		EnquiryInvitationEntityChooser invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
+				e -> processInvitation(e), () -> gotoFinalStep(cancel()));
+		main.addComponent(invitationEntityChooserComponent);
+		main.setComponentAlignment(invitationEntityChooserComponent, Alignment.MIDDLE_CENTER);
+		setCompositionRoot(main);
+		setSizeFull();
 	}
 
 	private void askForCode(Runnable uiCreator)
@@ -269,8 +323,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 					{
 						cancel();
 					}
-				}, msg.getMessage("GetEnquiryCodeDialog.title"),
-				msg.getMessage("GetEnquiryCodeDialog.information"),
+				}, msg.getMessage("GetEnquiryCodeDialog.title"), msg.getMessage("GetEnquiryCodeDialog.information"),
 				msg.getMessage("GetEnquiryCodeDialog.code"));
 		askForCodeDialog.show();
 	}
@@ -279,10 +332,8 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	{
 		if (form.getPageTitle() != null)
 			Page.getCurrent().setTitle(form.getPageTitle().getValue(msg));
-		main = new VerticalLayout();
+		
 		addStyleName("u-standalone-public-form");
-		setCompositionRoot(main);
-		setWidth(100, Unit.PERCENTAGE);
 	}
 
 	private Component createButtonsBar()
@@ -290,13 +341,15 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setWidth(editor.formWidth(), editor.formWidthUnit());
 
-		Button okButton = FormsUIHelper.createOKButton(
-				msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), event -> {
+		Button okButton = FormsUIHelper.createOKButton(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"),
+				event ->
+				{
 					WorkflowFinalizationConfiguration config = submit(form, editor);
 					gotoFinalStep(config);
 				});
 
-		Button cancelButton = FormsUIHelper.createCancelButton(msg.getMessage("cancel"), event -> {
+		Button cancelButton = FormsUIHelper.createCancelButton(msg.getMessage("cancel"), event ->
+		{
 			WorkflowFinalizationConfiguration config = cancel();
 			gotoFinalStep(config);
 		});
@@ -327,7 +380,8 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
 		log.debug("Enquiry is finalized, status: {}", config);
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect, imageAccessService);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect,
+				imageAccessService);
 		Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 		setCompositionRoot(wrapper);
 		setSizeFull();
@@ -338,7 +392,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
 		page.open(redirectUrl, null);
 	}
-	
+
 	private WorkflowFinalizationConfiguration submit(EnquiryForm form, EnquiryResponseEditor editor)
 	{
 		EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
@@ -349,17 +403,16 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		{
 			return editorController.submitted(request, form, TriggeringMode.manualStandalone,
 					invitation == null ? Optional.empty()
-							: Optional.of(new RewriteComboToEnquiryRequest(invitation.code, invitation.entity, form)));
+							: Optional.of(new RewriteComboToEnquiryRequest(invitation.code, selectedEntity, form)));
 		} catch (WrongArgumentException e)
 		{
 			FormsUIHelper.handleFormSubmissionError(e, msg, editor);
 			return null;
 		}
 	}
-	
+
 	private WorkflowFinalizationConfiguration cancel()
-	{	
-		return postFillHandler.getFinalRegistrationConfigurationOnError(
-				TriggeringState.CANCELLED);
+	{
+		return postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.CANCELLED);
 	}
 }

@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -50,27 +51,16 @@ public abstract class SAMLSoapServiceControllerBase extends DefaultServicesContr
 	private ImageAccessService imageAccessService;
 	private AdvertisedAddressProvider advertisedAddrProvider;
 
-	public SAMLSoapServiceControllerBase(MessageSource msg,
-			EndpointManagement endpointMan,
-			MessageSource msg2,
-			EndpointManagement endpointMan2,
-			RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan,
-			ImageAccessService imageAccessService,
-			BulkGroupQueryService bulkService,
-			URIAccessService uriAccessService,
-			FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig,
-			IdentityTypeSupport idTypeSupport,
-			PKIManagement pkiMan,
-			NetworkServer server,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			IdpUsersHelper idpUserHelper,
-			AdvertisedAddressProvider advertisedAddrProvider)
+	public SAMLSoapServiceControllerBase(MessageSource msg, EndpointManagement endpointMan, MessageSource msg2,
+			EndpointManagement endpointMan2, RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
+			AuthenticatorManagement authMan, AttributeTypeManagement atMan, ImageAccessService imageAccessService,
+			BulkGroupQueryService bulkService, URIAccessService uriAccessService, FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
+			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			IdpUsersHelper idpUserHelper, AdvertisedAddressProvider advertisedAddrProvider,
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

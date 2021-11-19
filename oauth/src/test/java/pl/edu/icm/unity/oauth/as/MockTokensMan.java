@@ -14,6 +14,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class MockTokensMan implements TokensManagement
@@ -53,7 +54,7 @@ public class MockTokensMan implements TokensManagement
 	public Token getTokenById(String type, String value) 
 	{
 		if (!tokens.containsKey(type+value))
-			throw new IllegalArgumentException("no such token");
+			throw new TokenNotFoundException("no such token");
 		return tokens.get(type+value);
 	}
 

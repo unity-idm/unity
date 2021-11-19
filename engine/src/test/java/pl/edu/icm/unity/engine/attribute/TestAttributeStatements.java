@@ -16,6 +16,8 @@ import java.util.HashSet;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
@@ -36,6 +38,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupProperty;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
@@ -100,6 +103,18 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		//              /  A  AB ABC AD AZ
 		testCorrectness(0, 1, 1, 0,  0, 0,  //a1
 				0, 0, 1, 0,  0, 0); //a2
+	}
+	
+	@Test
+	public void dynamicAttributeWithGroupObjIsAssigned() throws Exception
+	{
+		setupStateForConditions();
+		AttributeStatement statement0 = new AttributeStatement("true", null, ConflictResolution.overwrite, "a2",
+				"groupsObj['/A'].properties['k1']");
+		setStatments(groupA, statement0);
+
+		Collection<AttributeExt> aRet = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
+		assertEquals(aRet.stream().filter(a -> a.getName().equals("a2")).findFirst().get().getValues().get(0), "v1");
 	}
 
 	@Test
@@ -453,6 +468,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		aTypeMan.addAttributeType(at2);
 		
 		groupA = new Group("/A");
+		groupA.setProperties(Lists.newArrayList(new GroupProperty("k1", "v1")));
 		groupsMan.addGroup(groupA);
 		
 		groupAB = new Group("/A/B");

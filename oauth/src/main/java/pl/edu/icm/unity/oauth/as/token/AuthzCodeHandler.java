@@ -46,16 +46,19 @@ class AuthzCodeHandler
 	private TransactionalRunner tx;
 	private AccessTokenFactory accessTokenFactory;
 	private OAuthTokenRepository oauthTokenDAO;
+	private OAuthTokenStatisticPublisher statisticsPublisher;
 	
 	AuthzCodeHandler(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenDAO,
 			OAuthASProperties config, TransactionalRunner tx, 
-			AccessTokenFactory accesstokenFactory)
+			AccessTokenFactory accesstokenFactory,
+			OAuthTokenStatisticPublisher statisticsPublisher)
 	{
 		this.tokensManagement = tokensManagement;
 		this.oauthTokenDAO = oauthTokenDAO;
 		this.config = config;
 		this.tx = tx;
 		this.accessTokenFactory = accesstokenFactory;
+		this.statisticsPublisher = statisticsPublisher;
 	}
 
 
@@ -68,6 +71,7 @@ class AuthzCodeHandler
 			tokensPair = loadAndRemoveAuthzCodeToken(code);
 		} catch (OAuthErrorException e)
 		{
+			statisticsPublisher.reportFailAsLoggedClient();
 			return e.response;
 		}
 
@@ -79,17 +83,24 @@ class AuthzCodeHandler
 			verifyPKCE(parsedAuthzCodeToken.getPkcsInfo(), parsedAuthzCodeToken.getClientType(), codeVerifier);
 		} catch (OAuthErrorException e)
 		{
+			statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(), parsedAuthzCodeToken.getClientName());
 			return e.response;
 		} 
 		
 		if (parsedAuthzCodeToken.getRedirectUri() != null)
 		{
 			if (redirectUri == null)
+			{	
+				statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(), parsedAuthzCodeToken.getClientName());
 				return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT,
 						"redirect_uri is required");
+			}
 			if (!redirectUri.equals(parsedAuthzCodeToken.getRedirectUri()))
+			{
+				statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(), parsedAuthzCodeToken.getClientName());
 				return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT,
 						"redirect_uri is wrong");
+			}
 		}
 
 		OAuthToken internalToken = new OAuthToken(parsedAuthzCodeToken);
@@ -109,6 +120,9 @@ class AuthzCodeHandler
 		oauthTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 
 				now, accessExpiration);
 
+		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName());
+		
+		
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 	}
 

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
@@ -39,9 +40,10 @@ class JWTServiceController extends DefaultServicesControllerBase implements Serv
 	private NetworkServer networkServer;
 
 	JWTServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, PKIManagement pkiMan, NetworkServer networkServer)
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, PKIManagement pkiMan, NetworkServer networkServer,
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
-		super(msg, endpointMan);
+		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;

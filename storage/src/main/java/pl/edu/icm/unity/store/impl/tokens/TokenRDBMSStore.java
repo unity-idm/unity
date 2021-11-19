@@ -28,7 +28,8 @@ public class TokenRDBMSStore extends GenericRDBMSCRUD<Token, TokenBean> implemen
 	@Autowired
 	public TokenRDBMSStore(TokenRDBMSSerializer serializer)
 	{
-		super(TokensMapper.class, serializer, NAME);
+		super(TokensMapper.class, serializer, NAME,
+				id -> new TokenNotFoundException("Token with DB key [" + id + "] does not exist"));
 	}
 
 	@Override
@@ -37,7 +38,7 @@ public class TokenRDBMSStore extends GenericRDBMSCRUD<Token, TokenBean> implemen
 		TokensMapper mapper = SQLTransactionTL.getSql().getMapper(TokensMapper.class);
 		TokenBean inDB = mapper.getById(new TokenBean(id, type));
 		if (inDB == null)
-			throw new IllegalArgumentException(elementName + " with key [" + 
+			throw new TokenNotFoundException(elementName + " with key [" + 
 					type + "//" + id + "] does not exist");
 		
 		mapper.deleteByKey(inDB.getId());
@@ -49,7 +50,7 @@ public class TokenRDBMSStore extends GenericRDBMSCRUD<Token, TokenBean> implemen
 		TokensMapper mapper = SQLTransactionTL.getSql().getMapper(TokensMapper.class);
 		TokenBean inDB = mapper.getById(new TokenBean(token.getValue(), token.getType()));
 		if (inDB == null)
-			throw new IllegalArgumentException(elementName + " with key [" + 
+			throw new TokenNotFoundException(elementName + " with key [" + 
 					token.getType() + "//" + token.getValue() + "] does not exist");
 		inDB.setContents(token.getContents());
 		inDB.setExpires(token.getExpires());
@@ -62,7 +63,7 @@ public class TokenRDBMSStore extends GenericRDBMSCRUD<Token, TokenBean> implemen
 		TokensMapper mapper = SQLTransactionTL.getSql().getMapper(TokensMapper.class);
 		TokenBean inDB = mapper.getById(new TokenBean(id, type));
 		if (inDB == null)
-			throw new IllegalArgumentException(elementName + " with key [" + type + "//" + id +
+			throw new TokenNotFoundException(elementName + " with key [" + type + "//" + id +
 					"] does not exist");
 		return jsonSerializer.fromDB(inDB);
 	}

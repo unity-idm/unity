@@ -44,7 +44,7 @@ public class TokenHzStore extends GenericBasicHzCRUD<Token> implements TokenDAO
 		TransactionalMap<Long, Token> hMap = getMap();
 		Collection<Long> keys = hMap.keySet(pBuilder);
 		if (keys.isEmpty())
-			throw new IllegalArgumentException("Token with key [" + type + "//" + id +
+			throw new TokenNotFoundException("Token with key [" + type + "//" + id +
 					"] does not exist");
 		deleteByKey(keys.iterator().next());
 	}
@@ -56,7 +56,7 @@ public class TokenHzStore extends GenericBasicHzCRUD<Token> implements TokenDAO
 		TransactionalMap<Long, Token> hMap = getMap();
 		Collection<Long> keys = hMap.keySet(pBuilder);
 		if (keys.isEmpty())
-			throw new IllegalArgumentException("Token with key [" + 
+			throw new TokenNotFoundException("Token with key [" + 
 					token.getType() + "//" + token.getValue() + "] does not exist");
 		updateByKey(keys.iterator().next(), token);
 	}
@@ -68,7 +68,7 @@ public class TokenHzStore extends GenericBasicHzCRUD<Token> implements TokenDAO
 		TransactionalMap<Long, Token> hMap = getMap();
 		Collection<Token> values = hMap.values(pBuilder);
 		if (values.isEmpty())
-			throw new IllegalArgumentException("Token with key [" + type + "//" + id +
+			throw new TokenNotFoundException("Token with key [" + type + "//" + id +
 					"] does not exist");
 		return values.iterator().next();
 	}

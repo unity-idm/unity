@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.impl.groups;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -107,5 +108,19 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 				mapper.updateByKey(gb);
 			}
 		}
+	}
+
+	@Override
+	public List<Group> getGroupChain(String path)
+	{
+		GroupsMapper mapper = SQLTransactionTL.getSql().getMapper(GroupsMapper.class);
+		List<Group> ret = new ArrayList<>();
+		Group grp = new Group(path);
+		for (GroupBean bean: mapper.getByNames(grp.getPathsChain()))
+		{
+			Group obj = jsonSerializer.fromDB(bean);
+			ret.add(obj);
+		}
+		return ret;
 	}
 }

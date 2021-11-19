@@ -127,16 +127,21 @@ public class OutdatedCredentialController
 
 	private void afterCredentialUpdate(boolean changed)
 	{
-		finishHandler.run();
-		authnProcessor.logout(true);
+		ui.setEnabled(false);
 		if (changed)
 		{
-			NotificationPopup.showSuccess(msg.getMessage("OutdatedCredentialDialog.finalOK"), 
-					msg.getMessage("OutdatedCredentialDialog.finalInfo"));
+			NotificationPopup.showWarningAutoClosing(msg.getMessage("OutdatedCredentialDialog.finalOK"), 
+					msg.getMessage("OutdatedCredentialDialog.finalInfo"), this::cleanup);
 		} else
 		{
-			NotificationPopup.showError(msg.getMessage("OutdatedCredentialDialog.finalError"), 
-					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged"));
+			NotificationPopup.showWarningAutoClosing(msg.getMessage("OutdatedCredentialDialog.finalError"), 
+					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged"), this::cleanup);
 		}
+	}
+	
+	private void cleanup()
+	{
+		finishHandler.run();
+		authnProcessor.logout(true);
 	}
 }

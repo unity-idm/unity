@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.api;
 
+import java.util.List;
+
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -14,4 +16,6 @@ public interface GroupDAO extends NamedCRUDDAO<Group>
 {
 	String DAO_ID = "GroupDAO";
 	String NAME = "group";
+	
+	List<Group> getGroupChain(String path);
 }

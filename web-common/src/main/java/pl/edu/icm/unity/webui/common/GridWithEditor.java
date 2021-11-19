@@ -47,19 +47,29 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	private Class<T> type;
 	private T newElement;
 	private MessageSource msg;
-
+	private Button add;
+	
 	public GridWithEditor(MessageSource msg, Class<T> type)
 	{
 		this(msg, type, t -> false, true);
 	}
 	
 	
-	
 	public GridWithEditor(MessageSource msg, Class<T> type, Predicate<T> disableRemovePredicate, boolean enableDrag)
+	{
+		this(msg, type, disableRemovePredicate, enableDrag, true);
+	}
+	
+	public GridWithEditor(MessageSource msg, Class<T> type, Predicate<T> disableRemovePredicate, boolean enableDrag, boolean addAsActionButton)
 	{
 		this.type = type;
 		this.msg = msg;
 
+		add = new Button(msg.getMessage("addNew"));
+		if (addAsActionButton)
+			add.addStyleName(Styles.buttonAction.toString());
+		add.setIcon(Images.add.getResource());
+		
 		SingleActionHandler<T> remove = SingleActionHandler.builder4Delete(msg, type)
 				.withDisabledPredicate(disableRemovePredicate).withHandler(r -> {
 			grid.removeElement(r.iterator().next());
@@ -289,9 +299,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		buttonBar.setWidth(100, Unit.PERCENTAGE);
 		buttonBar.setMargin(false);
 
-		Button add = new Button(msg.getMessage("addNew"));
-		add.addStyleName(Styles.buttonAction.toString());
-		add.setIcon(Images.add.getResource());
+	
+	
 		add.addClickListener(e -> {
 			grid.setComponentError(null);
 			if (!grid.getEditor().isOpen())
@@ -341,4 +350,5 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 		return grid.getEditor().isOpen();
 	}	
+
 }

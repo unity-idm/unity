@@ -226,8 +226,8 @@
         border: 1px solid;
         border-color: $button-border-color;
     }
-    
-     .v-grid-row-selected > td {
+	
+    .v-grid-row-selected > td {
         background: $selected-color !important;
         color: $font-color-dark;
         border-color: $color-v-table-border;
@@ -1073,8 +1073,8 @@
 	}
 	
 	.u-gridWithAction .v-grid-header th {
-		background: $content-bg-color !important;
-		background-color : $content-bg-color !important;
+		background: transparent !important;
+		background-color : transparent !important;
 		font-weight : bold;
 		border-top : none;
 		border-right : none;
@@ -1140,7 +1140,7 @@
 
 	.u-gridWithAction .v-grid-row > td {
 		border-left: none;
-		background-color : $content-bg-color;
+		background-color : transparent;
 		border-right: none;
 		color: $font-color-dark !important;
 	}
@@ -1602,8 +1602,22 @@
 		height: 0px;
 	}
 	
-	 .u-fidoEditorLayout > div:first-child {
+	.u-fidoEditorLayout > div:first-child {
 		height: 0px;
+	}
+	
+	.u-fontMonospace {
+		font-family: monospace;
+	}
+	
+	.u-textAreaResizeable {
+		resize: both;
+	}
+	
+	.u-mvelFieldEditorLayout
+	{
+		overflow-y:scroll;
+		max-height: 16em;
 	}
 }
 

@@ -16,6 +16,9 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -28,10 +31,12 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 public class OAuthResponseHandler
 {
 	private final OAuthSessionService oauthSessionService;
-	
-	public OAuthResponseHandler(OAuthSessionService oauthSessionService)
+	public final OAuthIdpStatisticReporter statReporter;
+
+	public OAuthResponseHandler(OAuthSessionService oauthSessionService, OAuthIdpStatisticReporter statReporter)
 	{
 		this.oauthSessionService = oauthSessionService;
+		this.statReporter = statReporter;
 	}
 
 	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession) throws EopException
@@ -39,27 +44,41 @@ public class OAuthResponseHandler
 		returnOauthResponseNotThrowing(oauthResponse, destroySession);
 		throw new EopException();
 	}
-	
+
+	public void returnOauthResponseAndReportStatistic(AuthorizationResponse oauthResponse, boolean destroySession,
+			OAuthAuthzContext ctx, Status status) throws EopException
+	{
+		returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, destroySession, ctx, status);
+		throw new EopException();
+	}
+
 	public void returnOauthResponseNotThrowing(AuthorizationResponse oauthResponse, boolean destroySession)
 	{
-		VaadinSession session = VaadinSession.getCurrent(); 
+		VaadinSession session = VaadinSession.getCurrent();
 		session.addRequestHandler(new SendResponseRequestHandler(destroySession));
 		session.getSession().setAttribute(AuthorizationResponse.class.getName(), oauthResponse);
 		Page.getCurrent().reload();
 	}
-	
+
+	public void returnOauthResponseNotThrowingAndReportStatistic(AuthorizationResponse oauthResponse,
+			boolean destroySession, OAuthAuthzContext ctx, Status status)
+	{
+		returnOauthResponseNotThrowing(oauthResponse, destroySession);
+		statReporter.reportStatus(ctx, status);
+	}
+
 	public class SendResponseRequestHandler extends SynchronizedRequestHandler
 	{
 		private boolean destroySession;
-		
+
 		public SendResponseRequestHandler(boolean destroySession)
 		{
 			this.destroySession = destroySession;
 		}
 
 		@Override
-		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, 
-				VaadinResponse responseO) throws IOException
+		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, VaadinResponse responseO)
+				throws IOException
 		{
 			VaadinServletResponse response = (VaadinServletResponse) responseO;
 			AuthorizationResponse oauthResponse = (AuthorizationResponse) session.getSession()
@@ -81,7 +100,7 @@ public class OAuthResponseHandler
 				}
 				return true;
 			}
-			
+
 			return false;
 		}
 	}

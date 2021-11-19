@@ -27,4 +27,5 @@ public interface ServiceControllerBaseInt
 	void remove(ServiceDefinition service) throws ControllerException;
 	String getSupportedEndpointType();
 	ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException;
+	void reloadConfigFromFile(ServiceDefinition service) throws ControllerException;
 }

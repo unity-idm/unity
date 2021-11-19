@@ -77,8 +77,17 @@ class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 			HttpServletRequest httpRequest,
 			AuthenticationTriggeringContext triggeringContext)
 	{
+		
 		SandboxAuthenticationResult authnResult = executeVerificatorInSandboxMode(
 				authnContext::processAnswer, triggeringContext);
+		if (triggeringContext.isRegistrationTriggered())
+		{
+			return authnProcessor.processRemoteRegistrationResult(authnResult, 
+					authnContext.getAuthenticationStepContext(), 
+					authnContext.getInitialLoginMachine(), 
+					httpRequest);
+		} 
+		
 		return processSandboxAuthenticationResult(authnContext, httpRequest, authnResult);
 	}
 

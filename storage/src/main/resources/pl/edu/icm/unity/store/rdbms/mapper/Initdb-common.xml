@@ -238,6 +238,21 @@ CREATE TABLE MESSAGES (
 		<include refid="sql-messages"/>
 	</update>
 	
+	<sql id="sql-idpstatistics">
+CREATE TABLE IDP_STATISTICS (
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.primaryKeyColumn"/>,
+		TIMESTAMP <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.dateTimeType"/> NOT NULL,
+		IDP_ENDPOINT_ID VARCHAR(300) NOT NULL,
+		IDP_ENDPOINT_NAME VARCHAR(300),
+		CLIENT_ID VARCHAR(300) NOT NULL,
+		CLIENT_NAME VARCHAR(300),
+		STATUS VARCHAR(100) NOT NULL
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+	</sql>
+	
+	<update id="initdb-24">
+		<include refid="sql-idpstatistics"/>
+	</update>
 
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
