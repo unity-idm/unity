@@ -160,7 +160,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation.orElseGet(null));
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation.orElse(null));
 			editor.showFirstStage(onLocalSignupHandler);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -189,7 +189,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation.orElseGet(null));
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation.orElse(null));
 			editor.showSecondStage(withCredentials);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
