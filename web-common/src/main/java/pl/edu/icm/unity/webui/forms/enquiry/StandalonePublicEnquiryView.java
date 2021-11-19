@@ -137,7 +137,8 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		try
 		{
-			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
+			invitation = invitationResolver.getInvitationByCode(registrationCode);
+			invitation.assertMatchToForm(form);
 		} catch (RegCodeException e)
 		{
 			log.error("Can not get invitation", e);
