@@ -102,7 +102,8 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		{
 			try
 			{
-				resolvedInvitationParam = invitationResolver.getInvitationByCode(registrationCode, form);
+				resolvedInvitationParam = invitationResolver.getInvitationByCode(registrationCode);
+				resolvedInvitationParam.assertMatchToForm(form);
 				prefilledSet = getPrefilledFromInvitation(resolvedInvitationParam.getAsEnquiryInvitationParam(
 						InvocationContext.getCurrent().getLoginSession().getEntityId()));
 

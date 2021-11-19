@@ -11,14 +11,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class ResolvedInvitationParam
@@ -78,6 +81,18 @@ public class ResolvedInvitationParam
 	public InvitationType getType()
 	{
 		return invitationParam.getType();
+	}
+	
+	public void assertMatchToForm(BaseForm form) throws RegCodeException
+	{
+		try
+		{
+			if (!invitationParam.matchesForm(form))
+				throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
+		} catch (IllegalFormTypeException e)
+		{
+			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
+		}
 	}
 	
 	public List<Entity> getEntitiesWithoutAnonymous()
