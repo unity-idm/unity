@@ -76,7 +76,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		this.groupsMan = groupsMan;
 		this.attrTypeHelper = attrTypeHelper;
 	}
-
+	
 	@Override
 	public void process(MappingResult result) throws EngineException
 	{
@@ -180,7 +180,6 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 					throw new ExecutionBreakException();
 				}
 				existing = found;
-				result.addAuthenticatedWith(checked.getIdentity().getValue());
 			} catch (IllegalArgumentException e)
 			{
 				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);

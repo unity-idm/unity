@@ -143,7 +143,6 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				AuthenticationProcessor.extractParticipants(result), sessionReinitializer, httpResponse);
 
 		setLastIdpCookie(httpResponse, stepContext.authnOptionId, stepContext.endpointPath);
-		log.info("Successful authentication after first factor for {}", result);
 		return PostAuthenticationStepDecision.completed();
 	}
 
@@ -231,16 +230,19 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		{
 			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null);
 			assertNotFailed(authnState.getPrimaryResult());
+		} catch (UnknownRemoteUserException e)
+		{
+			sandboxRouter.fireEvent(new SandboxAuthnEvent(result.sandboxAuthnInfo, null,
+					httpRequest.getSession() != null ? httpRequest.getSession().getId() : null));
+			return PostAuthenticationStepDecision.completed();
 		} catch (AuthenticationException e)
 		{
 			sandboxRouter.fireEvent(new SandboxAuthnEvent(
-					RemoteSandboxAuthnContext.failedAuthn(
-							result.sandboxAuthnInfo.getAuthnException().orElse(e), 
-							result.sandboxAuthnInfo.getLogs(), 
+					RemoteSandboxAuthnContext.failedAuthn(result.sandboxAuthnInfo.getAuthnException().orElse(e),
+							result.sandboxAuthnInfo.getLogs(),
 							result.sandboxAuthnInfo.getRemotePrincipal()
-								.map(RemotelyAuthenticatedPrincipal::getAuthnInput).orElse(null)), 
-					null, 
-					httpRequest.getSession().getId()));
+									.map(RemotelyAuthenticatedPrincipal::getAuthnInput).orElse(null)),
+					null, httpRequest.getSession().getId()));
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
 
@@ -248,8 +250,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			return PostAuthenticationStepDecision.goToSecondFactor(new SecondFactorDetail(authnState));
 
 		AuthenticatedEntity authnEntity = basicAuthnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
-		sandboxRouter.fireEvent(new SandboxAuthnEvent(result.sandboxAuthnInfo, authnEntity, 
-				httpRequest.getSession().getId()));
+		sandboxRouter.fireEvent(
+				new SandboxAuthnEvent(result.sandboxAuthnInfo, authnEntity, httpRequest.getSession().getId()));
 		return PostAuthenticationStepDecision.completed();
 	}
 	

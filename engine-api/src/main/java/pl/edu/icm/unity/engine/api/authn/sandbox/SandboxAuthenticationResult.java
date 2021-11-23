@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.authn.sandbox;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 
 public class SandboxAuthenticationResult implements AuthenticationResult
 {
@@ -64,6 +65,12 @@ public class SandboxAuthenticationResult implements AuthenticationResult
 	public String toString()
 	{
 		return baseResult.toString();
+	}
+	
+	@Override
+	public RemoteAuthenticationResult asRemote()
+	{
+		return baseResult.asRemote();
 	}
 	
 	

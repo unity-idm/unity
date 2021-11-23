@@ -126,7 +126,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
 		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config, endpointDescription,
-				this::showOutdatedCredentialDialog, 
 				new CredentialResetLauncherImpl(),
 				this::showRegistration, 
 				cancelHandler, idsMan, execService, 
@@ -140,6 +139,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	private void loadInitialState() 
 	{
+		LOG.debug("Loading initial state of authentication UI");
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
 				.getAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
@@ -158,34 +158,36 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			}
 		} else
 		{
-			setContent(authenticationUI);
+			if (isUserAuthenticatedWithOutdatedCredential())
+				showOutdatedCredentialDialog();
+			else
+				setContent(authenticationUI);
 		}
 	}
-	
 	
 	/**
 	 * We may end up in authentication UI also after being properly logged in,
 	 * when the credential is outdated. The credential change dialog must be displayed then.
 	 */
-	private boolean showOutdatedCredentialDialog()
+	private boolean isUserAuthenticatedWithOutdatedCredential()
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
-		if (ls != null && ls.isUsedOutdatedCredential())
-		{
-			CredentialChangeConfiguration uiConfig = new CredentialChangeConfiguration(
-					config.getValue(VaadinEndpointProperties.AUTHN_LOGO), 
-					getFirstColumnWidth(), 
-					config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
-			
-			
-			OutdatedCredentialController outdatedCredentialController = outdatedCredentialDialogFactory.getObject();
-			outdatedCredentialController.init(uiConfig, authnProcessor, this::resetToFreshAuthenticationScreen);
-			setContent(outdatedCredentialController.getComponent());
-			return true;
-		}
-		return false;
+		return ls != null && ls.isUsedOutdatedCredential();
 	}
+	
+	private void showOutdatedCredentialDialog()
+	{
+		CredentialChangeConfiguration uiConfig = new CredentialChangeConfiguration(
+				config.getValue(VaadinEndpointProperties.AUTHN_LOGO), 
+				getFirstColumnWidth(), 
+				config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
+
+		OutdatedCredentialController outdatedCredentialController = outdatedCredentialDialogFactory.getObject();
+		outdatedCredentialController.init(uiConfig, authnProcessor, this::resetToFreshAuthenticationScreen);
+		setContent(outdatedCredentialController.getComponent());
+	}
+	
 	
 	private float getFirstColumnWidth()
 	{
