@@ -5,15 +5,18 @@
 package pl.edu.icm.unity.engine.forms.enquiry;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -26,6 +29,7 @@ import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -53,6 +57,7 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -75,21 +80,22 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 @InvocationEventProducer
 public class EnquiryManagementImpl implements EnquiryManagement
 {
-	private EnquiryFormDB enquiryFormDB;
-	private EnquiryResponseDB requestDB;
-	private NotificationProducer notificationProducer;
-	private RegistrationConfirmationSupport confirmationsSupport;
-	private MessageSource msg;
-	private InternalAuthorizationManager authz;
-	private BaseFormValidator baseFormValidator;
-	private EnquiryResponsePreprocessor enquiryResponseValidator;
-	private PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private TransactionalRunner tx;
-	private SharedEnquiryManagment internalManagment;
-	private EntityResolver identitiesResolver;
-	private AttributesHelper dbAttributes;
-	private BulkGroupQueryService bulkService;
-	private InternalCapacityLimitVerificator capacityLimitVerificator;
+	private final EnquiryFormDB enquiryFormDB;
+	private final EnquiryResponseDB requestDB;
+	private final NotificationProducer notificationProducer;
+	private final RegistrationConfirmationSupport confirmationsSupport;
+	private final MessageSource msg;
+	private final InternalAuthorizationManager authz;
+	private final BaseFormValidator baseFormValidator;
+	private final EnquiryResponsePreprocessor enquiryResponseValidator;
+	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+	private final TransactionalRunner tx;
+	private final SharedEnquiryManagment internalManagment;
+	private final EntityResolver identitiesResolver;
+	private final AttributesHelper dbAttributes;
+	private final BulkGroupQueryService bulkService;
+	private final InternalCapacityLimitVerificator capacityLimitVerificator;
+	private final EntityManagement entityManagement;
 	
 	@Autowired
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
@@ -103,7 +109,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			AttributesHelper dbAttributes,
 			@Qualifier("insecure")
 			BulkGroupQueryService bulkService,
-			InternalCapacityLimitVerificator capacityLimitVerificator)
+			InternalCapacityLimitVerificator capacityLimitVerificator,
+			@Qualifier("insecure") EntityManagement entityManagement)
 	{
 		this.enquiryFormDB = enquiryFormDB;
 		this.requestDB = requestDB;
@@ -120,6 +127,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		this.dbAttributes = dbAttributes;
 		this.bulkService = bulkService;
 		this.capacityLimitVerificator = capacityLimitVerificator;
+		this.entityManagement = entityManagement;
 	}
 
 	@Transactional
@@ -221,8 +229,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		responseFull.setEntityId(getEntity(response.getFormId(), response.getRegistrationCode()));
 		
 		EnquiryForm form = recordRequestAndReturnForm(responseFull);
-		sendNotificationOnNewResponse(form, response);
-		boolean accepted = tryAutoProcess(form, responseFull, context);
+		sendNotificationOnNewResponse(form);
+		boolean accepted = tryAutoProcess(form, responseFull);
 		
 		Long entityId = accepted ? responseFull.getEntityId() : null;
 		tx.runInTransactionThrowing(() -> {
@@ -336,7 +344,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		});
 	}
 
-	private void sendNotificationOnNewResponse(EnquiryForm form, EnquiryResponse response) throws EngineException
+	private void sendNotificationOnNewResponse(EnquiryForm form) throws EngineException
 	{
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		if (notificationsCfg.getSubmittedTemplate() != null
@@ -354,8 +362,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		}
 	}
 	
-	private boolean tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull, 
-			RegistrationContext context) throws EngineException
+	private boolean tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull) throws EngineException
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			return internalManagment.autoProcessEnquiry(form, requestFull, 
@@ -417,31 +424,31 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException
+	public List<EnquiryForm> getPendingEnquires(EntityParam entityParam) throws EngineException
 	{
-		long entityId = identitiesResolver.getEntityId(entity);
-		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readInfo);
+		Entity entity = entityManagement.getEntity(entityParam);
+		authz.checkAuthorization(authz.isSelf(entity.getId()), AuthzCapability.readInfo);
 		
-		List<EnquiryForm> allForms = enquiryFormDB.getAll();
+		List<EnquiryForm> allForms = enquiryFormDB.getAll().stream()
+				.filter(form -> !form.getType().equals(EnquiryType.STICKY))
+				.filter(form -> !form.isByInvitationOnly())
+				.collect(Collectors.toList());
 		
-		Set<String> ignored = getEnquiresFromAttribute(entityId, 
+		if (allForms.isEmpty())
+			return Collections.emptyList();
+		
+		Set<String> ignored = getEnquiresFromAttribute(entity.getId(), 
 				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
-		ignored.addAll(getEnquiresFromAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
+		ignored.addAll(getEnquiresFromAttribute(entity.getId(), EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
 	
-		EntityInGroupData entityInfo = getMemebershipInfo(entityId);
+		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms);
 	
 		List<EnquiryForm> ret = new ArrayList<>();
-		if (entityInfo == null)
-			return ret;
 		for (EnquiryForm form : allForms)
 		{
 			if (ignored.contains(form.getName()))
 				continue;
-			if (form.getType().equals(EnquiryType.STICKY))
-				continue;
-			if (form.isByInvitationOnly())
-				continue;
-			if (entityInfo.relevantEnquiryForms.contains(form.getName()))
+			if (relevantEnquiryForms.contains(form.getName()))
 				ret.add(form);
 		}
 		return ret;
@@ -449,33 +456,43 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public List<EnquiryForm> getAvailableStickyEnquires(EntityParam entity) throws EngineException
+	public List<EnquiryForm> getAvailableStickyEnquires(EntityParam entityParam) throws EngineException
 	{
-		long entityId = identitiesResolver.getEntityId(entity);
-		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readInfo);
+		Entity entity = entityManagement.getEntity(entityParam);
+		authz.checkAuthorization(authz.isSelf(entity.getId()), AuthzCapability.readInfo);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
-		EntityInGroupData entityInfo = getMemebershipInfo(entityId);
+		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms);
 		List<EnquiryForm> ret = new ArrayList<>();
-		if (entityInfo == null)
-			return ret;
 		for (EnquiryForm form : allForms)
 		{
-			if (form.isByInvitationOnly())
-				continue;
-			
 			if (form.getType().equals(EnquiryType.STICKY) &&
-					entityInfo.relevantEnquiryForms.contains(form.getName()))
+					relevantEnquiryForms.contains(form.getName()))
 				ret.add(form);
 		}
 		return ret;
 	}
 		
-	private EntityInGroupData getMemebershipInfo(Long entity) throws EngineException
+	private Set<String> getApplicableEnquiries(Entity entity, List<EnquiryForm> allForms) throws EngineException
 	{
-		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Sets.newSet(entity));
-		Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);	
-		return membershipInfo.get(entity);	
+		Set<String> forms = new HashSet<>();
+		Set<String> entityGroups = entityManagement.getGroups(new EntityParam(entity.getId())).keySet();
+		Collection<AttributeExt> entityAttributes = dbAttributes.getAllAttributesAsMapOneGroup(
+				entity.getId(), "/").values();
+		for (EnquiryForm enqForm : allForms)
+		{
+			if (enqForm.isByInvitationOnly())
+				continue;
+			if (EnquiryTargetCondEvaluator.evaluateTargetCondition(enqForm,
+							entity.getIdentities(),
+							entity.getState().toString(),
+							entity.getCredentialInfo(),
+							entityGroups,
+							entityAttributes))
+				forms.add(enqForm.getName());
+		}
+		return forms;
 	}
+	
 	
 	private Set<String> getEnquiresFromAttribute(long entityId, String attributeName) 
 			throws EngineException

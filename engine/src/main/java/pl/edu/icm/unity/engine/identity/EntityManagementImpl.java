@@ -707,12 +707,6 @@ public class EntityManagementImpl implements EntityManagement
 	/**
 	 * Checks if read cap is set and resolved the entity: identities and credential with respect to the
 	 * given target.
-	 * @param entityId
-	 * @param target
-	 * @param allowCreate
-	 * @param group
-	 * @return
-	 * @throws EngineException
 	 */
 	private Entity resolveEntityBasic(long entityId, String target, boolean allowCreate, String group) 
 			throws EngineException
@@ -724,10 +718,6 @@ public class EntityManagementImpl implements EntityManagement
 	
 	/**
 	 * assembles the final entity by adding the credential and state info.
-	 * @param entityId
-	 * @param identities
-	 * @return
-	 * @throws EngineException
 	 */
 	private Entity assembleEntity(long entityId, List<Identity> identities) throws EngineException
 	{
