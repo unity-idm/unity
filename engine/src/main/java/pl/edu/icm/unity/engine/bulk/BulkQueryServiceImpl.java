@@ -333,7 +333,6 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		return statementsHelper.getEffectiveAttributes(identities, 
 				group, null, allGroups, directAttributesByGroup, 
 				globalSystemData.getAttributeClasses(),
-				globalSystemData.getGroups()::get, 
 				globalSystemData.getAttributeTypes()::get,
 				g -> globalSystemData.getGroupChain(g));
 	}

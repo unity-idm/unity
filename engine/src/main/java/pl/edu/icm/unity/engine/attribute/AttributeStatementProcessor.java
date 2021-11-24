@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,13 +80,13 @@ public class AttributeStatementProcessor
 	 */
 	public Map<String, AttributeExt> getEffectiveAttributes(List<Identity> identities, String group, 
 			String queriedAttribute, 
-			List<Group> allGroups, Map<String, Map<String, AttributeExt>> directAttributesByGroup,
+			Collection<Group> allGroups, 
+			Map<String, Map<String, AttributeExt>> directAttributesByGroup,
 			Map<String, AttributesClass> knownClasses,
-			Function<String, Group> groupInfoProvider,
 			Function<String, AttributeType> attrTypeProvider,
-			Function<String, GroupsChain> groupChainProvider
-			) 
-	{		
+			Function<String, GroupsChain> groupChainProvider) 
+	{
+		Function<String, Group> groupInfoProvider = path -> groupChainProvider.apply(path).getLast();
 		Map<String, Map<String, AttributeExt>> downwardsAttributes = new HashMap<>();
 		collectUpOrDownAttributes(Direction.downwards, group, null, identities, downwardsAttributes, 
 				directAttributesByGroup, allGroups, knownClasses, groupInfoProvider, attrTypeProvider, groupChainProvider);
@@ -98,7 +99,8 @@ public class AttributeStatementProcessor
 		
 		Map<String, AttributeExt> fromStatemants = processAttributeStatements(Direction.undirected, directAttributesByGroup, 
 				upwardsAttributes, downwardsAttributes, group, 
-				queriedAttribute, identities, statements, allGroups, knownClasses, attrTypeProvider, groupInfoProvider, groupChainProvider);
+				queriedAttribute, identities, statements, allGroups, knownClasses, attrTypeProvider, 
+				groupChainProvider);
 		
 		return "/".equals(group) ? fromStatemants 
 				: addGlobal(fromStatemants, directAttributesByGroup, attrTypeProvider, queriedAttribute);
@@ -147,7 +149,8 @@ public class AttributeStatementProcessor
 			List<Identity> identities,
 			Map<String, Map<String, AttributeExt>> upOrDownAttributes, 
 			Map<String, Map<String, AttributeExt>> allAttributesByGroup,
-			List<Group> allGroups, Map<String, AttributesClass> knownClasses,
+			Collection<Group> allGroups, 
+			Map<String, AttributesClass> knownClasses,
 			Function<String, Group> groupInfoProvider,
 			Function<String, AttributeType> attrTypeProvider,
 			Function<String, GroupsChain> groupChainProvider) 
@@ -176,9 +179,11 @@ public class AttributeStatementProcessor
 		
 		Map<String, AttributeExt> ret = (mode == Direction.upwards) ? 
 				processAttributeStatements(mode, allAttributesByGroup, upOrDownAttributes, null,
-						groupPath, null, identities, statements, allGroups, knownClasses, attrTypeProvider, groupInfoProvider, groupChainProvider):
+						groupPath, null, identities, statements, allGroups, knownClasses, 
+						attrTypeProvider, groupChainProvider):
 				processAttributeStatements(mode, allAttributesByGroup, null, upOrDownAttributes, 
-						groupPath, null, identities, statements, allGroups, knownClasses, attrTypeProvider, groupInfoProvider, groupChainProvider);
+						groupPath, null, identities, statements, allGroups, knownClasses, 
+						attrTypeProvider, groupChainProvider);
 		upOrDownAttributes.put(groupPath, ret);
 	}
 	
@@ -196,15 +201,17 @@ public class AttributeStatementProcessor
 			Map<String, Map<String, AttributeExt>> allRegularAttributesByGroup,
 			Map<String, Map<String, AttributeExt>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt>> downwardsAttributesByGroup,
-			String group, String queriedAttribute, List<Identity> identities, AttributeStatement[] statements, 
-			List<Group> allGroups, Map<String, AttributesClass> knownClasses,
-			Function<String, AttributeType> attrTypeProvider, Function<String, Group> groupInfoProvider, 
+			String group, 
+			String queriedAttribute, List<Identity> identities, AttributeStatement[] statements, 
+			Collection<Group> allGroups, 
+			Map<String, AttributesClass> knownClasses,
+			Function<String, AttributeType> attrTypeProvider, 
 			Function<String, GroupsChain> groupChainProvider) 
 	{
-		Map<String, AttributeExt> collectedAttributes = new HashMap<String, AttributeExt>();
+		Map<String, AttributeExt> collectedAttributes = new HashMap<>();
 		Map<String, AttributeExt> regularAttributesInGroup = allRegularAttributesByGroup.get(group);
 		if (regularAttributesInGroup == null)
-			regularAttributesInGroup = new HashMap<String, AttributeExt>();
+			regularAttributesInGroup = new HashMap<>();
 		AttributeExt acAttribute = null;
 		if (regularAttributesInGroup != null)
 		{
@@ -244,7 +251,7 @@ public class AttributeStatementProcessor
 			{
 				processAttributeStatement(direction, group, as, queriedAttribute, identities, 
 						collectedAttributes, regularAttributesInGroup, extraAttributes, 
-						allGroups, acHelper, attrTypeProvider, groupInfoProvider, groupChainProvider);
+						allGroups, acHelper, attrTypeProvider, groupChainProvider);
 			} catch (Exception e) 
 			{
 				log.error("Error processing statement " + 
@@ -269,9 +276,9 @@ public class AttributeStatementProcessor
 			Map<String, AttributeExt> collectedAttributes,
 			Map<String, AttributeExt> regularGroupAttributes,
 			Map<String, AttributeExt> extraGroupAttributes,
-			List<Group> allGroups, AttributeClassHelper acHelper,
+			Collection<Group> allGroups, 
+			AttributeClassHelper acHelper,
 			Function<String, AttributeType> attrTypeProvider,
-			Function<String, Group> groupInfoProvider ,
 			Function<String, GroupsChain> groupChainProvider) 
 	{
 		//we are in the recursive process of establishing downwards or upwards attributes and the
@@ -286,7 +293,7 @@ public class AttributeStatementProcessor
 			return;
 		
 		Map<String, Object> context = createMvelContext(allGroups, group, identities, 
-				regularGroupAttributes, extraGroupAttributes, groupInfoProvider, groupChainProvider);
+				regularGroupAttributes, extraGroupAttributes, groupChainProvider);
 		
 		boolean condition = evaluateStatementCondition(statement, context);
 		if (!condition)
@@ -434,19 +441,21 @@ public class AttributeStatementProcessor
 		return ret;
 	}
 
-	private Map<String, Object> createMvelContext(List<Group> allGroups, String groupName, 
+	private Map<String, Object> createMvelContext(Collection<Group> allGroups, String groupName, 
 			List<Identity> identities,
 			Map<String, AttributeExt> directAttributes, Map<String, AttributeExt> extraAttributes,
-			Function<String, Group> groupInfoProvider, 
 			Function<String, GroupsChain> groupChainProvider)
 	{
 		Map<String, Object> ret = new HashMap<>();
 		
 		ret.put(AttributeStatementMVELContextKey.entityId.name(), identities.get(0).getEntityId());
 		ret.put(AttributeStatementMVELContextKey.groupName.name(), groupName);
-		ret.put(AttributeStatementMVELContextKey.groups.name(), new ArrayList<>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
+		ret.put(AttributeStatementMVELContextKey.groups.name(),
+				new ArrayList<>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
 		ret.put(AttributeStatementMVELContextKey.groupsObj.name(),
-				allGroups.stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> new MVELGroup(groupChainProvider.apply(g.getPathEncoded())))));
+				allGroups.stream().collect(
+						Collectors.toMap(g -> g.getPathEncoded(), 
+						g -> new MVELGroup(groupChainProvider.apply(g.getPathEncoded())))));
 		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
 		for (Identity id: identities)
@@ -461,10 +470,16 @@ public class AttributeStatementProcessor
 		}
 		ret.put(AttributeStatementMVELContextKey.idsByType.name(), idsByType);
 		
-		addAttributesToContext(directAttributes, AttributeStatementMVELContextKey.attrs, AttributeStatementMVELContextKey.attr, ret);
+		addAttributesToContext(directAttributes, 
+				AttributeStatementMVELContextKey.attrs, 
+				AttributeStatementMVELContextKey.attr, 
+				ret);
 		if (extraAttributes != null)
 		{
-			addAttributesToContext(extraAttributes, AttributeStatementMVELContextKey.eattrs, AttributeStatementMVELContextKey.eattr, ret);
+			addAttributesToContext(extraAttributes, 
+					AttributeStatementMVELContextKey.eattrs, 
+					AttributeStatementMVELContextKey.eattr, 
+					ret);
 		} else
 		{
 			ret.put(AttributeStatementMVELContextKey.eattrs.name(), null);

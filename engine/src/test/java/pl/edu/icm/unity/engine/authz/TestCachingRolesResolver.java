@@ -53,15 +53,13 @@ public class TestCachingRolesResolver
 	{
 		CachingRolesResolver resolver = new CachingRolesResolver(rolesMap, dbAttributes, 100000, groupDAO);
 		
-		Map<String, Map<String, AttributeExt>> roleAttrs = new HashMap<>();
 		Map<String, AttributeExt> roleInRoot = new HashMap<>();
 		roleInRoot.put(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				new AttributeExt(new Attribute(
 						RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
 						Lists.newArrayList("role1")), true));
-		roleAttrs.put("/", roleInRoot);
-		when(dbAttributes.getAllAttributesAsMap(
-				eq(1L), eq("/"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleAttrs);
+		when(dbAttributes.getAllAttributesAsMapOneGroup(
+				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleInRoot);
 		
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 		
@@ -74,23 +72,21 @@ public class TestCachingRolesResolver
 	{
 		CachingRolesResolver resolver = new CachingRolesResolver(rolesMap, dbAttributes, 100000, groupDAO);
 		
-		Map<String, Map<String, AttributeExt>> roleAttrs = new HashMap<>();
 		Map<String, AttributeExt> roleInRoot = new HashMap<>();
 		roleInRoot.put(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				new AttributeExt(new Attribute(
 						RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
 						Lists.newArrayList("role1")), true));
-		roleAttrs.put("/", roleInRoot);
-		when(dbAttributes.getAllAttributesAsMap(
-				eq(1L), eq("/"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleAttrs);
+		when(dbAttributes.getAllAttributesAsMapOneGroup(
+				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleInRoot);
 		
 		resolver.establishRoles(1, new Group("/A"));
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 		
 		assertThat(roles.size(), is(1));
 		assertThat(roles, hasItem(r1));
-		verify(dbAttributes).getAllAttributesAsMap(eq(1L), eq("/"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
-		verify(dbAttributes).getAllAttributesAsMap(eq(1L), eq("/A"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes).getAllAttributesAsMapOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes).getAllAttributesAsMapOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 	}
 
 	
@@ -99,15 +95,13 @@ public class TestCachingRolesResolver
 	{
 		CachingRolesResolver resolver = new CachingRolesResolver(rolesMap, dbAttributes, 1, groupDAO);
 
-		Map<String, Map<String, AttributeExt>> roleAttrs = new HashMap<>();
 		Map<String, AttributeExt> roleInRoot = new HashMap<>();
 		roleInRoot.put(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				new AttributeExt(new Attribute(
 						RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
 						Lists.newArrayList("role1")), true));
-		roleAttrs.put("/", roleInRoot);
-		when(dbAttributes.getAllAttributesAsMap(
-				eq(1L), eq("/"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleAttrs);
+		when(dbAttributes.getAllAttributesAsMapOneGroup(
+				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleInRoot);
 
 		resolver.establishRoles(1, new Group("/A"));
 		Thread.sleep(10);
@@ -115,8 +109,8 @@ public class TestCachingRolesResolver
 
 		assertThat(roles.size(), is(1));
 		assertThat(roles, hasItem(r1));
-		verify(dbAttributes, times(2)).getAllAttributesAsMap(eq(1L), eq("/"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
-		verify(dbAttributes, times(2)).getAllAttributesAsMap(eq(1L), eq("/A"), eq(true), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes, times(2)).getAllAttributesAsMapOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes, times(2)).getAllAttributesAsMapOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 	}
 
 }

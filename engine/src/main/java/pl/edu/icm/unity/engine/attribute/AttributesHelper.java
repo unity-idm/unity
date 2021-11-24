@@ -11,12 +11,14 @@ import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -49,7 +51,6 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
@@ -93,7 +94,6 @@ public class AttributesHelper
 	private final MembershipDAO membershipDAO;
 	private final AttributeStatementProcessor statementsHelper;
 	private final AttributeTypeHelper atHelper;
-	private final GroupDAO groupDAO;
 	private final AuditPublisher audit;
 	private final InternalCapacityLimitVerificator capacityLimitVerificator;
 	private final PublicAttributeRegistry attrRegistry;
@@ -105,7 +105,7 @@ public class AttributesHelper
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
-			GroupDAO groupDAO, AuditPublisher audit,
+			AuditPublisher audit,
 			InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
@@ -119,109 +119,33 @@ public class AttributesHelper
 		this.statementsHelper = statementsHelper;
 		this.atHelper = atHelper;
 		this.acUtil = acUtil;
-		this.groupDAO = groupDAO;
 		this.audit = audit;
 		this.capacityLimitVerificator = capacityLimitVerificator;
 		this.attrRegistry = new PublicAttributeRegistry(attributeDAO, atHelper);
 	}
 
-	/**
-	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
-	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
-	 */
-	public Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, String groupPath, 
-			boolean effective, String attributeTypeName) 
-			throws EngineException
-	{
-		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
-		return getAllAttributesAsMap(entityId, groupsPaths, effective, attributeTypeName);
-	}
-
-	/**
-	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
-	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
-	 */
-	private Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
-			boolean effective, String attributeTypeName) throws EngineException
-	{
-		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
-		if (!effective)
-		{
-			groupsPaths.forEach(g -> filterMap(directAttributesByGroup, g, attributeTypeName));
-			return directAttributesByGroup;
-		}
-		Map<String, Group> allGroups = groupDAO.getAll().stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g));
-		
-		Set<String> allUserGroups = membershipDAO.getEntityMembershipSimple(entityId);
-		List<String> groups = groupsPaths != null && groupsPaths.isEmpty() ? new ArrayList<>(allUserGroups) : groupsPaths;
-		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
-
-		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
-
-		List<Identity> identities = identityDAO.getByEntity(entityId);
-		for (String group: groups)
-		{
-			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
-					attributeTypeName, allUserGroups.stream().map(allGroups::get).collect(Collectors.toList()),
-					directAttributesByGroup, allClasses, allGroups::get, attributeTypeDAO::get, g -> new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allGroups.get(p)).collect(Collectors.toList())));
-			ret.put(group, inGroup);
-		}
-		return ret;
-	}
-
+	
 	public Map<String, AttributeExt> getAllAttributesAsMapOneGroup(long entityId, String groupPath) 
 			throws EngineException
 	{
 		if (groupPath == null)
 			throw new IllegalArgumentException("For this method group must be specified");
-		Map<String, Map<String, AttributeExt>> asMap = getAllAttributesAsMap(entityId, groupPath, true, null);
-		return asMap.get(groupPath);
+		return getEntityInGroupAttributesAsMap(entityId, groupPath, null);
 	}
-
+	
 	/**
-	 * @return map indexed with groups. Values are maps of all attributes in all groups, indexed with their names.
+	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
+	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
 	 */
-	private Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId) 
-			throws IllegalTypeException, IllegalGroupValueException
+	public Map<String, AttributeExt> getAllAttributesAsMapOneGroup(long entityId, String groupPath, 
+			String attributeTypeName) throws EngineException
 	{
-		List<StoredAttribute> attributes = attributeDAO.getAttributes(null, entityId, null);
-		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
-		for (StoredAttribute attribute: attributes)
-		{
-			Map<String, AttributeExt> attrsInGroup = ret.get(attribute.getAttribute().getGroupPath());
-			if (attrsInGroup == null)
-			{
-				attrsInGroup = new HashMap<>();
-				ret.put(attribute.getAttribute().getGroupPath(), attrsInGroup);
-			}
-			attrsInGroup.put(attribute.getAttribute().getName(), attribute.getAttribute());
-		}
-		return ret;
+		if (groupPath == null)
+			throw new IllegalArgumentException("For this method group must be specified");
+		if (attributeTypeName == null)
+			throw new IllegalArgumentException("For this method attribute name must be specified");
+		return getEntityInGroupAttributesAsMap(entityId, groupPath, attributeTypeName);
 	}
-	
-	private void filterMap(Map<String, Map<String, AttributeExt>> directAttributesByGroup,
-			String groupPath, String attributeTypeName)
-	{
-		if (groupPath != null)
-		{
-			Map<String, AttributeExt> v = directAttributesByGroup.get(groupPath); 
-			directAttributesByGroup.clear();
-			if (v != null)
-				directAttributesByGroup.put(groupPath, v);
-		}
-		
-		if (attributeTypeName != null)
-		{
-			for (Map<String, AttributeExt> e: directAttributesByGroup.values())
-			{
-				AttributeExt at = e.get(attributeTypeName);
-				e.clear();
-				if (at != null)
-					e.put(attributeTypeName, at);
-			}
-		}
-	}
-	
 
 	/**
 	 * Returns {@link AttributeType} which has the given metadata set. The metadata used as parameter must be
@@ -248,9 +172,8 @@ public class AttributesHelper
 		if (at == null)
 			return null;
 		long entityId = idResolver.getEntityId(entity);
-		Collection<AttributeExt> ret = getAllAttributesInternal(entityId, true, 
-				group, at.getName(), true);
-		return ret.size() == 1 ? ret.iterator().next() : null; 
+		Map<String, AttributeExt> ret = getAllAttributesAsMapOneGroup(entityId, group, at.getName());
+		return ret.get(at.getName()); 
 	}
 
 	public String getAttributeValueByMetadata(EntityParam entity, String group, String metadataId)
@@ -315,11 +238,10 @@ public class AttributesHelper
 		return getAllAttributes(entityId, groupsPaths, effective, attributeTypeName);
 	}
 
-	public Collection<AttributeExt> getAllAttributes(long entityId, String groupPath, boolean effective, 
+	public AttributeExt getEffectiveAttributeOneGroup(long entityId, String groupPath, 
 			String attributeTypeName) throws EngineException
 	{
-		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
-		return getAllAttributes(entityId, groupsPaths, effective, attributeTypeName);
+		return getAllAttributesAsMapOneGroup(entityId, groupPath, attributeTypeName).get(attributeTypeName);
 	}
 
 	public Collection<AttributeExt> getAllAttributes(long entityId, List<String> groupsPaths, boolean effective,
@@ -773,4 +695,119 @@ public class AttributesHelper
 		
 	}
 	
+
+	
+	/**
+	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
+	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
+	 */
+	private Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
+			boolean effective, String attributeTypeName) throws EngineException
+	{
+		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
+		if (!effective)
+		{
+			groupsPaths.forEach(g -> filterMap(directAttributesByGroup, g, attributeTypeName));
+			return directAttributesByGroup;
+		}
+		Map<String, Group> allUserGroupsMap = membershipDAO.getEntityMembershipGroups(entityId).stream()
+				.collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g));
+		
+		List<String> groups = groupsPaths.isEmpty() ? 
+				new ArrayList<>(allUserGroupsMap.keySet()) 
+				: groupsPaths.stream().filter(allUserGroupsMap::containsKey).collect(Collectors.toList());
+		
+		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
+
+		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
+
+		List<Identity> identities = identityDAO.getByEntity(entityId);
+		Collection<Group> allUserGroups = allUserGroupsMap.values();
+		Function<String, GroupsChain> groupChainProvider = g -> 
+			new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allUserGroupsMap.get(p)).collect(Collectors.toList())); 
+		for (String group: groups)
+		{
+			if (!allUserGroupsMap.containsKey(group))
+				continue;
+			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
+					attributeTypeName, 
+					allUserGroups,
+					directAttributesByGroup, allClasses, 
+					attributeTypeDAO::get, 
+					groupChainProvider);
+			ret.put(group, inGroup);
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns map of attributes of a given entity in a given group, indexed by attribute names.
+	 */
+	private Map<String, AttributeExt> getEntityInGroupAttributesAsMap(long entityId, String groupPath,
+			String attributeTypeName) throws EngineException
+	{
+		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
+		Map<String, Group> allUserGroups = membershipDAO.getEntityMembershipGroups(entityId).stream()
+				.collect(Collectors.toMap(g -> g.getPathEncoded(), g -> g));
+		if (!allUserGroups.containsKey(groupPath))
+			return Collections.emptyMap();
+		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
+		List<Identity> identities = identityDAO.getByEntity(entityId);
+
+		Function<String, GroupsChain> groupChainProvider = g -> 
+				new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allUserGroups.get(p)).collect(Collectors.toList())); 
+
+		return statementsHelper.getEffectiveAttributes(identities, groupPath,
+					attributeTypeName, 
+					allUserGroups.values(),
+					directAttributesByGroup, 
+					allClasses, 
+					attributeTypeDAO::get, 
+					groupChainProvider);
+	}
+	
+	
+	/**
+	 * @return map indexed with groups. Values are maps of all attributes in all groups, indexed with their names.
+	 */
+	private Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId) 
+			throws IllegalTypeException, IllegalGroupValueException
+	{
+		List<StoredAttribute> attributes = attributeDAO.getAttributes(null, entityId, null);
+		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
+		for (StoredAttribute attribute: attributes)
+		{
+			Map<String, AttributeExt> attrsInGroup = ret.get(attribute.getAttribute().getGroupPath());
+			if (attrsInGroup == null)
+			{
+				attrsInGroup = new HashMap<>();
+				ret.put(attribute.getAttribute().getGroupPath(), attrsInGroup);
+			}
+			attrsInGroup.put(attribute.getAttribute().getName(), attribute.getAttribute());
+		}
+		return ret;
+	}
+	
+	private void filterMap(Map<String, Map<String, AttributeExt>> directAttributesByGroup,
+			String groupPath, String attributeTypeName)
+	{
+		if (groupPath != null)
+		{
+			Map<String, AttributeExt> v = directAttributesByGroup.get(groupPath); 
+			directAttributesByGroup.clear();
+			if (v != null)
+				directAttributesByGroup.put(groupPath, v);
+		}
+		
+		if (attributeTypeName != null)
+		{
+			for (Map<String, AttributeExt> e: directAttributesByGroup.values())
+			{
+				AttributeExt at = e.get(attributeTypeName);
+				e.clear();
+				if (at != null)
+					e.put(attributeTypeName, at);
+			}
+		}
+	}
 }

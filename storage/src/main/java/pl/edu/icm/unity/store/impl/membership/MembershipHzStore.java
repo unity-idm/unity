@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.membership;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -263,5 +265,14 @@ public class MembershipHzStore implements MembershipDAO, HzDAO
 	public void createList(ArrayList<GroupMembership> memberships)
 	{
 		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public List<Group> getEntityMembershipGroups(long entityId)
+	{
+		return getEntityMembership(entityId).stream()
+			.map(GroupMembership::getGroup)
+			.map(Group::new) //well - not really correct
+			.collect(toList());
 	}
 }

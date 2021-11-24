@@ -6,6 +6,8 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import java.util.List;
 
+import pl.edu.icm.unity.store.impl.groups.GroupBean;
+
 
 /**
  * Access to the GroupMembership.xml operations.
@@ -26,4 +28,7 @@ public interface MembershipMapper
 	List<GroupElementBean> getMembers(long groupId);
 	
 	List<GroupElementBean> getAll();
+	
+	List<GroupBean> getEntityGroups(long entityId);
+
 }

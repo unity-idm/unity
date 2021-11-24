@@ -8,7 +8,14 @@
 		<result property="contents" column="CONTENTS"/>
 		<result property="group" column="NAME"/>
 	</resultMap>
-
+	<resultMap id="groupResult" type="GroupB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="parentId" column="PARENT_ID"/>
+		<result property="parentPath" column="PARENT_PATH"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+	
 	<insert id="create" parameterType="GroupElementB">
 		INSERT INTO GROUP_ENTITIES (GROUP_ID, ENTITY_ID, CONTENTS) 
 				VALUES (#{groupId}, #{elementId}, #{contents})
@@ -49,5 +56,11 @@
 		SELECT GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME FROM GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
 			WHERE ENTITY_ID = #{elementId} AND GROUP_ENTITIES.GROUP_ID = #{groupId} AND
 			<include refid="io.imunity.sql.groups"/>.ID = GROUP_ENTITIES.GROUP_ID  
+	</select>
+	
+	
+	<select id="getEntityGroups" parameterType="long" resultMap="groupResult">
+		select <include refid="io.imunity.sql.groups"/>.* from GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
+			where GROUP_ENTITIES.ENTITY_ID = #{value} AND <include refid="io.imunity.sql.groups"/>.ID = GROUP_ENTITIES.GROUP_ID
 	</select>
 </mapper>

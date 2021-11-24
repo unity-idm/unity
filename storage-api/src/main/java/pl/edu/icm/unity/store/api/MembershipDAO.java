@@ -11,10 +11,7 @@ import java.util.Set;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
-
 
 /**
  * Group membership DAO
@@ -48,11 +45,5 @@ public interface MembershipDAO
 		return ret;
 	}
 
-	default List<Group> getEntityMembershipGroups(long entityId)
-	{
-		return getEntityMembership(entityId).stream()
-			.map(GroupMembership::getGroup)
-			.map(Group::new)
-			.collect(toList());
-	}
+	List<Group> getEntityMembershipGroups(long entityId);
 }
