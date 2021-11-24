@@ -53,13 +53,11 @@ public class TestCachingRolesResolver
 	{
 		CachingRolesResolver resolver = new CachingRolesResolver(rolesMap, dbAttributes, 100000, groupDAO);
 		
-		Map<String, AttributeExt> roleInRoot = new HashMap<>();
-		roleInRoot.put(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				new AttributeExt(new Attribute(
-						RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
-						Lists.newArrayList("role1")), true));
-		when(dbAttributes.getAllAttributesAsMapOneGroup(
-				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleInRoot);
+		AttributeExt role = new AttributeExt(new Attribute(
+			RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
+			Lists.newArrayList("role1")), true);
+		when(dbAttributes.getAttributeOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE)))
+					.thenReturn(role);
 		
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 		
@@ -72,21 +70,19 @@ public class TestCachingRolesResolver
 	{
 		CachingRolesResolver resolver = new CachingRolesResolver(rolesMap, dbAttributes, 100000, groupDAO);
 		
-		Map<String, AttributeExt> roleInRoot = new HashMap<>();
-		roleInRoot.put(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				new AttributeExt(new Attribute(
-						RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
-						Lists.newArrayList("role1")), true));
-		when(dbAttributes.getAllAttributesAsMapOneGroup(
-				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleInRoot);
+		AttributeExt role = new AttributeExt(new Attribute(
+				RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
+				Lists.newArrayList("role1")), true);
+		when(dbAttributes.getAttributeOneGroup(
+				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(role);
 		
 		resolver.establishRoles(1, new Group("/A"));
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 		
 		assertThat(roles.size(), is(1));
 		assertThat(roles, hasItem(r1));
-		verify(dbAttributes).getAllAttributesAsMapOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
-		verify(dbAttributes).getAllAttributesAsMapOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes).getAttributeOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes).getAttributeOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 	}
 
 	
@@ -95,13 +91,11 @@ public class TestCachingRolesResolver
 	{
 		CachingRolesResolver resolver = new CachingRolesResolver(rolesMap, dbAttributes, 1, groupDAO);
 
-		Map<String, AttributeExt> roleInRoot = new HashMap<>();
-		roleInRoot.put(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				new AttributeExt(new Attribute(
-						RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
-						Lists.newArrayList("role1")), true));
-		when(dbAttributes.getAllAttributesAsMapOneGroup(
-				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(roleInRoot);
+		AttributeExt role = new AttributeExt(new Attribute(
+				RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "string", "/", 
+				Lists.newArrayList("role1")), true);
+		when(dbAttributes.getAttributeOneGroup(
+				eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE))).thenReturn(role);
 
 		resolver.establishRoles(1, new Group("/A"));
 		Thread.sleep(10);
@@ -109,8 +103,8 @@ public class TestCachingRolesResolver
 
 		assertThat(roles.size(), is(1));
 		assertThat(roles, hasItem(r1));
-		verify(dbAttributes, times(2)).getAllAttributesAsMapOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
-		verify(dbAttributes, times(2)).getAllAttributesAsMapOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes, times(2)).getAttributeOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
+		verify(dbAttributes, times(2)).getAttributeOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 	}
 
 }

@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -77,12 +76,9 @@ class CachingRolesResolver
 			Set<AuthzRole> ret = new HashSet<>();
 			do
 			{
-				Map<String, AttributeExt> inCurrent = getAuthzRoleAttribute(entityId, current);
-				if (inCurrent != null)
-				{
-					Attribute role = inCurrent.get(RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
+				Attribute role = getAuthzRoleAttribute(entityId, current);
+				if (role != null)
 					ret.addAll(getRolesFromAttribute(role));
-				}
 				String parent = current.getParentPath();
 				current = parent == null ? null : new Group(parent);
 			} while (current != null);
@@ -111,16 +107,16 @@ class CachingRolesResolver
 		return ret;
 	}
 	
-	private Map<String, AttributeExt> getAuthzRoleAttribute(long entityId, Group group) throws EngineException 
+	private AttributeExt getAuthzRoleAttribute(long entityId, Group group) throws EngineException 
 	{
 		String groupPath = group.getName();
 		
 		if (!groupsDAO.exists(groupPath))
-			return Collections.emptyMap();
+			return null;
 		
 		try
 		{
-			return dbAttributes.getAllAttributesAsMapOneGroup(entityId, groupPath, 
+			return dbAttributes.getAttributeOneGroup(entityId, groupPath, 
 					RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		} catch (IllegalTypeException e)
 		{

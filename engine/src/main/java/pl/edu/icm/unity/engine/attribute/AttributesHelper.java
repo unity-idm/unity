@@ -130,21 +130,19 @@ public class AttributesHelper
 	{
 		if (groupPath == null)
 			throw new IllegalArgumentException("For this method group must be specified");
-		return getEntityInGroupAttributesAsMap(entityId, groupPath, null);
+		return getEntityAttributesInGroupAsMap(entityId, groupPath, null);
 	}
 	
 	/**
-	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
-	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
+	 * @return single attribute of a given entity in a given group.
 	 */
-	public Map<String, AttributeExt> getAllAttributesAsMapOneGroup(long entityId, String groupPath, 
-			String attributeTypeName) throws EngineException
+	public AttributeExt getAttributeOneGroup(long entityId, String groupPath, String attributeTypeName) throws EngineException
 	{
 		if (groupPath == null)
 			throw new IllegalArgumentException("For this method group must be specified");
 		if (attributeTypeName == null)
 			throw new IllegalArgumentException("For this method attribute name must be specified");
-		return getEntityInGroupAttributesAsMap(entityId, groupPath, attributeTypeName);
+		return getEntityAttributesInGroupAsMap(entityId, groupPath, attributeTypeName).get(attributeTypeName);
 	}
 
 	/**
@@ -172,8 +170,7 @@ public class AttributesHelper
 		if (at == null)
 			return null;
 		long entityId = idResolver.getEntityId(entity);
-		Map<String, AttributeExt> ret = getAllAttributesAsMapOneGroup(entityId, group, at.getName());
-		return ret.get(at.getName()); 
+		return getAttributeOneGroup(entityId, group, at.getName());
 	}
 
 	public String getAttributeValueByMetadata(EntityParam entity, String group, String metadataId)
@@ -210,15 +207,15 @@ public class AttributesHelper
 	}
 	
 	
-	public Collection<AttributeExt> getAllAttributesInternal(long entityId, 
+	public Collection<AttributeExt> getAttributesInternal(long entityId, 
 			boolean effective, String groupPath, String attributeTypeName, 
 			boolean allowDisabled) throws EngineException
 	{
 		List<String> groupsPaths = groupPath != null ? singletonList(groupPath) : emptyList();
-		return getAllAttributesInternal(entityId, effective, groupsPaths, attributeTypeName, allowDisabled);
+		return getAttributesInternal(entityId, effective, groupsPaths, attributeTypeName, allowDisabled);
 	}
 
-	public Collection<AttributeExt> getAllAttributesInternal(long entityId,
+	public Collection<AttributeExt> getAttributesInternal(long entityId,
 			boolean effective, List<String> groupsPaths, String attributeTypeName,
 			boolean allowDisabled) throws EngineException
 	{
@@ -241,13 +238,13 @@ public class AttributesHelper
 	public AttributeExt getEffectiveAttributeOneGroup(long entityId, String groupPath, 
 			String attributeTypeName) throws EngineException
 	{
-		return getAllAttributesAsMapOneGroup(entityId, groupPath, attributeTypeName).get(attributeTypeName);
+		return getAttributeOneGroup(entityId, groupPath, attributeTypeName);
 	}
 
 	public Collection<AttributeExt> getAllAttributes(long entityId, List<String> groupsPaths, boolean effective,
 	                                                 String attributeTypeName) throws EngineException
 	{
-		Map<String, Map<String, AttributeExt>> asMap = getAllAttributesAsMap(entityId, groupsPaths, effective,
+		Map<String, Map<String, AttributeExt>> asMap = getEntityAttributesAsMap(entityId, groupsPaths, effective,
 			attributeTypeName);
 		List<AttributeExt> ret = new ArrayList<>();
 		for (Map<String, AttributeExt> entry: asMap.values())
@@ -701,7 +698,7 @@ public class AttributesHelper
 	 * See {@link #getAllAttributes(long, String, String, SqlSession)}, the only difference is that the result
 	 * is returned in a map indexed with groups (1st key) and attribute names (submap key).
 	 */
-	private Map<String, Map<String, AttributeExt>> getAllAttributesAsMap(long entityId, List<String> groupsPaths,
+	private Map<String, Map<String, AttributeExt>> getEntityAttributesAsMap(long entityId, List<String> groupsPaths,
 			boolean effective, String attributeTypeName) throws EngineException
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
@@ -723,8 +720,7 @@ public class AttributesHelper
 
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 		Collection<Group> allUserGroups = allUserGroupsMap.values();
-		Function<String, GroupsChain> groupChainProvider = g -> 
-			new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allUserGroupsMap.get(p)).collect(Collectors.toList())); 
+		Function<String, GroupsChain> groupChainProvider = g -> buildGroupsChain(allUserGroupsMap, g); 
 		for (String group: groups)
 		{
 			if (!allUserGroupsMap.containsKey(group))
@@ -743,7 +739,7 @@ public class AttributesHelper
 	/**
 	 * Returns map of attributes of a given entity in a given group, indexed by attribute names.
 	 */
-	private Map<String, AttributeExt> getEntityInGroupAttributesAsMap(long entityId, String groupPath,
+	private Map<String, AttributeExt> getEntityAttributesInGroupAsMap(long entityId, String groupPath,
 			String attributeTypeName) throws EngineException
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = getAllEntityAttributesMap(entityId);
@@ -754,8 +750,7 @@ public class AttributesHelper
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 
-		Function<String, GroupsChain> groupChainProvider = g -> 
-				new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allUserGroups.get(p)).collect(Collectors.toList())); 
+		Function<String, GroupsChain> groupChainProvider = g -> buildGroupsChain(allUserGroups, g); 
 
 		return statementsHelper.getEffectiveAttributes(identities, groupPath,
 					attributeTypeName, 
@@ -765,10 +760,18 @@ public class AttributesHelper
 					attributeTypeDAO::get, 
 					groupChainProvider);
 	}
+
+	private GroupsChain buildGroupsChain(Map<String, Group> allUserGroups, String g)
+	{
+		List<Group> groupsList = new Group(g).getPathsChain().stream()
+				.map(p -> allUserGroups.get(p))
+				.collect(Collectors.toList());
+		return new GroupsChain(groupsList);
+	}
 	
 	
 	/**
-	 * @return map indexed with groups. Values are maps of all attributes in all groups, indexed with their names.
+	 * @return map indexed with groups. Values are maps of all attributes in given group, indexed with attribute names.
 	 */
 	private Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId) 
 			throws IllegalTypeException, IllegalGroupValueException
