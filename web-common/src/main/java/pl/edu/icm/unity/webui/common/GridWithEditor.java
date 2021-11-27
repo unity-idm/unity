@@ -119,15 +119,13 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	public T newInstance(Class<T> cls)
 	{
-		T myObject;
 		try
 		{
-			myObject = cls.newInstance();
+			return cls.getDeclaredConstructor().newInstance();
 		} catch (Exception e)
 		{
 			throw new InternalException(e.getMessage());
 		}
-		return myObject;
 	}
 
 	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter,

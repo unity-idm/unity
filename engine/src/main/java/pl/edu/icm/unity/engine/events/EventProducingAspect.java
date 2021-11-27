@@ -7,14 +7,11 @@ package pl.edu.icm.unity.engine.events;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.event.PersistableEvent;
@@ -33,16 +30,13 @@ public class EventProducingAspect
 {
 	public static final String CATEGORY_INVOCATION = "methodInvocation";
 	
-	@Autowired
-	private EventProcessor eventProcessor;
-	@Autowired
-	private UnityServerConfiguration config;
+	private final EventProcessor eventProcessor;
+	private final boolean enable;
 	
-	private boolean enable;
 	
-	@PostConstruct
-	private void init()
+	public EventProducingAspect(EventProcessor eventProcessor, UnityServerConfiguration config)
 	{
+		this.eventProcessor = eventProcessor;
 		enable = config.getBooleanValue(UnityServerConfiguration.ENABLE_LOW_LEVEL_EVENTS);
 	}
 	

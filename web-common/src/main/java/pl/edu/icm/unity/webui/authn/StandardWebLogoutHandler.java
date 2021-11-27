@@ -111,7 +111,7 @@ public class StandardWebLogoutHandler implements WebLogoutHandler
 		{
 			VaadinSession vSession = VaadinSession.getCurrent();
 			vSession.addRequestHandler(new LogoutRedirectHandler());
-			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, new Boolean(soft));
+			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, soft);
 			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI,
 					Page.getCurrent().getLocation().toASCIIString());
 		}

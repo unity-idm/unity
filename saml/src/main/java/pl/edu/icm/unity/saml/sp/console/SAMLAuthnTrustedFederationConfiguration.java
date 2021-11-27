@@ -210,13 +210,13 @@ public class SAMLAuthnTrustedFederationConfiguration
 		clone.setHttpsTruststore(
 				this.getHttpsTruststore() != null ? new String(this.getHttpsTruststore()) : null);
 
-		clone.setIgnoreSignatureVerification(new Boolean(this.ignoreSignatureVerification));
+		clone.setIgnoreSignatureVerification(this.ignoreSignatureVerification);
 
 		clone.setSignatureVerificationCertificate(this.getSignatureVerificationCertificate() != null
 				? new String(this.getSignatureVerificationCertificate())
 				: null);
 
-		clone.setRefreshInterval(new Integer(this.getRefreshInterval()));
+		clone.setRefreshInterval(this.getRefreshInterval());
 
 		clone.setRegistrationForm(
 				this.getRegistrationForm() != null ? new String(this.getRegistrationForm()) : null);
