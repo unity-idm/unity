@@ -107,8 +107,8 @@ public class UnityImage
 		double ratioW = maxWidth / (double) w;
 		double ratioH = maxHeight / (double) h;
 		double ratio = ratioW > ratioH ? ratioH : ratioW;
-		int newWidth = new Double(w * ratio).intValue();
-		int newHeight = new Double(h * ratio).intValue();
+		int newWidth = Double.valueOf(w * ratio).intValue();
+		int newHeight = Double.valueOf(h * ratio).intValue();
 
 		// Redraw image
 		BufferedImage resized = new BufferedImage(newWidth, newHeight, bufferedImage.getType());

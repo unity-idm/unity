@@ -240,7 +240,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 				: null);
 
 		clone.setAccountAssociation(this.getAccountAssociation());
-		clone.setSignRequest(new Boolean(this.isSignRequest()));
+		clone.setSignRequest(this.isSignRequest());
 		clone.setRegistrationForm(
 				this.getRegistrationForm() != null ? new String(this.getRegistrationForm()) : null);
 		clone.setRequestedNameFormats(
