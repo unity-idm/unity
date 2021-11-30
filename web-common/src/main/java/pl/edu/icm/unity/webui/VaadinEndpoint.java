@@ -63,7 +63,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
 	public static final String DEFAULT_THEME = "unityThemeValo";
-	public static final int DEFAULT_HEARTBEAT = 10;
+	public static final int DEFAULT_HEARTBEAT = 120;
 	public static final int LONG_SESSION = 3600;
 	public static final int LONG_HEARTBEAT = 300;
 	public static final String AUTHENTICATION_PATH = "/authentication";
