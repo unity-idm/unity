@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,7 +143,7 @@ public class RequestEditorCreator
 
 	private void doCreateFirstStage(RequestEditorCreatedCallback callback, InvitationCodeConsumer onLocalSignupHandler)
 	{
-		ResolvedInvitationParam invitation;
+		Optional<ResolvedInvitationParam> invitation = Optional.empty();
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -159,7 +160,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation);
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode,  invitation.orElse(null));
 			editor.showFirstStage(onLocalSignupHandler);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -171,7 +172,7 @@ public class RequestEditorCreator
 	
 	private void doCreateSecondStage(RequestEditorCreatedCallback callback, boolean withCredentials)
 	{
-		ResolvedInvitationParam invitation = null;
+		Optional<ResolvedInvitationParam> invitation = Optional.empty();
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -188,7 +189,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation);
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation.orElse(null));
 			editor.showSecondStage(withCredentials);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -197,11 +198,11 @@ public class RequestEditorCreator
 		}
 	}
 	
-	private boolean redirectToPublicEnquiryViewIfPossible(ResolvedInvitationParam invitation)
+	private boolean redirectToPublicEnquiryViewIfPossible(Optional<ResolvedInvitationParam> invitation)
 	{
-		if (invitation != null && invitation.canBeProcessedAsEnquiryWithResolvedUser())
+		if (invitation.isPresent() && invitation.get().canBeProcessedAsEnquiryWithResolvedUser())
 		{
-			EnquiryInvitationParam enqInv = invitation.getAsEnquiryInvitationParamWithAnonymousEntity();
+			EnquiryInvitationParam enqInv = invitation.get().getAsEnquiryInvitationParamWithAnonymousEntity();
 			String url = publicRegistrationURLSupport.getPublicEnquiryLink(enqInv.getFormPrefill().getFormId(),
 					registrationCode);
 			Page.getCurrent().open(url, null);
@@ -248,26 +249,25 @@ public class RequestEditorCreator
 				authenticationOptionKey);
 	}
 	
-	private ResolvedInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
+	private Optional<ResolvedInvitationParam> getInvitationByCode(String registrationCode) throws RegCodeException
 	{
-		ResolvedInvitationParam invitation = null;
+		ResolvedInvitationParam invitation;
 		try
 		{
-			invitation = invitationResolver.getInvitationByCode(registrationCode, form);
+			invitation = invitationResolver.getInvitationByCode(registrationCode);
 		} catch (RegCodeException e)
 		{
-			if (e.cause.equals(RegCodeException.ErrorCause.INVITATION_OF_OTHER_FORM))
-				throw e;
-			
-			if (form.isByInvitationOnly() && (e.cause.equals(RegCodeException.ErrorCause.MISSING_CODE)
-					|| e.cause.equals(RegCodeException.ErrorCause.UNRESOLVED_INVITATION)
-					|| e.cause.equals(RegCodeException.ErrorCause.EXPIRED_INVITATION)))
+			if (form.isByInvitationOnly())
 			{
 				throw e;
 			}
+			else {
+				return Optional.empty();
+			}
 		}
-
-		return invitation;
+		
+		invitation.assertMatchToForm(form);	
+		return Optional.of(invitation);
 	}
 	
 	public interface RequestEditorCreatedCallback

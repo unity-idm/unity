@@ -384,8 +384,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < intAttr; i++)
 		{
 			String typeName = "int_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = IntegerAttribute.of(typeName, enInGroup.get(i%NU),
-					new Long(i + 100));
+			Attribute a = IntegerAttribute.of(typeName, enInGroup.get(i%NU), i + 100);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a);
 			op++;
@@ -394,8 +393,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 		for (int i = 0; i < floatAttr; i++)
 		{
 			String typeName = "float_" + r.nextInt((nDefAttr / 4) - 2);
-			Attribute a = FloatingPointAttribute.of(typeName, enInGroup.get(i%NU),
-					new Double(i + 100));
+			Attribute a = FloatingPointAttribute.of(typeName, enInGroup.get(i%NU), i + 100.0);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
 			attrsMan.setAttribute(par, a);
 			op++;

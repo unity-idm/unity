@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,46 +17,79 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
-/**
- * Tests {@link IntegerAttributeSyntax}
- * @author K. Benedyczak
- */
 public class TestNumericAttribute
 {
 	@Test
-	public void testInteger() throws Exception
+	public void shouldValidateMinInRange() throws Exception
+	{
+		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
+		ias.setMin(-33);
+
+		ias.validate(-33L);
+	}
+
+	@Test
+	public void shouldFailMinOutOfRange() throws Exception
+	{
+		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
+		ias.setMin(-33);
+
+		Throwable error = catchThrowable(() -> ias.validate(-34L));
+		
+		assertThat(error).isInstanceOf(IllegalAttributeValueException.class);
+	}
+
+	@Test
+	public void shouldValidateMaxInRange() throws Exception
 	{
 		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
 		ias.setMax(12);
-		ias.setMin(-33);
 
-		ias.validate(12L);
-		ias.validate(-33L);
+		ias.validate(12l);
+	}
+
+	@Test
+	public void shouldFailMaxOutOfRange() throws Exception
+	{
+		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
+		ias.setMax(12);
+
+		Throwable error = catchThrowable(() -> ias.validate(13L));
 		
-		try
-		{
-			ias.validate(13L);
-			fail("Added out of bounds value");
-		} catch (IllegalAttributeValueException e) {}
+		assertThat(error).isInstanceOf(IllegalAttributeValueException.class);
+	}
 
-		try
-		{
-			ias.validate(-34L);
-			fail("Added out of bounds value");
-		} catch (IllegalAttributeValueException e) {}
+	@Test
+	public void conversionToStringIsIdempotent() throws Exception
+	{
+		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
 		
 		long before = 123123123123L;
 		String s = ias.convertToString(before);
 		long after = ias.convertFromString(s);
 		assertEquals(before, after);
+	}
+	
+	@Test
+	public void equalityWorksOnNumbers() throws Exception
+	{
+		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
 		
-		assertTrue(ias.areEqual(1234L, new Long(1234)));
-		assertFalse(ias.areEqual(1235L, new Long(1234)));
+		assertTrue(ias.areEqual(1234L, 1234l));
+		assertFalse(ias.areEqual(1235L, 1234l));
+	}
+	
+	@Test
+	public void serializationIsIdempotent() throws Exception
+	{
+		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
+		ias.setMin(-33);
+		ias.setMax(12);
 		
 		JsonNode cfg = ias.getSerializedConfiguration();
-		
 		IntegerAttributeSyntax ias2 = new IntegerAttributeSyntax();
 		ias2.setSerializedConfiguration(cfg);
+		
 		assertEquals(ias2.getMax(), 12);
 		assertEquals(ias2.getMin(), -33);
 	}
@@ -85,9 +120,9 @@ public class TestNumericAttribute
 		String s = ias.convertToString(before);
 		double after = ias.convertFromString(s);
 		assertEquals(before, after, 0.01);
-		
-		assertTrue(ias.areEqual(1234.3, new Double(1234.3)));
-		assertFalse(ias.areEqual(1235.4, new Double(1234.3)));
+
+		assertTrue(ias.areEqual(1234.3, Double.valueOf(1234.3)));
+		assertFalse(ias.areEqual(1235.4, Double.valueOf(1234.3d)));
 		
 		JsonNode cfg = ias.getSerializedConfiguration();
 		

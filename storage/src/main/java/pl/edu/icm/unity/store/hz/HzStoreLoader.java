@@ -7,8 +7,6 @@ package pl.edu.icm.unity.store.hz;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,57 +48,53 @@ public class HzStoreLoader implements StoreLoaderInternal
 	
 	public static final String NAME = StorageCleanerImpl.BEAN_PFX + "hz";
 	
-	
-	@Autowired
 	private AttributeTypeHzStore attributeTypeDAO;
-	
-	@Autowired
 	private IdentityTypeHzStore identityTypeDAO;
-	
-	@Autowired
 	private EntityHzStore entityDAO;
-	
-	@Autowired
 	private IdentityHzStore identityDAO;
-	
-	@Autowired
 	private GroupHzStore groupDAO;
-	
-	@Autowired
 	private MembershipHzStore membershipDAO;
-	
-	@Autowired
 	private AttributeHzStore attributeDAO;
-
-	@Autowired
 	private TokenHzStore tokenDAO;
-	
-	@Autowired
 	private EventHzStore eventDAO;
-
-	@Autowired
 	private GenericObjectHzStore genericObjDAO;
-
-	@Autowired @Qualifier(SQLTransactionalRunner.NAME)
 	private TransactionalRunner rdbmstx;
-	
-	@Autowired @Qualifier(HzTransactionalRunner.NAME)
 	private TransactionalRunner hztx;
-	
-	@Autowired
 	private DB initDB;
-
-	@Autowired
 	private HazelcastInstance hzInstance;
-	
-	@Autowired
 	private RDBMSEventSink sink;
-
-	@Autowired 
 	private StorageConfiguration cfg;
-	
-	
-	@PostConstruct
+
+	@Autowired
+	public HzStoreLoader(AttributeTypeHzStore attributeTypeDAO, IdentityTypeHzStore identityTypeDAO,
+			EntityHzStore entityDAO, IdentityHzStore identityDAO, GroupHzStore groupDAO,
+			MembershipHzStore membershipDAO, AttributeHzStore attributeDAO, TokenHzStore tokenDAO,
+			EventHzStore eventDAO, GenericObjectHzStore genericObjDAO, 
+			@Qualifier(SQLTransactionalRunner.NAME) TransactionalRunner rdbmstx,
+			@Qualifier(HzTransactionalRunner.NAME) TransactionalRunner hztx, 
+			DB initDB, HazelcastInstance hzInstance, RDBMSEventSink sink,
+			StorageConfiguration cfg)
+	{
+		this.attributeTypeDAO = attributeTypeDAO;
+		this.identityTypeDAO = identityTypeDAO;
+		this.entityDAO = entityDAO;
+		this.identityDAO = identityDAO;
+		this.groupDAO = groupDAO;
+		this.membershipDAO = membershipDAO;
+		this.attributeDAO = attributeDAO;
+		this.tokenDAO = tokenDAO;
+		this.eventDAO = eventDAO;
+		this.genericObjDAO = genericObjDAO;
+		this.rdbmstx = rdbmstx;
+		this.hztx = hztx;
+		this.initDB = initDB;
+		this.hzInstance = hzInstance;
+		this.sink = sink;
+		this.cfg = cfg;
+		
+		init();
+	}
+
 	public void init()
 	{
 		if (cfg.getEngine() != StorageEngine.hz)

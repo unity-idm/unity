@@ -179,12 +179,12 @@ public class SAMLIndividualTrustedSPConfiguration
 		clone.setName(this.getName());
 		clone.setDisplayedName(this.getDisplayedName() != null ? this.getDisplayedName().clone() : null);
 		clone.setId(new String(this.getId()));
-		clone.setX500Name(new Boolean(this.isX500Name()));
+		clone.setX500Name(this.isX500Name());
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setCertificates(this.getCertificates() != null
 				? this.getCertificates().stream().map(s -> new String(s)).collect(Collectors.toList())
 				: null);
-		clone.setEncryptAssertions(new Boolean(this.isEncryptAssertions()));
+		clone.setEncryptAssertions(this.isEncryptAssertions());
 		clone.setAuthorizedRedirectsUri(this.getAuthorizedRedirectsUri() != null
 				? this.getAuthorizedRedirectsUri().stream().map(s -> new String(s)).collect(Collectors.toList())
 				: null);

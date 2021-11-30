@@ -20,9 +20,7 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.registration.UnknownInvitationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -44,7 +42,7 @@ public class InvitationResolver
 		this.entityManagement = entityManagement;
 	}
 
-	public ResolvedInvitationParam getInvitationByCode(String registrationCode, BaseForm form) throws RegCodeException
+	public ResolvedInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
 		if (registrationCode == null)
 			throw new RegCodeException(ErrorCause.MISSING_CODE);
@@ -53,19 +51,11 @@ public class InvitationResolver
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		if (invitation.getInvitation().isExpired())
 			throw new RegCodeException(ErrorCause.EXPIRED_INVITATION);
-		try
-		{
-			if (!invitation.getInvitation().matchesForm(form))
-				throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
-		} catch (IllegalFormTypeException e)
-		{
-			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
-		}
-
+	
 		return new ResolvedInvitationParam(resolveEntities(invitation.getInvitation()), registrationCode,
 				invitation.getInvitation());
 	}
-
+	
 	private Set<Entity> resolveEntities(InvitationParam invitationParam)
 	{
 		if (invitationParam.getType().equals(InvitationType.COMBO))

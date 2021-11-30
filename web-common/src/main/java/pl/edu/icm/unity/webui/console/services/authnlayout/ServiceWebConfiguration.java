@@ -67,7 +67,7 @@ public class ServiceWebConfiguration
 
 		authenticationLayoutConfiguration = new AuthnLayoutConfiguration(
 				Arrays.asList(new AuthnLayoutColumnConfiguration(new I18nString(),
-						new Float(VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH).intValue(),
+						(int)VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH,
 						Lists.newArrayList())),
 				Lists.newArrayList());
 

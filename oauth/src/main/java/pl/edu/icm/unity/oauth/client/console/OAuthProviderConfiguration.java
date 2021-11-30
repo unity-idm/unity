@@ -401,7 +401,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		clone.setAccessTokenFormat(this.getAccessTokenFormat() != null
 				? AccessTokenFormat.valueOf(this.getAccessTokenFormat().toString())
 				: null);
-		clone.setOpenIdConnect(new Boolean(this.isOpenIdConnect()));
+		clone.setOpenIdConnect(this.isOpenIdConnect());
 		clone.setOpenIdDiscoverEndpoint(
 				this.getOpenIdDiscoverEndpoint() != null ? new String(this.getOpenIdDiscoverEndpoint())
 						: null);
