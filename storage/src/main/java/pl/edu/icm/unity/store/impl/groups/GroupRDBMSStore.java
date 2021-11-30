@@ -6,13 +6,18 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.rdbms.GenericDBBean;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.Group;
@@ -62,6 +67,36 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 						"] already exist", e);
 			throw e;
 		}
+	}
+	
+	@Override
+	public List<Long> createList(List<Group> objs)
+	{
+		Set<String> parentsUsed = new HashSet<>();
+		for (Group grp: objs)
+		{
+			StorageLimits.checkNameLimit(grp.getName());
+			parentsUsed.add(grp.getParentPath());
+		}
+		GroupsMapper mapper = SQLTransactionTL.getSql().getMapper(GroupsMapper.class);
+		
+		List<GroupBean> byNames = mapper.getByNames(new ArrayList<>(parentsUsed));
+		Map<String, GroupBean> resolvedParents = byNames.stream()
+				.collect(Collectors.toMap(grp -> grp.getName(), grp -> grp));
+		
+		List<GroupBean> converted = new ArrayList<>(objs.size());
+		for (Group obj: objs)
+		{
+			GroupBean toAdd = jsonSerializer.toDB(obj);
+			assertContentsLimit(toAdd.getContents());
+			toAdd.setParentId((int)(long)(resolvedParents.get(obj.getParentPath()).getId()));
+			converted.add(toAdd);
+		}
+		mapper.createList(converted);
+		
+		return converted.stream()
+				.map(GenericDBBean::getId)
+				.collect(Collectors.toList());
 	}
 	
 	@Override

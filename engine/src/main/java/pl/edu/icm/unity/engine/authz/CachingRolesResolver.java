@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Maps;
 
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -77,13 +76,9 @@ class CachingRolesResolver
 			Set<AuthzRole> ret = new HashSet<>();
 			do
 			{
-				Map<String, Map<String, AttributeExt>> allAttributes = getAuthzRoleAttributes(entityId, current);
-				Map<String, AttributeExt> inCurrent = allAttributes.get(current.toString());
-				if (inCurrent != null)
-				{
-					Attribute role = inCurrent.get(RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
+				Attribute role = getAuthzRoleAttribute(entityId, current);
+				if (role != null)
 					ret.addAll(getRolesFromAttribute(role));
-				}
 				String parent = current.getParentPath();
 				current = parent == null ? null : new Group(parent);
 			} while (current != null);
@@ -112,21 +107,17 @@ class CachingRolesResolver
 		return ret;
 	}
 	
-	/**
-	 * Retrieves the authz role for given entity in give group.
-	 */
-	private Map<String, Map<String, AttributeExt>> getAuthzRoleAttributes(long entityId, Group group) throws EngineException 
+	private AttributeExt getAuthzRoleAttribute(long entityId, Group group) throws EngineException 
 	{
 		String groupPath = group.getName();
 		
 		if (!groupsDAO.exists(groupPath))
-			return Maps.newHashMap();
+			return null;
 		
 		try
 		{
-			Map<String, Map<String, AttributeExt>> allAttributes = dbAttributes.getAllAttributesAsMap(
-					entityId, groupPath, true, RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
-			return allAttributes;
+			return dbAttributes.getAttributeOneGroup(entityId, groupPath, 
+					RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		} catch (IllegalTypeException e)
 		{
 			throw new InternalException("Can't establish attributes for authorization pipeline", e);

@@ -704,7 +704,13 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 				.contains(imported);
 		});
 	}
-
+	
+	@Test
+	public void insertedListIsReturned()
+	{
+		super.insertedListIsReturned();
+	}
+	
 	@Override
 	protected AttributeDAO getDAO()
 	{

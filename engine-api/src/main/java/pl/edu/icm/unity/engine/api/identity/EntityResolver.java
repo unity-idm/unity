@@ -17,25 +17,16 @@ public interface EntityResolver
 {
 	/**
 	 * Resolves {@link IdentityTaV} into a full Identity, if missing throws exception
-	 * @param entity
-	 * @return 
-	 * @throws IllegalIdentityValueException
 	 */
 	Identity getFullIdentity(IdentityTaV entity);
 	
 	/**
 	 * Resolves {@link IdentityTaV}, if missing throws exception
-	 * @param entity
-	 * @return 
-	 * @throws IllegalIdentityValueException
 	 */
 	long getEntityId(IdentityTaV entity) throws IllegalIdentityValueException;
 
 	/**
 	 * Resolves {@link EntityParam}, if missing throws exception
-	 * @param entity
-	 * @return
-	 * @throws IllegalIdentityValueException
 	 */
 	long getEntityId(EntityParam entity) throws IllegalIdentityValueException;
 }

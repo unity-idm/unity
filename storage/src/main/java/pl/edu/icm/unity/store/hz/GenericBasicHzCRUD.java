@@ -81,7 +81,13 @@ public abstract class GenericBasicHzCRUD<T> implements BasicCRUDDAO<T>, HzDAO, R
 				"createWithId", key, obj));
 		return key;
 	}
-	
+
+	@Override
+	public List<Long> createList(List<T> entities)
+	{
+		throw new UnsupportedOperationException();
+	}
+
 	@Override
 	public void createWithId(long key, T obj)
 	{

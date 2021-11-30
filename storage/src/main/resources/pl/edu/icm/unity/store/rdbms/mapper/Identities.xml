@@ -20,6 +20,13 @@
 			VALUES (#{id}, #{name}, #{contents}, #{typeId}, #{entityId})
 	</insert>
 	
+	<insert id="createList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO IDENTITIES (NAME, CONTENTS, TYPE_ID, ENTITY_ID) VALUES 
+		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
+			#{element.name}, #{element.contents}, #{element.typeId}, #{element.entityId}
+		</foreach>
+	</insert>
+	
 	<update id="updateByKey" parameterType="IdentityB">
 		UPDATE IDENTITIES SET CONTENTS = #{contents}, ENTITY_ID = #{entityId} WHERE ID = #{id}
 	</update>

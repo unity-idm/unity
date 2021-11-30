@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -13,27 +14,29 @@ import org.springframework.stereotype.Repository;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.impl.groups.GroupBean;
+import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
 import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
-/**
- * RDBMS storage of {@link GroupMembership}
- * @author K. Benedyczak
- */
 @Repository(MembershipRDBMSStore.BEAN)
 public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
-	private MembershipJsonSerializer jsonSerializer;
-	private GroupDAO groupDAO;
+	private final MembershipJsonSerializer jsonSerializer;
+	private final GroupDAO groupDAO;
+	private final GroupJsonSerializer groupJsonSerializer;
 	
 	@Autowired
-	MembershipRDBMSStore(MembershipJsonSerializer jsonSerializer, GroupDAO groupDAO)
+	MembershipRDBMSStore(MembershipJsonSerializer jsonSerializer, GroupDAO groupDAO,
+			GroupJsonSerializer groupJsonSerializer)
 	{
 		this.jsonSerializer = jsonSerializer;
 		this.groupDAO = groupDAO;
+		this.groupJsonSerializer = groupJsonSerializer;
 	}
 
 	@Override
@@ -45,6 +48,22 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 		mapper.create(toAdd);
 	}
 
+	@Override
+	public void createList(ArrayList<GroupMembership> memberships)
+	{
+		if (memberships.isEmpty())
+			return;
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		List<GroupElementBean> converted = new ArrayList<>(memberships.size());
+		for (GroupMembership obj: memberships)
+		{
+			GroupElementBean toAdd = jsonSerializer.toDB(obj);
+			StorageLimits.checkContentsLimit(toAdd.getContents());
+			converted.add(toAdd);
+		}
+		mapper.createList(converted);
+	}
+	
 	@Override
 	public void deleteByKey(long entityId, String group)
 	{
@@ -92,6 +111,17 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 		return deserializeList(entityMembershipB);
 	}
 	
+
+	@Override
+	public List<Group> getEntityMembershipGroups(long entityId)
+	{
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		List<GroupBean> entityGroups = mapper.getEntityGroups(entityId);
+		return entityGroups.stream()
+				.map(groupJsonSerializer::fromDB)
+				.collect(Collectors.toList());
+	}
+	
 	
 	private List<GroupMembership> deserializeList(List<GroupElementBean> entityMembershipB)
 	{
@@ -100,5 +130,4 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 			ret.add(jsonSerializer.fromDB(geb));
 		return ret;
 	}
-
 }

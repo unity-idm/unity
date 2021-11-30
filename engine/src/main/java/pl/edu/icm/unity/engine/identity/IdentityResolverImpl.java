@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,7 +33,6 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -98,14 +96,11 @@ public class IdentityResolverImpl implements IdentityResolver
 					entityId);
 			if (credentialRequirements.getRequiredCredentials().contains(credentialName))
 			{
-				Collection<AttributeExt> credAttributes = attributeHelper.getAllAttributes(
-						entityId, "/", true, 
+				AttributeExt credAttribute = attributeHelper.getEffectiveAttributeOneGroup(
+						entityId, "/", 
 						CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialName);
-				if (credAttributes.size() > 0)
-				{
-					Attribute a = credAttributes.iterator().next();
-					ret.setCredentialValue((String)a.getValues().get(0));
-				}
+				if (credAttribute != null)
+					ret.setCredentialValue((String)credAttribute.getValues().get(0));
 			}
 			ret.setCredentialName(credentialName);
 		}
@@ -116,11 +111,10 @@ public class IdentityResolverImpl implements IdentityResolver
 	private CredentialRequirements resolveCredentialRequirements(long entityId) 
 			throws EngineException
 	{
-		Collection<AttributeExt> credReqAttrs = attributeHelper.getAllAttributes(
-				entityId, "/", true,
+		AttributeExt credReqAttr = attributeHelper.getEffectiveAttributeOneGroup(
+				entityId, "/", 
 				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
-		Attribute cra = credReqAttrs.iterator().next();
-		String cr = (String) cra.getValues().get(0);
+		String cr = (String) credReqAttr.getValues().get(0);
 		return credReqRepository.get(cr);
 	}
 	

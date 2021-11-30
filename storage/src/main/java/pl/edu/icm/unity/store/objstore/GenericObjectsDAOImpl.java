@@ -239,6 +239,12 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 					" already exists");
 		dbGeneric.createWithId(id, blob);
 	}
+
+	@Override
+	public List<Long> createList(List<T> objs)
+	{
+		throw new UnsupportedOperationException();
+	}
 	
 	@Override
 	public void deleteByKey(long id)

@@ -317,7 +317,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		{
 			authz.checkAuthorization(authz.isSelf(entityId), group, requiredCapability);
 		}
-		return attributesHelper.getAllAttributesInternal(entityId,
+		return attributesHelper.getAttributesInternal(entityId,
 				effective, groupsPaths, attributeTypeName, allowDisabled);
 	}
 
@@ -328,7 +328,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		entity.validateInitialization();
 		long entityId = idResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), groupPath, requiredCapability);
-		return attributesHelper.getAllAttributesInternal(entityId,
+		return attributesHelper.getAttributesInternal(entityId,
 			effective, groupPath, attributeTypeName, allowDisabled);
 	}
 

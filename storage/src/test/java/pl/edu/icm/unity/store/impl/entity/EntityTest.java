@@ -136,4 +136,10 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 			assertThat(ret, hasItems(dao.getByKey(id1), dao.getByKey(id2)));
 		});
 	}
+	
+	@Test
+	public void insertedListIsReturned()
+	{
+		super.insertedListIsReturned();
+	}
 }

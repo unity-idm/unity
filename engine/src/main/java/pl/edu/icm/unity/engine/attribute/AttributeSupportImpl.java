@@ -78,7 +78,7 @@ public class AttributeSupportImpl implements AttributeSupport
 	@Transactional
 	@Override
 	public Optional<String> getAttributeValueByMetadata(EntityParam entity, String group,
-														String metadataId) throws EngineException
+			String metadataId) throws EngineException
 	{
 		entity.validateInitialization();
 		return Optional.ofNullable(attributesHelper.getAttributeValueByMetadata(entity, group, metadataId));
