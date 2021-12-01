@@ -20,6 +20,7 @@ import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -41,6 +42,7 @@ public class TokenSigner
 	private JWSSigner internalSigner;
 	private JWSAlgorithm algorithm;
 	private X509Credential credential;
+	private Curve curve;
 
 	public TokenSigner(OAuthASProperties config, PKIManagement pkiManamgenet)
 	{
@@ -90,7 +92,9 @@ public class TokenSigner
 
 		try
 		{
-			internalSigner = new ECDSASigner((ECPrivateKey) pk);
+			ECPrivateKey ecPrivateKey = (ECPrivateKey) pk;
+			internalSigner = new ECDSASigner(ecPrivateKey);
+			curve = Curve.forECParameterSpec(ecPrivateKey.getParams());
 		} catch (JOSEException e)
 		{
 			throw new ConfigurationException("The EC key is incorrect", e);
@@ -161,6 +165,14 @@ public class TokenSigner
 		if (!isPKIEnabled())
 			throw new InternalException("Token signer is not initialized");
 		return algorithm;
+	}
+	
+	/**
+	 * @return curve of the credential or null if not applicable for the used credential
+	 */
+	public Curve getCurve()
+	{
+		return curve;
 	}
 	
 	public SignedJWT sign(IDTokenClaimsSet idTokenClaims) throws JOSEException, ParseException

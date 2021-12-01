@@ -129,7 +129,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);
 		assertThat(exchangeParsedResp.getTokens().getAccessToken(), notNullValue());
 		assertThat(exchangeParsedResp.getCustomParameters().get("id_token"), notNullValue());
-		assertThat(exchangeParsedResp.getCustomParameters().get("issued_token_type"),
+		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString(),
 				is(AccessTokenResource.ACCESS_TOKEN_TYPE_ID));
 
 		// check new token info
@@ -166,7 +166,8 @@ public class ExchangeTokenTest extends TokenTestBase
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);
 		
 		assertThat(exchangeParsedResp.getTokens().getAccessToken(), notNullValue());	
-		assertThat(exchangeParsedResp.getCustomParameters().get("issued_token_type"), is(AccessTokenResource.ACCESS_TOKEN_TYPE_ID));
+		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString(), 
+				is(AccessTokenResource.ACCESS_TOKEN_TYPE_ID));
 	
 		// check new token info
 		JSONObject parsed = getTokenInfo(exchangeParsedResp.getTokens().getAccessToken());

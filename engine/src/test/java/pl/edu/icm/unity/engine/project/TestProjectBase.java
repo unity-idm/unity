@@ -6,8 +6,9 @@
 
 package pl.edu.icm.unity.engine.project;
 
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Lists;
 import org.mockito.Mock;
 
 import pl.edu.icm.unity.MessageSource;
@@ -77,7 +78,7 @@ public class TestProjectBase
 		GroupContents con = new GroupContents();
 		Group group = new Group(path);
 		group.setDelegationConfiguration(new GroupDelegationConfiguration(true, false,  null, "regForm", "enqForm",
-				"stickyReqForm", Lists.emptyList()));
+				"stickyReqForm", List.of()));
 		con.setGroup(group);
 		return con;
 	}

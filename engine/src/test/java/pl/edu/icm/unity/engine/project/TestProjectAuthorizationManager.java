@@ -12,9 +12,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -206,7 +206,8 @@ public class TestProjectAuthorizationManager
 	private void addGroup(String path, boolean groupWithEnabledDelegation, boolean enableSubproject)
 	{
 		Group group = new Group(path);
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation, enableSubproject, null, null, null, null, Lists.emptyList()));
+		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation, 
+				enableSubproject, null, null, null, null, List.of()));
 		when(mockGroupDao.get(eq(path))).thenReturn(group);
 	}
 

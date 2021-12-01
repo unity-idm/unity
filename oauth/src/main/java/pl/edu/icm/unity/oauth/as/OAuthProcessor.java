@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -126,8 +127,10 @@ public class OAuthProcessor
 		
 		Optional<IDTokenClaimsSet> idToken = generateIdTokenIfRequested(config, ctx, responseType, 
 				internalToken, identity, userInfo, now);
-		JWSAlgorithm signingAlgorithm = config.getTokenSigner().isPKIEnabled() ? 
-				config.getTokenSigner().getSigningAlgorithm() : null;
+		TokenSigner tokenSigner = config.getTokenSigner();
+		JWSAlgorithm signingAlgorithm = tokenSigner.isPKIEnabled() ? 
+				tokenSigner.getSigningAlgorithm() : null;
+		Curve curve = tokenSigner.getCurve();
 		
 		AuthorizationSuccessResponse oauthResponse = null;
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
@@ -136,7 +139,7 @@ public class OAuthProcessor
 			AuthorizationCode authzCode = new AuthorizationCode();
 			internalToken.setAuthzCode(authzCode.getValue());
 			
-			signAndRecordIdToken(idToken, config.getTokenSigner(), responseType, internalToken);
+			signAndRecordIdToken(idToken, tokenSigner, responseType, internalToken);
 			
 			oauthResponse = new AuthorizationSuccessResponse(ctx.getReturnURI(), authzCode, null,
 					ctx.getRequest().getState(), ctx.getRequest().impliedResponseMode());
@@ -147,7 +150,7 @@ public class OAuthProcessor
 		{
 			if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)
 			{
-				Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, config.getTokenSigner(), 
+				Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, tokenSigner, 
 						responseType, internalToken);
 				//we return only the id token, no access token so we don't need an internal token.
 				return new AuthenticationSuccessResponse(
@@ -159,8 +162,8 @@ public class OAuthProcessor
 			AccessToken accessToken = accessTokenFactory.create(internalToken, now);
 			internalToken.setAccessToken(accessToken.getValue());
 			
-			addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType);
-			Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, config.getTokenSigner(), 
+			addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType, curve);
+			Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, tokenSigner, 
 					responseType, internalToken);
 			
 			Date expiration = new Date(now.getTime() + config.getAccessTokenValidity() * 1000);
@@ -176,9 +179,9 @@ public class OAuthProcessor
 			AuthorizationCode authzCode = new AuthorizationCode();
 			internalToken.setAuthzCode(authzCode.getValue());
 			Date codeExpiration = new Date(now.getTime() + config.getCodeTokenValidity() * 1000);
-			addCodeHashIfNeededToIdToken(idToken, authzCode, signingAlgorithm, responseType);
+			addCodeHashIfNeededToIdToken(idToken, authzCode, signingAlgorithm, responseType, curve);
 
-			signAndRecordIdToken(idToken, config.getTokenSigner(), responseType, internalToken);
+			signAndRecordIdToken(idToken, tokenSigner, responseType, internalToken);
 			tokensMan.addToken(INTERNAL_CODE_TOKEN, authzCode.getValue(), 
 					new EntityParam(identity), internalToken.getSerialized(), 
 					now, codeExpiration);
@@ -190,15 +193,15 @@ public class OAuthProcessor
 				accessToken = accessTokenFactory.create(internalToken, now);
 				internalToken.setAccessToken(accessToken.getValue());
 				Date accessExpiration = new Date(now.getTime() + config.getAccessTokenValidity() * 1000);
-				addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType);
+				addAccessTokenHashIfNeededToIdToken(idToken, accessToken, signingAlgorithm, responseType, curve);
 				
-				signAndRecordIdToken(idToken, config.getTokenSigner(), responseType, internalToken);
+				signAndRecordIdToken(idToken, tokenSigner, responseType, internalToken);
 				statReporter.reportStatus(ctx, Status.SUCCESSFUL);
 				tokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(identity), now, 
 						accessExpiration);
 			}
 			
-			Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, config.getTokenSigner(), 
+			Optional<JWT> idTokenSigned = signAndRecordIdToken(idToken, tokenSigner, 
 					responseType, internalToken);
 
 			oauthResponse = new AuthenticationSuccessResponse(
@@ -289,24 +292,24 @@ public class OAuthProcessor
 	}
 	
 	private void addAccessTokenHashIfNeededToIdToken(Optional<IDTokenClaimsSet> idTokenOpt, AccessToken accessToken, 
-			JWSAlgorithm jwsAlgorithm, ResponseType responseType)
+			JWSAlgorithm jwsAlgorithm, ResponseType responseType, Curve curve)
 	{
 		if (!idTokenOpt.isPresent())
 			return;
 		IDTokenClaimsSet idToken = idTokenOpt.get();
 		boolean onlyIdTokenRequested = responseType.contains(ID_TOKEN) && responseType.size() == 1; 
 		if (!onlyIdTokenRequested)
-			idToken.setAccessTokenHash(AccessTokenHash.compute(accessToken, jwsAlgorithm));
+			idToken.setAccessTokenHash(AccessTokenHash.compute(accessToken, jwsAlgorithm, curve));
 	}
 
 	private void addCodeHashIfNeededToIdToken(Optional<IDTokenClaimsSet> idTokenOpt, AuthorizationCode code, 
-			JWSAlgorithm jwsAlgorithm, ResponseType responseType)
+			JWSAlgorithm jwsAlgorithm, ResponseType responseType, Curve curve)
 	{
 		if (!idTokenOpt.isPresent())
 			return;
 		IDTokenClaimsSet idToken = idTokenOpt.get();
 		if (responseType.contains(ID_TOKEN) && responseType.contains(ResponseType.Value.CODE))
-			idToken.setCodeHash(CodeHash.compute(code, jwsAlgorithm));
+			idToken.setCodeHash(CodeHash.compute(code, jwsAlgorithm, curve));
 	}
 	
 	public static UserInfo prepareUserInfoClaimSet(String userIdentity, Collection<DynamicAttribute> attributes)
