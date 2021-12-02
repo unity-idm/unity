@@ -14,8 +14,8 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Date;
+import java.util.List;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,11 +106,6 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:META-INF/components.xml" })
 public class ImportExportTest
@@ -230,13 +225,13 @@ public class ImportExportTest
 				endpointDB.create(
 						new Endpoint("test", "", "/x",
 								new EndpointConfiguration(new I18nString("test"), "",
-										Lists.emptyList(), null, null, null),
+										List.of(), null, null, null),
 								0));
 				fileDB.create(new FileData("test", "test".getBytes(), new Date()));
 				inProfileDB.create(new TranslationProfile("test", "test", ProfileType.INPUT,
-						Lists.emptyList()));
+						List.of()));
 				outProfileDB.create(new TranslationProfile("test2", "test", ProfileType.OUTPUT,
-						Lists.emptyList()));
+						List.of()));
 
 				DBDumpContentElements el = new DBDumpContentElements(true, false, false, false, false, false);
 				
@@ -350,7 +345,7 @@ public class ImportExportTest
 				idDB.create(new StoredIdentity(new Identity("test", "test", 1, "test")));
 				attributeTypeDB.create(new AttributeType("test", "test"));
 				attrDB.create(new StoredAttribute(new AttributeExt(
-						new Attribute("test", "test", "/", Lists.list("v1")), false), 1));
+						new Attribute("test", "test", "/", List.of("v1")), false), 1));
 				groupDAO.create(new Group("/test"));
 				membershipDB.create(new GroupMembership("/test", 1, new Date()));
 

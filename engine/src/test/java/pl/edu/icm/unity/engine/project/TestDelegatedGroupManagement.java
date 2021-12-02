@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,11 +66,6 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 @RunWith(MockitoJUnitRunner.class)
 public class TestDelegatedGroupManagement extends TestProjectBase
 {
@@ -156,20 +150,12 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void shouldForbidSubProjectRemoveWhenIsOnlyMananger() throws EngineException
 	{
 		setupInvocationContext();
-		when(mockAttrDao.getAttributes(anyString(), any(),
-				eq("/project")))
-						.thenReturn(
-								Arrays.asList(
-										new StoredAttribute(
-												new AttributeExt(
-														new Attribute(null, null, null,
-																Arrays.asList(
-																		GroupAuthorizationRole.manager.toString())),
-														false),
-												1L)));
+		Attribute baseAttribute = new Attribute(null, null, null, Arrays.asList(GroupAuthorizationRole.manager.toString()));
+		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project"))).thenReturn(
+			Arrays.asList(new StoredAttribute(new AttributeExt(baseAttribute, false), 1L)));
 		Group group = new Group("/project");
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, true, null, null, null, null, Lists.emptyList()));
+				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of()));
 		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
 		Throwable exception = catchThrowable(() -> dGroupManWithMockAuthz.removeProject("/project", "/project/sub"));
 		assertExceptionType(exception, AuthorizationException.class);
@@ -193,7 +179,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 											1L)));
 		Group group = new Group("/project");
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, true, null, null, null, null, Lists.emptyList()));
+				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of()));
 		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getEnabledGroupContentsWithDefaultMember("/project1"));
 
@@ -236,7 +222,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		when(mockBulkQueryService.getBulkStructuralData(anyString())).thenReturn(null);
 		Map<String, GroupContents> groupsWithSubgroups = new HashMap<>();
-		groupsWithSubgroups.put("/project", getGroupContent("/project", Lists.list("/project/subgroup")));
+		groupsWithSubgroups.put("/project", getGroupContent("/project", List.of("/project/subgroup")));
 		groupsWithSubgroups.put("/project/subgroup", getGroupContent("/project/subgroup"));
 		when(mockBulkQueryService.getGroupAndSubgroups(any())).thenReturn(groupsWithSubgroups);
 		Map<String, DelegatedGroupContents> groupAndSubgroups = dGroupManNoAuthz.getGroupAndSubgroups("/project",
@@ -487,14 +473,14 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 	private GroupContents getGroupContent(String path)
 	{
-		return getGroupContent(path, Lists.emptyList());
+		return getGroupContent(path, List.of());
 	}
 
 	private GroupContents getEnabledGroupContentsWithDefaultMember(String path)
 	{
 		GroupContents content = getConfiguredGroupContents(path);
 		GroupMembership member = new GroupMembership("/project", 1L, new Date());
-		content.setMembers(Lists.list(member));
+		content.setMembers(List.of(member));
 		return content;
 	}
 	

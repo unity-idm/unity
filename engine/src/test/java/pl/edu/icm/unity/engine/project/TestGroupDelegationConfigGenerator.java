@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.util.Lists;
 import org.hamcrest.text.IsEmptyString;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +81,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldGenerateCorrectProjectRegistrationForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.registrationNameSuffix"))).thenReturn("regSuffix");
-		when(mockRegistrationFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockRegistrationFormDB.getAll()).thenReturn(List.of());
 		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
 		addGroup("/A", "a", true, true);
@@ -102,7 +101,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldGenerateCorrectProjectJoinEnquiryForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.joinEnquiryNameSuffix"))).thenReturn("enSuffix");
-		when(mockEnqFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
@@ -117,7 +116,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldGenerateCorrectProjectUpdateEnquiryForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.updateEnquiryNameSuffix"))).thenReturn("enSuffix");
-		when(mockEnqFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectUpdateEnquiryForm("/A", "https://logo.url");
@@ -130,7 +129,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldGenerateCorrectSubprojectRegistrationForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.registrationNameSuffix"))).thenReturn("regSuffix");
-		when(mockRegistrationFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockRegistrationFormDB.getAll()).thenReturn(List.of());
 		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
 		addGroup("/A", "a", true, true);
@@ -155,7 +154,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldGenerateCorrectSubprojectJoinEnquiryForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.joinEnquiryNameSuffix"))).thenReturn("enSuffix");
-		when(mockEnqFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
@@ -175,7 +174,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldGenerateCorrectSubprojectUpdateEnquiryForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.updateEnquiryNameSuffix"))).thenReturn("enSuffix");
-		when(mockEnqFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectUpdateEnquiryForm("/A", "https://logo.url");
@@ -193,7 +192,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldValidateRegistrationForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.registrationNameSuffix"))).thenReturn("regSuffix");
-		when(mockRegistrationFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockRegistrationFormDB.getAll()).thenReturn(List.of());
 		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
 		addGroup("/A", "a", true, true);
@@ -209,7 +208,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	@Test
 	public void shouldValidateJoinEnquiryForm() throws EngineException
 	{
-		when(mockEnqFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
@@ -223,7 +222,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldValidateUpdateEnquiryForm() throws EngineException
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.updateEnquiryNameSuffix"))).thenReturn("enSuffix");
-		when(mockEnqFormDB.getAll()).thenReturn(Lists.newArrayList());
+		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectUpdateEnquiryForm("/A", "https://logo.url");
@@ -285,13 +284,13 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		Group group = new Group(path);
 		group.setDisplayedName(new I18nString(name));
 		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation,
-				enableSubproject, null, null, null, null, Lists.emptyList()));
+				enableSubproject, null, null, null, null, List.of()));
 		when(mockGroupDB.get(eq(path))).thenReturn(group);
 	}
 
 	private void addTemplates()
 	{
-		when(mockMsgTemplateDB.getAll()).thenReturn(Lists.newArrayList(getTemplate(InvitationTemplateDef.NAME),
+		when(mockMsgTemplateDB.getAll()).thenReturn(List.of(getTemplate(InvitationTemplateDef.NAME),
 				getTemplate(RejectRegistrationTemplateDef.NAME),
 				getTemplate(AcceptRegistrationTemplateDef.NAME),
 				getTemplate(UpdateRegistrationTemplateDef.NAME),
