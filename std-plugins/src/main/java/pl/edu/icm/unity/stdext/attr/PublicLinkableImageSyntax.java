@@ -102,7 +102,7 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 	@Override
 	public LinkableImage deserializeSimple(String value) throws IllegalAttributeValueException
 	{
-		if (StringUtils.isEmpty(value))
+		if (!StringUtils.hasLength(value))
 			return LinkableImage.EMPTY;
 		
 		try

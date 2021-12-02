@@ -75,14 +75,12 @@ public class LinkableImage
 		
 		String serializedImage = JsonUtil.getNullable(node, JSON_IMAGE_PROPERTY_NAME);
 		UnityImage image = null;
-		if (!StringUtils.isEmpty(serializedImage))
-		{
+		if (StringUtils.hasLength(serializedImage))
 			image = new UnityImage(serializedImage);
-		}
 		
 		String serializedURL = JsonUtil.getNullable(node, JSON_URL_PROPERTY_NAME);
 		URL url = null;
-		if (!StringUtils.isEmpty(serializedURL))
+		if (StringUtils.hasLength(serializedURL))
 		{
 			url = new URL(serializedURL);
 			String protocol = url.getProtocol();
@@ -95,7 +93,7 @@ public class LinkableImage
 		
 		String externalIdStr = JsonUtil.getNullable(node, JSON_EXTERNAL_ID_PROPERTY_NAME);
 		UUID externalId = null;
-		if (!StringUtils.isEmpty(externalIdStr))
+		if (StringUtils.hasLength(externalIdStr))
 		{
 			externalId = UUID.fromString(externalIdStr);
 		}
