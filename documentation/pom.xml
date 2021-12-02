@@ -37,6 +37,11 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-types-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -314,15 +319,23 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.4</version>
+				<version>3.3.1</version>
 				<configuration>
 					<includeDependencySources>true</includeDependencySources>
 					<dependencySourceIncludes>
-						<dependencySourceInclude>pl.edu.icm.unity:unity-server-engine-api</dependencySourceInclude>
+						<dependencySourceInclude>io.imunity:unity-types-api</dependencySourceInclude>
+						<dependencySourceInclude>io.imunity:unity-server-engine-api</dependencySourceInclude>
 					</dependencySourceIncludes>
 					<additionalparam>-Xdoclint:none</additionalparam>
-					<subpackages>pl.edu.icm.unity.engine.api</subpackages>
+					<subpackages>pl.edu.icm.unity</subpackages>
 				</configuration>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
