@@ -38,13 +38,15 @@ class OauthRpConfigurationMigrator
 		Properties raw = parse(configuration);
 		String scopes = raw.getProperty(SCOPES_PROPERTY);
 		raw.remove(SCOPES_PROPERTY);
-		if (!StringUtils.isEmpty(scopes))
+		if (StringUtils.hasLength(scopes))
 		{
 			String[] scopesArray = scopes.split(" ");
 			for (int idx = 0; idx < scopesArray.length; idx ++)
 			{
 				String scope = scopesArray[idx];
-				if (!StringUtils.isEmpty(scopes))
+				//post 3.6 finding: the below line seems buggy (should be scope) - leaving for reference in case this 
+				// causes issues
+				if (StringUtils.hasLength(scopes))
 				{
 					raw.put(SCOPES_PROPERTY + (idx+1), scope.trim());
 				}

@@ -304,11 +304,11 @@ public class LoginInProgressService<AUTHZ_CTX>
 					? UI.getCurrent().getPage().getLocation().getQuery()
 					: null;
 			
-			if (!StringUtils.isEmpty(queryString))
+			if (StringUtils.hasLength(queryString))
 			{
 				Map<String, String> params = Splitter.on('&').trimResults().withKeyValueSeparator('=').split(queryString);
 				String keyStr = params.get(URL_PARAM_CONTEXT_KEY);
-				if (!StringUtils.isEmpty(keyStr))
+				if (StringUtils.hasLength(keyStr))
 					key = new SignInContextKey(keyStr); 
 			}
 			return key;

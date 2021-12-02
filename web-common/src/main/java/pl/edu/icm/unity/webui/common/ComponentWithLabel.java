@@ -21,7 +21,7 @@ public interface ComponentWithLabel
 	
 	static String normalizeLabel(String label)
 	{
-		if (StringUtils.isEmpty(label))
+		if (!StringUtils.hasLength(label))
 			return label;
 		
 		String normalizedLabel = label;

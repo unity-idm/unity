@@ -91,7 +91,7 @@ public class IdentityEntry
 			return "";
 		
 		String status = credInfo.getState().toString();
-		if (!StringUtils.isEmpty(credInfo.getStateDetail()))
+		if (StringUtils.hasLength(credInfo.getStateDetail()))
 			status = status + " - " + credInfo.getStateDetail();
 		return status;
 	}
