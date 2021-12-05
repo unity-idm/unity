@@ -21,11 +21,12 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.wellknownurl.WellKnownURLEndpointFactory;
 
 @Component
-public class WellKnownServiceController extends DefaultServicesControllerBase
+public class WellKnownServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 
 	private RealmsManagement realmsMan;
