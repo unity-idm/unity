@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.store.tx;
 
-import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 /**
@@ -36,12 +35,6 @@ public class TransactionTL
 
 	private static TransactionsState<? extends TransactionState> get()
 	{
-		if (HzTransactionTL.getState().isEmpty())
-		{
-			return SQLTransactionTL.getState();
-		} else
-		{
-			return HzTransactionTL.getState();
-		}
+		return SQLTransactionTL.getState();
 	}
 }

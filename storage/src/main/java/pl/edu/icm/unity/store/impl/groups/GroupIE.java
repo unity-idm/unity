@@ -24,7 +24,7 @@ public class GroupIE extends AbstractIEBase<Group>
 {
 	public static final String GROUPS_OBJECT_TYPE = "groups";
 
-	private GroupDAO dao;
+	private final GroupDAO dao;
 	
 	@Autowired
 	public GroupIE(GroupDAO dao)

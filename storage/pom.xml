@@ -62,10 +62,6 @@
 			<artifactId>aspectjweaver</artifactId>
 		</dependency>		
 		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-jta_1.0.1B_spec</artifactId>
 		</dependency>
@@ -80,10 +76,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.esotericsoftware</groupId>
-			<artifactId>kryo</artifactId>
 		</dependency>
 		
 		<dependency>

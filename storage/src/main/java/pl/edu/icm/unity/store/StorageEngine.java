@@ -14,9 +14,4 @@ public enum StorageEngine
 	 * The legacy RDBMS only engine.
 	 */
 	rdbms,
-
-	/**
-	 * Hazelcast based engine with RDBMS flushing
-	 */
-	hz
 }

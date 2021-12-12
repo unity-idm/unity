@@ -24,7 +24,7 @@ public class MembershipIE extends AbstractIEBase<GroupMembership>
 {
 	public static final String GROUP_MEMBERS_OBJECT_TYPE = "groupMembers";
 
-	private MembershipDAO dao;
+	private final MembershipDAO dao;
 	
 	@Autowired
 	public MembershipIE(MembershipDAO dao)

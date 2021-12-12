@@ -6,10 +6,7 @@ package pl.edu.icm.unity.store.impl.policyDocuments;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
@@ -20,8 +17,7 @@ import pl.edu.icm.unity.store.types.StoredPolicyDocument;
  *
  */
 @Component
-public class PolicyDocumentJsonSerializer implements RDBMSObjectSerializer<StoredPolicyDocument, BaseBean>, 
-		JsonSerializerForKryo<StoredPolicyDocument>
+class PolicyDocumentJsonSerializer implements RDBMSObjectSerializer<StoredPolicyDocument, BaseBean>
 {
 	@Override
 	public BaseBean toDB(StoredPolicyDocument object)
@@ -37,23 +33,5 @@ public class PolicyDocumentJsonSerializer implements RDBMSObjectSerializer<Store
 		StoredPolicyDocument ret = new StoredPolicyDocument(bean.getId(), bean.getName());
 		ret.fromJsonBase(JsonUtil.parse(bean.getContents()));
 		return ret;
-	}
-	
-	@Override
-	public StoredPolicyDocument fromJson(ObjectNode src)
-	{
-		return new StoredPolicyDocument(src);
-	}
-
-	@Override
-	public ObjectNode toJson(StoredPolicyDocument src)
-	{
-		return src.toJson();
-	}
-	
-	@Override
-	public Class<StoredPolicyDocument> getClazz()
-	{
-		return StoredPolicyDocument.class;
 	}
 }

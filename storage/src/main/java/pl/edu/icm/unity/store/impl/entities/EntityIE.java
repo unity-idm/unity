@@ -24,7 +24,7 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 {
 	public static final String ENTITIES_OBJECT_TYPE = "entities";
 	
-	private EntityDAO dbIds;
+	private final EntityDAO dbIds;
 	
 	@Autowired
 	public EntityIE(EntityDAO dbIds)
