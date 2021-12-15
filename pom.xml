@@ -18,7 +18,7 @@
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
 		<jetty.version>9.4.43.v20210629</jetty.version>
 		<slf4j.version>1.7.30</slf4j.version>
-		<log4j.version>2.15.0</log4j.version>
+		<log4j.version>2.16.0</log4j.version>
 		<spring.version>5.1.20.RELEASE</spring.version>
 		<vaadin.version>8.13.3</vaadin.version>
 		<cxf.version>3.4.4</cxf.version>
