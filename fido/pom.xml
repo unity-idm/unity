@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>3.7.2</version>
+		<version>3.8.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -18,7 +18,7 @@
 	<scm>
 		<connection>${scm.base}/${m.name}</connection>
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
-		<tag>unity-server-parent-3.7.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<dependencies>
@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
-			<version>3.7.2</version>
+			<version>3.8.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
