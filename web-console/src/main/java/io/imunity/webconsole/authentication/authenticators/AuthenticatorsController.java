@@ -192,8 +192,8 @@ public class AuthenticatorsController
 				.forEach(f -> toSearch.add(f.getName()));
 
 		return endpoints.stream()
-				.filter(e -> e.getEndpoint().getConfiguration().getAuthenticationOptions().stream()
-						.anyMatch(toSearch::contains))
+				.filter(e -> e.getEndpoint().getConfiguration().getAuthenticationOptions() != null && e.getEndpoint()
+						.getConfiguration().getAuthenticationOptions().stream().anyMatch(toSearch::contains))
 				.map(e -> e.getName()).sorted().collect(Collectors.toList());
 	}
 

@@ -73,4 +73,10 @@ class AuthenticatorImpl implements AuthenticatorInstance
 	{
 		return retrieval;
 	}
+	
+	@Override
+	public CredentialVerificator getCredentialVerificator()
+	{
+		return verificator;
+	}
 }

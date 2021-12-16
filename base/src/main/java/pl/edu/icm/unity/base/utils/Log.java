@@ -38,6 +38,7 @@ public class Log
 	public static final String U_SERVER_SCRIPT = PFX + "script";
 	public static final String U_SERVER_USER_IMPORT = PFX + "userimport";
 	public static final String U_SERVER_BULK_OPS = PFX + "bulkops";
+	public static final String U_SERVER_ATTR_INTROSPECTION = PFX + "attrintrospection";
 
 	public static final String SECURITY = "unicore.security"; //legacy
 

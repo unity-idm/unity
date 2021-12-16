@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Base for all standard servive controllers. Operates on
+ * Base for all standard service controllers. Operates on
  * {@link DefaultServiceDefinition}
  * 
  * @author P.Piernik

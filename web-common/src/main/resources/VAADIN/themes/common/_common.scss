@@ -1619,5 +1619,28 @@
 		overflow-y:scroll;
 		max-height: 16em;
 	}
+	
+	.u-success-bg {
+		background: $bgSuccessColor;
+		border-radius: 5px;
+	}
+	
+	.u-error-bg {
+		background: $bgErrorColor;
+		border-radius: 5px;
+	}
+	
+	.u-warn-bg {
+		background: $bgWarnColor;
+		border-radius: 5px;
+	}
+	
+	.v-caption-u-label-warn > .v-icon {
+		color : $bgWarnColor;
+	}
+
+	.v-caption-u-label-error > .v-icon {
+		color : $bgErrorColor;
+	}
 }
 

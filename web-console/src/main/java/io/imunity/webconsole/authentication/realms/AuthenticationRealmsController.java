@@ -120,7 +120,7 @@ class AuthenticationRealmsController
 
 	private List<String> filterEndpoints(String realmName, List<ResolvedEndpoint> all)
 	{
-		return all.stream().filter(e -> e.getRealm().getName().equals(realmName)).map(e -> e.getName()).sorted()
+		return all.stream().filter(e -> e.getRealm() != null && e.getRealm().getName().equals(realmName)).map(e -> e.getName()).sorted()
 				.collect(Collectors.toList());
 	}
 }

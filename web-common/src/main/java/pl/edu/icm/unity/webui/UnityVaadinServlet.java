@@ -98,7 +98,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (counter == null)
 		{
-			UnsuccessfulAuthenticationCounter newCounter = description != null ? 
+			UnsuccessfulAuthenticationCounter newCounter = description != null && description.getRealm() != null? 
 					new DefaultUnsuccessfulAuthenticationCounter(
 							description.getRealm().getBlockAfterUnsuccessfulLogins(),
 							description.getRealm().getBlockFor()*1000) : 

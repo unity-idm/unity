@@ -8,6 +8,8 @@ import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseP
 
 import java.util.List;
 import java.util.Properties;
+import java.util.Optional;
+
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +119,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 				idsMan, 
 				execService, 
 				authnProcessor, 
-				localeChoice, 
+				Optional.of(localeChoice), 
 				authnFlows,
 				title,
 				sandboxRouter,

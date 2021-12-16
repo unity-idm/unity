@@ -4,9 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.util.List;
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.utils.StringConfigurable;
 import pl.edu.icm.unity.types.DescribedObject;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 
 /**
  * Implementations allow for verification of the provided credential. It is assumed that credential is 
@@ -31,4 +35,6 @@ public interface CredentialVerificator extends CredentialExchange, DescribedObje
 	void setInstanceName(String name);
 
 	VerificatorType getType();
+	
+	Optional<List<IdPInfo>> getIdPs();
 }

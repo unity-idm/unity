@@ -18,12 +18,14 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -36,6 +38,8 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemot
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -54,12 +58,12 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
  *  
  * @author Roman Krysinski
  */
-class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
+public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthenticationScreen.class);
 	private final SandboxAuthnRouter sandboxRouter;
 
-	SandboxAuthenticationScreen(MessageSource msg, 
+	public SandboxAuthenticationScreen(MessageSource msg, 
 			ImageAccessService imageAccessService,
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -67,7 +71,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			EntityManagement idsMan,
 			ExecutorsService execService, 
 			InteractiveAuthenticationProcessor authnProcessor,
-			LocaleChoiceComponent localeChoice,
+			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,
 			SandboxAuthnRouter sandboxRouter,
@@ -165,9 +169,28 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				partialAuthnState);
 	}
 	
+	@Override
+	protected RememberMePolicy getRememberMePolicy()
+	{
+		if (endpointDescription.getRealm() == null)
+			return RememberMePolicy.disallow;
+		return super.getRememberMePolicy();
+	}
+	
+	@Override
+	protected Component getRememberMeComponent(AuthenticationRealm realm)
+	{
+		if (realm == null)
+		{
+			return new HorizontalLayout();
+		}
+
+		return super.getRememberMeComponent(realm);
+	}
+	
 	private static UnknownUserDialog disabledUnknownUserProvider(UnknownRemotePrincipalResult authnResult)
 	{
-		throw new IllegalStateException("Showing unknown user dialog on sandbox screen - should never happen");
+		throw new IllegalStateException("Showing unknown user dialog on sanbox screen - should never happen");
 	}
 	
 	private static class NoOpCredentialRestLauncher implements CredentialResetLauncher

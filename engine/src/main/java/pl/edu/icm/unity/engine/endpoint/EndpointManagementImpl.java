@@ -33,7 +33,6 @@ import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -289,7 +288,7 @@ public class EndpointManagementImpl implements EndpointManagement
 						configuration.getRealm() :
 						existing.getConfiguration().getRealm();
 
-				AuthenticationRealm realm = realmDB.get(newRealm);
+				String realmName = newRealm !=null ? realmDB.get(newRealm).getName() : null;
 
 				I18nString newDisplayedName = configuration.getDisplayedName() != null ?
 						configuration.getDisplayedName() :
@@ -300,7 +299,7 @@ public class EndpointManagementImpl implements EndpointManagement
 						newDesc, 
 						newAuthn, 
 						jsonConf, 
-						realm.getName(), configuration.getTag());
+						realmName, configuration.getTag());
 				
 				
 				Endpoint updatedEndpoint = new Endpoint(id, 

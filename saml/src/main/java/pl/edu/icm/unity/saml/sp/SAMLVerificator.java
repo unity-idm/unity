@@ -9,13 +9,16 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -49,6 +52,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLHelper;
+import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.metadata.LocalSPMetadataManager;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
@@ -58,13 +62,17 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
+import pl.edu.icm.unity.types.authn.IdPInfo;
+import pl.edu.icm.unity.types.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 /**
- * Binding irrelevant SAML logic: creation of a SAML authentication request and verification of the answer.
+ * Binding irrelevant SAML logic: creation of a SAML authentication request and
+ * verification of the answer.
+ * 
  * @author K. Benedyczak
  */
 @PrototypeComponent
@@ -74,8 +82,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 	public static final String NAME = "saml2";
 	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
-	public static final String DESC = "Handles SAML assertions obtained from remote IdPs"; 
-			
+	public static final String DESC = "Handles SAML assertions obtained from remote IdPs";
+
 	private SAMLSPProperties samlProperties;
 	private PKIManagement pkiMan;
 	private MultiMetadataServlet metadataServlet;
@@ -87,24 +95,18 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private SLOReplyInstaller sloReplyInstaller;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
-	
+
 	private MessageSource msg;
 
 	private Map<String, LocalSPMetadataManager> localMetadataManagers;
 
 	private final SAMLResponseVerificator responseVerificator;
-	
+
 	@Autowired
-	public SAMLVerificator(RemoteAuthnResultTranslator processor,
-			@Qualifier("insecure") PKIManagement pkiMan,
-			ExecutorsService executorsService,
-			RemoteMetadataService metadataService,
-			SLOSPManager sloManager,
-			SLOReplyInstaller sloReplyInstaller,
-			MessageSource msg,
-			SharedEndpointManagement sharedEndpointManagement,
-			AdvertisedAddressProvider advertisedAddrProvider,
-			URIAccessService uriAccessService,
+	public SAMLVerificator(RemoteAuthnResultTranslator processor, @Qualifier("insecure") PKIManagement pkiMan,
+			ExecutorsService executorsService, RemoteMetadataService metadataService, SLOSPManager sloManager,
+			SLOReplyInstaller sloReplyInstaller, MessageSource msg, SharedEndpointManagement sharedEndpointManagement,
+			AdvertisedAddressProvider advertisedAddrProvider, URIAccessService uriAccessService,
 			SAMLResponseVerificator responseVerificator)
 	{
 		super(NAME, DESC, SAMLExchange.ID, processor);
@@ -123,14 +125,13 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 
 	private void init(Map<String, RemoteMetaManager> remoteMetadataManagers,
-			Map<String, LocalSPMetadataManager> localMetadataManagers,
-			MultiMetadataServlet metadataServlet)
+			Map<String, LocalSPMetadataManager> localMetadataManagers, MultiMetadataServlet metadataServlet)
 	{
 		this.remoteMetadataManagers = remoteMetadataManagers;
 		this.localMetadataManagers = localMetadataManagers;
 		this.metadataServlet = metadataServlet;
 	}
-	
+
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -142,13 +143,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		{
 			throw new InternalException("Can't serialize SAML verificator configuration", e);
 		}
-		return sbw.toString();	
+		return sbw.toString();
 	}
 
 	/**
-	 * Configuration in samlProperties is loaded, but it can be modified at runtime by the metadata manager.
-	 * Therefore the source properties are used only to configure basic things (not related to trusted IDPs)
-	 * while the virtual properties are used for authentication process setup.
+	 * Configuration in samlProperties is loaded, but it can be modified at runtime
+	 * by the metadata manager. Therefore the source properties are used only to
+	 * configure basic things (not related to trusted IDPs) while the virtual
+	 * properties are used for authentication process setup.
 	 */
 	@Override
 	public void setSerializedConfiguration(String source)
@@ -158,18 +160,17 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
 			samlProperties = new SAMLSPProperties(properties, pkiMan);
-		} catch(ConfigurationException e)
+		} catch (ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the SAML verificator", e);
 		} catch (IOException e)
 		{
 			throw new InternalException("Invalid configuration of the SAML verificator(?)", e);
 		}
-		
+
 		if (!localMetadataManagers.containsKey(instanceName))
 		{
-			LocalSPMetadataManager manager = new LocalSPMetadataManager(executorsService, 
-					responseConsumerAddress, 
+			LocalSPMetadataManager manager = new LocalSPMetadataManager(executorsService, responseConsumerAddress,
 					sloManager, sloReplyInstaller, metadataServlet, uriAccessService);
 			manager.updateConfiguration(samlProperties);
 			localMetadataManagers.put(instanceName, manager);
@@ -180,9 +181,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 		if (!remoteMetadataManagers.containsKey(instanceName))
 		{
-			myMetadataManager = new RemoteMetaManager(samlProperties, 
-					pkiMan, 
-					new MetaToSPConfigConverter(pkiMan, msg), 
+			myMetadataManager = new RemoteMetaManager(samlProperties, pkiMan, new MetaToSPConfigConverter(pkiMan, msg),
 					metadataService, SAMLSPProperties.IDPMETA_PREFIX);
 			remoteMetadataManagers.put(instanceName, myMetadataManager);
 		} else
@@ -190,14 +189,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			myMetadataManager = remoteMetadataManagers.get(instanceName);
 			myMetadataManager.setBaseConfiguration(samlProperties);
 		}
-		
+
 		try
 		{
 			initSLO();
 		} catch (EngineException e)
 		{
-			throw new InternalException("Can't initialize Single Logout subsystem for "
-					+ "the authenticator " + getName(), e);
+			throw new InternalException(
+					"Can't initialize Single Logout subsystem for " + "the authenticator " + getName(), e);
 		}
 	}
 
@@ -206,7 +205,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	{
 		myMetadataManager.unregisterAll();
 	}
-	
+
 	private void initSLO() throws EngineException
 	{
 		SamlTrustProvider samlTrustProvider = new SamlTrustProvider()
@@ -235,50 +234,35 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 				return config.getPublicKeysOfIdp(samlEntity.getStringValue());
 			}
 		};
-		
+
 		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
 		String sloRealm = samlProperties.getValue(SAMLSPProperties.SLO_REALM);
-		
+
 		if (sloPath == null || sloRealm == null)
 		{
-			log.debug("Single Logout functionality will be disabled for SAML authenticator "
-					+ getName() + " as its path and/or realm are/is undefined.");
+			log.debug("Single Logout functionality will be disabled for SAML authenticator " + getName()
+					+ " as its path and/or realm are/is undefined.");
 			return;
 		}
-		
+
 		String samlId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
 		X509Credential credential = samlProperties.getRequesterCredential();
 		IdentityTypeMapper idMapper = new IdentityTypeMapper(samlProperties);
-		sloManager.deployAsyncServlet(sloPath,  
-				idMapper, 
-				600000, 
-				samlId, 
-				credential, 
-				samlTrustProvider, 
-				sloRealm);
-		sloManager.deploySyncServlet(sloPath, 
-				idMapper, 
-				600000, 
-				samlId, 
-				credential, 
-				samlTrustProvider, 
-				sloRealm);
-		
+		sloManager.deployAsyncServlet(sloPath, idMapper, 600000, samlId, credential, samlTrustProvider, sloRealm);
+		sloManager.deploySyncServlet(sloPath, idMapper, 600000, samlId, credential, samlTrustProvider, sloRealm);
+
 		sloReplyInstaller.enable();
 	}
-	
+
 	@Override
-	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath, 
-			AuthenticationStepContext authnStepContext,
-			LoginMachineDetails initialLoginMachine, 
-			String ultimateReturnURL,
-			AuthenticationTriggeringContext triggeringContext)
+	public RemoteAuthnContext createSAMLRequest(String idpConfigKey, String servletPath,
+			AuthenticationStepContext authnStepContext, LoginMachineDetails initialLoginMachine,
+			String ultimateReturnURL, AuthenticationTriggeringContext triggeringContext)
 	{
-		RedirectedAuthnState baseState = new RedirectedAuthnState(authnStepContext, this::processResponse, 
+		RedirectedAuthnState baseState = new RedirectedAuthnState(authnStepContext, this::processResponse,
 				initialLoginMachine, ultimateReturnURL, triggeringContext);
-		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, 
-				baseState);
-		
+		RemoteAuthnContext context = new RemoteAuthnContext(getSamlValidatorSettings(), idpConfigKey, baseState);
+
 		SAMLSPProperties samlPropertiesCopy = context.getContextConfig();
 		if (!samlPropertiesCopy.isIdPDefinitionComplete(idpConfigKey))
 			throw new IllegalStateException("The selected IdP is not valid anymore, seems it was disabled");
@@ -287,10 +271,9 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		String identityProviderURL = samlPropertiesCopy.getValue(idpConfigKey + SAMLSPProperties.IDP_ADDRESS);
 		String requestedNameFormat = samlPropertiesCopy.getRequestedNameFormat(idpConfigKey);
 		X509Credential credential = sign ? samlPropertiesCopy.getRequesterCredential() : null;
-		
-		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, 
-				requesterId, identityProviderURL,
-				requestedNameFormat, true, credential);
+
+		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, requesterId,
+				identityProviderURL, requestedNameFormat, true, credential);
 		context.setRequest(request.xmlText(), request.getAuthnRequest().getID(), servletPath);
 		return context;
 	}
@@ -300,57 +283,83 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
 		SAMLSPProperties config = castedState.getContextConfig();
 		String idpKey = castedState.getContextIdpKey();
-		TranslationProfile profile = getTranslationProfile(
-				config, idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+		TranslationProfile profile = getTranslationProfile(config,
+				idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
 				idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 		return responseVerificator.processResponse(remoteAuthnState, profile);
 	}
-	
+
 	@Override
 	public SAMLSPProperties getSamlValidatorSettings()
 	{
 		return (SAMLSPProperties) myMetadataManager.getVirtualConfiguration();
 	}
-	
+
 	@Override
 	public IdPVisalSettings getVisualSettings(String configKey, Locale locale)
 	{
 		return myMetadataManager.getVisualSettings(configKey, locale);
 	}
-	
+
 	@Override
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
 	}
-	
+
+	@Override
+	public Optional<List<IdPInfo>> getIdPs()
+	{
+		List<IdPInfo> providers = new ArrayList<>();
+		SamlProperties virtual = myMetadataManager.getVirtualConfiguration();
+		Set<String> idpKeys = virtual.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		idpKeys.forEach(key ->
+		{
+			String id = virtual.getValue(key + SAMLSPProperties.IDP_ID);
+			String groupId = virtual.getValue(key + SAMLSPProperties.IDP_FEDERATION_ID);
+			IdpGroup group = null;
+			if (groupId != null)
+			{
+				group = new IdpGroup(groupId,
+						Optional.ofNullable(virtual.getValue(key + SAMLSPProperties.IDP_FEDERATION_NAME)));
+			}
+
+			if (id != null)
+			{
+				providers.add(new IdPInfo(id,
+						Optional.ofNullable(virtual.getLocalizedString(msg, key + SAMLSPProperties.IDP_NAME)),
+						Optional.ofNullable(group)));
+			}
+		});
+		return Optional.of(providers);
+	}
+
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory
 	{
 		private MultiMetadataServlet metadataServlet;
 		private Map<String, RemoteMetaManager> remoteMetadataManagers;
 		private Map<String, LocalSPMetadataManager> localSPMetadataManagers;
-		
+
 		@Autowired
 		public Factory(ObjectFactory<SAMLVerificator> factory, SamlContextManagement contextManagement,
 				SharedEndpointManagement sharedEndpointManagement,
 				SharedRemoteAuthenticationContextStore sharedRemoteAuthenticationContextStore) throws EngineException
 		{
 			super(NAME, DESC, factory);
-			
-			ServletHolder servlet = new ServletHolder(new SAMLResponseConsumerServlet(
-					contextManagement, sharedRemoteAuthenticationContextStore));
-			sharedEndpointManagement.deployInternalEndpointServlet(
-					SAMLResponseConsumerServlet.PATH, servlet, false);
-			
+
+			ServletHolder servlet = new ServletHolder(
+					new SAMLResponseConsumerServlet(contextManagement, sharedRemoteAuthenticationContextStore));
+			sharedEndpointManagement.deployInternalEndpointServlet(SAMLResponseConsumerServlet.PATH, servlet, false);
+
 			metadataServlet = new MultiMetadataServlet(METADATA_SERVLET_PATH);
-			sharedEndpointManagement.deployInternalEndpointServlet(METADATA_SERVLET_PATH, 
+			sharedEndpointManagement.deployInternalEndpointServlet(METADATA_SERVLET_PATH,
 					new ServletHolder(metadataServlet), false);
-			
+
 			this.remoteMetadataManagers = Collections.synchronizedMap(new HashMap<>());
 			this.localSPMetadataManagers = Collections.synchronizedMap(new HashMap<>());
 		}
-		
+
 		@Override
 		public CredentialVerificator newInstance()
 		{
@@ -360,5 +369,3 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		}
 	}
 }
-
-
