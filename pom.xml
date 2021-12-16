@@ -81,6 +81,7 @@
 		<module>documentation</module>
 		<module>composite-password</module>
 		<module>fido</module>
+		<module>web-attr-introspection</module>
 	</modules>
 
 	<developers>
@@ -789,6 +790,11 @@
 				<artifactId>selenium-chrome-driver</artifactId>
 				<version>${selenium.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+    			<artifactId>owasp-java-html-sanitizer</artifactId>
+    			<version>20211018.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

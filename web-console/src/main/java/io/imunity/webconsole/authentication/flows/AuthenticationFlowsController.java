@@ -138,8 +138,8 @@ public class AuthenticationFlowsController
 	private List<String> filterEndpoints(String flowName, List<ResolvedEndpoint> all)
 	{
 		return all.stream()
-				.filter(e -> e.getEndpoint().getConfiguration().getAuthenticationOptions()
-						.contains(flowName))
+				.filter(e -> e.getEndpoint().getConfiguration().getAuthenticationOptions() != null
+						&& e.getEndpoint().getConfiguration().getAuthenticationOptions().contains(flowName))
 				.map(e -> e.getName()).sorted().collect(Collectors.toList());
 	}
 

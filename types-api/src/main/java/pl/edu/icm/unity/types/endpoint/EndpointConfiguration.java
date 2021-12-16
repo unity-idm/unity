@@ -103,14 +103,21 @@ public class EndpointConfiguration
 		root.set("displayedName", I18nStringJsonUtil.toJson(displayedName));
 		root.put("description", description);
 		root.put("configuration", configuration);
-		root.put("realm", realm);
+		if (realm != null)
+		{
+			root.put("realm", realm);
+		}
 		if (tag != null)
 		{
 			root.put("tag", tag);
 		}
 		ArrayNode aopts = root.withArray("authenticationOptions");
-		for (String aod : authenticationOptions)
-			aopts.add(aod);
+		if (authenticationOptions != null)
+		{
+			for (String aod : authenticationOptions)
+				aopts.add(aod);
+		}
+			
 		return root;
 	}
 

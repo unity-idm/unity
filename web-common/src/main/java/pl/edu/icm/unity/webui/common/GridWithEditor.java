@@ -57,15 +57,20 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	
 	public GridWithEditor(MessageSource msg, Class<T> type, Predicate<T> disableRemovePredicate, boolean enableDrag)
 	{
-		this(msg, type, disableRemovePredicate, enableDrag, true);
+		this(msg, type, disableRemovePredicate, enableDrag, true, msg.getMessage("addNew"));
 	}
 	
 	public GridWithEditor(MessageSource msg, Class<T> type, Predicate<T> disableRemovePredicate, boolean enableDrag, boolean addAsActionButton)
 	{
+		this(msg, type, disableRemovePredicate, enableDrag, addAsActionButton, msg.getMessage("addNew"));
+	}
+	
+	public GridWithEditor(MessageSource msg, Class<T> type, Predicate<T> disableRemovePredicate, boolean enableDrag, boolean addAsActionButton, String addCaption)
+	{
 		this.type = type;
 		this.msg = msg;
 
-		add = new Button(msg.getMessage("addNew"));
+		add = new Button(addCaption);
 		if (addAsActionButton)
 			add.addStyleName(Styles.buttonAction.toString());
 		add.setIcon(Images.add.getResource());

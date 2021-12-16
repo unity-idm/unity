@@ -96,6 +96,12 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-web-attr-instrospection</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>securityLibrary</artifactId>
 		</dependency>

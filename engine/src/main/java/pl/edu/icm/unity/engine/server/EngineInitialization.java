@@ -750,8 +750,8 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info(" - " + endpoint.getName() + ": " + endpoint.getType().getName() + " "
 						+ endpoint.getEndpoint().getConfiguration().getDescription() + " at "
-						+ endpoint.getEndpoint().getContextAddress() + " in realm "
-						+ endpoint.getRealm().getName());
+						+ endpoint.getEndpoint().getContextAddress()
+						+ (endpoint.getRealm() == null ? "" : " in realm " + endpoint.getRealm().getName()));
 			}
 		} catch (Exception e)
 		{

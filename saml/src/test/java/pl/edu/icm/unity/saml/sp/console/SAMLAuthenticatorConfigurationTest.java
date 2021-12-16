@@ -124,8 +124,7 @@ public class SAMLAuthenticatorConfigurationTest
 			.withAlias("unity.saml.requester.remoteIdp.1.certificates.2", "unity.saml.requester.remoteIdp.1.certificates.1")
 			.withAlias("unity.saml.requester.remoteIdp.1.certificates.1", "unity.saml.requester.remoteIdp.1.certificate")
 			.ignoringMissing("metadataSource.1.perMetadataTranslationProfile",
-					"remoteIdp.1.translationProfile")
+					"remoteIdp.1.translationProfile", "remoteIdp.1.samlFederationName", "remoteIdp.1.samlFederationId")
 			.checkMatching(result, sourceCfg);
-		
 	}
 }

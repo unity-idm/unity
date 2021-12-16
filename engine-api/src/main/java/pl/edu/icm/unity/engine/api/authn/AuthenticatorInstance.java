@@ -59,4 +59,12 @@ public interface AuthenticatorInstance
 	 * @return authenticator revision
 	 */
 	long getRevision();
+	
+	
+	/**
+	 * Get authenticator verificator
+	 * @return 
+	 */
+	CredentialVerificator getCredentialVerificator();
+	
 }

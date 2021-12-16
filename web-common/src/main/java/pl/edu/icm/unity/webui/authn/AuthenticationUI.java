@@ -131,7 +131,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
-				localeChoice, authnFlows,
+				Optional.of(localeChoice), authnFlows,
 				interactiveAuthnProcessor);
 		loadInitialState();
 		setSizeFull();

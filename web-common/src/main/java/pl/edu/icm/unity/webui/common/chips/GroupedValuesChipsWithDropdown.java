@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webui.common.chips;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class GroupedValuesChipsWithDropdown extends ChipsWithDropdown<String>
 	}
 
 	@Override
-	public void setItems(List<String> items)
+	public void setItems(Collection<String> items)
 	{
 		updateComboRenderer(v -> !v.startsWith(LABEL_PREFIX) ? "\u2003" + v
 				: v.substring(LABEL_PREFIX.length(), v.length()));

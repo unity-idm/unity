@@ -90,12 +90,12 @@ public abstract class AbstractMetaToConfigConverter
 		{
 			for (EntityDescriptorType entity: entities)
 			{
-				convertToProperties(entity, properties, realConfig, configKey);
+				convertToProperties(meta, entity, properties, realConfig, configKey);
 			}
 		}
 	}
 	
-	protected abstract void convertToProperties(EntityDescriptorType meta, Properties properties, 
+	protected abstract void convertToProperties(EntitiesDescriptorType parentMeta, EntityDescriptorType meta, Properties properties, 
 			SamlProperties realConfig, String configKey);
 	
 	/**

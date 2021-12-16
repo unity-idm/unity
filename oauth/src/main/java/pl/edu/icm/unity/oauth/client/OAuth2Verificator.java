@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -71,9 +73,9 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
@@ -89,6 +91,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
@@ -112,10 +115,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private final String responseConsumerAddress;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
+	private final MessageSource msg;
 	private OpenIdProviderMetadataManager metadataManager;
 	
 	@Autowired
-	public OAuth2Verificator(AdvertisedAddressProvider advertisedAddrProvider,
+	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
@@ -127,6 +131,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
+		this.msg = msg;
 	}
 
 	@Override
@@ -619,6 +624,47 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
+	}
+	
+	@Override
+	public Optional<List<IdPInfo>> getIdPs()
+	{
+		List<IdPInfo> providers = new ArrayList<>();
+		Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
+		for (String key : keys)
+		{
+			IdPInfo providerInfo = null;
+			CustomProviderProperties providerProps = config.getProvider(key);
+			if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
+			{
+				OIDCProviderMetadata metadata;
+				String discoveryUrl = config.getProvider(key).getValue(CustomProviderProperties.OPENID_DISCOVERY);
+
+				try
+				{
+					metadata = metadataManager.getMetadata(discoveryUrl, providerProps);
+				} catch (Exception e)
+				{
+					log.error("Can not get oauth provider metadata from address " + discoveryUrl);
+					continue;
+				}
+				providerInfo = new IdPInfo(metadata.getTokenEndpointURI().toString(),
+						Optional.ofNullable(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+								CustomProviderProperties.PROVIDER_NAME)),
+						Optional.empty());
+			} else
+			{
+				providerInfo = new IdPInfo(
+						config.getProvider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT),
+						Optional.ofNullable(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+								CustomProviderProperties.PROVIDER_NAME)),
+						Optional.empty());
+
+			}
+
+			providers.add(providerInfo);
+		}
+		return Optional.of(providers);
 	}
 	
 	@Component

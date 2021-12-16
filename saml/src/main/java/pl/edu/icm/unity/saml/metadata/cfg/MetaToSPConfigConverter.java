@@ -23,6 +23,7 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.IDPSSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
@@ -61,7 +62,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 	}
 	
 	@Override
-	protected void convertToProperties(EntityDescriptorType meta, Properties properties, 
+	protected void convertToProperties(EntitiesDescriptorType parentMeta, EntityDescriptorType meta, Properties properties, 
 			SamlProperties realConfigG, String configKey)
 	{
 		SAMLSPProperties realConfig = (SAMLSPProperties) realConfigG;
@@ -70,6 +71,9 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			return;
 
 		String entityId = meta.getEntityID();
+		String federationId = parentMeta.getID();
+		String federationName = parentMeta.getName();
+		
 		for (IDPSSODescriptorType idpDef: idpDefs)
 		{
 			if (!MetaToConfigConverterHelper.supportsSaml2(idpDef))
@@ -121,7 +125,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			
 			if (webEndpoint != null)
 			{
-				addEntryToProperties(entityId, webEndpoint, soapSLOEndpoint,
+				addEntryToProperties(federationId, federationName, entityId, webEndpoint, soapSLOEndpoint,
 						postSLOEndpoint, redirectSLOEndpoint,
 						requireSignedReq, realConfig, 
 						configKey, properties, 1, certs, names, logos);
@@ -129,7 +133,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 			
 			if (soapEndpoint != null)
 			{
-				addEntryToProperties(entityId, soapEndpoint, soapSLOEndpoint, 
+				addEntryToProperties(federationId, federationName, entityId, soapEndpoint, soapSLOEndpoint, 
 						postSLOEndpoint, redirectSLOEndpoint,
 						requireSignedReq, realConfig, 
 						configKey, properties, 2, certs, names, logos);
@@ -137,7 +141,7 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		}
 	}
 	
-	private void addEntryToProperties(String entityId, EndpointType endpoint, 
+	private void addEntryToProperties(String federationId, String federationName, String entityId, EndpointType endpoint, 
 			EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
 			boolean requireSignedReq,
 			SAMLSPProperties realConfig, String metaConfigKey, Properties properties, int index,
@@ -163,6 +167,12 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_ID))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_ID, 
 					entityId);
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_FEDERATION_ID))
+			properties.setProperty(configKey + SAMLSPProperties.IDP_FEDERATION_ID, 
+					federationId);
+		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_FEDERATION_NAME))
+			properties.setProperty(configKey + SAMLSPProperties.IDP_FEDERATION_NAME, 
+					federationName);
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_BINDING))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_BINDING, 
 					convertBinding(endpoint.getBinding()));

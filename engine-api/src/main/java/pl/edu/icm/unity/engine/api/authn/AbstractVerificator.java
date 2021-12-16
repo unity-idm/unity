@@ -4,7 +4,11 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.util.List;
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 
 /**
  * Abstract {@link CredentialVerificator} with a common boilerplate code.
@@ -53,5 +57,11 @@ public abstract class AbstractVerificator implements CredentialVerificator
 	public void setInstanceName(String instanceName)
 	{
 		this.instanceName = instanceName;
+	}
+	
+	@Override
+	public Optional<List<IdPInfo>> getIdPs()
+	{
+		return Optional.empty();
 	}
 }

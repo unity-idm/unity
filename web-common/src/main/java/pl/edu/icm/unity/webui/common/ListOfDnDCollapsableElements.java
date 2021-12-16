@@ -51,7 +51,12 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 
 	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption)
 	{
-		this(msg, editorProvider, caption, Collections.emptyList());
+		this(msg, editorProvider, caption, Collections.emptyList(), msg.getMessage("addNew"));
+	}
+	
+	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption, String addButtonCaption)
+	{
+		this(msg, editorProvider, caption, Collections.emptyList(), addButtonCaption);
 	}
 
 	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
@@ -61,10 +66,20 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		this.elements = new ArrayList<>();
 		this.editorProvider = editorProvider;
 		this.additionalActionHandlers = additionalActionHandlers;
-		initUI(caption);
+		initUI(caption, msg.getMessage("addNew"));
+	}
+	
+	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
+			List<SingleActionHandler<T>> additionalActionHandlers, String addButtonCaption)
+	{
+		this.msg = msg;
+		this.elements = new ArrayList<>();
+		this.editorProvider = editorProvider;
+		this.additionalActionHandlers = additionalActionHandlers;
+		initUI(caption, addButtonCaption);
 	}
 
-	private void initUI(String caption)
+	private void initUI(String caption,String addButtonCaption)
 	{
 		main = new VerticalLayout();
 		main.setMargin(false);
@@ -73,7 +88,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		elementsHeader.setMargin(false);
 		elementsHeader.setWidth(100, Unit.PERCENTAGE);
 		Button addElement = new Button();
-		addElement.setCaption(msg.getMessage("addNew"));
+		addElement.setCaption(addButtonCaption);
 		addElement.addStyleName("u-button-action");
 		addElement.setIcon(Images.add.getResource());
 		addElement.addClickListener(event -> {

@@ -71,7 +71,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	protected final MessageSource msg;
 	private final ImageAccessService imageAccessService;
 	private final VaadinEndpointProperties config;
-	private final ResolvedEndpoint endpointDescription;
+	protected final ResolvedEndpoint endpointDescription;
 	private final Runnable registrationLayoutLauncher;
 	private final boolean enableRegistration;
 	private final CancelHandler cancelHandler;
@@ -79,7 +79,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final EntityManagement idsMan;
 	private final ExecutorsService execService;
 	private final Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider;
-	private final LocaleChoiceComponent localeChoice;
+	private final Optional<LocaleChoiceComponent> localeChoice;
 	private final List<AuthenticationFlow> flows;
 
 	protected final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
@@ -102,7 +102,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
-			LocaleChoiceComponent localeChoice,
+			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> flows,
 			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
 	{
@@ -130,7 +130,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
-			LocaleChoiceComponent localeChoice,
+			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> flows,
 			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
 	{
@@ -243,7 +243,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		return bottomWrapper;
 	}
 	
-	private Component getRememberMeComponent(AuthenticationRealm realm)
+	protected Component getRememberMeComponent(AuthenticationRealm realm)
 	{
 		HorizontalLayout bottomWrapper = new HorizontalLayout();
 		bottomWrapper.setMargin(true);
@@ -413,7 +413,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				getRememberMePolicy().equals(RememberMePolicy.allowFor2ndFactor));
 	}
 	
-	private RememberMePolicy getRememberMePolicy()
+	protected RememberMePolicy getRememberMePolicy()
 	{
 		AuthenticationRealm realm = endpointDescription.getRealm();
 		return realm.getRememberMePolicy();
