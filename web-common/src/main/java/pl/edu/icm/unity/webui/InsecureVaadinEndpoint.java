@@ -75,7 +75,7 @@ public class InsecureVaadinEndpoint extends VaadinEndpoint
 	}
 	
 	@Override
-	public final synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
+	public final void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
 		throw new UnsupportedOperationException();
 	}

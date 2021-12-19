@@ -363,11 +363,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException
 	{
-		remoteAuthnSelections = new RemoteAuthnProvidersMultiSelection(authenticatorSupport,
+		remoteAuthnSelections = new RemoteAuthnProvidersMultiSelection(msg, authenticatorSupport,
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"),
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description"));
 
-		remoteAuthnGridSelections = new RemoteAuthnProvidersMultiSelection(
+		remoteAuthnGridSelections = new RemoteAuthnProvidersMultiSelection(msg, 
 				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions"),
 				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions.description"));
 

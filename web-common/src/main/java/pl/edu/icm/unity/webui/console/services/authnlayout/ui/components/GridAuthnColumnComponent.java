@@ -59,7 +59,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	private Component getContent()
 	{
 		binder = new Binder<>(GridStateBindingValue.class);
-		valueComboField = new ChipsWithDropdown<AuthenticationOptionsSelector>(i -> i.toStringEncodedSelector(), true);
+		valueComboField = new ChipsWithDropdown<AuthenticationOptionsSelector>(i -> i.getDisplayedNameFallbackToConfigKey(msg), true);
 		valueComboField.setSkipRemoveInvalidSelections(true);
 		valueComboField.setWidth(20, Unit.EM);
 		refreshItems();

@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.types.authn.IdPInfo.IdpGroup;
@@ -39,15 +39,14 @@ public class TestIdPGroupResolver
 
 		AuthenticatorInstance inst1 = Mockito.mock(AuthenticatorInstance.class);
 		AuthenticatorInstance inst2 = Mockito.mock(AuthenticatorInstance.class);
-		CredentialVerificator cv1 = Mockito.mock(CredentialVerificator.class);
-		CredentialVerificator cv2 = Mockito.mock(CredentialVerificator.class);
+		AbstractRemoteVerificator cv1 = Mockito.mock(AbstractRemoteVerificator.class);
+		AbstractRemoteVerificator cv2 = Mockito.mock(AbstractRemoteVerificator.class);
 		when(inst1.getCredentialVerificator()).thenReturn(cv1);
 		when(inst2.getCredentialVerificator()).thenReturn(cv2);
-		when(cv1.getIdPs()).thenReturn(Optional.of(
-				List.of(new IdPInfo("idp1", Optional.empty(), Optional.of(new IdpGroup("group1", Optional.empty()))))));
-		when(cv2.getIdPs()).thenReturn(Optional.of(
-				List.of(new IdPInfo("idp2", Optional.empty(), Optional.of(new IdpGroup("group2", Optional.empty()))))));
-
+		when(cv1.getIdPs()).thenReturn(
+				List.of(IdPInfo.builder().withId("idp1").withGroup(new IdpGroup("group1", Optional.empty())).build()));
+		when(cv2.getIdPs()).thenReturn(
+				List.of(IdPInfo.builder().withId("idp2").withGroup(new IdpGroup("group2", Optional.empty())).build()));
 		when(authenticatorSupportService.getRemoteAuthenticators(VaadinAuthentication.NAME))
 				.thenReturn(List.of(inst1, inst2));
 		assertThat(resolver.resoveGroupForIdp("idp1").get(), is("group1"));

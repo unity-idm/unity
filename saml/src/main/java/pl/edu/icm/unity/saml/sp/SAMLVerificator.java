@@ -308,13 +308,14 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	}
 
 	@Override
-	public Optional<List<IdPInfo>> getIdPs()
+	public List<IdPInfo> getIdPs()
 	{
 		List<IdPInfo> providers = new ArrayList<>();
 		SamlProperties virtual = myMetadataManager.getVirtualConfiguration();
 		Set<String> idpKeys = virtual.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
 		idpKeys.forEach(key ->
 		{
+			String idpKey = key.substring(SAMLSPProperties.IDP_PREFIX.length(), key.length() - 1);
 			String id = virtual.getValue(key + SAMLSPProperties.IDP_ID);
 			String groupId = virtual.getValue(key + SAMLSPProperties.IDP_FEDERATION_ID);
 			IdpGroup group = null;
@@ -326,12 +327,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 			if (id != null)
 			{
-				providers.add(new IdPInfo(id,
-						Optional.ofNullable(virtual.getLocalizedString(msg, key + SAMLSPProperties.IDP_NAME)),
-						Optional.ofNullable(group)));
+				providers.add(IdPInfo.builder().withId(id).withConfigId(idpKey)
+						.withDisplayedName(virtual.getLocalizedString(msg, key + SAMLSPProperties.IDP_NAME))
+						.withGroup(group).build());
 			}
 		});
-		return Optional.of(providers);
+		return providers;
 	}
 
 	@Component

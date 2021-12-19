@@ -6,6 +6,8 @@ package pl.edu.icm.unity.types.authn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.junit.Test;
 
 public class AuthenticationOptionsSelectorTest
@@ -13,7 +15,7 @@ public class AuthenticationOptionsSelectorTest
 	@Test
 	public void shouldMatchSpecificOption()
 	{
-		AuthenticationOptionsSelector selector = new AuthenticationOptionsSelector("authenticator1", "option1");
+		AuthenticationOptionsSelector selector = new AuthenticationOptionsSelector("authenticator1", "option1", Optional.empty());
 		AuthenticationOptionKey authnOption = new AuthenticationOptionKey("authenticator1", "option1");
 		
 		assertThat(selector.matchesAuthnOption(authnOption)).isTrue();
@@ -31,7 +33,7 @@ public class AuthenticationOptionsSelectorTest
 	@Test
 	public void shouldNotMatchSpecificOptionDifferingInAuthenticator()
 	{
-		AuthenticationOptionsSelector selector = new AuthenticationOptionsSelector("authenticator1", "option1");
+		AuthenticationOptionsSelector selector = new AuthenticationOptionsSelector("authenticator1", "option1", Optional.empty());
 		AuthenticationOptionKey authnOption = new AuthenticationOptionKey("authenticator2", "option1");
 		
 		assertThat(selector.matchesAuthnOption(authnOption)).isFalse();
@@ -40,7 +42,7 @@ public class AuthenticationOptionsSelectorTest
 	@Test
 	public void shouldNotMatchSpecificOptionDifferingInOption()
 	{
-		AuthenticationOptionsSelector selector = new AuthenticationOptionsSelector("authenticator1", "option1");
+		AuthenticationOptionsSelector selector = new AuthenticationOptionsSelector("authenticator1", "option1", Optional.empty());
 		AuthenticationOptionKey authnOption = new AuthenticationOptionKey("authenticator1", "option2");
 		
 		assertThat(selector.matchesAuthnOption(authnOption)).isFalse();

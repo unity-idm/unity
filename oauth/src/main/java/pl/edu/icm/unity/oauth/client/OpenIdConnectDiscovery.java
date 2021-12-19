@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
+import org.apache.logging.log4j.Logger;
+
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 /**
@@ -23,6 +26,9 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
  */
 public class OpenIdConnectDiscovery
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OpenIdConnectDiscovery.class);
+
+	
 	private static final long DEFAULT_MAX_AGE = 30000;
 	private URL providerMetadataEndpoint;
 	private OIDCProviderMetadata providerMeta;
@@ -50,6 +56,7 @@ public class OpenIdConnectDiscovery
 	
 	private void downloadMetadata(CustomProviderProperties config) throws IOException, ParseException
 	{
+		log.debug("Download metadata from " + providerMetadataEndpoint);
 		HTTPRequest request = wrapRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint), config);
 		HTTPResponse response = request.send();
 		String cacheControl = response.getCacheControl();
@@ -66,7 +73,8 @@ public class OpenIdConnectDiscovery
 	{
 		if (cacheControl == null)
 			return System.currentTimeMillis() + DEFAULT_MAX_AGE;
-		StringTokenizer stok = new StringTokenizer(cacheControl, " ");
+		log.trace("Extract expires from cacheControl=" + cacheControl);
+		StringTokenizer stok = new StringTokenizer(cacheControl, ",");
 		while (stok.hasMoreTokens())
 		{
 			String token = stok.nextToken().trim();

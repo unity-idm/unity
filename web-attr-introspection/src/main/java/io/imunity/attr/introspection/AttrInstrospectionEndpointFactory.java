@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
 @Component
 public class AttrInstrospectionEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "AttrInstrospectionUI";
+	public static final String NAME = "AttributeInstrospection";
 	public static final String SERVLET_PATH = "/introspection";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
 			"Attribute instrospection endpoint", VaadinAuthentication.NAME,
