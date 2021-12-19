@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Functions;
 
 import io.imunity.attr.introspection.AttrInstrospectionEndpointFactory;
+import io.imunity.attr.introspection.IdPsFromAuthenticatorExtractor;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
 /**
- * Upman service controller. Based on the standard web service editor
+ * Attribute instrospection service controller. Based on the standard web service editor
  * 
  * @author P.Piernik
  *
@@ -91,15 +91,9 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 			log.error("Can not get authenticators instances", e);
 			return providers;
 		}
-		
-		for (AuthenticatorInstance authenticator :remoteAuthenticators)
-		{
-			Optional<List<IdPInfo>> aproviders = authenticator.getCredentialVerificator().getIdPs();
-			if (aproviders.isPresent())
-			{
-				providers.addAll(aproviders.get());
-			}
-		}
+	
+		remoteAuthenticators
+				.forEach(a -> providers.addAll(IdPsFromAuthenticatorExtractor.extractIdPFromAuthenticator(a)));	
 		
 		return providers;	
 	}

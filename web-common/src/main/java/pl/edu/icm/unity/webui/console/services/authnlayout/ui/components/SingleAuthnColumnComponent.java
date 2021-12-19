@@ -50,7 +50,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	{
 		binder = new Binder<>(AuthnOptionKeyBindingValue.class);
 		valueComboField = new ComboBox<>();
-		valueComboField.setItemCaptionGenerator(i -> i.toStringEncodedSelector());
+		valueComboField.setItemCaptionGenerator(i -> i.getDisplayedNameFallbackToConfigKey(msg));
 		valueComboField.setWidth(20, Unit.EM);
 		refreshItems();
 		binder.forField(valueComboField).withValidator((v, c) -> 

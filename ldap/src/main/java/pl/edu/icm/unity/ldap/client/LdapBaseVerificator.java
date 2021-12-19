@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -90,8 +89,8 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator
 	}
 	
 	@Override
-	public Optional<List<IdPInfo>> getIdPs()
+	public List<IdPInfo> getIdPs()
 	{
-		return Optional.of(List.of(new IdPInfo(getName(), Optional.of(new I18nString(getName())) , Optional.empty())));
-	} 
+		return List.of(IdPInfo.builder().withId(getName()).withDisplayedName(new I18nString(getName())).build());
+	}
 }

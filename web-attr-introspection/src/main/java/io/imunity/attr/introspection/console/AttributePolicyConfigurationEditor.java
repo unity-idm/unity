@@ -7,6 +7,9 @@ package io.imunity.attr.introspection.console;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -38,12 +41,18 @@ class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 	AttributePolicyConfigurationEditor(MessageSource msg, List<IdPInfo> idps)
 	{
 		this.msg = msg;
-		this.idPs = idps.stream().distinct().collect(Collectors.toMap(p -> p.id, p -> p));
+		this.idPs = idps.stream().filter(distinctByKey(i -> i.id)).collect(Collectors.toMap(p -> p.id, p -> p));
 		this.IdPsGroups = idps.stream().distinct().map(p -> p.group).filter(g -> !g.isEmpty()).distinct()
 				.collect(Collectors.toMap(g -> g.get().id, g -> g.get()));
 		init();
 	}
 
+	private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor)
+	{
+		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+	}
+	
 	private void init()
 	{
 		binder = new Binder<>(AttributePolicyBean.class);

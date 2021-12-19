@@ -116,14 +116,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
-	private OpenIdProviderMetadataManager metadataManager;
+	private OAuthDiscoveryMetadataCache metadataManager;
 	
 	@Autowired
 	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
-			RemoteAuthnResultTranslator processor)
+			RemoteAuthnResultTranslator processor,
+			OAuthDiscoveryMetadataCache metadataManager)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
@@ -132,6 +133,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
+		this.metadataManager = metadataManager;
 	}
 
 	@Override
@@ -155,19 +157,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			config = new OAuthClientProperties(properties, pkiManagement);
-			metadataManager = new OpenIdProviderMetadataManager();
-			Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-			for (String key: keys)
-			{
-				if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
-				{
-					metadataManager.addProvider(config.getProvider(key).getValue(
-							CustomProviderProperties.OPENID_DISCOVERY));
-				}
-			}
-			
-			
+			config = new OAuthClientProperties(properties, pkiManagement);			
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth2 verificator", e);
@@ -627,44 +617,51 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 	
 	@Override
-	public Optional<List<IdPInfo>> getIdPs()
+	public List<IdPInfo> getIdPs()
 	{
 		List<IdPInfo> providers = new ArrayList<>();
 		Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		for (String key : keys)
 		{
-			IdPInfo providerInfo = null;
 			CustomProviderProperties providerProps = config.getProvider(key);
+			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), key.length() - 1);
 			if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
 			{
-				OIDCProviderMetadata metadata;
-				String discoveryUrl = config.getProvider(key).getValue(CustomProviderProperties.OPENID_DISCOVERY);
+				extractIdPInfoFromOIDCProvider(key, idpKey, providerProps).ifPresent(i -> providers.add(i));
 
-				try
-				{
-					metadata = metadataManager.getMetadata(discoveryUrl, providerProps);
-				} catch (Exception e)
-				{
-					log.error("Can not get oauth provider metadata from address " + discoveryUrl);
-					continue;
-				}
-				providerInfo = new IdPInfo(metadata.getTokenEndpointURI().toString(),
-						Optional.ofNullable(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
-								CustomProviderProperties.PROVIDER_NAME)),
-						Optional.empty());
 			} else
 			{
-				providerInfo = new IdPInfo(
-						config.getProvider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT),
-						Optional.ofNullable(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
-								CustomProviderProperties.PROVIDER_NAME)),
-						Optional.empty());
-
+				IdPInfo providerInfo = IdPInfo.builder()
+						.withId(config.getProvider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT))
+						.withConfigId(idpKey)
+						.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+								CustomProviderProperties.PROVIDER_NAME))
+						.build();
+				providers.add(providerInfo);
 			}
-
-			providers.add(providerInfo);
 		}
-		return Optional.of(providers);
+		return providers;
+	}
+	
+	private Optional<IdPInfo> extractIdPInfoFromOIDCProvider(String key, String idpKey,
+			CustomProviderProperties providerProps)
+
+	{
+		String discoveryUrl = config.getProvider(key).getValue(CustomProviderProperties.OPENID_DISCOVERY);
+		OIDCProviderMetadata metadata;
+		try
+		{
+			metadata = metadataManager.getMetadata(discoveryUrl, providerProps);
+		} catch (Exception e)
+		{
+			log.warn("Can't obtain OIDC metadata from " + discoveryUrl, e);
+			return Optional.empty();
+		}
+
+		return Optional.of(IdPInfo.builder().withId(metadata.getTokenEndpointURI().toString()).withConfigId(idpKey)
+				.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+						CustomProviderProperties.PROVIDER_NAME))
+				.build());
 	}
 	
 	@Component

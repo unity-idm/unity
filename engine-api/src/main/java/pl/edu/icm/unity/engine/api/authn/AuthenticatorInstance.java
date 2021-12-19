@@ -5,6 +5,9 @@
 
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.util.List;
+
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 
@@ -66,5 +69,8 @@ public interface AuthenticatorInstance
 	 * @return 
 	 */
 	CredentialVerificator getCredentialVerificator();
+	
+	
+	List<AuthenticationOptionsSelector> getAuthnOptionSelectors();
 	
 }

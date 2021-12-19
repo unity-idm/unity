@@ -43,7 +43,7 @@ public class DefaultServiceDefinition implements ServiceDefinition
 		setAddress(base.getEndpoint().getContextAddress());
 		setDescription(base.getEndpoint().getConfiguration().getDescription());
 		setDisplayedName(base.getEndpoint().getConfiguration().getDisplayedName());
-		setRealm(base.getRealm().getName());
+		setRealm(base.getRealm() == null ? null : base.getRealm().getName());
 		setAuthenticationOptions(base.getEndpoint().getConfiguration().getAuthenticationOptions());
 		setName(base.getName());
 		setState(base.getEndpoint().getState());

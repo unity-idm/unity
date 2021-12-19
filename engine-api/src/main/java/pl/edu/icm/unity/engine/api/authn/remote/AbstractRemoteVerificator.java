@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -15,6 +17,7 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -67,5 +70,10 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		if (result.getStatus() == Status.deny && result.asRemote().getErrorResult().error == null)
 			return RemoteAuthenticationResult.failed(result.asRemote().getErrorResult().remotePrincipal, errorMessage);
 		return result;
+	}
+		
+	public List<IdPInfo> getIdPs()
+	{
+		return Collections.emptyList();
 	}
 }

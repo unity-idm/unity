@@ -120,9 +120,9 @@ public class SAMLSPProperties extends SamlProperties
 				+ "The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
 		
-		META.put(IDP_FEDERATION_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+		META.put(IDP_FEDERATION_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setHidden().setDescription(
 				"SAML federation identifier of the IdP."));
-		META.put(IDP_FEDERATION_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+		META.put(IDP_FEDERATION_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setHidden().setDescription(
 				"SAML federation name of the IdP."));
 		
 		META.put(IDP_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(idp).setDescription(
