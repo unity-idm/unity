@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
@@ -107,5 +108,16 @@ class AuthenticatorImpl implements AuthenticatorInstance
 		return options;
 	}
 	
-	
+	@Override
+	public List<IdPInfo> extractIdPs()
+	{
+		if (verificator instanceof AbstractRemoteVerificator)
+		{
+			AbstractRemoteVerificator remoteVerificator = (AbstractRemoteVerificator) verificator;
+			return remoteVerificator.getIdPs();
+		} else
+		{
+			return Collections.emptyList();
+		}
+	}
 }
