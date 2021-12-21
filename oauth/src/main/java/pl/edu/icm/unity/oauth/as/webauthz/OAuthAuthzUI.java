@@ -191,8 +191,15 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
 		OAuthAuthzContext context = OAuthSessionService.getVaadinContext();
-		boolean skipConsent = !forceConsentIfConsentPrompt(context)
-				&& (skipConsentIfNonePrompt(context) || context.getConfig().isSkipConsent());
+		boolean skipConsent = !forceConsentIfConsentPrompt(context) || context.getConfig().isSkipConsent();
+		if (!skipConsent && skipConsentIfNonePrompt(context))
+		{
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(context.getReturnURI(),
+					OAuth2Error.SERVER_ERROR, context.getRequest().getState(),
+					context.getRequest().impliedResponseMode());
+			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, true);
+		}
+			
 		if (skipConsent)
 		{
 			onFinalConfirm(identity, attributes);
