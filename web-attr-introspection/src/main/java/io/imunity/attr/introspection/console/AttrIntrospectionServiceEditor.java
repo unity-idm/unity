@@ -16,9 +16,13 @@ import io.imunity.attr.introspection.AttrInstrospectionEndpointFactory;
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
@@ -32,13 +36,19 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 	private AttrIntrospectionEditorComponent editor;
 	private List<String> usedEndpointsPaths;
 	private Set<String> serverContextPaths;
-	private AuthenticatorSupportService authenticatorSupportService;
-	private Supplier<List<String>> authnOptionSupplier;
-	private Supplier<List<IdPInfo>> providersSupplier;
-	
+	private final AuthenticatorSupportService authenticatorSupportService;
+	private final Supplier<List<String>> authnOptionSupplier;
+	private final Supplier<List<IdPInfo>> providersSupplier;
+	private final URIAccessService uriAccessService;
+	private final UnityServerConfiguration serverConfig;
+	private final ImageAccessService imageAccessService;
+	private final FileStorageService fileStorageService;
+
 	public AttrIntrospectionServiceEditor(MessageSource msg, List<String> usedPaths, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService, Supplier<List<String>> authnOptionSupplier,
-			Supplier<List<IdPInfo>> providersSupplier)
+			Supplier<List<IdPInfo>> providersSupplier, URIAccessService uriAccessService,
+			UnityServerConfiguration serverConfig, ImageAccessService imageAccessService,
+			FileStorageService fileStorageService)
 	{
 		this.msg = msg;
 		this.usedEndpointsPaths = usedPaths;
@@ -46,6 +56,10 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.authnOptionSupplier = authnOptionSupplier;
 		this.providersSupplier = providersSupplier;
+		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
+		this.imageAccessService = imageAccessService;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -54,7 +68,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 		GeneralTab generalTab = new GeneralTab(msg, AttrInstrospectionEndpointFactory.TYPE, usedEndpointsPaths,
 				serverContextPaths);
 		AuthenticationOptionsTab authenticationOptionsTab = new AuthenticationOptionsTab(msg,
-				authenticatorSupportService, authnOptionSupplier);
+				authenticatorSupportService, authnOptionSupplier, uriAccessService, serverConfig);
 		AttributePoliciesTab attributePoliciesTab = new AttributePoliciesTab(msg, providersSupplier);
 
 		editor = new AttrIntrospectionEditorComponent(msg, generalTab, authenticationOptionsTab, attributePoliciesTab,
@@ -101,7 +115,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 
 			if (editMode && toEdit.getConfiguration() != null)
 			{
-				screenConfig.fromProperties(toEdit.getConfiguration(), msg);
+				screenConfig.fromProperties(toEdit.getConfiguration(), msg, imageAccessService);
 				policiesConfig.fromProperties(toEdit.getConfiguration(), msg);
 			}
 			authnScreenConfigBinder.setBean(screenConfig);
@@ -121,7 +135,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 
 			DefaultServiceDefinition service = serviceBinder.getBean();
 			VaadinEndpointProperties prop = new VaadinEndpointProperties(
-					authnScreenConfigBinder.getBean().toProperties(msg));
+					authnScreenConfigBinder.getBean().toProperties(msg, fileStorageService, service.getName()));
 			try
 			{
 				service.setConfiguration(prop.getAsString() + "\n" + attrPoliciesBinder.getBean().toProperties(msg));

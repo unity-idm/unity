@@ -97,6 +97,8 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 		main.setComponentAlignment(summaryTitle, Alignment.TOP_CENTER);
 
 		int mandatoryAttributeSize = result.policy.getMandatoryAttributes().size();
+		int optionalAttributeSize = result.policy.getOptionalAttributes().size();
+		
 		if (mandatoryAttributeSize > 0)
 		{
 			Label mandatorySummary = getSummaryLine(mandatoryAttributeSize, result.missingMandatory.size(),
@@ -104,7 +106,7 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 			main.addComponent(mandatorySummary);
 			main.setComponentAlignment(mandatorySummary, Alignment.TOP_CENTER);
 		}
-		int optionalAttributeSize = result.policy.getOptionalAttributes().size();
+	
 		if (optionalAttributeSize > 0)
 		{
 			Label optionalSummary = getSummaryLine(optionalAttributeSize, result.missingOptional.size(),
@@ -167,8 +169,8 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 	private Label getSummaryLine(long allAttributeSize, long missingAttributeSize, String summaryText)
 	{
 		Label summaryLine = new Label();
-		summaryLine.addStyleName(Styles.textLarge.toString());
-		summaryLine.addStyleName(Styles.bold.toString());
+//		summaryLine.addStyleName(Styles.textLarge.toString());
+//		summaryLine.addStyleName(Styles.bold.toString());
 
 		if (missingAttributeSize == 0)
 		{

@@ -129,7 +129,6 @@ class AttrIntrospectionUI extends UnityUIBase implements UnityWebUI
 		Properties newConfig = new Properties();
 		newConfig.putAll(endpointProperties);
 		newConfig.setProperty(PREFIX + VaadinEndpointProperties.AUTHN_ADD_ALL, "false");
-		newConfig.setProperty(PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
 		return new VaadinEndpointProperties(newConfig);
 	}
 
