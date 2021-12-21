@@ -23,7 +23,7 @@ class IdpGroupResolver
 		this.authenticatorSupportService = authenticatorSupportService;
 	}
 
-	Optional<String> resoveGroupForIdp(String idp) throws EngineException
+	Optional<String> resolveGroupForIdp(String idp) throws EngineException
 	{
 		Map<String, Optional<String>> groups = null;
 		groups = getGroups();

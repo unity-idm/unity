@@ -80,8 +80,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		rows.setMinValue(1);
 		binder.forField(rows).bind("rows");
 
-		binder.setBean(new GridStateBindingValue(
-				items.size() > 0 ? Arrays.asList(items.get(0)) : Arrays.asList(), 5));
+		binder.setBean(new GridStateBindingValue(Arrays.asList(), 5));
 		VerticalLayout main = new VerticalLayout();
 		main.setWidth(20, Unit.EM);
 		main.setMargin(false);

@@ -67,7 +67,7 @@ class AttributePolicyProcessor
 			return mapToResolvedPolicy(byIdp.get());
 		}
 
-		Optional<String> group = groupResolver.resoveGroupForIdp(idp);
+		Optional<String> group = groupResolver.resolveGroupForIdp(idp);
 		if (!group.isEmpty())
 		{
 			Optional<AttributePolicy> byGroup = findByGroup(group.get());

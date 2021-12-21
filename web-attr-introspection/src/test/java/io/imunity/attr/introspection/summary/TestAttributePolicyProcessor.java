@@ -46,7 +46,7 @@ public class TestAttributePolicyProcessor
 	public void shouldApplyPolicyByGroup() throws EngineException
 	{
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
-		when(idpGroupResolver.resoveGroupForIdp(eq("idp1"))).thenReturn(Optional.of("federation2"));
+		when(idpGroupResolver.resolveGroupForIdp(eq("idp1"))).thenReturn(Optional.of("federation2"));
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp1"));
 		assertThat(result.policy.name.get(), is("Policy3"));
 	}
