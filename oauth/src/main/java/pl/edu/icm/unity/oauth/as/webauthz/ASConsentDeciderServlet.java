@@ -153,6 +153,16 @@ public class ASConsentDeciderServlet extends HttpServlet
 		}
 		else if (isInteractiveUIRequired(preferences, oauthCtx))
 		{
+			if (skipConsentIfNonePrompt(oauthCtx))
+			{
+				log.trace("Consent is required but none prompt was given, error");
+				AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+						OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
+						oauthCtx.getRequest().impliedResponseMode());
+				sendReturnRedirect(oauthResponse, req, resp, true);
+				return;
+			}
+			
 			log.trace("Consent is required for OAuth request, forwarding to consent UI");
 			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
 		} else
