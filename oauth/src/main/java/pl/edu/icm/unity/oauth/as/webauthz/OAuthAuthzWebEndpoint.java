@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -11,7 +12,10 @@ import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -21,11 +25,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.SerializeException;
+
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyService;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -38,20 +49,23 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
-import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
+import pl.edu.icm.unity.webui.authn.AuthenticationFilter.NoSessionFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * OAuth2 authorization endpoint, Vaadin based.
@@ -152,7 +166,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 
 		authnFilter = new AuthenticationFilter(Collections.singletonList(OAUTH_ROUTING_SERVLET_PATH),
-				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor,
+				new NoSessionFilterImpl());
 		context.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
@@ -172,9 +187,10 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		authenticationServlet = new UnityVaadinServlet(applicationContext, AuthenticationUI.class.getSimpleName(),
 				description, authenticationFlows, registrationConfiguration, properties,
 				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
-
-		authenticationServlet.setCancelHandler(new OAuthCancelHandler(
-				new OAuthResponseHandler(oauthSessionService, idpReporterFactory.getForEndpoint(description.getEndpoint()))));
+	
+		OAuthCancelHandler oAuthCancelHandler = new OAuthCancelHandler(
+				new OAuthResponseHandler(oauthSessionService, idpReporterFactory.getForEndpoint(description.getEndpoint())));
+		authenticationServlet.setCancelHandler(oAuthCancelHandler);
 
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH + "/*");
@@ -185,6 +201,39 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addServlet(createVaadinServletHolder(theServlet, false), OAUTH_UI_SERVLET_PATH + "/*");
 
 		return context;
+	}
+	
+	private static class NoSessionFilterImpl implements NoSessionFilter
+	{
+		private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NoSessionFilterImpl.class);
+		
+		@Override
+		public void doFilter(HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
+		{
+			AuthenticationPolicy policy = AuthenticationPolicyService.getPolicy(request.getSession());
+			if (policy.equals(AuthenticationPolicy.SKIP_LOGIN))
+			{
+				returnOAuthError(request, response);
+				throw new EopException();
+			}
+		}
+		
+		private void returnOAuthError(HttpServletRequest request, HttpServletResponse response) throws IOException
+		{
+			OAuthAuthzContext ctx = OAuthSessionService.getContext(request).get();
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
+					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
+					ctx.getRequest().impliedResponseMode());
+			try
+			{
+				String redirectURL = oauthResponse.toURI().toString();
+				log.trace("Sending OAuth reply via return redirect: " + redirectURL);
+				response.sendRedirect(redirectURL);
+			} catch (SerializeException | IOException ex)
+			{
+				throw new IOException("Error: can not serialize error response", ex);
+			} 
+		}
 	}
 
 	@Component

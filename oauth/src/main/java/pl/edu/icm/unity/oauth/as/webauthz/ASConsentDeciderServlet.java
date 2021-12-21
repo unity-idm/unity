@@ -38,6 +38,7 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
@@ -141,7 +142,16 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return;
 
 		}
-		if (isInteractiveUIRequired(preferences, oauthCtx))
+		if (forceConsentIfConsentPrompt(oauthCtx))
+		{
+			log.trace("Consent is required for OAuth request, consent prompt was given , forwarding to consent UI");
+			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
+		} else if (skipConsentIfNonePrompt(oauthCtx))
+		{
+			log.trace("Consent is not required for OAuth request, none prompt was given, processing immediatelly");
+			autoReplay(preferences, oauthCtx, req, resp);
+		}
+		else if (isInteractiveUIRequired(preferences, oauthCtx))
 		{
 			log.trace("Consent is required for OAuth request, forwarding to consent UI");
 			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
@@ -150,6 +160,16 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.trace("Consent is not required for OAuth request, processing immediatelly");
 			autoReplay(preferences, oauthCtx, req, resp);
 		}
+	}
+	
+	private boolean skipConsentIfNonePrompt(OAuthAuthzContext oauthCtx)
+	{
+		return oauthCtx.getPrompts().contains(Prompt.NONE);	
+	}
+	
+	private boolean forceConsentIfConsentPrompt(OAuthAuthzContext oauthCtx)
+	{
+		return oauthCtx.getPrompts().contains(Prompt.CONSENT);
 	}
 
 	protected OAuthClientSettings loadPreferences(OAuthAuthzContext oauthCtx) throws EngineException

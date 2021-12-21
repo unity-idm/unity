@@ -41,6 +41,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -189,15 +190,29 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (OAuthSessionService.getVaadinContext().getConfig().isSkipConsent())
+		OAuthAuthzContext context = OAuthSessionService.getVaadinContext();
+		boolean skipConsent = !forceConsentIfConsentPrompt(context)
+				&& (skipConsentIfNonePrompt(context) || context.getConfig().isSkipConsent());
+		if (skipConsent)
 		{
 			onFinalConfirm(identity, attributes);
 			return;
 		}
+			
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
 				this::onDecline, this::onFinalConfirm, oauthResponseHandler);
 		setContent(consentScreen);
+	}
+	
+	private boolean skipConsentIfNonePrompt(OAuthAuthzContext oauthCtx)
+	{
+		return oauthCtx.getPrompts().contains(Prompt.NONE);	
+	}
+	
+	private boolean forceConsentIfConsentPrompt(OAuthAuthzContext oauthCtx)
+	{
+		return oauthCtx.getPrompts().contains(Prompt.CONSENT);
 	}
 
 	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config)
