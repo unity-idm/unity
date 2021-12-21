@@ -28,7 +28,6 @@ import com.vaadin.shared.ApplicationConstants;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyService;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
@@ -119,7 +118,7 @@ public class AuthenticationFilter implements Filter
 	private void handleForceLogin(HttpServletRequest httpRequest,
 			ServletResponse response) throws EopException, IOException, ServletException
 	{
-		AuthenticationPolicy policy = AuthenticationPolicyService.getPolicy(httpRequest.getSession());
+		AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(httpRequest.getSession());
 		if (policy.equals(AuthenticationPolicy.FORCE_LOGIN))
 		{
 			HttpServletResponse httpResponse = (HttpServletResponse) response;

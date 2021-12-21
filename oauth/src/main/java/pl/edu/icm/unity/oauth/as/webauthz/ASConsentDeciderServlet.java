@@ -144,22 +144,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 		}
 		if (forceConsentIfConsentPrompt(oauthCtx))
 		{
-			log.trace("Consent is required for OAuth request, consent prompt was given , forwarding to consent UI");
+			log.trace("Consent is required for OAuth request, 'consent' prompt was given , forwarding to consent UI");
 			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
-		} else if (skipConsentIfNonePrompt(oauthCtx))
-		{
-			log.trace("Consent is not required for OAuth request, none prompt was given, processing immediatelly");
-			autoReplay(preferences, oauthCtx, req, resp);
-		}
+		} 
 		else if (isInteractiveUIRequired(preferences, oauthCtx))
 		{
-			if (skipConsentIfNonePrompt(oauthCtx))
+			if (isNonePrompt(oauthCtx))
 			{
-				log.trace("Consent is required but none prompt was given, error");
-				AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
-						OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
-						oauthCtx.getRequest().impliedResponseMode());
-				sendReturnRedirect(oauthResponse, req, resp, true);
+				sendNonePromptError(oauthCtx, req, resp);
 				return;
 			}
 			
@@ -172,7 +164,17 @@ public class ASConsentDeciderServlet extends HttpServlet
 		}
 	}
 	
-	private boolean skipConsentIfNonePrompt(OAuthAuthzContext oauthCtx)
+	private void sendNonePromptError(OAuthAuthzContext oauthCtx, HttpServletRequest req, HttpServletResponse resp)
+			throws IOException
+	{
+		log.error("Consent is required but 'none' prompt was given");
+		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+				OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
+				oauthCtx.getRequest().impliedResponseMode());
+		sendReturnRedirect(oauthResponse, req, resp, true);
+	}
+	
+	private boolean isNonePrompt(OAuthAuthzContext oauthCtx)
 	{
 		return oauthCtx.getPrompts().contains(Prompt.NONE);	
 	}

@@ -36,7 +36,6 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyService;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -210,8 +209,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		@Override
 		public void doFilter(HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
 		{
-			AuthenticationPolicy policy = AuthenticationPolicyService.getPolicy(request.getSession());
-			if (policy.equals(AuthenticationPolicy.SKIP_LOGIN))
+			AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(request.getSession());
+			if (policy.equals(AuthenticationPolicy.REQUIRE_EXISTING_SESSION))
 			{
 				returnOAuthError(request, response);
 				throw new EopException();

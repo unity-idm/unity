@@ -36,6 +36,7 @@ public class OAuthDiscoveryMetadataCacheTest
 	{
 		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(new CacheProvider(), mockDownloader,
 				Duration.ofMinutes(1));
+		cache.clear();
 		Properties props = new Properties();
 		props.setProperty(CustomProviderProperties.OPENID_DISCOVERY,
 				"https://accounts.google.com/.well-known/openid-configuration");
@@ -58,6 +59,7 @@ public class OAuthDiscoveryMetadataCacheTest
 	{
 		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(new CacheProvider(), mockDownloader,
 				Duration.ofMillis(1000));
+		cache.clear();	
 		Properties props = new Properties();
 		props.setProperty(CustomProviderProperties.OPENID_DISCOVERY,
 				"https://accounts.google.com/.well-known/openid-configuration");
@@ -69,7 +71,7 @@ public class OAuthDiscoveryMetadataCacheTest
 		props.setProperty(CustomProviderProperties.OPENID_CONNECT, "true");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
 		cache.getMetadata(def);
-		Thread.sleep(1000);
+		Thread.sleep(1001);
 		cache.getMetadata(def);
 
 		verify(mockDownloader, times(2)).getMetadata(eq("https://accounts.google.com/.well-known/openid-configuration"),

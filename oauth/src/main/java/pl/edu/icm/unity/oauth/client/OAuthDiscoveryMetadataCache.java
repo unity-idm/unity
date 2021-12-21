@@ -59,11 +59,11 @@ class OAuthDiscoveryMetadataCache
 		Element element = cache.get(metaCacheKey);
 		if (element != null)
 		{
-			log.trace("Get oauth OIDC metadata provider from cache " + url);
+			log.debug("Get oauth OIDC metadata provider from cache " + url);
 			return ((OIDCProviderMetadata) element.getObjectValue());
 		} else
 		{
-			log.trace("Get fresh oauth OIDC metadata from " + url);
+			log.debug("Get fresh oauth OIDC metadata from " + url);
 			OIDCProviderMetadata metadata = downloader.getMetadata(url, properties);
 			cache.put(new Element(metaCacheKey, metadata));
 			return metadata;
@@ -79,6 +79,11 @@ class OAuthDiscoveryMetadataCache
 		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
 		persistCfg.setStrategy("none");
 		config.persistence(persistCfg);
+	}
+	
+	public void clear()
+	{
+		cache.removeAll();
 	}
 
 	private static class MetaCacheKey
