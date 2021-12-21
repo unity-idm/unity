@@ -34,7 +34,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyService;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -175,7 +174,7 @@ public class OAuthParseServlet extends HttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 		
-		AuthenticationPolicyService.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
+		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
@@ -184,7 +183,7 @@ public class OAuthParseServlet extends HttpServlet
 			Set<Prompt> prompts)
 	{
 		if (prompts.contains(Prompt.NONE))
-			return AuthenticationPolicy.SKIP_LOGIN;
+			return AuthenticationPolicy.REQUIRE_EXISTING_SESSION;
 		else if (prompts.contains(Prompt.LOGIN))
 			return AuthenticationPolicy.FORCE_LOGIN;
 

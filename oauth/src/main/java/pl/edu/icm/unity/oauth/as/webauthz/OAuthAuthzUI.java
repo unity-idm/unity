@@ -36,12 +36,12 @@ import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
+import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
+import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -192,17 +192,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	{
 		OAuthAuthzContext context = OAuthSessionService.getVaadinContext();
 		boolean skipConsent = !forceConsentIfConsentPrompt(context) || context.getConfig().isSkipConsent();
-		if (!skipConsent && skipConsentIfNonePrompt(context))
-		{
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(context.getReturnURI(),
-					OAuth2Error.SERVER_ERROR, context.getRequest().getState(),
-					context.getRequest().impliedResponseMode());
-			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, true);
-		}
 			
 		if (skipConsent)
 		{
 			onFinalConfirm(identity, attributes);
+			return;
+		}else if (isNonePrompt(context))
+		{
+			sendNonePromptError(context);
 			return;
 		}
 			
@@ -212,7 +209,16 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		setContent(consentScreen);
 	}
 	
-	private boolean skipConsentIfNonePrompt(OAuthAuthzContext oauthCtx)
+	private void sendNonePromptError(OAuthAuthzContext oauthCtx)
+	{
+		log.error("Consent is required but 'none' prompt was given");
+		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+				OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
+				oauthCtx.getRequest().impliedResponseMode());
+		oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, true);
+	}
+	
+	private boolean isNonePrompt(OAuthAuthzContext oauthCtx)
 	{
 		return oauthCtx.getPrompts().contains(Prompt.NONE);	
 	}

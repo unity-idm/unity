@@ -21,7 +21,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyService;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
@@ -347,7 +346,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 		if (ls.isUsedOutdatedCredential())
 			log.info("User {} logged with outdated credential", ls.getEntityId());
-		AuthenticationPolicyService.setPolicy(httpSession, AuthenticationPolicy.DEFAULT);
+		AuthenticationPolicy.setPolicy(httpSession, AuthenticationPolicy.DEFAULT);
 		
 		
 		log.info("Logged with session: {}, first factor authn option: {}, second factor authn option: {}"
