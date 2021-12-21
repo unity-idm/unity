@@ -196,10 +196,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (openidMode)
 		{
 			if (Strings.isNullOrEmpty(authzEndpoint))
-			{
-				String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint, 
-						providerCfg);
+			{	
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg);
 				if (providerMeta.getAuthorizationEndpointURI() == null)
 					throw new ConfigurationException("The authorization endpoint address is not set and"
 							+ " it is not available in the discovered OpenID Provider metadata.");
@@ -406,8 +404,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint, providerCfg);
+		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg);
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		if (tokenEndpoint == null)
 		{
@@ -586,8 +583,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			try
 			{
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint,
-						provCfg);
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg);
 				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
 			} catch (Exception e)
 			{
@@ -647,14 +643,14 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			CustomProviderProperties providerProps)
 
 	{
-		String discoveryUrl = config.getProvider(key).getValue(CustomProviderProperties.OPENID_DISCOVERY);
+		
 		OIDCProviderMetadata metadata;
 		try
 		{
-			metadata = metadataManager.getMetadata(discoveryUrl, providerProps);
+			metadata = metadataManager.getMetadata(providerProps);
 		} catch (Exception e)
 		{
-			log.warn("Can't obtain OIDC metadata from " + discoveryUrl, e);
+			log.warn("Can't obtain OIDC metadata", e);
 			return Optional.empty();
 		}
 

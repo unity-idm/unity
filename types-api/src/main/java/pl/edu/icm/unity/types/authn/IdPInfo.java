@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.types.authn;
 
+import static org.springframework.util.Assert.notNull;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -135,6 +137,8 @@ public class IdPInfo
 
 		public IdPInfo build()
 		{
+			
+			notNull(id, "id cannot be null.");
 			return new IdPInfo(this);
 		}
 	}

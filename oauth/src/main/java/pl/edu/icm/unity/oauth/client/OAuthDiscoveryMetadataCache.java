@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.oauth.client;
 
 import java.io.IOException;
-import java.net.URL;
+import java.time.Duration;
 import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
@@ -26,62 +26,69 @@ import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 @Component
-public class OAuthDiscoveryMetadataCache
+class OAuthDiscoveryMetadataCache
 {
-	private static final int CACHE_TTL_IN_HOURS = 48;
+	private static final Duration DEFAULT_CACHE_TTL = Duration.ofHours(3);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2Verificator.class);
-	
+
 	private static final String CACHE_ID = OAuthDiscoveryMetadataCache.class.getName() + "_cache";
 
 	private Ehcache cache;
+	private OpenIdConnectDiscovery downloader;
 
 	@Autowired
 	OAuthDiscoveryMetadataCache(CacheProvider cacheProvider)
 	{
-		initCache(cacheProvider.getManager());
+		this(cacheProvider, new OpenIdConnectDiscovery(), DEFAULT_CACHE_TTL);
 	}
 
-	OIDCProviderMetadata getMetadata(String url, CustomProviderProperties properties) throws ParseException, IOException
+	OAuthDiscoveryMetadataCache(CacheProvider cacheProvider, OpenIdConnectDiscovery downloader, Duration ttl)
 	{
+		this.downloader = downloader;
+		initCache(cacheProvider.getManager(), ttl);
+	}
+
+	synchronized OIDCProviderMetadata getMetadata(CustomProviderProperties properties)
+			throws ParseException, IOException
+	{
+		String url = properties.getValue(CustomProviderProperties.OPENID_DISCOVERY);
 		MetaCacheKey metaCacheKey = new MetaCacheKey(url,
 				properties.getValue(CustomProviderProperties.CLIENT_TRUSTSTORE),
 				properties.getValue(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING));
-
+		cache.evictExpiredElements();
 		Element element = cache.get(metaCacheKey);
 		if (element != null)
 		{
 			log.trace("Get oauth OIDC metadata provider from cache " + url);
-			return ((OpenIdConnectDiscovery) element.getObjectValue()).getMetadata(properties);
+			return ((OIDCProviderMetadata) element.getObjectValue());
 		} else
 		{
 			log.trace("Get fresh oauth OIDC metadata from " + url);
-			OpenIdConnectDiscovery metadataProv = new OpenIdConnectDiscovery(new URL(url));
-			OIDCProviderMetadata metadata = metadataProv.getMetadata(properties);
-			cache.put(new Element(metaCacheKey, metadataProv));
+			OIDCProviderMetadata metadata = downloader.getMetadata(url, properties);
+			cache.put(new Element(metaCacheKey, metadata));
 			return metadata;
 		}
 	}
 
-	private void initCache(CacheManager cacheManager)
+	private void initCache(CacheManager cacheManager, Duration cacheTTL)
 	{
 		cache = cacheManager.addCacheIfAbsent(CACHE_ID);
 		CacheConfiguration config = cache.getCacheConfiguration();
-		config.setTimeToIdleSeconds(CACHE_TTL_IN_HOURS * 3600);
-		config.setTimeToLiveSeconds(CACHE_TTL_IN_HOURS * 3600);
+		config.setTimeToIdleSeconds(cacheTTL.toSeconds());
+		config.setTimeToLiveSeconds(cacheTTL.toSeconds());
 		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
 		persistCfg.setStrategy("none");
 		config.persistence(persistCfg);
 	}
 
-	public static class MetaCacheKey
+	private static class MetaCacheKey
 	{
-		public final String url;
-		public final String validator;
-		public final String hostnameChecking;
+		final String url;
+		final String validator;
+		final String hostnameChecking;
 
-		public MetaCacheKey(String url, String validator, String hostnameChecking)
+		private MetaCacheKey(String url, String validator, String hostnameChecking)
 		{
-
 			this.url = url;
 			this.validator = validator;
 			this.hostnameChecking = hostnameChecking;
@@ -106,6 +113,5 @@ public class OAuthDiscoveryMetadataCache
 			return Objects.equals(hostnameChecking, other.hostnameChecking) && Objects.equals(url, other.url)
 					&& Objects.equals(validator, other.validator);
 		}
-
 	}
 }
