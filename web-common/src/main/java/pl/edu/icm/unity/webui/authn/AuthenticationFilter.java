@@ -27,6 +27,8 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.shared.ApplicationConstants;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyService;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
@@ -57,10 +59,20 @@ public class AuthenticationFilter implements Filter
 	private LoginToHttpSessionBinder sessionBinder;
 	private RememberMeProcessor rememberMeHelper;
 	private AuthenticationRealm realm;
+	private NoSessionFilter noSessionFilter;
 	
 	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
 			AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper)
+	{
+		this(protectedServletPaths, authnServletPath, realm, sessionMan, sessionBinder, rememberMeHelper, (req,resp) -> {});
+	}
+	
+	
+	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
+			AuthenticationRealm realm,
+			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper, 
+			NoSessionFilter noSessionFilter)
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
@@ -75,6 +87,7 @@ public class AuthenticationFilter implements Filter
 		this.sessionBinder = sessionBinder;
 		this.rememberMeHelper = rememberMeHelper;
 		this.realm = realm;
+		this.noSessionFilter = noSessionFilter;
 	}
 	
 	
@@ -88,19 +101,31 @@ public class AuthenticationFilter implements Filter
 		try 
 		{
 			handleNotProtectedResource(httpRequest, httpResponse, chain);
+			handleForceLogin(httpRequest, httpResponse);
 			handleBoundSession(httpRequest, httpResponse, chain, clientIp);
 			handleBlockedIP(httpResponse, clientIp);
 			handleSessionFromCookie(httpRequest, httpResponse, chain, clientIp);
 			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
 		
+			//it should not happen, for safety only  
+			forwardtoAuthn(httpRequest, httpResponse);
 		} catch (EopException e)
 		{
 			return;
 	
 		} 
-		
-		//it should not happen, for safety only  
-		forwardtoAuthn(httpRequest, httpResponse);
+	}
+	
+	private void handleForceLogin(HttpServletRequest httpRequest,
+			ServletResponse response) throws EopException, IOException, ServletException
+	{
+		AuthenticationPolicy policy = AuthenticationPolicyService.getPolicy(httpRequest.getSession());
+		if (policy.equals(AuthenticationPolicy.FORCE_LOGIN))
+		{
+			HttpServletResponse httpResponse = (HttpServletResponse) response;
+			forwardtoAuthn(httpRequest, httpResponse);
+			throw new EopException();
+		}
 	}
 
 	private void handleNotProtectedResource(HttpServletRequest httpRequest,
@@ -227,8 +252,9 @@ public class AuthenticationFilter implements Filter
 	}
 
 	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response)
-			throws IOException, ServletException
+			throws IOException, ServletException, EopException
 	{
+		noSessionFilter.doFilter(httpRequest, response);
 		String forwardURI = authnServletPath;
 		if (httpRequest.getPathInfo() != null)
 		{
@@ -299,6 +325,12 @@ public class AuthenticationFilter implements Filter
 	public void addProtectedPath(String path)
 	{
 		protectedServletPaths.add(path);
+	}
+	
+	public interface NoSessionFilter
+	{
+		void doFilter(HttpServletRequest httpRequest,
+				HttpServletResponse response) throws EopException, IOException;
 	}
 
 }

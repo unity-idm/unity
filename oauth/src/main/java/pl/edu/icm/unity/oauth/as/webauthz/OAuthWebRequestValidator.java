@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+import com.nimbusds.openid.connect.sdk.Prompt;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -153,6 +154,25 @@ class OAuthWebRequestValidator
 		
 		if (context.getClientType() == ClientType.PUBLIC)
 			validatePKCEIsUsedForCodeFlow(authzRequest, client);
+		
+		validateAndRecordPrompt(context, authzRequest);
+		
+	}
+
+	private void validateAndRecordPrompt(OAuthAuthzContext context, AuthorizationRequest authzRequest)
+			throws OAuthValidationException
+	{
+		if (authzRequest.getPrompt() != null)
+		{
+			Prompt requestedPrompt = authzRequest.getPrompt();
+			if (requestedPrompt.contains(Prompt.Type.SELECT_ACCOUNT) || requestedPrompt.contains(Prompt.Type.CREATE))
+			{
+				throw new OAuthValidationException("Prompt " + requestedPrompt + " is not supported");
+			}
+
+			requestedPrompt.forEach(p -> context
+					.addPrompt(pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt.valueOf(p.toString().toUpperCase())));
+		}
 	}
 
 	private void validateAndRecordScopes(OAuthAuthzContext context, AuthorizationRequest authzRequest) throws OAuthValidationException

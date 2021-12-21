@@ -25,6 +25,8 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public class OAuthAuthzContext
 {
+	public enum Prompt { NONE, LOGIN, CONSENT}
+	
 	public static final long AUTHN_TIMEOUT = 900000;
 	private AuthorizationRequest request;
 	private OAuthASProperties config;
@@ -40,11 +42,13 @@ public class OAuthAuthzContext
 	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<>();
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
+	private Set<Prompt> prompts= new HashSet<>();
 	private GrantFlow flow;
 	private ClientType clientType;
 	private boolean openIdMode;
 	
-
+	
+	
 	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
 	{
 		this.config = properties;
@@ -152,6 +156,16 @@ public class OAuthAuthzContext
 		return ret;
 	}
 
+	public Set<Prompt> getPrompts()
+	{
+		return prompts;
+	}
+	
+	public void addPrompt(Prompt prompt)
+	{
+		prompts.add(prompt);
+	}
+	
 	public GrantFlow getFlow()
 	{
 		return flow;
