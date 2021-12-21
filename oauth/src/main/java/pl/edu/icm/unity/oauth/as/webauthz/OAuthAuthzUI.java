@@ -191,18 +191,18 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
 		OAuthAuthzContext context = OAuthSessionService.getVaadinContext();
-		boolean skipConsent = !forceConsentIfConsentPrompt(context) || context.getConfig().isSkipConsent();
-			
-		if (skipConsent)
+		if (!forceConsentIfConsentPrompt(context))
 		{
-			onFinalConfirm(identity, attributes);
-			return;
-		}else if (isNonePrompt(context))
-		{
-			sendNonePromptError(context);
-			return;
+			if (context.getConfig().isSkipConsent())
+			{
+				onFinalConfirm(identity, attributes);
+				return;
+			} else if (isNonePrompt(context))
+			{
+				sendNonePromptError(context);
+				return;
+			}
 		}
-			
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
 				this::onDecline, this::onFinalConfirm, oauthResponseHandler);
