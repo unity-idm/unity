@@ -28,13 +28,13 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
  *
  */
 @Component
-public class AttrInstrospectionEndpointFactory implements EndpointFactory
+public class AttrIntrospectionEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "AttributeInstrospection";
+	public static final String NAME = "AttributeIntrospection";
 	public static final String SERVLET_PATH = "/introspection";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
-			"Attribute instrospection endpoint", VaadinAuthentication.NAME,
-			Collections.singletonMap(SERVLET_PATH, "Attribute instrospection endpoint"));
+			"Attribute introspection endpoint", VaadinAuthentication.NAME,
+			Collections.singletonMap(SERVLET_PATH, "Attribute introspection endpoint"));
 
 	private ApplicationContext applicationContext;
 	private NetworkServer server;
@@ -43,7 +43,7 @@ public class AttrInstrospectionEndpointFactory implements EndpointFactory
 	private RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
-	AttrInstrospectionEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
+	AttrIntrospectionEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
