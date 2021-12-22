@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.data.Binder;
 
-import io.imunity.attr.introspection.AttrInstrospectionEndpointFactory;
+import io.imunity.attr.introspection.AttrIntrospectionEndpointFactory;
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
@@ -65,7 +65,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		GeneralTab generalTab = new GeneralTab(msg, AttrInstrospectionEndpointFactory.TYPE, usedEndpointsPaths,
+		GeneralTab generalTab = new GeneralTab(msg, AttrIntrospectionEndpointFactory.TYPE, usedEndpointsPaths,
 				serverContextPaths);
 		AuthenticationOptionsTab authenticationOptionsTab = new AuthenticationOptionsTab(msg,
 				authenticatorSupportService, authnOptionSupplier, uriAccessService, serverConfig);
@@ -108,7 +108,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 			registerTab(attributePoliciesTab);
 
 			serviceBinder.setBean(
-					editMode ? toEdit : new DefaultServiceDefinition(AttrInstrospectionEndpointFactory.TYPE.getName()));
+					editMode ? toEdit : new DefaultServiceDefinition(AttrIntrospectionEndpointFactory.TYPE.getName()));
 
 			AttrIntrospectionAuthnScreenConfiguration screenConfig = new AttrIntrospectionAuthnScreenConfiguration();
 			AttrIntrospectionAttributePoliciesConfiguration policiesConfig = new AttrIntrospectionAttributePoliciesConfiguration();

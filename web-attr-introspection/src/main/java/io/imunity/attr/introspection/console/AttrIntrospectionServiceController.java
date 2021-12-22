@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Functions;
 
-import io.imunity.attr.introspection.AttrInstrospectionEndpointFactory;
+import io.imunity.attr.introspection.AttrIntrospectionEndpointFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -82,7 +82,7 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 	@Override
 	public String getSupportedEndpointType()
 	{
-		return AttrInstrospectionEndpointFactory.NAME;
+		return AttrIntrospectionEndpointFactory.NAME;
 	}
 
 	@Override
