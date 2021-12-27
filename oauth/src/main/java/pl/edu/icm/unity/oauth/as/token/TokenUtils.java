@@ -46,7 +46,7 @@ class TokenUtils
 	static RefreshToken addRefreshToken(OAuthASProperties config, TokensManagement tokensManagement, 
 			Date now, OAuthToken newToken, Long owner) throws EngineException, JsonProcessingException
 	{
-		RefreshToken refreshToken = getRefreshToken(config, newToken.isAcceptRefreshToken(),
+		RefreshToken refreshToken = getRefreshToken(config,
 				Arrays.asList(newToken.getEffectiveScope()).contains(OIDCScopeValue.OFFLINE_ACCESS.getValue()));
 		if (refreshToken != null)
 		{
@@ -78,12 +78,12 @@ class TokenUtils
 		return cl.getTime();	
 	}
 	
-	private static RefreshToken getRefreshToken(OAuthASProperties config, boolean acceptRefreshToken, boolean offlineAccessRequested)
+	private static RefreshToken getRefreshToken(OAuthASProperties config, boolean offlineAccessRequested)
 	{
 		RefreshToken refreshToken = null;
 		if (config.getRefreshTokenIssuePolicy().equals(RefreshTokenIssuePolicy.ALWAYS)
 				|| (config.getRefreshTokenIssuePolicy().equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED)
-						&& acceptRefreshToken && offlineAccessRequested))
+						 && offlineAccessRequested))
 		{
 			refreshToken = new RefreshToken();
 		}
