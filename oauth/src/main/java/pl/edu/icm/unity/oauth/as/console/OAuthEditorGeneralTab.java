@@ -38,11 +38,13 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -300,13 +302,17 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		mainGeneralLayout.addComponent(accessTokenExp);
 
 		IntStepper refreshTokenExp = new IntStepper();
+		EnumComboBox<RefreshTokenIssuePolicy> refreshTokenIssuePolicy = new EnumComboBox<>(msg,
+				"OAuthEditorGeneralTab.refreshTokenIssuePolicy.", RefreshTokenIssuePolicy.class,
+				RefreshTokenIssuePolicy.NEVER);
+		refreshTokenIssuePolicy.setCaption(msg.getMessage("OAuthEditorGeneralTab.refreshTokenIssuePolicy"));
+		refreshTokenIssuePolicy.setEmptySelectionAllowed(false);
 
-		CheckBox supportRefreshToken = new CheckBox(
-				msg.getMessage("OAuthEditorGeneralTab.supportRefreshToken"));
-		configBinder.forField(supportRefreshToken).bind("supportRefreshToken");
-		mainGeneralLayout.addComponent(supportRefreshToken);
-		supportRefreshToken.addValueChangeListener(e -> {
-			refreshTokenExp.setEnabled(e.getValue());
+		configBinder.forField(refreshTokenIssuePolicy).bind("refreshTokenIssuePolicy");
+		mainGeneralLayout.addComponent(refreshTokenIssuePolicy);
+		refreshTokenIssuePolicy.addValueChangeListener(e ->
+		{
+			refreshTokenExp.setEnabled(!e.getValue().equals(RefreshTokenIssuePolicy.NEVER));
 		});
 
 		refreshTokenExp.setWidth(5, Unit.EM);

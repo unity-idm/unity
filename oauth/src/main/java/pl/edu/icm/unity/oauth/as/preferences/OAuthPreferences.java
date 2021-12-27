@@ -5,11 +5,14 @@
 package pl.edu.icm.unity.oauth.as.preferences;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
@@ -92,6 +95,8 @@ public class OAuthPreferences extends IdPPreferences
 		private boolean doNotAsk=false;
 		private boolean defaultAccept=true;
 		private String selectedIdentity;
+		private Set<String> effectiveRequestedScopes = new HashSet<>();
+		private boolean acceptRefreshToken = false;
 		
 		protected OAuthClientSettings()
 		{
@@ -101,8 +106,24 @@ public class OAuthPreferences extends IdPPreferences
 		{
 			setDefaultAccept(from.get("defaultAccept").asBoolean());
 			setDoNotAsk(from.get("doNotAsk").asBoolean());
-			if (from.has("selectedIdentity"))
-				setSelectedIdentity(from.get("selectedIdentity").asText());
+			if (from.has("acceptRefreshToken"))
+			{
+				setAcceptRefreshToken(from.get("acceptRefreshToken").asBoolean());
+			}
+			
+			if (from.has("acceptRefreshToken"))
+			{
+				setAcceptRefreshToken(from.get("acceptRefreshToken").asBoolean());
+			}
+			
+			if (from.has("effectiveRequestedScopes"))
+			{
+				ArrayNode jsonAcs = (ArrayNode) from.get("effectiveRequestedScopes");
+				Set<String> scopes = new HashSet<>();
+				for (JsonNode e : jsonAcs)
+					scopes.add(e.asText());
+				getEffectiveRequestedScopes().addAll(scopes);
+			}
 		}
 
 		public boolean isDoNotAsk()
@@ -129,6 +150,26 @@ public class OAuthPreferences extends IdPPreferences
 		{
 			this.selectedIdentity = selectedIdentity;
 		}
+		
+		public boolean isAcceptRefreshToken()
+		{
+			return acceptRefreshToken;
+		}
+
+		public void setAcceptRefreshToken(boolean acceptRefreshToken)
+		{
+			this.acceptRefreshToken = acceptRefreshToken;
+		}
+
+		public Set<String> getEffectiveRequestedScopes()
+		{
+			return effectiveRequestedScopes;
+		}
+
+		public void setEffectiveRequestedScopes(Set<String> effectiveRequestedScopes)
+		{
+			this.effectiveRequestedScopes = effectiveRequestedScopes;
+		}
 
 		protected ObjectNode serialize()
 		{
@@ -137,7 +178,13 @@ public class OAuthPreferences extends IdPPreferences
 			main.put("defaultAccept", defaultAccept);
 			if (selectedIdentity != null)
 				main.put("selectedIdentity", selectedIdentity);
+			main.put("acceptRefreshToken", acceptRefreshToken);
+			ArrayNode values = main.putArray("effectiveRequestedScopes");
+			for (String value : effectiveRequestedScopes)
+				values.add(value);
 			return main;
 		}
+
+		
 	}
 }

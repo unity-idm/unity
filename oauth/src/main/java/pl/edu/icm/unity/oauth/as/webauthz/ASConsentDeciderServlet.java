@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,10 +37,10 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
@@ -210,9 +211,15 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
-			return false;
-
-		return !oauthCtx.getConfig().isSkipConsent();
+			return isScopesChanges(preferences, oauthCtx);
+		
+		return isScopesChanges(preferences, oauthCtx) || !oauthCtx.getConfig().isSkipConsent();
+	}
+	
+	private boolean isScopesChanges(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	{
+		return preferences.getEffectiveRequestedScopes()
+				.containsAll(Arrays.asList(oauthCtx.getEffectiveRequestedScopesList()));
 	}
 
 	private boolean isEnquiryWaiting()
@@ -272,7 +279,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.info("Authentication of " + selectedIdentity);
 			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
-			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, oauthCtx,
+			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, false, selectedIdentity, oauthCtx,
 					statReporter);
 		} catch (OAuthErrorResponseException e)
 		{

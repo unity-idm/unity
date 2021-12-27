@@ -184,14 +184,20 @@ class OAuthWebRequestValidator
 					.getValidRequestedScopes(requestedScopes);
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
-			
-			boolean openIdRequested = requestedScopes.contains("openid");
-			boolean openIdAvailable = validRequestedScopes.stream()
-					.filter(scope -> scope.getName().equals("openid")).findAny().isPresent();
-			if (openIdRequested && !openIdAvailable)
-				throw new OAuthValidationException("Client requested OpenId Connect with scope, which is "
-						+ "not enabled on this server");
+			validateScope(OIDCScopeValue.OPENID, requestedScopes, validRequestedScopes);
+			validateScope(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
 		}
+	}
+	
+	private void validateScope(OIDCScopeValue scope, Scope requestedScopes, List<ScopeInfo> validRequestedScopes) throws OAuthValidationException
+	{
+		boolean scopeRequested = requestedScopes.contains(scope.getValue());
+		boolean scopeAvailable = validRequestedScopes.stream()
+				.filter(vscope -> vscope.getName().equals(scope.getValue())).findAny().isPresent();
+		if (scopeRequested && !scopeAvailable)
+			throw new OAuthValidationException("Client requested " + scope.getValue() + " with scope, which is "
+					+ "not enabled on this server");
+		
 	}
 	
 	private void validatePKCEIsUsedForCodeFlow(AuthorizationRequest authzRequest, String client) throws OAuthValidationException
