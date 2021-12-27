@@ -185,9 +185,7 @@ class OAuthWebRequestValidator
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
 			validateScope(OIDCScopeValue.OPENID, requestedScopes, validRequestedScopes);
-			validateOfflineScope(requestedScopes, validRequestedScopes);
-			
-			
+			validateOfflineScope(requestedScopes, validRequestedScopes);	
 		}
 	}
 
