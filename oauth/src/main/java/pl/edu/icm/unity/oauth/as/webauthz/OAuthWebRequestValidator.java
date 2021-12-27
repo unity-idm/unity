@@ -185,8 +185,19 @@ class OAuthWebRequestValidator
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
 			validateScope(OIDCScopeValue.OPENID, requestedScopes, validRequestedScopes);
-			validateScope(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
+			validateOfflineScope(requestedScopes, validRequestedScopes);
+			
+			
 		}
+	}
+
+	private void validateOfflineScope(Scope requestedScopes, List<ScopeInfo> validRequestedScopes)
+			throws OAuthValidationException
+	{
+		validateScope(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
+		if (oauthConfig.isSkipConsent() && requestedScopes.contains(OIDCScopeValue.OFFLINE_ACCESS.getValue()))
+			throw new OAuthValidationException("Client requested " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
+					+ " with scope, but skip consent screen is " + "configured on this server");
 	}
 	
 	private void validateScope(OIDCScopeValue scope, Scope requestedScopes, List<ScopeInfo> validRequestedScopes) throws OAuthValidationException
