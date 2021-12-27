@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -169,6 +171,7 @@ public class AccessTokenResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		config.setProperty(OAuthASProperties.REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.ALWAYS.toString());
 		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "3600");
 		
 		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
@@ -191,10 +194,37 @@ public class AccessTokenResourceTest
 	}
 	
 	@Test
+	public void refreshTokenIsNotPresentIfConfigured() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		config.setProperty(OAuthASProperties.REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.NEVER.toString());
+		
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
+		setupInvocationContext(100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, "nonce");
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
+		
+		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
+				null, null, null, null, null, null, null);
+
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
+		assertNull(parsed.getTokens().getRefreshToken());	
+	}
+	
+	@Test
 	public void refreshTokenHasUnlimitedLifetimeIfConfiguredToZero() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		config.setProperty(OAuthASProperties.REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.ALWAYS.toString());
 		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "0");
 		
 		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);

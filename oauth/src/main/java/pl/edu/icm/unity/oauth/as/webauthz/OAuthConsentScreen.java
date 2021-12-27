@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.TriConsumer;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
@@ -75,12 +74,11 @@ class OAuthConsentScreen extends CustomComponent
 	private final Collection<DynamicAttribute> attributes;
 
 	private final Runnable declineHandler;
-	private final TriConsumer<IdentityParam, Boolean, Collection<DynamicAttribute>> acceptHandler;
+	private final BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler;
 	
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
 	private CheckBox rememberCB;
-	private CheckBox refreshTokenCB;
 	
 	OAuthConsentScreen(MessageSource msg, 
 			AttributeHandlerRegistry handlersRegistry,
@@ -91,7 +89,7 @@ class OAuthConsentScreen extends CustomComponent
 			IdentityParam identity,
 			Collection<DynamicAttribute> attributes,
 			Runnable declineHandler,
-			TriConsumer<IdentityParam, Boolean, Collection<DynamicAttribute>> acceptHandler,
+			BiConsumer<IdentityParam, Collection<DynamicAttribute>> acceptHandler,
 			OAuthResponseHandler oAuthResponseHandler)
 	{
 		this.msg = msg;
@@ -179,12 +177,6 @@ class OAuthConsentScreen extends CustomComponent
 				Optional.of(identity));
 		eiLayout.addComponent(attrsPresenter);
 
-		refreshTokenCB = new CheckBox(msg.getMessage("OAuthAuthzUI.acceptRefreshToken"));
-		contents.addComponent(refreshTokenCB);
-		refreshTokenCB.setVisible(
-				ctx.getConfig().getRefreshTokenIssuePolicy().equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED)
-						&& ctx.hasOfflineAccessScope());
-			
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
 		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC));
@@ -233,7 +225,6 @@ class OAuthConsentScreen extends CustomComponent
 		
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
-		refreshTokenCB.setValue(settings.isAcceptRefreshToken());
 		
 		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC && !settings.getEffectiveRequestedScopes()
 				.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList())))
@@ -258,7 +249,6 @@ class OAuthConsentScreen extends CustomComponent
 		OAuthClientSettings settings = preferences.getSPSettings(reqIssuer);
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
-		settings.setAcceptRefreshToken(refreshTokenCB.getValue());
 		settings.setEffectiveRequestedScopes(new HashSet<>(Arrays.asList((ctx.getEffectiveRequestedScopesList()))));
 		String identityValue = idSelector.getSelectedIdentityForPreferences();
 		if (identityValue != null)
@@ -292,6 +282,6 @@ class OAuthConsentScreen extends CustomComponent
 		storePreferences(true);
 		Collection<DynamicAttribute> attributes = attrsPresenter.getUserFilteredAttributes();
 		IdentityParam identity = idSelector.getSelectedIdentity();
-		acceptHandler.accept(identity, refreshTokenCB.getValue(), attributes);
+		acceptHandler.accept(identity, attributes);
 	}
 }

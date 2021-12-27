@@ -91,7 +91,7 @@ public class OAuthProcessor
 	 * the authorization that currently takes place.
 	 */
 	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(
-			Collection<DynamicAttribute> attributes, boolean acceptRefreshToken,
+			Collection<DynamicAttribute> attributes,
 			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
@@ -109,7 +109,6 @@ public class OAuthProcessor
 		internalToken.setAudience(ctx.getClientUsername());
 		internalToken.setIssuerUri(config.getIssuerName());
 		internalToken.setClientType(ctx.getClientType());
-		internalToken.setAcceptRefreshToken(acceptRefreshToken);
 		
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
