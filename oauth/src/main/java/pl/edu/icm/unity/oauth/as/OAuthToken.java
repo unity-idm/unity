@@ -41,6 +41,7 @@ public class OAuthToken
 	private String issuerUri;
 	private ClientType clientType;
 	private PKCSInfo pkcsInfo;
+	private boolean acceptRefreshToken;
 
 	
 	public OAuthToken()
@@ -72,6 +73,8 @@ public class OAuthToken
 		setIssuerUri(source.getIssuerUri());
 		pkcsInfo = new PKCSInfo(source.pkcsInfo);
 		setClientType(source.getClientType());
+		setAcceptRefreshToken(source.isAcceptRefreshToken());
+		
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -302,6 +305,15 @@ public class OAuthToken
 		this.pkcsInfo = pkcsInfo;
 	}
 
+	public boolean isAcceptRefreshToken()
+	{
+		return acceptRefreshToken;
+	}
+
+	public void setAcceptRefreshToken(boolean acceptRefreshToken)
+	{
+		this.acceptRefreshToken = acceptRefreshToken;
+	}
 
 	@Override
 	public int hashCode()
@@ -312,7 +324,7 @@ public class OAuthToken
 		result = prime * result + Arrays.hashCode(requestedScope);
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
-				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo);
+				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, acceptRefreshToken);
 		return result;
 	}
 
@@ -340,7 +352,8 @@ public class OAuthToken
 				&& Arrays.equals(requestedScope, other.requestedScope)
 				&& Objects.equals(responseType, other.responseType)
 				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
-				&& Objects.equals(userInfo, other.userInfo);
+				&& Objects.equals(userInfo, other.userInfo)
+				&& Objects.equals(acceptRefreshToken, other.acceptRefreshToken);
 	}
 
 
@@ -355,10 +368,8 @@ public class OAuthToken
 				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
-				+ pkcsInfo + "]";
+				+ pkcsInfo + ", acceptRefreshToken=" + acceptRefreshToken + "]";
 	}
-
-
 
 
 	public static class PKCSInfo

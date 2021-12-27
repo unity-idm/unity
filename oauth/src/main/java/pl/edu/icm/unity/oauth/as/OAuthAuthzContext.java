@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.client.ClientType;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -186,6 +187,13 @@ public class OAuthAuthzContext
 		this.openIdMode = openIdMode;
 	}
 
+	public boolean hasOfflineAccessScope()
+	{
+		return !getEffectiveRequestedScopes().stream()
+				.filter(a -> a.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
+	}
+
+	
 	public long getClientEntityId()
 	{
 		return clientEntityId;

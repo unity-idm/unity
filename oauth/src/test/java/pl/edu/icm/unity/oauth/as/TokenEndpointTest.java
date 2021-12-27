@@ -43,6 +43,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 
 /**
@@ -58,7 +59,7 @@ public class TokenEndpointTest extends TokenTestBase
 	@Before
 	public void init()
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 	}
 	
 	@Test

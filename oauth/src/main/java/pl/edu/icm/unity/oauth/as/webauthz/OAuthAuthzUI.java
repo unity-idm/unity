@@ -195,7 +195,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		{
 			if (context.getConfig().isSkipConsent())
 			{
-				onFinalConfirm(identity, attributes);
+				onFinalConfirm(identity, false, attributes);
 				return;
 			} else if (isNonePrompt(context))
 			{
@@ -280,13 +280,13 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 	}
 
-	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
+	private void onFinalConfirm(IdentityParam identity, Boolean acceptRerfreshToken, Collection<DynamicAttribute> attributes)
 	{
 		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor
-					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, oauthResponseHandler.statReporter);
+					.prepareAuthzResponseAndRecordInternalState(attributes, acceptRerfreshToken, identity, ctx, oauthResponseHandler.statReporter);
 
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)

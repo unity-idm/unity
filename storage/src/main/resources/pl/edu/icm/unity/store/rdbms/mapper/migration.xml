@@ -87,5 +87,9 @@
 	<update id="updateSchema-014-00">
 		UPDATE UVOS_FLAG SET VAL = '14'
 	</update>
+	
+	<update id="updateSchema-015-00">
+		UPDATE UVOS_FLAG SET VAL = '15'
+	</update>
 
 </mapper>

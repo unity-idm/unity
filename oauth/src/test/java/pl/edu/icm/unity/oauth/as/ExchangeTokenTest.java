@@ -35,6 +35,7 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 
 /**
@@ -54,7 +55,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToExchangeTokenWithIncorrectAudience() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -80,7 +81,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToExchangeTokenWithIncorrectRequestedTokenType() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -107,7 +108,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldExchangeTokenWithIdToken() throws Exception
 	{
-		super.setupOIDC();
+		super.setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -144,7 +145,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	@Test
 	public void shouldExchangeAccessTokenWithoutIdToken() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
