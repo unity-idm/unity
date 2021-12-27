@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationContext;
 
@@ -29,7 +30,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
 	private transient ResolvedEndpoint description;
-	private transient List<AuthenticationFlow> authenticationFlows;
+	private transient Supplier<List<AuthenticationFlow>> authenticationFlows;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
@@ -37,7 +38,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient String themeConfigKey;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
-			ResolvedEndpoint description, List<AuthenticationFlow> authenticationFlows,
+			ResolvedEndpoint description, Supplier<List<AuthenticationFlow>> authenticationFlows,
 			EndpointRegistrationConfiguration registrationConfiguraiton,
 			Properties properties, String themeConfigKey)
 	{
@@ -91,7 +92,7 @@ public class VaadinUIProvider extends UIProvider
 		{
 			if (sandboxRouter != null) 
 				((UnityWebUI)ui).setSandboxRouter(sandboxRouter);
-			((UnityWebUI)ui).configure(description, authenticationFlows, registrationConfiguraiton,
+			((UnityWebUI)ui).configure(description, authenticationFlows.get(), registrationConfiguraiton,
 					endpointProperties);
 			if (cancelHandler != null)
 			{
