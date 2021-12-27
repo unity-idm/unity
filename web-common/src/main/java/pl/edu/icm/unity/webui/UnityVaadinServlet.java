@@ -172,6 +172,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	
 	protected synchronized List<AuthenticationFlow> getAuthenticationFlows()
 	{
+		
 		return this.authenticationFlows;
 	}
 	
@@ -199,7 +200,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, getAuthenticationFlows(), registrationConfiguration,
+						description, () -> getAuthenticationFlows(), registrationConfiguration,
 						endpointProperties, themeConfigKey);
 				uiProv.setCancelHandler(cancelHandler);
 				uiProv.setSandboxRouter(sandboxRouter);
