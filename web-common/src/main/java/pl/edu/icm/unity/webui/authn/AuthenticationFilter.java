@@ -106,6 +106,7 @@ public class AuthenticationFilter implements Filter
 			handleSessionFromCookie(httpRequest, httpResponse, chain, clientIp);
 			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
 		
+			log.error("Unprocessed request, should not happen, forward to authn for safety only");
 			//it should not happen, for safety only  
 			forwardtoAuthn(httpRequest, httpResponse);
 		} catch (EopException e)
@@ -116,12 +117,12 @@ public class AuthenticationFilter implements Filter
 	}
 	
 	private void handleForceLogin(HttpServletRequest httpRequest,
-			ServletResponse response) throws EopException, IOException, ServletException
+			HttpServletResponse httpResponse) throws EopException, IOException, ServletException
 	{
 		AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(httpRequest.getSession());
 		if (policy.equals(AuthenticationPolicy.FORCE_LOGIN))
 		{
-			HttpServletResponse httpResponse = (HttpServletResponse) response;
+			log.trace("Force reauthentication");
 			forwardtoAuthn(httpRequest, httpResponse);
 			throw new EopException();
 		}
