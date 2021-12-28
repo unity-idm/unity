@@ -219,7 +219,6 @@
 								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.CustomProviderProperties|ref-oauthProviderProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.store.StorageConfiguration|ref-dbProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.store.hz.HzConfiguration|ref-storeHzProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.store.rdbms.RDBMSConfiguration|ref-storeRDBMSProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
