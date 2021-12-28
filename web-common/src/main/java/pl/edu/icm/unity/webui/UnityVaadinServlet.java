@@ -171,8 +171,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	}
 	
 	protected synchronized List<AuthenticationFlow> getAuthenticationFlows()
-	{
-		
+	{	
 		return this.authenticationFlows;
 	}
 	
