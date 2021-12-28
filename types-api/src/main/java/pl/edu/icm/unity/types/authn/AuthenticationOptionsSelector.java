@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,7 +46,7 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 
 	public static AuthenticationOptionsSelector allForAuthenticator(String authenticatorKey)
 	{
-		return new AuthenticationOptionsSelector(authenticatorKey, ALL_OPTS, Optional.of(new I18nString(authenticatorKey)));
+		return new AuthenticationOptionsSelector(authenticatorKey, ALL_OPTS, Optional.empty());
 	}
 	
 	public static AuthenticationOptionsSelector valueOf(String stringEncodedSelector)
@@ -110,8 +111,27 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 		}
 	}
 
-	public String getDisplayedNameFallbackToConfigKey(MessageSource msg)
+	public String getRepresentationFallbackToConfigKey(MessageSource msg)
 	{
-		return !displayedName.isEmpty() ? displayedName.get().getValue(msg) : toStringEncodedSelector();
+		return !displayedName.isEmpty() ? (authenticatorKey + ": " +  displayedName.get().getValue(msg)) : toStringEncodedSelector();
+	}
+	
+	public static class AuthenticationOptionsSelectorComparator implements Comparator<AuthenticationOptionsSelector>
+	{
+		private MessageSource msg;
+		
+		public AuthenticationOptionsSelectorComparator(MessageSource msg)
+		{
+			this.msg = msg;
+		}
+
+		@Override
+		public int compare(AuthenticationOptionsSelector arg0, AuthenticationOptionsSelector arg1)
+		{
+			if (arg0.authenticatorKey.equals(arg1.authenticatorKey))
+				return arg0.getRepresentationFallbackToConfigKey(msg).compareTo(arg1.getRepresentationFallbackToConfigKey(msg));
+			else
+				return arg0.authenticatorKey.compareTo(arg1.authenticatorKey);			
+		}	
 	}
 }

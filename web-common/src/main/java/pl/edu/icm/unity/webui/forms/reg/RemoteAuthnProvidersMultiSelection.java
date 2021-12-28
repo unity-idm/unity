@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 
@@ -24,6 +25,8 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
  */
 public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<AuthenticationOptionsSelector>
 {
+	private MessageSource msg;
+	
 	public RemoteAuthnProvidersMultiSelection(MessageSource msg, AuthenticatorSupportService authenticatorSupport, String caption,
 			String description) throws EngineException
 	{
@@ -33,7 +36,8 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 	
 	public RemoteAuthnProvidersMultiSelection (MessageSource msg, String caption, String description) throws EngineException
 	{
-		super(s -> s.getDisplayedNameFallbackToConfigKey(msg), true);
+		super(s -> s.getRepresentationFallbackToConfigKey(msg), true);
+		this.msg = msg;
 		setCaption(caption);
 		setDescription(description);
 		setWidth(100, Unit.PERCENTAGE);	
@@ -56,6 +60,6 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 	@Override
 	protected void sortItems(List<AuthenticationOptionsSelector> items)
 	{
-		items.sort(null);
+		items.sort(new AuthenticationOptionsSelectorComparator(msg));
 	}
 }
