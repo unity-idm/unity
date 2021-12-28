@@ -26,6 +26,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
@@ -59,7 +60,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	private Component getContent()
 	{
 		binder = new Binder<>(GridStateBindingValue.class);
-		valueComboField = new ChipsWithDropdown<AuthenticationOptionsSelector>(i -> i.getDisplayedNameFallbackToConfigKey(msg), true);
+		valueComboField = new AuthnSelector(msg);
 		valueComboField.setSkipRemoveInvalidSelections(true);
 		valueComboField.setWidth(20, Unit.EM);
 		refreshItems();
@@ -201,5 +202,22 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 
 			return Objects.equal(this.value, other.value) && Objects.equal(this.rows, other.rows);		
 		}
+	}
+	
+	private static class AuthnSelector extends ChipsWithDropdown<AuthenticationOptionsSelector>
+	{
+		private MessageSource msg;
+
+		private AuthnSelector(MessageSource msg)
+		{
+			super(i -> i.getRepresentationFallbackToConfigKey(msg), true);
+			this.msg = msg;
+		}
+		
+		@Override
+		protected void sortItems(List<AuthenticationOptionsSelector> items)
+		{
+			items.sort(new AuthenticationOptionsSelectorComparator(msg));
+		}	
 	}
 }

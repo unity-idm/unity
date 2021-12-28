@@ -18,6 +18,7 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
@@ -50,7 +51,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	{
 		binder = new Binder<>(AuthnOptionKeyBindingValue.class);
 		valueComboField = new ComboBox<>();
-		valueComboField.setItemCaptionGenerator(i -> i.getDisplayedNameFallbackToConfigKey(msg));
+		valueComboField.setItemCaptionGenerator(i -> i.getRepresentationFallbackToConfigKey(msg));
 		valueComboField.setWidth(20, Unit.EM);
 		refreshItems();
 		binder.forField(valueComboField).withValidator((v, c) -> 
@@ -76,9 +77,10 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	{
 		items = AuthnColumnComponentHelper.getSinglePickerCompatibleAuthnSelectors(
 				authenticatorSupport, authnOptionSupplier.get());
+		items.sort(new AuthenticationOptionsSelectorComparator(msg));
 		valueComboField.setItems(items);
 	}
-
+	
 	@Override
 	public void refresh()
 	{
