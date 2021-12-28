@@ -66,6 +66,9 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDPMETA_EMBEDDED_TRANSLATION_PROFILE = "perMetadataEmbeddedTranslationProfile";
 	public static final String IDPMETA_REGISTRATION_FORM = "perMetadataRegistrationForm";
 	
+	
+	public static final String IDP_FEDERATION_ID = "samlFederationId";
+	public static final String IDP_FEDERATION_NAME = "samlFederationName";
 	public static final String IDP_PREFIX = "remoteIdp.";
 	public static final String IDP_NAME = "name";
 	public static final String IDP_LOGO = "logoURI";
@@ -116,6 +119,12 @@ public class SAMLSPProperties extends SamlProperties
 				+ "The value can be a file:, http(s): or data: URI. The last option allows for embedding the logo in the configuration. "
 				+ "The property can have subkeys being "
 				+ "locale names; then the localized value is used if it is matching the selected locale of the UI."));
+		
+		META.put(IDP_FEDERATION_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setHidden().setDescription(
+				"SAML federation identifier of the IdP."));
+		META.put(IDP_FEDERATION_NAME, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setHidden().setDescription(
+				"SAML federation name of the IdP."));
+		
 		META.put(IDP_ID, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setMandatory().setCategory(idp).setDescription(
 				"SAML entity identifier of the IdP."));
 		META.put(IDP_CERTIFICATE, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(

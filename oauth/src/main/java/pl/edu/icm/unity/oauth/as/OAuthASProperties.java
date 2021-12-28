@@ -49,6 +49,11 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	{
 		PLAIN, JWT, AS_REQUESTED;
 	};
+	
+	public enum RefreshTokenIssuePolicy
+	{
+		NEVER, ALWAYS, OFFLINE_SCOPE_BASED;
+	};
 
 	public static final String ISSUER_URI = "issuerUri";
 	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";
@@ -56,6 +61,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String CODE_TOKEN_VALIDITY = "codeTokenValidity";
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	public static final String REFRESH_TOKEN_VALIDITY = "refreshTokenValidity";
+	public static final String REFRESH_TOKEN_ISSUE_POLICY = "refreshTokenIssuePolicy";
+
 	public static final String CREDENTIAL = "signingCredential";
 	public static final String IDENTITY_TYPE_FOR_SUBJECT = "identityTypeForSubject";
 	public static final String ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI = "allowForWildcardsInAllowedURI";
@@ -79,6 +86,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final int DEFAULT_CODE_TOKEN_VALIDITY = 600;
 	public static final int DEFAULT_ID_TOKEN_VALIDITY = 3600;
 	public static final int DEFAULT_ACCESS_TOKEN_VALIDITY = 3600;
+	public static final int DEFAULT_REFRESH_TOKEN_VALIDITY = 3600;
 	
 	static
 	{
@@ -89,9 +97,10 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
 		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ID_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
-		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD("-1")
+		defaults.put(REFRESH_TOKEN_ISSUE_POLICY, new PropertyMD(RefreshTokenIssuePolicy.NEVER)
+				.setDescription("Refresh token issue policy"));
+		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_REFRESH_TOKEN_VALIDITY))
 				.setDescription("Controls the validity period of a refresh token (in seconds). "
-						+ "If is set to a negative number refresh tokens won’t be issued. "
 						+ "If is set to 0 refresh tokens will have an unlimited lifetime. "));
 		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ACCESS_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
@@ -239,6 +248,11 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public int getRefreshTokenValidity()
 	{
 		return getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY);
+	}
+	
+	public RefreshTokenIssuePolicy getRefreshTokenIssuePolicy()
+	{
+		return getEnumValue(OAuthASProperties.REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.class);
 	}
 
 	public String getIssuerName()

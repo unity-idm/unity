@@ -6,6 +6,8 @@ package pl.edu.icm.unity.oauth.as;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+
 import static org.junit.Assert.assertThat;
 import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
@@ -30,12 +32,14 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -57,24 +61,54 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldRefreshToken() throws Exception
 	{
-		super.setupPlain();
-		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
-				new Secret("clientPass"));
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
 
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca, "foo", "bar");
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
-		
+
 		assertThat(bearerToken.getLifetime(), is(3600l));
 		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
 		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
 	}
 
 	@Test
+	public void shouldNotRefreshToken() throws Exception
+	{
+		super.setupPlain(RefreshTokenIssuePolicy.NEVER);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		assertThat(refreshToken, nullValue());
+	}
+
+	@Test
+	public void shouldNotIssueRefreshTokenBasedOnOfflinePolicyWithoutOfflineScope() throws Exception
+	{
+		super.setupPlain(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		assertThat(refreshToken, nullValue());
+	}
+
+	@Test
+	public void shouldIssueRefreshTokenBasedOnOfflinePolicyWithOfflineScope() throws Exception
+	{
+		super.setupPlain(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar", OIDCScopeValue.OFFLINE_ACCESS.getValue()),
+				ca);
+		assertThat(refreshToken, notNullValue());
+	}
+
+	@Test
 	public void shouldAssumeOriginalScopesWhenNoScopesAreRequestedUponRefresh() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -91,7 +125,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void refreshedTokenCanBeUsedToObtainUserInfo() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -107,7 +141,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldRefreshTokenWithIdToken() throws Exception
 	{
-		super.setupOIDC();
+		super.setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -130,7 +164,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToRefreshTokenWithIncorrectScope() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
@@ -152,7 +186,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldDenyToRefreshTokenByAnotherClient() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
@@ -176,7 +210,7 @@ public class RefreshTokenTest extends TokenTestBase
 	@Test
 	public void shouldRefreshUserInfoAfterRefreshToken() throws Exception
 	{
-		super.setupPlain();
+		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 

@@ -193,7 +193,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, genericEndpointProperties.getEffectiveAuthenticationTheme());
 	}
 
-	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String theme)
+	protected UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String theme)
 	{
 		String template = genericEndpointProperties.getValue(VaadinEndpointProperties.TEMPLATE);
 		boolean productionMode = genericEndpointProperties.getBooleanValue(
@@ -204,7 +204,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	}
 	
 	@Override
-	public final synchronized ServletContextHandler getServletContextHandler()
+	public synchronized ServletContextHandler getServletContextHandler()
 	{
 		context = getServletContextHandlerOverridable();
 		
@@ -272,8 +272,8 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet, boolean unrestrictedSessionTime)
 	{
 		ServletHolder holder = createServletHolder(servlet, unrestrictedSessionTime);
-		int sessionTimeout = description.getRealm().getMaxInactivity();
-		int heartBeat = unrestrictedSessionTime ? LONG_HEARTBEAT : getHeartbeatInterval(sessionTimeout);
+		
+		int heartBeat = unrestrictedSessionTime ? LONG_HEARTBEAT : getHeartbeatInterval(description.getRealm().getMaxInactivity());
 		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
@@ -305,7 +305,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	}
 	
 	@Override
-	public final synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
+	public synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
 		setAuthenticators(authenticators);
 		if (authenticationServlet != null)
@@ -316,7 +316,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		}
 	}
 	
-	private class ForwadSerlvet extends HttpServlet
+	class ForwadSerlvet extends HttpServlet
 	{
 		@Override
 		protected void service(HttpServletRequest req, HttpServletResponse res)

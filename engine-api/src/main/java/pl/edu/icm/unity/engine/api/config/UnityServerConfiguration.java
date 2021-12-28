@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -345,7 +346,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "will use " + ENDPOINT_NAME));
 		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
 				setDescription("Endpoint authenticator or authentication flow names separated with ';'."));	
-		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
+		defaults.put(ENDPOINT_REALM, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
 				setDescription("Authentication realm name, to which this endpoint belongs."));
 
 		defaults.put(AUTHENTICATORS, new PropertyMD().setStructuredList(false).setCategory(initAuthnCat).
@@ -672,6 +673,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public List<String> getEndpointAuth(String endpointKey)
 	{
 		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
+		if (spec == null)
+			return Collections.emptyList();
 		String[] authenticationOptions = spec.split(";");		
 		List<String> endpointAuthn = new ArrayList<>();
 		for (String authenticationOption : authenticationOptions)

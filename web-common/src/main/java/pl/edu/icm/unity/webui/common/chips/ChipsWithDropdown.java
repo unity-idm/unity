@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.chips;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -120,7 +122,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		updateItemsAvailableToSelect();
 	}
 	
-	public void setItems(List<T> items)
+	public void setItems(Collection<T> items)
 	{
 		allItems = new LinkedHashSet<>(items);
 		updateItemsAvailableToSelect();
@@ -130,6 +132,15 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	{
 		return allItems;
 	}
+	
+	public List<T> getAllItemsSorted()
+	{
+		List<T> items = new ArrayList<>();
+		items.addAll(allItems);
+		sortItems(items);
+		return items;
+	}
+	
 	
 	public void setSelectedItems(List<T> items)
 	{

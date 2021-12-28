@@ -7,6 +7,7 @@ package pl.edu.icm.unity.ldap.client;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -17,6 +18,8 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
@@ -83,5 +86,11 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
+	}
+	
+	@Override
+	public List<IdPInfo> getIdPs()
+	{
+		return List.of(IdPInfo.builder().withId(getName()).withDisplayedName(new I18nString(getName())).build());
 	}
 }

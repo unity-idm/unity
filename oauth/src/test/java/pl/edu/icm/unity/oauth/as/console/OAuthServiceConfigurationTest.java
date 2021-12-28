@@ -22,6 +22,7 @@ import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -84,6 +85,9 @@ public class OAuthServiceConfigurationTest
 				.update("policyAgreements.1.policyDocuments", "1")
 				.update("policyAgreements.1.policyAgreementPresentationType",
 						PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED.toString())
+				.update("refreshTokenIssuePolicy",
+						RefreshTokenIssuePolicy.ALWAYS.toString())
+				
 				.get();
 		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
 

@@ -38,11 +38,13 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -300,13 +302,20 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		mainGeneralLayout.addComponent(accessTokenExp);
 
 		IntStepper refreshTokenExp = new IntStepper();
+		EnumComboBox<RefreshTokenIssuePolicy> refreshTokenIssuePolicy = new EnumComboBox<>(msg,
+				"OAuthEditorGeneralTab.refreshTokenIssuePolicy.", RefreshTokenIssuePolicy.class,
+				RefreshTokenIssuePolicy.NEVER);
+		refreshTokenIssuePolicy.setCaption(msg.getMessage("OAuthEditorGeneralTab.refreshTokenIssuePolicy"));
+		refreshTokenIssuePolicy.setEmptySelectionAllowed(false);
 
-		CheckBox supportRefreshToken = new CheckBox(
-				msg.getMessage("OAuthEditorGeneralTab.supportRefreshToken"));
-		configBinder.forField(supportRefreshToken).bind("supportRefreshToken");
-		mainGeneralLayout.addComponent(supportRefreshToken);
-		supportRefreshToken.addValueChangeListener(e -> {
-			refreshTokenExp.setEnabled(e.getValue());
+		configBinder.forField(refreshTokenIssuePolicy).bind("refreshTokenIssuePolicy");
+		mainGeneralLayout.addComponent(refreshTokenIssuePolicy);
+		refreshTokenIssuePolicy.addValueChangeListener(e ->
+		{
+			refreshTokenExp.setEnabled(!e.getValue().equals(RefreshTokenIssuePolicy.NEVER));
+			refreshScope(e.getValue().equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED), OIDCScopeValue.OFFLINE_ACCESS,
+					msg.getMessage("OAuthEditorGeneralTab.defaultOfflineAccessScopeDesc"));
+		
 		});
 
 		refreshTokenExp.setWidth(5, Unit.EM);
@@ -348,7 +357,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		accessTokenFormat = createAccessTokenFormatCombo();
 		mainGeneralLayout.addComponent(accessTokenFormat);
-		
+
+
 		openIDConnect = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.openIDConnect"));
 		configBinder.forField(openIDConnect).bind("openIDConnect");
 		mainGeneralLayout.addComponent(openIDConnect);
@@ -407,36 +417,42 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingSecret.setEnabled(false);
 		mainGeneralLayout.addComponent(signingSecret);
 
-		openIDConnect.addValueChangeListener(e -> {
+		openIDConnect.addValueChangeListener(e ->
+		{
 			refreshSigningControls();
-			if (e.getValue())
-			{
-				OAuthScope openidScope = configBinder.getBean().getScopes().stream()
-						.filter(s -> s.getName().equals(OIDCScopeValue.OPENID.toString()))
-						.findFirst().orElse(null);
-				if (openidScope == null)
-				{
-					openidScope = new OAuthScope();
-					openidScope.setName(OIDCScopeValue.OPENID.toString());
-					openidScope.setDescription(msg.getMessage("OAuthEditorGeneralTab.defaultOpenidScopeDesc"));
-					scopesGrid.addElement(openidScope);
-				}
-			} else
-			{
-
-				List<OAuthScope> openidScopes = configBinder.getBean().getScopes().stream()
-						.filter(s -> s.getName().equals(OIDCScopeValue.OPENID.toString()))
-						.collect(Collectors.toList());
-				if (!openidScopes.isEmpty())
-				{
-					openidScopes.forEach(s -> scopesGrid.removeElement(s));
-				}
-			}
+			refreshScope(e.getValue(), OIDCScopeValue.OPENID,
+					msg.getMessage("OAuthEditorGeneralTab.defaultOpenidScopeDesc"));
 		});
 
 		return main;
 	}
+	
+	private void refreshScope(boolean add, OIDCScopeValue value, String message)
+	{
+		if (add)
+		{
+			OAuthScope openidScope = configBinder.getBean().getScopes().stream()
+					.filter(s -> s.getName().equals(value.toString()))
+					.findFirst().orElse(null);
+			if (openidScope == null)
+			{
+				openidScope = new OAuthScope();
+				openidScope.setName(value.toString());
+				openidScope.setDescription(message);
+				scopesGrid.addElement(openidScope);
+			}
+		} else
+		{
 
+			List<OAuthScope> openidScopes = configBinder.getBean().getScopes().stream()
+					.filter(s -> s.getName().equals(value.toString()))
+					.collect(Collectors.toList());
+			if (!openidScopes.isEmpty())
+			{
+				openidScopes.forEach(s -> scopesGrid.removeElement(s));
+			}
+		}
+	}
 	private ComboBox<AccessTokenFormat> createAccessTokenFormatCombo()
 	{
 		ComboBox<AccessTokenFormat> combo = new ComboBox<>();
@@ -466,7 +482,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),
 				s -> s != null && s.getName() != null
-						&& s.getName().equals(OIDCScopeValue.OPENID.toString()), true);
+						&& (s.getName().equals(OIDCScopeValue.OPENID.toString()) || s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.toString())), true);
 		scopesGrid.addGotoEditColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
 		scopesGrid.addTextColumn(s -> s.getDescription(),
 				msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);

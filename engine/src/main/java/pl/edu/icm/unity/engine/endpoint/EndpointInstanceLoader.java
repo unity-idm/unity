@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.endpoint;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,10 @@ class EndpointInstanceLoader
 			throw new IllegalStateException("Endpoint stored in DB has no matching implementation: " 
 					+ src.getTypeId());
 		EndpointInstance instance = factory.newInstance();
-		List<String> authnOptions = src.getConfiguration().getAuthenticationOptions();
-		
+		List<String> authnOptions = src.getConfiguration().getAuthenticationOptions() != null
+				? src.getConfiguration().getAuthenticationOptions()
+				: new ArrayList<>();
+
 		String endpointConfig = src.getConfiguration().getConfiguration();
 		List<AuthenticationFlow> authenticationFlows = authnLoader.resolveAuthenticationFlows(
 				authnOptions, factory.getDescription().getSupportedBinding());
@@ -64,7 +67,7 @@ class EndpointInstanceLoader
 	private ResolvedEndpoint resolveEndpoint(Endpoint src)
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(src.getTypeId());
-		AuthenticationRealm realm = realmDB.get(src.getConfiguration().getRealm());
+		AuthenticationRealm realm = src.getConfiguration().getRealm() == null ? null : realmDB.get(src.getConfiguration().getRealm());
 		return new ResolvedEndpoint(src, realm, factory.getDescription());		
 	}
 }

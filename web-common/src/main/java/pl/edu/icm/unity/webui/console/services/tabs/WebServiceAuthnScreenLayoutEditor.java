@@ -29,7 +29,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.console.services.authnlayout.AuthnLayoutConfigToUIConverter;
-import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthenticationLayoutContent;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthnLayoutColumn;
@@ -71,7 +70,10 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 	private VerticalLayout main;
 	private Button addColumnButton;
 	private Panel mainPanel;
-
+	private PaletteButton regPaletteButton;
+	private PaletteButton lastUsedOptionPaletteButton;
+	private boolean addColumnVisiable = true;
+	
 	public WebServiceAuthnScreenLayoutEditor(MessageSource msg,
 			AuthenticatorSupportService authenticatorSupportService,
 			Supplier<List<String>> authnOptionSupplier)
@@ -156,20 +158,42 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 				Images.header.getResource(), dragStart, dragStop, () -> new HeaderColumnComponent(msg,
 						removeElementListener, valueChange, dragStart, dragStop)));
 
+		
+		regPaletteButton = new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.registration"),
+				Images.addIdentity.getResource(), dragStart, dragStop,
+				() -> new RegistrationColumnComponent(msg, removeElementListener,
+						dragStart, dragStop));
+		
 		componentsPalette
-				.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.registration"),
-						Images.addIdentity.getResource(), dragStart, dragStop,
-						() -> new RegistrationColumnComponent(msg, removeElementListener,
-								dragStart, dragStop)));
+				.addComponent(regPaletteButton);
 
-		componentsPalette.addComponent(new PaletteButton(
+		lastUsedOptionPaletteButton = new PaletteButton(
 				msg.getMessage("AuthnColumnLayoutElement.lastUsedOption"), Images.star.getResource(),
 				dragStart, dragStop, () -> new LastUsedOptionColumnComponent(msg, removeElementListener,
-						dragStart, dragStop)));
+						dragStart, dragStop));
+		
+		componentsPalette.addComponent(lastUsedOptionPaletteButton);
 
 		return componentsPalette;
 	}
+	
+	public void setRegistrationEnabled(boolean enabled)
+	{
+		regPaletteButton.setVisible(enabled);
+	}
+	
 
+	public void setLastUsedOptionEnabled(boolean enabled)
+	{
+		lastUsedOptionPaletteButton.setVisible(enabled);
+	}
+	
+	public void setAddColumnEnabled(boolean enabled)
+	{
+		addColumnButton.setVisible(enabled);
+		addColumnVisiable = enabled;
+	}
+	
 	private void dragElementStart()
 	{
 		for (AuthnLayoutColumn c : columns)
@@ -234,7 +258,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 			columnsLayout.setWidth(50, Unit.PERCENTAGE);
 		}
 
-		addColumnButton.setVisible(columns.size() < 4);
+		addColumnButton.setVisible(addColumnVisiable && columns.size() < 4);
 
 		main.setStyleName("u-minWidth" + columns.size() * 25);
 
@@ -286,7 +310,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 		}
 	}
 
-	public void configureBinding(Binder<ServiceWebConfiguration> binder, String field)
+	public void configureBinding(Binder<?> binder, String field)
 	{
 		binder.forField(this).withValidator((v, c) -> {
 			try

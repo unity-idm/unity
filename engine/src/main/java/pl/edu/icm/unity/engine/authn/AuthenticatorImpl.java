@@ -4,12 +4,19 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 
 /**
  * Runtime instance of authenticator, with a selected retrieval. Stateful and mutable.
@@ -72,5 +79,45 @@ class AuthenticatorImpl implements AuthenticatorInstance
 	public CredentialRetrieval getRetrieval()
 	{
 		return retrieval;
+	}
+	
+	@Override
+	public CredentialVerificator getCredentialVerificator()
+	{
+		return verificator;
+	}
+	
+	@Override
+	public List<AuthenticationOptionsSelector> getAuthnOptionSelectors()
+	{
+		List<AuthenticationOptionsSelector> options = new ArrayList<>();
+		if (verificator instanceof AbstractRemoteVerificator)
+		{
+			AbstractRemoteVerificator remoteVerificator = (AbstractRemoteVerificator) verificator;
+			for (IdPInfo idp : remoteVerificator.getIdPs())
+			{
+				if (!idp.configId.isEmpty())
+				{
+					options.add(new AuthenticationOptionsSelector(instanceDescription.getId(), idp.configId.get(),
+							idp.displayedName));
+				}
+			}
+		}
+
+		options.add(AuthenticationOptionsSelector.allForAuthenticator(instanceDescription.getId()));
+		return options;
+	}
+	
+	@Override
+	public List<IdPInfo> extractIdPs()
+	{
+		if (verificator instanceof AbstractRemoteVerificator)
+		{
+			AbstractRemoteVerificator remoteVerificator = (AbstractRemoteVerificator) verificator;
+			return remoteVerificator.getIdPs();
+		} else
+		{
+			return Collections.emptyList();
+		}
 	}
 }

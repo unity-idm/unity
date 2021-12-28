@@ -33,9 +33,11 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -172,9 +174,22 @@ public class OAuthParseServlet extends HttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 		
+		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
+		
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
 	
+	private AuthenticationPolicy mapPromptToAuthenticationPolicy(
+			Set<Prompt> prompts)
+	{
+		if (prompts.contains(Prompt.NONE))
+			return AuthenticationPolicy.REQUIRE_EXISTING_SESSION;
+		else if (prompts.contains(Prompt.LOGIN))
+			return AuthenticationPolicy.FORCE_LOGIN;
+
+		return AuthenticationPolicy.DEFAULT;
+	}
+
 	/**
 	 * We are passing all unknown to OAuth query parameters to downstream servlet. This may help to build 
 	 * extended UIs, which can interpret those parameters. 

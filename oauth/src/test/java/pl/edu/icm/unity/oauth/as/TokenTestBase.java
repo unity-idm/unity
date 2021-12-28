@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.oauth.as;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
@@ -27,6 +26,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
@@ -75,7 +76,10 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.name=bar\n"
 			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n"
+			+ "unity.oauth2.as.scopes.99.name=" + OIDCScopeValue.OFFLINE_ACCESS.getValue() + "\n"
 			+ "unity.oauth2.as.refreshTokenValidity=3600\n";
+			
+	
 
 	private static final String OIDC_ENDP_CFG = OAUTH_ENDP_CFG 
 			+ "unity.oauth2.as.scopes.3.name=openid\n";
@@ -137,17 +141,17 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		authnMan.createAuthenticator("Apass", "password", "", "credential1");
 	}
 	
-	protected void setupPlain()
+	protected void setupPlain(RefreshTokenIssuePolicy refreshTokenPolicy)
 	{
-		setup(false);
+		setup(false, refreshTokenPolicy);
 	}
 
-	protected void setupOIDC()
+	protected void setupOIDC(RefreshTokenIssuePolicy refreshTokenPolicy)
 	{
-		setup(true);
+		setup(true, refreshTokenPolicy);
 	}
 	
-	private void setup(boolean withOIDC)
+	private void setup(boolean withOIDC, RefreshTokenIssuePolicy refreshTokenPolicy)
 	{
 		try
 		{
@@ -165,9 +169,12 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 					"flow1", Policy.NEVER,
 					Sets.newHashSet("Apass")));
 			
+			String cfg = (withOIDC ? OIDC_ENDP_CFG : OAUTH_ENDP_CFG)
+					+ "unity.oauth2.as.refreshTokenIssuePolicy=" + refreshTokenPolicy.toString() + "\n";
+			
 			EndpointConfiguration config = new EndpointConfiguration(
 					new I18nString("endpointIDP"), "desc", Lists.newArrayList("flow1"),
-					withOIDC ? OIDC_ENDP_CFG : OAUTH_ENDP_CFG, REALM_NAME);
+					cfg, REALM_NAME);
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
 					config);
 			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
@@ -215,7 +222,6 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 		HTTPResponse resp2 = wrapped.send();
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
-		assertThat(parsedResp.getTokens().getRefreshToken(), notNullValue());
 		return parsedResp;
 	}
 }

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,9 +37,10 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
@@ -141,8 +143,19 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return;
 
 		}
-		if (isInteractiveUIRequired(preferences, oauthCtx))
+		if (forceConsentIfConsentPrompt(oauthCtx))
 		{
+			log.trace("Consent is required for OAuth request, 'consent' prompt was given , forwarding to consent UI");
+			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
+		} 
+		else if (isInteractiveUIRequired(preferences, oauthCtx))
+		{
+			if (isNonePrompt(oauthCtx))
+			{
+				sendNonePromptError(oauthCtx, req, resp);
+				return;
+			}
+			
 			log.trace("Consent is required for OAuth request, forwarding to consent UI");
 			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
 		} else
@@ -150,6 +163,26 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.trace("Consent is not required for OAuth request, processing immediatelly");
 			autoReplay(preferences, oauthCtx, req, resp);
 		}
+	}
+	
+	private void sendNonePromptError(OAuthAuthzContext oauthCtx, HttpServletRequest req, HttpServletResponse resp)
+			throws IOException
+	{
+		log.error("Consent is required but 'none' prompt was given");
+		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
+				OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
+				oauthCtx.getRequest().impliedResponseMode());
+		sendReturnRedirect(oauthResponse, req, resp, true);
+	}
+	
+	private boolean isNonePrompt(OAuthAuthzContext oauthCtx)
+	{
+		return oauthCtx.getPrompts().contains(Prompt.NONE);	
+	}
+	
+	private boolean forceConsentIfConsentPrompt(OAuthAuthzContext oauthCtx)
+	{
+		return oauthCtx.getPrompts().contains(Prompt.CONSENT);
 	}
 
 	protected OAuthClientSettings loadPreferences(OAuthAuthzContext oauthCtx) throws EngineException
@@ -178,9 +211,15 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
-			return false;
-
-		return !oauthCtx.getConfig().isSkipConsent();
+			return isScopesChanges(preferences, oauthCtx);
+		
+		return isScopesChanges(preferences, oauthCtx) || !oauthCtx.getConfig().isSkipConsent();
+	}
+	
+	private boolean isScopesChanges(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	{
+		return preferences.getEffectiveRequestedScopes()
+				.containsAll(Arrays.asList(oauthCtx.getEffectiveRequestedScopesList()));
 	}
 
 	private boolean isEnquiryWaiting()

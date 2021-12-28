@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -159,27 +161,25 @@ class OAuthConsentScreen extends CustomComponent
 		eiLayout.setSpacing(true);
 		exposedInfoPanel.setContent(eiLayout);
 
-		for (ScopeInfo si: ctx.getEffectiveRequestedScopes())
+		for (ScopeInfo si : ctx.getEffectiveRequestedScopes())
 		{
 			String label = Strings.isNullOrEmpty(si.getDescription()) ? si.getName() : si.getDescription();
 			Label scope = new Label100("\u25CF " + label);
 			eiLayout.addComponents(scope);
 		}
-		
+
 		Label spacer = HtmlTag.br();
 		spacer.addStyleName(Styles.vLabelSmall.toString());
 		eiLayout.addComponent(spacer);
 
 		createIdentityPart(identity, eiLayout);
-		attrsPresenter = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, attributes, 
+		attrsPresenter = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, attributes,
 				Optional.of(identity));
 		eiLayout.addComponent(attrsPresenter);
-		
+
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
-		
-		if (ctx.getClientType() == ClientType.PUBLIC)
-			rememberCB.setVisible(false);
+		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC));
 	}
 	
 	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
@@ -226,7 +226,8 @@ class OAuthConsentScreen extends CustomComponent
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
 		
-		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC)
+		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC && !settings.getEffectiveRequestedScopes()
+				.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList())))
 		{
 			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())
@@ -248,10 +249,12 @@ class OAuthConsentScreen extends CustomComponent
 		OAuthClientSettings settings = preferences.getSPSettings(reqIssuer);
 		settings.setDefaultAccept(defaultAccept);
 		settings.setDoNotAsk(true);
+		settings.setEffectiveRequestedScopes(new HashSet<>(Arrays.asList((ctx.getEffectiveRequestedScopesList()))));
 		String identityValue = idSelector.getSelectedIdentityForPreferences();
 		if (identityValue != null)
 			settings.setSelectedIdentity(identityValue);
 		preferences.setSPSettings(reqIssuer, settings);
+		
 	}
 	
 	private void storePreferences(boolean defaultAccept)

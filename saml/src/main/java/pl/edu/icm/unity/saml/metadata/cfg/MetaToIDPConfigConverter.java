@@ -26,6 +26,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
@@ -67,7 +68,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 	
 	
 	@Override
-	protected void convertToProperties(EntityDescriptorType meta, Properties properties,
+	protected void convertToProperties(EntitiesDescriptorType parentMeta, EntityDescriptorType meta, Properties properties,
 			SamlProperties realConfigG, String configKey)
 	{
 		SamlIdpProperties realConfig = (SamlIdpProperties) realConfigG;

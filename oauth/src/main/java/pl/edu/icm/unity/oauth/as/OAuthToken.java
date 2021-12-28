@@ -72,6 +72,7 @@ public class OAuthToken
 		setIssuerUri(source.getIssuerUri());
 		pkcsInfo = new PKCSInfo(source.pkcsInfo);
 		setClientType(source.getClientType());
+		
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -302,7 +303,6 @@ public class OAuthToken
 		this.pkcsInfo = pkcsInfo;
 	}
 
-
 	@Override
 	public int hashCode()
 	{
@@ -357,8 +357,6 @@ public class OAuthToken
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + "]";
 	}
-
-
 
 
 	public static class PKCSInfo

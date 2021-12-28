@@ -24,11 +24,22 @@ public abstract class UnityEndpointUIBase extends UnityUIBase
 		super(msg);
 		this.enquiryDialogLauncher = enquiryDialogLauncher;
 	}
+	
+	public UnityEndpointUIBase(MessageSource msg)
+	{
+		super(msg);
+	}
 
 	@Override
 	protected final void appInit(VaadinRequest request)
 	{
-		enquiryDialogLauncher.showEnquiryDialogIfNeeded(() -> enter(request));
+		if (enquiryDialogLauncher != null)
+		{
+			enquiryDialogLauncher.showEnquiryDialogIfNeeded(() -> enter(request));
+		}else
+		{
+			enter(request);
+		}
 	}
 	
 	protected abstract void enter(VaadinRequest request);

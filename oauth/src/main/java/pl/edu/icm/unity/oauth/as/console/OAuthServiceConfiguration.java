@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Group;
@@ -43,6 +44,7 @@ public class OAuthServiceConfiguration
 	private String issuerURI;
 	private int idTokenExpiration;
 	private int refreshTokenExpiration;
+	private RefreshTokenIssuePolicy refreshTokenIssuePolicy;
 	private int codeTokenExpiration;
 	private int accessTokenExpiration;
 	private boolean openIDConnect;
@@ -50,7 +52,6 @@ public class OAuthServiceConfiguration
 	private String credential;
 	private SigningAlgorithms signingAlg;
 	private String signingSecret;
-	private boolean supportRefreshToken;
 	private String identityTypeForSubject;
 	private List<OAuthScope> scopes;
 	private TranslationProfile translationProfile;
@@ -77,7 +78,7 @@ public class OAuthServiceConfiguration
 		idTokenExpiration = OAuthASProperties.DEFAULT_ID_TOKEN_VALIDITY;
 		codeTokenExpiration = OAuthASProperties.DEFAULT_CODE_TOKEN_VALIDITY;
 		accessTokenExpiration = OAuthASProperties.DEFAULT_ACCESS_TOKEN_VALIDITY;
-		supportRefreshToken = false;
+		refreshTokenExpiration = OAuthASProperties.DEFAULT_REFRESH_TOKEN_VALIDITY;
 		setAllowForWildcardsInAllowedURI(false);
 		setAllowForUnauthenticatedRevocation(false);
 		setIdentityTypeForSubject(TargetedPersistentIdentity.ID);
@@ -92,6 +93,7 @@ public class OAuthServiceConfiguration
 		userImports = new ArrayList<>();
 		accessTokenFormat = AccessTokenFormat.PLAIN;
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
+		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.NEVER;
 	}
 
 	public String toProperties(MessageSource msg)
@@ -116,12 +118,12 @@ public class OAuthServiceConfiguration
 				String.valueOf(maxExtendAccessTokenValidity));
 		}
 		
-		if (supportRefreshToken)
+		raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_ISSUE_POLICY, refreshTokenIssuePolicy.toString());
+		if (!refreshTokenIssuePolicy.equals(RefreshTokenIssuePolicy.NEVER))
 		{
-			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY,
-					String.valueOf(refreshTokenExpiration));
+			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY, String.valueOf(refreshTokenExpiration));
 		}
-
+		
 		if (credential != null)
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.CREDENTIAL, credential);
@@ -244,6 +246,7 @@ public class OAuthServiceConfiguration
 		issuerURI = oauthProperties.getIssuerName();
 		idTokenExpiration = oauthProperties.getIdTokenValidity();
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
+		refreshTokenIssuePolicy = oauthProperties.getRefreshTokenIssuePolicy();
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
@@ -259,15 +262,6 @@ public class OAuthServiceConfiguration
 		}else
 		{
 			maxExtendAccessTokenValidity = 0;
-		}
-		
-		if (refreshTokenExpiration < 0)
-		{
-			refreshTokenExpiration = 0;
-			supportRefreshToken = false;
-		} else
-		{
-			supportRefreshToken = true;
 		}
 
 		signingAlg = SigningAlgorithms.valueOf(oauthProperties.getSigningAlgorithm());
@@ -457,17 +451,7 @@ public class OAuthServiceConfiguration
 	{
 		this.accessTokenExpiration = accessTokenExpiration;
 	}
-
-	public boolean isSupportRefreshToken()
-	{
-		return supportRefreshToken;
-	}
-
-	public void setSupportRefreshToken(boolean supportRefreshToken)
-	{
-		this.supportRefreshToken = supportRefreshToken;
-	}
-
+	
 	public String getSigningSecret()
 	{
 		return signingSecret;
@@ -616,5 +600,15 @@ public class OAuthServiceConfiguration
 	public void setPolicyAgreementConfig(IdpPolicyAgreementsConfiguration policyAgreementConfig)
 	{
 		this.policyAgreementConfig = policyAgreementConfig;
+	}
+
+	public RefreshTokenIssuePolicy getRefreshTokenIssuePolicy()
+	{
+		return refreshTokenIssuePolicy;
+	}
+
+	public void setRefreshTokenIssuePolicy(RefreshTokenIssuePolicy refreshTokenIssuePolicy)
+	{
+		this.refreshTokenIssuePolicy = refreshTokenIssuePolicy;
 	}
 }

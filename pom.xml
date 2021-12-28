@@ -18,7 +18,7 @@
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
 		<jetty.version>9.4.44.v20210927</jetty.version>
 		<slf4j.version>1.7.32</slf4j.version>
-		<log4j.version>2.14.1</log4j.version>
+		<log4j.version>2.16.0</log4j.version>
 		<spring.version>5.3.13</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
 		<cxf.version>3.4.5</cxf.version>
@@ -81,6 +81,7 @@
 		<module>documentation</module>
 		<module>composite-password</module>
 		<module>fido</module>
+		<module>web-attr-introspection</module>
 	</modules>
 
 	<developers>
@@ -279,12 +280,13 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.7</version>
+				<version>1.6.8</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>sonatype-nexus-staging</serverId>
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					<keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -413,6 +415,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-1.2-api</artifactId>
 				<version>${log4j.version}</version>
 			</dependency>
@@ -424,6 +431,16 @@
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-core</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-jul</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-jcl</artifactId>
 				<version>${log4j.version}</version>
 			</dependency>
 			<dependency>
@@ -763,6 +780,11 @@
 				<artifactId>selenium-chrome-driver</artifactId>
 				<version>${selenium.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+				<artifactId>owasp-java-html-sanitizer</artifactId>
+				<version>20211018.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+import com.nimbusds.openid.connect.sdk.Prompt;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -153,6 +154,25 @@ class OAuthWebRequestValidator
 		
 		if (context.getClientType() == ClientType.PUBLIC)
 			validatePKCEIsUsedForCodeFlow(authzRequest, client);
+		
+		validateAndRecordPrompt(context, authzRequest);
+		
+	}
+
+	private void validateAndRecordPrompt(OAuthAuthzContext context, AuthorizationRequest authzRequest)
+			throws OAuthValidationException
+	{
+		if (authzRequest.getPrompt() != null)
+		{
+			Prompt requestedPrompt = authzRequest.getPrompt();
+			if (requestedPrompt.contains(Prompt.Type.SELECT_ACCOUNT) || requestedPrompt.contains(Prompt.Type.CREATE))
+			{
+				throw new OAuthValidationException("Prompt " + requestedPrompt + " is not supported");
+			}
+
+			requestedPrompt.forEach(p -> context
+					.addPrompt(pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt.valueOf(p.toString().toUpperCase())));
+		}
 	}
 
 	private void validateAndRecordScopes(OAuthAuthzContext context, AuthorizationRequest authzRequest) throws OAuthValidationException
@@ -164,14 +184,29 @@ class OAuthWebRequestValidator
 					.getValidRequestedScopes(requestedScopes);
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
-			
-			boolean openIdRequested = requestedScopes.contains("openid");
-			boolean openIdAvailable = validRequestedScopes.stream()
-					.filter(scope -> scope.getName().equals("openid")).findAny().isPresent();
-			if (openIdRequested && !openIdAvailable)
-				throw new OAuthValidationException("Client requested OpenId Connect with scope, which is "
-						+ "not enabled on this server");
+			validateScope(OIDCScopeValue.OPENID, requestedScopes, validRequestedScopes);
+			validateOfflineScope(requestedScopes, validRequestedScopes);	
 		}
+	}
+
+	private void validateOfflineScope(Scope requestedScopes, List<ScopeInfo> validRequestedScopes)
+			throws OAuthValidationException
+	{
+		validateScope(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
+		if (oauthConfig.isSkipConsent() && requestedScopes.contains(OIDCScopeValue.OFFLINE_ACCESS.getValue()))
+			throw new OAuthValidationException("Client requested " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
+					+ " with scope, but skip consent screen is " + "configured on this server");
+	}
+	
+	private void validateScope(OIDCScopeValue scope, Scope requestedScopes, List<ScopeInfo> validRequestedScopes) throws OAuthValidationException
+	{
+		boolean scopeRequested = requestedScopes.contains(scope.getValue());
+		boolean scopeAvailable = validRequestedScopes.stream()
+				.filter(vscope -> vscope.getName().equals(scope.getValue())).findAny().isPresent();
+		if (scopeRequested && !scopeAvailable)
+			throw new OAuthValidationException("Client requested " + scope.getValue() + " with scope, which is "
+					+ "not enabled on this server");
+		
 	}
 	
 	private void validatePKCEIsUsedForCodeFlow(AuthorizationRequest authzRequest, String client) throws OAuthValidationException

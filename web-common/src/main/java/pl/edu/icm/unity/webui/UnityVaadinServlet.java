@@ -98,7 +98,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		Object counter = getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
 		if (counter == null)
 		{
-			UnsuccessfulAuthenticationCounter newCounter = description != null ? 
+			UnsuccessfulAuthenticationCounter newCounter = description != null && description.getRealm() != null? 
 					new DefaultUnsuccessfulAuthenticationCounter(
 							description.getRealm().getBlockAfterUnsuccessfulLogins(),
 							description.getRealm().getBlockFor()*1000) : 
@@ -171,7 +171,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	}
 	
 	protected synchronized List<AuthenticationFlow> getAuthenticationFlows()
-	{
+	{	
 		return this.authenticationFlows;
 	}
 	
@@ -199,7 +199,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, getAuthenticationFlows(), registrationConfiguration,
+						description, () -> getAuthenticationFlows(), registrationConfiguration,
 						endpointProperties, themeConfigKey);
 				uiProv.setCancelHandler(cancelHandler);
 				uiProv.setSandboxRouter(sandboxRouter);

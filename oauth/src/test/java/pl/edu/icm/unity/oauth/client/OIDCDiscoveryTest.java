@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -28,8 +27,7 @@ public class OIDCDiscoveryTest
 	@Test
 	public void shouldDiscoverMetadataFromGoogle() throws ParseException, IOException
 	{
-		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(new URL(
-				"https://accounts.google.com/.well-known/openid-configuration"));
+		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery();
 		Properties props = new Properties();
 		props.setProperty("translationProfile", "");
 		props.setProperty("clientSecret", "");
@@ -38,7 +36,7 @@ public class OIDCDiscoveryTest
 		props.setProperty("openIdConnect", "true");
 		props.setProperty("openIdConnectDiscoveryEndpoint", "https://accounts.google.com/.well-known/openid-configuration");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
-		OIDCProviderMetadata meta = tested.getMetadata(def);
+		OIDCProviderMetadata meta = tested.getMetadata("https://accounts.google.com/.well-known/openid-configuration", def);
 		Assert.assertEquals("https://accounts.google.com", meta.getIssuer().getValue());
 	}
 
@@ -55,16 +53,15 @@ public class OIDCDiscoveryTest
 	{
 		HttpRequestConfigurer reqFactory = mock(HttpRequestConfigurer.class);
 		CustomProviderProperties def = mock(CustomProviderProperties.class);
-		URL url = new URL("https://test.org");
 		HTTPRequest wrapped =  mock(HTTPRequest.class);
 		HTTPResponse response = mock(HTTPResponse.class);
 		when(reqFactory.secureRequest(any(), any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
 		when(response.getContent()).thenReturn(META);
-		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(url,	reqFactory);
+		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(reqFactory);
 		
-		OIDCProviderMetadata meta = tested.getMetadata(def);
+		OIDCProviderMetadata meta = tested.getMetadata("https://test.org", def);
 		
 		Assert.assertEquals("https://mock-issuer", meta.getIssuer().getValue());
 	}

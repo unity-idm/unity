@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -71,9 +73,9 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
@@ -89,6 +91,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
+import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
@@ -112,14 +115,16 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private final String responseConsumerAddress;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
-	private OpenIdProviderMetadataManager metadataManager;
+	private final MessageSource msg;
+	private OAuthDiscoveryMetadataCache metadataManager;
 	
 	@Autowired
-	public OAuth2Verificator(AdvertisedAddressProvider advertisedAddrProvider,
+	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
-			RemoteAuthnResultTranslator processor)
+			RemoteAuthnResultTranslator processor,
+			OAuthDiscoveryMetadataCache metadataManager)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
@@ -127,6 +132,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
+		this.msg = msg;
+		this.metadataManager = metadataManager;
 	}
 
 	@Override
@@ -150,19 +157,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			config = new OAuthClientProperties(properties, pkiManagement);
-			metadataManager = new OpenIdProviderMetadataManager();
-			Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-			for (String key: keys)
-			{
-				if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
-				{
-					metadataManager.addProvider(config.getProvider(key).getValue(
-							CustomProviderProperties.OPENID_DISCOVERY));
-				}
-			}
-			
-			
+			config = new OAuthClientProperties(properties, pkiManagement);			
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth2 verificator", e);
@@ -201,10 +196,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (openidMode)
 		{
 			if (Strings.isNullOrEmpty(authzEndpoint))
-			{
-				String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint, 
-						providerCfg);
+			{	
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg);
 				if (providerMeta.getAuthorizationEndpointURI() == null)
 					throw new ConfigurationException("The authorization endpoint address is not set and"
 							+ " it is not available in the discovered OpenID Provider metadata.");
@@ -411,8 +404,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint, providerCfg);
+		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg);
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		if (tokenEndpoint == null)
 		{
@@ -591,8 +583,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			try
 			{
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(discoveryEndpoint,
-						provCfg);
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg);
 				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
 			} catch (Exception e)
 			{
@@ -619,6 +610,54 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
+	}
+	
+	@Override
+	public List<IdPInfo> getIdPs()
+	{
+		List<IdPInfo> providers = new ArrayList<>();
+		Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
+		for (String key : keys)
+		{
+			CustomProviderProperties providerProps = config.getProvider(key);
+			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), key.length() - 1);
+			if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
+			{
+				extractIdPInfoFromOIDCProvider(key, idpKey, providerProps).ifPresent(i -> providers.add(i));
+
+			} else
+			{
+				IdPInfo providerInfo = IdPInfo.builder()
+						.withId(config.getProvider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT))
+						.withConfigId(idpKey)
+						.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+								CustomProviderProperties.PROVIDER_NAME))
+						.build();
+				providers.add(providerInfo);
+			}
+		}
+		return providers;
+	}
+	
+	private Optional<IdPInfo> extractIdPInfoFromOIDCProvider(String key, String idpKey,
+			CustomProviderProperties providerProps)
+
+	{
+		
+		OIDCProviderMetadata metadata;
+		try
+		{
+			metadata = metadataManager.getMetadata(providerProps);
+		} catch (Exception e)
+		{
+			log.warn("Can't obtain OIDC metadata", e);
+			return Optional.empty();
+		}
+
+		return Optional.of(IdPInfo.builder().withId(metadata.getTokenEndpointURI().toString()).withConfigId(idpKey)
+				.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+						CustomProviderProperties.PROVIDER_NAME))
+				.build());
 	}
 	
 	@Component

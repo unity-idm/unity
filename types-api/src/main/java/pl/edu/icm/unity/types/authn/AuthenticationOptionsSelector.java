@@ -4,7 +4,16 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Represents selection of authentication options: either a single concrete one or all options 
@@ -14,48 +23,45 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 {
 	public static final String ALL_OPTS = "*";
 	
-	private String authenticatorKey;
-	private String optionKey;
+	public final String authenticatorKey;
+	public final String optionKey;
+	@JsonIgnore
+	public final Optional<I18nString> displayedName;
 
-	public AuthenticationOptionsSelector(String authenticatorKey, String optionKey)
+	public AuthenticationOptionsSelector(String authenticatorKey, String optionKey, Optional<I18nString> displayedName)
 	{
 		this.authenticatorKey = authenticatorKey;
 		this.optionKey = optionKey;
+		this.displayedName = displayedName;
 	}
 	
-	protected AuthenticationOptionsSelector()
+	@JsonCreator
+	public AuthenticationOptionsSelector(@JsonProperty("authenticatorKey") String authenticatorKey,
+			@JsonProperty("optionKey") String optionKey)
 	{
+		this.authenticatorKey = authenticatorKey;
+		this.optionKey = optionKey;
+		this.displayedName = Optional.empty();
 	}
 
 	public static AuthenticationOptionsSelector allForAuthenticator(String authenticatorKey)
 	{
-		return new AuthenticationOptionsSelector(authenticatorKey, ALL_OPTS);
+		return new AuthenticationOptionsSelector(authenticatorKey, ALL_OPTS, Optional.empty());
 	}
 	
 	public static AuthenticationOptionsSelector valueOf(String stringEncodedSelector)
 	{
 		String option = stringEncodedSelector.contains(".") ? 
-				AuthenticationOptionKeyUtils.decodeOption(stringEncodedSelector) : ALL_OPTS;
+				AuthenticationOptionKeyUtils.decodeOption(stringEncodedSelector) : ALL_OPTS;		
 		return new AuthenticationOptionsSelector(
 				AuthenticationOptionKeyUtils.decodeAuthenticator(stringEncodedSelector), 
-				option
-		);
+				option);
 	}
 	
 	public String toStringEncodedSelector()
 	{
 		return !optionKey.equals(ALL_OPTS) ? AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey)
 				: AuthenticationOptionKeyUtils.encode(authenticatorKey, null);
-	}
-
-	public String getAuthenticatorKey()
-	{
-		return authenticatorKey;
-	}
-
-	public String getOptionKey()
-	{
-		return optionKey;
 	}
 
 	public boolean matchesAuthnOption(AuthenticationOptionKey authnOptionKey)
@@ -87,21 +93,45 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 	@Override
 	public int compareTo(AuthenticationOptionsSelector o2)
 	{
-		if (getOptionKey().equals(AuthenticationOptionsSelector.ALL_OPTS)
-				&& o2.getOptionKey().equals(AuthenticationOptionsSelector.ALL_OPTS))
+		if (optionKey.equals(AuthenticationOptionsSelector.ALL_OPTS)
+				&& o2.optionKey.equals(AuthenticationOptionsSelector.ALL_OPTS))
 		{
-			return getAuthenticatorKey().compareTo(o2.getAuthenticatorKey());
-		} else if (getOptionKey().equals(AuthenticationOptionsSelector.ALL_OPTS)
-				&& !o2.getOptionKey().equals(AuthenticationOptionsSelector.ALL_OPTS))
+			return authenticatorKey.compareTo(o2.authenticatorKey);
+		} else if (optionKey.equals(AuthenticationOptionsSelector.ALL_OPTS)
+				&& !o2.optionKey.equals(AuthenticationOptionsSelector.ALL_OPTS))
 		{
 			return -1;
-		} else if (!getOptionKey().equals(AuthenticationOptionsSelector.ALL_OPTS)
-				&& o2.getOptionKey().equals(AuthenticationOptionsSelector.ALL_OPTS))
+		} else if (!optionKey.equals(AuthenticationOptionsSelector.ALL_OPTS)
+				&& o2.optionKey.equals(AuthenticationOptionsSelector.ALL_OPTS))
 		{
 			return 1;
 		} else
 		{
 			return toStringEncodedSelector().compareTo(o2.toStringEncodedSelector());
 		}
+	}
+
+	public String getRepresentationFallbackToConfigKey(MessageSource msg)
+	{
+		return !displayedName.isEmpty() ? (authenticatorKey + ": " +  displayedName.get().getValue(msg)) : toStringEncodedSelector();
+	}
+	
+	public static class AuthenticationOptionsSelectorComparator implements Comparator<AuthenticationOptionsSelector>
+	{
+		private MessageSource msg;
+		
+		public AuthenticationOptionsSelectorComparator(MessageSource msg)
+		{
+			this.msg = msg;
+		}
+
+		@Override
+		public int compare(AuthenticationOptionsSelector arg0, AuthenticationOptionsSelector arg1)
+		{
+			if (arg0.authenticatorKey.equals(arg1.authenticatorKey))
+				return arg0.getRepresentationFallbackToConfigKey(msg).compareTo(arg1.getRepresentationFallbackToConfigKey(msg));
+			else
+				return arg0.authenticatorKey.compareTo(arg1.authenticatorKey);			
+		}	
 	}
 }

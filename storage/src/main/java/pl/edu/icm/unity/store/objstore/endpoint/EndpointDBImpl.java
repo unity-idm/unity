@@ -44,6 +44,9 @@ public class EndpointDBImpl extends GenericObjectsDAOImpl<Endpoint> implements E
 		{
 			List<String> authnOpts = endpoint.getConfiguration()
 					.getAuthenticationOptions();
+			if (authnOpts == null)
+				return;
+			
 			for (String ao: authnOpts)
 				if (removedName.equals(ao))
 					throw new IllegalArgumentException("The authentication flow is used by an endpoint " 
@@ -58,6 +61,9 @@ public class EndpointDBImpl extends GenericObjectsDAOImpl<Endpoint> implements E
 		{
 			List<String> authnOpts = endpoint.getConfiguration()
 					.getAuthenticationOptions();
+			if (authnOpts == null)
+				return;
+			
 			for (String ao: authnOpts)
 				if (removedName.equals(ao))
 					throw new IllegalArgumentException("The authenticator is used by an endpoint " 
@@ -70,7 +76,7 @@ public class EndpointDBImpl extends GenericObjectsDAOImpl<Endpoint> implements E
 		List<Endpoint> endpoints = getAll();
 		for (Endpoint endpoint: endpoints)
 		{
-			if (endpoint.getConfiguration().getRealm().equals(removedName))
+			if (endpoint.getConfiguration().getRealm() != null && endpoint.getConfiguration().getRealm().equals(removedName))
 				throw new IllegalArgumentException("The realm is used by an endpoint " 
 						+ endpoint.getName());
 		}
