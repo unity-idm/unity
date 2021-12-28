@@ -15,7 +15,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -24,24 +23,11 @@ import pl.edu.icm.unity.types.basic.Group;
  * @author K. Benedyczak
  */
 @Component
-public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBean>, 
-			JsonSerializerForKryo<Group>
+public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBean>
 {
-	private Cache<GroupBean, Group> resolvedGroupsCache = CacheBuilder.newBuilder()
+	private final Cache<GroupBean, Group> resolvedGroupsCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofDays(1)).build();
 	
-	@Override
-	public Group fromJson(ObjectNode main)
-	{
-		return new Group(main);
-	}
-
-	@Override
-	public ObjectNode toJson(Group src)
-	{
-		return src.toJson();
-	}
-
 	@Override
 	public GroupBean toDB(Group object)
 	{
@@ -81,11 +67,5 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		main.putArray("attributeStatements");
 		main.putArray("attributesClasses");
 		return main;
-	}
-
-	@Override
-	public Class<? extends Group> getClazz()
-	{
-		return Group.class;
 	}
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -19,8 +18,7 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
  * @author K. Benedyczak
  */
 @Component
-public class EntityJsonSerializer implements RDBMSObjectSerializer<EntityInformation, BaseBean>, 
-		JsonSerializerForKryo<EntityInformation>
+class EntityJsonSerializer implements RDBMSObjectSerializer<EntityInformation, BaseBean>
 {
 	@Override
 	public BaseBean toDB(EntityInformation object)
@@ -38,21 +36,8 @@ public class EntityJsonSerializer implements RDBMSObjectSerializer<EntityInforma
 		return ret;
 	}
 	
-	@Override
-	public EntityInformation fromJson(ObjectNode src)
+	EntityInformation fromJson(ObjectNode src)
 	{
 		return new EntityInformation(src);
-	}
-
-	@Override
-	public ObjectNode toJson(EntityInformation src)
-	{
-		return src.toJson();
-	}
-	
-	@Override
-	public Class<EntityInformation> getClazz()
-	{
-		return EntityInformation.class;
 	}
 }

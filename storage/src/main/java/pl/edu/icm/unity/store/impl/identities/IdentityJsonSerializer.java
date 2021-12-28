@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.identities;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredIdentity;
@@ -22,22 +18,13 @@ import pl.edu.icm.unity.types.basic.Identity;
  * @author K. Benedyczak
  */
 @Component
-public class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, IdentityBean>, 
-		JsonSerializerForKryo<StoredIdentity>
+class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, IdentityBean>
 {
-	@Autowired
-	private IdentityTypeRDBMSStore idTypeDAO;
+	private final IdentityTypeRDBMSStore idTypeDAO;
 	
-	@Override
-	public StoredIdentity fromJson(ObjectNode src)
+	IdentityJsonSerializer(IdentityTypeRDBMSStore idTypeDAO)
 	{
-		return new StoredIdentity(new Identity(src));
-	}
-
-	@Override
-	public ObjectNode toJson(StoredIdentity src)
-	{
-		return src.getIdentity().toJson();
+		this.idTypeDAO = idTypeDAO;
 	}
 
 	@Override
@@ -58,12 +45,5 @@ public class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdent
 	{
 		return new StoredIdentity(new Identity(bean.getTypeName(), bean.getEntityId(),
 				JsonUtil.parse(bean.getContents())));
-	}
-
-	
-	@Override
-	public Class<? extends StoredIdentity> getClazz()
-	{
-		return StoredIdentity.class;
 	}
 }

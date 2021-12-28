@@ -24,7 +24,7 @@ public class IdentityTypeIE extends AbstractIEBase<IdentityType>
 {
 	public static final String IDENTITY_TYPE_OBJECT_TYPE = "identityTypes";
 
-	private IdentityTypeDAO dbIdTypes;
+	private final IdentityTypeDAO dbIdTypes;
 	
 	@Autowired
 	public IdentityTypeIE(IdentityTypeDAO dbIdTypes)

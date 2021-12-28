@@ -1,29 +1,22 @@
 [[db-conf]]
 === Storage configuration
 
-Unity can use a configurable storage backend. Currently there are two options available, more may be added in future:
+Unity currently supports Relational Database Management System (RDBMS) as backend storage.
 
-. Relational database backend (RDBMS) - a typical classic choice
-. Hazelcast distributed in-memory data grid (HZ) - _currently experimental_, intended for instances with large traffic 
-and a need for clustering 
+The database configuration is provided in the main +unityServer.conf+ file.
 
-Selection of the database backend and its subsequent configuration is provided in the main +unityServer.conf+ file.
-The following option allows to select the database backend:
-
-----
-unityServer.storage.engine=rdbms  # 'hz' is another possible option 
-----
-
-Note that the Admin Console provides a possibility to create a dump JSON dump of the complete server state and to restore 
-the system from such dump regardless of the selected storage engine.
+Note that addition to database backup the Admin Console provides a possibility to create a JSON dump of the complete server state, and to restore the system from such dump.
 
  
 ==== RDBMS storage backend
 
-Unity typically is deployed with a RDBMS backend. Several actual databases are supported: 
-H2 (embedded, no setup required), MySQL or PostgreSQL. RDBMS service is stable, quite fast and offers an excellent
-ecosystem of maintenance supporting tools (backups, redundancy, etc) which is available for the mature RDBMS technology.
-It is however more difficult to create a HA or clustered Unity instance with RDBMS technology.
+The following databases are supported: 
+
+. H2 (embedded, no setup required)
+. MySQL
+. PostgreSQL
+
+RDBMS service is stable, quite fast and offers an excellent ecosystem of maintenance supporting tools (backups, redundancy, etc) which is available for the mature RDBMS technology.
 
 The following table enumerates all configuration options for the RDBMS backend. 
 
@@ -112,33 +105,4 @@ unityServer.storage.engine.rdbms.dialect=psql
 unityServer.storage.engine.rdbms.username=unity
 unityServer.storage.engine.rdbms.password=unitypass
 ----
-
-
-==== Hazelcast storage backend
-
-Hazelcast storage engine (HZ) is in fact an overlay over RDBMS storage mechanism. HZ stores the whole Unity contents 
-in memory. All read operations are exclusively served from memory (and so are fast), 
-writes are also to memory (so are also fast) but additionally the same write operation is recorded to a classic RDBMS 
-backend. As RDBMS writes are not blocking server operation (only the memory writes do) the overall performance 
-is very high. RDBMS-stored data is read only once: during server startup.  
-
-What is more the HZ engine allows for easy clustering of Unity instances. Hazelcast technology has built-in support
-for clustering and can be used to achieve highly performing and HA instances.  
-
-
-Minimal configuration of Hazelcast subsystem is as simple as:
-----
-unityServer.storage.engine=hz
-unityServer.storage.engine.hz.jdbcUrl=jdbc:h2:file:./data/myUnityDatabase.bin
-----
-
-using H2 database as the persistent store. All other RDBMS can be used with HZ engine too, their configuration
-is the same as for the RDBMS backend, with the exception of the configuration property prefix.
-
-Note that RDBMS format is the same for HZ and RDBMS backend. This means that you can freely switch between 
-those backends, without any need for data migration.
-
-Complete reference to HZ engine config options follows:
-
-include::../ref-storeHzProperties.txt[]
 

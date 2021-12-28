@@ -28,7 +28,7 @@ public class IdentityIE extends AbstractIEBase<StoredIdentity>
 	public static final String IDENTITIES_OBJECT_TYPE = "identities";
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, IdentityIE.class);
-	private IdentityDAO dbIds;
+	private final IdentityDAO dbIds;
 	
 	@Autowired
 	public IdentityIE(IdentityDAO dbIds)
