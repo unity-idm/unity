@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,8 +24,6 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 
 public class FormPrefill
 {
-	private static final Logger log = LogManager.getLogger(FormPrefill.class);
-	
 	private String formId;
 	private FormType formType;
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
@@ -213,34 +208,15 @@ public class FormPrefill
 
 		n = json.get("messageParams");
 		if (n != null)
-		{
-			n.fields().forEachRemaining(field ->
-			{
-				try
-				{
-					messageParams.put(field.getKey(), field.getValue().asText());
-				} catch (Exception e)
-				{
-					log.warn("Ignoring unparsable message parameter", e);
-				}
-			});
-		}
+			n.fields().forEachRemaining(field -> messageParams.put(field.getKey(), field.getValue().asText()));
 	}
 
 	private void fill(JsonNode root, Map<Integer, GroupSelection> allowedGroups)
 	{
 		root.fields().forEachRemaining(field ->
-		{
-			try
-			{
-				allowedGroups.put(Integer.parseInt(field.getKey()),
-						Constants.MAPPER.treeToValue(field.getValue(), GroupSelection.class));
-			} catch (Exception e)
-			{
-				log.warn("Ignoring unparsable prefilled invitation entry", e);
-				return;
-			}
-		});
+			allowedGroups.put(Integer.parseInt(field.getKey()),
+						parseTree(field.getValue(), GroupSelection.class))
+		);
 
 	}
 
@@ -249,24 +225,28 @@ public class FormPrefill
 		root.fields().forEachRemaining(field ->
 		{
 			ObjectNode el = (ObjectNode) field.getValue();
-			try
-			{
-				map.put(Integer.parseInt(field.getKey()), toPrefilledEntry(el, clazz));
-			} catch (Exception e)
-			{
-				log.warn("Ignoring unparsable prefilled invitation entry", e);
-				return;
-			}
+			map.put(Integer.parseInt(field.getKey()), toPrefilledEntry(el, clazz));
 		});
 	}
 
-	private <T> PrefilledEntry<T> toPrefilledEntry(ObjectNode el, Class<T> clazz) throws JsonProcessingException
+	private <T> PrefilledEntry<T> toPrefilledEntry(ObjectNode el, Class<T> clazz)
 	{
-		T value = Constants.MAPPER.treeToValue(el.get("entry"), clazz);
+		T value = parseTree(el, clazz);
 		PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
 		return new PrefilledEntry<>(value, mode);
 	}
 
+	private static <T> T parseTree(JsonNode el, Class<T> clazz)
+	{
+		try
+		{
+			return Constants.MAPPER.treeToValue(el.get("entry"), clazz);
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalArgumentException("Can't parse Json element as " + clazz.getName(), e);
+		}
+	}
+	
 	public static class Builder
 	{
 
