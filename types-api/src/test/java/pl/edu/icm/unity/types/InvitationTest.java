@@ -90,11 +90,10 @@ public class InvitationTest
 				PrefilledEntryMode.READ_ONLY));
 		comboInvitationParam.getEnquiryFormPrefill().getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
 		
-		String jsonStr = JsonUtil.toJsonString(complete);
+		String jsonStr = JsonUtil.serializeHumanReadable(JsonUtil.toJsonNode(complete));
 		
 		System.out.println(jsonStr);
-		InvitationWithCode completeParsed = JsonUtil.parse(jsonStr, 
-				InvitationWithCode.class);
+		InvitationWithCode completeParsed = JsonUtil.parse(jsonStr, InvitationWithCode.class);
 
 		assertThat(completeParsed, is(complete));
 	}
