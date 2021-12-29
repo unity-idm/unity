@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -22,7 +24,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.Attribute;
-import io.imunity.tooltip.TooltipExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -43,7 +44,9 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 
 	private VerticalLayout main;
 	private AttributePolicyProcessor policyResolver;
-
+	private Button tryAgain;
+	private Runnable resetUI;
+	
 	PolicyProcessingSummaryComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport)
 	{
 		this.msg = msg;
@@ -51,9 +54,10 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 		initUI();
 	}
 
-	PolicyProcessingSummaryComponent configure(AttrIntrospectionAttributePoliciesConfiguration config)
+	PolicyProcessingSummaryComponent configure(AttrIntrospectionAttributePoliciesConfiguration config, Runnable resetUI)
 	{
-		policyResolver = new AttributePolicyProcessor(config, authenticatorSupport);
+		this.policyResolver = new AttributePolicyProcessor(config, authenticatorSupport);
+		this.resetUI = resetUI;
 		return this;
 	}
 
@@ -129,6 +133,13 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 
 		main.addComponent(getReceivedAttributeComponent(result.allReceivedAttributes));
 
+		tryAgain = new Button(msg.getMessage("PolicyProcessingSummaryComponent.tryAgain"));
+		tryAgain.setId("PolicyProcessingSummaryComponent.TryAgain");
+		tryAgain.addClickListener(e -> resetUI.run());
+		main.addComponent(tryAgain);
+		main.setComponentAlignment(tryAgain, Alignment.BOTTOM_CENTER);
+		
+		
 	}
 
 	private void initUI()
@@ -169,9 +180,6 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 	private Label getSummaryLine(long allAttributeSize, long missingAttributeSize, String summaryText)
 	{
 		Label summaryLine = new Label();
-//		summaryLine.addStyleName(Styles.textLarge.toString());
-//		summaryLine.addStyleName(Styles.bold.toString());
-
 		if (missingAttributeSize == 0)
 		{
 			summaryLine.setValue(msg.getMessage("PolicyProcessingSummaryComponent.all") + " " + summaryText);
@@ -197,7 +205,7 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 	private HorizontalLayout getSummaryLabel(PolicyProcessingResult result)
 	{
 		HorizontalLayout wrapper = new HorizontalLayout();
-		wrapper.setWidth(10, Unit.EM);
+		wrapper.setWidth(15, Unit.EM);
 
 		Label summaryTitle = new Label();
 		summaryTitle.addStyleName(Styles.textXLarge.toString());
@@ -232,13 +240,9 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 		attributeListLayout.setMargin(false);
 		for (ReceivedAttribute attr : attributes)
 		{
-			Label attributeLabel = new Label();
-			if (!attr.description.isEmpty())
-				TooltipExtension.tooltip(attributeLabel, attr.description.get());
-			attributeLabel.setCaption(attr.name);
-			attributeLabel.setValue(attr.values == null ? ""
-					: String.join(", ", attr.values.stream().map(o -> (String) o).collect(Collectors.toList())));
-			attributeLabel.addStyleName(Styles.wordWrap.toString());
+			LabelWithTooltip   attributeLabel = new LabelWithTooltip(attr.name, attr.values == null ? ""
+					: String.join(", ", attr.values.stream().map(o -> (String) o).collect(Collectors.toList())), attr.description);
+
 			attributeListLayout.addComponent(attributeLabel);
 		}
 		receivedAttributesLayout.addComponent(attributeListLayout);
@@ -256,10 +260,41 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 			this.factory = factory;
 		}
 
-		public PolicyProcessingSummaryComponent getInstance(AttrIntrospectionAttributePoliciesConfiguration config)
+		public PolicyProcessingSummaryComponent getInstance(AttrIntrospectionAttributePoliciesConfiguration config, Runnable resetUI)
 		{
-			return factory.getObject().configure(config);
+			return factory.getObject().configure(config, resetUI);
 		}
 	}
-
+	
+	private class LabelWithTooltip extends CustomComponent
+	{
+		public LabelWithTooltip(String caption, String value, Optional<String> description)
+		{
+			setCaption(caption);
+			setSizeFull();		
+			HorizontalLayout main = new HorizontalLayout();
+			main.setMargin(new MarginInfo(false, true, false, false));
+			main.setWidthFull();
+			Label valueLabel = new Label();
+			valueLabel.setValue(value);
+			valueLabel.addStyleName(Styles.wordWrap.toString());
+			valueLabel.addStyleName(Styles.fontMonospace.toString());
+			valueLabel.setWidthFull();
+			
+			Label icon = new Label();
+			if (!description.isEmpty())
+			{	
+				icon.setDescription(description.get(), ContentMode.HTML);
+				icon.setIcon(Images.question.getResource());
+			}else
+			{
+				icon.setVisible(false);
+			}
+			main.addComponent(valueLabel);
+			main.addComponent(icon);
+			main.setExpandRatio(icon, 1);
+			main.setExpandRatio(valueLabel, 99);
+			setCompositionRoot(main);
+		}
+	}
 }

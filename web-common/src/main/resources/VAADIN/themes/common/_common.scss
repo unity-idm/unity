@@ -44,6 +44,10 @@
 	&.v-app { 
 		 background-color: $content-bg-color;
 	}
+	
+	 .v-tooltip a {	
+		color: white;
+	}
  	
  	.v-tabsheet-tabitemcell .v-tabsheet-tabitem-selected .v-caption.v-caption {
      	border-bottom-color: $color-primary-2;
