@@ -146,7 +146,7 @@ class AttrIntrospectionUI extends UnityUIBase implements UnityWebUI
 			throw new IllegalStateException("Unknown remote user");
 		}
 
-		PolicyProcessingSummaryComponent summary = summaryViewFactory.getInstance(config);
+		PolicyProcessingSummaryComponent summary = summaryViewFactory.getInstance(config, () -> loadInitialState());
 		summary.setPolicyProcessingResultForUser(ctx.getRemotePrincipal().get());
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(summary);
