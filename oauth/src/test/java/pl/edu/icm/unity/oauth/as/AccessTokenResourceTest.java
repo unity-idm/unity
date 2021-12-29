@@ -70,7 +70,36 @@ public class AccessTokenResourceTest
 				null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
+
 	
+	@Test
+	public void allGrantsExceptCodeAreFailingWithoutAuthentication() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
+		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow ,1, 1000);
+		
+		InvocationContext notAuthed = new InvocationContext(null, realm, Collections.emptyList());
+		InvocationContext.setCurrent(notAuthed);
+		
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
+
+		
+		for (GrantType grant: new GrantType[] {GrantType.CLIENT_CREDENTIALS, 
+				GrantType.TOKEN_EXCHANGE, GrantType.REFRESH_TOKEN})
+		{
+			Response r = tested.getToken(grant.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), 
+				null,
+				"https://return.host.com/foo",
+				null, null, null, null, null, null, null);
+			assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
+		}
+	}
 	@Test
 	public void gettingAccessTokenFailsWithWrongRedirect() throws Exception
 	{
