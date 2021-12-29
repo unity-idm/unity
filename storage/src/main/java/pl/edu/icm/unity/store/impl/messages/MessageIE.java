@@ -25,8 +25,8 @@ public class MessageIE extends AbstractIEBase<Message>
 {
 	public static final String MESSAGES_OBJECT_TYPE = "messages";
 
-	private MessagesDAO dao;
-	private MessageJsonSerializer serializer;
+	private final MessagesDAO dao;
+	private final MessageJsonSerializer serializer;
 
 	@Autowired
 	public MessageIE(MessagesDAO dao, MessageJsonSerializer serializer)

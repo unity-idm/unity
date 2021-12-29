@@ -30,15 +30,15 @@ public class AttributeIE extends AbstractIEBase<StoredAttributeWithKeywords>
 {
 	public static final String ATTRIBUTES_OBJECT_TYPE = "attributes";
 	
-	private AttributeDAO dao;
-	private AttributeJsonSerializer serializer;
+	private final AttributeDAO dao;
+	private final AttributeJsonSerializer serializer;
 	
 	@Autowired
-	public AttributeIE(AttributeDAO dao, AttributeJsonSerializer serializer)
+	public AttributeIE(AttributeDAO dao)
 	{
 		super(6, ATTRIBUTES_OBJECT_TYPE);
 		this.dao = dao;
-		this.serializer = serializer;
+		this.serializer = new AttributeJsonSerializer();
 	}
 
 	@Override

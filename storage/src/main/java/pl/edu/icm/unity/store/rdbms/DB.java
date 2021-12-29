@@ -50,7 +50,7 @@ public class DB implements StoreLoaderInternal
 	{
 		this.sessionMan = sessionMan;
 		this.initDB = initDB;
-		if (cfg.getEngine() == StorageEngine.rdbms || cfg.getEngine() == StorageEngine.hz)
+		if (cfg.getEngine() == StorageEngine.rdbms)
 			initialize(cfg);
 	}
 	

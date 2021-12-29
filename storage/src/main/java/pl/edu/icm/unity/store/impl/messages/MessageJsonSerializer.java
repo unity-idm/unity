@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.msg.Message;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 
 /**
@@ -25,8 +24,7 @@ import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
  * @author P.Piernik
  */
 @Component
-public class MessageJsonSerializer
-		implements RDBMSObjectSerializer<Message, MessageBean>, JsonSerializerForKryo<Message>
+class MessageJsonSerializer implements RDBMSObjectSerializer<Message, MessageBean>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, MessageJsonSerializer.class);
 
@@ -42,12 +40,12 @@ public class MessageJsonSerializer
 		return new Message(bean.getName(), new Locale(bean.getLocale()), new String(bean.getContents()));
 	}
 
-	public ObjectNode toJson(Message exportedObj)
+	ObjectNode toJson(Message exportedObj)
 	{
 		return Constants.MAPPER.valueToTree(exportedObj);
 	}
 
-	public Message fromJson(ObjectNode src)
+	Message fromJson(ObjectNode src)
 	{
 		try
 		{
@@ -58,11 +56,4 @@ public class MessageJsonSerializer
 		}
 		return null;
 	}
-
-	@Override
-	public Class<?> getClazz()
-	{
-		return Message.class;
-	}
-
 }

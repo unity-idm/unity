@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.membership;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.impl.groups.GroupRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.GroupMembership;
@@ -20,28 +16,13 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  * @author K. Benedyczak
  */
 @Component
-public class MembershipJsonSerializer implements RDBMSObjectSerializer<GroupMembership, GroupElementBean>, 
-			JsonSerializerForKryo<GroupMembership>
+class MembershipJsonSerializer implements RDBMSObjectSerializer<GroupMembership, GroupElementBean>
 {
-	@Autowired
-	private GroupRDBMSStore groupDAO;
+	private final GroupRDBMSStore groupDAO;
 	
-	@Override
-	public Class<? extends GroupMembership> getClazz()
+	MembershipJsonSerializer(GroupRDBMSStore groupDAO)
 	{
-		return GroupMembership.class;
-	}
-
-	@Override
-	public GroupMembership fromJson(ObjectNode src)
-	{
-		return new GroupMembership(src);
-	}
-
-	@Override
-	public ObjectNode toJson(GroupMembership src)
-	{
-		return src.toJson();
+		this.groupDAO = groupDAO;
 	}
 
 	@Override
