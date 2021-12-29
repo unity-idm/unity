@@ -231,7 +231,7 @@ public class FormPrefill
 
 	private <T> PrefilledEntry<T> toPrefilledEntry(ObjectNode el, Class<T> clazz)
 	{
-		T value = parseTree(el, clazz);
+		T value = parseTree(el.get("entry"), clazz);
 		PrefilledEntryMode mode = PrefilledEntryMode.valueOf(el.get("mode").asText());
 		return new PrefilledEntry<>(value, mode);
 	}
@@ -240,7 +240,7 @@ public class FormPrefill
 	{
 		try
 		{
-			return Constants.MAPPER.treeToValue(el.get("entry"), clazz);
+			return Constants.MAPPER.treeToValue(el, clazz);
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalArgumentException("Can't parse Json element as " + clazz.getName(), e);
