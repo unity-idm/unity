@@ -32,6 +32,7 @@ public class InvitationWithCode implements NamedObject
 	{
 		this.invitation = base;
 		this.registrationCode = registrationCode;
+		this.creationTime = Instant.now();
 	}
 
 	public InvitationWithCode(InvitationParam base, String registrationCode,
@@ -40,7 +41,8 @@ public class InvitationWithCode implements NamedObject
 		this.registrationCode = registrationCode;
 		this.lastSentTime = lastSentTime;
 		this.numberOfSends = numberOfSends;
-		invitation = base;	
+		this.invitation = base;	
+		this.creationTime = Instant.now();
 	}
 
 	@JsonCreator
