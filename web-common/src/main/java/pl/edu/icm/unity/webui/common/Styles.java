@@ -30,6 +30,7 @@ public enum Styles
 	iconError("u-error-icon"),
 	labelError("u-label-error"),
 	labelWarn("u-label-warn"),
+	iconOnlyLabel("u-iconOnlyLabel"),
 	
 	bigTabs("u-bigTabs"),
 	bigTab("u-bigTab"),

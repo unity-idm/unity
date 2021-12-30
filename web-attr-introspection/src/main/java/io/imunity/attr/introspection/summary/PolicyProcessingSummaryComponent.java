@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -146,8 +145,8 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 	{
 		this.main = new VerticalLayout();
 		setCompositionRoot(main);
-		setWidth(50, Unit.EM);
-		main.setWidth(50, Unit.EM);
+		setWidth(55, Unit.EM);
+		main.setWidth(55, Unit.EM);
 	}
 
 	private VerticalLayout getAttributesComponent(String title, Styles style, List<Attribute> attributes)
@@ -271,29 +270,28 @@ public class PolicyProcessingSummaryComponent extends CustomComponent
 		public LabelWithTooltip(String caption, String value, Optional<String> description)
 		{
 			setCaption(caption);
-			setSizeFull();		
 			HorizontalLayout main = new HorizontalLayout();
-			main.setMargin(new MarginInfo(false, true, false, false));
 			main.setWidthFull();
 			Label valueLabel = new Label();
 			valueLabel.setValue(value);
 			valueLabel.addStyleName(Styles.wordWrap.toString());
 			valueLabel.addStyleName(Styles.fontMonospace.toString());
 			valueLabel.setWidthFull();
-			
-			Label icon = new Label();
+			HtmlSimplifiedLabelWithLinks icon = new HtmlSimplifiedLabelWithLinks();
+			icon.addStyleName(Styles.iconOnlyLabel.toString());
 			if (!description.isEmpty())
 			{	
-				icon.setDescription(description.get(), ContentMode.HTML);
+				icon.setDescription(description.get());
 				icon.setIcon(Images.question.getResource());
-			}else
+			}
+				else
 			{
 				icon.setVisible(false);
 			}
 			main.addComponent(valueLabel);
 			main.addComponent(icon);
-			main.setExpandRatio(icon, 1);
-			main.setExpandRatio(valueLabel, 99);
+			main.setExpandRatio(icon, 0);
+			main.setExpandRatio(valueLabel, 2);
 			setCompositionRoot(main);
 		}
 	}
