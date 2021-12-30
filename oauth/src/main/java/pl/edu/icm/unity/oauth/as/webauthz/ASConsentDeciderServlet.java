@@ -218,7 +218,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	
 	private boolean isScopesChanges(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
-		return preferences.getEffectiveRequestedScopes()
+		return !preferences.getEffectiveRequestedScopes()
 				.containsAll(Arrays.asList(oauthCtx.getEffectiveRequestedScopesList()));
 	}
 

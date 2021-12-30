@@ -26,8 +26,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.openid.connect.sdk.OIDCError;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
@@ -221,7 +221,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		{
 			OAuthAuthzContext ctx = OAuthSessionService.getContext(request).get();
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
-					OAuth2Error.SERVER_ERROR, ctx.getRequest().getState(),
+					OIDCError.LOGIN_REQUIRED, ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
 			try
 			{
