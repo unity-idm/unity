@@ -207,7 +207,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		public Map<String, List<String>> toParameters()
 		{
 			Map<String, List<String>> params = new LinkedHashMap<>();
-			params.put("grant_type", Lists.newArrayList(AccessTokenResource.EXCHANGE_GRANT));
+			params.put("grant_type", Lists.newArrayList(GrantType.TOKEN_EXCHANGE.getValue()));
 			params.put("subject_token", Lists.newArrayList(subjectToken));
 			params.put("subject_token_type", Lists.newArrayList(subjectTokenType));
 			params.put("requested_token_type", Lists.newArrayList(requestedType));

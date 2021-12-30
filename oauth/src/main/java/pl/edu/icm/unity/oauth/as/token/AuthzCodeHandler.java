@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -152,8 +153,17 @@ class AuthzCodeHandler
 
 	private void verifyPKCEChallenge(String codeChallenge, String codeVerifier, String method) throws OAuthErrorException
 	{
-		CodeChallenge computedCodeChallenge = CodeChallenge.compute(CodeChallengeMethod.parse(method), 
+		CodeChallenge computedCodeChallenge;
+		try
+		{
+			computedCodeChallenge = CodeChallenge.compute(CodeChallengeMethod.parse(method), 
 				new CodeVerifier(codeVerifier));
+		} catch(Exception e)
+		{
+			log.warn("Failure to parse code challenge or verifier", e);
+			throw new OAuthErrorException(
+					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "PKCE verification error"));
+		}
 		if (!computedCodeChallenge.getValue().equals(codeChallenge))
 			throw new OAuthErrorException(
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "PKCE verification error"));
@@ -169,20 +179,16 @@ class AuthzCodeHandler
 						OAuthProcessor.INTERNAL_CODE_TOKEN, code);
 				OAuthToken parsedAuthzCodeToken = BaseOAuthResource.parseInternalToken(codeToken);
 
-				long callerEntityId = InvocationContext.getCurrent()
-						.getLoginSession().getEntityId();
-				if (parsedAuthzCodeToken.getClientId() != callerEntityId)
+				LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+				if (loginSession != null && parsedAuthzCodeToken.getClientId() != loginSession.getEntityId())
 				{
-					log.warn("Client with id " + callerEntityId
-							+ " presented authorization code issued "
-							+ "for client "
-							+ parsedAuthzCodeToken.getClientId());
+					log.warn("Client with id {} presented authorization code issued for client {}",
+							loginSession.getEntityId(), parsedAuthzCodeToken.getClientId());
 					// intended - we mask the reason
 					throw new OAuthErrorException(BaseOAuthResource.makeError(
 							OAuth2Error.INVALID_GRANT, "wrong code"));
 				}
-				tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN,
-						code);
+				tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN, code);
 				return new TokensPair(codeToken, parsedAuthzCodeToken);
 			} catch (IllegalArgumentException e)
 			{

@@ -93,7 +93,6 @@ public class AccessTokenResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, AccessTokenResource.class);
 
-	public static final String EXCHANGE_GRANT = "urn:ietf:params:oauth:grant-type:token-exchange";
 	public static final String ACCESS_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:access_token";
 	public static final String ID_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:id_token";
 	public static final String EXCHANGE_SCOPE = "token-exchange";
@@ -143,6 +142,10 @@ public class AccessTokenResource extends BaseOAuthResource
 			return makeError(OAuth2Error.INVALID_REQUEST, "grant_type is required");
 		}
 
+		if (!validateClientAuthenticationForNonCodeGrant(grantType))
+			return makeError(OAuth2Error.INVALID_CLIENT, "not authenticated");
+		
+		
 		log.trace("Handle new token request with " + grantType + " grant");
 
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue()))
@@ -156,7 +159,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		} else if (grantType.equals(GrantType.CLIENT_CREDENTIALS.getValue()))
 		{
 			return handleClientCredentialFlow(scope, acceptHeader);
-		} else if (grantType.equals(EXCHANGE_GRANT))
+		} else if (grantType.equals(GrantType.TOKEN_EXCHANGE.getValue()))
 		{
 			if (audience == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "audience is required");
@@ -177,7 +180,18 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 	}
 
-	private void validateExchangeRequest(String subjectToken, String subjectTokenType, String requestedTokenType,
+	/**
+	 * Authentication is optional for this REST path. However, this is only for the code grant (where we allow 
+	 * unauthenticated public clients secured by PKCE). So let's ensure for other cases that client's authn was performed.
+	 */
+	private boolean validateClientAuthenticationForNonCodeGrant(String grantType)
+	{
+		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue()))
+			return true;
+		return InvocationContext.getCurrent().getLoginSession() != null;
+	}
+
+	private void validateExchangeRequest(String subjectTokenType, String requestedTokenType,
 			String audience, long callerEntityId, EntityParam audienceEntity, List<String> oldRequestedScopesList)
 			throws OAuthErrorException
 	{
@@ -243,7 +257,7 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		try
 		{
-			validateExchangeRequest(subjectToken, subjectTokenType, requestedTokenType, audience, callerEntityId,
+			validateExchangeRequest(subjectTokenType, requestedTokenType, audience, callerEntityId,
 					audienceEntity, oldRequestedScopesList);
 		} catch (OAuthErrorException e)
 		{
@@ -255,7 +269,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			newToken = prepareNewToken(parsedSubjectToken, scope, oldRequestedScopesList, subToken.getOwner(),
 					callerEntityId, audience, requestedTokenType != null && requestedTokenType.equals(ID_TOKEN_TYPE_ID),
-					EXCHANGE_GRANT);
+					GrantType.TOKEN_EXCHANGE.getValue());
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
