@@ -283,3 +283,20 @@ Everything else not mentioned above.
 The logging facility showing loading of HTTP server related properties was changed as follows:
 +unicore.configuration.HttpServerProperties+ -> +unity.server.config.UnityHttpServerConfiguration+
 
+==== From 3.5 to 3.6
+
+There are no manual actions required for this upgrade.
+
+==== From 3.6 to 3.7
+
+There are no manual actions required for this upgrade.
+
+==== From 3.7 to 3.8
+
+In version 3.8.0 many OAuthn changes are provided, making OAuth implementation better complying with standards 
+and offering an improved security. One important change is that since that version the public OAuth clients 
+using PKCE don't need to authenticate with a client credential. 
+
+It is strongly recommended to remove credentials assigned to such public OAuth clients, as having such credentials 
+set may easily lead to insecure setup (depending on other configuration options).
+

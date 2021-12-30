@@ -120,7 +120,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
 		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
-		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH);
+		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH, TOKEN_PATH);
 	}
 	
 	@Override
