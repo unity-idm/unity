@@ -78,8 +78,7 @@ public class TestInvitations extends RESTAdminTestBase
 		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
 		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 		assertThat(returned.getRegistrationCode(), is(code));
-		InvitationWithCode source = new InvitationWithCode(invitation, code, null, 0);
-		assertThat(returned, is(source));
+		assertThat(returned.getInvitation(), is(invitation));
 	}
 	
 	@Test
@@ -100,8 +99,9 @@ public class TestInvitations extends RESTAdminTestBase
 				new TypeReference<List<InvitationWithCode>>() {});
 		assertThat(returned.size(), is(1));
 		assertThat(returned.get(0).getRegistrationCode(), is(code));
-		InvitationWithCode source = new InvitationWithCode(invitation, code, null, 0);
-		assertThat(returned.get(0), is(source));
+	
+		assertThat(returned.get(0).getRegistrationCode(), is(code));
+		assertThat(returned.get(0).getInvitation(), is(invitation));
 	}
 	
 	@Test
