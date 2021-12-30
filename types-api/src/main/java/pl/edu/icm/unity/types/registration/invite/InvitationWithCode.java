@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.types.registration.invite;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -32,7 +33,7 @@ public class InvitationWithCode implements NamedObject
 	{
 		this.invitation = base;
 		this.registrationCode = registrationCode;
-		this.creationTime = Instant.now();
+		this.creationTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	public InvitationWithCode(InvitationParam base, String registrationCode,
@@ -42,7 +43,7 @@ public class InvitationWithCode implements NamedObject
 		this.lastSentTime = lastSentTime;
 		this.numberOfSends = numberOfSends;
 		this.invitation = base;	
-		this.creationTime = Instant.now();
+		this.creationTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	@JsonCreator
