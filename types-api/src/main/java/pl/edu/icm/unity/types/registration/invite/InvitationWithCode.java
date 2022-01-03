@@ -31,9 +31,7 @@ public class InvitationWithCode implements NamedObject
 	public InvitationWithCode(InvitationParam base,
 			String registrationCode)
 	{
-		this.invitation = base;
-		this.registrationCode = registrationCode;
-		this.creationTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		this(base, registrationCode, null, 0);
 	}
 
 	public InvitationWithCode(InvitationParam base, String registrationCode,
