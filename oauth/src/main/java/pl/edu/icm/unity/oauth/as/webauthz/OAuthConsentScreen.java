@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
@@ -179,7 +180,7 @@ class OAuthConsentScreen extends CustomComponent
 
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
-		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC));
+		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC) && !ctx.getPrompts().contains(Prompt.CONSENT));
 	}
 	
 	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
@@ -226,8 +227,8 @@ class OAuthConsentScreen extends CustomComponent
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
 		
-		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC && !settings.getEffectiveRequestedScopes()
-				.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList())))
+		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC && settings.getEffectiveRequestedScopes()
+				.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList())) && !ctx.getPrompts().contains(Prompt.CONSENT) )
 		{
 			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())
