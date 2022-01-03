@@ -463,7 +463,6 @@ public class AccessTokenResource extends BaseOAuthResource
 		newToken.setAccessToken(null);
 		newToken.setRefreshToken(null);
 		newToken.setIssuerUri(config.getIssuerName());
-		;
 		// responseType in newToken is the same as in oldToken
 		// subject in newToken is the same as in oldToken
 

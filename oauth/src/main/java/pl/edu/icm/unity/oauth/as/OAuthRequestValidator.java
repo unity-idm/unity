@@ -113,9 +113,8 @@ public class OAuthRequestValidator
 			for (String scopeKey: scopeKeys)
 			{
 				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
-
 				if (requestedScopes.contains(scope))
-				{
+				{				
 					String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);
 					List<String> attributes = oauthConfig.getListOfValues(
 							scopeKey+OAuthASProperties.SCOPE_ATTRIBUTES);

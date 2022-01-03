@@ -93,7 +93,7 @@ public class OAuthServiceConfiguration
 		userImports = new ArrayList<>();
 		accessTokenFormat = AccessTokenFormat.PLAIN;
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
-		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.NEVER;
+		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
 	}
 
 	public String toProperties(MessageSource msg)

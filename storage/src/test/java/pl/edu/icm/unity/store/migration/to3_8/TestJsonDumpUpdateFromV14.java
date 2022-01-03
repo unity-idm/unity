@@ -66,7 +66,6 @@ public class TestJsonDumpUpdateFromV14
 				ie.store(new FileOutputStream("target/afterImport.json"), new DBDumpContentElements());
 			} catch (Exception e)
 			{
-				e.printStackTrace();
 				fail("Import failed " + e);
 			}
 

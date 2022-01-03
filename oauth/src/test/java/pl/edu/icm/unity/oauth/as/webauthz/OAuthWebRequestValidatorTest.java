@@ -17,6 +17,7 @@ import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.ALLOWED_RE
 import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.CLIENT_TYPE;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.assertj.core.util.Maps;
@@ -24,10 +25,14 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+import com.nimbusds.openid.connect.sdk.Prompt;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -195,6 +200,58 @@ public class OAuthWebRequestValidatorTest
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isNull();
+	}
+	
+	@Test
+	public void shouldSkipOfflineAccessIfNoConsentPrompt()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+	
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.scope(Scope.parse(OIDCScopeValue.OFFLINE_ACCESS.getValue()))
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+
+		validator.validate(context);
+
+		assertThat(context.getEffectiveRequestedScopes().stream()
+				.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
+						.isTrue();
+
+	}
+	
+	@Test
+	public void shouldProcessOfflineAccessIfConsentPrompt()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+	
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.prompt(Prompt.parse(Prompt.Type.CONSENT.toString()))
+						.scope(Scope.parse(OIDCScopeValue.OFFLINE_ACCESS.getValue()))
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+
+		validator.validate(context);
+
+		assertThat(context.getEffectiveRequestedScopes().stream()
+				.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
+						.isFalse();
 	}
 	
 	private static OAuthASProperties getConfig()

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.console;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
@@ -69,6 +71,9 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 {
+	private static Set<String> SCOPES_BLOCKED_TO_EDIT = Collections
+			.unmodifiableSet(Set.of(OIDCScopeValue.OPENID.toString(), OIDCScopeValue.OFFLINE_ACCESS.toString()));
+
 	private MessageSource msg;
 	private Binder<DefaultServiceDefinition> oauthWebAuthzBinder;
 	private Binder<DefaultServiceDefinition> oauthTokenBinder;
@@ -91,9 +96,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private boolean editMode;
 
 	OAuthEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths,
-			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
-			boolean editMode, Set<String> credentials, Collection<IdentityType> identityTypes,
-			List<String> attrTypes, List<String> usedEndpointsPaths)
+			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory, boolean editMode,
+			Set<String> credentials, Collection<IdentityType> identityTypes, List<String> attrTypes,
+			List<String> usedEndpointsPaths)
 	{
 		this.msg = msg;
 
@@ -108,8 +113,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		this.serverContextPaths = serverContextPaths;
 	}
 
-	void initUI(Binder<DefaultServiceDefinition> oauthWebAuthzBinder,
-			Binder<DefaultServiceDefinition> oauthTokenBinder,
+	void initUI(Binder<DefaultServiceDefinition> oauthWebAuthzBinder, Binder<DefaultServiceDefinition> oauthTokenBinder,
 			Binder<OAuthServiceConfiguration> configBinder)
 	{
 		this.oauthTokenBinder = oauthTokenBinder;
@@ -123,8 +127,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		main.addComponent(buildHeaderSection());
 		main.addComponent(buildScopesSection());
 		main.addComponent(buildAdvancedSection());
-		main.addComponent(profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder,
-				"translationProfile"));
+		main.addComponent(
+				profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder, "translationProfile"));
 
 		setCompositionRoot(main);
 	}
@@ -150,7 +154,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				msg.getMessage("OAuthEditorGeneralTab.allowForUnauthenticatedRevocation"));
 		configBinder.forField(allowForUnauthenticatedRevocation).bind("allowForUnauthenticatedRevocation");
 		advancedLayout.addComponent(allowForUnauthenticatedRevocation);
-		
+
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.advanced"), advancedLayout);
 	}
 
@@ -193,7 +197,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			metaPath.setStyleName(Styles.vButtonLink.toString());
 			l.addComponent(metaPath);
 			infoLayoutWrapper.addComponent(l);
-			metaPath.addClickListener(e -> {
+			metaPath.addClickListener(e ->
+			{
 				Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
 			});
 		}
@@ -211,7 +216,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		webAuthzContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.usersAuthnPath"));
 		webAuthzContextPath.setReadOnly(editMode);
 		webAuthzContextPath.setPlaceholder("/oauth");
-		oauthWebAuthzBinder.forField(webAuthzContextPath).withValidator((v, c) -> {
+		oauthWebAuthzBinder.forField(webAuthzContextPath).withValidator((v, c) ->
+		{
 
 			ValidationResult r;
 			if (editMode)
@@ -227,8 +233,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				userAuthnEndpointPath.setValue("");
 			} else
 			{
-				userAuthnEndpointPath.setValue(
-						serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
+				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
 			}
 			return r;
 
@@ -238,7 +243,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		tokenContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.clientTokenPath"));
 		tokenContextPath.setPlaceholder("/oauth-token");
 		tokenContextPath.setReadOnly(editMode);
-		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) -> {
+		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) ->
+		{
 			ValidationResult r;
 			if (editMode)
 			{
@@ -305,6 +311,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		EnumComboBox<RefreshTokenIssuePolicy> refreshTokenIssuePolicy = new EnumComboBox<>(msg,
 				"OAuthEditorGeneralTab.refreshTokenIssuePolicy.", RefreshTokenIssuePolicy.class,
 				RefreshTokenIssuePolicy.NEVER);
+		refreshTokenExp.setDescription(msg.getMessage("OAuthEditorGeneralTab.refreshTokenExpirationDescription"));
+		TooltipExtension.tooltip(refreshTokenExp);
 		refreshTokenIssuePolicy.setCaption(msg.getMessage("OAuthEditorGeneralTab.refreshTokenIssuePolicy"));
 		refreshTokenIssuePolicy.setEmptySelectionAllowed(false);
 
@@ -313,9 +321,10 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		refreshTokenIssuePolicy.addValueChangeListener(e ->
 		{
 			refreshTokenExp.setEnabled(!e.getValue().equals(RefreshTokenIssuePolicy.NEVER));
-			refreshScope(e.getValue().equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED), OIDCScopeValue.OFFLINE_ACCESS,
+			refreshScope(e.getValue().equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED),
+					OIDCScopeValue.OFFLINE_ACCESS,
 					msg.getMessage("OAuthEditorGeneralTab.defaultOfflineAccessScopeDesc"));
-		
+
 		});
 
 		refreshTokenExp.setWidth(5, Unit.EM);
@@ -332,18 +341,18 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				msg.getMessage("OAuthEditorGeneralTab.supportExtendTokenValidity"));
 		configBinder.forField(supportExtendAccessTokenValidity).bind("supportExtendTokenValidity");
 		mainGeneralLayout.addComponent(supportExtendAccessTokenValidity);
-		supportExtendAccessTokenValidity.addValueChangeListener(e -> {
+		supportExtendAccessTokenValidity.addValueChangeListener(e ->
+		{
 			extendAccessTokenValidity.setEnabled(e.getValue());
 		});
 
 		extendAccessTokenValidity.setWidth(5, Unit.EM);
-		extendAccessTokenValidity
-				.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
-		configBinder.forField(extendAccessTokenValidity).asRequired((v, c) -> {
+		extendAccessTokenValidity.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
+		configBinder.forField(extendAccessTokenValidity).asRequired((v, c) ->
+		{
 			if (supportExtendAccessTokenValidity.getValue())
 			{
-				return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v,
-						c);
+				return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v, c);
 			}
 			return ValidationResult.ok();
 		}).bind("maxExtendAccessTokenValidity");
@@ -358,7 +367,6 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		accessTokenFormat = createAccessTokenFormatCombo();
 		mainGeneralLayout.addComponent(accessTokenFormat);
 
-
 		openIDConnect = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.openIDConnect"));
 		configBinder.forField(openIDConnect).bind("openIDConnect");
 		mainGeneralLayout.addComponent(openIDConnect);
@@ -369,7 +377,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingAlg.setItems(SigningAlgorithms.values());
 		configBinder.forField(signingAlg).bind("signingAlg");
 		mainGeneralLayout.addComponent(signingAlg);
-		signingAlg.addValueChangeListener(e -> {
+		signingAlg.addValueChangeListener(e ->
+		{
 			refreshSigningControls();
 		});
 
@@ -377,9 +386,10 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		credential.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingCredential"));
 		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
-		configBinder.forField(credential).asRequired((v, c) -> {
-			if (credential.isEnabled() && (v == null || v.isEmpty()) && !Family.HMAC_SHA
-					.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
+		configBinder.forField(credential).asRequired((v, c) ->
+		{
+			if (credential.isEnabled() && (v == null || v.isEmpty())
+					&& !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
@@ -394,7 +404,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingSecret = new TextField();
 		signingSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		signingSecret.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
-		configBinder.forField(signingSecret).asRequired((v, c) -> {
+		configBinder.forField(signingSecret).asRequired((v, c) ->
+		{
 			JWSAlgorithm alg = JWSAlgorithm.parse(signingAlg.getValue().toString());
 
 			if (signingSecret.isEnabled() && Family.HMAC_SHA.contains(alg))
@@ -426,14 +437,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		return main;
 	}
-	
+
 	private void refreshScope(boolean add, OIDCScopeValue value, String message)
 	{
 		if (add)
 		{
 			OAuthScope openidScope = configBinder.getBean().getScopes().stream()
-					.filter(s -> s.getName().equals(value.toString()))
-					.findFirst().orElse(null);
+					.filter(s -> s.getName().equals(value.toString())).findFirst().orElse(null);
 			if (openidScope == null)
 			{
 				openidScope = new OAuthScope();
@@ -445,14 +455,14 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		{
 
 			List<OAuthScope> openidScopes = configBinder.getBean().getScopes().stream()
-					.filter(s -> s.getName().equals(value.toString()))
-					.collect(Collectors.toList());
+					.filter(s -> s.getName().equals(value.toString())).collect(Collectors.toList());
 			if (!openidScopes.isEmpty())
 			{
 				openidScopes.forEach(s -> scopesGrid.removeElement(s));
 			}
 		}
 	}
+
 	private ComboBox<AccessTokenFormat> createAccessTokenFormatCombo()
 	{
 		ComboBox<AccessTokenFormat> combo = new ComboBox<>();
@@ -460,12 +470,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		combo.setEmptySelectionAllowed(false);
 		combo.setItems(AccessTokenFormat.values());
 		configBinder.forField(combo).bind("accessTokenFormat");
-		combo.addValueChangeListener(e -> {
+		combo.addValueChangeListener(e ->
+		{
 			refreshSigningControls();
 		});
 		return combo;
 	}
-	
+
 	private int getBitsLenghtForAlg(JWSAlgorithm alg)
 	{
 		if (alg.equals(JWSAlgorithm.HS256))
@@ -481,11 +492,10 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		scopesLayout.setMargin(false);
 
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class, () -> new ScopeEditor(msg, attrTypes),
-				s -> s != null && s.getName() != null
-						&& (s.getName().equals(OIDCScopeValue.OPENID.toString()) || s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.toString())), true);
+				s -> false, s -> s != null && s.getName() != null && (SCOPES_BLOCKED_TO_EDIT.contains(s.getName())),
+				true);
 		scopesGrid.addGotoEditColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
-		scopesGrid.addTextColumn(s -> s.getDescription(),
-				msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
+		scopesGrid.addTextColumn(s -> s.getDescription(), msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
 		scopesGrid.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",
 				msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 10);
 		scopesGrid.setMinHeightByRow(7);
@@ -500,7 +510,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		OAuthServiceConfiguration config = configBinder.getBean();
 		SigningAlgorithms alg = config.getSigningAlg();
 		boolean openid = config.isOpenIDConnect();
-		boolean jwtAT = config.getAccessTokenFormat() == AccessTokenFormat.JWT 
+		boolean jwtAT = config.getAccessTokenFormat() == AccessTokenFormat.JWT
 				|| config.getAccessTokenFormat() == AccessTokenFormat.AS_REQUESTED;
 
 		if (openid || jwtAT)
@@ -582,19 +592,31 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScope>
 	{
 		private Binder<OAuthScope> binder;
+		private TextField name;
+		private ChipsWithFreeText attributes;
+		private boolean blockedEdit = false;
 
 		public ScopeEditor(MessageSource msg, List<String> attrTypes)
 		{
 			binder = new Binder<>(OAuthScope.class);
-			TextField name = new TextField();
+			name = new TextField();
 			name.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
-			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg)).bind("name");
+			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg))
+					.withValidator((value, context) ->
+					{
+						if (!blockedEdit && value != null && SCOPES_BLOCKED_TO_EDIT.contains(value))
+						{
+							return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.scopeBlockedToAdd", value));
+						}
+						return ValidationResult.ok();
+					}	
+					).bind("name");
 
 			TextField desc = new TextField();
 			desc.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
 			binder.forField(desc).bind("description");
 
-			ChipsWithFreeText attributes = new ChipsWithFreeText(msg);
+			attributes = new ChipsWithFreeText(msg);
 			attributes.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
 			attributes.setItems(attrTypes);
 			binder.forField(attributes).bind("attributes");
@@ -621,8 +643,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		@Override
 		public void setValue(OAuthScope value)
 		{
-
 			binder.setBean(value);
+			boolean block = value != null && value.getName() != null && SCOPES_BLOCKED_TO_EDIT.contains(value.getName());
+			name.setEnabled(!block);
+			attributes.setEnabled(!block);
+			blockedEdit = block;
 		}
 	}
 

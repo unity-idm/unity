@@ -97,7 +97,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				setDescription("Controls the maximum validity period of a code token returned to a client (in seconds)."));
 		defaults.put(ID_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ID_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of an OpenID Connect Id token (in seconds)."));
-		defaults.put(REFRESH_TOKEN_ISSUE_POLICY, new PropertyMD(RefreshTokenIssuePolicy.NEVER)
+		defaults.put(REFRESH_TOKEN_ISSUE_POLICY, new PropertyMD(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED)
 				.setDescription("Refresh token issue policy"));
 		defaults.put(REFRESH_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_REFRESH_TOKEN_VALIDITY))
 				.setDescription("Controls the validity period of a refresh token (in seconds). "
