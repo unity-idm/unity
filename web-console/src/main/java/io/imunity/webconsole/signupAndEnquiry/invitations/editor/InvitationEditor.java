@@ -5,6 +5,7 @@
 package io.imunity.webconsole.signupAndEnquiry.invitations.editor;
 
 import java.time.ZoneId;
+import java.util.Map;
 
 import org.springframework.beans.factory.ObjectFactory;
 
@@ -15,9 +16,18 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webconsole.signupAndEnquiry.invitations.editor.EnquiryInvitationEditor.EnquiryInvitationEditorFactory;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -37,16 +47,23 @@ public class InvitationEditor extends CustomComponent
 	private final RegistrationInvitationEditor registrationInvitationEditor;
 	private final EnquiryInvitationEditor enquiryInvitationEditor;
 	private final ComboInvitationEditor comboInvitationEditor;
+	private final Map<Long, EntityInGroupData> allEntities;
+	
 	
 	private ComboBox<InvitationType> type;
 	private InvitationParamEditor editor;
+	private ComboBox<Long> inviter;
+	private String entityNameAttr;
 
 	public InvitationEditor(MessageSource msg, RegistrationInvitationEditor registrationInvitationEditor,
-			EnquiryInvitationEditor enquiryInvitationEditor, ComboInvitationEditor comboInvitationEditor)
+			EnquiryInvitationEditorFactory enquiryInvitationEditorFactory, ComboInvitationEditor comboInvitationEditor,
+			BulkGroupQueryService bulkGroupQueryService, AttributeSupport attributeSupport) throws EngineException
 	{
 		this.msg = msg;
 		this.registrationInvitationEditor = registrationInvitationEditor;
-		this.enquiryInvitationEditor = enquiryInvitationEditor;
+		this.allEntities = getEntities(bulkGroupQueryService);	
+		this.entityNameAttr = getNameAttribute(attributeSupport);
+		this.enquiryInvitationEditor = enquiryInvitationEditorFactory.getEditor(entityNameAttr, allEntities);
 		this.comboInvitationEditor = comboInvitationEditor;
 		initUI();
 	}
@@ -70,8 +87,17 @@ public class InvitationEditor extends CustomComponent
 			content.removeAllComponents();
 			switchEditor(type.getValue(), content);
 		});
-
 		top.addComponent(type);
+		
+		inviter = new ComboBox<>(msg.getMessage("InvitationEditor.inviter"));
+		inviter.setEmptySelectionAllowed(false);
+		inviter.setItemCaptionGenerator(i -> getLabel(allEntities.get(i)) + " [" + i + "]");
+		inviter.setWidth(20, Unit.EM);
+		inviter.setItems(allEntities.keySet());
+		inviter.setValue(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		
+		top.addComponent(inviter);
+		
 		VerticalLayout main = new VerticalLayout(top, content);
 		main.setSpacing(false);
 		main.setMargin(false);
@@ -99,7 +125,9 @@ public class InvitationEditor extends CustomComponent
 	
 	public InvitationParam getInvitation() throws FormValidationException
 	{
-		return editor.getInvitation();
+		 InvitationParam invitation = editor.getInvitation();
+		 invitation.setInviterEntity(inviter.getOptionalValue());
+		 return invitation;
 	}
 
 	public void setInvitationToForm(InvitationType type, String form)
@@ -130,6 +158,33 @@ public class InvitationEditor extends CustomComponent
 		registrationInvitationEditor.setForm(form);
 	}
 
+	private String getNameAttribute(AttributeSupport attributeSupport) throws EngineException
+	{
+		AttributeType type = attributeSupport.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
+		if (type == null)
+			return null;
+		return type.getName();
+	}
+	
+	private Map<Long, EntityInGroupData> getEntities(BulkGroupQueryService bulkQuery) throws EngineException
+	{
+		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/");
+		return bulkQuery.getMembershipInfo(bulkMembershipData);
+	}
+	
+	String getLabel(EntityInGroupData info)
+	{
+		if (entityNameAttr != null)
+		{
+			AttributeExt name = info.rootAttributesByName.get(entityNameAttr);
+			if (name != null && !name.getValues().isEmpty())
+			{
+				return name.getValues().get(0);
+			}
+		}
+		return "";
+	}
+	
 	@org.springframework.stereotype.Component
 	public static class InvitationEditorFactory
 	{

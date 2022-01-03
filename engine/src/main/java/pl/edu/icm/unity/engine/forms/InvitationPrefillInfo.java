@@ -4,22 +4,31 @@
  */
 package pl.edu.icm.unity.engine.forms;
 
+import java.util.Optional;
+
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+
 public class InvitationPrefillInfo
 {
-	private boolean byInvitation;
+	private Optional<InvitationWithCode> invitation;
 	
 	public InvitationPrefillInfo()
 	{
-		this(false);
+		this(null);
 	}
 
-	public InvitationPrefillInfo(boolean byInvitation)
+	public InvitationPrefillInfo(InvitationWithCode invitation)
 	{
-		this.byInvitation = byInvitation;
+		this.invitation = Optional.ofNullable(invitation);
 	}
 
 	public boolean isByInvitation()
 	{
-		return byInvitation;
+		return !invitation.isEmpty();
+	}
+	
+	public Optional<InvitationWithCode> getInvitation()
+	{
+		return invitation;
 	}
 }

@@ -242,7 +242,6 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> {}, 
 					imageAccessService);
 			com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
-			setSizeFull();
 			setCompositionRoot(wrapper);
 		}
 	}

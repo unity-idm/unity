@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -100,12 +101,12 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport,
 			InvitationDB invitationDB,
 			GroupDAO groupDB, PolicyAgreementManagement policyAgreementManagement,
-			SecondFactorOptInService secondFactorOptInService)
+			SecondFactorOptInService secondFactorOptInService, EntityResolver entityResolver)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper, facilitiesManagement, invitationDB, policyAgreementManagement,
-				secondFactorOptInService, requestDB);
+				secondFactorOptInService, requestDB, entityResolver);
 		this.requestDB = requestDB;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;

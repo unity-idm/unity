@@ -7,6 +7,7 @@ package pl.edu.icm.unity.types.registration.invite;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.util.AntPathMatcher;
 
@@ -38,22 +39,26 @@ public abstract class InvitationParam
 	private InvitationType type;
 	private Instant expiration;
 	private String contactAddress;
+	private Optional<Long> inviterEntity;
 	
 	protected InvitationParam(InvitationType type) 
 	{
 		this.type = type;
+		this.inviterEntity = Optional.empty();
 	}
 	
 	public InvitationParam(InvitationType type, Instant expiration, String contactAddress)
 	{
 		this(type, expiration);
 		this.contactAddress = contactAddress;
+		this.inviterEntity = Optional.empty();
 	}
 
 	public InvitationParam(InvitationType type, Instant expiration)
 	{
 		this.type = type;
-		this.expiration = expiration;		
+		this.expiration = expiration;
+		this.inviterEntity = Optional.empty();
 	}
 
 	@JsonCreator
@@ -82,6 +87,16 @@ public abstract class InvitationParam
 		return contactAddress;
 	}
 
+	public Optional<Long> getInviterEntity()
+	{
+		return inviterEntity;
+	}
+
+	public void setInviterEntity(Optional<Long> inviterEntity)
+	{
+		this.inviterEntity = inviterEntity;
+	}
+	
 	public abstract void validateUpdate(InvitationParam toUpdate) throws EngineException;
 	public abstract void validate(FormProvider formProvider) throws EngineException;
 	public abstract boolean matchesForm(BaseForm form) throws IllegalFormTypeException;
@@ -185,6 +200,8 @@ public abstract class InvitationParam
 		json.put("expiration", getExpiration().toEpochMilli());
 		if (getContactAddress() != null)
 			json.put("contactAddress", getContactAddress());
+		if (!getInviterEntity().isEmpty())
+			json.put("inviter", getInviterEntity().get());
 		return json;
 	}
 	
@@ -203,7 +220,9 @@ public abstract class InvitationParam
 			
 		expiration = Instant.ofEpochMilli(json.get("expiration").asLong());
 		contactAddress = JsonUtil.getNullable(json, "contactAddress");
-		
+		n=json.get("inviter");
+		inviterEntity = Optional.ofNullable(n != null && !n.isNull() ? n.asLong() : null);
+			
 		
 	}
 	
@@ -211,8 +230,8 @@ public abstract class InvitationParam
 	public String toString()
 	{
 		return "InvitationParam [type=" + type +  ", expiration=" + expiration
-				+ ", contactAddress=" + contactAddress;
-	}
+				+ ", contactAddress=" + contactAddress + ", inviter=" + (inviterEntity.isEmpty() ? "" : inviterEntity.get());
+	} 
 
 	@Override
 	public boolean equals(final Object other)
@@ -222,14 +241,15 @@ public abstract class InvitationParam
 		InvitationParam castOther = (InvitationParam) other;
 		return  Objects.equals(type, castOther.type) &&
 				Objects.equals(expiration, castOther.expiration)
-				&& Objects.equals(contactAddress, castOther.contactAddress);
+				&& Objects.equals(contactAddress, castOther.contactAddress)
+				&& Objects.equals(inviterEntity, castOther.inviterEntity);
 				
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(expiration, contactAddress);
+		return Objects.hash(expiration, contactAddress, inviterEntity);
 	}
 
 	protected static class Builder<T extends Builder<?>> {
@@ -257,6 +277,13 @@ public abstract class InvitationParam
 		public  T  withContactAddress(String contactAddress)
 		{
 			instance.contactAddress = contactAddress;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public  T  withInviter(Long inviter)
+		{
+			instance.inviterEntity = Optional.ofNullable(inviter);
 			return (T) this;
 		}
 	}

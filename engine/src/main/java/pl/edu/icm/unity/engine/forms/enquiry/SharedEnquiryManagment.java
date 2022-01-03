@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -46,7 +47,7 @@ import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
@@ -83,7 +84,6 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private GroupDAO groupDB;
 	
 	private AttributeTypeHelper atHelper;
-	private final EntityDAO entityDAO;
 
 	@Autowired
 	public SharedEnquiryManagment(MessageSource msg, NotificationProducer notificationProducer,
@@ -96,10 +96,11 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			RegistrationConfirmationSupport confirmationsSupport, InvitationDB invitationDB, GroupDAO groupDB,
 			PolicyAgreementManagement policyAgreementManagement,
 			SecondFactorOptInService secondFactorOptInService,
-			EntityDAO entityDAO)
+			EntityResolver entityResolver)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper, entityCredentialsHelper,
-				facilitiesManagement, invitationDB, policyAgreementManagement, secondFactorOptInService, enquiryResponseDB);
+				facilitiesManagement, invitationDB, policyAgreementManagement, secondFactorOptInService, enquiryResponseDB,
+				entityResolver);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
@@ -108,7 +109,6 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
 		this.groupDB = groupDB;
-		this.entityDAO = entityDAO;
 	}
 
 	/**
@@ -137,8 +137,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		long entityId = currentRequest.getEntityId();
 		try
 		{
-			entityDAO.getByKey(entityId);
-		} catch (IllegalArgumentException e)
+			entityResolver.getEntityId(new EntityParam(entityId));
+		} catch (IllegalIdentityValueException e)
 		{
 			throw new EngineException("Unknown entity " + currentRequest.getEntityId(), e);
 		}

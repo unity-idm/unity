@@ -45,6 +45,7 @@ import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
+import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -228,15 +229,16 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		responseFull.setRegistrationContext(context);
 		responseFull.setEntityId(getEntity(response.getFormId(), response.getRegistrationCode()));
 		
-		EnquiryForm form = recordRequestAndReturnForm(responseFull);
-		sendNotificationOnNewResponse(form);
-		boolean accepted = tryAutoProcess(form, responseFull);
+		FormWithInvitation formWithInvitation = recordRequestAndReturnForm(responseFull);
+		sendNotificationOnNewResponse(formWithInvitation.form);
+		internalManagment.sendInvitationProcessedNotificationIfNeeded(formWithInvitation.form, formWithInvitation.invitation, responseFull);
+		boolean accepted = tryAutoProcess(formWithInvitation.form, responseFull);
 		
 		Long entityId = accepted ? responseFull.getEntityId() : null;
 		tx.runInTransactionThrowing(() -> {
-			confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form, entityId,
+			confirmationsSupport.sendAttributeConfirmationRequest(responseFull, formWithInvitation.form, entityId,
 					Phase.ON_SUBMIT);
-			confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form, entityId,
+			confirmationsSupport.sendIdentityConfirmationRequest(responseFull, formWithInvitation.form, entityId,
 					Phase.ON_SUBMIT);
 		});
 		
@@ -323,11 +325,11 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				currentRequest, form.getName(), publicComment, internalComment);
 	}
 	
-	private EnquiryForm recordRequestAndReturnForm(EnquiryResponseState responseFull) throws EngineException
+	private FormWithInvitation recordRequestAndReturnForm(EnquiryResponseState responseFull) throws EngineException
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId());
-			enquiryResponseValidator.validateSubmittedResponse(form, responseFull, true);
+			InvitationPrefillInfo validateSubmittedResponse = enquiryResponseValidator.validateSubmittedResponse(form, responseFull, true);
 			
 			boolean isSticky = form.getType().equals(EnquiryType.STICKY);
 			if (isSticky)
@@ -340,7 +342,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				addToAttribute(responseFull.getEntityId(),
 						EnquiryAttributeTypesProvider.FILLED_ENQUIRES, form.getName());
 			}
-			return form;
+			return new FormWithInvitation(form, validateSubmittedResponse);
 		});
 	}
 
@@ -573,5 +575,17 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public EnquiryForm getEnquiry(String id) throws EngineException
 	{
 		return enquiryFormDB.get(id);
+	}
+	
+	private static class FormWithInvitation
+	{
+		public final EnquiryForm form;
+		public final InvitationPrefillInfo invitation;
+		
+		public FormWithInvitation(EnquiryForm form, InvitationPrefillInfo invitation)
+		{	
+			this.form = form;
+			this.invitation = invitation;
+		}
 	}
 }

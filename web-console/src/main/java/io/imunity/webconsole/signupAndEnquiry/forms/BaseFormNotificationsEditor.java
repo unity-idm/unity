@@ -10,6 +10,7 @@ import com.vaadin.ui.CheckBox;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.InvitationProcessedNotificationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
@@ -40,6 +41,8 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	private CompatibleTemplatesComboBox acceptedTemplate;
 	private CompatibleTemplatesComboBox updatedTemplate;
 	private CompatibleTemplatesComboBox invitationTemplate;
+	private CompatibleTemplatesComboBox invitationProcessedTemplate;
+
 	
 	public BaseFormNotificationsEditor(MessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan, MessageTemplateManagement msgTempMan) throws EngineException
@@ -69,9 +72,11 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));	
 		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
 		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
+		invitationProcessedTemplate = new CompatibleTemplatesComboBox(InvitationProcessedNotificationTemplateDef.NAME, msgTempMan);
+		invitationProcessedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationProcessedTemplate"));
 		
 		addComponents(sendAdminCopy, adminsNotificationGroup,
-				rejectedTemplate, acceptedTemplate, updatedTemplate, invitationTemplate);
+				rejectedTemplate, acceptedTemplate, updatedTemplate, invitationTemplate, invitationProcessedTemplate);
 	}
 	
 	protected void setValue(BaseFormNotifications toEdit)
@@ -82,6 +87,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		acceptedTemplate.setValue(toEdit.getAcceptedTemplate());
 		updatedTemplate.setValue(toEdit.getUpdatedTemplate());
 		invitationTemplate.setValue(toEdit.getInvitationTemplate());
+		invitationProcessedTemplate.setValue(toEdit.getInvitationProcessedTemplate());
 	}
 	
 	protected void fill(BaseFormNotifications notCfg)
@@ -92,6 +98,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		notCfg.setRejectedTemplate(rejectedTemplate.getValue());
 		notCfg.setUpdatedTemplate(updatedTemplate.getValue());
 		notCfg.setInvitationTemplate(invitationTemplate.getValue());
+		notCfg.setInvitationProcessedTemplate(invitationProcessedTemplate.getValue());
 	}
 	
 	public List<String> getGroups()

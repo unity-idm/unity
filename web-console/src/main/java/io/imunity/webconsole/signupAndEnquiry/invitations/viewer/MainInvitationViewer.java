@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 @PrototypeComponent
 public class MainInvitationViewer extends CustomComponent
 {
-
 	private final MessageSource msg;
 	private Label type;
 	private VerticalLayout viewerContent;

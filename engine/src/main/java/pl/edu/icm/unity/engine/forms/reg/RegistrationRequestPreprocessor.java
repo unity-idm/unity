@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Helper component with methods to validate registration requests. There are methods to validate both the request 
@@ -57,19 +58,19 @@ public class RegistrationRequestPreprocessor
 		this.basePreprocessor = basePreprocessor;
 	}
 
-	public void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
+	public InvitationPrefillInfo validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate) throws EngineException
 	{
-		validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, false);
+		return validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, false);
 	}
 	
-	public void validateSubmittedRequestExceptCredentials(RegistrationForm form, RegistrationRequest request,
+	public InvitationPrefillInfo validateSubmittedRequestExceptCredentials(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate) throws EngineException
 	{
-		validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, true);
+		return validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, true);
 	}
 	
-	private void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
+	private InvitationPrefillInfo validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws EngineException
 	{
 		InvitationPrefillInfo invitationInfo = processInvitationAndValidateCode(form, request);
@@ -85,6 +86,7 @@ public class RegistrationRequestPreprocessor
 			log.info("Received registration request for invitation {}, removing it", code);
 			basePreprocessor.removeInvitation(code);
 		}
+		return invitationInfo;
 	}
 
 	public void validateTranslatedRequest(RegistrationForm form, RegistrationRequest originalRequest, 
@@ -161,8 +163,9 @@ public class RegistrationRequestPreprocessor
 			return new InvitationPrefillInfo();
 		}
 				
-		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
-		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
+		InvitationWithCode invitationWithCode = basePreprocessor.getInvitation(codeFromRequest);
+		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(invitationWithCode);
+		InvitationParam invitation = invitationWithCode.getInvitation();
 		
 		if (!invitation.matchesForm(form))
 			throw new IllegalFormContentsException("The invitation is for different registration form");

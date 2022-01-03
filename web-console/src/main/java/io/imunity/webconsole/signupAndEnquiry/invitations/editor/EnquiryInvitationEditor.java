@@ -30,16 +30,11 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -57,23 +52,23 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 
 	private final MessageSource msg;
 	private final NotificationProducer notificationProducer;
-	private final String entityNameAttr;
 	private final Map<String, EnquiryForm> formsByName;
 	private final Map<String, MessageTemplate> msgTemplates;
-	private final Map<Long, EntityInGroupData> allEntities;
-	private final Map<Long, String> availableEntities;
 	private final PrefillEntryEditor prefillEntryEditor;
 	private final MessageParamEditor messageParamEditor;
-
 	private ComboBox<String> forms;
 	private DateTimeField expiration;
 	private TextField contactAddress;
 	private ComboBox<Long> entity;
 	private Label channel;
 
+	private  String entityNameAttr;
+	private  Map<Long, EntityInGroupData> allEntities;
+	private  Map<Long, String> availableEntities;
+	
 	@Autowired
 	EnquiryInvitationEditor(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
-			EnquiryManagement enquiryManagement, AttributeSupport attributeSupport, BulkGroupQueryService bulkQuery,
+			EnquiryManagement enquiryManagement, 
 			PrefillEntryEditor prefillEntryEditor, NotificationProducer notificationProducer) throws EngineException
 	{
 		this.msg = msg;
@@ -81,28 +76,17 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 		this.formsByName = enquiryManagement.getEnquires().stream()
 				.collect(Collectors.toMap(EnquiryForm::getName, form -> form));
 		this.msgTemplates = messageTemplateManagement.listTemplates();
-		;
-		this.entityNameAttr = getNameAttribute(attributeSupport);
 		this.availableEntities = new HashMap<>();
-		this.allEntities = getEntities(bulkQuery);
-
 		this.prefillEntryEditor = prefillEntryEditor;
 		this.messageParamEditor = new MessageParamEditor(msg, msgTemplates);
+	}
+
+	public EnquiryInvitationEditor init(String entityNameAttr, Map<Long, EntityInGroupData> allEntities)
+	{
+		this.entityNameAttr = entityNameAttr;
+		this.allEntities = allEntities;
 		initUI();
-	}
-
-	private String getNameAttribute(AttributeSupport attributeSupport) throws EngineException
-	{
-		AttributeType type = attributeSupport.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
-		if (type == null)
-			return null;
-		return type.getName();
-	}
-
-	private Map<Long, EntityInGroupData> getEntities(BulkGroupQueryService bulkQuery) throws EngineException
-	{
-		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/");
-		return bulkQuery.getMembershipInfo(bulkMembershipData);
+		return this;
 	}
 
 	private void initUI()
@@ -293,9 +277,9 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 			this.editorFactory = editor;
 		}
 
-		public EnquiryInvitationEditor getEditor() throws EngineException
+		public EnquiryInvitationEditor getEditor(String entityNameAttr, Map<Long, EntityInGroupData> allEntities) throws EngineException
 		{
-			return editorFactory.getObject();
+			return editorFactory.getObject().init(entityNameAttr, allEntities);
 		}
 	}
 }

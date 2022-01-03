@@ -148,7 +148,6 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
 		wrapper.setSizeFull();
-		setSizeFull();
 		setCompositionRoot(wrapper);
 
 		Component finalScreen = new WorkflowCompletedWithLogoutComponent(config, this::redirect, 

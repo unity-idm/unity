@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Helper component with methods to validate {@link EnquiryResponse}.
@@ -51,7 +52,7 @@ public class EnquiryResponsePreprocessor
 		this.enquiryFormDB = enquiryFormDB;
 	}
 
-	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponseState response,
+	public InvitationPrefillInfo validateSubmittedResponse(EnquiryForm form, EnquiryResponseState response,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{	
 		InvitationPrefillInfo invitationInfo = getInvitationPrefillInfo(form, response.getRequest());
@@ -65,6 +66,8 @@ public class EnquiryResponsePreprocessor
 			log.info("Received enquiry response for invitation " + code + ", removing it");
 			basePreprocessor.removeInvitation(code);
 		}
+		
+		return invitationInfo;
 	}
 
 	public void validateTranslatedRequest(EnquiryForm form, EnquiryResponse response, 
@@ -116,9 +119,12 @@ public class EnquiryResponsePreprocessor
 		{
 			return new InvitationPrefillInfo();
 		}
-		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(true);
 		
-		InvitationParam invitation = basePreprocessor.getInvitation(codeFromRequest).getInvitation();
+		
+		InvitationWithCode invitationWithCode = basePreprocessor.getInvitation(codeFromRequest);
+		InvitationPrefillInfo invitationInfo = new InvitationPrefillInfo(invitationWithCode);
+		InvitationParam invitation = invitationWithCode.getInvitation();
+		
 		FormPrefill formInfo;
 		try
 		{

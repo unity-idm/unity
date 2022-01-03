@@ -32,9 +32,11 @@ import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
+import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -49,6 +51,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Implementation of registrations subsystem.
@@ -62,6 +65,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FORMS, RegistrationsManagementImpl.class);
 	private RegistrationFormDB formsDB;
+	private InvitationDB invitationDB;
 	private RegistrationRequestDB requestDB;
 	private CredentialReqRepository credentialReqRepository;
 	private RegistrationConfirmationSupport confirmationsSupport;
@@ -76,17 +80,15 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private InternalCapacityLimitVerificator capacityLimitVerificator;
 
 	@Autowired
-	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
+	public RegistrationsManagementImpl(RegistrationFormDB formsDB, InvitationDB invitationDB,
 			RegistrationRequestDB requestDB, CredentialReqRepository credentialReqDB,
-			RegistrationConfirmationSupport confirmationsSupport,
-			InternalAuthorizationManager authz, NotificationProducer notificationProducer,
-			SharedRegistrationManagment internalManagment, MessageSource msg,
-			TransactionalRunner tx,
-			RegistrationRequestPreprocessor registrationRequestValidator,
-			BaseFormValidator baseValidator,
-			InternalCapacityLimitVerificator capacityLimitVerificator)
+			RegistrationConfirmationSupport confirmationsSupport, InternalAuthorizationManager authz,
+			NotificationProducer notificationProducer, SharedRegistrationManagment internalManagment, MessageSource msg,
+			TransactionalRunner tx, RegistrationRequestPreprocessor registrationRequestValidator,
+			BaseFormValidator baseValidator, InternalCapacityLimitVerificator capacityLimitVerificator)
 	{
 		this.formsDB = formsDB;
+		this.invitationDB = invitationDB;
 		this.requestDB = requestDB;
 		this.credentialReqRepository = credentialReqDB;
 		this.confirmationsSupport = confirmationsSupport;
@@ -105,7 +107,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public void addForm(RegistrationForm form) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.RegistrationFormsCount, () -> formsDB.getCount());	
+		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.RegistrationFormsCount,
+				() -> formsDB.getCount());
 		validateFormContents(form);
 		formsDB.create(form);
 	}
@@ -127,11 +130,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		internalManagment.dropOrValidateFormRequests(formId, true);
 		formsDB.deleteWithoutDependencyChecking(formId);
 	}
-	
+
 	@Override
 	@Transactional
-	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations)
-			throws EngineException
+	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		validateFormContents(updatedForm);
@@ -153,7 +155,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	}
 
 	@Override
-	public String submitRegistrationRequest(RegistrationRequest request, final RegistrationContext context) 
+	public String submitRegistrationRequest(RegistrationRequest request, final RegistrationContext context)
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
@@ -164,76 +166,71 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		requestFull.setTimestamp(new Date());
 		requestFull.setRegistrationContext(context);
 		
-		RegistrationForm form = recordRequestAndReturnForm(requestFull); 
+		FormWithInvitation formWithInvitation = recordRequestAndReturnForm(requestFull);
+
+		sendSubmitNotificationToAdminGroup(formWithInvitation.form, requestFull);
+		internalManagment.sendInvitationProcessedNotificationIfNeeded(formWithInvitation.form, formWithInvitation.invitation, requestFull);
 		
-		sendNotification(form, requestFull);
-		
-		
-		Long entityId = tryAutoProcess(form, requestFull, context);
-		
-		tx.runInTransactionThrowing(() -> {
-			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form,
-					Phase.ON_SUBMIT);
-			confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form,
-					Phase.ON_SUBMIT);	
+		Long entityId = tryAutoProcess(formWithInvitation.form, requestFull, context);
+
+		tx.runInTransactionThrowing(() ->
+		{
+			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, formWithInvitation.form, Phase.ON_SUBMIT);
+			confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, formWithInvitation.form, Phase.ON_SUBMIT);
 		});
-		
+
 		return requestFull.getRequestId();
 	}
 
-	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) 
-			throws EngineException
+	private FormWithInvitation recordRequestAndReturnForm(RegistrationRequestState requestFull) throws EngineException
 	{
-		return tx.runInTransactionRetThrowing(() -> {
+		return tx.runInTransactionRetThrowing(() ->
+		{
 			RegistrationRequest request = requestFull.getRequest();
 			RegistrationForm form = formsDB.get(request.getFormId());
+			InvitationPrefillInfo invitationPrefillInfo;
 			if (isCredentialsValidationSkipped(requestFull.getRegistrationContext().triggeringMode))
-				registrationRequestValidator.validateSubmittedRequestExceptCredentials(form, request, true);
+				invitationPrefillInfo = registrationRequestValidator.validateSubmittedRequestExceptCredentials(form, request, true);
 			else
-				registrationRequestValidator.validateSubmittedRequest(form, request, true);
+				invitationPrefillInfo = registrationRequestValidator.validateSubmittedRequest(form, request, true);
 			requestDB.create(requestFull);
-			return form;
+			return new FormWithInvitation(form, invitationPrefillInfo);
 		});
 	}
-	
+
 	/**
-	 * When user enters the registration form after selecting an option of
-	 * remote authentication to fill out a form, the credentials are filtered
-	 * out by default and not available to the user. This behavior is fixed, 
-	 * meaning no configuration option to control this.
+	 * When user enters the registration form after selecting an option of remote
+	 * authentication to fill out a form, the credentials are filtered out by
+	 * default and not available to the user. This behavior is fixed, meaning no
+	 * configuration option to control this.
 	 */
 	private boolean isCredentialsValidationSkipped(TriggeringMode mode)
 	{
 		return mode == TriggeringMode.afterRemoteLoginFromRegistrationForm;
 	}
 
-	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) 
+	private void sendSubmitNotificationToAdminGroup(RegistrationForm form, RegistrationRequestState requestFull)
 			throws EngineException
 	{
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg.getSubmittedTemplate() != null
-				&& notificationsCfg.getAdminsNotificationGroup() != null)
+		if (notificationsCfg.getSubmittedTemplate() != null && notificationsCfg.getAdminsNotificationGroup() != null)
 		{
-			Map<String, String> params = internalManagment.getBaseNotificationParams(
-					form.getName(), requestFull.getRequestId()); 
-			notificationProducer.sendNotificationToGroup(
-					notificationsCfg.getAdminsNotificationGroup(), 
-					notificationsCfg.getSubmittedTemplate(),
-					params,
-					msg.getDefaultLocaleCode());
+			Map<String, String> params = internalManagment.getBaseNotificationParams(form.getName(),
+					requestFull.getRequestId());
+			notificationProducer.sendNotificationToGroup(notificationsCfg.getAdminsNotificationGroup(),
+					notificationsCfg.getSubmittedTemplate(), params, msg.getDefaultLocaleCode());
 		}
 	}
-	
-	private Long tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+
+	private Long tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull,
 			RegistrationContext context) throws EngineException
 	{
 		try
 		{
-			return tx.runInTransactionRetThrowing(() -> {
-				return internalManagment.autoProcess(form, requestFull, 
-						"Automatic processing of the request " 
-						+ requestFull.getRequestId() 
-						+ " of form " + form.getName() + " invoked, action: {0}");
+			return tx.runInTransactionRetThrowing(() ->
+			{
+				return internalManagment.autoProcess(form, requestFull, "Automatic processing of the request "
+						+ requestFull.getRequestId() + " of form " + form.getName() + " invoked, action: {0}");
 			});
 		} catch (Exception e)
 		{
@@ -243,14 +240,15 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 
-	private void recordAutoAcceptFailureInRequestComment(RegistrationRequestState requestFull, Exception e) 
+	private void recordAutoAcceptFailureInRequestComment(RegistrationRequestState requestFull, Exception e)
 	{
 		try
 		{
-			tx.runInTransaction(() -> {
+			tx.runInTransaction(() ->
+			{
 				RegistrationRequestState unprocessedRequest = requestDB.get(requestFull.getRequestId());
-				unprocessedRequest.getAdminComments().add(new AdminComment(
-						"Automatic request processing failed: " + e.getMessage(), 0, false));
+				unprocessedRequest.getAdminComments()
+						.add(new AdminComment("Automatic request processing failed: " + e.getMessage(), 0, false));
 				requestDB.update(unprocessedRequest);
 			});
 		} catch (Exception e2)
@@ -258,7 +256,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			log.error("Can not record failure of auto-processing in requests messages", e2);
 		}
 	}
-	
+
 	@Override
 	@Transactional
 	public List<RegistrationRequestState> getRegistrationRequests() throws EngineException
@@ -266,7 +264,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		authz.checkAuthorization(AuthzCapability.read);
 		return requestDB.getAll();
 	}
-
 
 	@Override
 	@Transactional
@@ -283,12 +280,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		authz.checkAuthorizationRT("/", AuthzCapability.read);
 		return formsDB.exists(id);
 	}
-	
+
 	@Override
 	@Transactional
 	public void processRegistrationRequest(String id, RegistrationRequest finalRequest,
-			RegistrationRequestAction action, String publicCommentStr,
-			String internalCommentStr) throws EngineException
+			RegistrationRequestAction action, String publicCommentStr, String internalCommentStr) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.credentialModify, AuthzCapability.attributeModify,
 				AuthzCapability.identityModify, AuthzCapability.groupModify);
@@ -296,10 +292,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 		LoginSession client = internalManagment.preprocessRequest(finalRequest, currentRequest, action);
 
-		AdminComment publicComment = internalManagment.preprocessComment(currentRequest, 
-				publicCommentStr, client, true);
-		AdminComment internalComment = internalManagment.preprocessComment(currentRequest, 
-				internalCommentStr, client, false);
+		AdminComment publicComment = internalManagment.preprocessComment(currentRequest, publicCommentStr, client,
+				true);
+		AdminComment internalComment = internalManagment.preprocessComment(currentRequest, internalCommentStr, client,
+				false);
 
 		RegistrationForm form = formsDB.get(currentRequest.getRequest().getFormId());
 
@@ -315,43 +311,39 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			updateRequest(form, currentRequest, publicComment, internalComment);
 			break;
 		case accept:
-			internalManagment.acceptRequest(form, currentRequest, publicComment, 
-					internalComment, true);
+			internalManagment.acceptRequest(form, currentRequest, publicComment, internalComment, true);
 			break;
 		}
 	}
 
 	private void updateRequest(RegistrationForm form, RegistrationRequestState currentRequest,
-			AdminComment publicComment, AdminComment internalComment) 
-			throws EngineException
+			AdminComment publicComment, AdminComment internalComment) throws EngineException
 	{
 		registrationRequestValidator.validateSubmittedRequest(form, currentRequest.getRequest(), false);
 		requestDB.update(currentRequest);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		internalManagment.sendProcessingNotification(notificationsCfg.getUpdatedTemplate(),
-				currentRequest, form.getName(), false, 
-				publicComment, internalComment,	notificationsCfg);
+		internalManagment.sendProcessingNotification(notificationsCfg.getUpdatedTemplate(), currentRequest,
+				form.getName(), false, publicComment, internalComment, notificationsCfg);
 	}
-	
+
 	private void validateFormContents(RegistrationForm form) throws EngineException
 	{
 		baseValidator.validateBaseFormContents(form);
-		
+
 		if (form.isByInvitationOnly())
 		{
 			if (!form.isPubliclyAvailable())
-				throw new IllegalArgumentException("Registration form which "
-						+ "is by invitation only must be public");
+				throw new IllegalArgumentException("Registration form which " + "is by invitation only must be public");
 			if (form.getRegistrationCode() != null)
-				throw new IllegalArgumentException("Registration form which "
-						+ "is by invitation only must not have a static registration code");
+				throw new IllegalArgumentException(
+						"Registration form which " + "is by invitation only must not have a static registration code");
 		}
-		
+
 		if (form.getDefaultCredentialRequirement() == null)
 			throw new IllegalArgumentException("Credential requirement must be set for the form");
 		if (credentialReqRepository.get(form.getDefaultCredentialRequirement()) == null)
-			throw new IllegalArgumentException("Credential requirement " + 
-					form.getDefaultCredentialRequirement() + " does not exist");
+			throw new IllegalArgumentException(
+					"Credential requirement " + form.getDefaultCredentialRequirement() + " does not exist");
 
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg == null)
@@ -364,16 +356,15 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 				"submitted registration request");
 		baseValidator.checkTemplate(notCfg.getUpdatedTemplate(), UpdateRegistrationTemplateDef.NAME,
 				"updated registration request");
-		baseValidator.checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME,
-				"invitation");
+		baseValidator.checkTemplate(notCfg.getInvitationTemplate(), InvitationTemplateDef.NAME, "invitation");
 		if (form.getCaptchaLength() > RegistrationForm.MAX_CAPTCHA_LENGTH)
-			throw new IllegalArgumentException("Captcha can not be longer then " + 
-					RegistrationForm.MAX_CAPTCHA_LENGTH + " characters");
+			throw new IllegalArgumentException(
+					"Captcha can not be longer then " + RegistrationForm.MAX_CAPTCHA_LENGTH + " characters");
 		if (form.getTitle2ndStage() != null)
 		{
 			baseValidator.validateFreemarkerTemplate("Second stage title", form.getTitle2ndStage());
 		}
-		
+
 	}
 
 	@Override
@@ -388,5 +379,22 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public RegistrationForm getForm(String id) throws EngineException
 	{
 		return formsDB.get(id);
+	}
+
+	public InvitationWithCode getInvitation(String code) throws EngineException
+	{
+		return tx.runInTransactionRet(() -> invitationDB.get(code));
+	}
+	
+	private static class FormWithInvitation
+	{
+		public final RegistrationForm form;
+		public final InvitationPrefillInfo invitation;
+		
+		public FormWithInvitation(RegistrationForm form, InvitationPrefillInfo invitation)
+		{	
+			this.form = form;
+			this.invitation = invitation;
+		}
 	}
 }
