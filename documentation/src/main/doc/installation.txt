@@ -92,10 +92,8 @@ If this option is set as above Unity will use the same initialization logic as i
 
 === Notes on redundant installations
 
-It is possible to install Unity in a High Availability (HA) setup. The Unity HA can be realized in two variants:
-
-. _on the database level_ when using MySQL or PostgreSQL database.
-. (experimental) by using Hazelcast storage mechanism  
+It is possible to install Unity in a High Availability (HA) setup. 
+The Unity HA can be realized _on the database level_ when using MySQL or PostgreSQL database.
 
 When configuring the system some precautions must be made:
 

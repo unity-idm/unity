@@ -16,10 +16,8 @@ Let's start from crucial facts about Unity in general:
 - Unity by default uses a single HTTPS port. It must be opened on firewall. The port is configurable. 
 - Plain HTTP port may be used instead if you plan to hide Unity behind a HTTPS proxy.
 - Unity uses a configurable persistence mechanism to store its state. Not
-only the users and attributes are stored in database: also a nearly complete configuration of the system is.
-- Typically a RDBMS storage backend is used (several databases are supported) but more sophisticated deployments 
-may use Hazelcast in-memory data grid backend or maybe even others in future. 
-- Therefore the most of the Unity configuration which is provided in config files is only loaded on first startup and
+only the users and attributes are stored in database: also a nearly complete configuration of the system.
+- The most of the Unity configuration which is provided in config files is only loaded on first startup and
 persisted. Those settings can be edited at runtime in the web Admin Console interface.
 
 Here we list the most important facts about the default configuration:
