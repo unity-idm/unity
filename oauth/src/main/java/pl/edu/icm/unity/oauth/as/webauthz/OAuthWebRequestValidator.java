@@ -194,7 +194,7 @@ class OAuthWebRequestValidator
 					&& !context.getPrompts().contains(pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt.CONSENT))
 			{
 				log.warn("Client requested " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
-						+ " with scope, but the prompt parameter not contains 'consent', removing offline_scope from effective scopes");
+						+ " with scope, but the prompt parameter not contains 'consent', removing offline_access scope from effective scopes");
 				validRequestedScopes.remove(offlineScope.get());
 			}
 
