@@ -117,7 +117,7 @@ class OAuthServiceEditor implements ServiceEditor
 				outputTranslationProfileFieldFactory, 
 				endpoint != null, credentials, idTypes, allAttributes, usedPaths);
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
-				subViewSwitcher, flows, authenticators, allRealms, allUsernames,
+				subViewSwitcher, flows, authenticators, allRealms, allUsernames, generalTab::getScopes,
 				OAuthTokenEndpoint.TYPE.getSupportedBinding());
 		WebServiceAuthenticationTab webAuthTab = new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
 				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,

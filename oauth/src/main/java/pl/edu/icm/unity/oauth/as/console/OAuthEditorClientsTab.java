@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -74,10 +75,12 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 
 	private MandatoryGroupSelection groupCombo;
 
+	private Supplier<Set<String>> scopesSupplier;
+	
 	OAuthEditorClientsTab(MessageSource msg, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, SubViewSwitcher subViewSwitcher,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<String> allUsernames, String binding)
+			List<String> allRealms, List<String> allUsernames,  Supplier<Set<String>> scopesSupplier, String binding)
 	{
 		this.subViewSwitcher = subViewSwitcher;
 		this.msg = msg;
@@ -88,6 +91,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
 				.map(a -> a.getId()).collect(Collectors.toList());
 		this.allUsernames = allUsernames;
+		this.scopesSupplier = scopesSupplier;
 	}
 
 	void initUI(List<Group> groups, Binder<DefaultServiceDefinition> oauthTokenBinder,
@@ -274,7 +278,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		private void gotoEditSubView(OAuthClient edited, Consumer<OAuthClient> onConfirm)
 		{
 			EditOAuthClientSubView subView = new EditOAuthClientSubView(msg, uriAccessService, serverConfig,
-					getClientsIds(edited), edited, c -> {
+					getClientsIds(edited), scopesSupplier, edited, c -> {
 						onConfirm.accept(c);
 						fireChange();
 						clientsList.focus();

@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -493,6 +494,16 @@ class OAuthServiceController implements IdpServiceController
 					client.getFlows());
 			attrMan.setAttribute(entity, flows);
 		}
+		
+		if (!client.isAllowAnyScopes())
+		{
+			Attribute scopes = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_SCOPES, group,
+					client.getScopes() != null ? client.getScopes() : Collections.emptyList());
+			attrMan.setAttribute(entity, scopes);
+		}else
+		{
+			attrMan.removeAttribute(entity, group, OAuthSystemAttributesProvider.ALLOWED_SCOPES);
+		}
 
 		if (client.getTitle() != null)
 		{
@@ -606,6 +617,15 @@ class OAuthServiceController implements IdpServiceController
 
 		c.setFlows(attrs.get(OAuthSystemAttributesProvider.ALLOWED_FLOWS).getValues());
 
+		if (attrs.containsKey(OAuthSystemAttributesProvider.ALLOWED_SCOPES))
+		{
+			c.setScopes(attrs.get(OAuthSystemAttributesProvider.ALLOWED_SCOPES).getValues());
+			c.setAllowAnyScopes(false);
+		} else
+		{
+			c.setAllowAnyScopes(true);
+		}
+		
 		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_TYPE))
 		{
 			c.setType(attrs.get(OAuthSystemAttributesProvider.CLIENT_TYPE).getValues().get(0));

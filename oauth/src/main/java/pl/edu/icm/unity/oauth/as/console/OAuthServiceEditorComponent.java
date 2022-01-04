@@ -188,6 +188,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		hasErrors |= oauthServiceTokenBinder.validate().hasErrors();
 		hasErrors |= webConfigBinder.validate().hasErrors();
 
+		
 		if (hasErrors)
 		{
 			setErrorInTabs();

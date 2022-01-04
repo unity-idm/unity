@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.Scope;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -104,15 +106,34 @@ public class OAuthRequestValidator
 		return allowedFlows;
 	}
 	
-	public List<ScopeInfo> getValidRequestedScopes(Scope requestedScopes)
+	public Optional<Set<String>> getAllowedScopes(Map<String, AttributeExt> attributes)
+	{
+		AttributeExt allowedScopesA = attributes.get(OAuthSystemAttributesProvider.ALLOWED_SCOPES);
+		if (allowedScopesA == null)
+		{
+			return Optional.empty();
+		} else
+		{
+			return Optional.of(Sets.newHashSet(allowedScopesA.getValues()));
+		}
+	}
+	
+	public List<ScopeInfo> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
 		List<ScopeInfo> ret = new ArrayList<>();
 		Set<String> scopeKeys = oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES);
+		Optional<Set<String>> allowedScopes = getAllowedScopes(clientAttributes);
+		
 		if (requestedScopes != null)
 		{
 			for (String scopeKey: scopeKeys)
 			{
 				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
+				if (!allowedScopes.isEmpty() && !allowedScopes.get().contains(scope))
+				{
+					continue;
+				}
+				
 				if (requestedScopes.contains(scope))
 				{				
 					String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);

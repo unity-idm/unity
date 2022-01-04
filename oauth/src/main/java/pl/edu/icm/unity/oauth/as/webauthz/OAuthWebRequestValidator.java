@@ -153,12 +153,10 @@ class OAuthWebRequestValidator
 
 		validateAndRecordPrompt(context, authzRequest);
 		
-		validateAndRecordScopes(context, authzRequest);
+		validateAndRecordScopes(attributes, context, authzRequest);
 		
 		if (context.getClientType() == ClientType.PUBLIC)
 			validatePKCEIsUsedForCodeFlow(authzRequest, client);
-		
-		
 		
 	}
 
@@ -178,13 +176,13 @@ class OAuthWebRequestValidator
 		}
 	}
 
-	private void validateAndRecordScopes(OAuthAuthzContext context, AuthorizationRequest authzRequest)
+	private void validateAndRecordScopes(Map<String, AttributeExt> clientAttributes, OAuthAuthzContext context, AuthorizationRequest authzRequest)
 			throws OAuthValidationException
 	{
 		Scope requestedScopes = authzRequest.getScope();
 		if (requestedScopes != null)
 		{
-			List<ScopeInfo> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(requestedScopes);
+			List<ScopeInfo> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes, requestedScopes);
 			validateScope(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
 
 			Optional<ScopeInfo> offlineScope = validRequestedScopes.stream()

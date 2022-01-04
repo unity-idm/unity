@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,6 +19,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -60,16 +62,18 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 	private Binder<OAuthClient> binder;
 	private boolean editMode = false;
 	private Set<String> allClientsIds;
+	private Supplier<Set<String>> scopesSupplier;
 
 	EditOAuthClientSubView(MessageSource msg, URIAccessService uriAccessService,
-			UnityServerConfiguration serverConfig, Set<String> allClientsIds, OAuthClient toEdit,
+			UnityServerConfiguration serverConfig, Set<String> allClientsIds, Supplier<Set<String>> scopesSupplier, OAuthClient toEdit,
 			Consumer<OAuthClient> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		this.allClientsIds = allClientsIds;
-
+		this.scopesSupplier = scopesSupplier;
+		
 		editMode = toEdit != null;
 		binder = new Binder<>(OAuthClient.class);
 		VerticalLayout mainView = new VerticalLayout();
@@ -200,6 +204,28 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		binder.forField(redirectURIs).bind("redirectURIs");
 		header.addComponent(redirectURIs);
 
+		Set<String> definedScopes = scopesSupplier.get();
+		
+		ChipsWithDropdown<String> allowedScopes = new ChipsWithDropdown<>();
+		allowedScopes.setCaption(msg.getMessage("EditOAuthClientSubView.allowedScopes"));
+		allowedScopes.setItems(definedScopes);
+		allowedScopes.setSkipRemoveInvalidSelections(true);
+		binder.forField(allowedScopes).withValidator((v, c) -> {
+			if (v != null && !v.isEmpty() && !definedScopes.containsAll(v))
+			{
+				return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidAllowedScopes"));
+			}
+
+			return ValidationResult.ok();
+		}).bind("scopes");
+		
+		CheckBox allowAnyScopes = new CheckBox(msg.getMessage("EditOAuthClientSubView.allowAnyScopes"));
+		binder.forField(allowAnyScopes).bind("allowAnyScopes");
+		allowAnyScopes.addValueChangeListener(v -> allowedScopes.setEnabled(!v.getValue()));
+		
+		header.addComponent(allowAnyScopes);
+		header.addComponent(allowedScopes);
+		
 		return header;
 	}
 

@@ -396,19 +396,24 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	private String getClientName(EntityParam entity) throws OAuthErrorException
 	{
+		Map<String, AttributeExt> attributes = getClientAttributes(entity);
+		AttributeExt nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);
+		if (nameA != null)
+			return ((String) nameA.getValues().get(0));
+		else
+			return null;
+
+	}
+
+	private Map<String, AttributeExt> getClientAttributes(EntityParam entity) throws OAuthErrorException
+	{
 		try
 		{
-			Map<String, AttributeExt> attributes = requestValidator.getAttributesNoAuthZ(entity);
-			AttributeExt nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);
-			if (nameA != null)
-				return ((String) nameA.getValues().get(0));
-			else
-				return null;
+			return requestValidator.getAttributesNoAuthZ(entity);
 		} catch (Exception e)
 		{
 			throw new OAuthErrorException(makeError(OAuth2Error.SERVER_ERROR, e.getMessage()));
 		}
-
 	}
 
 	private OAuthToken prepareNewToken(OAuthToken oldToken, String scope, List<String> oldRequestedScopesList,
@@ -433,7 +438,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
 
 		List<ScopeInfo> newValidRequestedScopes = requestValidator
-				.getValidRequestedScopes(Scope.parse(String.join(" ", newRequestedScopeList)));
+				.getValidRequestedScopes(getClientAttributes(new EntityParam(clientId)), Scope.parse(String.join(" ", newRequestedScopeList)));
 		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.getName()).toArray(String[]::new));
 
 		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes);

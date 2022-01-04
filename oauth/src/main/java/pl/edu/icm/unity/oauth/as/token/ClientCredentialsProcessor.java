@@ -78,7 +78,7 @@ public class ClientCredentialsProcessor
 					"' is not authorized to use the '" + GrantFlow.client + "' grant flow.");
 		}
 		OAuthToken internalToken = new OAuthToken();
-		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope);
+		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope, attributes);
 		
 		internalToken.setClientId(loginSession.getEntityId());
 		internalToken.setClientUsername(client);
@@ -112,13 +112,13 @@ public class ClientCredentialsProcessor
 		return internalToken;
 	}
 	
-	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, String scope)
+	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, String scope, Map<String, AttributeExt> clientAttributes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		if (scope != null && !scope.isEmpty())
 		{
 			Scope parsed = Scope.parse(scope);
-			List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(parsed);
+			List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, parsed);
 			String[] array = validRequestedScopes.stream().
 					map(si -> si.getName()).
 					toArray(String[]::new);

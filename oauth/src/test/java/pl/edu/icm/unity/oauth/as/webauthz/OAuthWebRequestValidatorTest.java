@@ -14,10 +14,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.ALLOWED_RETURN_URI;
+import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.ALLOWED_SCOPES;
 import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.CLIENT_TYPE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.assertj.core.util.Maps;
@@ -229,6 +233,32 @@ public class OAuthWebRequestValidatorTest
 	}
 	
 	@Test
+	public void shouldTrimScopesToAllowedByIdpAndClient()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.1.name", "Scope1");
+		config.setProperty("unity.oauth2.as.scopes.2.name", "ToSkip1");
+		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip2");
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
+				Optional.of(Arrays.asList("Scope1")));
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.scope(Scope.parse("Scope1 ToSkip1 ToSkip2 ToSkip3")).build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+
+		validator.validate(context);
+
+		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
+		assertThat(context.getEffectiveRequestedScopes().iterator().next().getName()).isEqualTo("Scope1");
+	}
+	
+	@Test
 	public void shouldProcessOfflineAccessIfConsentPrompt()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{
@@ -262,9 +292,14 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.signingSecret", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		return new OAuthASProperties(config, null, null);
 	}
-
+	
 	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig,
 			String authorizedURI) throws EngineException
+	{
+		return getValidator(oauthConfig, authorizedURI, Optional.empty());
+	}
+	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig,
+			String authorizedURI, Optional<List<String>> allowedScopes) throws EngineException
 	{
 		AttributesManagement attributesMan = mock(AttributesManagement.class);
 		EntityManagement identitiesMan = mock(EntityManagement.class);
@@ -274,9 +309,17 @@ public class OAuthWebRequestValidatorTest
 		when(identitiesMan.getGroups(eq(clientEntity))).thenReturn(Maps.newHashMap("/oauth-clients", null));
 		AttributeExt allowedFlows = new AttributeExt(StringAttribute.of(ALLOWED_RETURN_URI, "/oauth-clients", 
 				authorizedURI), true);
+		
+		AttributeExt allowedScopesA = null;
+		if (!allowedScopes.isEmpty())
+		{
+			allowedScopesA = new AttributeExt(StringAttribute.of(ALLOWED_SCOPES, "/oauth-clients", allowedScopes.get()),
+					true);
+		}
 		AttributeExt clientType = new AttributeExt(StringAttribute.of(CLIENT_TYPE, "/oauth-clients", ClientType.PUBLIC.name()), true);
 		when(attributesMan.getAllAttributes(eq(clientEntity), anyBoolean(), anyString(), any(), anyBoolean()))
-			.thenReturn(Lists.newArrayList(allowedFlows, clientType));
+			.thenReturn( allowedScopesA == null ? Lists.newArrayList(allowedFlows, clientType) : Lists.newArrayList(allowedFlows, clientType, allowedScopesA));
+		
 		return new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan);
 	}
 }

@@ -33,6 +33,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	private List<AttributeType> oauthAttributes = new ArrayList<AttributeType>();
 	
 	public static final String ALLOWED_FLOWS = "sys:oauth:allowedGrantFlows";
+	public static final String ALLOWED_SCOPES = "sys:oauth:allowedScopes";
 	public static final String ALLOWED_RETURN_URI = "sys:oauth:allowedReturnURI";
 	public static final String PER_CLIENT_GROUP = "sys:oauth:groupForClient";
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
@@ -40,6 +41,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_TYPE = "sys:oauth:clientType";
 	
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
+	public static final int MAXIMUM_ALLOWED_SCOPES = 512;
 	
 	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client};
 	
@@ -50,6 +52,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	{
 		this.msg = msg;
 		oauthAttributes.add(getAllowedGrantFlowsAT());
+		oauthAttributes.add(getAllowedScopesAT());
 		oauthAttributes.add(getClientTypeAT());
 		oauthAttributes.add(getAllowedURIsAT());
 		oauthAttributes.add(getLogoAT());
@@ -71,6 +74,16 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		allowedGrantsAt.setUniqueValues(true);
 		allowedGrantsAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return allowedGrantsAt;
+	}
+	
+	private AttributeType getAllowedScopesAT()
+	{
+		AttributeType allowedScopesAt = new AttributeType(ALLOWED_SCOPES, StringAttributeSyntax.ID, msg);
+		allowedScopesAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		allowedScopesAt.setMinElements(0);
+		allowedScopesAt.setMaxElements(MAXIMUM_ALLOWED_SCOPES);
+		allowedScopesAt.setUniqueValues(false);
+		return allowedScopesAt;
 	}
 	
 	private AttributeType getClientTypeAT()

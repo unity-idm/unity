@@ -29,6 +29,8 @@ public class OAuthClient
 	private String id;
 	private String secret;
 	private List<String> flows;
+	private boolean allowAnyScopes;
+	private List<String> scopes;
 	private String type;
 	private List<String> redirectURIs;
 	private LocalOrRemoteResource logo;
@@ -39,7 +41,8 @@ public class OAuthClient
 
 	public OAuthClient()
 	{
-		type = ClientType.CONFIDENTIAL.toString();
+		this.type = ClientType.CONFIDENTIAL.toString();
+		this.allowAnyScopes = true;
 	}
 
 	public OAuthClient(String id, String secret)
@@ -47,6 +50,7 @@ public class OAuthClient
 		this.id = id;
 		this.secret = secret;
 		this.flows = new ArrayList<>(Arrays.asList(GrantFlow.authorizationCode.toString()));
+		this.allowAnyScopes = true;
 	}
 
 	public String getName()
@@ -159,12 +163,49 @@ public class OAuthClient
 		this.updated = updated;
 	}
 
+	public LocalOrRemoteResource getLogo()
+	{
+		return logo;
+	}
+
+	public void setLogo(LocalOrRemoteResource logo)
+	{
+		this.logo = logo;
+	}
+
+	public List<String> getScopes()
+	{
+		return scopes;
+	}
+
+	public void setScopes(List<String> scopes)
+	{
+		this.scopes = scopes;
+	}
+	
+	public boolean isAllowAnyScopes()
+	{
+		return allowAnyScopes;
+	}
+
+	public void setAllowAnyScopes(boolean allowAnyScopes)
+	{
+		this.allowAnyScopes = allowAnyScopes;
+	}
+	
 	public OAuthClient clone()
 	{
 		OAuthClient clone = new OAuthClient();
 		if (this.getFlows() != null)
 		{
 			clone.setFlows(this.getFlows().stream().map(s -> new String(s)).collect(Collectors.toList()));
+		}
+		
+		clone.setAllowAnyScopes(isAllowAnyScopes());
+		
+		if (this.getScopes() != null)
+		{
+			clone.setScopes(this.getScopes().stream().map(s -> new String(s)).collect(Collectors.toList()));
 		}
 
 		if (this.getRedirectURIs() != null)
@@ -184,16 +225,6 @@ public class OAuthClient
 		clone.setUpdated(this.isUpdated());
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		return clone;
-	}
-
-	public LocalOrRemoteResource getLogo()
-	{
-		return logo;
-	}
-
-	public void setLogo(LocalOrRemoteResource logo)
-	{
-		this.logo = logo;
 	}
 
 	public static class OAuthClientsBean

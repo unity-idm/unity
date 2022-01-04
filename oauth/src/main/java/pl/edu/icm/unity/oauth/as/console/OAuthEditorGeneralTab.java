@@ -551,6 +551,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return this;
 	}
 
+	public Set<String> getScopes()
+	{
+		return scopesGrid.getValue().stream().map(s -> s.getName()).collect(Collectors.toSet());
+	}
+	
 	private ValidationResult validatePathForAdd(String path, String path2)
 	{
 		if (path == null || path.isEmpty())
