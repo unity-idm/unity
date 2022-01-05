@@ -120,8 +120,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		EntityParam entity = new EntityParam(added.getEntityId());
 		
 		groupsMan.addMemberFromParent("/example", entity);
-		Attribute saRoot = EnumAttribute.of(AUTHORIZATION_ROLE, 
-				"/", Lists.newArrayList("Inspector"));
+		Attribute saRoot = EnumAttribute.of(AUTHORIZATION_ROLE, "/", Lists.newArrayList("Inspector"));
 		attrsMan.createAttribute(entity, saRoot);
 		
 		

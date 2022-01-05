@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -39,6 +38,7 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.engine.mvel.CachingMVELGroupProvider;
 import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -63,7 +63,6 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
@@ -124,7 +123,6 @@ public class AttributesHelper
 		this.attrRegistry = new PublicAttributeRegistry(attributeDAO, atHelper);
 	}
 
-	
 	public Map<String, AttributeExt> getAllAttributesAsMapOneGroup(long entityId, String groupPath) 
 			throws EngineException
 	{
@@ -720,7 +718,7 @@ public class AttributesHelper
 
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 		Collection<Group> allUserGroups = allUserGroupsMap.values();
-		Function<String, GroupsChain> groupChainProvider = g -> buildGroupsChain(allUserGroupsMap, g); 
+		CachingMVELGroupProvider mvelGroupProvider = new CachingMVELGroupProvider(allUserGroupsMap);
 		for (String group: groups)
 		{
 			if (!allUserGroupsMap.containsKey(group))
@@ -728,9 +726,11 @@ public class AttributesHelper
 			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
 					attributeTypeName, 
 					allUserGroups,
-					directAttributesByGroup, allClasses, 
+					directAttributesByGroup, 
+					allClasses, 
+					allUserGroupsMap::get,
 					attributeTypeDAO::get, 
-					groupChainProvider);
+					mvelGroupProvider::get);
 			ret.put(group, inGroup);
 		}
 		return ret;
@@ -750,26 +750,18 @@ public class AttributesHelper
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
 		List<Identity> identities = identityDAO.getByEntity(entityId);
 
-		Function<String, GroupsChain> groupChainProvider = g -> buildGroupsChain(allUserGroups, g); 
+		CachingMVELGroupProvider mvelGroupProvider = new CachingMVELGroupProvider(allUserGroups);
 
 		return statementsHelper.getEffectiveAttributes(identities, groupPath,
 					attributeTypeName, 
 					allUserGroups.values(),
 					directAttributesByGroup, 
-					allClasses, 
+					allClasses,
+					allUserGroups::get,
 					attributeTypeDAO::get, 
-					groupChainProvider);
+					mvelGroupProvider::get);
 	}
 
-	private GroupsChain buildGroupsChain(Map<String, Group> allUserGroups, String g)
-	{
-		List<Group> groupsList = new Group(g).getPathsChain().stream()
-				.map(p -> allUserGroups.get(p))
-				.collect(Collectors.toList());
-		return new GroupsChain(groupsList);
-	}
-	
-	
 	/**
 	 * @return map indexed with groups. Values are maps of all attributes in given group, indexed with attribute names.
 	 */

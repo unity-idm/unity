@@ -328,13 +328,17 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 			EntitiesData entitiesData, GlobalSystemData globalSystemData) 
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = entitiesData.getDirectAttributes().get(entityId);
-		List<Group> allGroups = entitiesData.getMemberships().get(entityId).stream().map(g -> globalSystemData.getGroups().get(g)).collect(Collectors.toList());
+		List<Group> allGroups = entitiesData.getMemberships().get(entityId)
+				.stream()
+				.map(g -> globalSystemData.getGroups().get(g))
+				.collect(Collectors.toList());
 		List<Identity> identities = entitiesData.getIdentities().get(entityId);
 		return statementsHelper.getEffectiveAttributes(identities, 
 				group, null, allGroups, directAttributesByGroup, 
 				globalSystemData.getAttributeClasses(),
+				g -> globalSystemData.getGroups().get(g),
 				globalSystemData.getAttributeTypes()::get,
-				g -> globalSystemData.getGroupChain(g));
+				g -> globalSystemData.getCachingMVELGroupProvider().get(g));
 	}
 	
 	private CredentialInfo getCredentialInfo(long entityId, EntitiesData entitiesData, GlobalSystemData globalSystemData)
