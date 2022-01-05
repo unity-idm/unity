@@ -7,6 +7,7 @@ package io.imunity.otp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.DecoderException;
@@ -103,13 +104,14 @@ public class TOTPCodeGeneratorTest
 		
 		String url = TOTPKeyGenerator.generateTOTPURI(new Base32().encodeToString(key), 
 				"john.doe@email.com", "ACME&Sons", 
-				new OTPGenerationParams(6, HashFunction.SHA1, 30));
+				new OTPGenerationParams(6, HashFunction.SHA1, 30), Optional.of("https://host.com/image.jpg"));
                 
                 assertThat(url).isEqualTo("otpauth://totp/ACME&Sons:john.doe@email.com?"
                 		+ "secret=JBSWY3DPEHPK3PXP&"
                 		+ "issuer=ACME%26Sons&"
                 		+ "algorithm=SHA1&"
-                		+ "digits=6&period=30");
+                		+ "digits=6&period=30&"
+                		+ "image=https%3A%2F%2Fhost.com%2Fimage.jpg");
 	}
 	
 	private static Stream<TestCaseSpec> getSHA1TestParams()

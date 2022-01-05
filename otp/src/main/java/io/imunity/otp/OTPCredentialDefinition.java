@@ -4,6 +4,8 @@
  */
 package io.imunity.otp;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -16,25 +18,28 @@ class OTPCredentialDefinition
 	final String issuerName;
 	final int allowedTimeDriftSteps;
 	final OTPResetSettings resetSettings;
+	final Optional<String> logoURI;
 	
 	@JsonCreator
 	OTPCredentialDefinition(
 			@JsonProperty("otpParams") OTPGenerationParams otpParams, 
 			@JsonProperty("issuerName") String issuerName, 
 			@JsonProperty("allowedTimeDriftSteps") int allowedTimeDriftSeconds,
-			@JsonProperty("resetSettings") OTPResetSettings resetSettings)
+			@JsonProperty("resetSettings") OTPResetSettings resetSettings,
+			@JsonProperty("logoURI") Optional<String> logoUri)
 	{
 		this.otpParams = otpParams;
 		this.issuerName = issuerName;
 		this.allowedTimeDriftSteps = allowedTimeDriftSeconds;
 		this.resetSettings = resetSettings;
+		this.logoURI = logoUri;
 	}
 
 	@Override
 	public String toString()
 	{
 		return String.format(
-				"OTPCredentialDefinition [otpParams=%s, issuerName=%s, allowedTimeDriftSeconds=%s]",
-				otpParams, issuerName, allowedTimeDriftSteps);
+				"OTPCredentialDefinition [otpParams=%s, issuerName=%s, allowedTimeDriftSeconds=%s, logoURI=%s]",
+				otpParams, issuerName, allowedTimeDriftSteps, logoURI.orElse(""));
 	}
 }

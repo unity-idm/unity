@@ -171,7 +171,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		private void updateQR()
 		{
 			String uri = TOTPKeyGenerator.generateTOTPURI(secret, user.getValue(), 
-					config.issuerName, config.otpParams);
+					config.issuerName, config.otpParams, config.logoURI);
 			qr.setValue(uri);
 		}
 		

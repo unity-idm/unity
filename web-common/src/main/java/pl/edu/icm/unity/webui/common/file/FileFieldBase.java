@@ -43,7 +43,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	protected MessageSource msg;
 
 	private LocalOrRemoteResource value;
-	private TextField remoteUrl;
+	protected TextField remoteUrl;
 	private Tab localTab;
 	protected Tab remoteTab;
 	protected TabSheet tab;
@@ -78,7 +78,6 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 		remoteUrl.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
 		remote.addComponent(remoteUrl);
 		remote.setMargin(new MarginInfo(true, false));
-		remote.addComponents();
 
 		tab = new TabSheet();
 		tab.addStyleName("u-logoFieldTabsheet");

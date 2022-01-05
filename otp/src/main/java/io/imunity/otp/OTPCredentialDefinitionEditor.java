@@ -8,6 +8,8 @@ package io.imunity.otp;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static io.imunity.tooltip.TooltipExtension.tooltip;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.risto.stepper.IntStepper;
 
@@ -24,6 +26,9 @@ import io.imunity.otp.OTPResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
@@ -31,7 +36,10 @@ import pl.edu.icm.unity.stdext.credential.pass.MobilePasswordResetTemplateDef;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.file.ImageField;
 
 @PrototypeComponent
 class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
@@ -45,18 +53,33 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 	private CompatibleTemplatesComboBox resetEmailMsgTemplateCombo;
 	private CompatibleTemplatesComboBox resetSMSCodeTemplateCombo;
 	private CheckBox enableReset;
+	private FileStorageService fileStorageService;
+	private ImageAccessService imageAccessService;
+	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 	
 	@Autowired
-	OTPCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplManagement)
+	OTPCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplManagement,
+			FileStorageService fileStorageService, ImageAccessService imageAccessService,
+			URIAccessService uriAccessService,  UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;
 		this.msgTplManagement = msgTplManagement;
+		this.fileStorageService = fileStorageService;
+		this.imageAccessService = imageAccessService;
+		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
 	}
 
 	@Override
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
 		binder = new Binder<>(OTPDefinitionBean.class);
+		
+		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
+		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
+		logo.configureBinding(binder, "logo");
+		logo.onlyRemoteSourceMode();
 		
 		TextField issuer = new TextField(msg.getMessage("OTPCredentialDefinitionEditor.issuer"));
 		tooltip(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip"));
@@ -134,12 +157,12 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		{
 			OTPCredentialDefinition editedValue = JsonUtil.parse(credentialDefinitionConfiguration, 
 				OTPCredentialDefinition.class);
-			binder.setBean(OTPDefinitionBean.fromOTPDefinition(editedValue));
+			binder.setBean(OTPDefinitionBean.fromOTPDefinition(editedValue, imageAccessService));
 		} else
 		{
 			binder.setBean(new OTPDefinitionBean());
 		}
-		FormLayout form = new FormLayout(issuer, allowedTimeDrift, timeStep, codeLength, hashAlgorithm,  
+		FormLayout form = new FormLayout(logo, issuer, allowedTimeDrift, timeStep, codeLength, hashAlgorithm,  
 				enableReset, confirmationMode, resetCodeLength, 
 				resetEmailMsgTemplateCombo, resetSMSCodeTemplateCombo);
 		form.setSpacing(true);
@@ -170,7 +193,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		if (binder.validate().hasErrors())
 			throw new IllegalCredentialException("", new FormValidationException());	
 		OTPDefinitionBean configBean = binder.getBean();
-		return JsonUtil.toJsonString(configBean.toOTPDefinition());
+		return JsonUtil.toJsonString(configBean.toOTPDefinition("", fileStorageService));
 	}
 	
 
@@ -187,8 +210,9 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		private String emailSecurityCodeMsgTemplate;
 		private String mobileSecurityCodeMsgTemplate;
 		private ConfirmationMode confirmationMode = ConfirmationMode.EMAIL;
+		private LocalOrRemoteResource logo;
 		
-		private static OTPDefinitionBean fromOTPDefinition(OTPCredentialDefinition src)
+		private static OTPDefinitionBean fromOTPDefinition(OTPCredentialDefinition src, ImageAccessService imageAccessService)
 		{
 			OTPDefinitionBean ret = new OTPDefinitionBean();
 			ret.allowedTimeDriftSteps = src.allowedTimeDriftSteps;
@@ -201,16 +225,17 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 			ret.emailSecurityCodeMsgTemplate = src.resetSettings.emailSecurityCodeMsgTemplate;
 			ret.mobileSecurityCodeMsgTemplate = src.resetSettings.mobileSecurityCodeMsgTemplate;
 			ret.confirmationMode = src.resetSettings.confirmationMode;
+			ret.logo = src.logoURI.isEmpty()? null : imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(src.logoURI.get()).orElse(null);
 			return ret;
 		}
 
-		private OTPCredentialDefinition toOTPDefinition()
+		private OTPCredentialDefinition toOTPDefinition(String name, FileStorageService fileStorageService)
 		{
 			OTPResetSettings resetSettings = new OTPResetSettings(enableReset, resetCodeLength, 
 					emailSecurityCodeMsgTemplate, mobileSecurityCodeMsgTemplate, confirmationMode);
 			return new OTPCredentialDefinition(
 					new OTPGenerationParams(codeLength, hashFunction, timeStepSeconds), 
-					issuerName, allowedTimeDriftSteps, resetSettings);
+					issuerName, allowedTimeDriftSteps, resetSettings, Optional.ofNullable(logo.getRemote()));
 		}
 		
 		public int getCodeLength()
@@ -302,6 +327,16 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		public void setConfirmationMode(ConfirmationMode confirmationMode)
 		{
 			this.confirmationMode = confirmationMode;
+		}
+
+		public LocalOrRemoteResource getLogo()
+		{
+			return logo;
+		}
+
+		public void setLogo(LocalOrRemoteResource logo)
+		{
+			this.logo = logo;
 		}
 	}
 }

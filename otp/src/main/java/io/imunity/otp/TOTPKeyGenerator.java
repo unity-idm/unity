@@ -19,6 +19,7 @@ package io.imunity.otp;
 
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
+import java.util.Optional;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.http.client.utils.URIBuilder;
@@ -30,11 +31,12 @@ public class TOTPKeyGenerator
 	public static final String ALGORITHM_URI_PARAM = "algorithm";
 	public static final String DIGITS_URI_PARAM = "digits";
 	public static final String PERIOD_URI_PARAM = "period";
+	public static final String IMAGE_URI_PARAM = "image";
 	
 	private static final SecureRandom RNG = new SecureRandom();
 	private static final Base32 BASE32_ENCODER = new Base32();
 	
-	public static String generateTOTPURI(String secretBase32, String label, String issuer, OTPGenerationParams otpParams)
+	public static String generateTOTPURI(String secretBase32, String label, String issuer, OTPGenerationParams otpParams, Optional<String> logoUri)
 	{
 		if (issuer.contains(":"))
 			throw new IllegalArgumentException("Issuer can not contain colon");
@@ -49,6 +51,10 @@ public class TOTPKeyGenerator
 			uriBuilder.addParameter(ALGORITHM_URI_PARAM, otpParams.hashFunction.toString()); 
 			uriBuilder.addParameter(DIGITS_URI_PARAM, String.valueOf(otpParams.codeLength)); 
 			uriBuilder.addParameter(PERIOD_URI_PARAM, String.valueOf(otpParams.timeStepSeconds)); 
+			if (!logoUri.isEmpty())
+			{
+				uriBuilder.addParameter(IMAGE_URI_PARAM, logoUri.get()); 
+			}
 			return uriBuilder.build().toASCIIString();
 		} catch (URISyntaxException e)
 		{

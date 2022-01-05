@@ -62,6 +62,12 @@ public class ImageField extends FileFieldBase
 		main.addComponent(previewL);
 	}
 	
+	public void onlyRemoteSourceMode()
+	{
+		main.removeComponent(tab);
+		main.addComponent(remoteUrl, 0);
+	}
+	
 	@Override
 	protected void setPreview()
 	{
