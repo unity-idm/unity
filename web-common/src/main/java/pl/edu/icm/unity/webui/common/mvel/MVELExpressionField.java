@@ -130,4 +130,11 @@ public class MVELExpressionField extends CustomField<String>
 		editorButton.addStyleName(style);
 		layout.addStyleName(style);
 	}
+	
+	@Override
+	public void setReadOnly(boolean readOnly)
+	{
+		field.setReadOnly(readOnly);
+		editorButton.setEnabled(!readOnly);
+	}
 }
