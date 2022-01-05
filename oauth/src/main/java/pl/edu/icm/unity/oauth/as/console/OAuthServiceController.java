@@ -502,7 +502,10 @@ class OAuthServiceController implements IdpServiceController
 			attrMan.setAttribute(entity, scopes);
 		}else
 		{
-			attrMan.removeAttribute(entity, group, OAuthSystemAttributesProvider.ALLOWED_SCOPES);
+			if (attrMan.getAttributes(entity, group, OAuthSystemAttributesProvider.ALLOWED_SCOPES).size() > 0)
+			{
+				attrMan.removeAttribute(entity, group, OAuthSystemAttributesProvider.ALLOWED_SCOPES);
+			}
 		}
 
 		if (client.getTitle() != null)
