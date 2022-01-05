@@ -40,6 +40,8 @@
 
 		<Logger name="unity.server.fido" level="INFO"/>
 
+		<Logger name="unity.server.event" level="INFO"/>
+
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
 

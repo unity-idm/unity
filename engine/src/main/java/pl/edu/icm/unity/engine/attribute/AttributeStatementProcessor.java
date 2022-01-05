@@ -83,8 +83,7 @@ public class AttributeStatementProcessor
 			Map<String, AttributesClass> knownClasses,
 			Function<String, Group> groupInfoProvider,
 			Function<String, AttributeType> attrTypeProvider,
-			Function<String, GroupsChain> groupChainProvider
-			) 
+			Function<String, GroupsChain> groupChainProvider) 
 	{		
 		Map<String, Map<String, AttributeExt>> downwardsAttributes = new HashMap<>();
 		collectUpOrDownAttributes(Direction.downwards, group, null, identities, downwardsAttributes, 
@@ -420,7 +419,7 @@ public class AttributeStatementProcessor
 	}
 
 
-	public static <T> List<String> convertValues(Object value, AttributeValueSyntax<T> syntax) 
+	private static <T> List<String> convertValues(Object value, AttributeValueSyntax<T> syntax) 
 			throws IllegalAttributeValueException
 	{
 		List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
@@ -444,9 +443,12 @@ public class AttributeStatementProcessor
 		
 		ret.put(AttributeStatementMVELContextKey.entityId.name(), identities.get(0).getEntityId());
 		ret.put(AttributeStatementMVELContextKey.groupName.name(), groupName);
-		ret.put(AttributeStatementMVELContextKey.groups.name(), new ArrayList<>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
+		ret.put(AttributeStatementMVELContextKey.groups.name(), 
+				new ArrayList<>(allGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toSet())));
 		ret.put(AttributeStatementMVELContextKey.groupsObj.name(),
-				allGroups.stream().collect(Collectors.toMap(g -> g.getPathEncoded(), g -> new MVELGroup(groupChainProvider.apply(g.getPathEncoded())))));
+				allGroups.stream().collect(
+						Collectors.toMap(g -> g.getPathEncoded(), 
+								g -> new MVELGroup(groupChainProvider.apply(g.getPathEncoded())))));
 		
 		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
 		for (Identity id: identities)
@@ -461,10 +463,13 @@ public class AttributeStatementProcessor
 		}
 		ret.put(AttributeStatementMVELContextKey.idsByType.name(), idsByType);
 		
-		addAttributesToContext(directAttributes, AttributeStatementMVELContextKey.attrs, AttributeStatementMVELContextKey.attr, ret);
+		addAttributesToContext(directAttributes, AttributeStatementMVELContextKey.attrs, 
+				AttributeStatementMVELContextKey.attr, ret);
+		
 		if (extraAttributes != null)
 		{
-			addAttributesToContext(extraAttributes, AttributeStatementMVELContextKey.eattrs, AttributeStatementMVELContextKey.eattr, ret);
+			addAttributesToContext(extraAttributes, AttributeStatementMVELContextKey.eattrs, 
+					AttributeStatementMVELContextKey.eattr, ret);
 		} else
 		{
 			ret.put(AttributeStatementMVELContextKey.eattrs.name(), null);
