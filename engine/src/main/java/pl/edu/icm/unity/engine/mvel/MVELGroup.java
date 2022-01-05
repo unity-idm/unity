@@ -8,7 +8,6 @@ package pl.edu.icm.unity.engine.mvel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.mvel2.ast.FunctionInstance;
@@ -33,11 +32,10 @@ public class MVELGroup
 		this.parent = parentChain == null ? null : new MVELGroup(parentChain);
 	}
 
-	public MVELGroup(Group group, Function<String, MVELGroup> mvelGroupProvider)
+	public MVELGroup(Group group, MVELGroup parent)
 	{
 		this.group = group;
-		String parentPath = group.getParentPath();
-		this.parent = parentPath == null ? null : mvelGroupProvider.apply(parentPath);
+		this.parent = parent;
 	}
 	
 	public boolean isChild(MVELGroup test)
