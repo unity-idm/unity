@@ -57,6 +57,8 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 	private GroupDelegationConfiguration delegationConfiguration;
 	private boolean publicGroup = false;
 	private Map<String, GroupProperty> properties = new HashMap<>();
+
+	private String encodedPath;
 	
 	
 	public Group(Group parent, String name)
@@ -73,6 +75,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		description = new I18nString();
 		delegationConfiguration = new GroupDelegationConfiguration(false);
 		publicGroup = false;
+		encodedPath = encodePath();
 	}
 
 	public Group(String path)
@@ -263,14 +266,9 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 
 	public String getPathEncoded()
 	{
-		if (path.length == 0)
-			return "/";
-		StringBuilder ret = new StringBuilder(path.length * 10);
-		for (int i = 0; i < path.length; i++)
-			ret.append("/").append(path[i]);
-		return ret.toString();		
+		return encodedPath;
 	}
-	
+
 	@Override
 	public String getName()
 	{
@@ -293,6 +291,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		if (path.equals("/"))
 		{
 			this.path = new String[0];
+			this.encodedPath = encodePath();
 			return;
 		}
 		if (path.startsWith("/"))
@@ -302,8 +301,20 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 		this.path = path.split("/");
 		if (this.path.length == 1 && this.path[0].equals(""))
 			this.path = new String[0];
+		this.encodedPath = encodePath();
 	}
 
+	private String encodePath()
+	{
+		if (path.length == 0)
+			return "/";
+		StringBuilder ret = new StringBuilder(path.length * 10);
+		for (int i = 0; i < path.length; i++)
+			ret.append("/").append(path[i]);
+		return ret.toString();		
+	}
+	
+	
 	public String getRelativeName()
 	{
 		return path.length == 0 ? "/" : path[path.length - 1];

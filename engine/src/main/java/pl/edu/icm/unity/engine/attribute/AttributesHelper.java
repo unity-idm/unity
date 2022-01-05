@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.engine.mvel.CachingMVELGroupProvider;
 import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -62,7 +63,6 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
@@ -159,11 +159,13 @@ public class AttributesHelper
 		Map<String, AttributesClass> allClasses = acDB.getAllAsMap();
 
 		List<Identity> identities = identityDAO.getByEntity(entityId);
+		CachingMVELGroupProvider mvelGroupProvider = new CachingMVELGroupProvider(allGroups);
 		for (String group: groups)
 		{
 			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, group,
 					attributeTypeName, allUserGroups.stream().map(allGroups::get).collect(Collectors.toList()),
-					directAttributesByGroup, allClasses, allGroups::get, attributeTypeDAO::get, g -> new GroupsChain(new Group(g).getPathsChain().stream().map(p -> allGroups.get(p)).collect(Collectors.toList())));
+					directAttributesByGroup, allClasses, allGroups::get, attributeTypeDAO::get, 
+					mvelGroupProvider::get);
 			ret.put(group, inGroup);
 		}
 		return ret;

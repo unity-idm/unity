@@ -7,14 +7,13 @@ package pl.edu.icm.unity.engine.bulk;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.engine.mvel.CachingMVELGroupProvider;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 /**
@@ -28,6 +27,7 @@ class GlobalSystemData
 	private Collection<CredentialDefinition> credentials;
 	private Map<String, CredentialRequirements> credentialRequirements;
 	private Map<String, EnquiryForm> enquiryForms;
+	private CachingMVELGroupProvider cachingMVELGroupProvider;
 	
 	private GlobalSystemData() 
 	{
@@ -48,9 +48,9 @@ class GlobalSystemData
 		return groups;
 	}
 	
-	GroupsChain getGroupChain(String path)
+	CachingMVELGroupProvider getCachingMVELGroupProvider()
 	{
-		return new GroupsChain(new Group(path).getPathsChain().stream().map(p -> groups.get(p)).collect(Collectors.toList()));
+		return cachingMVELGroupProvider;
 	}
 
 	Map<String, AttributesClass> getAttributeClasses()
@@ -116,6 +116,7 @@ class GlobalSystemData
 		GlobalSystemData build()
 		{
 			GlobalSystemData ret = obj;
+			ret.cachingMVELGroupProvider = new CachingMVELGroupProvider(ret.groups);
 			obj = new GlobalSystemData();
 			return ret;
 		}
