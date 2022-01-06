@@ -382,7 +382,7 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeSystemContentsFromConfigFile(boolean isColdStart)
 	{
 		initializeIdentityTypes();
-		initializeAttributeTypes();
+		initializeSystemAttributeTypes();
 		
 		initializeAdminUser();
 		
@@ -415,6 +415,7 @@ public class EngineInitialization extends LifecycleBase
 		boolean isColdStart = false;
 		loadCertificatesFromFileAfterMigration();
 		initializeIdentityTypes();
+		initializeSystemAttributeTypes();
 		initializeAdminUser();
 		notificationChannelLoader.initialize();
 		runInitializers();
@@ -549,7 +550,7 @@ public class EngineInitialization extends LifecycleBase
 		});
 	}
 
-	private void initializeAttributeTypes()
+	private void initializeSystemAttributeTypes()
 	{
 		log.info("Checking if all system attribute types are defined");
 		tx.runInTransaction(() -> {
