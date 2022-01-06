@@ -183,7 +183,7 @@ class OAuthWebRequestValidator
 		if (requestedScopes != null)
 		{
 			List<ScopeInfo> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes, requestedScopes);
-			validateScope(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
+			assertScopeSupportedByServer(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
 
 			Optional<ScopeInfo> offlineScope = validRequestedScopes.stream()
 					.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny();
@@ -196,14 +196,14 @@ class OAuthWebRequestValidator
 				validRequestedScopes.remove(offlineScope.get());
 			}
 
-			validateScope(OIDCScopeValue.OPENID, requestedScopes, validRequestedScopes);
+			assertScopeSupportedByServer(OIDCScopeValue.OPENID, requestedScopes, validRequestedScopes);
 
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
 		}
 	}
 	
-	private void validateScope(OIDCScopeValue scope, Scope requestedScopes, List<ScopeInfo> validRequestedScopes) throws OAuthValidationException
+	private void assertScopeSupportedByServer(OIDCScopeValue scope, Scope requestedScopes, List<ScopeInfo> validRequestedScopes) throws OAuthValidationException
 	{
 		boolean scopeRequested = requestedScopes.contains(scope.getValue());
 		boolean scopeAvailable = validRequestedScopes.stream()
