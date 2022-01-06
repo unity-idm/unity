@@ -21,7 +21,7 @@ public class InvitationProcessedNotificationTemplateDef extends BaseRegistration
 {
 	public static final String NAME = "InvitationProcessed";
 	
-	public static final String CREATE_TIME = "createTime";
+	public static final String CREATION_TIME = "creationTime";
 	public static final String CONTACT_ADDRESS = "contactAddress";
 	
 	public InvitationProcessedNotificationTemplateDef()
@@ -33,10 +33,10 @@ public class InvitationProcessedNotificationTemplateDef extends BaseRegistration
 	public Map<String, MessageTemplateVariable> getVariables()
 	{
 		Map<String, MessageTemplateVariable> vars = super.getVariables();
-		vars.put(CREATE_TIME, new MessageTemplateVariable(CREATE_TIME, 
-				"MessageTemplateConsumer.InvitationProcessed.var.createTime", false));
+		vars.put(CREATION_TIME, new MessageTemplateVariable(CREATION_TIME, 
+				"MessageTemplateConsumer.InvitationProcessed.var.creationTime", false));
 		vars.put(CONTACT_ADDRESS, new MessageTemplateVariable(CONTACT_ADDRESS, 
-				"MessageTemplateConsumer.InvitationProcessed.var.createTime", false));
+				"MessageTemplateConsumer.InvitationProcessed.var.contactAddress", false));
 		return vars;
 	}
 	

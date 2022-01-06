@@ -379,7 +379,7 @@ public class BaseSharedRegistrationSupport
 		InvitationWithCode invitationWithCode = invitationInfo.getInvitation().get();
 		Map<String, String> params = getBaseNotificationParams(form.getName(), requestFull.getRequestId());
 		ZonedDateTime createTime = invitationWithCode.getCreationTime().atZone(ZoneId.systemDefault());
-		params.put(InvitationProcessedNotificationTemplateDef.CREATE_TIME,
+		params.put(InvitationProcessedNotificationTemplateDef.CREATION_TIME,
 				createTime.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		params.put(InvitationProcessedNotificationTemplateDef.CONTACT_ADDRESS,
 				invitationWithCode.getInvitation().getContactAddress());
