@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.as.console;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,8 +70,8 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEdi
  */
 class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 {
-	private static Set<String> SCOPES_BLOCKED_TO_EDIT = Collections
-			.unmodifiableSet(Set.of(OIDCScopeValue.OPENID.toString(), OIDCScopeValue.OFFLINE_ACCESS.toString()));
+	private static Set<String> SCOPES_BLOCKED_TO_EDIT = Set.of(OIDCScopeValue.OPENID.toString(),
+			OIDCScopeValue.OFFLINE_ACCESS.toString());
 
 	private MessageSource msg;
 	private Binder<DefaultServiceDefinition> oauthWebAuthzBinder;
@@ -198,9 +197,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			l.addComponent(metaPath);
 			infoLayoutWrapper.addComponent(l);
 			metaPath.addClickListener(e ->
-			{
-				Page.getCurrent().open(metaPath.getCaption(), "_blank", false);
-			});
+				Page.getCurrent().open(metaPath.getCaption(), "_blank", false));
 		}
 
 		name = new TextField();
@@ -342,9 +339,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(supportExtendAccessTokenValidity).bind("supportExtendTokenValidity");
 		mainGeneralLayout.addComponent(supportExtendAccessTokenValidity);
 		supportExtendAccessTokenValidity.addValueChangeListener(e ->
-		{
-			extendAccessTokenValidity.setEnabled(e.getValue());
-		});
+			extendAccessTokenValidity.setEnabled(e.getValue())
+		);
 
 		extendAccessTokenValidity.setWidth(5, Unit.EM);
 		extendAccessTokenValidity.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
@@ -378,9 +374,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(signingAlg).bind("signingAlg");
 		mainGeneralLayout.addComponent(signingAlg);
 		signingAlg.addValueChangeListener(e ->
-		{
-			refreshSigningControls();
-		});
+			refreshSigningControls()
+		);
 
 		credential = new ComboBox<>();
 		credential.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingCredential"));
