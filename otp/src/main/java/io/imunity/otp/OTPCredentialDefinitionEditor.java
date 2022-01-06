@@ -76,10 +76,9 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 	{
 		binder = new Binder<>(OTPDefinitionBean.class);
 		
-		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
+		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit(), true);
 		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
 		logo.configureBinding(binder, "logo");
-		logo.onlyRemoteSourceMode();
 		
 		TextField issuer = new TextField(msg.getMessage("OTPCredentialDefinitionEditor.issuer"));
 		tooltip(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip"));

@@ -34,7 +34,11 @@ public class ImageField extends FileFieldBase
 
 	public ImageField(MessageSource msg, URIAccessService uriAccessService, int maxFileSize)
 	{
-		super(msg, "image/*", maxFileSize);
+		this(msg, uriAccessService, maxFileSize, false);
+	}
+	public ImageField(MessageSource msg, URIAccessService uriAccessService, int maxFileSize, boolean remoteOnly)	
+	{
+		super(msg, "image/*", maxFileSize, remoteOnly);
 		this.uriAccessService = uriAccessService;
 		previewL = new VerticalLayout();
 		previewL.setWidthUndefined();
@@ -61,13 +65,7 @@ public class ImageField extends FileFieldBase
 
 		main.addComponent(previewL);
 	}
-	
-	public void onlyRemoteSourceMode()
-	{
-		main.removeComponent(tab);
-		main.addComponent(remoteUrl, 0);
-	}
-	
+
 	@Override
 	protected void setPreview()
 	{

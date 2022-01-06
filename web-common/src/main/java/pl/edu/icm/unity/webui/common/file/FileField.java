@@ -30,7 +30,7 @@ public class FileField extends FileFieldBase
 	
 	public FileField(MessageSource msg, String mimeType, String previewFileName, int maxFileSize)
 	{
-		super(msg, mimeType, maxFileSize);
+		super(msg, mimeType, maxFileSize, false);
 		this.fileName = previewFileName;
 		downloader = new SimpleFileDownloader();
 		addExtension(downloader);

@@ -51,7 +51,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	private Upload upload;
 	
 
-	public FileFieldBase(MessageSource msg, String mimeType, int maxFileSize)
+	public FileFieldBase(MessageSource msg, String mimeType, int maxFileSize, boolean remoteOnly)
 	{
 		this.msg = msg;
 		this.maxFileSize = maxFileSize;
@@ -87,7 +87,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
-		main.addComponent(tab);
+		main.addComponent(remoteOnly ? remoteUrl : tab);
 
 
 	}
