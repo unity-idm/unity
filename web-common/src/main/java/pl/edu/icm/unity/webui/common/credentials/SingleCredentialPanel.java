@@ -38,6 +38,7 @@ import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -136,7 +137,7 @@ public class SingleCredentialPanel extends CustomComponent
 
 		invalidate = new Button(msg.getMessage("CredentialChangeDialog.invalidate"));
 		invalidate.addStyleName(Styles.vButtonLink.toString());
-		invalidate.addClickListener(ne -> changeCredentialStatus(LocalCredentialState.outdated));
+		invalidate.addClickListener(ne -> changeCredentialStatusWithConfirm(LocalCredentialState.outdated));
 
 		edit = new Button(msg.getMessage("CredentialChangeDialog.setup"));
 		edit.addStyleName(Styles.vButtonLink.toString());
@@ -275,7 +276,7 @@ public class SingleCredentialPanel extends CustomComponent
 
 	private void clearCredential()
 	{
-		changeCredentialStatus(LocalCredentialState.notSet);
+		changeCredentialStatusWithConfirm(LocalCredentialState.notSet);
 	}
 	
 	private void onCredentialUpdate()
@@ -353,6 +354,13 @@ public class SingleCredentialPanel extends CustomComponent
 		}
 	}
 
+	
+	private void changeCredentialStatusWithConfirm(LocalCredentialState desiredState)
+	{
+		new ConfirmDialog(msg, msg.getMessage("CredentialChangeDialog.confirmStateChangeTo." + desiredState,
+				credentialName.getValue()), () -> changeCredentialStatus(desiredState)).show();
+	}
+
 	private void changeCredentialStatus(LocalCredentialState desiredState)
 	{
 		EntityParam entityP = new EntityParam(entity.getId());
@@ -361,8 +369,7 @@ public class SingleCredentialPanel extends CustomComponent
 			ecredMan.setEntityCredentialStatus(entityP, toEdit.getName(), desiredState);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage(
-					"CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			return;
 		}
 		loadEntity(entityP);
