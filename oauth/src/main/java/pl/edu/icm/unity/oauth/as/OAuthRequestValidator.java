@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -130,6 +131,7 @@ public class OAuthRequestValidator
 				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
 				if (!allowedScopes.isEmpty() && !allowedScopes.get().contains(scope))
 				{
+					log.debug("Scope " + scope + " is not allowed for client, skipped");
 					continue;
 				}
 				
@@ -141,6 +143,13 @@ public class OAuthRequestValidator
 					ret.add(new ScopeInfo(scope, desc, attributes));
 				}
 			}
+		}
+		
+		Set<String> skipped = new HashSet<>(requestedScopes.toStringList());
+		skipped.removeAll(ret.stream().map(s -> s.getName()).collect(Collectors.toSet()));
+		if (!skipped.isEmpty())
+		{
+			log.info("Ignored requested scopes: " + String.join(",", skipped));
 		}
 		return ret;
 	}

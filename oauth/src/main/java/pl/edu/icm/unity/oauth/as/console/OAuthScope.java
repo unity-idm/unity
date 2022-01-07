@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.oauth.as.console;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represent single oauth scope.
@@ -52,4 +53,26 @@ public class OAuthScope
 	{
 		this.attributes = attributes;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(attributes, description, name);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OAuthScope other = (OAuthScope) obj;
+		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
+				&& Objects.equals(name, other.name);
+	}
+	
+	
 }

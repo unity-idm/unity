@@ -124,8 +124,10 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
+		
+		CollapsibleLayout buildScopesSection = buildScopesSection();
 		main.addComponent(buildHeaderSection());
-		main.addComponent(buildScopesSection());
+		main.addComponent(buildScopesSection);
 		main.addComponent(buildAdvancedSection());
 		main.addComponent(
 				profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder, "translationProfile"));
@@ -438,23 +440,22 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	{
 		if (add)
 		{
-			OAuthScope openidScope = configBinder.getBean().getScopes().stream()
-					.filter(s -> s.getName().equals(value.toString())).findFirst().orElse(null);
-			if (openidScope == null)
+			OAuthScope scope = configBinder.getBean().getScopes().stream()
+					.filter(s -> s.getName().equals(value.getValue())).findFirst().orElse(null);
+			if (scope == null)
 			{
-				openidScope = new OAuthScope();
-				openidScope.setName(value.toString());
-				openidScope.setDescription(message);
-				scopesGrid.addElement(openidScope);
+				scope = new OAuthScope();
+				scope.setName(value.getValue());
+				scope.setDescription(message);
+				scopesGrid.addElement(scope);
 			}
 		} else
 		{
-
-			List<OAuthScope> openidScopes = configBinder.getBean().getScopes().stream()
-					.filter(s -> s.getName().equals(value.toString())).collect(Collectors.toList());
-			if (!openidScopes.isEmpty())
+			List<OAuthScope> scopes = configBinder.getBean().getScopes().stream()
+					.filter(s -> s.getName().equals(value.getValue())).collect(Collectors.toList());
+			if (!scopes.isEmpty())
 			{
-				openidScopes.forEach(s -> scopesGrid.removeElement(s));
+				scopes.forEach(s -> scopesGrid.removeElement(s));
 			}
 		}
 	}
@@ -614,6 +615,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 					).bind("name");
 
 			TextField desc = new TextField();
+			desc.setWidth(100, Unit.PERCENTAGE);
+			
 			desc.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
 			binder.forField(desc).bind("description");
 
@@ -622,7 +625,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			attributes.setItems(attrTypes);
 			binder.forField(attributes).bind("attributes");
 			FormLayout main = new FormLayout();
-			main.setMargin(false);
+			main.setMargin(new MarginInfo(false, true, false, false));
 			main.addComponent(name);
 			main.addComponent(desc);
 			main.addComponent(attributes);

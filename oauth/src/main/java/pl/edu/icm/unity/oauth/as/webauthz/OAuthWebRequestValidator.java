@@ -183,8 +183,6 @@ class OAuthWebRequestValidator
 		if (requestedScopes != null)
 		{
 			List<ScopeInfo> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes, requestedScopes);
-			assertScopeSupportedByServer(OIDCScopeValue.OFFLINE_ACCESS, requestedScopes, validRequestedScopes);
-
 			Optional<ScopeInfo> offlineScope = validRequestedScopes.stream()
 					.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny();
 
@@ -192,7 +190,7 @@ class OAuthWebRequestValidator
 					&& !context.getPrompts().contains(pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt.CONSENT))
 			{
 				log.warn("Client requested " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
-						+ " with scope, but the prompt parameter not contains 'consent', removing offline_access scope from effective scopes");
+						+ " with scope, but the prompt parameter not contains 'consent', ignore offline_access scope");
 				validRequestedScopes.remove(offlineScope.get());
 			}
 
