@@ -51,10 +51,7 @@ public class TOTPKeyGenerator
 			uriBuilder.addParameter(ALGORITHM_URI_PARAM, otpParams.hashFunction.toString()); 
 			uriBuilder.addParameter(DIGITS_URI_PARAM, String.valueOf(otpParams.codeLength)); 
 			uriBuilder.addParameter(PERIOD_URI_PARAM, String.valueOf(otpParams.timeStepSeconds)); 
-			if (!logoUri.isEmpty())
-			{
-				uriBuilder.addParameter(IMAGE_URI_PARAM, logoUri.get()); 
-			}
+			logoUri.ifPresent(uri -> uriBuilder.addParameter(IMAGE_URI_PARAM, uri));
 			return uriBuilder.build().toASCIIString();
 		} catch (URISyntaxException e)
 		{
