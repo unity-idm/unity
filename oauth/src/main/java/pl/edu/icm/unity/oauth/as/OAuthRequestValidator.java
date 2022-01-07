@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.Scope;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -114,7 +113,7 @@ public class OAuthRequestValidator
 			return Optional.empty();
 		} else
 		{
-			return Optional.of(Sets.newHashSet(allowedScopesA.getValues()));
+			return Optional.of(Set.copyOf(allowedScopesA.getValues()));
 		}
 	}
 	

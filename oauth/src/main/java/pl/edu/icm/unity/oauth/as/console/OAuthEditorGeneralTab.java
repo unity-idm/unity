@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm.Family;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
@@ -546,9 +547,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return this;
 	}
 
-	public Set<String> getScopes()
+	Set<String> getScopes()
 	{
-		return scopesGrid.getValue().stream().map(s -> s.getName()).collect(Collectors.toSet());
+		return scopesGrid.getValue().stream().map(s -> s.getName()).collect(ImmutableSet.toImmutableSet());
 	}
 	
 	private ValidationResult validatePathForAdd(String path, String path2)

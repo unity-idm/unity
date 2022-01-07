@@ -219,11 +219,11 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			return ValidationResult.ok();
 		}).bind("scopes");
 		
-		CheckBox allowAnyScopes = new CheckBox(msg.getMessage("EditOAuthClientSubView.allowAnyScopes"));
-		binder.forField(allowAnyScopes).bind("allowAnyScopes");
-		allowAnyScopes.addValueChangeListener(v -> allowedScopes.setEnabled(!v.getValue()));
+		CheckBox allowAllScopes = new CheckBox(msg.getMessage("EditOAuthClientSubView.allowAllScopes"));
+		binder.forField(allowAllScopes).bind("allowAnyScopes");
+		allowAllScopes.addValueChangeListener(v -> allowedScopes.setEnabled(!v.getValue()));
 		
-		header.addComponent(allowAnyScopes);
+		header.addComponent(allowAllScopes);
 		header.addComponent(allowedScopes);
 		
 		return header;
