@@ -24,7 +24,7 @@ public class InvitationPrefillInfo
 
 	public boolean isByInvitation()
 	{
-		return !invitation.isEmpty();
+		return invitation.isPresent();
 	}
 	
 	public Optional<InvitationWithCode> getInvitation()

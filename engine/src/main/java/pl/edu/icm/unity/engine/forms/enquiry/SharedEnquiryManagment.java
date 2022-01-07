@@ -47,7 +47,7 @@ import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
@@ -138,7 +138,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		try
 		{
 			entityResolver.getEntityId(new EntityParam(entityId));
-		} catch (IllegalIdentityValueException e)
+		} catch (UnknownIdentityException e)
 		{
 			throw new EngineException("Unknown entity " + currentRequest.getEntityId(), e);
 		}

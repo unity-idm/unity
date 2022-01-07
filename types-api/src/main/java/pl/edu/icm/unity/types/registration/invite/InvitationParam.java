@@ -200,8 +200,9 @@ public abstract class InvitationParam
 		json.put("expiration", getExpiration().toEpochMilli());
 		if (getContactAddress() != null)
 			json.put("contactAddress", getContactAddress());
-		if (!getInviterEntity().isEmpty())
-			json.put("inviter", getInviterEntity().get());
+		
+		getInviterEntity().ifPresent(inviter -> json.put("inviter", inviter));
+		
 		return json;
 	}
 	

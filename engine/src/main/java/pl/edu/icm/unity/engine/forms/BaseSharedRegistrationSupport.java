@@ -73,15 +73,15 @@ public class BaseSharedRegistrationSupport
 	
 	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
 	public static final String AUTO_PROCESS_INVITATIONS_COMMENT = "Automatically processed invitations";
-	protected EntityResolver entityResolver;
-	protected MessageSource msg;
-	protected NotificationProducer notificationProducer;
-	protected AttributesHelper attributesHelper;
-	protected GroupHelper groupHelper;
-	protected EntityCredentialsHelper credentialHelper;
-	protected InternalFacilitiesManagement facilitiesManagement;
-	private InvitationDB invitationDB;
-	protected PolicyAgreementManagement policyAgreementManagement;
+	protected final EntityResolver entityResolver;
+	protected final MessageSource msg;
+	protected final NotificationProducer notificationProducer;
+	protected final AttributesHelper attributesHelper;
+	protected final GroupHelper groupHelper;
+	protected final EntityCredentialsHelper credentialHelper;
+	protected final InternalFacilitiesManagement facilitiesManagement;
+	private final InvitationDB invitationDB;
+	protected final PolicyAgreementManagement policyAgreementManagement;
 	private final SecondFactorOptInService secondFactorOptInService;
 	private final NamedCRUDDAOWithTS<? extends UserRequestState<?>> requestDB;
 
