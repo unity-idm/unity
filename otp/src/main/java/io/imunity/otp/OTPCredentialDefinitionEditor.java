@@ -38,7 +38,6 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 
 @PrototypeComponent
@@ -54,19 +53,17 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 	private CompatibleTemplatesComboBox resetSMSCodeTemplateCombo;
 	private CheckBox enableReset;
 	private FileStorageService fileStorageService;
-	private ImageAccessService imageAccessService;
 	private URIAccessService uriAccessService;
 	private UnityServerConfiguration serverConfig;
 	
 	@Autowired
 	OTPCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplManagement,
-			FileStorageService fileStorageService, ImageAccessService imageAccessService,
+			FileStorageService fileStorageService,
 			URIAccessService uriAccessService,  UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;
 		this.msgTplManagement = msgTplManagement;
 		this.fileStorageService = fileStorageService;
-		this.imageAccessService = imageAccessService;
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 	}
@@ -77,8 +74,10 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder = new Binder<>(OTPDefinitionBean.class);
 		
 		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit(), true);
-		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
-		logo.configureBinding(binder, "logo");
+		logo.setCaption(msg.getMessage("OTPCredentialDefinitionEditor.logo"));
+		tooltip(logo, msg.getMessage("OTPCredentialDefinitionEditor.logo.tip"));
+		binder.forField(logo).bind("logo");
+		
 		
 		TextField issuer = new TextField(msg.getMessage("OTPCredentialDefinitionEditor.issuer"));
 		tooltip(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip"));
@@ -156,7 +155,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		{
 			OTPCredentialDefinition editedValue = JsonUtil.parse(credentialDefinitionConfiguration, 
 				OTPCredentialDefinition.class);
-			binder.setBean(OTPDefinitionBean.fromOTPDefinition(editedValue, imageAccessService));
+			binder.setBean(OTPDefinitionBean.fromOTPDefinition(editedValue));
 		} else
 		{
 			binder.setBean(new OTPDefinitionBean());
@@ -211,7 +210,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		private ConfirmationMode confirmationMode = ConfirmationMode.EMAIL;
 		private LocalOrRemoteResource logo;
 		
-		private static OTPDefinitionBean fromOTPDefinition(OTPCredentialDefinition src, ImageAccessService imageAccessService)
+		private static OTPDefinitionBean fromOTPDefinition(OTPCredentialDefinition src)
 		{
 			OTPDefinitionBean ret = new OTPDefinitionBean();
 			ret.allowedTimeDriftSteps = src.allowedTimeDriftSteps;
@@ -224,7 +223,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 			ret.emailSecurityCodeMsgTemplate = src.resetSettings.emailSecurityCodeMsgTemplate;
 			ret.mobileSecurityCodeMsgTemplate = src.resetSettings.mobileSecurityCodeMsgTemplate;
 			ret.confirmationMode = src.resetSettings.confirmationMode;
-			ret.logo = src.logoURI.isEmpty()? null : imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(src.logoURI.get()).orElse(null);
+			ret.logo = src.logoURI.isEmpty()? null : new LocalOrRemoteResource(src.logoURI.orElse(null));
 			return ret;
 		}
 

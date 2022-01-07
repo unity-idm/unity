@@ -88,8 +88,8 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.addComponent(remoteOnly ? remoteUrl : tab);
-
-
+		main.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
 	}
 	
 	@Override
