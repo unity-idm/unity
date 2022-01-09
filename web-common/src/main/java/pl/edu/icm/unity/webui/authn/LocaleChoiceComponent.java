@@ -69,11 +69,7 @@ public class LocaleChoiceComponent extends CompactFormLayout
 				current.addItem(locale, Images.getFlagForLocale(selectableLocales.get(locale).toString()), s -> 
 				{
 					Locale l = selectableLocales.get(locale);
-					Cookie languageCookie = new Cookie(InvocationContextSetupFilter.LANGUAGE_COOKIE, 
-							l.toString());
-					languageCookie.setPath("/");
-					languageCookie.setMaxAge(3600*24*31);
-					languageCookie.setHttpOnly(true);
+					Cookie languageCookie = new LanguageCookie(l.toString());
 					((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
 					
 					VaadinSession vSession = VaadinSession.getCurrent();

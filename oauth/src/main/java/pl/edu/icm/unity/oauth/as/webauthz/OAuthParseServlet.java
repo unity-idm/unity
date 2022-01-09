@@ -10,7 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -22,6 +24,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Sets;
+import com.nimbusds.langtag.LangTag;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
@@ -40,6 +43,7 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
+import pl.edu.icm.unity.webui.authn.LanguageCookie;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 
@@ -117,10 +121,11 @@ public class OAuthParseServlet extends HttpServlet
 		AuthorizationRequest authzRequest;
 		
 		String queryString = getQueryString(request);
-
+		Optional<List<LangTag>> uiLocales = Optional.empty();		
 		try
 		{
 			authzRequest = AuthenticationRequest.parse(queryString);
+			uiLocales = Optional.ofNullable(((AuthenticationRequest) authzRequest).getUILocales());
 		} catch (ParseException e)
 		{
 			if (log.isTraceEnabled())
@@ -175,8 +180,18 @@ public class OAuthParseServlet extends HttpServlet
 			log.trace("Request with OAuth input handled successfully");
 		
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
+		setLanguageCookie(response, uiLocales);
 		
-		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
+		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));		
+	}
+	
+	private void setLanguageCookie(HttpServletResponse response, Optional<List<LangTag>> uiLocales)
+	{
+		if (uiLocales.isPresent())
+		{
+			response.addCookie(new LanguageCookie(
+					String.join(",", uiLocales.get().stream().map(l -> l.toString()).collect(Collectors.toList()))));
+		}
 	}
 	
 	private AuthenticationPolicy mapPromptToAuthenticationPolicy(
