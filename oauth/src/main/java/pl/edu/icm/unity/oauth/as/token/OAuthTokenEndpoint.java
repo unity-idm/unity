@@ -36,8 +36,8 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
 import pl.edu.icm.unity.rest.RESTEndpoint;
-import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -147,7 +147,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new RevocationResource(tokensManagement, oauthTokenRepository,
 					sessionMan, getEndpointDescription().getRealm(),
 					config.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION)));
-			RestEndpointHelper.installExceptionHandlers(ret);
+			OAuthExceptionMapper.installExceptionHandlers(ret);
 			return ret;
 		}
 	}

@@ -56,6 +56,12 @@ class OAuthTokenStatisticPublisher
 	void reportFailAsLoggedClient()
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+		if (loginSession == null)
+		{
+			log.error("Can not retrieving identity of the OAuth client, skip error reporting");
+			return;
+		}
+		
 		EntityParam clientEntity = new EntityParam(loginSession.getEntityId());
 		Entity clientResolvedEntity;
 		try
