@@ -37,9 +37,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
 	protected AttributeValueSyntax<?> syntax;
 	protected MessageSource msg;
-	
-	public static final int LARGE_STRING = 1000;
-	
+		
 	public TextOnlyAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		this.syntax = syntax;
@@ -88,18 +86,17 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			
 			this.required = context.isRequired();
 			this.context = context;
-			boolean large = false;
+			boolean editWithTextArea = false;
 			if (syntax instanceof StringAttributeSyntax)
 			{
 				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
-				if (sas.getMaxLength() > LARGE_STRING)
-					large = true;
+				editWithTextArea = sas.isEditWithTextArea();
 				this.required = required && sas.getMinLength() > 0;
 			}
 			
-			field = large ? new TextArea() : new TextField();
-			if (large)
-				field.setWidth(60, Unit.PERCENTAGE);
+			field = editWithTextArea ? new TextArea() : new TextField();
+			if (editWithTextArea)
+				field.setWidth(100, Unit.PERCENTAGE);
 			setLabel(label);
 			
 			StringBuilder sb = new StringBuilder();

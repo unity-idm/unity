@@ -42,6 +42,8 @@ public class JsonDumpUpdateFromV14 implements JsonDumpUpdate
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 		JsonNode contents = root.get("contents");
 		updateOAuthEndpointRefreshTokenIssuePolicy(contents.withArray(EndpointHandler.ENDPOINT_OBJECT_TYPE));
+		udpateStringSyntaxAttributeTypes(contents.withArray("attributeTypes"));
+		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
@@ -61,6 +63,34 @@ public class JsonDumpUpdateFromV14 implements JsonDumpUpdate
 
 				LOG.info("Updating OAuth endpoint {}, \nold config: {}\nnew config: {}", endpoint.get("name"),
 						iconfiguration, migratedConfig);
+			}
+		}
+	}
+	
+	
+	private void udpateStringSyntaxAttributeTypes(JsonNode attributeTypesArray)
+	{
+		for (JsonNode attrTypeNode : attributeTypesArray)
+		{
+			ObjectNode attrTypeObj = (ObjectNode) attrTypeNode;
+			String syntax = attrTypeObj.get("syntaxId").asText();
+			if (syntax.equals("string"))
+			{
+				
+				JsonNode jsonNode = attrTypeObj.get("syntaxState");
+				if (jsonNode ==null || jsonNode.isNull())
+					continue;
+				ObjectNode syntaxConfig = (ObjectNode) jsonNode;
+				if (syntaxConfig.get("maxLength").asInt() > 1000)
+				{
+					syntaxConfig.put("editWithTextArea", "true");
+				} else
+				{
+					syntaxConfig.put("editWithTextArea", "false");
+				}
+
+				LOG.info("Updating attribute type {}, set editWithTextArea={} in string syntax",
+						attrTypeObj.get("name").asText(), syntaxConfig.get("editWithTextArea"));
 			}
 		}
 	}

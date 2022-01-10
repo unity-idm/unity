@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -48,6 +49,10 @@ public class TestJsonDumpUpdateFromV14
 	@Autowired
 	private EndpointDB endpointDAO;
 
+	@Autowired
+	private AttributeTypeDAO atTypeDAO;
+
+	
 	@Before
 	public void cleanDB()
 	{
@@ -68,7 +73,7 @@ public class TestJsonDumpUpdateFromV14
 			{
 				fail("Import failed " + e);
 			}
-
+			checkStringAttributeSyntax();
 			checkOAuthEndpointConfiguration();
 
 		});
@@ -87,6 +92,14 @@ public class TestJsonDumpUpdateFromV14
 		Properties configProp2 = parse(configuration2);
 		assertThat(configProp2.getProperty("unity.oauth2.as.refreshTokenIssuePolicy"), is("NEVER"));
 		assertThat(configProp2.getProperty("unity.oauth2.as.refreshTokenValidity"), nullValue());
+	}
+	
+	private void checkStringAttributeSyntax()
+	{
+		assertThat(atTypeDAO.get("address").getValueSyntaxConfiguration().get("editWithTextArea").asBoolean(),
+				is(false));
+		assertThat(atTypeDAO.get("pgpPublicKey").getValueSyntaxConfiguration().get("editWithTextArea").asBoolean(),
+				is(true));
 	}
 
 	private static Properties parse(String source)

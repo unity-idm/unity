@@ -8,23 +8,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
+import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Allows for editing an attribute or for creating a new one.
@@ -34,7 +31,7 @@ public class AttributeEditor extends CustomComponent
 {
 	private FixedAttributeEditor valuesPanel;
 	private FormLayout attrValuesContainer;
-	private AttributeMetaEditorPanel attrTypePanel;
+	private AttributeTypePanel attrTypePanel;
 	private String groupPath;
 	private boolean typeFixed = false;
 	
@@ -49,9 +46,9 @@ public class AttributeEditor extends CustomComponent
 			final AttributeHandlerRegistry handlerRegistry, final boolean required)
 	{
 		this.groupPath = groupPath;
-		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
+		attrTypePanel = new AttributeTypePanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
-		attrValuesContainer = new CompactFormLayout();
+		attrValuesContainer =  new FormLayoutWithFixedCaptionWidth();
 		
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
@@ -64,23 +61,15 @@ public class AttributeEditor extends CustomComponent
 				false, null, null);
 		valuesPanel.placeOnLayout(attrValuesContainer);
 		
-		attrTypePanel.setCallback(new TypeChangeCallback()
+		attrTypePanel.setCallback(newType ->
 		{
-			@Override
-			public void attributeTypeChanged(AttributeType newType)
-			{
-				
-				attrValuesContainer.removeAllComponents();
-				AttributeEditContext newEditContext = AttributeEditContext.builder()
-						.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
-						.withAttributeType(newType)
-						.withAttributeGroup(AttributeEditor.this.groupPath)
-						.withAttributeOwner(owner).build();
+			attrValuesContainer.removeAllComponents();
+			AttributeEditContext newEditContext = AttributeEditContext.builder()
+					.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required).withAttributeType(newType)
+					.withAttributeGroup(AttributeEditor.this.groupPath).withAttributeOwner(owner).build();
 
-				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, 
-						false, null, null);
-				valuesPanel.placeOnLayout(attrValuesContainer);
-			}
+			valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, false, null, null);
+			valuesPanel.placeOnLayout(attrValuesContainer);
 		});
 		initCommon();
 	}
@@ -107,8 +96,8 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
-		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
-		attrValuesContainer = new CompactFormLayout();
+		attrTypePanel = new AttributeTypePanel(attributeType, groupPath, msg);
+		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -133,8 +122,8 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = groupPath;
-		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
-		attrValuesContainer = new CompactFormLayout();
+		attrTypePanel = new AttributeTypePanel(attributeType, groupPath, msg);
+		attrValuesContainer =  new FormLayoutWithFixedCaptionWidth();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -150,13 +139,18 @@ public class AttributeEditor extends CustomComponent
 	
 	private void initCommon()
 	{
-		HorizontalSplitPanel split = new HorizontalSplitPanel(attrTypePanel, attrValuesContainer);
-		split.setSplitPosition(45);
-		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
-		attrValuesContainer.setSizeUndefined();
-		attrTypePanel.setMargin(new MarginInfo(false, true, false, false));
-		setCompositionRoot(split);
-		split.addStyleName(Styles.visibleScroll.toString());
+//		HorizontalSplitPanel split = new HorizontalSplitPanel(attrTypePanel, attrValuesContainer);
+//		split.setSplitPosition(45);
+//		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
+//		attrValuesContainer.setWidthFull();
+//		attrTypePanel.setMargin(new MarginInfo(false, true, false, false));
+//		setCompositionRoot(split);
+//		split.addStyleName(Styles.visibleScroll.toString());
+		
+		VerticalLayout main = new VerticalLayout();
+		main.addComponent(attrTypePanel);
+		main.addComponent(attrValuesContainer);
+		setCompositionRoot(main);
 	}
 	
 	public Attribute getAttribute() throws FormValidationException
