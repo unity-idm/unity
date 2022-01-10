@@ -86,7 +86,7 @@ public class URIAccessServiceImpl implements URIAccessService
 			return readUriInternal("", uri, customTruststore);
 		} catch (EngineException e)
 		{
-			log.error("Can not read uri: " + uri.toString(), e);
+			log.trace("Can not read uri: " + uri.toString(), e);
 			throw new URIAccessException("Can not read uri", e);
 		}
 	}
