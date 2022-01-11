@@ -5,18 +5,20 @@
 
 package pl.edu.icm.unity.webui.authn;
 
+import java.time.Duration;
+
 import javax.servlet.http.Cookie;
 
 public class LanguageCookie extends Cookie
 {
 	public static final String LANGUAGE_COOKIE = "language";
-	public static final int LANGUAGE_COOKIE_MAX_AGE_IN_SECONDS = 3600 * 24 * 31;
+	public static final Duration LANGUAGE_COOKIE_MAX_AGE = Duration.ofSeconds(3600 * 24 * 31);
 
 	public LanguageCookie(String lang)
 	{
 		super(LANGUAGE_COOKIE, lang);
 		setPath("/");
-		setMaxAge(LANGUAGE_COOKIE_MAX_AGE_IN_SECONDS);
+		setMaxAge(Long.valueOf(LANGUAGE_COOKIE_MAX_AGE.toSeconds()).intValue());
 		setHttpOnly(true);
 	}
 

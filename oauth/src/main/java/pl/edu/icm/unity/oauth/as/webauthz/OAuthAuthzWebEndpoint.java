@@ -133,7 +133,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.setContextPath(description.getEndpoint().getContextAddress());
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_ROUTING_SERVLET_PATH),
-				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement);
+				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, serverConfig);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
 		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 

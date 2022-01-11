@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -37,6 +37,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -66,18 +67,35 @@ public class OAuthParseServlet extends HttpServlet
 	private final String oauthUiServletPath;
 	private final ErrorHandler errorHandler;
 	private final OAuthWebRequestValidator validator;
+	private final UnityServerConfiguration serverConfig;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig,
 			String oauthUiServletPath,
 			ErrorHandler errorHandler,
 			EntityManagement identitiesMan,
-			AttributesManagement attributesMan)
+			AttributesManagement attributesMan,
+			UnityServerConfiguration serverConfig)
 	{
 		this.oauthConfig = oauthConfig;
 		this.oauthUiServletPath = oauthUiServletPath;
 		this.errorHandler = errorHandler;
 		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan);
+		this.serverConfig = serverConfig;
 	}
+	
+	OAuthParseServlet(OAuthASProperties oauthConfig,
+			String oauthUiServletPath,
+			ErrorHandler errorHandler,
+			OAuthWebRequestValidator validator,
+			UnityServerConfiguration serverConfig)
+	{
+		this.oauthConfig = oauthConfig;
+		this.oauthUiServletPath = oauthUiServletPath;
+		this.errorHandler = errorHandler;
+		this.validator = validator;
+		this.serverConfig = serverConfig;
+	}
+
 
 	/**
 	 * GET handling
@@ -189,8 +207,15 @@ public class OAuthParseServlet extends HttpServlet
 	{
 		if (uiLocales.isPresent())
 		{
-			response.addCookie(new LanguageCookie(
-					String.join(",", uiLocales.get().stream().map(l -> l.toString()).collect(Collectors.toList()))));
+			for (LangTag langTag : uiLocales.get())
+			{
+				Locale locale = UnityServerConfiguration.safeLocaleDecode(langTag.toString());
+				if (serverConfig.isLocaleSupported(locale))
+				{
+					response.addCookie(new LanguageCookie(langTag.toString()));
+					return;
+				}
+			}
 		}
 	}
 	
