@@ -53,7 +53,7 @@ public class OAuthParseServletTest
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		OAuthWebRequestValidator validator = Mockito.mock(OAuthWebRequestValidator.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
-		when(config.isLocaleSupported(new Locale("pl-PL"))).thenReturn(true);
+		when(config.isLocaleSupported(new Locale("pl", "PL"))).thenReturn(true);
 		when(request.getSession()).thenReturn(session);
 		when(request.getQueryString())
 				.thenReturn(new AuthenticationRequest.Builder(new URI("requested"), new ClientID(new Identifier("x")))
@@ -66,6 +66,30 @@ public class OAuthParseServletTest
 
 		ArgumentCaptor<Cookie> cookieArgument = ArgumentCaptor.forClass(Cookie.class);
 		verify(response).addCookie(cookieArgument.capture());
-		assertThat(cookieArgument.getValue().getValue(), is("pl-PL"));
+		assertThat(cookieArgument.getValue().getValue(), is("pl_PL"));
+	}
+	
+	@Test
+	public void shouldSetFirstSupportedLocaleFromOAuthUIlocalesMatchByLangOnly()
+			throws IOException, ServletException, URISyntaxException, LangTagException
+	{
+		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+		OAuthWebRequestValidator validator = Mockito.mock(OAuthWebRequestValidator.class);
+		HttpSession session = Mockito.mock(HttpSession.class);
+		when(config.isLocaleSupported(new Locale("pl"))).thenReturn(true);
+		when(request.getSession()).thenReturn(session);
+		when(request.getQueryString())
+				.thenReturn(new AuthenticationRequest.Builder(new URI("requested"), new ClientID(new Identifier("x")))
+						.redirectionURI(new URI("redirect")).scope(Scope.parse("openid"))
+						.responseType(ResponseType.CODE)
+						.uiLocales(Arrays.asList(LangTag.parse("de-De"), LangTag.parse("pl-PL"))).build()
+						.toQueryString());
+		OAuthParseServlet servlet = new OAuthParseServlet(null, null, null, validator, config);
+		servlet.processRequest(request, response);
+
+		ArgumentCaptor<Cookie> cookieArgument = ArgumentCaptor.forClass(Cookie.class);
+		verify(response).addCookie(cookieArgument.capture());
+		assertThat(cookieArgument.getValue().getValue(), is("pl"));
 	}
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,34 +48,31 @@ import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.authn.LanguageCookie;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
-
 /**
  * Low level servlet performing the initial OAuth handling.
  * <p>
- * The servlet retrieves the request, parses it, validates and if everything is correct 
- * stores it in the session and forwards the processing to the Vaadin part. In case of problems an error is returned
- * to the requester or error page is displayed if the requester can not be established.
+ * The servlet retrieves the request, parses it, validates and if everything is
+ * correct stores it in the session and forwards the processing to the Vaadin
+ * part. In case of problems an error is returned to the requester or error page
+ * is displayed if the requester can not be established.
+ * 
  * @author K. Benedyczak
  */
-public class OAuthParseServlet extends HttpServlet 
+public class OAuthParseServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthParseServlet.class);
-	
-	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(
-			ResponseType.Value.CODE, ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
-	
+
+	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(ResponseType.Value.CODE,
+			ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
+
 	private final OAuthASProperties oauthConfig;
 	private final String oauthUiServletPath;
 	private final ErrorHandler errorHandler;
 	private final OAuthWebRequestValidator validator;
 	private final UnityServerConfiguration serverConfig;
-	
-	public OAuthParseServlet(OAuthASProperties oauthConfig,
-			String oauthUiServletPath,
-			ErrorHandler errorHandler,
-			EntityManagement identitiesMan,
-			AttributesManagement attributesMan,
-			UnityServerConfiguration serverConfig)
+
+	public OAuthParseServlet(OAuthASProperties oauthConfig, String oauthUiServletPath, ErrorHandler errorHandler,
+			EntityManagement identitiesMan, AttributesManagement attributesMan, UnityServerConfiguration serverConfig)
 	{
 		this.oauthConfig = oauthConfig;
 		this.oauthUiServletPath = oauthUiServletPath;
@@ -82,12 +80,9 @@ public class OAuthParseServlet extends HttpServlet
 		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan);
 		this.serverConfig = serverConfig;
 	}
-	
-	OAuthParseServlet(OAuthASProperties oauthConfig,
-			String oauthUiServletPath,
-			ErrorHandler errorHandler,
-			OAuthWebRequestValidator validator,
-			UnityServerConfiguration serverConfig)
+
+	OAuthParseServlet(OAuthASProperties oauthConfig, String oauthUiServletPath, ErrorHandler errorHandler,
+			OAuthWebRequestValidator validator, UnityServerConfiguration serverConfig)
 	{
 		this.oauthConfig = oauthConfig;
 		this.oauthUiServletPath = oauthUiServletPath;
@@ -96,19 +91,17 @@ public class OAuthParseServlet extends HttpServlet
 		this.serverConfig = serverConfig;
 	}
 
-
 	/**
 	 * GET handling
 	 */
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		log.trace("Received GET request to the OAuth2 authorization endpoint");
 		processRequest(request, response);
 	}
 
-	protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
+	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException
 	{
 		try
@@ -116,30 +109,27 @@ public class OAuthParseServlet extends HttpServlet
 			processRequestInterruptible(request, response);
 		} catch (EopException e)
 		{
-			//OK
+			// OK
 		}
 	}
-	
+
 	private String getQueryString(HttpServletRequest request)
 	{
 		String requestFromHoldOn = request.getParameter("oAuthRequest");
 		if (requestFromHoldOn != null)
-			return new String(Base64.decodeBase64(requestFromHoldOn), 
-					StandardCharsets.UTF_8);
+			return new String(Base64.decodeBase64(requestFromHoldOn), StandardCharsets.UTF_8);
 		else
 			return request.getQueryString();
 	}
-	
-	
-	
-	protected void processRequestInterruptible(HttpServletRequest request, HttpServletResponse response) 
+
+	protected void processRequestInterruptible(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException, EopException
 	{
 		log.trace("Starting OAuth2 authorization request processing");
 		AuthorizationRequest authzRequest;
-		
+
 		String queryString = getQueryString(request);
-		Optional<List<LangTag>> uiLocales = Optional.empty();		
+		Optional<List<LangTag>> uiLocales = Optional.empty();
 		try
 		{
 			authzRequest = AuthenticationRequest.parse(queryString);
@@ -148,7 +138,7 @@ public class OAuthParseServlet extends HttpServlet
 		{
 			if (log.isTraceEnabled())
 				log.trace("Request to OAuth2 endpoint address, which is not OIDC request, "
-					+ "will try plain OAuth. OIDC parse error: " + e.toString());
+						+ "will try plain OAuth. OIDC parse error: " + e.toString());
 			try
 			{
 				authzRequest = AuthorizationRequest.parse(queryString);
@@ -156,29 +146,25 @@ public class OAuthParseServlet extends HttpServlet
 				if (requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID))
 				{
 					log.warn("Request to OAuth2 endpoint address, which is not OIDC request, "
-							+ "but OIDC profile requested. OIDC parse error: " + 
-							e.toString());
-					errorHandler.showErrorPage("Error parsing OAuth OIDC request", e.getMessage(), 
-							response);
+							+ "but OIDC profile requested. OIDC parse error: " + e.toString());
+					errorHandler.showErrorPage("Error parsing OAuth OIDC request", e.getMessage(), response);
 					return;
 				}
-			}catch (ParseException ee)
+			} catch (ParseException ee)
 			{
 				if (log.isTraceEnabled())
-					log.trace("Request to OAuth2 endpoint address, "
-							+ "with invalid/missing parameters, error: " + e.toString());
+					log.trace("Request to OAuth2 endpoint address, " + "with invalid/missing parameters, error: "
+							+ e.toString());
 				errorHandler.showErrorPage("Error parsing OAuth request", e.getMessage(), response);
 				return;
 			}
 		}
 
-		//ok, we do have a new request. 
+		// ok, we do have a new request.
 		OAuthAuthzContext context;
 		if (log.isTraceEnabled())
-			log.trace("Request to protected address, with OAuth2 input, will be processed: " + 
-					request.getRequestURI());
-		
-		
+			log.trace("Request to protected address, with OAuth2 input, will be processed: " + request.getRequestURI());
+
 		try
 		{
 			if (log.isTraceEnabled())
@@ -191,36 +177,67 @@ public class OAuthParseServlet extends HttpServlet
 			errorHandler.showErrorPage(e.getMessage(), null, response);
 			return;
 		}
-		
+
 		SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
-		
+
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, uiLocales);
-		
-		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));		
+
+		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
-	
+
 	private void setLanguageCookie(HttpServletResponse response, Optional<List<LangTag>> uiLocales)
 	{
-		if (uiLocales.isPresent())
+		if (uiLocales.isEmpty())
 		{
-			for (LangTag langTag : uiLocales.get())
-			{
-				Locale locale = UnityServerConfiguration.safeLocaleDecode(langTag.toString());
-				if (serverConfig.isLocaleSupported(locale))
-				{
-					response.addCookie(new LanguageCookie(langTag.toString()));
-					return;
-				}
-			}
+			return;
+		}
+
+		List<Locale> requestedLocales = uiLocales.get().stream().map(l -> Locale.forLanguageTag(l.toString()))
+				.collect(Collectors.toList());
+		Optional<Locale> fullMatch = matchFullLocale(requestedLocales);
+		if (fullMatch.isPresent())
+		{
+			response.addCookie(new LanguageCookie(fullMatch.get().toString()));
+			return;
+		}
+
+		Optional<Locale> langMatch = matchPrimaryLangFromLocale(requestedLocales);
+		if (langMatch.isPresent())
+		{
+			response.addCookie(new LanguageCookie(langMatch.get().toString()));
 		}
 	}
-	
-	private AuthenticationPolicy mapPromptToAuthenticationPolicy(
-			Set<Prompt> prompts)
+
+	private Optional<Locale> matchFullLocale(List<Locale> requestedLocales)
+	{
+		for (Locale langTag : requestedLocales)
+		{
+			if (serverConfig.isLocaleSupported(langTag))
+			{
+				return Optional.of(langTag);
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional<Locale> matchPrimaryLangFromLocale(List<Locale> requestedLocales)
+	{
+		for (Locale langTag : requestedLocales)
+		{
+			Locale onlyLang = new Locale(langTag.getLanguage());
+			if (serverConfig.isLocaleSupported(onlyLang))
+			{
+				return Optional.of(onlyLang);
+			}
+		}
+		return Optional.empty();
+	}
+
+	private AuthenticationPolicy mapPromptToAuthenticationPolicy(Set<Prompt> prompts)
 	{
 		if (prompts.contains(Prompt.NONE))
 			return AuthenticationPolicy.REQUIRE_EXISTING_SESSION;
@@ -231,8 +248,8 @@ public class OAuthParseServlet extends HttpServlet
 	}
 
 	/**
-	 * We are passing all unknown to OAuth query parameters to downstream servlet. This may help to build 
-	 * extended UIs, which can interpret those parameters. 
+	 * We are passing all unknown to OAuth query parameters to downstream servlet.
+	 * This may help to build extended UIs, which can interpret those parameters.
 	 */
 	private String getQueryToAppend(AuthorizationRequest authzRequest, SignInContextKey contextKey)
 	{
@@ -240,7 +257,7 @@ public class OAuthParseServlet extends HttpServlet
 		URIBuilder b = new URIBuilder();
 		for (Entry<String, List<String>> entry : customParameters.entrySet())
 		{
-			for (String value: entry.getValue())
+			for (String value : entry.getValue())
 				b.addParameter(entry.getKey(), value);
 		}
 		if (!SignInContextKey.DEFAULT.equals(contextKey))
@@ -258,7 +275,3 @@ public class OAuthParseServlet extends HttpServlet
 		return query == null ? "" : "?" + query;
 	}
 }
-
-
-
-
