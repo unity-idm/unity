@@ -68,6 +68,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -535,12 +536,18 @@ class OAuthServiceController implements IdpServiceController
 			attrMan.setAttribute(entity, name);
 		}
 
-		if (client.getSecret() != null)
+		if (!client.getType().equals(ClientType.PUBLIC.toString()))
 		{
-			entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
-					new PasswordToken(client.getSecret()).toJson());
+			if (client.getSecret() != null && !client.getSecret().isEmpty())
+			{
+				entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
+						new PasswordToken(client.getSecret()).toJson());
+			}
+		} else
+		{
+			entityCredentialManagement.setEntityCredentialStatus(entity, DEFAULT_CREDENTIAL,
+					LocalCredentialState.notSet);
 		}
-
 	}
 
 	private void updateLogo(EntityParam entity, String group, byte[] value) throws EngineException
