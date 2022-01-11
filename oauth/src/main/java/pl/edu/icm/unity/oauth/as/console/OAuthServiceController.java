@@ -392,10 +392,19 @@ class OAuthServiceController implements IdpServiceController
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
+		
+		ControllerException ex = null;
 		try
 		{
 			endpointMan.updateEndpoint(webAuthzService.getName(),
 					serviceFileConfigController.getEndpointConfig(webAuthzService.getName()));
+		} catch (Exception e)
+		{
+			ex = new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
+		}
+		
+		try
+		{
 			if (tokenService != null)
 			{
 				endpointMan.updateEndpoint(tokenService.getName(),
@@ -403,9 +412,13 @@ class OAuthServiceController implements IdpServiceController
 			}
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
+			ex = new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
 		}
 
+		if (ex != null)
+		{
+			throw ex;
+		}
 	}
 
 	private void updateClients(List<OAuthClient> clients) throws EngineException, URISyntaxException
