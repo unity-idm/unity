@@ -77,7 +77,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.1.attributes.3=email\n"
 			+ "unity.oauth2.as.scopes.2.name=bar\n"
 			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
-			+ "unity.oauth2.as.scopes.2.attributes.1=c\n";
+			+ "unity.oauth2.as.scopes.2.attributes.1=c\n" 
+			+ "unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS\n";
 
 	private static final String OAUTH_RP_CFG = 
 			"unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"

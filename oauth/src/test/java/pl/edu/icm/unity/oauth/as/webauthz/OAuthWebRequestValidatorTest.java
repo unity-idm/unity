@@ -241,7 +241,8 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.2.name", "ToSkip1");
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip2");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
-
+		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
+		
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
 				Optional.of(Arrays.asList("Scope1")));
@@ -287,6 +288,7 @@ public class OAuthWebRequestValidatorTest
 	private static OAuthASProperties getConfig()
 	{
 		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.signingAlgorithm", "HS256");
 		config.setProperty("unity.oauth2.as.signingSecret", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");

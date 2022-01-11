@@ -103,6 +103,8 @@ public class OAuthTestUtils
 		properties.setProperty(P + SCOPES + "2." + SCOPE_NAME, "s2");
 		if (oidc)
 			properties.setProperty(P + SCOPES + "3." + SCOPE_NAME, "openid");
+		properties.setProperty(P + SCOPES + "4." + SCOPE_NAME, "offline_access");
+
 		PKIManagement pkiManagement = new MockPKIMan();
 		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR);
 	}
