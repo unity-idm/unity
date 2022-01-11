@@ -58,7 +58,7 @@ class OAuthTokenStatisticPublisher
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 		if (loginSession == null)
 		{
-			log.error("Can not retrieving identity of the OAuth client, skip error reporting");
+			log.error("Can not retrieve identity of the OAuth client, skippig error reporting");
 			return;
 		}
 		

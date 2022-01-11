@@ -21,12 +21,13 @@ import pl.edu.icm.unity.base.utils.Log;
 class JSONExceptionMapper implements ExceptionMapper<JsonProcessingException>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, JSONExceptionMapper.class);
-	
+
 	public Response toResponse(JsonProcessingException ex)
 	{
 		log.error("JSON error during RESTful API invocation", ex);
-		return Response.status(Status.BAD_REQUEST).entity(
-				OAuthExceptionMapper.makeError(OAuth2Error.SERVER_ERROR, ex.getMessage()).toJSONObject().toJSONString())
+		return Response
+				.status(Status.BAD_REQUEST).entity(OAuthExceptionMapper
+						.makeError(OAuth2Error.SERVER_ERROR, "JSON processing error").toJSONObject().toJSONString())
 				.type(MediaType.APPLICATION_JSON).build();
 	}
 }

@@ -27,7 +27,7 @@ class JSONParsingExceptionMapper implements ExceptionMapper<JSONParsingException
 		log.error("JSON parse error during RESTful API invocation", ex);
 		return Response
 				.status(Status.BAD_REQUEST).entity(OAuthExceptionMapper
-						.makeError(OAuth2Error.SERVER_ERROR, ex.getMessage()).toJSONObject().toJSONString())
+						.makeError(OAuth2Error.SERVER_ERROR, "JSON parse error").toJSONObject().toJSONString())
 				.type(MediaType.APPLICATION_JSON).build();
 	}
 }
