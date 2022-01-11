@@ -180,8 +180,24 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		
 		tokenSigner = new TokenSigner(this, pkiManamgenet);
 		
+		validateOfflineAccess();
 	}
 	
+	private void validateOfflineAccess()
+	{
+		if (getEnumValue(REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.class)
+				.equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED))
+		{
+			for (String scopeKey : getStructuredListKeys(OAuthASProperties.SCOPES))
+			{
+				if (OIDCScopeValue.OFFLINE_ACCESS.getValue().equals(getValue(scopeKey + OAuthASProperties.SCOPE_NAME)))
+					return;
+			}
+			throw new ConfigurationException("Scope " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
+					+ " is required, refresh token issue policy is " + RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
+		}
+	}
+
 	public OAuthASProperties(Properties properties) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
