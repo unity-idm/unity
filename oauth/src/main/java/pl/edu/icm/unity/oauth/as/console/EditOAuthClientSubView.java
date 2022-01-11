@@ -65,7 +65,8 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 	private Supplier<Set<String>> scopesSupplier;
 
 	EditOAuthClientSubView(MessageSource msg, URIAccessService uriAccessService,
-			UnityServerConfiguration serverConfig, Set<String> allClientsIds, Supplier<Set<String>> scopesSupplier, OAuthClient toEdit,
+			UnityServerConfiguration serverConfig, Set<String> allClientsIds, 
+			Supplier<Set<String>> scopesSupplier, OAuthClient toEdit,
 			Consumer<OAuthClient> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
@@ -137,6 +138,13 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		}).bind("name");
 		header.addComponent(name);
 
+		ComboBox<String> type = new ComboBox<>();
+		type.setCaption(msg.getMessage("EditOAuthClientSubView.type"));
+		type.setItems(Stream.of(ClientType.values()).map(f -> f.toString()).collect(Collectors.toList()));
+		type.setEmptySelectionAllowed(false);
+		binder.forField(type).bind("type");
+		header.addComponent(type);
+		
 		TextFieldWithGenerator id = new TextFieldWithGenerator();
 		id.setCaption(msg.getMessage("EditOAuthClientSubView.id"));
 		id.setReadOnly(editMode);
@@ -150,13 +158,6 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			return ValidationResult.ok();
 		}).bind("id");
 		header.addComponent(id);
-
-		ComboBox<String> type = new ComboBox<>();
-		type.setCaption(msg.getMessage("EditOAuthClientSubView.type"));
-		type.setItems(Stream.of(ClientType.values()).map(f -> f.toString()).collect(Collectors.toList()));
-		type.setEmptySelectionAllowed(false);
-		binder.forField(type).bind("type");
-		header.addComponent(type);
 		
 		CustomField<String> secret;
 		if (!editMode)
@@ -175,8 +176,8 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			header.addComponent(secret);
 		} else
 		{
-			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation = new TextFieldWithChangeConfirmation<>(
-					msg, new TextFieldWithGenerator());
+			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation = 
+					new TextFieldWithChangeConfirmation<>(msg, new TextFieldWithGenerator());
 			secretWithChangeConfirmation.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
 			secretWithChangeConfirmation.setWidth(30, Unit.EM);
 			binder.forField(secretWithChangeConfirmation).withValidator((v, c) -> {
