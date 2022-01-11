@@ -124,6 +124,8 @@ public class OAuthRequestValidator
 		Set<String> scopeKeys = oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES);
 		Optional<Set<String>> allowedScopes = getAllowedScopes(clientAttributes);
 		
+		Set<String> notAllowedByClient = new HashSet<>();
+		
 		if (requestedScopes != null)
 		{
 			for (String scopeKey: scopeKeys)
@@ -131,7 +133,7 @@ public class OAuthRequestValidator
 				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
 				if (!allowedScopes.isEmpty() && !allowedScopes.get().contains(scope))
 				{
-					log.debug("Scope " + scope + " is not allowed for client, skipped");
+					notAllowedByClient.add(scope);
 					continue;
 				}
 				
@@ -147,9 +149,15 @@ public class OAuthRequestValidator
 		
 		Set<String> skipped = new HashSet<>(requestedScopes.toStringList());
 		skipped.removeAll(ret.stream().map(s -> s.getName()).collect(Collectors.toSet()));
+		skipped.removeAll(notAllowedByClient);
+		if (!notAllowedByClient.isEmpty())
+		{
+			log.info("Requested scopes not allowed for the client and are ignored: " + String.join(",", notAllowedByClient));
+		}
+
 		if (!skipped.isEmpty())
 		{
-			log.info("Ignored requested scopes: " + String.join(",", skipped));
+			log.info("Requested scopes are not available on the endpoint and are ignored: " + String.join(",", skipped));
 		}
 		return ret;
 	}
