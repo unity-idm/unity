@@ -293,10 +293,39 @@ There are no manual actions required for this upgrade.
 
 ==== From 3.7 to 3.8
 
+===== Remove credentials for public OAuth clients
 In version 3.8.0 many OAuthn changes are provided, making OAuth implementation better complying with standards 
-and offering an improved security. One important change is that since that version the public OAuth clients 
+and offering an improved security. One important change is that since this version, the public OAuth clients 
 using PKCE don't need to authenticate with a client credential. 
 
 It is strongly recommended to remove credentials assigned to such public OAuth clients, as having such credentials 
-set may easily lead to insecure setup (depending on other configuration options).
+set, may easily lead to an insecure setup (depending on other configuration options).
 
+===== Define refresh token policy for OAuth IdP
+
+OAuth authorization service (IdP) can support offline_access scope, which gives refresh token issuance control to 
+OAuth client. OAuth endpoints which are deployed will be migrated without any user action, preserving 
+the existing setting which is either to never issue refresh tokens, or to issue them always.
+
+There is a manual change required if endpoints are configured from a properties file. In such case for each endpoint 
+one change has to be applied. 
+
+If the setting +unity.oauth2.as.refreshTokenValidity+ had a _negative_ value (what in previous versions meant that
+refresh token should not be issued) then remove +unity.oauth2.as.refreshTokenValidity+ option and instead add a new option:
+
+----
+unity.oauth2.as.refreshTokenIssuePolicy=NEVER
+----
+
+Otherwise, if the setting +unity.oauth2.as.refreshTokenValidity+ had a _non negative_ value 
+(what in previous versions meant that refresh token should be always issued) then preserve the 
++unity.oauth2.as.refreshTokenValidity+ option with no change and add a new option:
+ 
+----
+unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS
+----
+
+Of course the above covers only a migration preserving the previous version behavior. It is also possible to switch to 
+offline scope based refresh token issuance.
+
+ 
