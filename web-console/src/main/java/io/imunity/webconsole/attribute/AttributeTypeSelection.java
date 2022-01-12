@@ -24,123 +24,114 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabelWithLinks;
 
-
-class AttributeTypePanel extends FormLayoutWithFixedCaptionWidth
+class AttributeTypeSelection extends CustomComponent
 {
 	private MessageSource msg;
 	private Label name;
 	private Consumer<AttributeType> callback;
 	private ComponentWithTooltip componentWithTooltip;
-	private AttributeSelectionComboBox attributeTypesC;
-	
-	AttributeTypePanel(AttributeType attributeType, String groupPath, MessageSource msg)
+	private AttributeSelectionComboBox attributeTypesCombo;
+	private FormLayoutWithFixedCaptionWidth main;
+
+	AttributeTypeSelection(AttributeType attributeType, String groupPath, MessageSource msg)
 	{
 		this(Collections.singletonList(attributeType), groupPath, msg);
 	}
-	
-	AttributeTypePanel(Collection<AttributeType> attributeTypes, String groupPath, 
-			MessageSource msg)
+
+	AttributeTypeSelection(Collection<AttributeType> attributeTypes, String groupPath, MessageSource msg)
 	{
-		super();
 		this.msg = msg;
+		this.main = new FormLayoutWithFixedCaptionWidth();
+		setCompositionRoot(main);
 		createAttributeSelectionWidget(attributeTypes);
-		
 	}
-	
+
 	private void createAttributeWidget(AttributeType type)
 	{
 		name = new Label(type.getName());
-		name.setDescription(type.getDescription().getValue(msg));
-		componentWithTooltip = new ComponentWithTooltip(name, msg.getMessage("AttributeType.name"));
-		addComponent(componentWithTooltip);
+		componentWithTooltip = new ComponentWithTooltip(name, msg.getMessage("AttributeType.name"),
+				type.getDescription().getValue(msg));
+		main.addComponent(componentWithTooltip);
 	}
-	
+
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
-		attributeTypesC = new AttributeSelectionComboBox(null, 
-				attributeTypes); 
+		attributeTypesCombo = new AttributeSelectionComboBox(null, attributeTypes);
 	
-		
 		if (attributeTypes.size() == 1)
 		{
 			createAttributeWidget(attributeTypes.iterator().next());
 		} else
 		{
-			componentWithTooltip = new ComponentWithTooltip(attributeTypesC, msg.getMessage("AttributeType.name"));
-			addComponent(componentWithTooltip);
-			attributeTypesC.setWidth(100, Unit.PERCENTAGE);
-			attributeTypesC.addSelectionListener(event -> changeAttribute(event));
+			componentWithTooltip = new ComponentWithTooltip(attributeTypesCombo, msg.getMessage("AttributeType.name"), "");
+			main.addComponent(componentWithTooltip);
+		//	attributeTypesCombo.setWidth(100, Unit.PERCENTAGE);
+			attributeTypesCombo.addSelectionListener(event -> changeAttributeType(event));
 		}
 	}
-	
+
 	public void setAttributeType(String name2)
 	{
-		 attributeTypesC.setSelectedItemByName(name2);
-		
+		attributeTypesCombo.setSelectedItemByName(name2);
 	}
 
 	public AttributeType getAttributeType()
 	{
-		return attributeTypesC.getValue();
+		return attributeTypesCombo.getValue();
 	}
-	
 
 	void setCallback(Consumer<AttributeType> callback)
 	{
 		this.callback = callback;
 	}
 
-	private void changeAttribute(SingleSelectionEvent<AttributeType> event)
+	private void changeAttributeType(SingleSelectionEvent<AttributeType> event)
 	{
 		AttributeType type = event.getValue();
-		attributeTypesC.setDescription(type.getDescription().getValue(msg));
-		componentWithTooltip.refreshTooltip();
-		
+		componentWithTooltip.refreshTooltip(type.getDescription().getValue(msg));
+
 		if (callback != null)
 			callback.accept(type);
 	}
 
 	private static class ComponentWithTooltip extends CustomComponent
 	{
-		private AbstractComponent component;
 		private HtmlSimplifiedLabelWithLinks icon;
-		public ComponentWithTooltip(AbstractComponent component, String caption)
+		
+		public ComponentWithTooltip(AbstractComponent component, String caption, String description)
 		{
-			this.component = component;
 			setCaption(caption);
 			HorizontalLayout main = new HorizontalLayout();
-			main.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			component.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 			main.setMargin(false);
 			icon = new HtmlSimplifiedLabelWithLinks();
 			icon.addStyleName(Styles.iconOnlyLabel.toString());
-			refreshTooltip();
+			refreshTooltip(description);
 			HorizontalLayout iconWrapper = new HorizontalLayout();
 			iconWrapper.setWidth(1, Unit.EM);
 			iconWrapper.addComponent(icon);
 			iconWrapper.setComponentAlignment(icon, Alignment.MIDDLE_LEFT);
 			iconWrapper.setMargin(false);
-			
+
 			main.setSpacing(true);
 			main.addComponent(component);
-			main.addComponent(iconWrapper);	
+			main.addComponent(iconWrapper);
 			main.setExpandRatio(component, 2);
 			main.setExpandRatio(iconWrapper, 0);
-			setCompositionRoot(main);		
+			setCompositionRoot(main);
 		}
-		
-		void refreshTooltip()
+
+		void refreshTooltip(String description)
 		{
-			String description = component.getDescription();
 			if (description != null && !description.isEmpty())
-			{	
+			{
 				icon.setDescription(description);
 				icon.setIcon(Images.question.getResource());
 				icon.setVisible(true);
-			}
-				else
+			} else
 			{
 				icon.setVisible(false);
-			}		
+			}
 		}
-	}	
+	}
 }

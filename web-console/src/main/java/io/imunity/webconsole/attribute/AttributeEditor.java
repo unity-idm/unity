@@ -17,6 +17,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -31,7 +32,7 @@ public class AttributeEditor extends CustomComponent
 {
 	private FixedAttributeEditor valuesPanel;
 	private FormLayout attrValuesContainer;
-	private AttributeTypePanel attrTypePanel;
+	private AttributeTypeSelection attrTypePanel;
 	private String groupPath;
 	private boolean typeFixed = false;
 	
@@ -46,16 +47,18 @@ public class AttributeEditor extends CustomComponent
 			final AttributeHandlerRegistry handlerRegistry, final boolean required)
 	{
 		this.groupPath = groupPath;
-		attrTypePanel = new AttributeTypePanel(attributeTypes, groupPath, msg);
+		attrTypePanel = new AttributeTypeSelection(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
-		attrValuesContainer =  new FormLayoutWithFixedCaptionWidth();
-		
-		
+		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
+	
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
 				.withAttributeType(initial)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
-				.withAttributeOwner(owner).build();
+				.withAttributeOwner(owner)
+				.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
+				.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+				.build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
 				false, null, null);
@@ -66,7 +69,10 @@ public class AttributeEditor extends CustomComponent
 			attrValuesContainer.removeAllComponents();
 			AttributeEditContext newEditContext = AttributeEditContext.builder()
 					.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required).withAttributeType(newType)
-					.withAttributeGroup(AttributeEditor.this.groupPath).withAttributeOwner(owner).build();
+					.withAttributeGroup(AttributeEditor.this.groupPath).withAttributeOwner(owner)
+					.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
+					.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+					.build();
 
 			valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, false, null, null);
 			valuesPanel.placeOnLayout(attrValuesContainer);
@@ -96,14 +102,17 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
-		attrTypePanel = new AttributeTypePanel(attributeType, groupPath, msg);
+		attrTypePanel = new AttributeTypeSelection(attributeType, groupPath, msg);
 		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
-				.withAttributeOwner(owner).build();
+				.withAttributeOwner(owner)
+				.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
+				.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+				.build();
 		
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
 		valuesPanel.placeOnLayout(attrValuesContainer);
@@ -122,14 +131,17 @@ public class AttributeEditor extends CustomComponent
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = groupPath;
-		attrTypePanel = new AttributeTypePanel(attributeType, groupPath, msg);
-		attrValuesContainer =  new FormLayoutWithFixedCaptionWidth();
+		attrTypePanel = new AttributeTypeSelection(attributeType, groupPath, msg);
+		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
-				.withAttributeOwner(owner).build();
+				.withAttributeOwner(owner)
+				.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
+				.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+				.build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
 		valuesPanel.placeOnLayout(attrValuesContainer);
@@ -150,6 +162,7 @@ public class AttributeEditor extends CustomComponent
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(attrTypePanel);
 		main.addComponent(attrValuesContainer);
+		attrValuesContainer.setWidthFull();
 		setCompositionRoot(main);
 	}
 	
