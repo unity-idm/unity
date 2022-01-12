@@ -7,13 +7,15 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,10 +28,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Sets;
 import com.nimbusds.langtag.LangTag;
+import com.nimbusds.langtag.LangTagException;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
@@ -64,7 +70,8 @@ public class OAuthParseServlet extends HttpServlet
 
 	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(ResponseType.Value.CODE,
 			ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
-
+	private static final String UI_LOCALES_PARAM = "ui_locales";
+	
 	private final OAuthASProperties oauthConfig;
 	private final String oauthUiServletPath;
 	private final ErrorHandler errorHandler;
@@ -127,13 +134,34 @@ public class OAuthParseServlet extends HttpServlet
 	{
 		log.trace("Starting OAuth2 authorization request processing");
 		AuthorizationRequest authzRequest;
-
-		String queryString = getQueryString(request);
+		Map<String, List<String>> parsedRequestParameters;
+		try
+		{
+			parsedRequestParameters = URLUtils.parseParameters(getQueryString(request));
+		} catch (Exception e)
+		{
+			if (log.isTraceEnabled())
+				log.trace("Request to OAuth2 endpoint address, " + "with invalid/missing parameters, error: "
+						+ e.toString());
+			errorHandler.showErrorPage("Error parsing OAuth request parameters", e.getMessage(), response);
+			return;
+		}
+		
 		Optional<List<LangTag>> uiLocales = Optional.empty();
 		try
 		{
-			authzRequest = AuthenticationRequest.parse(queryString);
-			uiLocales = Optional.ofNullable(((AuthenticationRequest) authzRequest).getUILocales());
+			uiLocales = getUILocales(parsedRequestParameters);
+		} catch (LangTagException e)
+		{
+			log.warn(
+					"Request to OAuth2 endpoint address with invalid ui_locales parameter={}, skipping this parameter in further processing",
+					parsedRequestParameters.get(UI_LOCALES_PARAM));
+			parsedRequestParameters.remove("ui_locales");
+		}
+
+		try
+		{
+			authzRequest = AuthenticationRequest.parse(null, parsedRequestParameters);
 		} catch (ParseException e)
 		{
 			if (log.isTraceEnabled())
@@ -141,7 +169,7 @@ public class OAuthParseServlet extends HttpServlet
 						+ "will try plain OAuth. OIDC parse error: " + e.toString());
 			try
 			{
-				authzRequest = AuthorizationRequest.parse(queryString);
+				authzRequest = AuthorizationRequest.parse(null, parsedRequestParameters);
 				Scope requestedScopes = authzRequest.getScope();
 				if (requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID))
 				{
@@ -187,6 +215,20 @@ public class OAuthParseServlet extends HttpServlet
 		setLanguageCookie(response, uiLocales);
 
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
+	}
+	
+	private Optional<List<LangTag>> getUILocales(Map<String, List<String>> params) throws LangTagException
+	{
+		String v = MultivaluedMapUtils.getFirstValue(params, UI_LOCALES_PARAM);
+		List<LangTag> uiLocales = null;
+		if (StringUtils.isNotBlank(v)) {
+			uiLocales = new LinkedList<>();
+			StringTokenizer st = new StringTokenizer(v, " ");
+			while (st.hasMoreTokens()) {
+					uiLocales.add(LangTag.parse(st.nextToken()));		
+			}
+		}
+		return Optional.ofNullable(uiLocales);
 	}
 
 	private void setLanguageCookie(HttpServletResponse response, Optional<List<LangTag>> uiLocales)
