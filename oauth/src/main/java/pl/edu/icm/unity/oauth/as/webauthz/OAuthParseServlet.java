@@ -134,10 +134,10 @@ public class OAuthParseServlet extends HttpServlet
 	{
 		log.trace("Starting OAuth2 authorization request processing");
 		AuthorizationRequest authzRequest;
-		Map<String, List<String>> parsedRequestParameters;
+		ParsedRequestParametersWithUILocales parsedRequestParametersWithUILocales;
 		try
 		{
-			parsedRequestParameters = URLUtils.parseParameters(getQueryString(request));
+			parsedRequestParametersWithUILocales = new ParsedRequestParametersWithUILocales(getQueryString(request));
 		} catch (Exception e)
 		{
 			if (log.isTraceEnabled())
@@ -146,22 +146,10 @@ public class OAuthParseServlet extends HttpServlet
 			errorHandler.showErrorPage("Error parsing OAuth request parameters", e.getMessage(), response);
 			return;
 		}
-		
-		Optional<List<LangTag>> uiLocales = Optional.empty();
+	
 		try
 		{
-			uiLocales = getUILocales(parsedRequestParameters);
-		} catch (LangTagException e)
-		{
-			log.warn(
-					"Request to OAuth2 endpoint address with invalid ui_locales parameter={}, skipping this parameter in further processing",
-					parsedRequestParameters.get(UI_LOCALES_PARAM));
-			parsedRequestParameters.remove("ui_locales");
-		}
-
-		try
-		{
-			authzRequest = AuthenticationRequest.parse(null, parsedRequestParameters);
+			authzRequest = AuthenticationRequest.parse(null, parsedRequestParametersWithUILocales.parsedRequestParameters);
 		} catch (ParseException e)
 		{
 			if (log.isTraceEnabled())
@@ -169,7 +157,7 @@ public class OAuthParseServlet extends HttpServlet
 						+ "will try plain OAuth. OIDC parse error: " + e.toString());
 			try
 			{
-				authzRequest = AuthorizationRequest.parse(null, parsedRequestParameters);
+				authzRequest = AuthorizationRequest.parse(null, parsedRequestParametersWithUILocales.parsedRequestParameters);
 				Scope requestedScopes = authzRequest.getScope();
 				if (requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID))
 				{
@@ -212,23 +200,9 @@ public class OAuthParseServlet extends HttpServlet
 			log.trace("Request with OAuth input handled successfully");
 
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
-		setLanguageCookie(response, uiLocales);
+		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
 
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
-	}
-	
-	private Optional<List<LangTag>> getUILocales(Map<String, List<String>> params) throws LangTagException
-	{
-		String v = MultivaluedMapUtils.getFirstValue(params, UI_LOCALES_PARAM);
-		List<LangTag> uiLocales = null;
-		if (StringUtils.isNotBlank(v)) {
-			uiLocales = new LinkedList<>();
-			StringTokenizer st = new StringTokenizer(v, " ");
-			while (st.hasMoreTokens()) {
-					uiLocales.add(LangTag.parse(st.nextToken()));		
-			}
-		}
-		return Optional.ofNullable(uiLocales);
 	}
 
 	private void setLanguageCookie(HttpServletResponse response, Optional<List<LangTag>> uiLocales)
@@ -316,4 +290,44 @@ public class OAuthParseServlet extends HttpServlet
 		}
 		return query == null ? "" : "?" + query;
 	}
+	
+	private class ParsedRequestParametersWithUILocales
+	{
+		final Map<String, List<String>> parsedRequestParameters;
+		final Optional<List<LangTag>> uiLocales;
+		
+		ParsedRequestParametersWithUILocales(String queryString)
+		{
+			Map<String, List<String>> internalParsedRequestParameters = URLUtils.parseParameters(queryString);
+			Optional<List<LangTag>> internalUiLocales = Optional.empty();
+			try
+			{
+				internalUiLocales = getUILocales(internalParsedRequestParameters);
+			} catch (LangTagException e)
+			{
+				log.warn(
+						"Request to OAuth2 endpoint address with invalid ui_locales parameter={}, skipping this parameter in further processing",
+						internalParsedRequestParameters.get(UI_LOCALES_PARAM));
+				internalParsedRequestParameters.remove("ui_locales");
+			}
+			this.parsedRequestParameters = Map.copyOf(internalParsedRequestParameters);
+			this.uiLocales = internalUiLocales;
+		}
+		
+		
+		private Optional<List<LangTag>> getUILocales(Map<String, List<String>> params) throws LangTagException
+		{
+			String v = MultivaluedMapUtils.getFirstValue(params, UI_LOCALES_PARAM);
+			List<LangTag> uiLocales = null;
+			if (StringUtils.isNotBlank(v)) {
+				uiLocales = new LinkedList<>();
+				StringTokenizer st = new StringTokenizer(v, " ");
+				while (st.hasMoreTokens()) {
+						uiLocales.add(LangTag.parse(st.nextToken()));		
+				}
+			}
+			return Optional.ofNullable(uiLocales);
+		}
+	}
+	
 }
