@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -119,7 +120,7 @@ public class OAuthRequestValidator
 
 	public List<ScopeInfo> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
-		Set<ScopeInfo> scopesDefinedOnServer = new HashSet<>();
+		List<ScopeInfo> scopesDefinedOnServer = new ArrayList<>();
 		oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES)
 				.forEach(scopeKey -> scopesDefinedOnServer
 						.add(new ScopeInfo(oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_NAME),
