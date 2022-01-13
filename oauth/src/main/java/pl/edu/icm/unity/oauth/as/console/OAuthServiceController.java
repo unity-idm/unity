@@ -393,14 +393,14 @@ class OAuthServiceController implements IdpServiceController
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
 		
-		ControllerException ex = null;
+		List<ControllerException> exs = new ArrayList<>();
 		try
 		{
 			endpointMan.updateEndpoint(webAuthzService.getName(),
 					serviceFileConfigController.getEndpointConfig(webAuthzService.getName()));
 		} catch (Exception e)
 		{
-			ex = new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
+			exs.add(new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e));
 		}
 		
 		try
@@ -412,12 +412,17 @@ class OAuthServiceController implements IdpServiceController
 			}
 		} catch (Exception e)
 		{
-			ex = new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
+			exs.add(new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e));
 		}
 
-		if (ex != null)
+		if (exs.size() == 2)
 		{
-			throw ex;
+			log.error("Can not update OAuth endpoint", exs.get(2).getCause());
+		}
+
+		if (!exs.isEmpty())
+		{
+			throw exs.get(0);
 		}
 	}
 
