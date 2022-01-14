@@ -30,8 +30,7 @@ class EngineExceptionMapper implements ExceptionMapper<Exception>
 			log.warn("Access denied for rest client", ex);
 			return Response.status(Status.FORBIDDEN)
 					.entity(OAuthExceptionMapper
-							.makeError(OAuth2Error.INVALID_CLIENT,
-									"Invalid user name, credential or external authentication failed")
+							.makeError(OAuth2Error.INVALID_CLIENT, "Authentication failed")
 							.toJSONObject().toJSONString())
 					.type(MediaType.APPLICATION_JSON).build();
 		} else
@@ -39,7 +38,8 @@ class EngineExceptionMapper implements ExceptionMapper<Exception>
 			log.warn("Engine exception during RESTful API invocation", ex);
 			return Response
 					.status(Status.BAD_REQUEST).entity(OAuthExceptionMapper
-							.makeError(OAuth2Error.SERVER_ERROR, "Server engine error").toJSONObject().toJSONString())
+							.makeError(OAuth2Error.SERVER_ERROR, "Server engine error")
+							.toJSONObject().toJSONString())
 					.type(MediaType.APPLICATION_JSON).build();
 		}
 	}

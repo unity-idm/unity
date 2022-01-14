@@ -42,6 +42,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
+import pl.edu.icm.unity.rest.authn.LogContextCleaningInterceptor;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
@@ -188,6 +189,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
 				authenticationFlows, realm, sessionMan, notProtectedPaths, optionallyAuthenticatedPaths,
 				getEndpointDescription().getType().getFeatures(), entityMan));
+		inInterceptors.add(new LogContextCleaningInterceptor());
 		installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 
