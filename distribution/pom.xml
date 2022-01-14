@@ -114,7 +114,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-attr-instrospection</artifactId>
+			<artifactId>unity-server-web-attr-introspection</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		
