@@ -14,25 +14,26 @@ import pl.edu.icm.unity.types.basic.Group;
 
 public class CachingMVELGroupProvider
 {
-	private final Map<String, MVELGroup> cache;
+	private final Map<String, MVELGroup> mvelGroupsByPathCache;
 	
-	public CachingMVELGroupProvider(Map<String, Group> groups)
+	public CachingMVELGroupProvider(Map<String, Group> groupsByPath)
 	{
-		cache = new HashMap<>(groups.size());
+		mvelGroupsByPathCache = new HashMap<>(groupsByPath.size());
 
-		List<String> groupPaths = new ArrayList<>(groups.keySet());
+		List<String> groupPaths = new ArrayList<>(groupsByPath.keySet());
 		Collections.sort(groupPaths, (a, b) -> Integer.compare(a.length(), b.length()));
 		for (String path: groupPaths)
 		{
-			Group group = groups.get(path);
+			Group group = groupsByPath.get(path);
 			String parentPath = group.getParentPath();
-			cache.put(path, new MVELGroup(group, parentPath == null ? null : cache.get(parentPath)));
+			mvelGroupsByPathCache.put(path, new MVELGroup(group, parentPath == null ? 
+					null : mvelGroupsByPathCache.get(parentPath)));
 		}
 	}
 
 	public MVELGroup get(String groupPath)
 	{
-		MVELGroup ret = cache.get(groupPath);
+		MVELGroup ret = mvelGroupsByPathCache.get(groupPath);
 		if (ret == null)
 			throw new IllegalArgumentException("No cached MVEL group for path " + groupPath);
 		return ret;
