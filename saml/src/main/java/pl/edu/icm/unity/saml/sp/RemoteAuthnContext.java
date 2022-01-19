@@ -111,4 +111,12 @@ public class RemoteAuthnContext extends RedirectedAuthnState implements Serializ
 	{
 		return verifiableResponse;
 	}
+
+	@Override
+	public String toString()
+	{
+		return String.format(
+				"SAML RemoteAuthnContext [requestId=%s, idpKey=%s, getInitialLoginMachine()=%s, getRelayState()=%s]",
+				requestId, idpKey, getInitialLoginMachine(), getRelayState());
+	}
 }

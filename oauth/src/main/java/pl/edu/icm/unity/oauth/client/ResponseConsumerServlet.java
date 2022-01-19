@@ -58,7 +58,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		OAuthContext context;
 		try
 		{
-			context = contextManagement.getAuthnContext(state);
+			context = contextManagement.getAndRemoveAuthnContext(state);
 		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Got a request to the OAuth response consumer endpoint " +
