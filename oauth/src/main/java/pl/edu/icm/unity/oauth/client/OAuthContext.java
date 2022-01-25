@@ -110,4 +110,11 @@ public class OAuthContext extends RedirectedAuthnState
 	{
 		this.expectedIdentity = expectedIdentity;
 	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("OAuthContext [requestURI=%s, providerConfigKey=%s, getRelayState()=%s]",
+				requestURI, providerConfigKey, getRelayState());
+	}
 }

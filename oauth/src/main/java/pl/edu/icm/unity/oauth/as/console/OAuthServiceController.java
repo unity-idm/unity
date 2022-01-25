@@ -68,6 +68,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -391,10 +392,19 @@ class OAuthServiceController implements IdpServiceController
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
+		
+		List<ControllerException> exs = new ArrayList<>();
 		try
 		{
 			endpointMan.updateEndpoint(webAuthzService.getName(),
 					serviceFileConfigController.getEndpointConfig(webAuthzService.getName()));
+		} catch (Exception e)
+		{
+			exs.add(new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e));
+		}
+		
+		try
+		{
 			if (tokenService != null)
 			{
 				endpointMan.updateEndpoint(tokenService.getName(),
@@ -402,9 +412,18 @@ class OAuthServiceController implements IdpServiceController
 			}
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
+			exs.add(new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e));
 		}
 
+		if (exs.size() == 2)
+		{
+			log.error("Can not update OAuth endpoint", exs.get(2).getCause());
+		}
+
+		if (!exs.isEmpty())
+		{
+			throw exs.get(0);
+		}
 	}
 
 	private void updateClients(List<OAuthClient> clients) throws EngineException, URISyntaxException
@@ -535,12 +554,18 @@ class OAuthServiceController implements IdpServiceController
 			attrMan.setAttribute(entity, name);
 		}
 
-		if (client.getSecret() != null)
+		if (!client.getType().equals(ClientType.PUBLIC.toString()))
 		{
-			entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
-					new PasswordToken(client.getSecret()).toJson());
+			if (client.getSecret() != null && !client.getSecret().isEmpty())
+			{
+				entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
+						new PasswordToken(client.getSecret()).toJson());
+			}
+		} else
+		{
+			entityCredentialManagement.setEntityCredentialStatus(entity, DEFAULT_CREDENTIAL,
+					LocalCredentialState.notSet);
 		}
-
 	}
 
 	private void updateLogo(EntityParam entity, String group, byte[] value) throws EngineException

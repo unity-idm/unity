@@ -28,14 +28,18 @@ class EngineExceptionMapper implements ExceptionMapper<Exception>
 		if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
 		{
 			log.warn("Access denied for rest client", ex);
-			return Response.status(Status.FORBIDDEN).entity(
-					OAuthExceptionMapper.makeError(OAuth2Error.INVALID_CLIENT, ex.getMessage()).toJSONObject().toJSONString())
+			return Response.status(Status.FORBIDDEN)
+					.entity(OAuthExceptionMapper
+							.makeError(OAuth2Error.INVALID_CLIENT, "Authentication failed")
+							.toJSONObject().toJSONString())
 					.type(MediaType.APPLICATION_JSON).build();
 		} else
 		{
 			log.warn("Engine exception during RESTful API invocation", ex);
-			return Response.status(Status.BAD_REQUEST).entity(
-					OAuthExceptionMapper.makeError(OAuth2Error.SERVER_ERROR, ex.getMessage()).toJSONObject().toJSONString())
+			return Response
+					.status(Status.BAD_REQUEST).entity(OAuthExceptionMapper
+							.makeError(OAuth2Error.SERVER_ERROR, "Server engine error")
+							.toJSONObject().toJSONString())
 					.type(MediaType.APPLICATION_JSON).build();
 		}
 	}

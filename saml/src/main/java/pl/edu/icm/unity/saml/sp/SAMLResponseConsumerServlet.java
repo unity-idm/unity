@@ -57,7 +57,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 		RemoteAuthnContext context;
 		try
 		{
-			context = contextManagement.getAuthnContext(relayState);
+			context = contextManagement.getAndRemoveAuthnContext(relayState);
 		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Got a request to the SAML response consumer endpoint, " +

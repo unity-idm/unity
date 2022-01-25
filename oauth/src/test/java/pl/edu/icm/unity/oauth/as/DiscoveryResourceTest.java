@@ -43,7 +43,7 @@ public class DiscoveryResourceTest
 		assertEquals("https://localhost:233/foo/token", parsed.getTokenEndpointURI().toString());
 		assertEquals("https://localhost:233/foo/userinfo", parsed.getUserInfoEndpointURI().toString());
 		assertEquals("https://localhost:233/foo/jwk", parsed.getJWKSetURI().toString());
-		assertTrue(Sets.newHashSet("s1", "s2", "openid").equals(new HashSet<>(parsed.getScopes().toStringList())));
+		assertTrue(Sets.newHashSet("s1", "s2", "openid", "offline_access").equals(new HashSet<>(parsed.getScopes().toStringList())));
 		assertEquals(7, parsed.getResponseTypes().size());
 	}
 	

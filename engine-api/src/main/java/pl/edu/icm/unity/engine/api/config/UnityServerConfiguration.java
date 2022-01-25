@@ -164,6 +164,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String MOBILE_CONFIRMATION_REQUEST_LIMIT = "mobileConfirmationRequestLimit";
 	
 	public static final String AUTHZ_CACHE_MS = "authorizationRoleCacheTTL";
+	public static final String MAX_REMOTE_AUTHN_TIME_S = "maxRemoteAuthnTime";
 	
 	public static final String SCRIPTS = "script.";
 	public static final String SCRIPT_FILE = "file";
@@ -497,7 +498,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "but change of authrization role may not be fully recognized "
 						+ "by the system untile the time defined here passes. "
 						+ "Set to 0 to disable cache."));
-
+		defaults.put(MAX_REMOTE_AUTHN_TIME_S, new PropertyMD("5400").setCategory(mainCat). //90 mins
+				setDescription("Defines for how long (in s) server will maintain a started, "
+						+ "but not finished remote authentication data. After this timeout"
+						+ " authentication process is assumed to be stale and "
+						+ "its memory will be reclaimed."));
 		defaults.put(EXTERNAL_NOTIFICATION_PFX, new PropertyMD().setStructuredList(false).setCategory(mainCat)
 				.setDescription("List of message sending facilities additional to built in SMS and email."));
 		defaults.put(EXTERNAL_NOTIFICATION_FILE, new PropertyMD()

@@ -8,7 +8,6 @@ package pl.edu.icm.unity.oauth.as.token.exception;
 import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
 
 public class OAuthExceptionMapper
 {
@@ -23,9 +22,9 @@ public class OAuthExceptionMapper
 		ret.add(new JSONExceptionMapper());
 	}
 
-	public static ErrorObject makeError(ErrorObject baseError, String description)
+	static ErrorObject makeError(ErrorObject baseError, String description)
 	{
-		return OAuth2Error.INVALID_CLIENT.appendDescription(description.isEmpty() ? "" : "; " + description);
+		return baseError.appendDescription(description.isEmpty() ? "" : "; " + description);
 	}
 
 }

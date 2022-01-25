@@ -178,6 +178,7 @@ public abstract class ServicesViewBase extends CustomComponent implements UnityV
 			NotificationPopup.showSuccess(msg.getMessage("ServicesView.reloadSuccess", endpoint.getName()), "");
 		} catch (ControllerException e)
 		{
+			refresh();
 			NotificationPopup.showError(msg, e);
 		}
 	}

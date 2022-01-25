@@ -121,7 +121,7 @@ public class ECPStep2Handler
 		ECPAuthnState ctx;
 		try
 		{
-			ctx = samlContextManagement.getAuthnContext(relayState);
+			ctx = samlContextManagement.getAndRemoveAuthnContext(relayState);
 		} catch (UnboundRelayStateException e)
 		{
 			log.warn("Received a request with unknown relay state " + relayState);

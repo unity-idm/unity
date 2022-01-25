@@ -65,7 +65,8 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 	private Supplier<Set<String>> scopesSupplier;
 
 	EditOAuthClientSubView(MessageSource msg, URIAccessService uriAccessService,
-			UnityServerConfiguration serverConfig, Set<String> allClientsIds, Supplier<Set<String>> scopesSupplier, OAuthClient toEdit,
+			UnityServerConfiguration serverConfig, Set<String> allClientsIds, 
+			Supplier<Set<String>> scopesSupplier, OAuthClient toEdit,
 			Consumer<OAuthClient> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
@@ -128,7 +129,6 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		TextField name = new TextField();
 		name.setCaption(msg.getMessage("EditOAuthClientSubView.name"));
 		binder.forField(name).withValidator((v, c) -> {
-
 			if (v != null && !v.isEmpty() && v.length() < 2)
 			{
 				return ValidationResult.error(msg.getMessage("toShortValue"));
@@ -138,6 +138,13 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		}).bind("name");
 		header.addComponent(name);
 
+		ComboBox<String> type = new ComboBox<>();
+		type.setCaption(msg.getMessage("EditOAuthClientSubView.type"));
+		type.setItems(Stream.of(ClientType.values()).map(f -> f.toString()).collect(Collectors.toList()));
+		type.setEmptySelectionAllowed(false);
+		binder.forField(type).bind("type");
+		header.addComponent(type);
+		
 		TextFieldWithGenerator id = new TextFieldWithGenerator();
 		id.setCaption(msg.getMessage("EditOAuthClientSubView.id"));
 		id.setReadOnly(editMode);
@@ -151,32 +158,47 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			return ValidationResult.ok();
 		}).bind("id");
 		header.addComponent(id);
-
+		
+		CustomField<String> secret;
 		if (!editMode)
 		{
-			TextFieldWithGenerator secret = new TextFieldWithGenerator();
-			secret.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
-			secret.setWidth(30, Unit.EM);
-			binder.forField(secret).asRequired(msg.getMessage("fieldRequired")).bind("secret");
-			header.addComponent(secret);
-
-		} else
-		{
-			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secret = new TextFieldWithChangeConfirmation<>(
-					msg, new TextFieldWithGenerator());
+			secret = new TextFieldWithGenerator();
 			secret.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).withValidator((v, c) -> {
-				if (secret.isEditMode())
+				if ((v == null || v.isEmpty()) && ClientType.CONFIDENTIAL.toString().equals(type.getValue()))
+				{
+					return ValidationResult.error(msg.getMessage("fieldRequired"));
+				}
+				return ValidationResult.ok();
+
+			}).bind("secret");
+			header.addComponent(secret);
+		} else
+		{
+			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation = 
+					new TextFieldWithChangeConfirmation<>(msg, new TextFieldWithGenerator());
+			secretWithChangeConfirmation.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
+			secretWithChangeConfirmation.setWidth(30, Unit.EM);
+			binder.forField(secretWithChangeConfirmation).withValidator((v, c) -> {
+				if (secretWithChangeConfirmation.isEditMode())
 				{
 					return ValidationResult.error(msg.getMessage("fieldRequired"));
 				}
 
 				return ValidationResult.ok();
 			}).bind("secret");
-			header.addComponent(secret);
+			header.addComponent(secretWithChangeConfirmation);		
+			secret = secretWithChangeConfirmation;
 		}
 
+		type.addValueChangeListener(e ->
+		{
+			secret.setEnabled(ClientType.CONFIDENTIAL.toString().equals(e.getValue()));
+			if (!secret.isEnabled())
+				secret.setValue("");
+		});
+		
 		ChipsWithDropdown<String> allowedFlows = new ChipsWithDropdown<>();
 		allowedFlows.setCaption(msg.getMessage("EditOAuthClientSubView.allowedFlows"));
 		allowedFlows.setItems(
@@ -186,22 +208,20 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
-
 			return ValidationResult.ok();
 		}).bind("flows");
 		header.addComponent(allowedFlows);
 
-		ComboBox<String> type = new ComboBox<>();
-		type.setCaption(msg.getMessage("EditOAuthClientSubView.type"));
-		type.setItems(Stream.of(ClientType.values()).map(f -> f.toString()).collect(Collectors.toList()));
-		type.setEmptySelectionAllowed(false);
-		binder.forField(type).bind("type");
-		header.addComponent(type);
-
 		ChipsWithTextfield redirectURIs = new ChipsWithTextfield(msg);
 		redirectURIs.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		redirectURIs.setCaption(msg.getMessage("EditOAuthClientSubView.authorizedRedirectURIs"));
-		binder.forField(redirectURIs).bind("redirectURIs");
+		binder.forField(redirectURIs).withValidator((v, c) -> {
+			if (v == null || v.size() == 0)
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			}
+			return ValidationResult.ok();
+		}).bind("redirectURIs");
 		header.addComponent(redirectURIs);
 
 		Set<String> definedScopes = scopesSupplier.get();
@@ -312,7 +332,6 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		protected void doSetValue(String value)
 		{
 			field.setValue(value);
-
 		}
 
 		@Override

@@ -5,10 +5,12 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-import com.nimbusds.oauth2.sdk.SerializeException;
 import com.vaadin.server.Page;
 import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
@@ -16,8 +18,9 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 
-import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
@@ -32,11 +35,14 @@ public class OAuthResponseHandler
 {
 	private final OAuthSessionService oauthSessionService;
 	public final OAuthIdpStatisticReporter statReporter;
+	private final FreemarkerAppHandler freemarkerHandler;
 
-	public OAuthResponseHandler(OAuthSessionService oauthSessionService, OAuthIdpStatisticReporter statReporter)
+	public OAuthResponseHandler(OAuthSessionService oauthSessionService, OAuthIdpStatisticReporter statReporter,
+			FreemarkerAppHandler freemarkerHandler)
 	{
 		this.oauthSessionService = oauthSessionService;
 		this.statReporter = statReporter;
+		this.freemarkerHandler = freemarkerHandler;
 	}
 
 	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession) throws EopException
@@ -89,11 +95,12 @@ public class OAuthResponseHandler
 				oauthSessionService.cleanupBeforeResponseSent(sessionAttributes);
 				try
 				{
-					String redirectURL = oauthResponse.toURI().toString();
-					response.sendRedirect(redirectURL);
-				} catch (SerializeException e)
-				{
-					throw new IOException("Error: can not serialize error response", e);
+					Map<String, String> data = new HashMap<>();
+					data.put("redirectURL", oauthResponse.toURI().toString());
+					
+					response.setContentType("application/xhtml+xml; charset=utf-8");
+					PrintWriter writer = response.getWriter();
+					freemarkerHandler.printGenericPage(writer, "oauthFinish.ftl", data);
 				} finally
 				{
 					oauthSessionService.cleanupAfterResponseSent(sessionAttributes, destroySession);

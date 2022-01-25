@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
@@ -77,41 +78,79 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			endpointsDeployed.put(endpoint.getEndpointDescription().getName(), endpoint);
 		log.debug("Running periodic endpoints update task. There are " + deployedEndpoints.size() + 
 				" deployed endpoints.");
-		
-		tx.runInTransactionThrowing(() -> {
-			long roundedUpdateTime = roundToS(System.currentTimeMillis());
-			List<Endpoint> endpointsInDBMap = endpointDB.getAll();
-			log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
-			for (Endpoint endpointInDB: endpointsInDBMap)
+		try
+		{
+			tx.runInTransactionThrowing(() ->
 			{
-				if (endpointInDB.getState().equals(EndpointState.UNDEPLOYED))
-					continue;
-				
-				EndpointInstance instance = loader.createEndpointInstance(endpointInDB);
-				String name = instance.getEndpointDescription().getName();
-				endpointsInDb.add(name);
-				EndpointInstance runtimeEndpointInstance = endpointsDeployed.get(name);
-
-				if (runtimeEndpointInstance == null)
+				long roundedUpdateTime = roundToS(System.currentTimeMillis());
+				List<Endpoint> endpointsInDBMap = endpointDB.getAll();
+				log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
+				for (Endpoint endpointInDB : endpointsInDBMap)
 				{
-					log.info("Endpoint " + name + " will be deployed");
-					endpointMan.deploy(instance);
-				} else if (endpointInDB.getRevision() > runtimeEndpointInstance.getEndpointDescription().getEndpoint().getRevision())
-				{
-					log.info("Endpoint " + name + " will be re-deployed");
-					endpointMan.undeploy(name);
-					endpointMan.deploy(instance);
-				} else if (hasChangedAuthenticationFlow(runtimeEndpointInstance))
-				{
-					updateEndpointAuthenticators(name, instance, endpointsDeployed);
-				}else if (hasChangedAuthenticator(runtimeEndpointInstance))
-				{
-					updateEndpointAuthenticators(name, instance, endpointsDeployed);
+					if (endpointInDB.getState().equals(EndpointState.UNDEPLOYED))
+						continue;
+					EndpointInstance instance = updateEndpoint(endpointInDB, endpointsDeployed);
+					endpointsInDb.add(instance.getEndpointDescription().getName());
 				}
-			}
-			setLastUpdate(roundedUpdateTime);
+				setLastUpdate(roundedUpdateTime);
 
-			undeployInactive(endpointsInDb, deployedEndpoints);
+				undeployInactive(endpointsInDb, deployedEndpoints);
+			});
+		} catch (EndpointConfigurationException e)
+		{
+			log.error("Can not update endpoint", e);
+			undeployAndChangeStateToUndeployedWhenInvalidConfiguration(e.endpoint);
+			throw e.exception;
+		}
+	}
+	
+	private EndpointInstance updateEndpoint(Endpoint endpointInDB, Map<String, EndpointInstance> endpointsDeployed) throws EngineException
+	{
+		EndpointInstance instance = createEndpointInstance(endpointInDB);
+		String name = instance.getEndpointDescription().getName();
+		EndpointInstance runtimeEndpointInstance = endpointsDeployed.get(name);
+		
+		if (runtimeEndpointInstance == null)
+		{
+			log.info("Endpoint " + name + " will be deployed");
+			endpointMan.deploy(instance);
+		} else if (endpointInDB.getRevision() > runtimeEndpointInstance.getEndpointDescription()
+				.getEndpoint().getRevision())
+		{
+			log.info("Endpoint " + name + " will be re-deployed");
+			endpointMan.undeploy(name);
+			endpointMan.deploy(instance);
+		} else if (hasChangedAuthenticationFlow(runtimeEndpointInstance))
+		{
+			updateEndpointAuthenticators(name, instance, endpointsDeployed);
+		} else if (hasChangedAuthenticator(runtimeEndpointInstance))
+		{
+			updateEndpointAuthenticators(name, instance, endpointsDeployed);
+		}
+		
+		return instance;
+	}
+	
+	
+	private EndpointInstance createEndpointInstance(Endpoint endpointInDB) throws EndpointConfigurationException
+	{
+		try
+		{
+			return loader.createEndpointInstance(endpointInDB);
+		} catch (ConfigurationException e)
+		{
+			throw new EndpointConfigurationException(endpointInDB, e);
+		}
+	}
+	private void undeployAndChangeStateToUndeployedWhenInvalidConfiguration(Endpoint endpointInDB) throws EngineException
+	{	
+		tx.runInTransactionThrowing(() ->
+		{
+			endpointMan.undeploy(endpointInDB.getName());
+			Endpoint updatedEndpoint = new Endpoint(endpointInDB.getName(), endpointInDB.getTypeId(),
+					endpointInDB.getContextAddress(), endpointInDB.getConfiguration(), endpointInDB.getRevision() + 1,
+					EndpointState.UNDEPLOYED);
+			endpointDB.update(updatedEndpoint);			
 		});
 	}
 	
@@ -199,5 +238,16 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 				endpointMan.undeploy(name);
 			}
 		}
+	}
+	
+	private static class EndpointConfigurationException extends EngineException
+	{
+		final Endpoint endpoint;
+		final ConfigurationException exception;
+		EndpointConfigurationException(Endpoint endpoint, ConfigurationException exception)
+		{
+			this.endpoint = endpoint;
+			this.exception = exception;
+		}	
 	}
 }

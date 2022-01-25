@@ -37,7 +37,7 @@ public class InvocationContextSetupFilterTest
 	private UnityServerConfiguration config;
 
 	@Test
-	public void shouldSetFirstSupportedLocaleFromCookie() throws IOException, ServletException
+	public void shouldSetSupportedLocaleFromCookie() throws IOException, ServletException
 	{
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		ServletResponse response = Mockito.mock(ServletResponse.class);
@@ -46,7 +46,7 @@ public class InvocationContextSetupFilterTest
 		
 		when(config.isLocaleSupported(new Locale("pl-PL"))).thenReturn(true);
 		when(request.getCookies()).thenReturn(new Cookie[]
-		{ new LanguageCookie("de-DE,zf-Hant,pl-PL") });
+		{ new LanguageCookie("pl-PL") });
 		
 		filter.doFilter(request, response, chain);
 	

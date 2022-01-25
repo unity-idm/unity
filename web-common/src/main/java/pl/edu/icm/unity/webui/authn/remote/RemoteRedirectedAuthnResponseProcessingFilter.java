@@ -62,9 +62,8 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 		RedirectedAuthnState authnContext;
 		try
 		{
-			authnContext = remoteAuthnContextStore.getAuthnContext(requestId);
+			authnContext = remoteAuthnContextStore.getAndRemoveAuthnContext(requestId);
 			log.debug("Got remote context associated with id {}", requestId);
-			remoteAuthnContextStore.removeAuthnContext(requestId);
 		} catch (UnboundRelayStateException e)
 		{
 			log.debug("Request with invalid remote authn context {}, ignoring it", requestId);

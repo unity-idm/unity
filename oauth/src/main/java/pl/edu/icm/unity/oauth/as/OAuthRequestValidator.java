@@ -117,40 +117,36 @@ public class OAuthRequestValidator
 			return Optional.of(Set.copyOf(allowedScopesA.getValues()));
 		}
 	}
-	
+
 	public List<ScopeInfo> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
-		List<ScopeInfo> ret = new ArrayList<>();
-		Set<String> scopeKeys = oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES);
-		Optional<Set<String>> allowedScopes = getAllowedScopes(clientAttributes);
-		
-		if (requestedScopes != null)
+		List<ScopeInfo> scopesDefinedOnServer = new ArrayList<>();
+		oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES)
+				.forEach(scopeKey -> scopesDefinedOnServer
+						.add(new ScopeInfo(oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_NAME),
+								oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION),
+								oauthConfig.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES))));
+		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
+		Set<String> notAllowedByClient = requestedScopes.stream().map(s -> s.getValue())
+				.filter(scope -> (allowedByClientScopes.isPresent() && !allowedByClientScopes.get().contains(scope)))
+				.collect(Collectors.toSet());
+		if (!notAllowedByClient.isEmpty())
 		{
-			for (String scopeKey: scopeKeys)
-			{
-				String scope = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
-				if (!allowedScopes.isEmpty() && !allowedScopes.get().contains(scope))
-				{
-					log.debug("Scope " + scope + " is not allowed for client, skipped");
-					continue;
-				}
-				
-				if (requestedScopes.contains(scope))
-				{				
-					String desc = oauthConfig.getValue(scopeKey+OAuthASProperties.SCOPE_DESCRIPTION);
-					List<String> attributes = oauthConfig.getListOfValues(
-							scopeKey+OAuthASProperties.SCOPE_ATTRIBUTES);
-					ret.add(new ScopeInfo(scope, desc, attributes));
-				}
-			}
+			log.info(
+					"Requested scopes not allowed for the client and ignored: " + String.join(",", notAllowedByClient));
 		}
-		
-		Set<String> skipped = new HashSet<>(requestedScopes.toStringList());
-		skipped.removeAll(ret.stream().map(s -> s.getName()).collect(Collectors.toSet()));
-		if (!skipped.isEmpty())
+
+		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
+				.filter(scope -> !scopesDefinedOnServer.stream()
+						.filter(serverScope -> scope.equals(serverScope.getName())).findAny().isPresent())
+				.collect(Collectors.toSet());
+		if (!notDefinedOnServer.isEmpty())
 		{
-			log.info("Ignored requested scopes: " + String.join(",", skipped));
+			log.info("Requested scopes not available on the endpoint and ignored: "
+					+ String.join(",", notDefinedOnServer));
 		}
-		return ret;
+		return scopesDefinedOnServer.stream().filter(
+				scope -> (requestedScopes.contains(scope.getName()) && !notAllowedByClient.contains(scope.getName())))
+				.collect(Collectors.toList());
 	}
 }

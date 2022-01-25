@@ -92,12 +92,18 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	private OAuthASProperties oauthProperties;
 
 	@Autowired
-	public OAuthAuthzWebEndpoint(NetworkServer server, ApplicationContext applicationContext,
-			FreemarkerAppHandler freemarkerHandler, @Qualifier("insecure") EntityManagement identitiesManagement,
-			@Qualifier("insecure") AttributesManagement attributesManagement, PKIManagement pkiManagement,
-			OAuthEndpointsCoordinator coordinator, ASConsentDeciderServletFactory dispatcherServletFactory,
-			AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter, OAuthIdpStatisticReporterFactory idpReporterFactory)
+	public OAuthAuthzWebEndpoint(NetworkServer server,
+			ApplicationContext applicationContext,
+			FreemarkerAppHandler freemarkerHandler,
+			@Qualifier("insecure") EntityManagement identitiesManagement,
+			@Qualifier("insecure") AttributesManagement attributesManagement,
+			PKIManagement pkiManagement,
+			OAuthEndpointsCoordinator coordinator,
+			ASConsentDeciderServletFactory dispatcherServletFactory,
+			AdvertisedAddressProvider advertisedAddrProvider,
+			MessageSource msg,
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+			OAuthIdpStatisticReporterFactory idpReporterFactory)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
 				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter);
@@ -133,7 +139,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.setContextPath(description.getEndpoint().getContextAddress());
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_ROUTING_SERVLET_PATH),
-				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement);
+				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, serverConfig);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
 		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
@@ -188,7 +194,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
 	
 		OAuthCancelHandler oAuthCancelHandler = new OAuthCancelHandler(
-				new OAuthResponseHandler(oauthSessionService, idpReporterFactory.getForEndpoint(description.getEndpoint())));
+				new OAuthResponseHandler(oauthSessionService, 
+						idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler));
 		authenticationServlet.setCancelHandler(oAuthCancelHandler);
 
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);

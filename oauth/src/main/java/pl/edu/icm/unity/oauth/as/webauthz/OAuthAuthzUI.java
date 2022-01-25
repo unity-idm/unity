@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionC
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -84,6 +85,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private IdentityParam identity;
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
 	private final OAuthIdpStatisticReporterFactory idpStatisticReporterFactory;
+	private final FreemarkerAppHandler freemarkerHandler;
 
 	@Autowired
 	public OAuthAuthzUI(MessageSource msg,
@@ -98,7 +100,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			OAuthSessionService oauthSessionService,
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory
+			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory,
+			FreemarkerAppHandler freemarkerHandler
 			)
 	{
 		super(msg, enquiryDialogLauncher);
@@ -114,6 +117,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
+		this.freemarkerHandler = freemarkerHandler;
 	}
 
 	@Override
@@ -238,7 +242,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private TranslationResult getTranslationResult(OAuthAuthzContext ctx) throws EopException
 	{
-		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService, idpStatisticReporterFactory.getForEndpoint(endpointDescription.getEndpoint()));
+		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService, 
+				idpStatisticReporterFactory.getForEndpoint(endpointDescription.getEndpoint()), freemarkerHandler);
 		try
 		{
 			return idpEngine.getUserInfo(ctx);

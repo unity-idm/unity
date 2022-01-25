@@ -41,6 +41,7 @@ public class InvocationContextSetupFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			InvocationContextSetupFilter.class);
+	public static final String LANGUAGE_COOKIE = "language";
 	
 	private UnityServerConfiguration config;
 	private AuthenticationRealm realm;
@@ -123,23 +124,18 @@ public class InvocationContextSetupFilter implements Filter
 	 */
 	private void setLocale(HttpServletRequest request, InvocationContext context)
 	{
-		String value = CookieHelper.getCookie(request, LanguageCookie.LANGUAGE_COOKIE);
+		String value = CookieHelper.getCookie(request, LANGUAGE_COOKIE);
 		if (value != null)
 		{
-			String[] allLang = value.split(",");
-			for (String lang : allLang)
+			Locale locale = UnityServerConfiguration.safeLocaleDecode(value);
+			if (config.isLocaleSupported(locale))
 			{
-				Locale locale = UnityServerConfiguration.safeLocaleDecode(lang);
-				if (config.isLocaleSupported(locale))
-				{
-					context.setLocale(locale);
-					log.trace("Requested locale was set for the invocation context");
-					return;
-				}
+				context.setLocale(locale);
+				log.trace("Requested locale was set for the invocation context");
+				return;
 			}
 		}
 		context.setLocale(config.getDefaultLocale());
 		log.trace("Default locale was set for the invocation context");
 	}
-	
 }

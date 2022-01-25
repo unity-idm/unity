@@ -27,15 +27,19 @@ public class MVELGroup
 
 	public MVELGroup(GroupsChain groupChain)
 	{
-		this.group = groupChain.getLast();
-		GroupsChain parentChain = groupChain.getParentChain();
-		this.parent = parentChain == null ? null : new MVELGroup(parentChain);
+		this(groupChain.getLast(), getParentFromChain(groupChain));
 	}
 
 	public MVELGroup(Group group, MVELGroup parent)
 	{
 		this.group = group;
 		this.parent = parent;
+	}
+
+	private static MVELGroup getParentFromChain(GroupsChain groupChain)
+	{
+		GroupsChain parentChain = groupChain.getParentChain();
+		return parentChain == null ? null : new MVELGroup(parentChain);
 	}
 	
 	public boolean isChild(MVELGroup test)

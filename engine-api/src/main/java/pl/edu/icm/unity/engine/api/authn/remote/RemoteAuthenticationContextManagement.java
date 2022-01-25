@@ -4,10 +4,17 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Maintains a map of remote authentication contexts matched by some string key.
@@ -22,11 +29,26 @@ import java.util.Map;
  */
 public class RemoteAuthenticationContextManagement<T extends RelayedAuthnState>
 {
-	public static final long MAX_TTL = 15*3600*1000;
-	public static final long CLEANUP_INTERVAL = 3600*1000;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthenticationContextManagement.class);
+	private static final Duration DEF_CLEANUP_INTERVAL = Duration.ofMinutes(5);
+	private static final Duration DEF_SHORT_CLEANUP_INTERVAL = Duration.ofSeconds(5);
 	
-	private Map<String, T> contexts = new HashMap<String, T>();
-	private Date lastCleanup = new Date();
+	private final Map<String, T> contexts = new HashMap<>();
+	private LocalDateTime lastCleanup = LocalDateTime.now();
+	private final Duration maxTTL;
+	private final Duration cleanupInterval;
+	
+	public RemoteAuthenticationContextManagement(Duration maxTTL)
+	{
+		this(maxTTL, DEF_CLEANUP_INTERVAL);
+	}
+
+	public RemoteAuthenticationContextManagement(Duration maxTTL, Duration cleanupInterval)
+	{
+		this.maxTTL = maxTTL;
+		this.cleanupInterval = cleanupInterval.compareTo(maxTTL) > 0 ? DEF_SHORT_CLEANUP_INTERVAL : cleanupInterval;
+		log.debug("Stale authn context will be cleaned after {}, interval is {}", maxTTL, this.cleanupInterval);
+	}
 	
 	public synchronized void addAuthnContext(T context)
 	{
@@ -38,35 +60,34 @@ public class RemoteAuthenticationContextManagement<T extends RelayedAuthnState>
 		contexts.put(relayState, context);
 	}
 	
-	public synchronized T getAuthnContext(String relayState)
+	public synchronized T getAndRemoveAuthnContext(String relayState)
 	{
 		cleanup();
-		T ret = contexts.get(relayState);
+		T ret = contexts.remove(relayState);
 		if (ret == null)
 			throw new UnboundRelayStateException(relayState);
 		return ret;
 	}
 	
-	public synchronized void removeAuthnContext(String relayState)
-	{
-		contexts.remove(relayState);
-	}
-	
 	private void cleanup()
 	{
-		long now = System.currentTimeMillis();
-		if (new Date(now-CLEANUP_INTERVAL).before(lastCleanup))
+		LocalDateTime now = LocalDateTime.now();
+		if (now.minus(cleanupInterval).isBefore(lastCleanup))
 			return;
 		
-		lastCleanup = new Date(now);
-		Date oldestAllowed = new Date(now - MAX_TTL);
+		lastCleanup = LocalDateTime.now();
+		LocalDateTime oldestAllowed = now.minus(maxTTL);
+		Date oldestAllowedDate = Date.from(oldestAllowed.atZone(ZoneId.systemDefault()).toInstant());
 		
 		Iterator<T> it = contexts.values().iterator();
 		while (it.hasNext())
 		{
 			T ctx = it.next();
-			if (ctx.getCreationTime().before(oldestAllowed))
+			if (ctx.getCreationTime().before(oldestAllowedDate))
+			{
+				log.debug("Dropping stale since {} authN context: {}", ctx.getCreationTime(), ctx);
 				it.remove();
+			}
 		}
 	}
 	

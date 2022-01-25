@@ -4,9 +4,15 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.time.Duration;
+
 import org.springframework.stereotype.Component;
 
 @Component
 public class SharedRemoteAuthenticationContextStore extends RemoteAuthenticationContextManagement<RedirectedAuthnState>
 {
+	public SharedRemoteAuthenticationContextStore()
+	{
+		super(Duration.ofMinutes(15));
+	}
 }

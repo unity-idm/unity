@@ -26,7 +26,7 @@ class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentE
 		log.warn("IllegalArgumentException exception during RESTful API invocation", ex);
 		return Response
 				.status(Status.BAD_REQUEST).entity(OAuthExceptionMapper
-						.makeError(OAuth2Error.INVALID_REQUEST, ex.getMessage()).toJSONObject().toJSONString())
+						.makeError(OAuth2Error.INVALID_REQUEST, "Illegal argument").toJSONObject().toJSONString())
 				.type(MediaType.APPLICATION_JSON).build();
 	}
 }

@@ -76,7 +76,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit(), true);
 		logo.setCaption(msg.getMessage("OTPCredentialDefinitionEditor.logo"));
 		tooltip(logo, msg.getMessage("OTPCredentialDefinitionEditor.logo.tip"));
-		binder.forField(logo).bind("logo");
+		logo.configureBinding(binder, "logo");
 		
 		
 		TextField issuer = new TextField(msg.getMessage("OTPCredentialDefinitionEditor.issuer"));
