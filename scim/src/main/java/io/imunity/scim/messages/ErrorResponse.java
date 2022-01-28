@@ -32,7 +32,6 @@ public class ErrorResponse
 	public static final String SCHEMA = "urn:ietf:params:scim:api:messages:2.0:Error";
 
 	public final Schemas schemas;
-
 	public final int status;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public final ScimType scimType;
@@ -124,7 +123,6 @@ public class ErrorResponse
 			notNull(schemas, "schemas cannot be null.");
 			notEmpty(schemas, "schemas cannot be empty.");
 			notNull(status, "status cannot be null.");
-
 			return new ErrorResponse(this);
 		}
 	}

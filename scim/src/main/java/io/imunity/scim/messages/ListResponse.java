@@ -11,12 +11,12 @@ import static org.springframework.util.Assert.notNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.types.BasicScimResource;
+import io.imunity.scim.types.Schemas;
 
 @JsonPropertyOrder(
 { "schemas", "totalResults", "resources" })
@@ -25,7 +25,7 @@ public class ListResponse<T extends BasicScimResource>
 {
 	public static final String SCHEMA = "urn:ietf:params:scim:api:messages:2.0:ListResponse";
 
-	public final Set<String> schemas;
+	public final Schemas schemas;
 	public final int totalResults;
 	public final List<T> resources;
 
@@ -63,16 +63,16 @@ public class ListResponse<T extends BasicScimResource>
 
 	public static final class Builder<K extends BasicScimResource>
 	{
-		private Set<String> schemas = Collections.emptySet();
+		private Schemas schemas;
 		private Integer totalResults;
 		private List<K> resources = Collections.emptyList();
 
 		private Builder()
 		{
-			withSchemas(Set.of(SCHEMA));
+			withSchemas(Schemas.of(SCHEMA));
 		}
 
-		public Builder<K> withSchemas(Set<String> schemas)
+		private Builder<K> withSchemas(Schemas schemas)
 		{
 			this.schemas = schemas;
 			return this;
