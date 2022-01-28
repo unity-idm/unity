@@ -11,7 +11,6 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
@@ -28,25 +27,30 @@ public class RESTEndpointProperties extends UnityPropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.rest.";
 	
-	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
-	
 	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
 	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
 	
-	static
+	public static Map<String, PropertyMD> getDefaults()
 	{
-		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
+		Map<String, PropertyMD> defaults = new HashMap<>();
+		defaults.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
 				"List of origins allowed for the CORS requests. "
 				+ "The complete set of HTTP methods is enabled for the enumerated resources. "
 				+ "If the list is undefined then CORS support is turned off."));
-		META.put(ENABLED_CORS_HEADERS, new PropertyMD().setList(false).setDescription(
+		defaults.put(ENABLED_CORS_HEADERS, new PropertyMD().setList(false).setDescription(
 				"List of headers allowed for the CORS requests. If undefined then all are enabled by defult."));
+		return defaults;
 	}
 	
 	public RESTEndpointProperties(Properties properties)
 			throws ConfigurationException
 	{
-		super(PREFIX, properties, META, log);
+		super(PREFIX, properties, getDefaults(), log);
+	}
+	
+	public RESTEndpointProperties(String prefix, Map<String, PropertyMD> defaults, Properties properties)
+			throws ConfigurationException
+	{
+		super(prefix, properties, defaults, log);
 	}
 }

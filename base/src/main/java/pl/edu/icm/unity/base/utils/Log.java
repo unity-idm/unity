@@ -24,6 +24,7 @@ public class Log
 	public static final String U_SERVER_LDAP = PFX + "ldap";
 	public static final String U_SERVER_WS = PFX + "ws";
 	public static final String U_SERVER_REST = PFX + "rest";
+	public static final String U_SERVER_SCIM = PFX + "scim";
 	public static final String U_SERVER_PAM = PFX + "pam";
 	public static final String U_SERVER_OTP = PFX + "otp";
 	public static final String U_SERVER_TRANSLATION = PFX + "externaltranslation";
