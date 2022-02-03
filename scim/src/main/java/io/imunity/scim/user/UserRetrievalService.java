@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.user.SCIMUserAuthzService.SCIMUserAuthzServiceFactory;
+import io.imunity.scim.user.UserAuthzService.SCIMUserAuthzServiceFactory;
 import io.imunity.scim.user.UserGroup.GroupType;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -37,19 +37,19 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
-class SCIMUserRetrievalService
+class UserRetrievalService
 {
 	public static final String DEFAULT_META_VERSION = "v1";
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, SCIMUserRetrievalService.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRetrievalService.class);
 
 	private final MessageSource msg;
-	private final SCIMUserAuthzService authzMan;
+	private final UserAuthzService authzMan;
 	private final EntityManagement entityManagement;
 	private final BulkGroupQueryService bulkService;
 
 	private final SCIMEndpointDescription configuration;
 
-	SCIMUserRetrievalService(MessageSource msg, SCIMUserAuthzService scimAuthzService,
+	UserRetrievalService(MessageSource msg, UserAuthzService scimAuthzService,
 			EntityManagement entityManagement, BulkGroupQueryService bulkService, SCIMEndpointDescription configuration)
 	{
 		this.msg = msg;
@@ -167,9 +167,9 @@ class SCIMUserRetrievalService
 			this.msg = msg;
 		}
 
-		SCIMUserRetrievalService getService(SCIMEndpointDescription configuration)
+		UserRetrievalService getService(SCIMEndpointDescription configuration)
 		{
-			return new SCIMUserRetrievalService(msg, authzManFactory.getService(configuration), entityManagement,
+			return new UserRetrievalService(msg, authzManFactory.getService(configuration), entityManagement,
 					bulkService, configuration);
 		}
 	}

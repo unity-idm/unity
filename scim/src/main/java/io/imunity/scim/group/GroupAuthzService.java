@@ -12,12 +12,12 @@ import io.imunity.scim.config.SCIMEndpointDescription;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 
-class SCIMGroupAuthzService
+class GroupAuthzService
 {
 	private final AuthorizationManagement authzMan;
 	private final SCIMEndpointDescription configuration;
 
-	SCIMGroupAuthzService(AuthorizationManagement authzMan, SCIMEndpointDescription configuration)
+	GroupAuthzService(AuthorizationManagement authzMan, SCIMEndpointDescription configuration)
 	{
 		this.authzMan = authzMan;
 		this.configuration = configuration;
@@ -39,9 +39,9 @@ class SCIMGroupAuthzService
 			this.authzMan = authzMan;
 		}
 
-		SCIMGroupAuthzService getService(SCIMEndpointDescription configuration)
+		GroupAuthzService getService(SCIMEndpointDescription configuration)
 		{
-			return new SCIMGroupAuthzService(authzMan, configuration);
+			return new GroupAuthzService(authzMan, configuration);
 		}
 	}
 }

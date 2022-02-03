@@ -19,24 +19,24 @@ import io.imunity.scim.common.BasicSCIMResource;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.user.SCIMUserRestController;
+import io.imunity.scim.user.UserRestController;
 
-class SCIMGroupResourceAssemblyService
+class GroupAssemblyService
 {
 	private static final String DEFAULT_META_VERSION = "v1";
 	private SCIMEndpointDescription configuration;
 
-	SCIMGroupResourceAssemblyService(SCIMEndpointDescription configuration)
+	GroupAssemblyService(SCIMEndpointDescription configuration)
 	{
 		this.configuration = configuration;
 	}
 
-	BasicSCIMResource mapToGroupResource(SCIMGroup group)
+	BasicSCIMResource mapToGroupResource(GroupData group)
 	{
 		return mapToSingleGroupResource(group);
 	}
 
-	ListResponse<SCIMGroupResource> mapToGroupsResource(List<SCIMGroup> groups)
+	ListResponse<SCIMGroupResource> mapToGroupsResource(List<GroupData> groups)
 	{
 		List<SCIMGroupResource> groupsResource = groups.stream().map(u -> mapToSingleGroupResource(u))
 				.collect(Collectors.toList());
@@ -44,7 +44,7 @@ class SCIMGroupResourceAssemblyService
 				.withTotalResults(groupsResource.size()).build();
 	}
 
-	SCIMGroupResource mapToSingleGroupResource(SCIMGroup group)
+	SCIMGroupResource mapToSingleGroupResource(GroupData group)
 	{
 		return SCIMGroupResource.builder().withDisplayName(group.displayName).withId(group.id)
 				.withMeta(Meta.builder().withResourceType(Meta.ResourceType.Group).withVersion(DEFAULT_META_VERSION)
@@ -54,17 +54,17 @@ class SCIMGroupResourceAssemblyService
 				.withMembers(group.members.stream().map(m -> mapToMember(m)).collect(Collectors.toList())).build();
 	}
 
-	private SCIMGroupMemberResource mapToMember(SCIMGroupMember member)
+	private SCIMGroupMemberResource mapToMember(GroupMember member)
 	{
 		return SCIMGroupMemberResource.builder().withValue(member.value)
-				.withRef(member.type.equals(SCIMGroupMember.MemberType.Group) ? getGroupLocation(member.value)
+				.withRef(member.type.equals(GroupMember.MemberType.Group) ? getGroupLocation(member.value)
 						: getUserLocation(member.value))
 				.withType(member.type.toString()).withDisplay(member.displayName).build();
 	}
 
 	private URI getGroupLocation(String group)
 	{
-		return UriBuilder.fromUri(configuration.baseLocation).path(SCIMGroupRestController.SINGLE_GROUP_LOCATION)
+		return UriBuilder.fromUri(configuration.baseLocation).path(GroupRestController.SINGLE_GROUP_LOCATION)
 				.path(URLEncoder.encode(group, StandardCharsets.UTF_8)).build();
 	}
 
@@ -72,15 +72,15 @@ class SCIMGroupResourceAssemblyService
 	{
 
 		return UriBuilder.fromUri(configuration.baseLocation)
-				.path(SCIMUserRestController.SINGLE_USER_LOCATION + "/" + user).build();
+				.path(UserRestController.SINGLE_USER_LOCATION + "/" + user).build();
 	}
 
 	@Component
 	static class SCIMGroupResourceAssemblyServiceFactory
 	{
-		SCIMGroupResourceAssemblyService getService(SCIMEndpointDescription configuration)
+		GroupAssemblyService getService(SCIMEndpointDescription configuration)
 		{
-			return new SCIMGroupResourceAssemblyService(configuration);
+			return new GroupAssemblyService(configuration);
 		}
 	}
 }

@@ -22,26 +22,26 @@ import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.SCIMRestController;
 import io.imunity.scim.SCIMRestControllerFactory;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.group.SCIMGroupResourceAssemblyService.SCIMGroupResourceAssemblyServiceFactory;
-import io.imunity.scim.group.SCIMGroupRetrievalService.SCIMGroupRetrievalServiceFactory;
+import io.imunity.scim.group.GroupAssemblyService.SCIMGroupResourceAssemblyServiceFactory;
+import io.imunity.scim.group.GroupRetrievalService.SCIMGroupRetrievalServiceFactory;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(SCIMEndpoint.PATH)
-public class SCIMGroupRestController implements SCIMRestController
+public class GroupRestController implements SCIMRestController
 {
 	public static final String SINGLE_GROUP_LOCATION = "/Group";
 
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, SCIMGroupRestController.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, GroupRestController.class);
 
 	private final ObjectMapper mapper = SCIMConstants.MAPPER;
 
-	private final SCIMGroupRetrievalService groupRetrievalService;
-	private final SCIMGroupResourceAssemblyService groupAssemblyService;
+	private final GroupRetrievalService groupRetrievalService;
+	private final GroupAssemblyService groupAssemblyService;
 
-	SCIMGroupRestController(SCIMGroupRetrievalService groupRetrievalService,
-			SCIMGroupResourceAssemblyService groupAssemblyService)
+	GroupRestController(GroupRetrievalService groupRetrievalService,
+			GroupAssemblyService groupAssemblyService)
 	{
 
 		this.groupRetrievalService = groupRetrievalService;
@@ -80,9 +80,9 @@ public class SCIMGroupRestController implements SCIMRestController
 		}
 
 		@Override
-		public SCIMGroupRestController getController(SCIMEndpointDescription configuration)
+		public GroupRestController getController(SCIMEndpointDescription configuration)
 		{
-			return new SCIMGroupRestController(retServiceFactory.getService(configuration),
+			return new GroupRestController(retServiceFactory.getService(configuration),
 					assemblyServiceFactory.getService(configuration));
 		}
 	}

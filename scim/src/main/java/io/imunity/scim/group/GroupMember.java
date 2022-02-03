@@ -5,7 +5,7 @@
 
 package io.imunity.scim.group;
 
-class SCIMGroupMember
+class GroupMember
 {
 	enum MemberType
 	{
@@ -16,7 +16,7 @@ class SCIMGroupMember
 	final String displayName;
 	final MemberType type;
 
-	private SCIMGroupMember(Builder builder)
+	private GroupMember(Builder builder)
 	{
 		this.value = builder.value;
 		this.displayName = builder.displayName;
@@ -56,9 +56,9 @@ class SCIMGroupMember
 			return this;
 		}
 
-		SCIMGroupMember build()
+		GroupMember build()
 		{
-			return new SCIMGroupMember(this);
+			return new GroupMember(this);
 		}
 	}
 }

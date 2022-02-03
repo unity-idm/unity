@@ -22,17 +22,17 @@ import io.imunity.scim.common.BasicSCIMResource;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.group.SCIMGroupRestController;
+import io.imunity.scim.group.GroupRestController;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
-class SCIMUserResourceAssemblyService
+class UserResourceAssemblyService
 {
 	private static final String DEFAULT_META_VERSION = "v1";
 	private final SCIMEndpointDescription configuration;
 
-	SCIMUserResourceAssemblyService(SCIMEndpointDescription configuration)
+	UserResourceAssemblyService(SCIMEndpointDescription configuration)
 	{
 		this.configuration = configuration;
 	}
@@ -58,7 +58,7 @@ class SCIMUserResourceAssemblyService
 				.findFirst().get();
 
 		URI location = UriBuilder.fromUri(configuration.baseLocation)
-				.path(SCIMUserRestController.SINGLE_USER_LOCATION + "/" + persistence.value).build();
+				.path(UserRestController.SINGLE_USER_LOCATION + "/" + persistence.value).build();
 
 		return SCIMUserResource.builder().withId(persistence.value)
 				.withMeta(Meta.builder().withResourceType(Meta.ResourceType.User).withVersion(DEFAULT_META_VERSION)
@@ -74,7 +74,7 @@ class SCIMUserResourceAssemblyService
 
 	private URI getGroupLocation(UserGroup group)
 	{
-		return UriBuilder.fromUri(configuration.baseLocation).path(SCIMGroupRestController.SINGLE_GROUP_LOCATION)
+		return UriBuilder.fromUri(configuration.baseLocation).path(GroupRestController.SINGLE_GROUP_LOCATION)
 				.path(URLEncoder.encode(group.value, StandardCharsets.UTF_8)).build();
 	}
 
@@ -94,9 +94,9 @@ class SCIMUserResourceAssemblyService
 	@Component
 	static class SCIMUserAssemblyServiceFactory
 	{
-		SCIMUserResourceAssemblyService getService(SCIMEndpointDescription configuration)
+		UserResourceAssemblyService getService(SCIMEndpointDescription configuration)
 		{
-			return new SCIMUserResourceAssemblyService(configuration);
+			return new UserResourceAssemblyService(configuration);
 		}
 	}
 }

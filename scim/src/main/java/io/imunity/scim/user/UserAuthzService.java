@@ -13,12 +13,12 @@ import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 
-class SCIMUserAuthzService
+class UserAuthzService
 {
 	private final AuthorizationManagement authzMan;
 	private final SCIMEndpointDescription configuration;
 
-	SCIMUserAuthzService(AuthorizationManagement authzMan, SCIMEndpointDescription configuration)
+	UserAuthzService(AuthorizationManagement authzMan, SCIMEndpointDescription configuration)
 	{
 		this.authzMan = authzMan;
 		this.configuration = configuration;
@@ -46,9 +46,9 @@ class SCIMUserAuthzService
 			this.authzMan = authzMan;
 		}
 
-		SCIMUserAuthzService getService(SCIMEndpointDescription configuration)
+		UserAuthzService getService(SCIMEndpointDescription configuration)
 		{
-			return new SCIMUserAuthzService(authzMan, configuration);
+			return new UserAuthzService(authzMan, configuration);
 		}
 	}
 }

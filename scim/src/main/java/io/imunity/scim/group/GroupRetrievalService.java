@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.group.SCIMGroupAuthzService.SCIMGroupAuthzServiceFactory;
-import io.imunity.scim.group.SCIMGroupMember.Builder;
-import io.imunity.scim.group.SCIMGroupMember.MemberType;
+import io.imunity.scim.group.GroupAuthzService.SCIMGroupAuthzServiceFactory;
+import io.imunity.scim.group.GroupMember.Builder;
+import io.imunity.scim.group.GroupMember.MemberType;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -34,19 +34,19 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 
-class SCIMGroupRetrievalService
+class GroupRetrievalService
 {
 	static final String DEFAULT_META_VERSION = "v1";
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, SCIMGroupRetrievalService.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, GroupRetrievalService.class);
 
-	private final SCIMGroupAuthzService authzMan;
+	private final GroupAuthzService authzMan;
 	private final MessageSource msg;
 	private final GroupsManagement groupsMan;
 	private final BulkGroupQueryService bulkService;
 	private final AttributeSupport attrSupport;
 	private final SCIMEndpointDescription configuration;
 
-	SCIMGroupRetrievalService(MessageSource msg, SCIMGroupAuthzService authzMan, GroupsManagement groupMan,
+	GroupRetrievalService(MessageSource msg, GroupAuthzService authzMan, GroupsManagement groupMan,
 			BulkGroupQueryService bulkService, AttributeSupport attrSupport, SCIMEndpointDescription configuration)
 	{
 		this.msg = msg;
@@ -57,7 +57,7 @@ class SCIMGroupRetrievalService
 		this.attrSupport = attrSupport;
 	}
 
-	SCIMGroup getGroup(GroupId groupId) throws EngineException
+	GroupData getGroup(GroupId groupId) throws EngineException
 	{
 		authzMan.checkReadGroups();
 		assertIsMembershipGroup(groupId.id);
@@ -70,12 +70,12 @@ class SCIMGroupRetrievalService
 		GroupContents main = groupAndSubgroups.get(groupId.id);
 		Optional<String> nameAttribute = getNameAttribute();
 
-		List<SCIMGroupMember> members = new ArrayList<>();
+		List<GroupMember> members = new ArrayList<>();
 		membershipInfo.values().forEach(m -> members.add(mapToUserMember(m, nameAttribute)));
 		groupAndSubgroups.values().stream().filter(g -> !g.equals(main))
 				.forEach(g -> members.add(mapToGroupMemeber(g)));
 
-		return SCIMGroup.builder().withDisplayName(main.getGroup().getDisplayedNameShort(msg).getValue(msg))
+		return GroupData.builder().withDisplayName(main.getGroup().getDisplayedNameShort(msg).getValue(msg))
 				.withId(main.getGroup().getPathEncoded()).withMembers(members).build();
 	}
 
@@ -87,11 +87,11 @@ class SCIMGroupRetrievalService
 				attributeTypeWithSingeltonMetadata != null ? attributeTypeWithSingeltonMetadata.getName() : null);
 	}
 
-	List<SCIMGroup> getGroups() throws EngineException
+	List<GroupData> getGroups() throws EngineException
 	{
 		authzMan.checkReadGroups();
 
-		List<SCIMGroup> groups = new ArrayList<>();
+		List<GroupData> groups = new ArrayList<>();
 		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
 		Optional<String> nameAttribute = getNameAttribute();
@@ -109,9 +109,9 @@ class SCIMGroupRetrievalService
 
 	private void fillMembersAndAddGroupResource(GroupContents group, Optional<String> nameAttribute,
 			Map<Long, EntityInGroupData> membershipInfo, Map<String, GroupContents> groupAndSubgroups,
-			List<SCIMGroup> groups)
+			List<GroupData> groups)
 	{
-		List<SCIMGroupMember> members = new ArrayList<>();
+		List<GroupMember> members = new ArrayList<>();
 		membershipInfo.values().stream().filter(e -> e.groups.contains(group.getGroup().getPathEncoded()))
 				.forEach(e -> members.add(mapToUserMember(e, nameAttribute)));
 		groupAndSubgroups.values().stream()
@@ -122,22 +122,22 @@ class SCIMGroupRetrievalService
 					fillMembersAndAddGroupResource(g, nameAttribute, membershipInfo, groupAndSubgroups, groups);
 				});
 
-		groups.add(SCIMGroup.builder().withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg))
+		groups.add(GroupData.builder().withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg))
 				.withId(group.getGroup().getPathEncoded()).withMembers(members).build());
 	}
 
-	private SCIMGroupMember mapToGroupMemeber(GroupContents group)
+	private GroupMember mapToGroupMemeber(GroupContents group)
 	{
-		return SCIMGroupMember.builder().withValue(group.getGroup().getPathEncoded()).withType(MemberType.Group)
+		return GroupMember.builder().withValue(group.getGroup().getPathEncoded()).withType(MemberType.Group)
 				.withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg)).build();
 	}
 
-	private SCIMGroupMember mapToUserMember(EntityInGroupData entityInGroupData, Optional<String> nameAttribute)
+	private GroupMember mapToUserMember(EntityInGroupData entityInGroupData, Optional<String> nameAttribute)
 	{
 		Identity persistence = entityInGroupData.entity.getIdentities().stream()
 				.filter(i -> i.getTypeId().equals(PersistentIdentity.ID)).findFirst().get();
 
-		Builder userMember = SCIMGroupMember.builder().withValue(persistence.getComparableValue())
+		Builder userMember = GroupMember.builder().withValue(persistence.getComparableValue())
 				.withType(MemberType.User);
 
 		if (nameAttribute.isPresent())
@@ -188,9 +188,9 @@ class SCIMGroupRetrievalService
 			this.attrSupport = attrSupport;
 		}
 
-		SCIMGroupRetrievalService getService(SCIMEndpointDescription configuration)
+		GroupRetrievalService getService(SCIMEndpointDescription configuration)
 		{
-			return new SCIMGroupRetrievalService(msg, authzManFactory.getService(configuration), groupMan,
+			return new GroupRetrievalService(msg, authzManFactory.getService(configuration), groupMan,
 					bulkService, attrSupport, configuration);
 		}
 	}

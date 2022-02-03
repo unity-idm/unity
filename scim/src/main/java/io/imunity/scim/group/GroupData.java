@@ -9,13 +9,13 @@ import java.util.List;
 
 import java.util.Collections;
 
-class SCIMGroup
+class GroupData
 {
 	final String id;
 	final String displayName;
-	final List<SCIMGroupMember> members;
+	final List<GroupMember> members;
 
-	private SCIMGroup(Builder builder)
+	private GroupData(Builder builder)
 	{
 		this.id = builder.id;
 		this.displayName = builder.displayName;
@@ -31,7 +31,7 @@ class SCIMGroup
 	{
 		private String id;
 		private String displayName;
-		private List<SCIMGroupMember> members = Collections.emptyList();
+		private List<GroupMember> members = Collections.emptyList();
 
 		private Builder()
 		{
@@ -49,15 +49,15 @@ class SCIMGroup
 			return this;
 		}
 
-		Builder withMembers(List<SCIMGroupMember> members)
+		Builder withMembers(List<GroupMember> members)
 		{
 			this.members = members;
 			return this;
 		}
 
-		SCIMGroup build()
+		GroupData build()
 		{
-			return new SCIMGroup(this);
+			return new GroupData(this);
 		}
 	}
 }

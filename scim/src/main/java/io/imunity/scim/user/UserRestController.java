@@ -22,24 +22,24 @@ import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.SCIMRestController;
 import io.imunity.scim.SCIMRestControllerFactory;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.user.SCIMUserResourceAssemblyService.SCIMUserAssemblyServiceFactory;
-import io.imunity.scim.user.SCIMUserRetrievalService.SCIMUserRetrievalServiceFactory;
+import io.imunity.scim.user.UserResourceAssemblyService.SCIMUserAssemblyServiceFactory;
+import io.imunity.scim.user.UserRetrievalService.SCIMUserRetrievalServiceFactory;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(SCIMEndpoint.PATH)
-public class SCIMUserRestController implements SCIMRestController
+public class UserRestController implements SCIMRestController
 {
 	public static final String SINGLE_USER_LOCATION = "/User";
 
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, SCIMUserRestController.class);
-	private final SCIMUserRetrievalService userService;
-	private final SCIMUserResourceAssemblyService userMapperService;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRestController.class);
+	private final UserRetrievalService userService;
+	private final UserResourceAssemblyService userMapperService;
 
 	private final ObjectMapper mapper = SCIMConstants.MAPPER;
 
-	SCIMUserRestController(SCIMUserRetrievalService userService, SCIMUserResourceAssemblyService userMapperService)
+	UserRestController(UserRetrievalService userService, UserResourceAssemblyService userMapperService)
 	{
 		this.userService = userService;
 		this.userMapperService = userMapperService;
@@ -87,7 +87,7 @@ public class SCIMUserRestController implements SCIMRestController
 		@Override
 		public SCIMRestController getController(SCIMEndpointDescription configuration)
 		{
-			return new SCIMUserRestController(retServiceFactory.getService(configuration),
+			return new UserRestController(retServiceFactory.getService(configuration),
 					assemblyServiceFactory.getService(configuration));
 		}
 	}
