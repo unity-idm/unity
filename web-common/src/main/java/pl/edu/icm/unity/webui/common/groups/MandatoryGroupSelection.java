@@ -112,9 +112,9 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 						StringUtils.countOccurrencesOf(g.group.toString(), "/") - min)
 						+ g.group.getDisplayedName().getValue(msg)
 				: g.group.getDisplayedName().getValue(msg));
-		GroupSelectionHelper.sort(items, new GroupNameComparator(msg));
 		this.items.clear();
 		this.items.addAll(items);
+		GroupSelectionHelper.sort(this.items, new GroupNameComparator(msg));
 		super.setItems(this.items.stream().map(g -> new GroupWithIndentIndicator(g, true)));
 		setSelectedItem(new GroupWithIndentIndicator(this.items.get(0), true));
 	}

@@ -70,8 +70,8 @@ public class SCIMServiceConfigurationBean
 
 	void setConfig(SCIMEndpointConfiguration orgConfig)
 	{
-		this.allowedCORSheaders.addAll(orgConfig.allowedCORSheaders);
-		this.allowedCORSorigins.addAll(orgConfig.allowedCORSorigins);
+		this.allowedCORSheaders.addAll(orgConfig.allowedCorsHeaders);
+		this.allowedCORSorigins.addAll(orgConfig.allowedCorsOrigins);
 		this.membershipGroups
 				.addAll(orgConfig.membershipGroups.stream().map(g -> new Group(g)).collect(Collectors.toList()));
 		this.rootGroup = new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false);
@@ -79,8 +79,8 @@ public class SCIMServiceConfigurationBean
 
 	SCIMEndpointConfiguration getConfig()
 	{
-		return SCIMEndpointConfiguration.builder().withAllowedCORSheaders(allowedCORSheaders)
-				.withAllowedCORSorigins(allowedCORSorigins).withRootGroup(rootGroup.group.getPathEncoded())
+		return SCIMEndpointConfiguration.builder().withAllowedCorsHeaders(allowedCORSheaders)
+				.withAllowedCorsOrigins(allowedCORSorigins).withRootGroup(rootGroup.group.getPathEncoded())
 				.withMembershipGroups(
 						membershipGroups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
 				.build();

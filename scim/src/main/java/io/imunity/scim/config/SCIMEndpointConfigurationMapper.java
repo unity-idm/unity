@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
 
-import io.imunity.scim.SCIMEndpointProperties;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
 
@@ -17,32 +16,35 @@ public class SCIMEndpointConfigurationMapper
 {
 	public static String toProperties(SCIMEndpointConfiguration configuration)
 	{
-		Properties raw = new Properties();
+		Properties rawRest = new Properties();
 
-		configuration.allowedCORSheaders.forEach(a ->
+		configuration.allowedCorsHeaders.forEach(a ->
 		{
 
-			int i = configuration.allowedCORSheaders.indexOf(a) + 1;
-			raw.put(SCIMEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_HEADERS + i, a);
+			int i = configuration.allowedCorsHeaders.indexOf(a) + 1;
+			rawRest.put(SCIMEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_HEADERS + i, a);
 		});
 
-		configuration.allowedCORSorigins.forEach(a ->
+		configuration.allowedCorsOrigins.forEach(a ->
 		{
 
-			int i = configuration.allowedCORSorigins.indexOf(a) + 1;
-			raw.put(SCIMEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_ORIGINS + i, a);
+			int i = configuration.allowedCorsOrigins.indexOf(a) + 1;
+			rawRest.put(SCIMEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_ORIGINS + i, a);
 		});
+
+		Properties rawScim = new Properties();
 
 		configuration.membershipGroups.forEach(a ->
 		{
 
 			int i = configuration.membershipGroups.indexOf(a) + 1;
-			raw.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.MEMBERSHIP_GROUPS + i, a);
+			rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.MEMBERSHIP_GROUPS + i, a);
 		});
 
-		raw.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ROOT_GROUP, configuration.rootGroup);
-		SCIMEndpointProperties prop = new SCIMEndpointProperties(raw);
-		return prop.getAsString();
+		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ROOT_GROUP, configuration.rootGroup);
+		SCIMEndpointProperties propScim = new SCIMEndpointProperties(rawScim);
+		RESTEndpointProperties propRest = new RESTEndpointProperties(rawRest);
+		return propRest.getAsString() + "\n" + propScim.getAsString();
 	}
 
 	public static SCIMEndpointConfiguration fromProperties(String properties)
@@ -57,15 +59,19 @@ public class SCIMEndpointConfigurationMapper
 		}
 
 		SCIMEndpointProperties scimProp = new SCIMEndpointProperties(raw);
-		return fromProperties(scimProp);
+		RESTEndpointProperties restEndpointProperties = new RESTEndpointProperties(raw);
+		return fromProperties(scimProp, restEndpointProperties);
 	}
 
-	public static SCIMEndpointConfiguration fromProperties(SCIMEndpointProperties scimProp)
+	public static SCIMEndpointConfiguration fromProperties(SCIMEndpointProperties scimProp,
+			RESTEndpointProperties restEndpointProperties)
 	{
 
 		return SCIMEndpointConfiguration.builder()
-				.withAllowedCORSheaders(scimProp.getListOfValues(SCIMEndpointProperties.ENABLED_CORS_HEADERS))
-				.withAllowedCORSorigins(scimProp.getListOfValues(SCIMEndpointProperties.ENABLED_CORS_ORIGINS))
+				.withAllowedCorsHeaders(
+						restEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_HEADERS))
+				.withAllowedCorsOrigins(
+						restEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS))
 				.withMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.MEMBERSHIP_GROUPS))
 				.withRootGroup(scimProp.getValue(SCIMEndpointProperties.ROOT_GROUP)).build();
 

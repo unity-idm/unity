@@ -7,14 +7,26 @@ package io.imunity.scim.console;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMEndpoint;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
@@ -66,4 +78,43 @@ class SCIMServiceEditor implements ServiceEditor
 	{
 		return editor.getServiceDefiniton();
 	}
+
+	@Component
+	static class SCIMServiceEditorFactory
+	{
+		private final MessageSource msg;
+		private final EndpointManagement endpointMan;
+		private final RealmsManagement realmsMan;
+		private final AuthenticationFlowManagement flowsMan;
+		private final AuthenticatorManagement authMan;
+		private final NetworkServer networkServer;
+		private final BulkGroupQueryService bulkService;
+
+		@Autowired
+		SCIMServiceEditorFactory(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+				AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
+				BulkGroupQueryService bulkService)
+		{
+			this.msg = msg;
+			this.endpointMan = endpointMan;
+			this.realmsMan = realmsMan;
+			this.flowsMan = flowsMan;
+			this.authMan = authMan;
+			this.networkServer = networkServer;
+			this.bulkService = bulkService;
+		}
+
+		public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
+		{
+			return new SCIMServiceEditor(msg,
+					realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
+					flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
+					authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
+					endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
+					networkServer.getUsedContextPaths(),
+					bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
+							.map(g -> g.getGroup()).collect(Collectors.toList()));
+		}
+	}
+
 }

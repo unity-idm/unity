@@ -4,11 +4,9 @@
  */
 package io.imunity.scim;
 
-import java.io.StringReader;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,12 +17,10 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SCIMEndpointConfigurationMapper;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.exceptions.mapper.SCIMEndpointExceptionMapper;
-import io.imunity.scim.handlers.SCIMHandlerFactory;
+import io.imunity.scim.exception.providers.SCIMEndpointExceptionMapper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
@@ -47,12 +43,12 @@ public class SCIMEndpoint extends RESTEndpoint
 			"A RESTful endpoint exposing SCIM API.", JAXRSAuthentication.NAME,
 			Collections.singletonMap(PATH, "The SCIM base path"));
 
-	private final List<SCIMHandlerFactory> factories;
+	private final List<SCIMRestControllerFactory> factories;
 	protected SCIMEndpointConfiguration scimEndpointConfiguration;
 
 	@Autowired
 	public SCIMEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
-			AuthenticationProcessor authnProcessor, List<SCIMHandlerFactory> factories,
+			AuthenticationProcessor authnProcessor, List<SCIMRestControllerFactory> factories,
 			AdvertisedAddressProvider advertisedAddrProvider, EntityManagement entityMan)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, "", entityMan);
@@ -62,18 +58,8 @@ public class SCIMEndpoint extends RESTEndpoint
 	@Override
 	protected void setSerializedConfiguration(String serializedState)
 	{
-		properties = new Properties();
-		try
-		{
-			properties.load(new StringReader(serializedState));
-			SCIMEndpointProperties scimEndpointProperties = new SCIMEndpointProperties(properties);
-			genericEndpointProperties = scimEndpointProperties;
-			scimEndpointConfiguration = SCIMEndpointConfigurationMapper.fromProperties(scimEndpointProperties);
-
-		} catch (Exception e)
-		{
-			throw new ConfigurationException("Can't initialize the the scim endpoint's configuration", e);
-		}
+		super.setSerializedConfiguration(serializedState);
+		scimEndpointConfiguration = SCIMEndpointConfigurationMapper.fromProperties(serializedState);
 	}
 
 	@Override
@@ -90,7 +76,7 @@ public class SCIMEndpoint extends RESTEndpoint
 		{
 			SCIMEndpointDescription enDesc = new SCIMEndpointDescription(URI.create(getServletUrl("")),
 					scimEndpointConfiguration.rootGroup, scimEndpointConfiguration.membershipGroups);
-			Set<Object> ret = factories.stream().map(f -> f.getHandler(enDesc)).collect(Collectors.toSet());
+			Set<Object> ret = factories.stream().map(f -> f.getController(enDesc)).collect(Collectors.toSet());
 			SCIMEndpointExceptionMapper.installExceptionHandlers(ret);
 			return ret;
 		}

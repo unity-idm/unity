@@ -11,23 +11,23 @@ import java.util.Objects;
 
 public class SCIMEndpointConfiguration
 {
-	public final List<String> allowedCORSheaders;
-	public final List<String> allowedCORSorigins;
+	public final List<String> allowedCorsHeaders;
+	public final List<String> allowedCorsOrigins;
 	public final String rootGroup;
 	public final List<String> membershipGroups;
 
 	private SCIMEndpointConfiguration(Builder builder)
 	{
-		this.allowedCORSheaders = builder.allowedCORSheaders;
-		this.allowedCORSorigins = builder.allowedCORSorigins;
+		this.allowedCorsHeaders = List.copyOf(builder.allowedCORSheaders);
+		this.allowedCorsOrigins = List.copyOf(builder.allowedCORSorigins);
 		this.rootGroup = builder.rootGroup;
-		this.membershipGroups = builder.membershipGroups;
+		this.membershipGroups = List.copyOf(builder.membershipGroups);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(allowedCORSheaders, allowedCORSorigins, membershipGroups, rootGroup);
+		return Objects.hash(allowedCorsHeaders, allowedCorsOrigins, membershipGroups, rootGroup);
 	}
 
 	@Override
@@ -40,8 +40,8 @@ public class SCIMEndpointConfiguration
 		if (getClass() != obj.getClass())
 			return false;
 		SCIMEndpointConfiguration other = (SCIMEndpointConfiguration) obj;
-		return Objects.equals(allowedCORSheaders, other.allowedCORSheaders)
-				&& Objects.equals(allowedCORSorigins, other.allowedCORSorigins)
+		return Objects.equals(allowedCorsHeaders, other.allowedCorsHeaders)
+				&& Objects.equals(allowedCorsOrigins, other.allowedCorsOrigins)
 				&& Objects.equals(membershipGroups, other.membershipGroups)
 				&& Objects.equals(rootGroup, other.rootGroup);
 	}
@@ -62,15 +62,15 @@ public class SCIMEndpointConfiguration
 		{
 		}
 
-		public Builder withAllowedCORSheaders(List<String> allowedCORSheaders)
+		public Builder withAllowedCorsHeaders(List<String> allowedCorsHeaders)
 		{
-			this.allowedCORSheaders = allowedCORSheaders;
+			this.allowedCORSheaders = allowedCorsHeaders;
 			return this;
 		}
 
-		public Builder withAllowedCORSorigins(List<String> allowedCORSorigins)
+		public Builder withAllowedCorsOrigins(List<String> allowedCorsOrigins)
 		{
-			this.allowedCORSorigins = allowedCORSorigins;
+			this.allowedCORSorigins = allowedCorsOrigins;
 			return this;
 		}
 

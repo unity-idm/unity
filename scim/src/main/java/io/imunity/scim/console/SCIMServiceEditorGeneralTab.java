@@ -34,7 +34,7 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 			Set<String> serverContextPaths, List<Group> allGroups)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);
-		this.allGroups = allGroups;
+		this.allGroups = List.copyOf(allGroups);
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> serviceBinder, Binder<SCIMServiceConfigurationBean> restBinder,

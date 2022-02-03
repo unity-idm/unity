@@ -19,7 +19,7 @@ public class SCIMEndpointDescription
 	{
 		this.baseLocation = baseLocation;
 		this.rootGroup = rootGroup;
-		this.membershipGroups = membershipGroups;
+		this.membershipGroups = List.copyOf(membershipGroups);
 	}
 
 	@Override
