@@ -6,7 +6,6 @@
 package io.imunity.scim.user;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +23,6 @@ import io.imunity.scim.user.SCIMUserAuthzService.SCIMUserAuthzServiceFactory;
 import io.imunity.scim.user.UserGroup.GroupType;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -32,7 +30,6 @@ import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -49,20 +46,17 @@ class SCIMUserRetrievalService
 	private final SCIMUserAuthzService authzMan;
 	private final EntityManagement entityManagement;
 	private final BulkGroupQueryService bulkService;
-	private final AttributesManagement attrMan;
 
 	private final SCIMEndpointDescription configuration;
 
 	SCIMUserRetrievalService(MessageSource msg, SCIMUserAuthzService scimAuthzService,
-			EntityManagement entityManagement, AttributesManagement attrMan, BulkGroupQueryService bulkService,
-			SCIMEndpointDescription configuration)
+			EntityManagement entityManagement, BulkGroupQueryService bulkService, SCIMEndpointDescription configuration)
 	{
 		this.msg = msg;
 		this.entityManagement = entityManagement;
 		this.configuration = configuration;
 		this.bulkService = bulkService;
 		this.authzMan = scimAuthzService;
-		this.attrMan = attrMan;
 	}
 
 	User getLoggedUser() throws EngineException
@@ -85,7 +79,6 @@ class SCIMUserRetrievalService
 		Map<String, GroupMembership> groups = entityManagement.getGroups(new EntityParam(entity.getId()));
 		Set<String> rgroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
 				.anyMatch(mgroup -> Group.isChildOrSame(userGroup, mgroup))).collect(Collectors.toSet());
-
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
 
 		if (rgroups.isEmpty())
@@ -94,29 +87,20 @@ class SCIMUserRetrievalService
 			throw new UserNotFoundException("Invalid user");
 		}
 
-		Collection<AttributeExt> attributes = attrMan.getAttributes(new EntityParam(entity.getId()),
-				configuration.rootGroup, null);
-
-		return mapToUser(entity,
-				groupAndSubgroups.entrySet().stream().filter(e -> rgroups.contains(e.getKey()))
-						.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
-				attributes.stream().collect(Collectors.toMap(a -> a.getName(), a -> a)));
+		return mapToUser(entity, groupAndSubgroups.entrySet().stream().filter(e -> rgroups.contains(e.getKey()))
+				.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()));
 
 	}
 
-	
 	List<User> getUsers() throws EngineException
 	{
 		authzMan.checkReadUsers();
 
-		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
-
 		List<User> users = new ArrayList<>();
+		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 		Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
-		Map<Long, Map<String, AttributeExt>> groupUsersAttributes = bulkService
-				.getGroupUsersAttributes(configuration.rootGroup, bulkMembershipData);
-
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
+
 		for (EntityInGroupData entityInGroup : membershipInfo.values())
 		{
 			Set<String> groups = new HashSet<>(entityInGroup.groups);
@@ -126,8 +110,7 @@ class SCIMUserRetrievalService
 
 			users.add(mapToUser(entityInGroup.entity,
 					groupAndSubgroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))
-							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
-					groupUsersAttributes.get(entityInGroup.entity.getId())));
+							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet())));
 		}
 
 		return users;
@@ -151,15 +134,12 @@ class SCIMUserRetrievalService
 		return ret;
 	}
 
-	private User mapToUser(Entity entity, Set<Group> groups, Map<String, AttributeExt> attributes)
+	private User mapToUser(Entity entity, Set<Group> groups)
 	{
-		return User.builder().withEntityId(entity.getId()).withAttributesByName(attributes.entrySet().stream()
-				.map(a -> UserAttribute.builder().withName(a.getKey()).withValues(a.getValue().getValues()).build())
-				.collect(Collectors.toMap(a -> a.name, a -> a)))
-				.withGroups(groups.stream()
-						.map(g -> UserGroup.builder().withDisplayName(g.getDisplayedNameShort(msg).getValue(msg))
-								.withType(GroupType.direct).withValue(g.getPathEncoded()).build())
-						.collect(Collectors.toSet()))
+		return User.builder().withEntityId(entity.getId()).withGroups(groups.stream()
+				.map(g -> UserGroup.builder().withDisplayName(g.getDisplayedNameShort(msg).getValue(msg))
+						.withType(GroupType.direct).withValue(g.getPathEncoded()).build())
+				.collect(Collectors.toSet()))
 				.withIdentities(entity.getIdentities().stream()
 						.map(i -> UserIdentity.builder().withCreationTs(i.getCreationTs().toInstant())
 								.withUpdateTs(i.getUpdateTs().toInstant()).withValue(i.getComparableValue())
@@ -175,25 +155,22 @@ class SCIMUserRetrievalService
 		private final EntityManagement entityManagement;
 		private final BulkGroupQueryService bulkService;
 		private final SCIMUserAuthzServiceFactory authzManFactory;
-		private final AttributesManagement attrMan;
 
 		@Autowired
 		SCIMUserRetrievalServiceFactory(MessageSource msg, @Qualifier("insecure") EntityManagement entityManagement,
-				@Qualifier("insecure") BulkGroupQueryService bulkService, SCIMUserAuthzServiceFactory authzManFactory,
-				@Qualifier("insecure") AttributesManagement attrMan)
+				@Qualifier("insecure") BulkGroupQueryService bulkService, SCIMUserAuthzServiceFactory authzManFactory)
 
 		{
 			this.entityManagement = entityManagement;
 			this.bulkService = bulkService;
 			this.authzManFactory = authzManFactory;
 			this.msg = msg;
-			this.attrMan = attrMan;
 		}
 
 		SCIMUserRetrievalService getService(SCIMEndpointDescription configuration)
 		{
 			return new SCIMUserRetrievalService(msg, authzManFactory.getService(configuration), entityManagement,
-					attrMan, bulkService, configuration);
+					bulkService, configuration);
 		}
 	}
 }

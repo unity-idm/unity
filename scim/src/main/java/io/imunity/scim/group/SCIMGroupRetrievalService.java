@@ -168,7 +168,7 @@ class SCIMGroupRetrievalService
 	}
 
 	@Component
-	class SCIMGroupRetrievalServiceFactory
+	static class SCIMGroupRetrievalServiceFactory
 	{
 		private final GroupsManagement groupMan;
 		private final BulkGroupQueryService bulkService;

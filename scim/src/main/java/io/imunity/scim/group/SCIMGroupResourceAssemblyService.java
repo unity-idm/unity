@@ -28,7 +28,6 @@ class SCIMGroupResourceAssemblyService
 
 	SCIMGroupResourceAssemblyService(SCIMEndpointDescription configuration)
 	{
-
 		this.configuration = configuration;
 	}
 
@@ -57,12 +56,10 @@ class SCIMGroupResourceAssemblyService
 
 	private SCIMGroupMemberResource mapToMember(SCIMGroupMember member)
 	{
-
 		return SCIMGroupMemberResource.builder().withValue(member.value)
 				.withRef(member.type.equals(SCIMGroupMember.MemberType.Group) ? getGroupLocation(member.value)
 						: getUserLocation(member.value))
 				.withType(member.type.toString()).withDisplay(member.displayName).build();
-
 	}
 
 	private URI getGroupLocation(String group)

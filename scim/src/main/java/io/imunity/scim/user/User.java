@@ -7,7 +7,6 @@ package io.imunity.scim.user;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 class User
@@ -15,14 +14,12 @@ class User
 	final Long entityId;
 	final List<UserIdentity> identities;
 	final Set<UserGroup> groups;
-	final Map<String, UserAttribute> attributesByName;
 
 	private User(Builder builder)
 	{
 		this.entityId = builder.entityId;
 		this.identities = builder.identities;
 		this.groups = builder.groups;
-		this.attributesByName = builder.attributesByName;
 	}
 
 	static Builder builder()
@@ -35,7 +32,6 @@ class User
 		private Long entityId;
 		private List<UserIdentity> identities = Collections.emptyList();
 		private Set<UserGroup> groups = Collections.emptySet();
-		private Map<String, UserAttribute> attributesByName = Collections.emptyMap();
 
 		private Builder()
 		{
@@ -56,12 +52,6 @@ class User
 		Builder withGroups(Set<UserGroup> groups)
 		{
 			this.groups = groups;
-			return this;
-		}
-
-		Builder withAttributesByName(Map<String, UserAttribute> attributesByName)
-		{
-			this.attributesByName = attributesByName;
 			return this;
 		}
 
