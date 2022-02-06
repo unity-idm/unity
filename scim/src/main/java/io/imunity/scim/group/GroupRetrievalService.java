@@ -64,6 +64,9 @@ class GroupRetrievalService
 
 		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData(groupId.id));
+		Map<Long, EntityInGroupData> attributesInfo = bulkService
+				.getMembershipInfo(bulkService.getBulkMembershipData(configuration.rootGroup));
+		
 		Map<String, GroupContents> groupAndSubgroups = bulkService
 				.getGroupAndSubgroups(bulkService.getBulkStructuralData(groupId.id));
 
@@ -71,7 +74,7 @@ class GroupRetrievalService
 		Optional<String> nameAttribute = getNameAttribute();
 
 		List<GroupMember> members = new ArrayList<>();
-		membershipInfo.values().forEach(m -> members.add(mapToUserMember(m, nameAttribute)));
+		membershipInfo.values().forEach(m -> members.add(mapToUserMember(m, Optional.ofNullable(attributesInfo.get(m.entity.getId())), nameAttribute)));
 		groupAndSubgroups.values().stream().filter(g -> !g.equals(main))
 				.forEach(g -> members.add(mapToGroupMemeber(g)));
 
@@ -95,31 +98,35 @@ class GroupRetrievalService
 		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData("/"));
 		Optional<String> nameAttribute = getNameAttribute();
-
+		
+		Map<Long, EntityInGroupData> attributesInfo = bulkService
+				.getMembershipInfo(bulkService.getBulkMembershipData(configuration.rootGroup));
+		
+		
 		for (String configuredMemebershipGroup : configuration.membershipGroups)
 		{
 			Map<String, GroupContents> groupAndSubgroups = bulkService
 					.getGroupAndSubgroups(bulkService.getBulkStructuralData(configuredMemebershipGroup));
 			GroupContents main = groupAndSubgroups.get(configuredMemebershipGroup);
-			fillMembersAndAddGroupResource(main, nameAttribute, membershipInfo, groupAndSubgroups, groups);
+			fillMembersAndAddGroupResource(main, nameAttribute, membershipInfo, attributesInfo, groupAndSubgroups, groups);
 		}
 
 		return groups;
 	}
 
 	private void fillMembersAndAddGroupResource(GroupContents group, Optional<String> nameAttribute,
-			Map<Long, EntityInGroupData> membershipInfo, Map<String, GroupContents> groupAndSubgroups,
+			Map<Long, EntityInGroupData> membershipInfo, Map<Long, EntityInGroupData> membershipInfoForAttr,  Map<String, GroupContents> groupAndSubgroups,
 			List<GroupData> groups)
 	{
 		List<GroupMember> members = new ArrayList<>();
 		membershipInfo.values().stream().filter(e -> e.groups.contains(group.getGroup().getPathEncoded()))
-				.forEach(e -> members.add(mapToUserMember(e, nameAttribute)));
+				.forEach(e -> members.add(mapToUserMember(e, Optional.ofNullable(membershipInfoForAttr.get(e.entity.getId())), nameAttribute)));
 		groupAndSubgroups.values().stream()
 				.filter(g -> Group.isDirectChild(g.getGroup().getPathEncoded(), group.getGroup().getPathEncoded()))
 				.forEach(g ->
 				{
 					members.add(mapToGroupMemeber(g));
-					fillMembersAndAddGroupResource(g, nameAttribute, membershipInfo, groupAndSubgroups, groups);
+					fillMembersAndAddGroupResource(g, nameAttribute, membershipInfo, membershipInfoForAttr, groupAndSubgroups, groups);
 				});
 
 		groups.add(GroupData.builder().withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg))
@@ -132,7 +139,7 @@ class GroupRetrievalService
 				.withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg)).build();
 	}
 
-	private GroupMember mapToUserMember(EntityInGroupData entityInGroupData, Optional<String> nameAttribute)
+	private GroupMember mapToUserMember(EntityInGroupData entityInGroupData, Optional<EntityInGroupData> entityInGroupDataForAttr, Optional<String> nameAttribute)
 	{
 		Identity persistence = entityInGroupData.entity.getIdentities().stream()
 				.filter(i -> i.getTypeId().equals(PersistentIdentity.ID)).findFirst().get();
@@ -140,9 +147,9 @@ class GroupRetrievalService
 		Builder userMember = GroupMember.builder().withValue(persistence.getComparableValue())
 				.withType(MemberType.User);
 
-		if (nameAttribute.isPresent())
+		if (nameAttribute.isPresent() && entityInGroupDataForAttr.isPresent())
 		{
-			AttributeExt displayedName = entityInGroupData.rootAttributesByName.get(nameAttribute.get());
+			AttributeExt displayedName = entityInGroupDataForAttr.get().groupAttributesByName.get(nameAttribute.get());
 			if (displayedName != null && displayedName.getValues().size() > 0)
 			{
 				userMember.withDisplayName(displayedName.getValues().get(0));

@@ -22,7 +22,7 @@ import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.SCIMRestController;
 import io.imunity.scim.SCIMRestControllerFactory;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.user.UserResourceAssemblyService.SCIMUserAssemblyServiceFactory;
+import io.imunity.scim.user.UserAssemblyService.SCIMUserAssemblyServiceFactory;
 import io.imunity.scim.user.UserRetrievalService.SCIMUserRetrievalServiceFactory;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -35,11 +35,11 @@ public class UserRestController implements SCIMRestController
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRestController.class);
 	private final UserRetrievalService userService;
-	private final UserResourceAssemblyService userMapperService;
+	private final UserAssemblyService userMapperService;
 
 	private final ObjectMapper mapper = SCIMConstants.MAPPER;
 
-	UserRestController(UserRetrievalService userService, UserResourceAssemblyService userMapperService)
+	UserRestController(UserRetrievalService userService, UserAssemblyService userMapperService)
 	{
 		this.userService = userService;
 		this.userMapperService = userMapperService;

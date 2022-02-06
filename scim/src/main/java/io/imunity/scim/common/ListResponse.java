@@ -31,7 +31,7 @@ public class ListResponse<T extends BasicSCIMResource>
 	{
 		this.schemas = Set.copyOf(builder.schemas);
 		this.totalResults = builder.totalResults;
-		this.resources = builder.resources;
+		this.resources = List.copyOf(builder.resources);
 	}
 
 	@Override

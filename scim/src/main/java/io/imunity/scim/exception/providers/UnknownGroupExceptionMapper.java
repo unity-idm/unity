@@ -23,7 +23,7 @@ class UnknownGroupExceptionMapper implements ExceptionMapper<IllegalGroupValueEx
 	public Response toResponse(IllegalGroupValueException ex)
 	{
 
-		log.warn("Unknown group", ex);
+		log.debug("Unknown group", ex);
 		return Response.status(Status.NOT_FOUND).entity(ErrorResponse.builder()
 				.withStatus(Status.NOT_FOUND.getStatusCode()).withDetail(ex.getMessage()).build().toJsonString())
 				.type(MediaType.APPLICATION_JSON).build();

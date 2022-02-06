@@ -204,6 +204,6 @@ include::endpoint-restadmin.txt[]
 
 include::endpoint-wellknown.txt[]
 
-
+include::endpoint-scim.txt[]
 
 

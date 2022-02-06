@@ -13,15 +13,16 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
+import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
-class SCIMEndpointProperties extends UnityPropertiesHelper
+public class SCIMEndpointProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, SCIMEndpointProperties.class);
 
-	
+	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.scim.";
 
 	public static final String ROOT_GROUP = "rootGroup";
@@ -38,7 +39,7 @@ class SCIMEndpointProperties extends UnityPropertiesHelper
 				"SCIM membership groups. Only memberships in those groups (and their children) are exposed via SCIM"));
 	}
 
-	SCIMEndpointProperties(Properties properties) throws ConfigurationException
+	public SCIMEndpointProperties(Properties properties) throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
 	}

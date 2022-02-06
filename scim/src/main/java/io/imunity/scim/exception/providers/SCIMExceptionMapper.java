@@ -23,8 +23,7 @@ class SCIMExceptionMapper implements ExceptionMapper<SCIMException>
 	@Override
 	public Response toResponse(SCIMException exception)
 	{
-		log.warn("SCIM exception during SCIM API invocation", exception);
-
+		log.debug("SCIM exception during SCIM API invocation", exception);
 		return Response.status(exception.statusCode)
 				.entity(ErrorResponse.builder().withStatus(exception.statusCode).withDetail(exception.errorMessage)
 						.withScimType(exception.scimType).build().toJsonString())

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SCIMConstants
 {
-	public static final ObjectMapper MAPPER;// = new ObjectMapper().findAndRegisterModules();
+	public static final ObjectMapper MAPPER;
 
 	static
 	{
@@ -21,5 +21,4 @@ public class SCIMConstants
 		MAPPER.configOverride(Instant.class).setFormat(
 				JsonFormat.Value.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withTimeZone(TimeZone.getTimeZone("UTC")));
 	}
-
 }

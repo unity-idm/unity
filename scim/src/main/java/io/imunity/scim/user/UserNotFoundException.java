@@ -12,7 +12,7 @@ class UserNotFoundException extends SCIMException
 
 	UserNotFoundException(final String errorMessage, final Throwable cause)
 	{
-		super(404, null, errorMessage, cause);
+		super(404, ScimErrorType.invalidValue, errorMessage, cause);
 	}
 
 	UserNotFoundException(String errorMessage)

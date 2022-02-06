@@ -6,6 +6,7 @@
 package io.imunity.scim.group;
 
 import java.net.URI;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = SCIMGroupMemberResource.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class SCIMGroupMemberResource
-{	
+{
 	public final String value;
 	@JsonProperty("$ref")
 	public final URI ref;
@@ -29,6 +30,26 @@ class SCIMGroupMemberResource
 		this.type = builder.type;
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(display, ref, type, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SCIMGroupMemberResource other = (SCIMGroupMemberResource) obj;
+		return Objects.equals(display, other.display) && Objects.equals(ref, other.ref)
+				&& Objects.equals(type, other.type) && Objects.equals(value, other.value);
+	}
+
 	static Builder builder()
 	{
 		return new Builder();
@@ -40,7 +61,7 @@ class SCIMGroupMemberResource
 		private URI ref;
 		private String display;
 		private String type;
-		
+
 		private Builder()
 		{
 		}
@@ -62,7 +83,7 @@ class SCIMGroupMemberResource
 			this.display = display;
 			return this;
 		}
-		
+
 		public Builder withType(String type)
 		{
 			this.type = type;

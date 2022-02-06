@@ -77,17 +77,17 @@ class UserRetrievalService
 		authzMan.checkReadUser(entity.getId().longValue());
 
 		Map<String, GroupMembership> groups = entityManagement.getGroups(new EntityParam(entity.getId()));
-		Set<String> rgroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
+		Set<String> userGroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
 				.anyMatch(mgroup -> Group.isChildOrSame(userGroup, mgroup))).collect(Collectors.toSet());
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
 
-		if (rgroups.isEmpty())
+		if (userGroups.isEmpty())
 		{
 			log.error("User " + entity.getId() + " is out of range for configured membership groups");
 			throw new UserNotFoundException("Invalid user");
 		}
 
-		return mapToUser(entity, groupAndSubgroups.entrySet().stream().filter(e -> rgroups.contains(e.getKey()))
+		return mapToUser(entity, groupAndSubgroups.entrySet().stream().filter(e -> userGroups.contains(e.getKey()))
 				.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()));
 
 	}

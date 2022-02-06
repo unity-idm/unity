@@ -100,6 +100,11 @@
 			<artifactId>unity-server-web-attr-introspection</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-scim</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>eu.unicore.security</groupId>
@@ -231,6 +236,7 @@
 								<argument>pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties|ref-SMSRetrievalProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties|ref-TLSRetrievalProperties.txt|</argument>
 								<argument>io.imunity.otp.ldap.OTPWithLDAPProperties|ref-OTPLDAPProperties.txt|</argument>
+								<argument>io.imunity.scim.config.SCIMEndpointProperties|ref-scimEndpointProperties.txt|</argument>
 							</arguments>
 						</configuration>
 						<goals>

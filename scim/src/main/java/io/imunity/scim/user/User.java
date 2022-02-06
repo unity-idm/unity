@@ -7,6 +7,7 @@ package io.imunity.scim.user;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 class User
@@ -18,8 +19,28 @@ class User
 	private User(Builder builder)
 	{
 		this.entityId = builder.entityId;
-		this.identities = builder.identities;
-		this.groups = builder.groups;
+		this.identities = List.copyOf(builder.identities);
+		this.groups = Set.copyOf(builder.groups);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(entityId, groups, identities);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		return Objects.equals(entityId, other.entityId) && Objects.equals(groups, other.groups)
+				&& Objects.equals(identities, other.identities);
 	}
 
 	static Builder builder()

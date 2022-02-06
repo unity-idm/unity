@@ -1,0 +1,11 @@
+[[endp-rest-admin]]
+=== SCIM RESTful API endpoint
+
+Endpoint type:: +SCIM+
+Binding:: RESTful
+
+
+This endpoint exposes a SCIM RESTful API to Unity features. 
+
+The options of the endpoint (besides the standard options for all REST endpoints) are:
+include::ref-scimEndpointProperties.txt[]

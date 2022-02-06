@@ -24,7 +24,7 @@ import pl.edu.icm.unity.Constants;
 @JsonDeserialize(builder = ErrorResponse.Builder.class)
 class ErrorResponse
 {
-	public static final String SCHEMA = "urn:ietf:params:scim:api:messages:2.0:Error";
+	static final String SCHEMA = "urn:ietf:params:scim:api:messages:2.0:Error";
 
 	public final Set<String> schemas;
 	public final int status;

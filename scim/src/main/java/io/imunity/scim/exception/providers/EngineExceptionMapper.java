@@ -25,13 +25,13 @@ class EngineExceptionMapper implements ExceptionMapper<Exception>
 	{
 		if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
 		{
-			log.warn("Access denied for SCIM API client", ex);
+			log.debug("Access denied for SCIM API client", ex);
 			return Response.status(Status.FORBIDDEN).entity(ErrorResponse.builder()
 					.withStatus(Status.FORBIDDEN.getStatusCode()).withDetail("Forbidden").build().toJsonString())
 					.type(MediaType.APPLICATION_JSON).build();
 		} else
 		{
-			log.warn("Engine exception during SCIM API invocation", ex);
+			log.debug("Engine exception during SCIM API invocation", ex);
 			return Response.status(Status.BAD_REQUEST).entity(ErrorResponse.builder()
 					.withStatus(Status.BAD_REQUEST.getStatusCode()).withDetail("Bad Request").build().toJsonString())
 					.type(MediaType.APPLICATION_JSON).build();

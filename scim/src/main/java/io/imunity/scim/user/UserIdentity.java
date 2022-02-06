@@ -6,6 +6,7 @@
 package io.imunity.scim.user;
 
 import java.time.Instant;
+import java.util.Objects;
 
 class UserIdentity
 {
@@ -20,6 +21,26 @@ class UserIdentity
 		this.updateTs = builder.updateTs;
 		this.typeId = builder.typeId;
 		this.value = builder.value;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(creationTs, typeId, updateTs, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserIdentity other = (UserIdentity) obj;
+		return Objects.equals(creationTs, other.creationTs) && Objects.equals(typeId, other.typeId)
+				&& Objects.equals(updateTs, other.updateTs) && Objects.equals(value, other.value);
 	}
 
 	static Builder builder()

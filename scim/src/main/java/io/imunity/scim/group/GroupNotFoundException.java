@@ -12,7 +12,7 @@ class GroupNotFoundException extends SCIMException
 
 	GroupNotFoundException(final String errorMessage, final Throwable cause)
 	{
-		super(404, null, errorMessage, cause);
+		super(404, ScimErrorType.invalidValue, errorMessage, cause);
 	}
 
 	GroupNotFoundException(String errorMessage)

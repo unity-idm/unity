@@ -15,7 +15,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.scim.common.BasicSCIMResource;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
 import io.imunity.scim.config.SCIMEndpointDescription;
@@ -31,7 +30,7 @@ class GroupAssemblyService
 		this.configuration = configuration;
 	}
 
-	BasicSCIMResource mapToGroupResource(GroupData group)
+	SCIMGroupResource mapToGroupResource(GroupData group)
 	{
 		return mapToSingleGroupResource(group);
 	}
@@ -44,6 +43,7 @@ class GroupAssemblyService
 				.withTotalResults(groupsResource.size()).build();
 	}
 
+	//FIXME support for group creation and modification time
 	SCIMGroupResource mapToSingleGroupResource(GroupData group)
 	{
 		return SCIMGroupResource.builder().withDisplayName(group.displayName).withId(group.id)

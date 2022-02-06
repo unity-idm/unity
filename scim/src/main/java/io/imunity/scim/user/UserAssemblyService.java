@@ -27,12 +27,12 @@ import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
-class UserResourceAssemblyService
+class UserAssemblyService
 {
 	private static final String DEFAULT_META_VERSION = "v1";
 	private final SCIMEndpointDescription configuration;
 
-	UserResourceAssemblyService(SCIMEndpointDescription configuration)
+	UserAssemblyService(SCIMEndpointDescription configuration)
 	{
 		this.configuration = configuration;
 	}
@@ -67,7 +67,7 @@ class UserResourceAssemblyService
 				.withUserName(getUserNameFallbackToNone(user.identities))
 				.withGroups(user.groups.stream()
 						.map(g -> SCIMUserGroupResource.builder().withDisplay(g.displayName)
-								.withRef(getGroupLocation(g)).withValue(g.value).build())
+								.withRef(getGroupLocation(g)).withType(g.type.toString()).withValue(g.value).build())
 						.collect(Collectors.toList()))
 				.build();
 	}
@@ -94,9 +94,9 @@ class UserResourceAssemblyService
 	@Component
 	static class SCIMUserAssemblyServiceFactory
 	{
-		UserResourceAssemblyService getService(SCIMEndpointDescription configuration)
+		UserAssemblyService getService(SCIMEndpointDescription configuration)
 		{
-			return new UserResourceAssemblyService(configuration);
+			return new UserAssemblyService(configuration);
 		}
 	}
 }

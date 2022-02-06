@@ -5,6 +5,8 @@
 
 package io.imunity.scim.group;
 
+import java.util.Objects;
+
 class GroupMember
 {
 	enum MemberType
@@ -21,6 +23,26 @@ class GroupMember
 		this.value = builder.value;
 		this.displayName = builder.displayName;
 		this.type = builder.type;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(displayName, type, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GroupMember other = (GroupMember) obj;
+		return Objects.equals(displayName, other.displayName) && type == other.type
+				&& Objects.equals(value, other.value);
 	}
 
 	static Builder builder()

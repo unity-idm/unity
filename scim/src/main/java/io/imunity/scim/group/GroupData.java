@@ -6,7 +6,7 @@
 package io.imunity.scim.group;
 
 import java.util.List;
-
+import java.util.Objects;
 import java.util.Collections;
 
 class GroupData
@@ -19,7 +19,27 @@ class GroupData
 	{
 		this.id = builder.id;
 		this.displayName = builder.displayName;
-		this.members = builder.members;
+		this.members = List.copyOf(builder.members);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(displayName, id, members);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GroupData other = (GroupData) obj;
+		return Objects.equals(displayName, other.displayName) && Objects.equals(id, other.id)
+				&& Objects.equals(members, other.members);
 	}
 
 	static Builder builder()
