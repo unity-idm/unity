@@ -5,10 +5,6 @@
 
 package io.imunity.scim.user;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -16,6 +12,7 @@ import static org.mockito.Mockito.doThrow;
 import java.net.URI;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,29 +42,29 @@ public class UserAuthzServiceTest
 	}
 
 	@Test
-	public void shouldBlockAccessToUser() throws AuthorizationException
+	public void shouldBlockAccessToUserWhenCallerHasNoReadCapabilityOnAttrRootGroup() throws AuthorizationException
 	{
 		InvocationContext context = new InvocationContext(null, null, null);
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 		doThrow(AuthorizationException.class).when(authzMan).checkReadCapability(eq(false), eq("/scim"));
-		catchException(userAuthzService).checkReadUser(1);
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		Throwable error = Assertions.catchThrowable(() -> userAuthzService.checkReadUser(1));
+		Assertions.assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
-	public void shouldBlockSeflAccessToUser() throws AuthorizationException
+	public void shouldBlockSeflAccessToUserWhenCallerHasNoReadCapabilityOnAttrRootGroup() throws AuthorizationException
 	{
 		InvocationContext context = new InvocationContext(null, null, null);
 		context.setLoginSession(new LoginSession(null, null, 0, 1, null, null, null, null));
 		InvocationContext.setCurrent(context);
 		doThrow(AuthorizationException.class).when(authzMan).checkReadCapability(eq(true), eq("/scim"));
-		catchException(userAuthzService).checkReadUser(1);
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		Throwable error = Assertions.catchThrowable(() -> userAuthzService.checkReadUser(1));
+		Assertions.assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
-	public void shoulAcceptAccessToUser() throws AuthorizationException
+	public void shoulAcceptAccessToUserWhenCallerHasReadCapabilityOnAttrRootGroup() throws AuthorizationException
 	{
 		InvocationContext context = new InvocationContext(null, null, null);
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
@@ -83,7 +80,7 @@ public class UserAuthzServiceTest
 	}
 
 	@Test
-	public void shoulAcceptSelfAccessToUser() throws AuthorizationException
+	public void shoulAcceptSelfAccessToUserWhenCallerHasReadCapabilityOnAttrRootGroup() throws AuthorizationException
 	{
 		InvocationContext context = new InvocationContext(null, null, null);
 		context.setLoginSession(new LoginSession(null, null, 0, 1, null, null, null, null));

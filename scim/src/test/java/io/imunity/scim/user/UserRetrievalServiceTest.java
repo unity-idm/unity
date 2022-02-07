@@ -5,11 +5,8 @@
 
 package io.imunity.scim.user;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -22,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +71,7 @@ public class UserRetrievalServiceTest
 				"/scim", List.of("/scim/Members1", "/scim/Members2"));
 		userRetrievalService = new UserRetrievalService(msg, authzMan, entityManagement, bulkService, configuration);
 	}
-	
+
 	@Test
 	public void shouldThrowExceptionWhenUserIsNotMember() throws EngineException
 	{
@@ -83,15 +81,16 @@ public class UserRetrievalServiceTest
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/", null);
 		when(entityManagement.getGroups(new EntityParam(1L))).thenReturn(groups);
-		catchException(userRetrievalService).getUser(new PersistentId("1"));
-		assertThat(caughtException(), isA(UserNotFoundException.class));
+		
+		Throwable error = Assertions.catchThrowable(() -> userRetrievalService.getUser(new PersistentId("1")));
+		Assertions.assertThat(error).isInstanceOf(UserNotFoundException.class);
 	}
 
 	@Test
 	public void shouldReturnSingleUser() throws EngineException
 	{
-		Entity entity = initEntity();
-		initGroupTree();
+		Entity entity = addEntityWithTwoIdentitiesToMemebersSubgroup();
+		addTwoMembersGroupsWithSubgroups();
 
 		User user = userRetrievalService.getUser(new PersistentId("1"));
 
@@ -113,7 +112,7 @@ public class UserRetrievalServiceTest
 								.withType(GroupType.direct).build()));
 	}
 
-	private Entity initEntity() throws EngineException
+	private Entity addEntityWithTwoIdentitiesToMemebersSubgroup() throws EngineException
 	{
 		EntityInformation entityInformation = new EntityInformation();
 		entityInformation.setId(1);
@@ -143,27 +142,11 @@ public class UserRetrievalServiceTest
 		return entity;
 	}
 
-	private void initGroupTree() throws EngineException
-	{
-		GroupStructuralData gdata = new MockGroupStructuralData();
-		when(bulkService.getBulkStructuralData(eq("/"))).thenReturn(gdata);
-		Map<String, GroupContents> groupsWithSubgroups = new HashMap<>();
-		groupsWithSubgroups.put("/", SCIMTestHelper.getGroupContent("/", List.of("/scim")));
-		groupsWithSubgroups.put("/scim",
-				SCIMTestHelper.getGroupContent("/scim", List.of("/scim/Members1", "/scim/Members2")));
-		groupsWithSubgroups.put("/scim/Members1",
-				SCIMTestHelper.getGroupContent("/scim/Members1", List.of("/scim/Members1/Subgroup1")));
-		groupsWithSubgroups.put("/scim/Members1/Subgroup1", SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1"));
-		groupsWithSubgroups.put("/scim/Members2", SCIMTestHelper.getGroupContent("/scim/Members2"));
-
-		when(bulkService.getGroupAndSubgroups(eq(gdata))).thenReturn(groupsWithSubgroups);
-	}
-
 	@Test
 	public void shouldReturnUsersFromAllMembersGroups() throws EngineException
 	{
 
-		initGroupTree();
+		addTwoMembersGroupsWithSubgroups();
 		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
 				Set.of("/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
 		EntityInGroupData entity2 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("1", 1), null,
@@ -202,5 +185,21 @@ public class UserRetrievalServiceTest
 										.build()))
 								.build()));
 
+	}
+	
+	private void addTwoMembersGroupsWithSubgroups() throws EngineException
+	{
+		GroupStructuralData gdata = new MockGroupStructuralData();
+		when(bulkService.getBulkStructuralData(eq("/"))).thenReturn(gdata);
+		Map<String, GroupContents> groupsWithSubgroups = new HashMap<>();
+		groupsWithSubgroups.put("/", SCIMTestHelper.getGroupContent("/", List.of("/scim")));
+		groupsWithSubgroups.put("/scim",
+				SCIMTestHelper.getGroupContent("/scim", List.of("/scim/Members1", "/scim/Members2")));
+		groupsWithSubgroups.put("/scim/Members1",
+				SCIMTestHelper.getGroupContent("/scim/Members1", List.of("/scim/Members1/Subgroup1")));
+		groupsWithSubgroups.put("/scim/Members1/Subgroup1", SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1"));
+		groupsWithSubgroups.put("/scim/Members2", SCIMTestHelper.getGroupContent("/scim/Members2"));
+
+		when(bulkService.getGroupAndSubgroups(eq(gdata))).thenReturn(groupsWithSubgroups);
 	}
 }

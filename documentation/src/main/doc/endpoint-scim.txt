@@ -5,7 +5,8 @@ Endpoint type:: +SCIM+
 Binding:: RESTful
 
 
-This endpoint exposes a SCIM RESTful API to Unity features. 
+This endpoint exposes SCIM RESTful API. SCIM is a standard protocol, more details can be found on http://www.simplecloud.info and in RFC: https://datatracker.ietf.org/doc/html/rfc7644.
+Unity exposes only a read only part of the SCIM API.
 
 The options of the endpoint (besides the standard options for all REST endpoints) are:
 include::ref-scimEndpointProperties.txt[]

@@ -171,7 +171,7 @@ class GroupRetrievalService
 			}
 		}
 		log.error("Group " + group + " is out of range for configured membership groups");
-		throw new GroupNotFoundException("Invalid group");
+		throw new GroupNotFoundException("Invalid group " + group);
 	}
 
 	@Component

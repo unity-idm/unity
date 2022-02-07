@@ -53,8 +53,6 @@ public class GroupAssemblyServiceTest
 		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
 				is("https://localhost:2443/scim/Group/%2Fscim%2Fid"));
 		assertThat(mappedGroup.id, is("/scim/id"));
-		assertThat(mappedGroup.id, is("/scim/id"));
-
 		assertThat(mappedGroup.members,
 				hasItems(
 						SCIMGroupMemberResource.builder().withDisplay("Memeber1").withType(MemberType.User.toString())
@@ -65,7 +63,7 @@ public class GroupAssemblyServiceTest
 	}
 
 	@Test
-	public void shouldAssemblyGroups() throws MalformedURLException
+	public void shouldAssemblyGroupsWithMixedTypeMembers() throws MalformedURLException
 	{
 
 		GroupData groupData1 = GroupData.builder().withDisplayName("name1").withId("/scim/id1")
@@ -101,5 +99,19 @@ public class GroupAssemblyServiceTest
 		assertThat(mappedGroup.id, is("/scim/id2"));
 		assertThat(mappedGroup.members.size(), is(0));
 
+	}
+	
+	@Test
+	public void shouldAssemblyEmptyGroup() throws MalformedURLException
+	{
+		GroupData groupData = GroupData.builder().withDisplayName("name1").withId("/scim/id")
+				.build();
+		SCIMGroupResource mappedGroup = groupAssemblyService.mapToGroupResource(groupData);
+
+		assertThat(mappedGroup.meta.resourceType.toString(), is("Group"));
+		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
+				is("https://localhost:2443/scim/Group/%2Fscim%2Fid"));
+		assertThat(mappedGroup.id, is("/scim/id"));
+		assertThat(mappedGroup.members.size(), is(0));
 	}
 }

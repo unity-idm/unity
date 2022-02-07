@@ -5,11 +5,8 @@
 
 package io.imunity.scim.group;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -21,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,9 +77,9 @@ public class GroupRetrievalServiceTest
 	public void shouldThrowExceptionWhenGroupIsNotMembersGroup() throws EngineException
 	{
 		when(groupsMan.isPresent(eq("/scim/NotMemberGroup"))).thenReturn(true);
-		initGroupsTree();
-		catchException(groupRetrievalService).getGroup(new GroupId("/scim/NotMemberGroup"));
-		assertThat(caughtException(), isA(GroupNotFoundException.class));
+		addMemberGroupWithSubgroups();
+		Throwable error = Assertions.catchThrowable(() -> groupRetrievalService.getGroup(new GroupId("/scim/NotMemberGroup")));
+		Assertions.assertThat(error).isInstanceOf(GroupNotFoundException.class);
 	}
 
 	@Test
@@ -90,10 +88,10 @@ public class GroupRetrievalServiceTest
 		// given
 		when(groupsMan.isPresent(eq("/scim/Members1/Subgroup1"))).thenReturn(true);
 
-		initEntityNameAttrType();
-		initMembershipsInGroup();
-		initMembersAttributesInAttrRootGroup();
-		initGroupsTree();
+		addEntityNameAttrType();
+		addTwoUserMembersToMembersSubgroup();
+		addTwoMembersWithAttributeToAttrGroup();
+		addMemberGroupWithSubgroups();
 
 		// when
 		GroupData groupData = groupRetrievalService.getGroup(new GroupId("/scim/Members1/Subgroup1"));
@@ -117,7 +115,7 @@ public class GroupRetrievalServiceTest
 								.withValue("/scim/Members1/Subgroup1/Subgroup3").build()));
 	}
 
-	private void initMembershipsInGroup() throws EngineException
+	private void addTwoUserMembersToMembersSubgroup() throws EngineException
 	{
 		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null, null,
 				new HashMap<>(), null, null);
@@ -129,7 +127,7 @@ public class GroupRetrievalServiceTest
 		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
 	}
 
-	private void initGroupsTree() throws EngineException
+	private void addMemberGroupWithSubgroups() throws EngineException
 	{
 		GroupStructuralData gdata = new MockGroupStructuralData();
 		when(bulkService.getBulkStructuralData(eq("/scim/Members1/Subgroup1"))).thenReturn(gdata);
@@ -148,10 +146,10 @@ public class GroupRetrievalServiceTest
 	public void shouldReturnFullGroupsWithMemebers() throws EngineException
 	{
 		// given
-		initEntityNameAttrType();
-		initMembers();
-		initMembersAttributesInAttrRootGroup();
-		initMembersGroups();
+		addEntityNameAttrType();
+		addTwoUserMembersToMembersSubgroups();
+		addTwoMembersWithAttributeToAttrGroup();
+		addTwoMembersGroupWithSubgroups();
 
 		// when
 		List<GroupData> groupData = groupRetrievalService.getGroups();
@@ -207,7 +205,7 @@ public class GroupRetrievalServiceTest
 
 	}
 
-	private void initMembersGroups() throws EngineException
+	private void addTwoMembersGroupWithSubgroups() throws EngineException
 	{
 		GroupStructuralData gdata1 = new MockGroupStructuralData();
 		when(bulkService.getBulkStructuralData(eq("/scim/Members1"))).thenReturn(gdata1);
@@ -229,7 +227,7 @@ public class GroupRetrievalServiceTest
 		when(bulkService.getGroupAndSubgroups(eq(gdata2))).thenReturn(groupsWithSubgroups2);
 	}
 
-	private void initMembersAttributesInAttrRootGroup() throws IllegalIdentityValueException, EngineException
+	private void addTwoMembersWithAttributeToAttrGroup() throws IllegalIdentityValueException, EngineException
 	{
 		EntityInGroupData entityWithDispAttrData1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0),
 				null, null,
@@ -245,7 +243,7 @@ public class GroupRetrievalServiceTest
 				.thenReturn(ImmutableMap.of(0l, entityWithDispAttrData1, 1l, entityWithDispAttrData2));
 	}
 
-	private void initMembers() throws IllegalIdentityValueException, EngineException
+	private void addTwoUserMembersToMembersSubgroups() throws IllegalIdentityValueException, EngineException
 	{
 		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
 				Set.of("/", "/scim", "/scim/Members1", "/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
@@ -257,7 +255,7 @@ public class GroupRetrievalServiceTest
 		when(bulkService.getMembershipInfo(eq(data1))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
 	}
 
-	private void initEntityNameAttrType() throws EngineException
+	private void addEntityNameAttrType() throws EngineException
 	{
 		when(attrSupport.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("disp", null));
