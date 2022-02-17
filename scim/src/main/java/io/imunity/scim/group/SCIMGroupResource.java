@@ -13,11 +13,12 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.common.BasicSCIMResource;
+import io.imunity.scim.scheme.DefaultSchemaProvider;
 
 @JsonDeserialize(builder = SCIMGroupResource.Builder.class)
 class SCIMGroupResource extends BasicSCIMResource
 {
-	static final String SCHEMA = "urn:ietf:params:scim:schemas:core:2.0:Group";
+	static final String SCHEMA = DefaultSchemaProvider.DEFAULT_GROUP_SCHEMA_ID;
 
 	public final String displayName;
 	public final List<SCIMGroupMemberResource> members;

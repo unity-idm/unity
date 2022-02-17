@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
+import io.imunity.scim.common.ResourceType;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.user.UserRestController;
 
 class GroupAssemblyService
 {
-	private static final String DEFAULT_META_VERSION = "v1";
 	private SCIMEndpointDescription configuration;
 
 	GroupAssemblyService(SCIMEndpointDescription configuration)
@@ -44,10 +44,10 @@ class GroupAssemblyService
 	}
 
 	//FIXME support for group creation and modification time
-	SCIMGroupResource mapToSingleGroupResource(GroupData group)
+	private SCIMGroupResource mapToSingleGroupResource(GroupData group)
 	{
 		return SCIMGroupResource.builder().withDisplayName(group.displayName).withId(group.id)
-				.withMeta(Meta.builder().withResourceType(Meta.ResourceType.Group).withVersion(DEFAULT_META_VERSION)
+				.withMeta(Meta.builder().withResourceType(ResourceType.GROUP)
 						// .withCreated(reated)
 						// .withLastModified(lastModified)
 						.withLocation(getGroupLocation(group.id)).build())
@@ -64,7 +64,7 @@ class GroupAssemblyService
 
 	private URI getGroupLocation(String group)
 	{
-		return UriBuilder.fromUri(configuration.baseLocation).path(GroupRestController.SINGLE_GROUP_LOCATION)
+		return UriBuilder.fromUri(configuration.baseLocation).path(GroupRestController.GROUP_LOCATION)
 				.path(URLEncoder.encode(group, StandardCharsets.UTF_8)).build();
 	}
 
@@ -72,7 +72,7 @@ class GroupAssemblyService
 	{
 
 		return UriBuilder.fromUri(configuration.baseLocation)
-				.path(UserRestController.SINGLE_USER_LOCATION + "/" + user).build();
+				.path(UserRestController.USER_LOCATION + "/" + user).build();
 	}
 
 	@Component

@@ -8,7 +8,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Path(SCIMEndpoint.PATH)
 public class UserRestController implements SCIMRestController
 {
-	public static final String SINGLE_USER_LOCATION = "/User";
+	public static final String USER_LOCATION = "/Users";
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRestController.class);
 	private final UserRetrievalService userService;
@@ -47,21 +50,24 @@ public class UserRestController implements SCIMRestController
 
 	@Path("/Me")
 	@GET
-	public String getUser() throws EngineException, JsonProcessingException
+	public Response getUser(@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
 		log.debug("Get logged user");
-		return mapper.writeValueAsString(userService.getLoggedUser());
+		return Response.ok().entity(mapper.writeValueAsString(userService.getLoggedUser()))
+				.contentLocation(uriInfo.getRequestUri()).build();
 	}
 
-	@Path("/Users")
+	@Path(USER_LOCATION)
 	@GET
-	public String getUsers() throws EngineException, JsonProcessingException
+	public Response getUsers(@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
 		log.debug("Get users");
-		return mapper.writeValueAsString(userMapperService.mapToListUsersResource(userService.getUsers()));
+		return Response.ok()
+				.entity(mapper.writeValueAsString(userMapperService.mapToListUsersResource(userService.getUsers())))
+				.contentLocation(uriInfo.getRequestUri()).build();
 	}
 
-	@Path(SINGLE_USER_LOCATION + "/{id}")
+	@Path(USER_LOCATION + "/{id}")
 	@GET
 	public String getUser(@PathParam("id") String userId) throws EngineException, JsonProcessingException
 	{

@@ -47,7 +47,7 @@ class NewServiceView extends NewServiceViewBase
 		@Autowired
 		public NewServiceNavigationInfoProvider(ObjectFactory<NewServiceView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
 					.withParent(ServicesNavigationInfoProvider.ID).withObjectFactory(factory).build());
 
 		}

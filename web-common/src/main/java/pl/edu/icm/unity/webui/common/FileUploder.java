@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webconsole.common;
+package pl.edu.icm.unity.webui.common;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,9 +17,6 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.SucceededEvent;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
-import pl.edu.icm.unity.webui.common.LimitedOuputStream;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Allows for uploading file. Show error popup if problem occurs.

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +69,7 @@ public class UserRetrievalServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"));
+				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList());
 		userRetrievalService = new UserRetrievalService(msg, authzMan, entityManagement, bulkService, configuration);
 	}
 
@@ -81,7 +82,7 @@ public class UserRetrievalServiceTest
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/", null);
 		when(entityManagement.getGroups(new EntityParam(1L))).thenReturn(groups);
-		
+
 		Throwable error = Assertions.catchThrowable(() -> userRetrievalService.getUser(new PersistentId("1")));
 		Assertions.assertThat(error).isInstanceOf(UserNotFoundException.class);
 	}
@@ -186,7 +187,7 @@ public class UserRetrievalServiceTest
 								.build()));
 
 	}
-	
+
 	private void addTwoMembersGroupsWithSubgroups() throws EngineException
 	{
 		GroupStructuralData gdata = new MockGroupStructuralData();

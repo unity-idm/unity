@@ -15,6 +15,7 @@ public class SCIMEndpointConfiguration
 	public final List<String> allowedCorsOrigins;
 	public final String rootGroup;
 	public final List<String> membershipGroups;
+	public final List<SchemaWithMapping> schemas;
 
 	private SCIMEndpointConfiguration(Builder builder)
 	{
@@ -22,12 +23,13 @@ public class SCIMEndpointConfiguration
 		this.allowedCorsOrigins = List.copyOf(builder.allowedCORSorigins);
 		this.rootGroup = builder.rootGroup;
 		this.membershipGroups = List.copyOf(builder.membershipGroups);
+		this.schemas = List.copyOf(builder.schemas);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(allowedCorsHeaders, allowedCorsOrigins, membershipGroups, rootGroup);
+		return Objects.hash(allowedCorsHeaders, allowedCorsOrigins, membershipGroups, rootGroup, schemas);
 	}
 
 	@Override
@@ -43,7 +45,7 @@ public class SCIMEndpointConfiguration
 		return Objects.equals(allowedCorsHeaders, other.allowedCorsHeaders)
 				&& Objects.equals(allowedCorsOrigins, other.allowedCorsOrigins)
 				&& Objects.equals(membershipGroups, other.membershipGroups)
-				&& Objects.equals(rootGroup, other.rootGroup);
+				&& Objects.equals(rootGroup, other.rootGroup) && Objects.equals(schemas, other.schemas);
 	}
 
 	public static Builder builder()
@@ -57,6 +59,7 @@ public class SCIMEndpointConfiguration
 		private List<String> allowedCORSorigins = Collections.emptyList();
 		private String rootGroup;
 		private List<String> membershipGroups = Collections.emptyList();
+		private List<SchemaWithMapping> schemas;
 
 		private Builder()
 		{
@@ -83,6 +86,12 @@ public class SCIMEndpointConfiguration
 		public Builder withMembershipGroups(List<String> membershipGroups)
 		{
 			this.membershipGroups = membershipGroups;
+			return this;
+		}
+
+		public Builder withSchemas(List<SchemaWithMapping> schemas)
+		{
+			this.schemas = schemas;
 			return this;
 		}
 

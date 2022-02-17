@@ -8,7 +8,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Path(SCIMEndpoint.PATH)
 public class GroupRestController implements SCIMRestController
 {
-	public static final String SINGLE_GROUP_LOCATION = "/Group";
+	public static final String GROUP_LOCATION = "/Groups";
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, GroupRestController.class);
 
@@ -40,29 +43,35 @@ public class GroupRestController implements SCIMRestController
 	private final GroupRetrievalService groupRetrievalService;
 	private final GroupAssemblyService groupAssemblyService;
 
-	GroupRestController(GroupRetrievalService groupRetrievalService,
-			GroupAssemblyService groupAssemblyService)
+	GroupRestController(GroupRetrievalService groupRetrievalService, GroupAssemblyService groupAssemblyService)
 	{
 
 		this.groupRetrievalService = groupRetrievalService;
 		this.groupAssemblyService = groupAssemblyService;
 	}
 
-	@Path("/Groups")
+	@Path(GROUP_LOCATION)
 	@GET
-	public String getGroups() throws EngineException, JsonProcessingException
+	public Response getGroups(@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
 		log.debug("Get groups");
-		return mapper.writeValueAsString(groupAssemblyService.mapToGroupsResource(groupRetrievalService.getGroups()));
+
+		return Response.ok()
+				.entity(mapper.writeValueAsString(
+						groupAssemblyService.mapToGroupsResource(groupRetrievalService.getGroups())))
+				.contentLocation(uriInfo.getRequestUri()).build();
 	}
 
-	@Path(SINGLE_GROUP_LOCATION + "/{id}")
+	@Path(GROUP_LOCATION + "/{id}")
 	@GET
-	public String getGroup(@PathParam("id") String groupId) throws EngineException, JsonProcessingException
+	public Response getGroup(@PathParam("id") String groupId, @Context UriInfo uriInfo)
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("Get group with id: {}", groupId);
-		return mapper.writeValueAsString(
-				groupAssemblyService.mapToGroupResource(groupRetrievalService.getGroup(new GroupId(groupId))));
+		return Response.ok()
+				.entity(mapper.writeValueAsString(
+						groupAssemblyService.mapToGroupResource(groupRetrievalService.getGroup(new GroupId(groupId)))))
+				.contentLocation(uriInfo.getRequestUri()).build();
 	}
 
 	@Component

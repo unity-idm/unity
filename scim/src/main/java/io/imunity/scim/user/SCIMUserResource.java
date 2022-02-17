@@ -14,11 +14,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.common.BasicSCIMResource;
+import io.imunity.scim.scheme.DefaultSchemaProvider;
 
 @JsonDeserialize(builder = SCIMUserResource.Builder.class)
 class SCIMUserResource extends BasicSCIMResource
 {
-	static final String SCHEMA = "urn:ietf:params:scim:schemas:core:2.0:User";
+	static final String SCHEMA = DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID;
 
 	public final String userName;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)

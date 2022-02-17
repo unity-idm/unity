@@ -15,11 +15,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = Meta.Builder.class)
 public class Meta
 {
-	public enum ResourceType
-	{
-		User, Group
-	}
-
 	public final ResourceType resourceType;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	public final Instant created;
@@ -37,7 +32,7 @@ public class Meta
 		this.location = builder.location;
 		this.version = builder.version;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{

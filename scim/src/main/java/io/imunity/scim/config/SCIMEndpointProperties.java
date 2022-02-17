@@ -27,16 +27,19 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 
 	public static final String ROOT_GROUP = "rootGroup";
 	public static final String MEMBERSHIP_GROUPS = "membershipGroups.";
+	public static final String SCHEMAS = "schemas.";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
-	
+
 	static
 	{
 		META.put(ROOT_GROUP,
 				new PropertyMD().setMandatory().setDescription("SCIM root group for attributes resolution"));
 		META.put(MEMBERSHIP_GROUPS, new PropertyMD().setList(false).setDescription(
 				"SCIM membership groups. Only memberships in those groups (and their children) are exposed via SCIM"));
+		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
+
 	}
 
 	public SCIMEndpointProperties(Properties properties) throws ConfigurationException

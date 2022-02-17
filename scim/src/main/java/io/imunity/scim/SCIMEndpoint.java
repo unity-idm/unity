@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointConfiguration;
-import io.imunity.scim.config.SCIMEndpointConfigurationMapper;
+import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.exception.providers.SCIMEndpointExceptionMapper;
 import pl.edu.icm.unity.MessageSource;
@@ -59,7 +59,7 @@ public class SCIMEndpoint extends RESTEndpoint
 	protected void setSerializedConfiguration(String serializedState)
 	{
 		super.setSerializedConfiguration(serializedState);
-		scimEndpointConfiguration = SCIMEndpointConfigurationMapper.fromProperties(serializedState);
+		scimEndpointConfiguration = SCIMEndpointPropertiesConfigurationMapper.fromProperties(serializedState);
 	}
 
 	@Override
@@ -75,7 +75,8 @@ public class SCIMEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons()
 		{
 			SCIMEndpointDescription enDesc = new SCIMEndpointDescription(URI.create(getServletUrl("")),
-					scimEndpointConfiguration.rootGroup, scimEndpointConfiguration.membershipGroups);
+					scimEndpointConfiguration.rootGroup, scimEndpointConfiguration.membershipGroups,
+					scimEndpointConfiguration.schemas);
 			Set<Object> ret = factories.stream().map(f -> f.getController(enDesc)).collect(Collectors.toSet());
 			SCIMEndpointExceptionMapper.installExceptionHandlers(ret);
 			return ret;

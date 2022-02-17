@@ -14,18 +14,21 @@ public class SCIMEndpointDescription
 	public final URI baseLocation;
 	public final String rootGroup;
 	public final List<String> membershipGroups;
+	public final List<SchemaWithMapping> schemas;
 
-	public SCIMEndpointDescription(URI baseLocation, String rootGroup, List<String> membershipGroups)
+	public SCIMEndpointDescription(URI baseLocation, String rootGroup, List<String> membershipGroups,
+			List<SchemaWithMapping> schemas)
 	{
 		this.baseLocation = baseLocation;
 		this.rootGroup = rootGroup;
 		this.membershipGroups = List.copyOf(membershipGroups);
+		this.schemas = List.copyOf(schemas);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(baseLocation, membershipGroups, rootGroup);
+		return Objects.hash(baseLocation, membershipGroups, rootGroup, schemas);
 	}
 
 	@Override
@@ -40,7 +43,7 @@ public class SCIMEndpointDescription
 		SCIMEndpointDescription other = (SCIMEndpointDescription) obj;
 		return Objects.equals(baseLocation, other.baseLocation)
 				&& Objects.equals(membershipGroups, other.membershipGroups)
-				&& Objects.equals(rootGroup, other.rootGroup);
+				&& Objects.equals(rootGroup, other.rootGroup) && Objects.equals(schemas, other.schemas);
 	}
 
 }

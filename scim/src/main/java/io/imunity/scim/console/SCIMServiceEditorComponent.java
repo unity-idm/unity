@@ -5,10 +5,11 @@
 
 package io.imunity.scim.console;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.data.Binder;
 
 import io.imunity.scim.SCIMEndpoint;
-import io.imunity.scim.config.SCIMEndpointConfigurationMapper;
+import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
@@ -22,7 +23,7 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 	private Binder<DefaultServiceDefinition> serviceBinder;
 
 	public SCIMServiceEditorComponent(MessageSource msg, SCIMServiceEditorGeneralTab generalTab,
-			AuthenticationTab authTab, DefaultServiceDefinition toEdit)
+			AuthenticationTab authTab, SCIMServiceEditorSchemaTab schemaTab, DefaultServiceDefinition toEdit)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
@@ -33,12 +34,14 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 		registerTab(generalTab);
 		authTab.initUI(serviceBinder);
 		registerTab(authTab);
-
+		schemaTab.initUI(restBinder);
+		registerTab(schemaTab);
+		
 		serviceBinder.setBean(editMode ? toEdit : new DefaultServiceDefinition(SCIMEndpoint.TYPE.getName()));
 		SCIMServiceConfigurationBean config = new SCIMServiceConfigurationBean();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
-			config.setConfig(SCIMEndpointConfigurationMapper.fromProperties(toEdit.getConfiguration()));
+			config= ConfigurationVaadinBeanMapper.mapToBean(SCIMEndpointPropertiesConfigurationMapper.fromProperties(toEdit.getConfiguration()));
 		}
 		restBinder.setBean(config);
 	}
@@ -55,7 +58,14 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 
 		DefaultServiceDefinition service = serviceBinder.getBean();
 
-		service.setConfiguration(SCIMEndpointConfigurationMapper.toProperties(restBinder.getBean().getConfig()));
+		try
+		{
+			service.setConfiguration(SCIMEndpointPropertiesConfigurationMapper.toProperties(ConfigurationVaadinBeanMapper.mapToConfigurationBean(restBinder.getBean())));
+		} catch (JsonProcessingException e)
+		{
+			setErrorInTabs();
+			throw new FormValidationException();
+		}
 		return service;
 	}
 }

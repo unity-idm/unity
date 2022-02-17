@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.vaadin.server.ErrorMessage;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.dnd.EffectAllowed;
 import com.vaadin.ui.AbstractComponent;
@@ -48,15 +49,17 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	private Supplier<Editor<T>> editorProvider;
 	private List<SingleActionHandler<T>> additionalActionHandlers;
 	private Label captionLabel;
+	private boolean readOnly;
 
 	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption)
 	{
-		this(msg, editorProvider, caption, Collections.emptyList(), msg.getMessage("addNew"));
+		this(msg, editorProvider, caption, Collections.emptyList(), msg.getMessage("addNew"), false);
 	}
-	
-	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption, String addButtonCaption)
+
+	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
+			String addButtonCaption)
 	{
-		this(msg, editorProvider, caption, Collections.emptyList(), addButtonCaption);
+		this(msg, editorProvider, caption, Collections.emptyList(), addButtonCaption, false);
 	}
 
 	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
@@ -68,18 +71,19 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		this.additionalActionHandlers = additionalActionHandlers;
 		initUI(caption, msg.getMessage("addNew"));
 	}
-	
+
 	public ListOfDnDCollapsableElements(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
-			List<SingleActionHandler<T>> additionalActionHandlers, String addButtonCaption)
+			List<SingleActionHandler<T>> additionalActionHandlers, String addButtonCaption, boolean readOnly)
 	{
 		this.msg = msg;
 		this.elements = new ArrayList<>();
 		this.editorProvider = editorProvider;
 		this.additionalActionHandlers = additionalActionHandlers;
+		this.readOnly = readOnly;
 		initUI(caption, addButtonCaption);
 	}
 
-	private void initUI(String caption,String addButtonCaption)
+	private void initUI(String caption, String addButtonCaption)
 	{
 		main = new VerticalLayout();
 		main.setMargin(false);
@@ -91,10 +95,13 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		addElement.setCaption(addButtonCaption);
 		addElement.addStyleName("u-button-action");
 		addElement.setIcon(Images.add.getResource());
-		addElement.addClickListener(event -> {
+		addElement.addClickListener(event ->
+		{
 			ElementComponent ec = addElementComponent(makeNewInstance());
 			ec.showHideContent(true);
 		});
+		addElement.setVisible(!readOnly);
+
 		captionLabel = new Label(caption);
 		elementsHeader.addComponents(captionLabel, addElement);
 		elementsHeader.setComponentAlignment(captionLabel, Alignment.MIDDLE_LEFT);
@@ -107,7 +114,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		main.addComponent(elementsHeader);
 		main.addComponent(elementsLayout);
 	}
-	
+
 	public void setTitleVisible(boolean visible)
 	{
 		captionLabel.setVisible(visible);
@@ -186,6 +193,23 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		}
 
 	}
+	
+	@Override
+	public void setComponentError(ErrorMessage componentError)
+	{
+		for (ElementComponent element : elements)
+		{
+			if (element.getValue() == null)
+				element.showHideContent(true);
+		}
+	}
+
+	@Override
+	public void clear()
+	{
+		elements.clear();
+		refreshElements();
+	}
 
 	@SuppressWarnings("unchecked")
 	private HorizontalLayout getDropElement(int pos)
@@ -195,11 +219,13 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		drop.setHeight(1, Unit.EM);
 		DropTargetExtension<HorizontalLayout> dropTarget = new DropTargetExtension<>(drop);
 		dropTarget.setDropEffect(DropEffect.MOVE);
-		dropTarget.addDropListener(event -> {
+		dropTarget.addDropListener(event ->
+		{
 			Optional<AbstractComponent> dragSource = event.getDragSourceComponent();
 			if (dragSource.isPresent() && dragSource.get() instanceof Button)
 			{
-				event.getDragData().ifPresent(data -> {
+				event.getDragData().ifPresent(data ->
+				{
 					ElementComponent sourceRule = (ElementComponent) data;
 					elements.remove(sourceRule);
 					elements.add(pos, sourceRule);
@@ -221,10 +247,10 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	{
 		return elements.stream().map(e -> e.getValue()).collect(Collectors.toList());
 	}
-	
+
 	public void validate() throws FormValidationException
 	{
-		for (ElementComponent c: elements)
+		for (ElementComponent c : elements)
 		{
 			c.validate();
 		}
@@ -282,6 +308,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 			dragImg.setStyleName(Styles.vButtonLink.toString());
 			dragImg.addStyleName(Styles.vButtonBorderless.toString());
 			dragImg.addStyleName(Styles.link.toString());
+			dragImg.setVisible(!readOnly);
 
 			DragSourceExtension<Button> dragSource = new DragSourceExtension<>(dragImg);
 			dragSource.setEffectAllowed(EffectAllowed.MOVE);
@@ -292,18 +319,18 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 
 			menuBar = new HamburgerMenu<>();
 			menuBar.addActionHandlers(additionalActionHandlers);
-			menuBar.addItem(msg.getMessage("remove"), Images.remove.getResource(),
-					s -> remove(ElementComponent.this));
-			top = menuBar.addItem(msg.getMessage("ListOfCollapsableElements.moveTop"),
-					Images.topArrow.getResource(), s -> moveTop(ElementComponent.this));
+			menuBar.addItem(msg.getMessage("remove"), Images.remove.getResource(), s -> remove(ElementComponent.this));
+			top = menuBar.addItem(msg.getMessage("ListOfCollapsableElements.moveTop"), Images.topArrow.getResource(),
+					s -> moveTop(ElementComponent.this));
 			bottom = menuBar.addItem(msg.getMessage("ListOfCollapsableElements.moveBottom"),
 					Images.bottomArrow.getResource(), s -> moveBottom(ElementComponent.this));
-
+			menuBar.setVisible(!readOnly);
 			header.addComponent(menuBar);
 			header.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
 			header.setExpandRatio(menuBar, 0);
 
-			header.addLayoutClickListener(event -> {
+			header.addLayoutClickListener(event ->
+			{
 				if (!event.isDoubleClick())
 					return;
 				showHideContent(!content.isVisible());
@@ -333,7 +360,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 			setCompositionRoot(main);
 		}
 
-		private void showHideContent(boolean show)
+		public void showHideContent(boolean show)
 		{
 			showHide.setIcon(show ? Images.upArrow.getResource() : Images.downArrow.getResource());
 			content.setVisible(show);
@@ -353,7 +380,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		{
 			return editor.getValue();
 		}
-		
+
 		public void validate() throws FormValidationException
 		{
 			editor.validate();
@@ -369,6 +396,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 	public static abstract class Editor<V> extends CustomField<V>
 	{
 		protected abstract String getHeaderText();
+
 		protected abstract void validate() throws FormValidationException;
 	}
 

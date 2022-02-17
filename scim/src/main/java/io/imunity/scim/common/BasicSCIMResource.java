@@ -8,6 +8,7 @@ package io.imunity.scim.common;
 import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,8 +17,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder(
 { "schemas", "id", "externalId" })
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class BasicSCIMResource 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class BasicSCIMResource
 {
 	public final String id;
 	public final String externalId;
@@ -31,7 +32,6 @@ public class BasicSCIMResource
 		this.meta = builder.meta;
 		this.schemas = Set.copyOf(builder.schemas);
 	}
-
 
 	@Override
 	public int hashCode()
@@ -58,7 +58,7 @@ public class BasicSCIMResource
 		private String id;
 		private String externalId;
 		private Meta meta;
-		private Set<String> schemas;
+		private Set<String> schemas = Collections.emptySet();
 
 		protected BasicScimResourceBuilder()
 		{
