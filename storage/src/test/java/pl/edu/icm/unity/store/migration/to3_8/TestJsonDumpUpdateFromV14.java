@@ -87,6 +87,12 @@ public class TestJsonDumpUpdateFromV14
 		Properties configProp2 = parse(configuration2);
 		assertThat(configProp2.getProperty("unity.oauth2.as.refreshTokenIssuePolicy"), is("NEVER"));
 		assertThat(configProp2.getProperty("unity.oauth2.as.refreshTokenValidity"), nullValue());
+		
+		Endpoint endpoint3 = endpointDAO.get("UNITY OAuth2 Authorization Server3");
+		String configuration3 = endpoint3.getConfiguration().getConfiguration();
+		Properties configProp3 = parse(configuration3);
+		assertThat(configProp3.getProperty("unity.oauth2.as.refreshTokenIssuePolicy"), is("NEVER"));
+		assertThat(configProp3.getProperty("unity.oauth2.as.refreshTokenValidity"), nullValue());
 	}
 
 	private static Properties parse(String source)
