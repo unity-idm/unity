@@ -26,7 +26,6 @@ import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
 public class SCIMServiceEditorGeneralTab extends GeneralTab
 {
-
 	private Binder<SCIMServiceConfigurationBean> restBinder;
 	private final List<Group> allGroups;
 

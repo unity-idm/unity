@@ -39,12 +39,10 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 		META.put(MEMBERSHIP_GROUPS, new PropertyMD().setList(false).setDescription(
 				"SCIM membership groups. Only memberships in those groups (and their children) are exposed via SCIM"));
 		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
-
 	}
 
 	public SCIMEndpointProperties(Properties properties) throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
 	}
-
 }

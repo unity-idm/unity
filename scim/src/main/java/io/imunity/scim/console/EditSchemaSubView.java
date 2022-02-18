@@ -55,9 +55,7 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 				NotificationPopup.showError(msg, msg.getMessage("EditSchemaSubView.invalidConfiguration"), e);
 				return;
 			}
-
 			onConfirm.accept(schema);
-
 		};
 		mainView.addComponent(editMode ? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
 				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));

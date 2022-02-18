@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = Meta.Builder.class)
 public class Meta
 {
-	public final ResourceType resourceType;
+	public final String resourceType;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	public final Instant created;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -61,7 +61,7 @@ public class Meta
 
 	public static final class Builder
 	{
-		private ResourceType resourceType;
+		private String resourceType;
 		private Instant created;
 		private Instant lastModified;
 		private URI location;
@@ -71,7 +71,7 @@ public class Meta
 		{
 		}
 
-		public Builder withResourceType(ResourceType resourceType)
+		public Builder withResourceType(String resourceType)
 		{
 			this.resourceType = resourceType;
 			return this;

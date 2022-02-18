@@ -7,7 +7,7 @@ package io.imunity.scim.config;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-//TODO
+//TODO UY-1219
 @JsonDeserialize(builder = AttributeMapping.Builder.class)
 public class AttributeMapping
 {

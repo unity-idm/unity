@@ -52,15 +52,15 @@ public class GroupAssemblyServiceTest
 
 		assertThat(mappedGroup.meta.resourceType.toString(), is("Group"));
 		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Group/%2Fscim%2Fid"));
+				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid"));
 		assertThat(mappedGroup.id, is("/scim/id"));
 		assertThat(mappedGroup.members,
 				hasItems(
 						SCIMGroupMemberResource.builder().withDisplay("Memeber1").withType(MemberType.User.toString())
-								.withValue("1").withRef(URI.create("https://localhost:2443/scim/User/1")).build(),
+								.withValue("1").withRef(URI.create("https://localhost:2443/scim/Users/1")).build(),
 						SCIMGroupMemberResource.builder().withDisplay("Group1").withType(MemberType.Group.toString())
 								.withValue("/scim/id/sub")
-								.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2Fid%2Fsub")).build()));
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2Fid%2Fsub")).build()));
 	}
 
 	@Test
@@ -84,19 +84,19 @@ public class GroupAssemblyServiceTest
 		SCIMGroupResource mappedGroup = mappedGroups.resources.stream().filter(g -> g.id.equals("/scim/id1")).findAny()
 				.get();
 		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Group/%2Fscim%2Fid1"));
+				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid1"));
 		assertThat(mappedGroup.id, is("/scim/id1"));
 		assertThat(mappedGroup.members,
 				hasItems(
 						SCIMGroupMemberResource.builder().withDisplay("Memeber1").withType(MemberType.User.toString())
-								.withValue("1").withRef(URI.create("https://localhost:2443/scim/User/1")).build(),
+								.withValue("1").withRef(URI.create("https://localhost:2443/scim/Users/1")).build(),
 						SCIMGroupMemberResource.builder().withDisplay("Group1").withType(MemberType.Group.toString())
 								.withValue("/scim/id1/sub")
-								.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2Fid1%2Fsub")).build()));
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2Fid1%2Fsub")).build()));
 
 		mappedGroup = mappedGroups.resources.stream().filter(g -> g.id.equals("/scim/id2")).findAny().get();
 		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Group/%2Fscim%2Fid2"));
+				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid2"));
 		assertThat(mappedGroup.id, is("/scim/id2"));
 		assertThat(mappedGroup.members.size(), is(0));
 
@@ -111,7 +111,7 @@ public class GroupAssemblyServiceTest
 
 		assertThat(mappedGroup.meta.resourceType.toString(), is("Group"));
 		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Group/%2Fscim%2Fid"));
+				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid"));
 		assertThat(mappedGroup.id, is("/scim/id"));
 		assertThat(mappedGroup.members.size(), is(0));
 	}

@@ -24,7 +24,7 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.scim.scheme.DefaultSchemaProvider;
+import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.scheme.SchemaResourceDeserialaizer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -51,7 +51,6 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		this.msg = msg;
 		this.unityServerConfiguration = unityServerConfiguration;
 		this.subViewSwitcher = subViewSwitcher;
-
 	}
 
 	void initUI(Binder<SCIMServiceConfigurationBean> configBinder)
@@ -110,10 +109,10 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			add.setStyleName(Styles.buttonAction.toString());
 
 			Upload upload = new Upload();
-			upload.setButtonCaption("Import");
+			upload.setButtonCaption(msg.getMessage("SCIMServiceEditorSchemaTab.import"));
 			uploader = new FileUploder(upload, new ProgressBar(), new Label(), msg,
 					unityServerConfiguration.getFileValue(UnityServerConfiguration.WORKSPACE_DIRECTORY, true),
-					() -> importSchema());
+					() -> importUserSchema());
 			uploader.register();
 			upload.setCaption(null);
 
@@ -127,12 +126,12 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			main.addComponent(schemasGrid);
 		}
 
-		private void importSchema()
+		private void importUserSchema()
 		{
 			try
 			{
 				SchemaWithMappingBean schema = ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(
-						SchemaResourceDeserialaizer.deserializeFromFile(uploader.getFile()));
+						SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
 				uploader.clear();
 				if (schemasGrid.getElements().stream().filter(s -> s.getId().equals(schema.getId())).findAny()
 						.isPresent())
@@ -148,7 +147,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			{
 				uploader.clear();
 				fireChange();
-				NotificationPopup.showError(msg, "", e);
+				NotificationPopup.showError(msg, "Can not import schema", e);
 			}
 		}
 
@@ -171,7 +170,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 						schemasGrid.removeElement(schema);
 
 						fireChange();
-					}).withDisabledPredicate(s -> isDefaultSchema(s)).build();
+					}).withDisabledPredicate(s -> isCoreSchema(s)).build();
 
 			return Arrays.asList(edit, remove);
 		}
@@ -199,7 +198,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		{
 			EditSchemaSubView subView = new EditSchemaSubView(msg,
 					schemasGrid.getElements().stream().map(s -> s.getId()).collect(Collectors.toList()), edited,
-					isDefaultSchema(edited), s ->
+					isCoreSchema(edited), s ->
 					{
 						onConfirm.accept(s);
 						fireChange();
@@ -236,11 +235,10 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			fireEvent(new ValueChangeEvent<List<SchemaWithMappingBean>>(this, schemasGrid.getElements(), true));
 		}
 
-		private boolean isDefaultSchema(SchemaWithMappingBean schema)
+		private boolean isCoreSchema(SchemaWithMappingBean schema)
 		{
-			return schema != null && DefaultSchemaProvider.isDefaultSchema(schema.getId());
+			return schema != null
+					&& (schema.getType().equals(SchemaType.USER_CORE) || schema.getType().equals(SchemaType.GROUP_CORE));
 		}
-
 	}
-
 }

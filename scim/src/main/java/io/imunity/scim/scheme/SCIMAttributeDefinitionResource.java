@@ -14,14 +14,14 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = AttributeDefinitionResource.Builder.class)
+@JsonDeserialize(builder = SCIMAttributeDefinitionResource.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-class AttributeDefinitionResource
+class SCIMAttributeDefinitionResource
 {
 	public final String name;
 	public final String type;
 	public final String description;
-	public final List<AttributeDefinitionResource> subAttributes;
+	public final List<SCIMAttributeDefinitionResource> subAttributes;
 	public final boolean required;
 	public final List<String> canonicalValues;
 	public final String mutability;
@@ -31,7 +31,7 @@ class AttributeDefinitionResource
 	public final String returned;
 	public final List<String> referenceTypes;
 
-	private AttributeDefinitionResource(Builder builder)
+	private SCIMAttributeDefinitionResource(Builder builder)
 	{
 		this.name = builder.name;
 		this.type = builder.type;
@@ -63,7 +63,7 @@ class AttributeDefinitionResource
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AttributeDefinitionResource other = (AttributeDefinitionResource) obj;
+		SCIMAttributeDefinitionResource other = (SCIMAttributeDefinitionResource) obj;
 		return Objects.equals(canonicalValues, other.canonicalValues) && caseExact == other.caseExact
 				&& Objects.equals(description, other.description) && multiValued == other.multiValued
 				&& Objects.equals(mutability, other.mutability) && Objects.equals(name, other.name)
@@ -82,7 +82,7 @@ class AttributeDefinitionResource
 		private String name;
 		private String type;
 		private String description;
-		private Collection<AttributeDefinitionResource> subAttributes = Collections.emptyList();
+		private Collection<SCIMAttributeDefinitionResource> subAttributes = Collections.emptyList();
 		private boolean required;
 		private Collection<String> canonicalValues = Collections.emptyList();
 		private String mutability;
@@ -114,7 +114,7 @@ class AttributeDefinitionResource
 			return this;
 		}
 
-		public Builder withSubAttributes(Collection<AttributeDefinitionResource> subAttributes)
+		public Builder withSubAttributes(Collection<SCIMAttributeDefinitionResource> subAttributes)
 		{
 			this.subAttributes = subAttributes;
 			return this;
@@ -168,10 +168,9 @@ class AttributeDefinitionResource
 			return this;
 		}
 
-		public AttributeDefinitionResource build()
+		public SCIMAttributeDefinitionResource build()
 		{
-			return new AttributeDefinitionResource(this);
+			return new SCIMAttributeDefinitionResource(this);
 		}
 	}
-
 }

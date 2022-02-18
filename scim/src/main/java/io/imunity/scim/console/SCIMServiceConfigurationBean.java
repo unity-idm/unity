@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.imunity.scim.scheme.DefaultSchemaProvider;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
@@ -25,8 +26,8 @@ public class SCIMServiceConfigurationBean
 		allowedCORSorigins = new ArrayList<>();
 		membershipGroups = new ArrayList<>();
 		schemas = new ArrayList<>();
-	//	schemas.add(mapFromConfigSchema(DefaultSchemaProvider.getBasicGroupSchema()));
-	//	schemas.add(mapFromConfigSchema(DefaultSchemaProvider.getBasicUserSchema()));
+		schemas.add(ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicGroupSchema()));
+		schemas.add(ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicUserSchema()));
 	}
 
 	public List<String> getAllowedCORSheaders()

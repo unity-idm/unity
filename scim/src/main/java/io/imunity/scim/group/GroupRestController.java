@@ -37,15 +37,12 @@ public class GroupRestController implements SCIMRestController
 	public static final String GROUP_LOCATION = "/Groups";
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, GroupRestController.class);
-
 	private final ObjectMapper mapper = SCIMConstants.MAPPER;
-
 	private final GroupRetrievalService groupRetrievalService;
 	private final GroupAssemblyService groupAssemblyService;
 
 	GroupRestController(GroupRetrievalService groupRetrievalService, GroupAssemblyService groupAssemblyService)
 	{
-
 		this.groupRetrievalService = groupRetrievalService;
 		this.groupAssemblyService = groupAssemblyService;
 	}

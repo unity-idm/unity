@@ -9,7 +9,6 @@ import io.imunity.scim.exception.SCIMException;
 
 class SchemaNotFoundException extends SCIMException
 {
-
 	SchemaNotFoundException(final String errorMessage, final Throwable cause)
 	{
 		super(404, ScimErrorType.invalidValue, errorMessage, cause);

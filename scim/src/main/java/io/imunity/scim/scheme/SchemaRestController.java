@@ -61,7 +61,7 @@ public class SchemaRestController implements SCIMRestController
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("Get schema with id: {}", schemaId);
-		Optional<SchemaResource> schemaResource = schemaAssemblyService.getSchemaResource(schemaId);
+		Optional<SCIMSchemaResource> schemaResource = schemaAssemblyService.getSchemaResource(new SchemaId(schemaId));
 		if (schemaResource.isEmpty())
 			throw new SchemaNotFoundException("Invalid schema " + schemaId);
 		return Response.ok().entity(mapper.writeValueAsString(schemaResource.get()))

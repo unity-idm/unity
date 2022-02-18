@@ -61,7 +61,7 @@ class UserAssemblyService
 				.path(UserRestController.USER_LOCATION + "/" + persistence.value).build();
 
 		return SCIMUserResource.builder().withId(persistence.value)
-				.withMeta(Meta.builder().withResourceType(ResourceType.USER)
+				.withMeta(Meta.builder().withResourceType(ResourceType.USER.getName())
 						.withCreated(persistence.creationTs).withLastModified(lastModified).withLocation(location)
 						.build())
 				.withUserName(getUserNameFallbackToNone(user.identities))

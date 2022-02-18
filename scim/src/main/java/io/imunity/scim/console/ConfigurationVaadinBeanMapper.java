@@ -24,8 +24,9 @@ class ConfigurationVaadinBeanMapper
 		bean.getAllowedCORSorigins().addAll(orgConfig.allowedCorsOrigins);
 		bean.getMembershipGroups()
 				.addAll(orgConfig.membershipGroups.stream().map(g -> new Group(g)).collect(Collectors.toList()));
-		bean.setRootGroup( new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
-		bean.setSchemas(orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
+		bean.setRootGroup(new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
+		bean.setSchemas(
+				orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
 		return bean;
 	}
 
@@ -33,16 +34,18 @@ class ConfigurationVaadinBeanMapper
 	{
 		SchemaWithMappingBean schemaBean = new SchemaWithMappingBean();
 		schemaBean.setId(schema.id);
+		schemaBean.setType(schema.type);
 		schemaBean.setName(schema.name);
 		schemaBean.setDescription(schema.description);
 		schemaBean.setEnable(schema.enable);
-		schemaBean.setAttributes(schema.attributesWithMapping.stream().map(a -> mapFromAttributeDefinitionWithMapping(a))
-				.collect(Collectors.toList()));
+		schemaBean.setAttributes(schema.attributesWithMapping.stream()
+				.map(a -> mapFromAttributeDefinitionWithMapping(a)).collect(Collectors.toList()));
 
 		return schemaBean;
 	}
 
-	private static AttributeDefinitionWithMappingBean mapFromAttributeDefinitionWithMapping(AttributeDefinitionWithMapping a)
+	private static AttributeDefinitionWithMappingBean mapFromAttributeDefinitionWithMapping(
+			AttributeDefinitionWithMapping a)
 	{
 		AttributeDefinitionWithMappingBean bean = new AttributeDefinitionWithMappingBean();
 		AttributeDefinitionBean attrBean = new AttributeDefinitionBean();
@@ -55,7 +58,7 @@ class ConfigurationVaadinBeanMapper
 
 		bean.setAttributeDefinition(attrBean);
 
-		// TODO
+		// TODO UY-1219
 		bean.setAttributeMapping(new AttributeMappingBean());
 
 		return bean;
@@ -64,35 +67,38 @@ class ConfigurationVaadinBeanMapper
 	static SCIMEndpointConfiguration mapToConfigurationBean(SCIMServiceConfigurationBean bean)
 	{
 		return SCIMEndpointConfiguration.builder().withAllowedCorsHeaders(bean.getAllowedCORSheaders())
-				.withAllowedCorsOrigins(bean.getAllowedCORSorigins()).withRootGroup(bean.getRootGroup().group.getPathEncoded())
+				.withAllowedCorsOrigins(bean.getAllowedCORSorigins())
+				.withRootGroup(bean.getRootGroup().group.getPathEncoded())
 				.withMembershipGroups(
 						bean.getMembershipGroups().stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
 
-				.withSchemas(bean.getSchemas().stream().map(s -> mapToConfigurationSchema(s)).collect(Collectors.toList())).build();
+				.withSchemas(
+						bean.getSchemas().stream().map(s -> mapToConfigurationSchema(s)).collect(Collectors.toList()))
+				.build();
 	}
 
-	private static SchemaWithMapping mapToConfigurationSchema(SchemaWithMappingBean s)
+	private static SchemaWithMapping mapToConfigurationSchema(SchemaWithMappingBean schemaBean)
 	{
-		return SchemaWithMapping.builder().withName(s.getName()).withId(s.getId()).withDescription(s.getDescription())
-				.withEnable(s.isEnable())
-				.withAttributesWithMapping(
-						s.getAttributes().stream().map(a -> mapToAttributeDefinition(a)).collect(Collectors.toList()))
+		return SchemaWithMapping.builder().withName(schemaBean.getName()).withId(schemaBean.getId())
+				.withType(schemaBean.getType()).withDescription(schemaBean.getDescription())
+				.withEnable(schemaBean.isEnable()).withAttributesWithMapping(schemaBean.getAttributes().stream()
+						.map(a -> mapToAttributeDefinition(a)).collect(Collectors.toList()))
 				.build();
 
 	}
 
-	private static AttributeDefinitionWithMapping mapToAttributeDefinition(AttributeDefinitionWithMappingBean a)
+	private static AttributeDefinitionWithMapping mapToAttributeDefinition(AttributeDefinitionWithMappingBean attrDefBean)
 	{
 		return AttributeDefinitionWithMapping.builder()
 				.withAttributeDefinition(
-						AttributeDefinition.builder().withName(a.getAttributeDefinition().getName())
-								.withDescription(a.getAttributeDefinition().getDescription())
-								.withMultiValued(a.getAttributeDefinition().isMultiValued())
-								.withType(a.getAttributeDefinition().getType())
-								.withSubAttributesWithMapping(a.getAttributeDefinition().getSubAttributesWithMapping()
+						AttributeDefinition.builder().withName(attrDefBean.getAttributeDefinition().getName())
+								.withDescription(attrDefBean.getAttributeDefinition().getDescription())
+								.withMultiValued(attrDefBean.getAttributeDefinition().isMultiValued())
+								.withType(attrDefBean.getAttributeDefinition().getType())
+								.withSubAttributesWithMapping(attrDefBean.getAttributeDefinition().getSubAttributesWithMapping()
 										.stream().map(sa -> mapToAttributeDefinition(sa)).collect(Collectors.toList()))
 								.build()
-				// TODO
+				// TODO UY-1219
 				).withAttributeMapping(AttributeMapping.builder().build()).build();
 	}
 

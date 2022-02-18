@@ -15,9 +15,8 @@ class AttributeDefinitionConfigurationList extends ListOfDnDCollapsableElements<
 	AttributeDefinitionConfigurationList(MessageSource msg, String addText, boolean disableComplexAndMulti,
 			boolean onlyMappingEdit)
 	{
-		super(msg, () -> new AttributeDefinitionConfigurationEditor(msg, disableComplexAndMulti, onlyMappingEdit), "",
+		super(msg, () -> new AttributeDefinitionWithMappingConfigurationEditor(msg, disableComplexAndMulti, onlyMappingEdit), "",
 				Collections.emptyList(), addText, onlyMappingEdit);
-
 	}
 
 	@Override

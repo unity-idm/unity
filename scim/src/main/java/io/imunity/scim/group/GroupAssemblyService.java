@@ -47,7 +47,7 @@ class GroupAssemblyService
 	private SCIMGroupResource mapToSingleGroupResource(GroupData group)
 	{
 		return SCIMGroupResource.builder().withDisplayName(group.displayName).withId(group.id)
-				.withMeta(Meta.builder().withResourceType(ResourceType.GROUP)
+				.withMeta(Meta.builder().withResourceType(ResourceType.GROUP.getName())
 						// .withCreated(reated)
 						// .withLastModified(lastModified)
 						.withLocation(getGroupLocation(group.id)).build())

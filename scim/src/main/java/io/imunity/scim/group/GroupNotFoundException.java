@@ -9,7 +9,6 @@ import io.imunity.scim.exception.SCIMException;
 
 class GroupNotFoundException extends SCIMException
 {
-
 	GroupNotFoundException(final String errorMessage, final Throwable cause)
 	{
 		super(404, ScimErrorType.invalidValue, errorMessage, cause);
@@ -18,6 +17,5 @@ class GroupNotFoundException extends SCIMException
 	GroupNotFoundException(String errorMessage)
 	{
 		super(404, ScimErrorType.invalidValue, errorMessage, null);
-
 	}
 }

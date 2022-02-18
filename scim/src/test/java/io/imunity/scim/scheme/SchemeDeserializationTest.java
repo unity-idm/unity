@@ -29,14 +29,14 @@ public class SchemeDeserializationTest
 	public void shouldDesarializeStandardUserScheme() throws StreamReadException, DatabindException, IOException
 	{
 
-		SchemaResource schema = mapper.readValue(new File("src/test/resources/UserScheme.json"), SchemaResource.class);
+		SCIMSchemaResource schema = mapper.readValue(new File("src/test/resources/UserScheme.json"), SCIMSchemaResource.class);
 
 		assertThat(schema.id, is("urn:ietf:params:scim:schemas:core:2.0:User"));
 		assertThat(schema.name, is("User"));
 		assertThat(schema.description, is("User Schema"));
 		assertThat(schema.attributes.size(), is(21));
 
-		AttributeDefinitionResource attr = schema.attributes.get(0);
+		SCIMAttributeDefinitionResource attr = schema.attributes.get(0);
 
 		assertThat(attr.name, is("userName"));
 		assertThat(attr.required, is(true));
@@ -48,7 +48,7 @@ public class SchemeDeserializationTest
 
 		assertThat(attr.description.startsWith("Unique identifier"), is(true));
 
-		AttributeDefinitionResource complexAttr = schema.attributes.get(1);
+		SCIMAttributeDefinitionResource complexAttr = schema.attributes.get(1);
 
 		assertThat(complexAttr.name, is("name"));
 		assertThat(complexAttr.required, is(false));

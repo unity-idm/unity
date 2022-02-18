@@ -17,7 +17,7 @@ public class AttributeDefinitionWithMappingBean
 		attributeDefinition = new AttributeDefinitionBean();
 		attributeMapping = new AttributeMappingBean();
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
@@ -58,4 +58,12 @@ public class AttributeDefinitionWithMappingBean
 		this.attributeMapping = attributeMapping;
 	}
 
+	@Override
+	protected AttributeDefinitionWithMappingBean clone()
+	{
+		AttributeDefinitionWithMappingBean clone = new AttributeDefinitionWithMappingBean();
+		clone.setAttributeDefinition(attributeDefinition.clone());
+		clone.setAttributeMapping(attributeMapping.clone());
+		return clone;
+	}
 }

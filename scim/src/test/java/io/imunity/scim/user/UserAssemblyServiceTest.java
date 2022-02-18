@@ -103,7 +103,7 @@ public class UserAssemblyServiceTest
 		SCIMUserResource mappedUser = assemblyService.mapToSingleUserResource(user);
 
 		assertThat(mappedUser.id, is("1"));
-		assertThat(mappedUser.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/User/1"));
+		assertThat(mappedUser.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/Users/1"));
 		assertThat(mappedUser.meta.resourceType.toString(), is("User"));
 		assertThat(mappedUser.meta.created, is(creation));
 		assertThat(mappedUser.meta.lastModified, is(update));
@@ -111,10 +111,10 @@ public class UserAssemblyServiceTest
 				hasItems(
 						SCIMUserGroupResource.builder().withType(GroupType.direct.toString())
 								.withValue("/scim/Members1").withDisplay("Members1")
-								.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2FMembers1")).build(),
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2FMembers1")).build(),
 						SCIMUserGroupResource.builder().withType(GroupType.direct.toString())
 								.withValue("/scim/Members2").withDisplay("Members2")
-								.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2FMembers2")).build()));
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2FMembers2")).build()));
 
 		assertThat(mappedUser.userName, is("email@email.com"));
 
@@ -151,27 +151,27 @@ public class UserAssemblyServiceTest
 
 		SCIMUserResource mappedUser1 = mappedUsers.resources.stream().filter(u -> u.id.equals("1")).findAny().get();
 		assertThat(mappedUser1.id, is("1"));
-		assertThat(mappedUser1.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/User/1"));
+		assertThat(mappedUser1.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/Users/1"));
 		assertThat(mappedUser1.meta.resourceType.toString(), is("User"));
 		assertThat(mappedUser1.groups,
 				hasItems(
 						SCIMUserGroupResource.builder().withType(GroupType.direct.toString())
 								.withValue("/scim/Members1").withDisplay("Members1")
-								.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2FMembers1")).build(),
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2FMembers1")).build(),
 						SCIMUserGroupResource.builder().withType(GroupType.direct.toString())
 								.withValue("/scim/Members2").withDisplay("Members2")
-								.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2FMembers2")).build()));
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2FMembers2")).build()));
 
 		assertThat(mappedUser1.userName, is("email@email.com"));
 
 		SCIMUserResource mappedUser2 = mappedUsers.resources.stream().filter(u -> u.id.equals("2")).findAny().get();
 		assertThat(mappedUser2.id, is("2"));
-		assertThat(mappedUser2.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/User/2"));
+		assertThat(mappedUser2.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/Users/2"));
 		assertThat(mappedUser2.meta.resourceType.toString(), is("User"));
 		assertThat(mappedUser2.groups,
 				hasItems(SCIMUserGroupResource.builder().withType(GroupType.direct.toString())
 						.withValue("/scim/Members2").withDisplay("Members2")
-						.withRef(URI.create("https://localhost:2443/scim/Group/%2Fscim%2FMembers2")).build()));
+						.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2FMembers2")).build()));
 
 		assertThat(mappedUser2.userName, is("email2@email.com"));
 

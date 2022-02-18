@@ -13,14 +13,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.common.BasicSCIMResource;
 
-@JsonDeserialize(builder = SchemaResource.Builder.class)
-class SchemaResource extends BasicSCIMResource
+@JsonDeserialize(builder = SCIMSchemaResource.Builder.class)
+class SCIMSchemaResource extends BasicSCIMResource
 {
 	public final String name;
 	public final String description;
-	public final List<AttributeDefinitionResource> attributes;
+	public final List<SCIMAttributeDefinitionResource> attributes;
 
-	private SchemaResource(Builder builder)
+	private SCIMSchemaResource(Builder builder)
 	{
 		super(builder);
 		this.name = builder.name;
@@ -46,7 +46,7 @@ class SchemaResource extends BasicSCIMResource
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SchemaResource other = (SchemaResource) obj;
+		SCIMSchemaResource other = (SCIMSchemaResource) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
 				&& Objects.equals(name, other.name);
 	}
@@ -60,7 +60,7 @@ class SchemaResource extends BasicSCIMResource
 	{
 		private String name;
 		private String description;
-		private List<AttributeDefinitionResource> attributes = Collections.emptyList();
+		private List<SCIMAttributeDefinitionResource> attributes = Collections.emptyList();
 
 		private Builder()
 		{
@@ -78,15 +78,15 @@ class SchemaResource extends BasicSCIMResource
 			return this;
 		}
 
-		public Builder withAttributes(List<AttributeDefinitionResource> attributes)
+		public Builder withAttributes(List<SCIMAttributeDefinitionResource> attributes)
 		{
 			this.attributes = attributes;
 			return this;
 		}
 
-		public SchemaResource build()
+		public SCIMSchemaResource build()
 		{
-			return new SchemaResource(this);
+			return new SCIMSchemaResource(this);
 		}
 	}
 

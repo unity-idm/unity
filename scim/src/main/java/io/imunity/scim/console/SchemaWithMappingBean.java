@@ -8,10 +8,14 @@ package io.imunity.scim.console;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import io.imunity.scim.config.SchemaType;
 
 public class SchemaWithMappingBean
 {
 	private String id;
+	private SchemaType type;
 	private String name;
 	private String description;
 	private boolean enable;
@@ -20,6 +24,7 @@ public class SchemaWithMappingBean
 
 	public SchemaWithMappingBean()
 	{
+		type = SchemaType.USER;
 		attributes = new ArrayList<>();
 	}
 
@@ -57,11 +62,12 @@ public class SchemaWithMappingBean
 	protected SchemaWithMappingBean clone()
 	{
 		SchemaWithMappingBean clone = new SchemaWithMappingBean();
-		clone.setAttributes(this.attributes);
+		clone.setAttributes(this.attributes.stream().map(a -> a.clone()).collect(Collectors.toList()));
 		clone.setName(name);
 		clone.setId(id);
 		clone.setEnable(enable);
 		clone.setDescription(description);
+		clone.setType(type);
 		return clone;
 	}
 
@@ -85,10 +91,20 @@ public class SchemaWithMappingBean
 		this.enable = enable;
 	}
 
+	public SchemaType getType()
+	{
+		return type;
+	}
+
+	public void setType(SchemaType type)
+	{
+		this.type = type;
+	}
+
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributes, description, enable, id, name);
+		return Objects.hash(attributes, description, enable, id, name, type);
 	}
 
 	@Override
@@ -102,7 +118,8 @@ public class SchemaWithMappingBean
 			return false;
 		SchemaWithMappingBean other = (SchemaWithMappingBean) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
-				&& enable == other.enable && Objects.equals(id, other.id) && Objects.equals(name, other.name);
+				&& enable == other.enable && Objects.equals(id, other.id) && Objects.equals(name, other.name)
+				&& Objects.equals(type, other.type);
 	}
 
 }

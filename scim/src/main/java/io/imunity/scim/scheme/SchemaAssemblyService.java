@@ -32,9 +32,9 @@ class SchemaAssemblyService
 		this.configuration = configuration;
 	}
 
-	Optional<SchemaResource> getSchemaResource(String id)
+	Optional<SCIMSchemaResource> getSchemaResource(SchemaId schemaId)
 	{
-		Optional<SchemaWithMapping> schema = configuration.schemas.stream().filter(s -> s.id.equals(id)).findAny();
+		Optional<SchemaWithMapping> schema = configuration.schemas.stream().filter(s -> s.id.equals(schemaId.id)).findAny();
 		if (schema.isEmpty() || !schema.get().enable)
 		{
 			return Optional.empty();
@@ -42,27 +42,27 @@ class SchemaAssemblyService
 		return Optional.of(mapSingleSchemaResource(schema.get()));
 	}
 
-	ListResponse<SchemaResource> getSchemasResource()
+	ListResponse<SCIMSchemaResource> getSchemasResource()
 	{
-		List<SchemaResource> schemasResource = configuration.schemas.stream().filter(s -> s.enable)
+		List<SCIMSchemaResource> schemasResource = configuration.schemas.stream().filter(s -> s.enable)
 				.map(s -> mapSingleSchemaResource(s)).collect(Collectors.toList());
-		return ListResponse.<SchemaResource>builder().withResources(schemasResource)
+		return ListResponse.<SCIMSchemaResource>builder().withResources(schemasResource)
 				.withTotalResults(schemasResource.size()).build();
 	}
 
-	private SchemaResource mapSingleSchemaResource(SchemaWithMapping schema)
+	private SCIMSchemaResource mapSingleSchemaResource(SchemaWithMapping schema)
 	{
-		return SchemaResource.builder().withName(schema.name).withDescription(schema.description).withId(schema.id)
-				.withMeta(Meta.builder().withResourceType(ResourceType.SCHEMA)
+		return SCIMSchemaResource.builder().withName(schema.name).withDescription(schema.description).withId(schema.id)
+				.withMeta(Meta.builder().withResourceType(ResourceType.SCHEMA.getName())
 						.withLocation(getSchemaLocation(schema.id)).build())
 				.withAttributes(schema.attributesWithMapping.stream()
 						.map(a -> mapSingleAttribute(a.attributeDefinition)).collect(Collectors.toList()))
 				.build();
 	}
 
-	private AttributeDefinitionResource mapSingleAttribute(AttributeDefinition a)
+	private SCIMAttributeDefinitionResource mapSingleAttribute(AttributeDefinition a)
 	{
-		return AttributeDefinitionResource.builder().withName(a.name).withDescription(a.description)
+		return SCIMAttributeDefinitionResource.builder().withName(a.name).withDescription(a.description)
 				.withType(a.type.getName()).withMultiValued(a.multiValued).withCaseExact(true).withRequired(false)
 				.withMutability(SCIMAttributeMutability.IMMUTABLE.getName())
 				.withReturned(SCIMAttributeReturned.DEFAULT.getName())

@@ -5,18 +5,17 @@
 
 package io.imunity.scim.console;
 
-//TODO
+//TODO UY-1219
 public class AttributeMappingBean
 {
-	private DataValue dataValue;
-	private DataArray dataArray;
+//	private DataValue dataValue;
+//	private DataArray dataArray;
 
 	public AttributeMappingBean()
 	{
-		
+
 	}
-	
-	
+
 	public static class DataValue
 	{
 		public enum DataValueType
@@ -33,7 +32,13 @@ public class AttributeMappingBean
 			ATTRIBUTES, IDENTITIES, MEMBERSHIPS
 		}
 
-		private DataArrayType type;
-		private String value;
+//		private DataArrayType type;
+//		private String value;
+	}
+
+	@Override
+	protected AttributeMappingBean clone()
+	{
+		return new AttributeMappingBean();
 	}
 }

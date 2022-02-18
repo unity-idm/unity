@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class SchemaWithMapping
 {
 	public final String id;
+	public final SchemaType type;
 	public final String name;
 	public final String description;
 	public final boolean enable;
@@ -23,6 +24,7 @@ public class SchemaWithMapping
 	private SchemaWithMapping(Builder builder)
 	{
 		this.id = builder.id;
+		this.type = builder.type;
 		this.name = builder.name;
 		this.description = builder.description;
 		this.enable = builder.enable;
@@ -32,7 +34,7 @@ public class SchemaWithMapping
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributesWithMapping, description, id, name, enable);
+		return Objects.hash(attributesWithMapping, description, id, name, enable, type);
 	}
 
 	@Override
@@ -47,7 +49,7 @@ public class SchemaWithMapping
 		SchemaWithMapping other = (SchemaWithMapping) obj;
 		return Objects.equals(attributesWithMapping, other.attributesWithMapping)
 				&& Objects.equals(description, other.description) && Objects.equals(id, other.id)
-				&& Objects.equals(name, other.name) && Objects.equals(enable, other.enable);
+				&& Objects.equals(name, other.name) && Objects.equals(enable, other.enable) && Objects.equals(type, other.type);
 	}
 
 	public static Builder builder()
@@ -62,7 +64,8 @@ public class SchemaWithMapping
 		private String description;
 		private boolean enable;
 		private List<AttributeDefinitionWithMapping> attributes = Collections.emptyList();
-
+		private SchemaType type;
+		
 		private Builder()
 		{
 		}
@@ -70,6 +73,12 @@ public class SchemaWithMapping
 		public Builder withId(String id)
 		{
 			this.id = id;
+			return this;
+		}
+		
+		public Builder withType(SchemaType type)
+		{
+			this.type = type;
 			return this;
 		}
 
