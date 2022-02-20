@@ -25,7 +25,7 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.scim.config.SchemaType;
-import io.imunity.scim.scheme.SchemaResourceDeserialaizer;
+import io.imunity.scim.schema.SchemaResourceDeserialaizer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.common.FileUploder;

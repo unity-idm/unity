@@ -17,7 +17,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.scim.scheme.SCIMAttributeType;
+import io.imunity.scim.schema.SCIMAttributeType;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;

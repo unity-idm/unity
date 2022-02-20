@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import io.imunity.scim.scheme.DefaultSchemaProvider;
+import io.imunity.scim.schema.DefaultSchemaProvider;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 

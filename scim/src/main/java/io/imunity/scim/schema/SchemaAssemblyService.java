@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.scheme;
+package io.imunity.scim.schema;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -25,7 +25,7 @@ import io.imunity.scim.config.SchemaWithMapping;
 
 class SchemaAssemblyService
 {
-	private SCIMEndpointDescription configuration;
+	private final SCIMEndpointDescription configuration;
 
 	SchemaAssemblyService(SCIMEndpointDescription configuration)
 	{

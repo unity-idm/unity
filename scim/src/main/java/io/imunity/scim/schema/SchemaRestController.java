@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.scheme;
+package io.imunity.scim.schema;
 
 import java.util.Optional;
 
@@ -28,7 +28,7 @@ import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.SCIMRestController;
 import io.imunity.scim.SCIMRestControllerFactory;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.scheme.SchemaAssemblyService.SCIMSchemaAssemblyServiceFactory;
+import io.imunity.scim.schema.SchemaAssemblyService.SCIMSchemaAssemblyServiceFactory;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 

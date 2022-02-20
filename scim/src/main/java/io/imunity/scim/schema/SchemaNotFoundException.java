@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.scheme;
+package io.imunity.scim.schema;
 
 import io.imunity.scim.exception.SCIMException;
 

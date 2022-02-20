@@ -13,7 +13,7 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.common.BasicSCIMResource;
-import io.imunity.scim.scheme.DefaultSchemaProvider;
+import io.imunity.scim.schema.DefaultSchemaProvider;
 
 @JsonDeserialize(builder = SCIMGroupResource.Builder.class)
 class SCIMGroupResource extends BasicSCIMResource

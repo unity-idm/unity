@@ -16,7 +16,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.scim.scheme.SCIMAttributeType;
+import io.imunity.scim.schema.SCIMAttributeType;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;

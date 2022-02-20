@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import io.imunity.scim.scheme.SCIMAttributeType;
+import io.imunity.scim.schema.SCIMAttributeType;
 
 public class AttributeDefinitionBean
 {

@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import io.imunity.scim.scheme.SCIMAttributeType;
+import io.imunity.scim.schema.SCIMAttributeType;
 
 import java.util.Collections;
 

@@ -3,15 +3,15 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.scheme;
+package io.imunity.scim.schema;
 
-enum SCIMAttributeReturned
+enum SCIMAttributeMutability
 {
-	ALWAYS("always"), NEVER("never"), DEFAULT("default"), REQUEST("request");
+	READ_ONLY("readOnly"), READ_WRITE("readWrite"), IMMUTABLE("immutable"), WRITE_ONLY("writeOnly");
 
 	private String name;
 
-	SCIMAttributeReturned(final String name)
+	SCIMAttributeMutability(final String name)
 	{
 		this.name = name;
 	}
@@ -20,5 +20,4 @@ enum SCIMAttributeReturned
 	{
 		return name;
 	}
-
 }

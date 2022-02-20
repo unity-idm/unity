@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.common.BasicSCIMResource;
-import io.imunity.scim.scheme.DefaultSchemaProvider;
+import io.imunity.scim.schema.DefaultSchemaProvider;
 
 @JsonDeserialize(builder = SCIMUserResource.Builder.class)
 class SCIMUserResource extends BasicSCIMResource
