@@ -26,6 +26,11 @@ public class FormLayoutWithFixedCaptionWidth extends FormLayout
 		setMargin(true);
 	}
 	
+	public static FormLayoutWithFixedCaptionWidth withVeryShortCaptions()
+	{
+		return new FormLayoutWithFixedCaptionWidth(Styles.fixedWidthVeryShortCaptions);
+	}
+	
 	public static FormLayoutWithFixedCaptionWidth withShortCaptions()
 	{
 		return new FormLayoutWithFixedCaptionWidth(Styles.fixedWidthShortCaptions);

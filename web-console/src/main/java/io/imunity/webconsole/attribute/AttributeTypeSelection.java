@@ -41,7 +41,7 @@ class AttributeTypeSelection extends CustomComponent
 	AttributeTypeSelection(Collection<AttributeType> attributeTypes, String groupPath, MessageSource msg)
 	{
 		this.msg = msg;
-		this.main = new FormLayoutWithFixedCaptionWidth();
+		this.main = FormLayoutWithFixedCaptionWidth.withVeryShortCaptions();
 		setCompositionRoot(main);
 		createAttributeSelectionWidget(attributeTypes);
 	}
@@ -50,22 +50,21 @@ class AttributeTypeSelection extends CustomComponent
 	{
 		name = new Label(type.getName());
 		componentWithTooltip = new ComponentWithTooltip(name, msg.getMessage("AttributeType.name"),
-				type.getDescription().getValue(msg));
+				type.getDescription().getValue(msg), false);
 		main.addComponent(componentWithTooltip);
 	}
 
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
 		attributeTypesCombo = new AttributeSelectionComboBox(null, attributeTypes);
-	
+		attributeTypesCombo.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		if (attributeTypes.size() == 1)
 		{
 			createAttributeWidget(attributeTypes.iterator().next());
 		} else
 		{
-			componentWithTooltip = new ComponentWithTooltip(attributeTypesCombo, msg.getMessage("AttributeType.name"), "");
+			componentWithTooltip = new ComponentWithTooltip(attributeTypesCombo, msg.getMessage("AttributeType.name"), "", true);
 			main.addComponent(componentWithTooltip);
-		//	attributeTypesCombo.setWidth(100, Unit.PERCENTAGE);
 			attributeTypesCombo.addSelectionListener(event -> changeAttributeType(event));
 		}
 	}
@@ -98,11 +97,10 @@ class AttributeTypeSelection extends CustomComponent
 	{
 		private HtmlSimplifiedLabelWithLinks icon;
 		
-		public ComponentWithTooltip(AbstractComponent component, String caption, String description)
+		public ComponentWithTooltip(AbstractComponent component, String caption, String description, boolean centerIcon)
 		{
 			setCaption(caption);
 			HorizontalLayout main = new HorizontalLayout();
-			component.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 			main.setMargin(false);
 			icon = new HtmlSimplifiedLabelWithLinks();
 			icon.addStyleName(Styles.iconOnlyLabel.toString());
@@ -110,9 +108,10 @@ class AttributeTypeSelection extends CustomComponent
 			HorizontalLayout iconWrapper = new HorizontalLayout();
 			iconWrapper.setWidth(1, Unit.EM);
 			iconWrapper.addComponent(icon);
-			iconWrapper.setComponentAlignment(icon, Alignment.MIDDLE_LEFT);
+			if (centerIcon)
+				iconWrapper.setComponentAlignment(icon, Alignment.MIDDLE_LEFT);
 			iconWrapper.setMargin(false);
-
+		
 			main.setSpacing(true);
 			main.addComponent(component);
 			main.addComponent(iconWrapper);

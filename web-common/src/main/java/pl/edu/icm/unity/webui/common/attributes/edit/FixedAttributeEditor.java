@@ -133,7 +133,7 @@ public class FixedAttributeEditor
 	private ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(String label)
 	{
 		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<>(
-				msg, new InternalAttributeValueEditor.Factory(msg, registry, label, editContext),
+				msg, new InternalAttributeValueEditor.Factory(registry, label, editContext),
 				editContext.getAttributeType().getMinElements(),
 				editContext.getAttributeType().getMaxElements(), false);
 		ret.setLonelyLabel(label);

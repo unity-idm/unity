@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.edit;
 
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -14,14 +13,12 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
  * Editing of a single attribute value inside of {@link ListOfEmbeddedElementsStub} 
  */
 class InternalAttributeValueEditor implements Editor<LabelledValue>
 {
-	private MessageSource msg;
 	private AttributeHandlerRegistry registry;
 	private AttributeValueEditor editor;
 	private LabelledValue editedValue;
@@ -29,11 +26,9 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 	private AttributeEditContext editContext;
 	
 	public InternalAttributeValueEditor(AttributeHandlerRegistry registry,
-			MessageSource msg,
 			AttributeEditContext editContext, String label)
 	{
 		this.registry = registry;
-		this.msg = msg;
 		this.baseLabel = label;
 		this.editContext = editContext;
 	}
@@ -50,9 +45,6 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 		editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 		editedValue = value;
 		ComponentsContainer ret = editor.getEditor(editContext);
-		String description = editContext.getAttributeType().getDescription().getValue(msg);
-		if (description != null && !description.equals(""))
-			ret.setDescription(HtmlConfigurableLabel.conditionallyEscape(description));
 		return ret;
 	}
 
@@ -98,15 +90,13 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 	
 	static class Factory implements EditorProvider<LabelledValue>
 	{
-		private MessageSource msg;
 		private AttributeHandlerRegistry registry;
 		private String baseLabel;
 		private AttributeEditContext editContext;
 
-		Factory(MessageSource msg, AttributeHandlerRegistry registry,
+		Factory(AttributeHandlerRegistry registry,
 				String baseLabel, AttributeEditContext editContext)
 		{
-			this.msg = msg;
 			this.registry = registry;
 			this.baseLabel = baseLabel;
 			this.editContext = editContext;
@@ -115,7 +105,7 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 		@Override
 		public Editor<LabelledValue> getEditor()
 		{
-			return new InternalAttributeValueEditor(registry, msg, editContext, baseLabel);
+			return new InternalAttributeValueEditor(registry, editContext, baseLabel);
 		}
 	}
 }

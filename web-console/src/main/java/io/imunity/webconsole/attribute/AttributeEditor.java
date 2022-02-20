@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
@@ -49,7 +50,7 @@ public class AttributeEditor extends CustomComponent
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
-		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
+		attrValuesContainer = FormLayoutWithFixedCaptionWidth.withMediumCaptions();
 	
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
@@ -77,7 +78,7 @@ public class AttributeEditor extends CustomComponent
 			valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, false, null, null);
 			valuesPanel.placeOnLayout(attrValuesContainer);
 		});
-		initCommon();
+		initCommon(msg);
 	}
 	
 	/**
@@ -103,7 +104,7 @@ public class AttributeEditor extends CustomComponent
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeTypeSelection(attributeType, groupPath, msg);
-		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
+		attrValuesContainer = FormLayoutWithFixedCaptionWidth.withMediumCaptions();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -117,7 +118,7 @@ public class AttributeEditor extends CustomComponent
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
 		valuesPanel.placeOnLayout(attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
-		initCommon();
+		initCommon(msg);
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class AttributeEditor extends CustomComponent
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeType, groupPath, msg);
-		attrValuesContainer = new FormLayoutWithFixedCaptionWidth();
+		attrValuesContainer = FormLayoutWithFixedCaptionWidth.withMediumCaptions();
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -146,22 +147,24 @@ public class AttributeEditor extends CustomComponent
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
 		valuesPanel.placeOnLayout(attrValuesContainer);
 		typeFixed = true;
-		initCommon();
+		initCommon(msg);
 	}
 	
-	private void initCommon()
+	private void initCommon(MessageSource msg)
 	{
-//		HorizontalSplitPanel split = new HorizontalSplitPanel(attrTypePanel, attrValuesContainer);
-//		split.setSplitPosition(45);
-//		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
-//		attrValuesContainer.setWidthFull();
-//		attrTypePanel.setMargin(new MarginInfo(false, true, false, false));
-//		setCompositionRoot(split);
-//		split.addStyleName(Styles.visibleScroll.toString());
-		
 		VerticalLayout main = new VerticalLayout();
-		main.addComponent(attrTypePanel);
-		main.addComponent(attrValuesContainer);
+		main.setMargin(false);
+		main.setSpacing(false);
+		main.addComponent(attrTypePanel);		
+		Panel panel = new Panel();
+		panel.setContent(attrValuesContainer);
+		VerticalLayout wrap = new VerticalLayout();
+		wrap.setMargin(false);
+		wrap.setCaption(msg.getMessage("AttributeEditor.attributeValues"));
+		FormLayoutWithFixedCaptionWidth wrapper = FormLayoutWithFixedCaptionWidth.withVeryShortCaptions();		
+		wrap.addComponent(panel);
+		wrapper.addComponent(wrap);
+		main.addComponent(wrapper);
 		attrValuesContainer.setWidthFull();
 		setCompositionRoot(main);
 	}

@@ -104,6 +104,7 @@ public enum Styles
 	indentSmall("u-indentSmall"),	
 	buttonAction("u-button-action"),
 	fixedWidthCaptions("u-fixedWidthCaptions"),
+	fixedWidthVeryShortCaptions("u-fixedWidthCaptionsVerySmall"),
 	fixedWidthShortCaptions("u-fixedWidthCaptionsSmall"),
 	fixedWidthMediumCaptions("u-fixedWidthCaptionsMedium"),
 	gridLinkButton("u-button-grid-link"),
@@ -154,7 +155,6 @@ public enum Styles
 	vDropLayout("drop-layout"),	
 	vGroupBrowser("v-tree8"),
 	vPanelBorderless(ValoTheme.PANEL_BORDERLESS);
-	
 	
 	
 	
