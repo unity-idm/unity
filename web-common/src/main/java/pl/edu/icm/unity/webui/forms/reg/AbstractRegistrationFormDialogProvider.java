@@ -20,7 +20,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.InvitationCodeConsu
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 /**
- * Common boiler plate of registration form dialog provider which basically
+ * Common boiler plate of registration form dialog provider which 
  * handles the case where registration form contains the local sign up button
  * element {@link FormLayoutElement#LOCAL_SIGNUP}
  *

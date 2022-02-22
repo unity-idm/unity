@@ -56,10 +56,8 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
@@ -420,21 +418,21 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		switch (element.getType())
 		{
 		case CAPTCHA:
-			return createCaptchaControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
+			return createCaptchaControl(layoutContainer.registrationFormLayout);
 		case REG_CODE:
-			return createRegistrationCodeControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
+			return createRegistrationCodeControl(layoutContainer.registrationFormLayout);
 		case REMOTE_SIGNUP:
 			return createRemoteSignupButton(layoutContainer.registrationFormLayout, (FormParameterElement) element);
 		case REMOTE_SIGNUP_GRID:
-			return createRemoteSignupGrid(layoutContainer.registrationFormLayout, (FormParameterElement) element);
+			return createRemoteSignupGrid(layoutContainer.registrationFormLayout);
 		case LOCAL_SIGNUP:
-			return createLocalSignupButton(layoutContainer.registrationFormLayout, (FormLocalSignupButtonElement) element);
+			return createLocalSignupButton(layoutContainer.registrationFormLayout);
 		default:
 			return super.createControlFor(layoutContainer, element, previousAdded, next, prefilled);
 		}
 	}
 
-	private boolean createRemoteSignupGrid(VerticalLayout registrationFormLayout, FormParameterElement element)
+	private boolean createRemoteSignupGrid(VerticalLayout registrationFormLayout)
 	{			
 		ExternalSignupGridSpec externalSignupGridSpec = form.getExternalSignupGridSpec();
 		AuthnGridSettings gridSettings = externalSignupGridSpec.getGridSettings();
@@ -519,7 +517,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					.map(e -> e.getValue()).collect(Collectors.toList());
 	}
 	
-	private boolean createLocalSignupButton(AbstractOrderedLayout layout, FormLocalSignupButtonElement element)
+	private boolean createLocalSignupButton(AbstractOrderedLayout layout)
 	{
 		Button localSignup = new Button(msg.getMessage("RegistrationRequest.localSignup"));
 		localSignup.addStyleName("u-localSignUpButton");
@@ -530,7 +528,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return true;
 	}
 	
-	private boolean createCaptchaControl(Layout layout, BasicFormElement element)
+	private boolean createCaptchaControl(Layout layout)
 	{
 		captcha = new CaptchaComponent(msg, form.getCaptchaLength(), form.getLayoutSettings().isCompactInputs());
 		layout.addComponent(HtmlTag.br());
@@ -538,7 +536,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return true;
 	}
 
-	private boolean createRegistrationCodeControl(Layout layout, BasicFormElement element)
+	private boolean createRegistrationCodeControl(Layout layout)
 	{
 		registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
 		registrationCode.setRequiredIndicatorVisible(true);
