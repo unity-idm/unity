@@ -61,3 +61,10 @@ Additionally (if project forms allow for this) prospective users can fill the fo
 Unless form is configured for automatic acceptance of all requests (e.g. after email confirmation), project manager
 will need to accept each request, what is also possible in UpMan UI.
 
+
+==== Endpoint file configuration
+
+Below is a complete list of options UpMan endpoint accepts in its configuration file. Common properties of 
+a web endpoint applies as well.
+
+include::ref-UpmanProperties.txt[]
