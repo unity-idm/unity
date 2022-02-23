@@ -47,6 +47,8 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 		if (json.isTextual())
 		{
 			String[] specs = json.asText().split("\\.");
+			if (specs.length != 2)
+				throw new IllegalArgumentException("Invalid selector format: " + json.toString());
 			this.authenticatorKey = specs[0];
 			this.optionKey = specs[1];
 		} else
@@ -54,7 +56,8 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 			if (!JsonUtil.notNull(json, "authenticatorKey"))
 				throw new IllegalArgumentException("Expecting authenticatorKey in json object: " + json.toString());
 			if (!JsonUtil.notNull(json, "optionKey"))
-				throw new IllegalArgumentException("Expecting authenticatorKey in json object: " + json.toString());
+				throw new IllegalArgumentException("Expecting optionKey in json object: " + json.toString());
+			
 			this.authenticatorKey = JsonUtil.getWithDef(json, "authenticatorKey", null);
 			this.optionKey = JsonUtil.getWithDef(json, "optionKey", null);
 		}
