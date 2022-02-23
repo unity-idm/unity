@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
  */
 public interface BulkGroupQueryService
 {
+	//TODO this method should not be in this service. It is higher-level, it internally gets bulk data and then resolves it.
 	GroupsWithMembers getMembersWithAttributeForAllGroups(String rootGroup, Set<String> groupFilter);
 	
 	
