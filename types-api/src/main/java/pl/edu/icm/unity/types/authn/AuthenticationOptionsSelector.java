@@ -10,8 +10,9 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 
@@ -35,12 +36,28 @@ public class AuthenticationOptionsSelector implements Comparable<AuthenticationO
 		this.displayedName = displayedName;
 	}
 	
-	@JsonCreator
-	public AuthenticationOptionsSelector(@JsonProperty("authenticatorKey") String authenticatorKey,
-			@JsonProperty("optionKey") String optionKey)
+	public AuthenticationOptionsSelector(String authenticatorKey, String optionKey)
 	{
-		this.authenticatorKey = authenticatorKey;
-		this.optionKey = optionKey;
+		this(authenticatorKey, optionKey, Optional.empty());
+	}
+	
+	@JsonCreator
+	public AuthenticationOptionsSelector(JsonNode json)
+	{
+		if (json.isTextual())
+		{
+			String[] specs = json.asText().split("\\.");
+			this.authenticatorKey = specs[0];
+			this.optionKey = specs[1];
+		} else
+		{
+			if (!JsonUtil.notNull(json, "authenticatorKey"))
+				throw new IllegalArgumentException("Expecting authenticatorKey in json object: " + json.toString());
+			if (!JsonUtil.notNull(json, "optionKey"))
+				throw new IllegalArgumentException("Expecting authenticatorKey in json object: " + json.toString());
+			this.authenticatorKey = JsonUtil.getWithDef(json, "authenticatorKey", null);
+			this.optionKey = JsonUtil.getWithDef(json, "optionKey", null);
+		}
 		this.displayedName = Optional.empty();
 	}
 
