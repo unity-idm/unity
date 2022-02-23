@@ -7,7 +7,6 @@ package pl.edu.icm.unity.saml.metadata;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
@@ -15,7 +14,7 @@ import org.apache.xmlbeans.XmlOptions;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.AnyURIListType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
@@ -34,12 +33,12 @@ import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
 public class SPMetadataGenerator implements MetadataProvider
 {
 	private Date generationDate;
-	private SAMLSPProperties samlConfig;
+	private SAMLSPConfiguration samlConfig;
 	private EntityDescriptorDocument document;
 	private IndexedEndpointType[] assertionConsumerEndpoints;
 	private EndpointType[] sloEndpoints;
 	
-	public SPMetadataGenerator(SAMLSPProperties samlConfig, IndexedEndpointType[] assertionConsumerEndpoints, 
+	public SPMetadataGenerator(SAMLSPConfiguration samlConfig, IndexedEndpointType[] assertionConsumerEndpoints, 
 			EndpointType[] sloEndpoints)
 	{
 		this.samlConfig = samlConfig;
@@ -67,7 +66,7 @@ public class SPMetadataGenerator implements MetadataProvider
 		
 		EntityDescriptorType meta = document.addNewEntityDescriptor();
 		
-		meta.setEntityID(samlConfig.getValue(SAMLSPProperties.REQUESTER_ID));
+		meta.setEntityID(samlConfig.requesterSamlId);
 
 		addSPSSODescriptor(meta);
 		
@@ -97,14 +96,13 @@ public class SPMetadataGenerator implements MetadataProvider
 		protocolSupport.setStringValue(SAMLConstants.PROTOCOL_NS);
 		idpDesc.setProtocolSupportEnumeration(protocolSupport.getListValue());
 		
-		idpDesc.setAuthnRequestsSigned(samlConfig.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
+		idpDesc.setAuthnRequestsSigned(samlConfig.signRequestByDefault);
 		idpDesc.setWantAssertionsSigned(true);
 
-		List<String> accepted = samlConfig.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS);
-		for (String a: accepted)
+		for (String a: samlConfig.acceptedNameFormats)
 			idpDesc.addNameIDFormat(a);
 		
-		X509Credential issuerCredential = samlConfig.getRequesterCredential();
+		X509Credential issuerCredential = samlConfig.requesterCredential;
 		if (issuerCredential != null)
 		{
 			KeyDescriptorType keyDescriptor = idpDesc.addNewKeyDescriptor();

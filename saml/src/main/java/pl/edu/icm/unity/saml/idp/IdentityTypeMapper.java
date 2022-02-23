@@ -26,37 +26,40 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
  */
 public class IdentityTypeMapper
 {
-	private Map<String, String> configuredMappings;
-	public static final Map<String, String> DEFAULTS;
+	private Map<String, String> effectiveMappings;
+	public static final Map<String, String> DEFAULTS = Map.of(
+			SAMLConstants.NFORMAT_PERSISTENT, TargetedPersistentIdentity.ID,
+			SAMLConstants.NFORMAT_UNSPEC, TargetedPersistentIdentity.ID,
+			SAMLConstants.NFORMAT_DN, X500Identity.ID,
+			SAMLConstants.NFORMAT_TRANSIENT, TransientIdentity.ID,
+			"unity:persistent", PersistentIdentity.ID,
+			"unity:identifier", IdentifierIdentity.ID,
+			"unity:userName", UsernameIdentity.ID);
 	
-	static 
+	public IdentityTypeMapper(Map<String, String> configuredMappings)
 	{
-		DEFAULTS = new HashMap<String, String>();
-		DEFAULTS.put(SAMLConstants.NFORMAT_PERSISTENT, TargetedPersistentIdentity.ID);
-		DEFAULTS.put(SAMLConstants.NFORMAT_UNSPEC, TargetedPersistentIdentity.ID);
-		DEFAULTS.put(SAMLConstants.NFORMAT_DN, X500Identity.ID);
-		DEFAULTS.put(SAMLConstants.NFORMAT_TRANSIENT, TransientIdentity.ID);
-		DEFAULTS.put("unity:persistent", PersistentIdentity.ID);
-		DEFAULTS.put("unity:identifier", IdentifierIdentity.ID);
-		DEFAULTS.put("unity:userName", UsernameIdentity.ID);
+		effectiveMappings = new HashMap<>(DEFAULTS);
+		effectiveMappings.putAll(configuredMappings);
 	}
 
+	@Deprecated
+	//TODO drop, left to keep original conversion from properties and for IdP
 	public IdentityTypeMapper(SamlProperties config)
 	{
 		Set<String> keys = config.getStructuredListKeys(SamlProperties.IDENTITY_MAPPING_PFX);
-		configuredMappings = new HashMap<String, String>(keys.size());
-		configuredMappings.putAll(DEFAULTS);
+		effectiveMappings = new HashMap<>(keys.size());
+		effectiveMappings.putAll(DEFAULTS);
 		for (String key: keys)
 		{
 			String localId = config.getValue(key+SamlProperties.IDENTITY_LOCAL);
 			String samlId = config.getValue(key+SamlProperties.IDENTITY_SAML);
 			if (localId.trim().equals(""))
-				configuredMappings.remove(samlId);
+				effectiveMappings.remove(samlId);
 			else
-				configuredMappings.put(samlId, localId);
+				effectiveMappings.put(samlId, localId);
 		}
 	}
-
+	
 	/**
 	 * @param samlIdentity
 	 * @return Unity identity type of the SMAL identity
@@ -64,7 +67,7 @@ public class IdentityTypeMapper
 	 */
 	public String mapIdentity(String samlIdentity) throws SAMLRequesterException
 	{
-		String ret = configuredMappings.get(samlIdentity);
+		String ret = effectiveMappings.get(samlIdentity);
 		if (ret != null)
 			return ret;
 		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
@@ -73,6 +76,6 @@ public class IdentityTypeMapper
 	
 	public Set<String> getSupportedIdentityTypes()
 	{
-		return new HashSet<String>(configuredMappings.keySet());
+		return new HashSet<>(effectiveMappings.keySet());
 	}
 }

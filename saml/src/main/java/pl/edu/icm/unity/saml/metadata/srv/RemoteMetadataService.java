@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import java.time.Duration;
 import java.util.function.BiConsumer;
 
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -18,7 +19,7 @@ public interface RemoteMetadataService
 {
 	String preregisterConsumer(String url);
 	
-	void registerConsumer(String key, long refreshIntervalMs,
+	void registerConsumer(String key, Duration refreshInterval,
 			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer);
 	
 	void unregisterConsumer(String id);

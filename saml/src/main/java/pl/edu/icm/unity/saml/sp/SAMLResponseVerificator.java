@@ -113,13 +113,13 @@ public class SAMLResponseVerificator
 		}
 		
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
-				context.getContextConfig(), replayAttackChecker, responseConsumerAddress);
+				context.getSpConfiguration(), replayAttackChecker, responseConsumerAddress);
 
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
 				context.getVerifiableResponse(),
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
-				context.getGroupAttribute(), context.getContextIdpKey());
+				context.getGroupAttribute(), context.getIdp());
 		return input;
 	}
 }

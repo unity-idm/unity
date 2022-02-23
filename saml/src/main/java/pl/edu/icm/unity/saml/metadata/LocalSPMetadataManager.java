@@ -7,10 +7,9 @@ package pl.edu.icm.unity.saml.metadata;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SLOSPManager;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
@@ -41,18 +40,18 @@ public class LocalSPMetadataManager
 		this.uriAccessService = uriAccessService;
 	}
 	
-	public synchronized void updateConfiguration(SAMLSPProperties samlProperties)
+	public synchronized void updateConfiguration(SAMLSPConfiguration samlConfiguration)
 	{
-		String metaPath = "/" + samlProperties.getValue(SAMLSPProperties.METADATA_PATH);
+		String metaPath = "/" + samlConfiguration.metadataURLPath;
 		if (this.provider != null)
 		{
 			this.provider.stop();
 			this.provider = null;
 		}
 
-		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
+		if (samlConfiguration.publishMetadata)
 		{
-			MetadataProvider newProvider = createNewProvider(samlProperties);
+			MetadataProvider newProvider = createNewProvider(samlConfiguration);
 			this.provider = newProvider;
 			metadataServlet.updateProvider(metaPath, newProvider);
 		} else
@@ -61,7 +60,7 @@ public class LocalSPMetadataManager
 		}
 	}
 	
-	private MetadataProvider createNewProvider(SAMLSPProperties samlProperties)
+	private MetadataProvider createNewProvider(SAMLSPConfiguration samlConfiguration)
 	{
 		IndexedEndpointType consumerEndpoint = IndexedEndpointType.Factory.newInstance();
 		consumerEndpoint.setIndex(1);
@@ -76,7 +75,7 @@ public class LocalSPMetadataManager
 		consumerEndpoint2.setIsDefault(false);
 
 		EndpointType[] sloEndpoints = null;
-		String sloPath = samlProperties.getValue(SAMLSPProperties.SLO_PATH);
+		String sloPath = samlConfiguration.sloPath;
 		String sloEndpointURL = sloPath != null ? sloManager.getAsyncServletURL(sloPath) : null;
 		String sloSoapPath = sloPath != null ? sloManager.getSyncServletURL(sloPath) : null; 
 		if (sloEndpointURL != null && sloSoapPath != null)
@@ -100,7 +99,7 @@ public class LocalSPMetadataManager
 		
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
 				consumerEndpoint2};
-		return MetadataProviderFactory.newSPInstance(samlProperties, uriAccessService,
+		return MetadataProviderFactory.newSPInstance(samlConfiguration, uriAccessService,
 				executorsService, assertionConsumerEndpoints, sloEndpoints);
 	}
 }

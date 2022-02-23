@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
@@ -50,6 +51,17 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 		public static Binding of(SAMLBindings samlBinding)
 		{
 			return Binding.valueOf(samlBinding.name());
+		}
+		
+		public static Binding ofSAMLBinding(String samlBinding)
+		{
+			if (SAMLConstants.BINDING_HTTP_POST.equals(samlBinding))
+				return HTTP_POST;
+			if (SAMLConstants.BINDING_HTTP_REDIRECT.equals(samlBinding))
+				return HTTP_REDIRECT;
+			if (SAMLConstants.BINDING_SOAP.equals(samlBinding))
+				return SOAP;
+			throw new IllegalStateException("Unsupported binding: " + samlBinding);
 		}
 	};
 	

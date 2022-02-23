@@ -39,10 +39,12 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Body;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
@@ -70,7 +72,7 @@ public class ECPStep2Handler
 	private ReplayAttackChecker replayAttackChecker;
 	private String myAddress;
 	
-	public ECPStep2Handler(SAMLECPProperties samlProperties, RemoteMetaManager metadataManager,
+	public ECPStep2Handler(JWTAuthenticationProperties jwtConfig, RemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, 
 			TokensManagement tokensMan, PKIManagement pkiManagement, 
@@ -82,7 +84,7 @@ public class ECPStep2Handler
 		this.samlContextManagement = samlContextManagement;
 		this.remoteAuthnProcessor = remoteAuthnProcessor;
 		this.jwtGenerator = new JWTManagement(tokensMan, pkiManagement, entityMan, 
-				realm.getName(), address, samlProperties.getJWTProperties());
+				realm.getName(), address, jwtConfig);
 		this.realm = realm;
 		this.sessionMan = sessionMan;
 		this.replayAttackChecker = replayAttackChecker;
@@ -231,18 +233,18 @@ public class ECPStep2Handler
 		return contents.getNodeValue();
 	}
 	
-	private RemoteAuthenticationResult processSamlResponse(SAMLSPProperties samlProperties, 
+	private RemoteAuthenticationResult processSamlResponse(SAMLSPConfiguration samlConfiguration, 
 			ResponseDocument responseDoc, ECPAuthnState ctx) 
 			throws ServletException, RemoteAuthenticationException
 	{
-		String key = findIdPKey(samlProperties, responseDoc);
-		String groupAttr = samlProperties.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
+		String key = findIdPKey(samlConfiguration, responseDoc);
+		String groupAttr = samlConfiguration.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
 		
 		TranslationProfile profile = AbstractRemoteVerificator.getTranslationProfile(
-				samlProperties, key + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+				samlConfiguration, key + CommonWebAuthnProperties.TRANSLATION_PROFILE,
 				key + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 		
-		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
+		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlConfiguration, 
 				replayAttackChecker, myAddress);
 		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(responseDoc, responseDoc.getResponse());
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 

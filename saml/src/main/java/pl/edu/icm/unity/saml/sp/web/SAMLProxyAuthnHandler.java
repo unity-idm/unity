@@ -20,8 +20,8 @@ import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
@@ -53,15 +53,14 @@ class SAMLProxyAuthnHandler
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
-		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse, endpointPath, context);
+		TrustedIdPKey idpKey = getIdpConfigKey(httpRequest);
+		return startLogin(idpKey, httpRequest, httpResponse, context);
 	}
 
-	private String getIdpConfigKey(HttpServletRequest httpRequest)
+	private TrustedIdPKey getIdpConfigKey(HttpServletRequest httpRequest)
 	{
 		String requestedIdP = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
-		SAMLSPProperties clientProperties = credentialExchange.getSamlValidatorSettings();
-		Set<String> keys = clientProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		Set<TrustedIdPKey> keys = credentialExchange.getTrustedIdpKeysWithWebBindings();
 		
 		if (requestedIdP == null)
 		{
@@ -73,8 +72,7 @@ class SAMLProxyAuthnHandler
 			return keys.iterator().next();
 		}
 		
-		String authnOption = SAMLSPProperties.IDP_PREFIX + 
-				AuthenticationOptionKeyUtils.decodeOption(requestedIdP) + ".";
+		TrustedIdPKey authnOption = new TrustedIdPKey(AuthenticationOptionKeyUtils.decodeOption(requestedIdP));
 		if (!keys.contains(authnOption))
 			throw new IllegalStateException("Client requested authN option " + authnOption 
 					+", which is not available in "
@@ -83,8 +81,8 @@ class SAMLProxyAuthnHandler
 		return authnOption;
 	}
 	
-	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
+	private boolean startLogin(TrustedIdPKey idpConfigKey, HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
 		
@@ -112,9 +110,8 @@ class SAMLProxyAuthnHandler
 		return true;
 	}
 	
-	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)
+	private AuthenticationOptionKey getAuthnOptionId(TrustedIdPKey idpConfigKey)
 	{
-		String optionId = idpConfigKey.substring(SAMLSPProperties.IDP_PREFIX.length(), idpConfigKey.length()-1);
-		return new AuthenticationOptionKey(authenticatorId, optionId);
+		return new AuthenticationOptionKey(authenticatorId, idpConfigKey.asString());
 	}
 }

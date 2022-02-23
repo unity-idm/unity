@@ -27,7 +27,7 @@ public class SAMLECPProperties extends SAMLSPProperties
 	public static final String JWT_P = "jwt.";
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> ECP_META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> ECP_META = new HashMap<>();
 	
 	static
 	{

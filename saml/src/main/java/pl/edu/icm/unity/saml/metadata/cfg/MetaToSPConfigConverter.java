@@ -38,6 +38,8 @@ import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
  *  
  * @author K. Benedyczak
  */
+@Deprecated
+//TODO drop
 public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToSPConfigConverter.class);

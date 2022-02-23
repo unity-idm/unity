@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import java.time.Duration;
 import java.util.function.BiConsumer;
 
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -15,11 +16,11 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
  */
 class MetadataConsumer
 {
-	final long refreshInterval;
+	final Duration refreshInterval;
 	final BiConsumer<EntitiesDescriptorDocument, String> consumer;
 	final String id;
 
-	public MetadataConsumer(long refreshInterval,
+	public MetadataConsumer(Duration refreshInterval,
 			BiConsumer<EntitiesDescriptorDocument, String> consumer, String id)
 	{
 		this.refreshInterval = refreshInterval;

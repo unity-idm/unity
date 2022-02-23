@@ -19,6 +19,7 @@ import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
@@ -133,7 +134,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 		private BiConsumer<EntitiesDescriptorDocument, String> consumer;
 
 		@Override
-		public void registerConsumer(String key, long refreshIntervalMs,
+		public void registerConsumer(String key, Duration refreshInterval,
 				String customTruststore,
 				BiConsumer<EntitiesDescriptorDocument, String> consumer)
 		{

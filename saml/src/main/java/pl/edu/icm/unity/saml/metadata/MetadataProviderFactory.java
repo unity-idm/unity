@@ -11,7 +11,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
@@ -21,12 +21,6 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
  */
 public class MetadataProviderFactory
 {
-	/**
-	 * @param samlProperties
-	 * @param executorsService
-	 * @param endpoints
-	 * @return metadata of an IDP
-	 */
 	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, URIAccessService uriAccessService, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
 			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
@@ -49,25 +43,21 @@ public class MetadataProviderFactory
 						"problem loading metadata", e);
 			}
 		}
-		
-		return addSigner(metaProvider, samlProperties, samlProperties.getSamlIssuerCredential());
+		boolean signMeta = samlProperties.getBooleanValue(SamlProperties.SIGN_METADATA);
+		return signMeta ? 
+				addSigner(metaProvider, samlProperties.getSamlIssuerCredential()) : 
+				metaProvider;
 	}
-	
-	/**
-	 * @param samlProperties
-	 * @param executorsService
-	 * @param endpoints
-	 * @return metadata of a SP
-	 */
-	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, URIAccessService uriAccessService,
+
+	public static MetadataProvider newSPInstance(SAMLSPConfiguration samlConfiguration, URIAccessService uriAccessService,
 			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints, 
 			EndpointType[] sloEndpoints)
 	{
 		MetadataProvider metaProvider;
-		String uri = samlProperties.getValue(SamlProperties.METADATA_SOURCE);
+		String uri = samlConfiguration.ourMetadataFilePath;
 		if (uri == null)
 		{
-			metaProvider = new SPMetadataGenerator(samlProperties, assertionConsumerEndpoints,
+			metaProvider = new SPMetadataGenerator(samlConfiguration, assertionConsumerEndpoints,
 					sloEndpoints);
 		} else
 		{
@@ -80,25 +70,21 @@ public class MetadataProviderFactory
 						"problem loading metadata", e);
 			}
 		}
-		
-		return addSigner(metaProvider, samlProperties, samlProperties.getRequesterCredential());
+		return samlConfiguration.signPublishedMetadata ? 
+				addSigner(metaProvider, samlConfiguration.requesterCredential) : 
+				metaProvider;
 	}
 
 	
-	private static MetadataProvider addSigner(MetadataProvider metaProvider, SamlProperties samlProperties,
-			X509Credential credential)
+	private static MetadataProvider addSigner(MetadataProvider metaProvider, X509Credential credential)
 	{
-		if (samlProperties.getBooleanValue(SamlProperties.SIGN_METADATA))
+		try
 		{
-			try
-			{
-				metaProvider = new MetadataSigner(metaProvider, credential);
-			} catch (Exception e)
-			{
-				throw new ConfigurationException("Can't initialize metadata provider, " +
-						"problem signing metadata", e);
-			}
+			return new MetadataSigner(metaProvider, credential);
+		} catch (Exception e)
+		{
+			throw new ConfigurationException("Can't initialize metadata provider, " +
+					"problem signing metadata", e);
 		}
-		return metaProvider;
 	}
 }

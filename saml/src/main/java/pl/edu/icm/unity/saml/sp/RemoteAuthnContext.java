@@ -9,7 +9,8 @@ import java.io.Serializable;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 
 
 /**
@@ -19,21 +20,34 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  */
 public class RemoteAuthnContext extends RedirectedAuthnState implements Serializable
 {
-	private String request;
-	private String requestId;
+	private final SAMLSPConfiguration spConfiguration;
+	private final TrustedIdPConfiguration idp;
+	private final String request;
+	private final String requestId;
+	private final String returnUrl;
+
 	private Binding responseBinding;
 	private String response;
 	private SAMLVerifiableElement verifiableResponse;
-	private String returnUrl;
 
-	private SAMLSPProperties samlProperties;
-	private String idpKey;
 
-	public RemoteAuthnContext(SAMLSPProperties config, String entryKey, RedirectedAuthnState baseState)
+	public RemoteAuthnContext(TrustedIdPConfiguration idp, SAMLSPConfiguration spConfiguration,
+			RedirectedAuthnState baseState,
+			String request, String requestId, String returnUrl)
 	{
 		super(baseState);
-		this.samlProperties = config.clone();
-		this.idpKey = entryKey;
+		this.idp = idp;
+		this.spConfiguration = spConfiguration;
+		this.request = request;
+		this.requestId = requestId;
+		this.returnUrl = returnUrl;
+	}
+
+	public synchronized void setResponse(String response, Binding responseBinding, SAMLVerifiableElement verifiableResponse)
+	{
+		this.response = response;
+		this.responseBinding = responseBinding;
+		this.verifiableResponse = verifiableResponse;
 	}
 
 	public synchronized String getReturnUrl()
@@ -45,66 +59,60 @@ public class RemoteAuthnContext extends RedirectedAuthnState implements Serializ
 	{
 		return request;
 	}
-	public synchronized void setRequest(String request, String requestId, String returnUrl)
-	{
-		this.request = request;
-		this.requestId = requestId;
-		this.returnUrl = returnUrl;
-	}
 	
-	public synchronized void setResponse(String response, Binding responseBinding, SAMLVerifiableElement verifiableResponse)
-	{
-		this.response = response;
-		this.responseBinding = responseBinding;
-		this.verifiableResponse = verifiableResponse;
-	}
-
 	public synchronized String getIdpUrl()
 	{
-		return samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ADDRESS);
+		return idp.idpEndpointURL;
 	}
+	
 	public synchronized String getResponse()
 	{
 		return response;
 	}
+	
 	public synchronized Binding getRequestBinding()
 	{
-		return samlProperties.getEnumValue(idpKey + SAMLSPProperties.IDP_BINDING, 
-				Binding.class);
+		return idp.binding;
 	}
+
+	public synchronized TrustedIdPConfiguration getIdp()
+	{
+		return idp;
+	}
+
+	public synchronized SAMLSPConfiguration getSpConfiguration()
+	{
+		return spConfiguration;
+	}
+
 	public synchronized Binding getResponseBinding()
 	{
 		return responseBinding;
 	}
+	
 	public synchronized String getRequestId()
 	{
 		return requestId;
 	}
+	
 	public synchronized String getGroupAttribute()
 	{
-		return samlProperties.getValue(idpKey + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
+		return idp.groupMembershipAttribute;
 	}
+	
 	public synchronized String getRegistrationFormForUnknown()
 	{
-		return samlProperties.getValue(
-				idpKey + CommonWebAuthnProperties.REGISTRATION_FORM);
+		return idp.registrationForm;
 	}
+	
 	public synchronized boolean isEnableAssociation()
 	{
-		String perIdpKey = idpKey + CommonWebAuthnProperties.ENABLE_ASSOCIATION;
-		return samlProperties.isSet(perIdpKey) ? 
-				samlProperties.getBooleanValue(perIdpKey) :
-				samlProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
-	}
-	
-	public synchronized SAMLSPProperties getContextConfig()
-	{
-		return samlProperties;
-	}
-	
-	public synchronized String getContextIdpKey()
-	{
-		return idpKey;
+		return idp.enableAccountsAssocation;
+		//TODO drop after moving logic to converter
+//		String perIdpKey = idpKey + CommonWebAuthnProperties.ENABLE_ASSOCIATION;
+//		return samlProperties.isSet(perIdpKey) ? 
+//				samlProperties.getBooleanValue(perIdpKey) :
+//				samlProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 	}
 	
 	public synchronized SAMLVerifiableElement getVerifiableResponse()
@@ -116,7 +124,7 @@ public class RemoteAuthnContext extends RedirectedAuthnState implements Serializ
 	public String toString()
 	{
 		return String.format(
-				"SAML RemoteAuthnContext [requestId=%s, idpKey=%s, getInitialLoginMachine()=%s, getRelayState()=%s]",
-				requestId, idpKey, getInitialLoginMachine(), getRelayState());
+				"SAML RemoteAuthnContext [idp=%s, requestId=%s, initialLoginMachine=%s, relayState=%s]",
+				idp.samlId, requestId, getInitialLoginMachine(), getRelayState());
 	}
 }

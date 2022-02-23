@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
@@ -58,7 +59,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private final URIAccessService uriAccessService;
 	private final AuthenticationStepContext authenticationStepContext;
 	private final SAMLExchange credentialExchange;
-	private final String configKey;
+	private final TrustedIdPKey configKey;
 	private final String idpKey;
 	private final SamlContextManagement samlContextManagement;
 	
@@ -71,7 +72,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private String redirectParam;
 
 	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
-			SamlContextManagement samlContextManagement, String configKey,
+			SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
 			Context context, AuthenticationStepContext authenticationStepContext)
 	{
 		this.msg = msg;

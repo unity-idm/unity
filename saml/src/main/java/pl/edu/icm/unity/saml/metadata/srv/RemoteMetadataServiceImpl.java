@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,7 +38,8 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	private Map<String, String> consumers2URL = new HashMap<>();	
 	
 	@Autowired
-	public RemoteMetadataServiceImpl(FileStorageService fileStorageService, URIAccessService uriAccessService, ExecutorsService executorsService)
+	public RemoteMetadataServiceImpl(FileStorageService fileStorageService, URIAccessService uriAccessService, 
+			ExecutorsService executorsService)
 	{
 		this.executorsService = executorsService;
 		this.downloader = new MetadataDownloader(uriAccessService, fileStorageService);
@@ -59,7 +61,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	}
 	
 	@Override
-	public synchronized void registerConsumer(String key, long refreshIntervalMs,
+	public synchronized void registerConsumer(String key, Duration refreshInterval,
 			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer)
 	{
 		String url = consumers2URL.get(key);
@@ -74,7 +76,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 			metadataHandlersByURL.put(url, handler);
 		}
 		checkTruststoresConsistency(handler, customTruststore);
-		handler.addConsumer(new MetadataConsumer(refreshIntervalMs, consumer, key));
+		handler.addConsumer(new MetadataConsumer(refreshInterval, consumer, key));
 		log.info("Registered consumer {} of metadata from {}", key, url);
 	}
 

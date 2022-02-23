@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -23,7 +21,7 @@ public class IdPVisalSettings
 	public IdPVisalSettings(String logoURI, Collection<String> tags, String name)
 	{
 		this.logoURI = logoURI;
-		this.tags = Collections.unmodifiableSet(new HashSet<>(tags));
+		this.tags = Set.copyOf(tags);
 		this.name = name;
 	}
 }

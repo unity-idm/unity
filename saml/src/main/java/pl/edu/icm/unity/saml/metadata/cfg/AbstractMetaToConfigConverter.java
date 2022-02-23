@@ -48,6 +48,8 @@ import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
  *  
  * @author K. Benedyczak
  */
+@Deprecated
+//TODO drop
 public abstract class AbstractMetaToConfigConverter
 {
 	

@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
@@ -18,6 +19,7 @@ import org.w3c.dom.NodeList;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.ExtensionsType;
 import xmlbeans.org.oasis.saml2.metadata.LocalizedNameType;
@@ -72,7 +74,15 @@ public class MetaToConfigConverterHelper
 		}
 		return null;
 	}
-
+	
+	public static I18nString getLocalizedNamesAsI18nString(MessageSource msg, UIInfoType uiInfo,
+			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
+	{
+		I18nString ret = new I18nString();
+		ret.addAllValues(getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor));
+		return ret;
+	}
+	
 	public static Map<String, String> getLocalizedNames(MessageSource msg, UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
@@ -96,6 +106,16 @@ public class MetaToConfigConverterHelper
 		return ret;
 	}
 
+	public static I18nString getLocalizedLogosAsI18nString(UIInfoType uiInfo)
+	{
+		I18nString ret = new I18nString();
+		Map<String, LogoType> asMap = getLocalizedLogos(uiInfo);
+		ret.addAllValues(asMap.entrySet().stream()
+				.collect(Collectors.toMap(entry -> entry.getKey(), 
+						entry -> entry.getValue().getStringValue())));
+		return ret;
+	}
+	
 	public static Map<String, LogoType> getLocalizedLogos(UIInfoType uiInfo)
 	{
 		Map<String, LogoType> ret = new HashMap<String, LogoType>();

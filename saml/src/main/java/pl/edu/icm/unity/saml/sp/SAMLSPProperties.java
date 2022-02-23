@@ -38,6 +38,8 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  * Configuration of a SAML requester (or SAML SP).
  * @author K. Benedyczak
  */
+@Deprecated
+//TODO drop
 public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
@@ -48,7 +50,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String P = "unity.saml.requester.";
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
 	
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";

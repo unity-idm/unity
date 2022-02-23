@@ -44,6 +44,8 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.sp.SAMLResponseConsumerServlet;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfigurationParser;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
 /**
@@ -71,6 +73,8 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private RemoteAuthnResultTranslator remoteAuthnProcessor;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
+	private final SAMLSPConfigurationParser configurationParser;
+	private SAMLSPConfiguration spConfiguration;
 	
 	@Autowired
 	public ECPEndpoint(NetworkServer server,
@@ -86,12 +90,14 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			SharedEndpointManagement sharedEndpointManagement,
 			RemoteMetadataService metadataService,
 			URIAccessService uriAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			SAMLSPConfigurationParser configurationParser)
 	{
 		super(server, advertisedAddrProvider);
 		this.pkiManagement = pkiManagement;
 		this.samlContextManagement = samlContextManagement;
 		this.metadataService = metadataService;
+		this.configurationParser = configurationParser;
 		this.baseAddress = advertisedAddrProvider.get();
 		this.replayAttackChecker = replayAttackChecker;
 		this.remoteAuthnProcessor = remoteAuthnProcessor;
@@ -115,6 +121,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	@Override
 	protected void setSerializedConfiguration(String serializedState)
 	{
+		spConfiguration = configurationParser.parse(serializedState);
 		properties = new Properties();
 		try
 		{
@@ -126,9 +133,9 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 					" endpoint's configuration", e);
 		}
 		
-		if (samlProperties.getBooleanValue(SamlProperties.PUBLISH_METADATA))
+		if (spConfiguration.publishMetadata)
 			exposeMetadata();
-		String myId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		String myId = spConfiguration.requesterSamlId;
 		if (!remoteMetadataManagers.containsKey(myId))
 		{
 			myMetadataManager = new RemoteMetaManager(samlProperties, 
@@ -148,7 +155,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	
 	private void exposeMetadata()
 	{
-		String metaPath = samlProperties.getValue(SAMLSPProperties.METADATA_PATH);
+		String metaPath = spConfiguration.metadataURLPath;
 		IndexedEndpointType consumerEndpoint = IndexedEndpointType.Factory.newInstance();
 		consumerEndpoint.setIndex(1);
 		consumerEndpoint.setBinding(SAMLConstants.BINDING_PAOS);
@@ -156,7 +163,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		consumerEndpoint.setIsDefault(true);
 
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint};
-		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, uriAccessService,
+		MetadataProvider provider = MetadataProviderFactory.newSPInstance(spConfiguration, uriAccessService,
 				executorsService, assertionConsumerEndpoints, null);
 		metadataServlet.addProvider("/" + metaPath, provider);
 	}
