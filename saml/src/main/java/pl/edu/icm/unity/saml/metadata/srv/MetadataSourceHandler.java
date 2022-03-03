@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ class MetadataSourceHandler
 	private final ExecutorsService executorsService;
 	private final MetadataDownloader downloader;
 
-	private long refreshInterval;
+	private Duration refreshInterval;
 	private Instant lastRefresh;
 	private Map<String, MetadataConsumer> consumersById = new HashMap<>();
 	private ScheduledFuture<?> scheduleWithFixedDelay;
@@ -95,7 +96,7 @@ class MetadataSourceHandler
 		return consumersById.isEmpty();
 	}
 
-	synchronized long getRefreshInterval()
+	synchronized Duration getRefreshInterval()
 	{
 		return refreshInterval;
 	}
@@ -115,15 +116,15 @@ class MetadataSourceHandler
 	{
 		scheduleWithFixedDelay = executorsService.getService().scheduleWithFixedDelay(
 				this::refresh, 
-				refreshInterval, rerunInterval, TimeUnit.MILLISECONDS);
+				refreshInterval.toMillis(), rerunInterval, TimeUnit.MILLISECONDS);
 	}
 	
 	
-	private long getNewRefreshInterval()
+	private Duration getNewRefreshInterval()
 	{
-		long interval = Long.MAX_VALUE;
+		Duration interval = Duration.ofDays(365);
 		for (MetadataConsumer consumer: consumersById.values())
-			if (consumer.refreshInterval < interval)
+			if (consumer.refreshInterval.compareTo(interval) < 0)
 				interval = consumer.refreshInterval;
 		return interval;
 	}
@@ -136,16 +137,17 @@ class MetadataSourceHandler
 
 	private synchronized boolean isRefreshNeeded()
 	{
+		long refreshIntervalMs = refreshInterval.toMillis();
 		long sinceLastRefresh = lastRefresh == null ? 
 				Long.MAX_VALUE : lastRefresh.until(Instant.now(), ChronoUnit.MILLIS);
-		if (sinceLastRefresh >= refreshInterval)
+		if (sinceLastRefresh >= refreshIntervalMs)
 		{
 			lastRefresh = Instant.now();
 			return true;
 		} else
 		{
 			log.trace("Metadata for {} is fresh, refresh needed in {}ms", source.url,
-					refreshInterval - sinceLastRefresh);
+					refreshIntervalMs - sinceLastRefresh);
 			return false;
 		}
 	}

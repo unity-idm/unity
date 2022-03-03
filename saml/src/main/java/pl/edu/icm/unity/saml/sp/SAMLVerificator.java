@@ -158,6 +158,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 				remoteMetadataManagers.get(instanceName) : 
 				remoteMetadataManagerFactory.getInstance();
 		myMetadataManager.setBaseConfiguration(spConfiguration);
+		if (!remoteMetadataManagers.containsKey(instanceName))
+			remoteMetadataManagers.put(instanceName, myMetadataManager);
 
 		try
 		{

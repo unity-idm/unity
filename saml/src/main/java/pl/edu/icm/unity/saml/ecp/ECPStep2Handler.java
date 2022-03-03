@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,18 +33,19 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
+import pl.edu.icm.unity.rest.jwt.JWTAuthenticationConfig;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
 import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Body;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
@@ -52,7 +53,6 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -63,7 +63,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public class ECPStep2Handler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ECPStep2Handler.class);
-	private RemoteMetaManager metadataManager;
+	private SPRemoteMetaManager metadataManager;
 	private ECPContextManagement samlContextManagement;
 	private RemoteAuthnResultTranslator remoteAuthnProcessor;
 	private JWTManagement jwtGenerator;
@@ -71,8 +71,11 @@ public class ECPStep2Handler
 	private SessionManagement sessionMan;
 	private ReplayAttackChecker replayAttackChecker;
 	private String myAddress;
+	private final Supplier<SAMLSPConfiguration> samlConfigurationSupplier;
 	
-	public ECPStep2Handler(JWTAuthenticationProperties jwtConfig, RemoteMetaManager metadataManager,
+	public ECPStep2Handler(JWTAuthenticationConfig jwtConfig, 
+			Supplier<SAMLSPConfiguration> samlConfiguration,
+			SPRemoteMetaManager metadataManager,
 			ECPContextManagement samlContextManagement, String myAddress,
 			ReplayAttackChecker replayAttackChecker, 
 			TokensManagement tokensMan, PKIManagement pkiManagement, 
@@ -80,6 +83,7 @@ public class ECPStep2Handler
 			EntityManagement entityMan,
 			SessionManagement sessionMan, AuthenticationRealm realm, String address)
 	{
+		this.samlConfigurationSupplier = samlConfiguration;
 		this.metadataManager = metadataManager;
 		this.samlContextManagement = samlContextManagement;
 		this.remoteAuthnProcessor = remoteAuthnProcessor;
@@ -146,11 +150,11 @@ public class ECPStep2Handler
 			return;
 		}
 		
-		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
 		RemoteAuthenticationResult authenticationResult;
 		try
 		{
-			authenticationResult = processSamlResponse(samlProperties, respDoc, ctx);
+			TrustedIdPConfiguration trustedIdP = findIdP(metadataManager.getTrustedIdPs(), respDoc);
+			authenticationResult = processSamlResponse(samlConfigurationSupplier.get(), trustedIdP, respDoc, ctx);
 		} catch (Exception e)
 		{
 			log.warn("Error while processing SAML response", e);
@@ -234,35 +238,32 @@ public class ECPStep2Handler
 	}
 	
 	private RemoteAuthenticationResult processSamlResponse(SAMLSPConfiguration samlConfiguration, 
+			TrustedIdPConfiguration trustedIdP, 
 			ResponseDocument responseDoc, ECPAuthnState ctx) 
 			throws ServletException, RemoteAuthenticationException
 	{
-		String key = findIdPKey(samlConfiguration, responseDoc);
-		String groupAttr = samlConfiguration.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
+		String groupAttr = trustedIdP.groupMembershipAttribute;
 		
-		TranslationProfile profile = AbstractRemoteVerificator.getTranslationProfile(
-				samlConfiguration, key + CommonWebAuthnProperties.TRANSLATION_PROFILE,
-				key + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+		TranslationProfile profile = trustedIdP.translationProfile;
 		
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlConfiguration, 
 				replayAttackChecker, myAddress);
 		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(responseDoc, responseDoc.getResponse());
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
-				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, key);
+				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, trustedIdP);
 		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false);
 	}
 	
-	private String findIdPKey(SAMLSPProperties samlProperties, ResponseDocument responseDoc) throws ServletException
+	private TrustedIdPConfiguration findIdP(TrustedIdPs trustedIdPs, ResponseDocument responseDoc) throws ServletException
 	{
 		NameIDType issuer = responseDoc.getResponse().getIssuer();
 		if (issuer == null || issuer.isNil())
 			throw new ServletException("Invalid response: no issuer");
 		String issuerName = issuer.getStringValue();
-		Set<String> idps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		for (String k: idps)
-			if (samlProperties.getValue(k+SAMLSPProperties.IDP_ID).equals(issuerName))
-				return k;
-		throw new ServletException("The issuer " + issuerName + " is not among trusted issuers");		
+		TrustedIdPKey idPConfigKey = trustedIdPs.getIdPConfigKey(issuer);
+		if (idPConfigKey == null)
+			throw new ServletException("The issuer " + issuerName + " is not among trusted issuers");
+		return trustedIdPs.get(idPConfigKey);
 	}
 }

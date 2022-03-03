@@ -58,4 +58,9 @@ public class JWTAuthenticationProperties extends UnityPropertiesHelper
 	{
 		return properties;
 	}
+	
+	public JWTAuthenticationConfig toConfig()
+	{
+		return new JWTAuthenticationConfig(getIntValue(TOKEN_TTL), getValue(SIGNING_CREDENTIAL));
+	}
 }

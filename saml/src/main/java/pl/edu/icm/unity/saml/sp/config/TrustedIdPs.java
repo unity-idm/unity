@@ -36,17 +36,17 @@ public class TrustedIdPs
 	
 	public TrustedIdPKey getIdPConfigKey(NameIDType requester)
 	{
-		return getPrefixOfIdP(requester.getStringValue());
+		return getKeyOfIdP(requester.getStringValue());
 	}
 
-	private TrustedIdPKey getPrefixOfIdP(String entity)
+	private TrustedIdPKey getKeyOfIdP(String entity)
 	{
 		return samlEntityIdToKey.get(entity);
 	}
 	
 	public List<PublicKey> getPublicKeysOfIdp(String samlEntityId)
 	{
-		TrustedIdPKey idpKey = getPrefixOfIdP(samlEntityId);
+		TrustedIdPKey idpKey = getKeyOfIdP(samlEntityId);
 		if (idpKey == null)
 			return null;
 		return get(idpKey).publicKeys;

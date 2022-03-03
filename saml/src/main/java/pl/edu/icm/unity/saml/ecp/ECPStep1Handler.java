@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +17,10 @@ import org.apache.xmlbeans.XmlCursor;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.saml.SAMLHelper;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateType;
 import pl.edu.icm.unity.saml.xmlbeans.ecp.RequestDocument;
@@ -39,13 +41,15 @@ import xmlbeans.org.oasis.saml2.protocol.IDPListType;
  */
 public class ECPStep1Handler
 {
-	private RemoteMetaManager metadataManager;
-	private String myAddress;
-	private ECPContextManagement samlContextManagement;
+	private final SPRemoteMetaManager metadataManager;
+	private final String myAddress;
+	private final ECPContextManagement samlContextManagement;
+	private final Supplier<SAMLSPConfiguration> configProvider;
 
-	public ECPStep1Handler(RemoteMetaManager metadataManager, ECPContextManagement samlContextManagement, 
-			String myAddress)
+	public ECPStep1Handler(Supplier<SAMLSPConfiguration> configProvider, SPRemoteMetaManager metadataManager, 
+			ECPContextManagement samlContextManagement, String myAddress)
 	{
+		this.configProvider = configProvider;
 		this.metadataManager = metadataManager;
 		this.myAddress = myAddress;
 		this.samlContextManagement = samlContextManagement;
@@ -81,30 +85,31 @@ public class ECPStep1Handler
 		EnvelopeDocument envDoc = EnvelopeDocument.Factory.newInstance();
 		Envelope env = envDoc.addNewEnvelope();
 		
-		SAMLSPProperties samlProperties = (SAMLSPProperties) metadataManager.getVirtualConfiguration();
+		TrustedIdPs trustedIdPs = metadataManager.getTrustedIdPs();
 		
 		Header header = env.addNewHeader();
 		XmlCursor curH = header.newCursor();
 		curH.toFirstContentToken();
-		generateEcpHeaders(samlProperties, curH, context);
+		SAMLSPConfiguration samlspConfiguration = configProvider.get();
+		generateEcpHeaders(samlspConfiguration, trustedIdPs, curH, context);
 		generatePaosHeader(curH);
 		curH.dispose();
 		
 		Body body = env.addNewBody();
 		XmlCursor curBody = body.newCursor();
 		curBody.toFirstContentToken();
-		generateSamlRequest(samlProperties, curBody, context);
+		generateSamlRequest(samlspConfiguration, curBody, context);
 		curBody.dispose();
 		
 		return envDoc;
 	}
 
-	private void generateSamlRequest(SAMLSPProperties samlProperties, XmlCursor curBody, ECPAuthnState context)
+	private void generateSamlRequest(SAMLSPConfiguration samlConfig, XmlCursor curBody, ECPAuthnState context)
 	{
-		boolean sign = samlProperties.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST);
-		String requesterId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
-		String requestedNameFormat = samlProperties.getValue(SAMLSPProperties.DEF_REQUESTED_NAME_FORMAT);
-		X509Credential credential = sign ? samlProperties.getRequesterCredential() : null;
+		boolean sign = samlConfig.signRequestByDefault;
+		String requesterId = samlConfig.requesterSamlId; 
+		String requestedNameFormat = samlConfig.defaultRequestedNameFormat;
+		X509Credential credential = sign ? samlConfig.requesterCredential : null;
 		
 		AuthnRequestDocument authnRequestDoc = SAMLHelper.createSAMLRequest(myAddress, sign, requesterId, null,
 				requestedNameFormat, true, credential);
@@ -131,7 +136,7 @@ public class ECPStep1Handler
 		curPa.dispose();
 	}
 	
-	private void generateEcpHeaders(SAMLSPProperties samlProperties, XmlCursor curH, ECPAuthnState context)
+	private void generateEcpHeaders(SAMLSPConfiguration samlConfig, TrustedIdPs trustedIdPs, XmlCursor curH, ECPAuthnState context)
 	{
 		RequestDocument ecpRequestDoc = RequestDocument.Factory.newInstance();
 		RequestType ecpReq = ecpRequestDoc.addNewRequest();
@@ -139,16 +144,15 @@ public class ECPStep1Handler
 		ecpReq.setMustUnderstand(true);
 		
 		NameIDType issuer = ecpReq.addNewIssuer();
-		String requestrId = samlProperties.getValue(SAMLSPProperties.REQUESTER_ID);
+		String requestrId = samlConfig.requesterSamlId;
 		issuer.setFormat(SAMLConstants.NFORMAT_ENTITY);
 		issuer.setStringValue(requestrId);
 		
 		IDPListType idps = ecpReq.addNewIDPList();
-		Set<String> idpKeys = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		for (String idpKey: idpKeys)
+		for (TrustedIdPConfiguration idpConfig: trustedIdPs.getAll())
 		{
-			String idpId = samlProperties.getValue(idpKey + SAMLSPProperties.IDP_ID);
-			String idpName = samlProperties.getName(idpKey);
+			String idpId = idpConfig.samlId;
+			String idpName = idpConfig.name.getDefaultValue(); 
 			IDPEntryType idp = idps.addNewIDPEntry();
 			idp.setProviderID(idpId);
 			idp.setName(idpName);

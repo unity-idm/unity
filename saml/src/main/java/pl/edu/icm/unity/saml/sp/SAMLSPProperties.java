@@ -39,7 +39,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  * @author K. Benedyczak
  */
 @Deprecated
-//TODO drop
+//TODO make package private, remove depraecation
 public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);

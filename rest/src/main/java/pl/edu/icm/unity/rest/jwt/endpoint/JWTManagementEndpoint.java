@@ -89,7 +89,7 @@ public class JWTManagementEndpoint extends RESTEndpoint
 		String addr = advertisedAddrProvider.get().toString();
 		String realm = description.getRealm().getName();
 		JWTManagement jwtMan = new JWTManagement(tokensMan, pkiManagement, identitiesMan,
-				realm, addr, config);
+				realm, addr, config.toConfig());
 		return new JWTManagementJAXRSApp(jwtMan);
 	}
 

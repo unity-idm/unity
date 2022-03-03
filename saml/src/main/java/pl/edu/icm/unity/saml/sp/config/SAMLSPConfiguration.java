@@ -26,6 +26,7 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 	public final boolean signPublishedMetadata;
 	public final Map<String, String> effectiveMappings;
 	public final TrustedIdPs individualTrustedIdPs;
+	public final String defaultRequestedNameFormat;
 
 	private SAMLSPConfiguration(Builder builder)
 	{
@@ -48,6 +49,7 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		this.signPublishedMetadata = builder.signPublishedMetadata;
 		this.effectiveMappings = Map.copyOf(builder.effectiveMappings);
 		this.individualTrustedIdPs = builder.individualTrustedIdPs;
+		this.defaultRequestedNameFormat = builder.defaultRequestedNameFormat;
 	}
 
 	public static Builder builder()
@@ -72,6 +74,7 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		private boolean signPublishedMetadata;
 		private Map<String, String> effectiveMappings = Collections.emptyMap();
 		private TrustedIdPs individualTrustedIdPs;
+		private String defaultRequestedNameFormat;
 
 		private Builder()
 		{
@@ -166,7 +169,13 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 			this.individualTrustedIdPs = individualTrustedIdPs;
 			return this;
 		}
-
+		
+		public Builder withDefaultRequestedNameFormat(String nameFormat)
+		{
+			this.defaultRequestedNameFormat = nameFormat;
+			return this;
+		}
+		
 		public SAMLSPConfiguration build()
 		{
 			return new SAMLSPConfiguration(this);
