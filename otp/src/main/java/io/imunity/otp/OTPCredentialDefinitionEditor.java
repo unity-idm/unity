@@ -208,7 +208,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		private String emailSecurityCodeMsgTemplate;
 		private String mobileSecurityCodeMsgTemplate;
 		private ConfirmationMode confirmationMode = ConfirmationMode.EMAIL;
-		private LocalOrRemoteResource logo;
+		private LocalOrRemoteResource logo = new LocalOrRemoteResource();
 		
 		private static OTPDefinitionBean fromOTPDefinition(OTPCredentialDefinition src)
 		{
@@ -223,7 +223,7 @@ class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 			ret.emailSecurityCodeMsgTemplate = src.resetSettings.emailSecurityCodeMsgTemplate;
 			ret.mobileSecurityCodeMsgTemplate = src.resetSettings.mobileSecurityCodeMsgTemplate;
 			ret.confirmationMode = src.resetSettings.confirmationMode;
-			ret.logo = src.logoURI.isEmpty()? null : new LocalOrRemoteResource(src.logoURI.orElse(null));
+			ret.logo = new LocalOrRemoteResource(src.logoURI.orElse(null));
 			return ret;
 		}
 
