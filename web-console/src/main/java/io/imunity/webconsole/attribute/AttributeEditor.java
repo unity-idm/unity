@@ -160,7 +160,6 @@ public class AttributeEditor extends CustomComponent
 		panel.setContent(attrValuesContainer);
 		VerticalLayout wrap = new VerticalLayout();
 		wrap.setMargin(false);
-		wrap.setCaption(msg.getMessage("AttributeEditor.attributeValues"));
 		FormLayoutWithFixedCaptionWidth wrapper = FormLayoutWithFixedCaptionWidth.withVeryShortCaptions();		
 		wrap.addComponent(panel);
 		wrapper.addComponent(wrap);
