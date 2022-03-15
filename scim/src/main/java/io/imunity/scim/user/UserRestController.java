@@ -53,7 +53,7 @@ public class UserRestController implements SCIMRestController
 	public Response getUser(@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
 		log.debug("Get logged user");
-		return Response.ok().entity(mapper.writeValueAsString(userService.getLoggedUser()))
+		return Response.ok().entity(mapper.writeValueAsString(userMapperService.mapToUserResource(userService.getLoggedUser())))
 				.contentLocation(uriInfo.getRequestUri()).build();
 	}
 

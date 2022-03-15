@@ -5,31 +5,19 @@
 
 package io.imunity.scim.config;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Optional;
 
-//TODO UY-1219
-@JsonDeserialize(builder = AttributeMapping.Builder.class)
-public class AttributeMapping
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "mappingType", defaultImpl = NotDefinedMapping.class, visible=true)
+@JsonSubTypes(
+{ @Type(value = ComplexAttributeMapping.class, name = "Complex"),
+		@Type(value = SimpleAttributeMapping.class, name = "Simple"),
+		@Type(value = ReferenceAttributeMapping.class, name = "Reference") })
+public interface AttributeMapping
 {
-
-	private AttributeMapping(Builder builder)
-	{
-	}
-
-	public static Builder builder()
-	{
-		return new Builder();
-	}
-
-	public static final class Builder
-	{
-		private Builder()
-		{
-		}
-
-		public AttributeMapping build()
-		{
-			return new AttributeMapping(this);
-		}
-	}
+	Optional<DataArray> getDataArray();
+	String getEvaluatorId();
 }

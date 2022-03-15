@@ -5,12 +5,17 @@
 
 package io.imunity.scim.schema;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public enum SCIMAttributeType
 {
-	STRING("string"), BOOLEAN("boolean"), DECIMAL("decimal"), INTEGER("integer"), DATETIME("dateTime"),
-	BINARY("binary"), REFERENCE("reference"), COMPLEX("complex");
+	STRING("string"), BOOLEAN("boolean"),
+	// DECIMAL("decimal"),
+	// INTEGER("integer"),
+	DATETIME("dateTime"),
+	// BINARY("binary"),
+	REFERENCE("reference"), COMPLEX("complex");
 
 	private String name;
 
@@ -24,9 +29,13 @@ public enum SCIMAttributeType
 		return name;
 	}
 
-	public static SCIMAttributeType fromName(String type)
+	public static SCIMAttributeType fromName(String type) throws UnsupportedAttributeTypeException
 	{
-		return Stream.of(SCIMAttributeType.values()).filter(t -> t.name.equals(type)).findAny().get();
+		Optional<SCIMAttributeType> atype = Stream.of(SCIMAttributeType.values()).filter(t -> t.name.equals(type))
+				.findAny();
+		if (atype.isEmpty())
+			throw new UnsupportedAttributeTypeException("Attribute type " + type + " is unsupported");
+		return atype.get();
 	}
 
 }

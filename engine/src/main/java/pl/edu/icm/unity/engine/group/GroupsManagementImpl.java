@@ -448,6 +448,14 @@ public class GroupsManagementImpl implements GroupsManagement
 		return GroupPatternMatcher.filterMatching(all, pathWildcard);
 	}
 	
+	@Transactional
+	@Override
+	public Map<String, Group> getAllGroups()
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.read);
+		return dbGroups.getAllAsMap();
+	}
+	
 	private Set<String> getSubGroupsInclusive(String root)
 	{
 		Set<String> allGroups = dbGroups.getAllNames();

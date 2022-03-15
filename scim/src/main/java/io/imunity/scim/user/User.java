@@ -10,24 +10,32 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-class User
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+
+public class User
 {
 	final Long entityId;
-	final List<UserIdentity> identities;
-	final Set<UserGroup> groups;
+	public final List<Identity> identities;
+	public final Set<Group> groups;
+	public final List<AttributeExt> attributes;
 
 	private User(Builder builder)
 	{
 		this.entityId = builder.entityId;
-		this.identities = List.copyOf(builder.identities);
-		this.groups = Set.copyOf(builder.groups);
+		this.identities = builder.identities;
+		this.groups = builder.groups;
+		this.attributes = builder.attributes;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(entityId, groups, identities);
+		return Objects.hash(attributes, entityId, groups, identities);
 	}
+
+
 
 	@Override
 	public boolean equals(Object obj)
@@ -39,47 +47,55 @@ class User
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		return Objects.equals(entityId, other.entityId) && Objects.equals(groups, other.groups)
-				&& Objects.equals(identities, other.identities);
+		return Objects.equals(attributes, other.attributes) && Objects.equals(entityId, other.entityId)
+				&& Objects.equals(groups, other.groups) && Objects.equals(identities, other.identities);
 	}
 
-	static Builder builder()
+	public static Builder builder()
 	{
 		return new Builder();
 	}
 
-	static final class Builder
+	public static final class Builder
 	{
 		private Long entityId;
-		private List<UserIdentity> identities = Collections.emptyList();
-		private Set<UserGroup> groups = Collections.emptySet();
+		private List<Identity> identities = Collections.emptyList();
+		private Set<Group> groups = Collections.emptySet();
+		private List<AttributeExt> attributes = Collections.emptyList();
 
 		private Builder()
 		{
 		}
 
-		Builder withEntityId(Long entityId)
+		public Builder withEntityId(Long entityId)
 		{
 			this.entityId = entityId;
 			return this;
 		}
 
-		Builder withIdentities(List<UserIdentity> identities)
+		public Builder withIdentities(List<Identity> identities)
 		{
 			this.identities = identities;
 			return this;
 		}
 
-		Builder withGroups(Set<UserGroup> groups)
+		public Builder withGroups(Set<Group> groups)
 		{
 			this.groups = groups;
 			return this;
 		}
 
-		User build()
+		public Builder withAttributes(List<AttributeExt> attributes)
+		{
+			this.attributes = attributes;
+			return this;
+		}
+
+		public User build()
 		{
 			return new User(this);
 		}
 	}
 
+	
 }

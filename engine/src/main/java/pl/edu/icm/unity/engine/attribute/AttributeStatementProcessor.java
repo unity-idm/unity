@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
-import pl.edu.icm.unity.engine.mvel.MVELGroup;
+import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;

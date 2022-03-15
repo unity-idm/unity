@@ -5,13 +5,21 @@
 
 package io.imunity.scim.console;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.scim.config.AttributeDefinition;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.AttributeMapping;
+import io.imunity.scim.config.ComplexAttributeMapping;
+import io.imunity.scim.config.DataArray;
+import io.imunity.scim.config.DataValue;
+import io.imunity.scim.config.NotDefinedMapping;
+import io.imunity.scim.config.ReferenceAttributeMapping;
 import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SchemaWithMapping;
+import io.imunity.scim.config.SimpleAttributeMapping;
+import io.imunity.scim.schema.SCIMAttributeType;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
@@ -57,10 +65,7 @@ class ConfigurationVaadinBeanMapper
 				.map(sa -> mapFromAttributeDefinitionWithMapping(sa)).collect(Collectors.toList()));
 
 		bean.setAttributeDefinition(attrBean);
-
-		// TODO UY-1219
-		bean.setAttributeMapping(new AttributeMappingBean());
-
+		bean.setAttributeMapping(mapToConfigurationMappingBean(a.attributeMapping));
 		return bean;
 	}
 
@@ -87,19 +92,89 @@ class ConfigurationVaadinBeanMapper
 
 	}
 
-	private static AttributeDefinitionWithMapping mapToAttributeDefinition(AttributeDefinitionWithMappingBean attrDefBean)
+	private static AttributeDefinitionWithMapping mapToAttributeDefinition(
+			AttributeDefinitionWithMappingBean attrDefBean)
 	{
 		return AttributeDefinitionWithMapping.builder()
-				.withAttributeDefinition(
-						AttributeDefinition.builder().withName(attrDefBean.getAttributeDefinition().getName())
-								.withDescription(attrDefBean.getAttributeDefinition().getDescription())
-								.withMultiValued(attrDefBean.getAttributeDefinition().isMultiValued())
-								.withType(attrDefBean.getAttributeDefinition().getType())
-								.withSubAttributesWithMapping(attrDefBean.getAttributeDefinition().getSubAttributesWithMapping()
-										.stream().map(sa -> mapToAttributeDefinition(sa)).collect(Collectors.toList()))
-								.build()
-				// TODO UY-1219
-				).withAttributeMapping(AttributeMapping.builder().build()).build();
+				.withAttributeDefinition(AttributeDefinition.builder()
+						.withName(attrDefBean.getAttributeDefinition().getName())
+						.withDescription(attrDefBean.getAttributeDefinition().getDescription())
+						.withMultiValued(attrDefBean.getAttributeDefinition().isMultiValued())
+						.withType(attrDefBean.getAttributeDefinition().getType())
+						.withSubAttributesWithMapping(attrDefBean.getAttributeDefinition().getSubAttributesWithMapping()
+								.stream().map(sa -> mapToAttributeDefinition(sa)).collect(Collectors.toList()))
+						.build())
+				.withAttributeMapping(
+						mapToConfigurationMapping(attrDefBean.getAttributeMapping(), attrDefBean.getAttributeDefinition()))
+				.build();
+	}
+
+	private static AttributeMapping mapToConfigurationMapping(AttributeMappingBean bean, AttributeDefinitionBean attributeDefinition)
+	{
+		if (bean == null)
+			return new NotDefinedMapping();
+
+		if (attributeDefinition.getType().equals(SCIMAttributeType.COMPLEX))
+		{
+			return ComplexAttributeMapping.builder()
+					.withDataArray(
+							!attributeDefinition.isMultiValued() ? Optional.empty() : mapDataArray(bean.getDataArray()))
+					.build();
+		} else if (attributeDefinition.getType().equals(SCIMAttributeType.REFERENCE))
+		{
+			if (bean.getDataReference() == null)
+				return new NotDefinedMapping();
+			
+			return ReferenceAttributeMapping.builder()
+					.withDataArray(
+							!attributeDefinition.isMultiValued() ? Optional.empty() : mapDataArray(bean.getDataArray()))
+					.withExpression(bean.getDataReference().getExpression()).withType(bean.getDataReference().getType())
+					.build();
+
+		}
+
+		if (bean.getDataValue() == null)
+		{
+			return new NotDefinedMapping();
+		}
+
+		return SimpleAttributeMapping.builder()
+				.withDataArray(
+						!attributeDefinition.isMultiValued() ? Optional.empty() : mapDataArray(bean.getDataArray()))
+				.withDataValue(DataValue.builder().withType(bean.getDataValue().getType())
+						.withValue(bean.getDataValue().getValue().orElse(null)).build())
+				.build();
+	}
+
+	private static AttributeMappingBean mapToConfigurationMappingBean(AttributeMapping mapping)
+	{
+		AttributeMappingBean bean = new AttributeMappingBean();
+		if (mapping == null || mapping instanceof NotDefinedMapping)
+			return bean;
+
+		bean.setDataArray(mapping.getDataArray().isEmpty() ? new DataArrayBean()
+				: new DataArrayBean(mapping.getDataArray().get().type, mapping.getDataArray().get().value));
+
+		if (mapping instanceof ReferenceAttributeMapping)
+		{
+			ReferenceAttributeMapping refMap = (ReferenceAttributeMapping) mapping;
+			bean.setDataReference(new ReferenceDataBean(refMap.type, refMap.expression));
+
+		} else if (mapping instanceof SimpleAttributeMapping)
+		{
+			SimpleAttributeMapping simpleMap = (SimpleAttributeMapping) mapping;
+			bean.setDataValue(new DataValueBean(simpleMap.dataValue.type, simpleMap.dataValue.value));
+		}
+
+		return bean;
+
+	}
+
+	private static Optional<DataArray> mapDataArray(DataArrayBean bean)
+	{
+		return bean == null || bean.getType() == null ? Optional.empty()
+				: Optional.of(
+						DataArray.builder().withType(bean.getType()).withValue(bean.getValue().orElse(null)).build());
 	}
 
 }

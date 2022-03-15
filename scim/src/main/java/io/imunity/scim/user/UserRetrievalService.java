@@ -6,6 +6,7 @@
 package io.imunity.scim.user;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,9 +21,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.user.UserAuthzService.SCIMUserAuthzServiceFactory;
-import io.imunity.scim.user.UserGroup.GroupType;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -42,21 +43,21 @@ class UserRetrievalService
 	public static final String DEFAULT_META_VERSION = "v1";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRetrievalService.class);
 
-	private final MessageSource msg;
 	private final UserAuthzService authzMan;
 	private final EntityManagement entityManagement;
 	private final BulkGroupQueryService bulkService;
+	private final AttributesManagement attrMan;
 
 	private final SCIMEndpointDescription configuration;
 
-	UserRetrievalService(MessageSource msg, UserAuthzService scimAuthzService,
-			EntityManagement entityManagement, BulkGroupQueryService bulkService, SCIMEndpointDescription configuration)
+	UserRetrievalService(UserAuthzService scimAuthzService, EntityManagement entityManagement,
+			BulkGroupQueryService bulkService, AttributesManagement attrMan, SCIMEndpointDescription configuration)
 	{
-		this.msg = msg;
 		this.entityManagement = entityManagement;
 		this.configuration = configuration;
 		this.bulkService = bulkService;
 		this.authzMan = scimAuthzService;
+		this.attrMan = attrMan;
 	}
 
 	User getLoggedUser() throws EngineException
@@ -87,8 +88,13 @@ class UserRetrievalService
 			throw new UserNotFoundException("Invalid user");
 		}
 
-		return mapToUser(entity, groupAndSubgroups.entrySet().stream().filter(e -> userGroups.contains(e.getKey()))
-				.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()));
+		Collection<AttributeExt> attributes = attrMan.getAttributes(new EntityParam(entity.getId()),
+				configuration.rootGroup, null);
+
+		return mapToUser(entity,
+				groupAndSubgroups.entrySet().stream().filter(e -> userGroups.contains(e.getKey()))
+						.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
+				attributes.stream().collect(Collectors.toMap(a -> a.getName(), a -> a)));
 
 	}
 
@@ -101,6 +107,9 @@ class UserRetrievalService
 		Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
 
+		Map<Long, Map<String, AttributeExt>> groupUsersAttributes = bulkService
+				.getGroupUsersAttributes(configuration.rootGroup, bulkMembershipData);
+
 		for (EntityInGroupData entityInGroup : membershipInfo.values())
 		{
 			Set<String> groups = new HashSet<>(entityInGroup.groups);
@@ -110,7 +119,8 @@ class UserRetrievalService
 
 			users.add(mapToUser(entityInGroup.entity,
 					groupAndSubgroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))
-							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet())));
+							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
+					groupUsersAttributes.get(entityInGroup.entity.getId())));
 		}
 
 		return users;
@@ -134,43 +144,36 @@ class UserRetrievalService
 		return ret;
 	}
 
-	private User mapToUser(Entity entity, Set<Group> groups)
+	private User mapToUser(Entity entity, Set<Group> groups, Map<String, AttributeExt> attributes)
 	{
-		return User.builder().withEntityId(entity.getId()).withGroups(groups.stream()
-				.map(g -> UserGroup.builder().withDisplayName(g.getDisplayedNameShort(msg).getValue(msg))
-						.withType(GroupType.direct).withValue(g.getPathEncoded()).build())
-				.collect(Collectors.toSet()))
-				.withIdentities(entity.getIdentities().stream()
-						.map(i -> UserIdentity.builder().withCreationTs(i.getCreationTs().toInstant())
-								.withUpdateTs(i.getUpdateTs().toInstant()).withValue(i.getComparableValue())
-								.withTypeId(i.getTypeId()).build())
-						.collect(Collectors.toList()))
-				.build();
+		return User.builder().withEntityId(entity.getId()).withGroups(groups).withIdentities(entity.getIdentities())
+				.withAttributes(attributes.values().stream().collect(Collectors.toList())).build();
 	}
 
 	@Component
 	static class SCIMUserRetrievalServiceFactory
 	{
-		private final MessageSource msg;
 		private final EntityManagement entityManagement;
 		private final BulkGroupQueryService bulkService;
 		private final SCIMUserAuthzServiceFactory authzManFactory;
+		private final AttributesManagement attrMan;
 
 		@Autowired
-		SCIMUserRetrievalServiceFactory(MessageSource msg, @Qualifier("insecure") EntityManagement entityManagement,
-				@Qualifier("insecure") BulkGroupQueryService bulkService, SCIMUserAuthzServiceFactory authzManFactory)
+		SCIMUserRetrievalServiceFactory(@Qualifier("insecure") EntityManagement entityManagement,
+				@Qualifier("insecure") BulkGroupQueryService bulkService,
+				@Qualifier("insecure") AttributesManagement attrMan, SCIMUserAuthzServiceFactory authzManFactory)
 
 		{
 			this.entityManagement = entityManagement;
 			this.bulkService = bulkService;
 			this.authzManFactory = authzManFactory;
-			this.msg = msg;
+			this.attrMan = attrMan;
 		}
 
 		UserRetrievalService getService(SCIMEndpointDescription configuration)
 		{
-			return new UserRetrievalService(msg, authzManFactory.getService(configuration), entityManagement,
-					bulkService, configuration);
+			return new UserRetrievalService(authzManFactory.getService(configuration), entityManagement, bulkService,
+					attrMan, configuration);
 		}
 	}
 }

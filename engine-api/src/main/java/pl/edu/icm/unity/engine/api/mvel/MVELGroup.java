@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.mvel;
+package pl.edu.icm.unity.engine.api.mvel;
 
 import java.util.HashMap;
 import java.util.Map;

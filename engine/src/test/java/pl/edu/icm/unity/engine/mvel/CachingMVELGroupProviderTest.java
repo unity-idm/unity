@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
+import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
+import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.types.basic.Group;
 
 public class CachingMVELGroupProviderTest

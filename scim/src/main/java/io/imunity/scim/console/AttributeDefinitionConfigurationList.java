@@ -12,11 +12,10 @@ import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 
 class AttributeDefinitionConfigurationList extends ListOfDnDCollapsableElements<AttributeDefinitionWithMappingBean>
 {
-	AttributeDefinitionConfigurationList(MessageSource msg, String addText, boolean disableComplexAndMulti,
-			boolean onlyMappingEdit)
+	AttributeDefinitionConfigurationList(MessageSource msg, String addText, AttributeEditContext context, AttributeEditorData editorData)
 	{
-		super(msg, () -> new AttributeDefinitionWithMappingConfigurationEditor(msg, disableComplexAndMulti, onlyMappingEdit), "",
-				Collections.emptyList(), addText, onlyMappingEdit);
+		super(msg, () -> new AttributeDefinitionWithMappingConfigurationEditor(msg, context, editorData), "",
+				Collections.emptyList(), addText, !context.attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 	}
 
 	@Override

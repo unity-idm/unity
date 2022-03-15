@@ -29,17 +29,17 @@ class AttributeDefinitionComponent extends CustomField<AttributeDefinitionBean>
 	private Binder<AttributeDefinitionBean> binder;
 	private final VerticalLayout headerLayout;
 	private final VerticalLayout subAttrLayout;
-	private final boolean disableMultiAndComplex;
-	private final boolean readOnly;
+	private final AttributeEditContext context;
+	private final AttributeEditorData attributeEditorData;
 
-	AttributeDefinitionComponent(MessageSource msg, boolean readOnly, boolean disableMultiAndComplex,
-			VerticalLayout attrDefHeaderSlot, VerticalLayout subAttrSlot)
+	AttributeDefinitionComponent(MessageSource msg, AttributeEditContext context, AttributeEditorData attributeEditorData, VerticalLayout attrDefHeaderSlot,
+			VerticalLayout subAttrSlot)
 	{
 		this.msg = msg;
 		this.headerLayout = attrDefHeaderSlot;
 		this.subAttrLayout = subAttrSlot;
-		this.disableMultiAndComplex = disableMultiAndComplex;
-		this.readOnly = readOnly;
+		this.context = context;
+		this.attributeEditorData = attributeEditorData;
 		init();
 	}
 
@@ -52,25 +52,25 @@ class AttributeDefinitionComponent extends CustomField<AttributeDefinitionBean>
 
 		name = new TextField(msg.getMessage("AttributeDefinitionConfigurationEditor.name"));
 		header.addComponent(name);
-		name.setReadOnly(readOnly);
+		name.setReadOnly(!context.attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 		binder.forField(name).asRequired().bind("name");
 
 		TextField desc = new TextField(msg.getMessage("AttributeDefinitionConfigurationEditor.description"));
 		header.addComponent(desc);
 		desc.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		desc.setReadOnly(readOnly);
+		desc.setReadOnly(!context.attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 		binder.forField(desc).bind("description");
 
 		ComboBox<SCIMAttributeType> type = new ComboBox<>();
 		type.setCaption(msg.getMessage("AttributeDefinitionConfigurationEditor.type"));
 
 		type.setItems(Stream.of(SCIMAttributeType.values())
-				.filter(t -> !disableMultiAndComplex || !t.equals(SCIMAttributeType.COMPLEX))
+				.filter(t -> !context.disableComplexAndMulti || !t.equals(SCIMAttributeType.COMPLEX))
 				.collect(Collectors.toList()));
 		type.setItemCaptionGenerator(t -> t.getName());
 		type.setEmptySelectionAllowed(false);
 		type.setValue(SCIMAttributeType.STRING);
-		type.setReadOnly(readOnly);
+		type.setReadOnly(!context.attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 		header.addComponent(type);
 		binder.forField(type).bind("type");
 
@@ -78,20 +78,20 @@ class AttributeDefinitionComponent extends CustomField<AttributeDefinitionBean>
 		multi.setCaption(msg.getMessage("AttributeDefinitionConfigurationEditor.multiValued"));
 		header.addComponent(multi);
 		binder.forField(multi).bind("multiValued");
-		multi.setVisible(!disableMultiAndComplex);
-		multi.setReadOnly(readOnly);
+		multi.setVisible(!context.disableComplexAndMulti);
+		multi.setReadOnly(!context.attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 
 		FormLayoutWithFixedCaptionWidth subAttrFormLayout = new FormLayoutWithFixedCaptionWidth();
 		subAttrFormLayout.setMargin(false);
 		subAttrLayout.addComponent(subAttrFormLayout);
 		AttributeDefinitionConfigurationList attributesList = new AttributeDefinitionConfigurationList(msg,
-				msg.getMessage("AttributeDefinitionConfigurationList.addSubAttribute"), true, readOnly);
+				msg.getMessage("AttributeDefinitionConfigurationList.addSubAttribute"), AttributeEditContext.builder()
+						.withDisableComplexAndMulti(true).withAttributesEditMode(context.attributesEditMode).build(), attributeEditorData);
 		attributesList.setRequiredIndicatorVisible(false);
 		binder.forField(attributesList)
-				.withValidator(
-						(value, context) -> (value == null || value.stream().filter(a -> a == null).count() > 0)
-								? ValidationResult.error(msg.getMessage("fieldRequired"))
-								: ValidationResult.ok())
+				.withValidator((value, context) -> (value == null || value.stream().filter(a -> a == null).count() > 0)
+						? ValidationResult.error(msg.getMessage("fieldRequired"))
+						: ValidationResult.ok())
 				.bind("subAttributesWithMapping");
 		type.addValueChangeListener(v ->
 		{

@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMEndpoint;
+import io.imunity.scim.console.SCIMServiceEditorSchemaTab.SCIMServiceEditorSchemaTabFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
@@ -44,12 +44,12 @@ class SCIMServiceEditor implements ServiceEditor
 	private final Set<String> serverContextPaths;
 	private final SubViewSwitcher subViewSwitcher;
 	private SCIMServiceEditorComponent editor;
-	private final UnityServerConfiguration unityServerConfiguration;
+	private final SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory;
 
-	SCIMServiceEditor(MessageSource msg, UnityServerConfiguration unityServerConfiguration,
-			SubViewSwitcher subViewSwitcher, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> usedPaths, Set<String> serverContextPaths,
-			List<Group> allGroups)
+	SCIMServiceEditor(MessageSource msg, SubViewSwitcher subViewSwitcher, List<String> allRealms,
+			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
+			Set<String> serverContextPaths, List<Group> allGroups,
+			SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -59,7 +59,7 @@ class SCIMServiceEditor implements ServiceEditor
 		this.serverContextPaths = serverContextPaths;
 		this.allGroups = allGroups;
 		this.subViewSwitcher = subViewSwitcher;
-		this.unityServerConfiguration = unityServerConfiguration;
+		this.editorSchemaTabFactory = editorSchemaTabFactory;
 	}
 
 	@Override
@@ -72,8 +72,7 @@ class SCIMServiceEditor implements ServiceEditor
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());
 
-		SCIMServiceEditorSchemaTab schemaTab = new SCIMServiceEditorSchemaTab(msg, unityServerConfiguration,
-				subViewSwitcher);
+		SCIMServiceEditorSchemaTab schemaTab = editorSchemaTabFactory.getSCIMServiceEditorSchemaTab(subViewSwitcher);
 
 		editor = new SCIMServiceEditorComponent(msg, restAdminServiceEditorGeneralTab, authenticationTab, schemaTab,
 				(DefaultServiceDefinition) endpoint);
@@ -96,12 +95,13 @@ class SCIMServiceEditor implements ServiceEditor
 		private final AuthenticatorManagement authMan;
 		private final NetworkServer networkServer;
 		private final BulkGroupQueryService bulkService;
-		private final UnityServerConfiguration unityServerConfiguration;
+		private final SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory;
 
 		@Autowired
 		SCIMServiceEditorFactory(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 				AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
-				BulkGroupQueryService bulkService, UnityServerConfiguration unityServerConfiguration)
+				BulkGroupQueryService bulkService,
+				SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory)
 		{
 			this.msg = msg;
 			this.endpointMan = endpointMan;
@@ -110,19 +110,20 @@ class SCIMServiceEditor implements ServiceEditor
 			this.authMan = authMan;
 			this.networkServer = networkServer;
 			this.bulkService = bulkService;
-			this.unityServerConfiguration = unityServerConfiguration;
+			this.editorSchemaTabFactory = editorSchemaTabFactory;
 		}
 
 		public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 		{
-			return new SCIMServiceEditor(msg, unityServerConfiguration, subViewSwitcher,
+			return new SCIMServiceEditor(msg, subViewSwitcher,
 					realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 					flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 					authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 					endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
 					networkServer.getUsedContextPaths(),
 					bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
-							.map(g -> g.getGroup()).collect(Collectors.toList()));
+							.map(g -> g.getGroup()).collect(Collectors.toList()),
+					editorSchemaTabFactory);
 		}
 	}
 

@@ -5,7 +5,11 @@
 
 package io.imunity.scim.console;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+
+import io.imunity.scim.schema.SCIMAttributeType;
 
 public class AttributeDefinitionWithMappingBean
 {
@@ -63,7 +67,47 @@ public class AttributeDefinitionWithMappingBean
 	{
 		AttributeDefinitionWithMappingBean clone = new AttributeDefinitionWithMappingBean();
 		clone.setAttributeDefinition(attributeDefinition.clone());
-		clone.setAttributeMapping(attributeMapping.clone());
+		clone.setAttributeMapping(attributeMapping != null ? attributeMapping.clone() : null);
 		return clone;
+	}
+
+	public List<String> getInvalidMapping()
+	{
+		if (attributeMapping == null)
+			return List.of(attributeDefinition.getName());
+		if (attributeDefinition.isMultiValued())
+		{
+			if (attributeMapping.getDataArray() == null || attributeMapping.getDataArray().getType() == null)
+			{
+				return List.of(attributeDefinition.getName());
+			}
+		}
+
+		if (!attributeDefinition.getType().equals(SCIMAttributeType.COMPLEX))
+		{
+			if (attributeDefinition.getType().equals(SCIMAttributeType.REFERENCE))
+			{
+				if (attributeMapping.getDataReference() == null || attributeMapping.getDataReference().getType() == null
+						|| attributeMapping.getDataReference().getExpression() == null
+						|| attributeMapping.getDataReference().getExpression().isEmpty())
+					return List.of(attributeDefinition.getName());
+			}
+
+			else if (attributeMapping.getDataValue() == null || attributeMapping.getDataValue().getType() == null)
+			{
+				return List.of(attributeDefinition.getName());
+			}
+		}
+
+		List<String> invalid = new ArrayList<>();
+		for (AttributeDefinitionWithMappingBean sa : attributeDefinition.getSubAttributesWithMapping())
+		{
+			for (String a : sa.getInvalidMapping())
+			{
+				invalid.add(attributeDefinition.getName() + "." + a);
+			}
+		}
+
+		return invalid;
 	}
 }

@@ -18,16 +18,20 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 	private final MessageSource msg;
 	private Binder<AttributeDefinitionWithMappingBean> binder;
 	private VerticalLayout main;
-	AttributeDefinitionComponent attributeDefinitionComponent;
+	private AttributeDefinitionComponent attributeDefinitionComponent;
+	private final AttributeEditContext context;
+	private final AttributeEditorData editorData;
 
-	AttributeDefinitionWithMappingConfigurationEditor(MessageSource msg, boolean disableMultiAndComplex,
-			boolean onlyMappingEdit)
+	AttributeDefinitionWithMappingConfigurationEditor(MessageSource msg, AttributeEditContext context,
+			AttributeEditorData editorData)
 	{
 		this.msg = msg;
-		init(disableMultiAndComplex, onlyMappingEdit);
+		this.context = context;
+		this.editorData = editorData;
+		init();
 	}
 
-	private void init(boolean disableMultiAndComplex, boolean onlyMappingEdit)
+	private void init()
 	{
 		main = new VerticalLayout();
 		main.setMargin(false);
@@ -38,21 +42,20 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 		subAttrSlot.setMargin(false);
 
 		binder = new Binder<>(AttributeDefinitionWithMappingBean.class);
-		attributeDefinitionComponent = new AttributeDefinitionComponent(msg, onlyMappingEdit, disableMultiAndComplex,
-				attrDefHeaderSlot, subAttrSlot);
+		attributeDefinitionComponent = new AttributeDefinitionComponent(msg, context, editorData, attrDefHeaderSlot,
+				subAttrSlot);
 		main.addComponent(attrDefHeaderSlot);
-
-		AttributeMappingComponent attributeMappingComponent = new AttributeMappingComponent(msg);
+		AttributeMappingComponent attributeMappingComponent = new AttributeMappingComponent(msg, editorData);
 		attributeDefinitionComponent.addValueChangeListener(e -> attributeMappingComponent.update(e.getValue()));
-
 		main.addComponent(attributeMappingComponent);
-
 		main.addComponent(subAttrSlot);
-
 		binder.forField(attributeDefinitionComponent).asRequired().bind("attributeDefinition");
 		binder.addValueChangeListener(
 				e -> fireEvent(new ValueChangeEvent<>(this, binder.getBean(), e.isUserOriginated())));
 		binder.setValidatorsDisabled(true);
+		binder.forField(attributeMappingComponent).bind("attributeMapping");
+		attributeMappingComponent.setVisible(!context.attributesEditMode.equals(AttributesEditMode.HIDE_MAAPING));
+
 	}
 
 	@Override

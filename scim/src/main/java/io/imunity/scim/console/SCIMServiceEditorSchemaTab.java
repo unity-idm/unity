@@ -25,9 +25,11 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.scim.config.SchemaType;
+import io.imunity.scim.console.EditSchemaSubView.EditSchemaSubViewFactory;
 import io.imunity.scim.schema.SchemaResourceDeserialaizer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.FileUploder;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
@@ -44,13 +46,15 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 	private final MessageSource msg;
 	private final SubViewSwitcher subViewSwitcher;
 	private final UnityServerConfiguration unityServerConfiguration;
+	private final EditSchemaSubViewFactory editSchemaSubViewFactory;
 
-	SCIMServiceEditorSchemaTab(MessageSource msg, UnityServerConfiguration unityServerConfiguration,
-			SubViewSwitcher subViewSwitcher)
+	private SCIMServiceEditorSchemaTab(MessageSource msg, EditSchemaSubViewFactory editSchemaSubViewFactory,
+			UnityServerConfiguration unityServerConfiguration, SubViewSwitcher subViewSwitcher)
 	{
 		this.msg = msg;
 		this.unityServerConfiguration = unityServerConfiguration;
 		this.subViewSwitcher = subViewSwitcher;
+		this.editSchemaSubViewFactory = editSchemaSubViewFactory;
 	}
 
 	void initUI(Binder<SCIMServiceConfigurationBean> configBinder)
@@ -130,8 +134,16 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		{
 			try
 			{
-				SchemaWithMappingBean schema = ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(
-						SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
+				SchemaWithMappingBean schema;
+				try
+				{
+					schema = ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(
+							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
+				} catch (EngineException e)
+				{
+					NotificationPopup.showError(msg, "", e);
+					return;
+				}
 				uploader.clear();
 				if (schemasGrid.getElements().stream().filter(s -> s.getId().equals(schema.getId())).findAny()
 						.isPresent())
@@ -170,7 +182,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 						schemasGrid.removeElement(schema);
 
 						fireChange();
-					}).withDisabledPredicate(s -> isCoreSchema(s)).build();
+					}).withDisabledPredicate(s -> !getEditMode(s).equals(AttributesEditMode.FULL_EDIT)).build();
 
 			return Arrays.asList(edit, remove);
 		}
@@ -196,19 +208,26 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 
 		private void gotoEditSubView(SchemaWithMappingBean edited, Consumer<SchemaWithMappingBean> onConfirm)
 		{
-			EditSchemaSubView subView = new EditSchemaSubView(msg,
-					schemasGrid.getElements().stream().map(s -> s.getId()).collect(Collectors.toList()), edited,
-					isCoreSchema(edited), s ->
-					{
-						onConfirm.accept(s);
-						fireChange();
-						schemasGrid.focus();
-					}, () ->
-					{
-						subViewSwitcher.exitSubView();
-						schemasGrid.focus();
-					});
-			subViewSwitcher.goToSubView(subView);
+			EditSchemaSubView subView;
+			try
+			{
+				subView = editSchemaSubViewFactory.getSubView(
+						schemasGrid.getElements().stream().map(s -> s.getId()).collect(Collectors.toList()), edited,
+						getEditMode(edited), s ->
+						{
+							onConfirm.accept(s);
+							fireChange();
+							schemasGrid.focus();
+						}, () ->
+						{
+							subViewSwitcher.exitSubView();
+							schemasGrid.focus();
+						});
+				subViewSwitcher.goToSubView(subView);
+			} catch (EngineException e)
+			{
+				NotificationPopup.showError(msg, "Can not edit schema", e);
+			}
 		}
 
 		@Override
@@ -235,10 +254,41 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			fireEvent(new ValueChangeEvent<List<SchemaWithMappingBean>>(this, schemasGrid.getElements(), true));
 		}
 
-		private boolean isCoreSchema(SchemaWithMappingBean schema)
+		private AttributesEditMode getEditMode(SchemaWithMappingBean schema)
 		{
-			return schema != null
-					&& (schema.getType().equals(SchemaType.USER_CORE) || schema.getType().equals(SchemaType.GROUP_CORE));
+			if (schema != null)
+			{
+				if (schema.getType().equals(SchemaType.USER_CORE))
+					return AttributesEditMode.EDIT_MAPPING_ONLY;
+				if (schema.getType().equals(SchemaType.GROUP_CORE))
+					return AttributesEditMode.HIDE_MAAPING;
+			}
+
+			return AttributesEditMode.FULL_EDIT;
+
 		}
 	}
+
+	@org.springframework.stereotype.Component
+	static class SCIMServiceEditorSchemaTabFactory
+	{
+		private final EditSchemaSubViewFactory editSchemaSubViewFactory;
+		private final MessageSource msg;
+		private final UnityServerConfiguration configuration;
+
+		SCIMServiceEditorSchemaTabFactory(EditSchemaSubViewFactory editSchemaSubViewFactory, MessageSource msg,
+				UnityServerConfiguration configuration)
+		{
+			this.editSchemaSubViewFactory = editSchemaSubViewFactory;
+			this.msg = msg;
+			this.configuration = configuration;
+		}
+
+		SCIMServiceEditorSchemaTab getSCIMServiceEditorSchemaTab(SubViewSwitcher subViewSwitcher)
+		{
+			return new SCIMServiceEditorSchemaTab(msg, editSchemaSubViewFactory, configuration, subViewSwitcher);
+		}
+
+	}
+
 }

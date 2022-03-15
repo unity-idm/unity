@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -118,5 +119,11 @@ public interface GroupsManagement
 	 * @return GroupChain for given group
 	 */
 	GroupsChain getGroupsChain(String path) throws EngineException;
+
+	Map<String, Group> getAllGroups() throws EngineException;
+
 }
+
+
+
 

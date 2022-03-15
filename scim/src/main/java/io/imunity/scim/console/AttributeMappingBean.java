@@ -5,40 +5,56 @@
 
 package io.imunity.scim.console;
 
-//TODO UY-1219
 public class AttributeMappingBean
 {
-//	private DataValue dataValue;
-//	private DataArray dataArray;
+	private DataValueBean dataValue;
+	private DataArrayBean dataArray;
+	private ReferenceDataBean dataReference;
 
 	public AttributeMappingBean()
 	{
-
+		dataReference = null;//new ReferenceDataBean();
+		dataValue = null;//new DataValueBean();
+		dataArray = null; //new DataArrayBean();
 	}
 
-	public static class DataValue
+	public DataValueBean getDataValue()
 	{
-		public enum DataValueType
-		{
-			ATTRIBUTE, IDENTITIE, MEMBERSHIP, REFERENCE, ARRAY, MVEL
-		}
-
+		return dataValue;
 	}
 
-	public static class DataArray
+	public void setDataValue(DataValueBean dataValue)
 	{
-		public enum DataArrayType
-		{
-			ATTRIBUTES, IDENTITIES, MEMBERSHIPS
-		}
+		this.dataValue = dataValue;
+	}
 
-//		private DataArrayType type;
-//		private String value;
+	public DataArrayBean getDataArray()
+	{
+		return dataArray;
+	}
+
+	public void setDataArray(DataArrayBean dataArray)
+	{
+		this.dataArray = dataArray;
+	}
+
+	public ReferenceDataBean getDataReference()
+	{
+		return dataReference;
+	}
+
+	public void setDataReference(ReferenceDataBean dataReference)
+	{
+		this.dataReference = dataReference;
 	}
 
 	@Override
 	protected AttributeMappingBean clone()
 	{
-		return new AttributeMappingBean();
+		AttributeMappingBean clone = new AttributeMappingBean();
+		clone.setDataArray(dataArray);
+		clone.setDataValue(dataValue);
+		clone.setDataReference(dataReference);
+		return clone;
 	}
 }
