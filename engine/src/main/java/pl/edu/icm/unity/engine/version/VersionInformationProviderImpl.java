@@ -15,15 +15,14 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.version.VersionInformation;
 import pl.edu.icm.unity.engine.api.version.VersionInformationProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @Component
-public class VersionInformationProviderImpl implements VersionInformationProvider
+class VersionInformationProviderImpl implements VersionInformationProvider
 {
-	public static final String GIT_PROPERTIES_PATH = "git.properties";
+	static final String GIT_PROPERTIES_PATH = "git.properties";
 
 	@Override
-	public VersionInformation getVersionInformation() throws EngineException
+	public VersionInformation getVersionInformation()
 	{
 		Properties gitProperties = new Properties();
 		try
@@ -31,7 +30,7 @@ public class VersionInformationProviderImpl implements VersionInformationProvide
 			gitProperties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
 		} catch (IOException e)
 		{
-			throw new EngineException("Can not read git properties file", e);
+			throw new RuntimeException("Can not read git properties file", e);
 		}
 
 		return VersionInformation.builder().withVersion(gitProperties.getProperty("git.build.version"))

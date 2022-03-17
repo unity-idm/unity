@@ -5,9 +5,7 @@
 
 package pl.edu.icm.unity.engine.api.version;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-
 public interface VersionInformationProvider
 {
-	VersionInformation getVersionInformation() throws EngineException;
+	VersionInformation getVersionInformation();
 }

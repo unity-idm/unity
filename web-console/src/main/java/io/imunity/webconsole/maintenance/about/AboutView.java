@@ -5,10 +5,6 @@
 
 package io.imunity.webconsole.maintenance.about;
 
-import java.io.IOException;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,17 +24,10 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.engine.api.version.VersionInformation;
 import pl.edu.icm.unity.engine.api.version.VersionInformationProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 
-/**
- * 
- * 
- * @author P.Piernik
- *
- */
 @PrototypeComponent
 class AboutView extends CustomComponent implements UnityView
 {
@@ -46,7 +35,7 @@ class AboutView extends CustomComponent implements UnityView
 
 	private final MessageSource msg;
 	private final VersionInformationProvider informationProvider;
-	
+
 	@Autowired
 	AboutView(MessageSource msg, VersionInformationProvider infoProvider)
 	{
@@ -65,7 +54,7 @@ class AboutView extends CustomComponent implements UnityView
 		version.setCaption(msg.getMessage("AboutView.version"));
 		version.addStyleName(Styles.bold.toString());
 		main.addComponent(version);
-		
+
 		Label buildTime = new Label();
 		buildTime.setCaption(msg.getMessage("AboutView.buildTime"));
 		buildTime.addStyleName(Styles.bold.toString());
@@ -73,24 +62,15 @@ class AboutView extends CustomComponent implements UnityView
 		VersionInformation versionInformation;
 		try
 		{
-			 versionInformation = informationProvider.getVersionInformation();
-		} catch (EngineException e)
+			versionInformation = informationProvider.getVersionInformation();
+		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, "Can not get version information", e);
 			return;
 		}
 		version.setValue(versionInformation.version);
 		buildTime.setValue(TimeUtil.formatStandardInstant(versionInformation.buildTime));
-		
 		setCompositionRoot(main);
-	}
-
-	public String getVersion() throws IOException
-	{
-		Manifest manifest = new Manifest(
-				Thread.currentThread().getContextClassLoader().getResourceAsStream("META-INF/MANIFEST.MF"));
-		Attributes attr = manifest.getMainAttributes();
-		return attr.getValue("Implementation-Version");
 	}
 
 	@Override
