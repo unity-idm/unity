@@ -5,10 +5,15 @@
 
 package io.imunity.scim.config;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import io.imunity.scim.console.AttributeMappingBean;
+import io.imunity.scim.console.DataArrayBean;
+import io.imunity.scim.console.DataValueBean;
 
 @JsonDeserialize(builder = SimpleAttributeMapping.Builder.class)
 public class SimpleAttributeMapping implements AttributeMapping
@@ -22,6 +27,25 @@ public class SimpleAttributeMapping implements AttributeMapping
 	{
 		this.dataArray = builder.dataArray;
 		this.dataValue = builder.dataValue;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(dataArray, dataValue);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SimpleAttributeMapping other = (SimpleAttributeMapping) obj;
+		return Objects.equals(dataArray, other.dataArray) && Objects.equals(dataValue, other.dataValue);
 	}
 
 	public static Builder builder()
@@ -68,6 +92,16 @@ public class SimpleAttributeMapping implements AttributeMapping
 	public String getEvaluatorId()
 	{
 		return id;
+	}
+
+	@Override
+	public AttributeMappingBean toBean()
+	{
+		AttributeMappingBean bean = new AttributeMappingBean();
+		bean.setDataArray(dataArray.isEmpty() ? new DataArrayBean()
+				: new DataArrayBean(dataArray.get().type, dataArray.get().value));
+		bean.setDataValue(new DataValueBean(dataValue.type, dataValue.value));
+		return bean;
 	}
 
 }

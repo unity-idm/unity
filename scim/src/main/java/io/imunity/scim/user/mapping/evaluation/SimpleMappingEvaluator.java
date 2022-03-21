@@ -63,7 +63,7 @@ class SimpleMappingEvaluator implements MappingEvaluator
 		switch (mapping.dataValue.type)
 		{
 		case MVEL:
-			value = Optional.ofNullable(mvelEvaluator.evalMvel(mapping.dataValue.value.get(), context));
+			value = Optional.ofNullable(mvelEvaluator.evalMVEL(mapping.dataValue.value.get(), context));
 			break;
 		case ATTRIBUTE:
 			value = targetDataConverter.convertUserAttributeToType(context.user, mapping.dataValue.value.get(),
@@ -78,7 +78,7 @@ class SimpleMappingEvaluator implements MappingEvaluator
 					mapping.dataValue.type + " dataValue type is not supported by single simple mapping");
 		}
 
-		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, value.isEmpty() ? "" : value.get());
+		return Collections.singletonMap(attributeDefinitionWithMapping.attributeDefinition.name, value.isEmpty() ? null : value.get());
 
 	}
 
@@ -94,8 +94,10 @@ class SimpleMappingEvaluator implements MappingEvaluator
 			switch (mapping.dataValue.type)
 			{
 			case MVEL:
-
-				evalRet.add(mvelEvaluator.evalMvel(mapping.dataValue.value.get(), context));
+				evalRet.add(mvelEvaluator.evalMVEL(mapping.dataValue.value.get(),
+						EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
+								.withScimEndpointDescription(context.scimEndpointDescription)
+								.withGroupProvider(context.groupProvider).build()));
 				break;
 			case ARRAY:
 				evalRet.add(targetDataConverter.convertToType(arrayObj,

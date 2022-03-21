@@ -11,10 +11,7 @@ import java.util.stream.Stream;
 public enum SCIMAttributeType
 {
 	STRING("string"), BOOLEAN("boolean"),
-	// DECIMAL("decimal"),
-	// INTEGER("integer"),
 	DATETIME("dateTime"),
-	// BINARY("binary"),
 	REFERENCE("reference"), COMPLEX("complex");
 
 	private String name;

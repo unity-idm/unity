@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import io.imunity.scim.console.AttributeMappingBean;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "mappingType", defaultImpl = NotDefinedMapping.class, visible=true)
 @JsonSubTypes(
 { @Type(value = ComplexAttributeMapping.class, name = "Complex"),
@@ -20,4 +22,6 @@ public interface AttributeMapping
 {
 	Optional<DataArray> getDataArray();
 	String getEvaluatorId();
+
+	AttributeMappingBean toBean();
 }

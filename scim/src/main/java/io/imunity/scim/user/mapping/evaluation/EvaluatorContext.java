@@ -5,6 +5,8 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
+import java.util.Objects;
+
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.user.User;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
@@ -22,6 +24,27 @@ class EvaluatorContext
 		this.arrayObj = builder.arrayObj;
 		this.groupProvider = builder.groupProvider;
 		this.scimEndpointDescription = builder.scimEndpointDescription;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(arrayObj, groupProvider, scimEndpointDescription, user);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EvaluatorContext other = (EvaluatorContext) obj;
+		return Objects.equals(arrayObj, other.arrayObj) && Objects.equals(groupProvider, other.groupProvider)
+				&& Objects.equals(scimEndpointDescription, other.scimEndpointDescription)
+				&& Objects.equals(user, other.user);
 	}
 
 	static EvaluatorContext.Builder builder()

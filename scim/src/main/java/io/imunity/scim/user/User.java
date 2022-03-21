@@ -24,9 +24,9 @@ public class User
 	private User(Builder builder)
 	{
 		this.entityId = builder.entityId;
-		this.identities = builder.identities;
-		this.groups = builder.groups;
-		this.attributes = builder.attributes;
+		this.identities = List.copyOf(builder.identities);
+		this.groups = Set.copyOf(builder.groups);
+		this.attributes = List.copyOf(builder.attributes);
 	}
 
 	@Override

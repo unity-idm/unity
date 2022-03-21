@@ -71,7 +71,7 @@ public class AttributeDefinitionWithMappingBean
 		return clone;
 	}
 
-	public List<String> getInvalidMapping()
+	public List<String> inferAttributeNamesWithInvalidMapping()
 	{
 		if (attributeMapping == null)
 			return List.of(attributeDefinition.getName());
@@ -102,7 +102,7 @@ public class AttributeDefinitionWithMappingBean
 		List<String> invalid = new ArrayList<>();
 		for (AttributeDefinitionWithMappingBean sa : attributeDefinition.getSubAttributesWithMapping())
 		{
-			for (String a : sa.getInvalidMapping())
+			for (String a : sa.inferAttributeNamesWithInvalidMapping())
 			{
 				invalid.add(attributeDefinition.getName() + "." + a);
 			}

@@ -15,8 +15,8 @@ class AttributeEditorData
 
 	private AttributeEditorData(Builder builder)
 	{
-		this.attributeTypes = builder.attributeTypes;
-		this.identityTypes = builder.identityTypes;
+		this.attributeTypes = List.copyOf(builder.attributeTypes);
+		this.identityTypes = List.copyOf(builder.identityTypes);
 	}
 
 	static Builder builder()

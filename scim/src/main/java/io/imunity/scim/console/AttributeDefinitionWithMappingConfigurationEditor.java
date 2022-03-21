@@ -54,7 +54,7 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 				e -> fireEvent(new ValueChangeEvent<>(this, binder.getBean(), e.isUserOriginated())));
 		binder.setValidatorsDisabled(true);
 		binder.forField(attributeMappingComponent).bind("attributeMapping");
-		attributeMappingComponent.setVisible(!context.attributesEditMode.equals(AttributesEditMode.HIDE_MAAPING));
+		attributeMappingComponent.setVisible(!context.attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
 
 	}
 

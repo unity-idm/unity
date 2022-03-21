@@ -5,6 +5,7 @@
 
 package io.imunity.scim.config;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -29,6 +30,25 @@ public class DataArray
 	public static Builder builder()
 	{
 		return new Builder();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DataArray other = (DataArray) obj;
+		return type == other.type && Objects.equals(value, other.value);
 	}
 
 	public static final class Builder

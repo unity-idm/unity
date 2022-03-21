@@ -23,8 +23,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 
 public class UserSchemaEvaluator
 {
-	private MappingEvaluatorRegistry mappingEvaluatorRegistry;
-	private SCIMEndpointDescription configuration;
+	private final MappingEvaluatorRegistry mappingEvaluatorRegistry;
+	private final SCIMEndpointDescription configuration;
 
 	UserSchemaEvaluator(SCIMEndpointDescription configuration, MappingEvaluatorRegistry mappingEvaluatorRegistry)
 	{

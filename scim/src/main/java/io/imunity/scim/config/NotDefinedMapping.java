@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.imunity.scim.console.AttributeMappingBean;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotDefinedMapping implements AttributeMapping
 {
@@ -26,4 +28,10 @@ public class NotDefinedMapping implements AttributeMapping
 		return id;
 	}
 
+	@Override
+	public AttributeMappingBean toBean()
+	{
+		AttributeMappingBean bean = new AttributeMappingBean();
+		return bean;
+	}
 }

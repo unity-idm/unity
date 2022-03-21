@@ -261,7 +261,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 				if (schema.getType().equals(SchemaType.USER_CORE))
 					return AttributesEditMode.EDIT_MAPPING_ONLY;
 				if (schema.getType().equals(SchemaType.GROUP_CORE))
-					return AttributesEditMode.HIDE_MAAPING;
+					return AttributesEditMode.HIDE_MAPPING;
 			}
 
 			return AttributesEditMode.FULL_EDIT;

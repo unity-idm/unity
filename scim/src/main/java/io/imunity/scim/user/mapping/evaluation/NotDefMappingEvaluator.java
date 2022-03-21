@@ -17,7 +17,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Component
 public class NotDefMappingEvaluator implements MappingEvaluator
 {
-
 	@Override
 	public String getId()
 	{
@@ -30,5 +29,4 @@ public class NotDefMappingEvaluator implements MappingEvaluator
 	{
 		return Collections.emptyMap();
 	}
-
 }

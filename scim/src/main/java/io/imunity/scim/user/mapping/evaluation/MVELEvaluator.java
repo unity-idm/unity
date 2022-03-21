@@ -39,7 +39,7 @@ class MVELEvaluator
 				.expireAfterWrite(COMPILED_MVEL_CACHE_TTL_IN_SECONDS, TimeUnit.SECONDS).build();
 	}
 
-	Object evalMvel(String mvel, EvaluatorContext context) throws IllegalAttributeValueException
+	Object evalMVEL(String mvel, EvaluatorContext context) throws IllegalAttributeValueException
 	{
 		Serializable expressionCompiled = compileMvel(mvel);
 		return MVEL.executeExpression(expressionCompiled, createContext(context), new HashMap<>());
@@ -58,13 +58,10 @@ class MVELEvaluator
 	Object createContext(EvaluatorContext context) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
-
 		ret.put(SCIMMvelContextKey.idsByType.toString(), createIdentityContextElement(context));
 		ret.put(SCIMMvelContextKey.attrObj.toString(), createAttributeObjContextElement(context));
-
 		ret.put(SCIMMvelContextKey.groups.toString(),
 				context.user.groups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()));
-
 		if (context.arrayObj != null)
 		{
 			ret.put(SCIMMvelContextKey.arrayObj.toString(), context.arrayObj);
@@ -79,7 +76,6 @@ class MVELEvaluator
 		Map<String, Object> attrObj = new HashMap<>();
 		for (Attribute ra : context.user.attributes)
 		{
-
 			attrObj.put(ra.getName(), ra.getValues().isEmpty() ? ""
 					: attrValueConverter.internalValuesToObjectValues(ra.getName(), ra.getValues()));
 		}

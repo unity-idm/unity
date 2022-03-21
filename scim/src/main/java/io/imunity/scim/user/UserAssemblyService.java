@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.scim.common.BasicSCIMResource;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
 import io.imunity.scim.common.ResourceType;
@@ -49,7 +48,7 @@ class UserAssemblyService
 		this.groupsManagement = groupsManagement;
 	}
 
-	BasicSCIMResource mapToUserResource(User user) throws EngineException
+	SCIMUserResource mapToUserResource(User user) throws EngineException
 	{
 		return mapToSingleUserResource(user, getBasicUserSchema(), getExtensionSchemas(),
 				new CachingMVELGroupProvider(groupsManagement.getAllGroups()));
@@ -70,27 +69,26 @@ class UserAssemblyService
 				.withTotalResults(usersResource.size()).build();
 	}
 
-	SCIMUserResource mapToSingleUserResource(User user, SchemaWithMapping basicSchema,
+	private SCIMUserResource mapToSingleUserResource(User user, SchemaWithMapping basicSchema,
 			List<SchemaWithMapping> extSchemas, CachingMVELGroupProvider cachingMVELGroupProvider)
 			throws EngineException
 	{
-		Identity persistence = user.identities.stream().filter(i -> i.getTypeId().equals(PersistentIdentity.ID))
+		Identity persistenceIdentity = user.identities.stream().filter(i -> i.getTypeId().equals(PersistentIdentity.ID))
 				.findFirst().get();
 		Instant lastModified = user.identities.stream().map(i -> i.getUpdateTs().toInstant())
 				.sorted(Comparator.reverseOrder()).findFirst().get();
 
 		URI location = UriBuilder.fromUri(configuration.baseLocation)
-				.path(UserRestController.USER_LOCATION + "/" + persistence.getValue()).build();
+				.path(UserRestController.USER_LOCATION + "/" + persistenceIdentity.getValue()).build();
 
 		Set<String> usedSchemas = new HashSet<>();
 		usedSchemas.add(basicSchema.id);
 		extSchemas.stream().map(s -> s.id).forEach(s -> usedSchemas.add(s));
 
-		return SCIMUserResource.builder().withId(persistence.getValue()).withSchemas(usedSchemas)
+		return SCIMUserResource.builder().withId(persistenceIdentity.getValue()).withSchemas(usedSchemas)
 				.withMeta(Meta.builder().withResourceType(ResourceType.USER.getName())
-						.withCreated(persistence.getCreationTs().toInstant()).withLastModified(lastModified)
+						.withCreated(persistenceIdentity.getCreationTs().toInstant()).withLastModified(lastModified)
 						.withLocation(location).build())
-
 				.withAttributes(
 						userSchemaEvaluator.evalUserSchema(user, basicSchema, extSchemas, cachingMVELGroupProvider))
 				.build();

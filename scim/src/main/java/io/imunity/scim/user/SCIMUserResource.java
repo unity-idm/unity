@@ -20,8 +20,8 @@ class SCIMUserResource extends BasicSCIMResource
 {
 	static final String SCHEMA = DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID;
 
-    @JsonAnyGetter
-    public final Map<String, Object> attributes;
+	@JsonAnyGetter
+	public final Map<String, Object> attributes;
 
 	private SCIMUserResource(Builder builder)
 	{

@@ -107,7 +107,7 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 		CheckBox enable = new CheckBox(msg.getMessage("EditSchemaSubView.enable"));
 		header.addComponent(enable);
 		binder.forField(enable).bind("enable");
-		enable.setReadOnly(attributesEditMode.equals(AttributesEditMode.HIDE_MAAPING));
+		enable.setReadOnly(attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
 
 		return header;
 	}
@@ -135,11 +135,11 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 			{
 				for (AttributeDefinitionWithMappingBean bean : value)
 				{
-					invalidMappingAttr.addAll(bean.getInvalidMapping());
+					invalidMappingAttr.addAll(bean.inferAttributeNamesWithInvalidMapping());
 				}
 			}
 			invalidMappingInfo.setVisible(
-					!invalidMappingAttr.isEmpty() && !attributesEditMode.equals(AttributesEditMode.HIDE_MAAPING));
+					!invalidMappingAttr.isEmpty() && !attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
 			invalidMappingInfo.setValue(String.join(", ", invalidMappingAttr));
 
 			return (value == null || value.stream().filter(a -> a == null).count() > 0)

@@ -8,6 +8,7 @@ package io.imunity.scim.user;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -33,16 +34,19 @@ import io.imunity.scim.MockGroupMembershipData;
 import io.imunity.scim.MockGroupStructuralData;
 import io.imunity.scim.SCIMTestHelper;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import io.imunity.scim.user.UserGroup.GroupType;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -62,6 +66,8 @@ public class UserRetrievalServiceTest
 	private EntityManagement entityManagement;
 	@Mock
 	private BulkGroupQueryService bulkService;
+	@Mock
+	private AttributesManagement attributesManagement;
 
 	private UserRetrievalService userRetrievalService;
 
@@ -70,7 +76,8 @@ public class UserRetrievalServiceTest
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
 				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList());
-		userRetrievalService = new UserRetrievalService(msg, authzMan, entityManagement, bulkService, configuration);
+		userRetrievalService = new UserRetrievalService(authzMan, entityManagement, bulkService, attributesManagement,
+				configuration);
 	}
 
 	@Test
@@ -92,25 +99,20 @@ public class UserRetrievalServiceTest
 	{
 		Entity entity = addEntityWithTwoIdentitiesToMemebersSubgroup();
 		addTwoMembersGroupsWithSubgroups();
+		AttributeExt attribute1 = new AttributeExt(
+				new Attribute("a", StringAttributeSyntax.ID, "/scim", List.of("a1v")), false);
+		when(attributesManagement.getAttributes(eq(new EntityParam(entity.getId())), eq("/scim"), any()))
+				.thenReturn(List.of(attribute1));
 
 		User user = userRetrievalService.getUser(new PersistentId("1"));
 
 		assertThat(user.entityId, is(1L));
 		assertThat(user.identities.size(), is(2));
-		assertThat(user.identities,
-				hasItems(
-						UserIdentity.builder().withCreationTs(entity.getIdentities().get(0).getCreationTs().toInstant())
-								.withUpdateTs(entity.getIdentities().get(0).getUpdateTs().toInstant())
-								.withTypeId(PersistentIdentity.ID).withValue("1").build(),
-						UserIdentity.builder().withCreationTs(entity.getIdentities().get(1).getCreationTs().toInstant())
-								.withUpdateTs(entity.getIdentities().get(1).getUpdateTs().toInstant())
-								.withTypeId(EmailIdentity.ID).withValue("email@email.com").build()));
-		assertThat(user.groups,
-				hasItems(
-						UserGroup.builder().withValue("/scim/Members1/Subgroup1").withDisplayName("Subgroup1")
-								.withType(GroupType.direct).build(),
-						UserGroup.builder().withValue("/scim/Members1").withDisplayName("Members1")
-								.withType(GroupType.direct).build()));
+		assertThat(user.identities, hasItems(entity.getIdentities().get(0), entity.getIdentities().get(1)));
+		assertThat(user.groups, hasItems(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup(),
+				SCIMTestHelper.getGroupContent("/scim/Members1").getGroup()));
+		assertThat(user.attributes, hasItems(attribute1));
+
 	}
 
 	private Entity addEntityWithTwoIdentitiesToMemebersSubgroup() throws EngineException
@@ -157,33 +159,27 @@ public class UserRetrievalServiceTest
 		when(bulkService.getBulkMembershipData(eq("/"))).thenReturn(membershipData);
 		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
 
+		AttributeExt attribute1 = new AttributeExt(
+				new Attribute("a", StringAttributeSyntax.ID, "/scim", List.of("a1v")), false);
+
+		when(bulkService.getGroupUsersAttributes(eq("/scim"), eq(membershipData)))
+				.thenReturn(Map.of(1l, Map.of("a", attribute1), 0l, Map.of("a", attribute1)));
+
 		List<User> users = userRetrievalService.getUsers();
 
 		assertThat(users.size(), is(2));
 
 		assertThat(users,
-				hasItems(
-						User.builder().withEntityId(1L)
-								.withGroups(Set.of(UserGroup
-										.builder().withType(GroupType.direct).withDisplayName("Members2")
-										.withValue("/scim/Members2").build()))
-								.withIdentities(List.of(UserIdentity.builder().withValue("1")
-										.withTypeId(PersistentIdentity.ID)
-										.withCreationTs(
-												entity2.entity.getIdentities().get(0).getCreationTs().toInstant())
-										.withUpdateTs(entity2.entity.getIdentities().get(0).getUpdateTs().toInstant())
-										.build()))
-								.build(),
+				hasItems(User.builder().withEntityId(1L)
+						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+						.withIdentities(entity2.entity.getIdentities()).withAttributes(List.of(attribute1))
+
+						.build(),
 						User.builder().withEntityId(0L)
-								.withGroups(Set.of(UserGroup
-										.builder().withType(GroupType.direct).withDisplayName("Subgroup1")
-										.withValue("/scim/Members1/Subgroup1").build()))
-								.withIdentities(List.of(UserIdentity.builder().withValue("0")
-										.withTypeId(PersistentIdentity.ID)
-										.withCreationTs(
-												entity1.entity.getIdentities().get(0).getCreationTs().toInstant())
-										.withUpdateTs(entity1.entity.getIdentities().get(0).getUpdateTs().toInstant())
-										.build()))
+								.withGroups(
+										Set.of(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
+								.withIdentities(entity1.entity.getIdentities()).withAttributes(List.of(attribute1))
+
 								.build()));
 
 	}

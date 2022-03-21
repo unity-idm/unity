@@ -7,5 +7,5 @@ package io.imunity.scim.console;
 
 enum AttributesEditMode
 {
-	EDIT_MAPPING_ONLY, HIDE_MAAPING, FULL_EDIT
+	EDIT_MAPPING_ONLY, HIDE_MAPPING, FULL_EDIT
 }

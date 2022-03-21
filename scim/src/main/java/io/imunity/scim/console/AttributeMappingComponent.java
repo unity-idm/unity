@@ -92,9 +92,6 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 	{
 		if (value == null)
 		{
-//			dataArray.setValue(null);
-//			dataValue.setValue(null);
-//			referenceEditor.setValue(null);
 			return;
 		}
 		dataArray.setVisible(value.isMultiValued());

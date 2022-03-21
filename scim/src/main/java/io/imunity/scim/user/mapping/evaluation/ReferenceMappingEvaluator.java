@@ -71,11 +71,11 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 		for (Object arrayObj : dataArrayResolver.resolve(mapping.getDataArray().get(), context))
 		{
 			ret.add(resolveReference(mapping.type,
-					mvelEvaluator.evalMvel(mapping.expression,
+					mvelEvaluator.evalMVEL(mapping.expression,
 							EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 									.withScimEndpointDescription(context.scimEndpointDescription)
 									.withGroupProvider(context.groupProvider).build())
-							.toString(),
+							,
 					context));
 		}
 		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, ret);
@@ -87,21 +87,24 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 			throws EngineException
 	{
 
-		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, resolveReference(mapping.type,
-				mvelEvaluator.evalMvel(mapping.expression, context).toString(), context));
+		return  Collections.singletonMap(attributeDefinitionWithMapping.attributeDefinition.name, resolveReference(mapping.type,
+				mvelEvaluator.evalMVEL(mapping.expression, context), context));
 
 	}
 
-	private Object resolveReference(ReferenceType type, String value, EvaluatorContext context)
+	private Object resolveReference(ReferenceType type, Object value, EvaluatorContext context)
 	{
+		if (value == null)
+			return null;
+		
 		switch (type)
 		{
 		case GROUP:
-			return getGroupLocation(value, context);
+			return getGroupLocation(value.toString(), context);
 		case USER:
-			return getUserLocation(value, context);
+			return getUserLocation(value.toString(), context);
 		default:
-			return UriBuilder.fromUri(value).build();
+			return UriBuilder.fromUri(value.toString()).build();
 		}
 	}
 
