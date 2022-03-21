@@ -18,7 +18,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -57,8 +56,8 @@ public class AttributeEditor extends CustomComponent
 				.withAttributeType(initial)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner)
-				.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
-				.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+				.withCustomWidth(100)
+				.withCustomWidthUnit(Unit.PERCENTAGE)
 				.build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
@@ -71,8 +70,8 @@ public class AttributeEditor extends CustomComponent
 			AttributeEditContext newEditContext = AttributeEditContext.builder()
 					.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required).withAttributeType(newType)
 					.withAttributeGroup(AttributeEditor.this.groupPath).withAttributeOwner(owner)
-					.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
-					.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+					.withCustomWidth(100)
+					.withCustomWidthUnit(Unit.PERCENTAGE)
 					.build();
 
 			valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, false, null, null);
@@ -111,8 +110,8 @@ public class AttributeEditor extends CustomComponent
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner)
-				.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
-				.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+				.withCustomWidth(100)
+				.withCustomWidthUnit(Unit.PERCENTAGE)
 				.build();
 		
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
@@ -140,8 +139,8 @@ public class AttributeEditor extends CustomComponent
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner)
-				.withCustomWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH)
-				.withCustomWidthUnit(FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT)
+				.withCustomWidth(100)
+				.withCustomWidthUnit(Unit.PERCENTAGE)
 				.build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);

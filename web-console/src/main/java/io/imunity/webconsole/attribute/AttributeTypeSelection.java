@@ -57,7 +57,7 @@ class AttributeTypeSelection extends CustomComponent
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
 		attributeTypesCombo = new AttributeSelectionComboBox(null, attributeTypes);
-		attributeTypesCombo.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		attributeTypesCombo.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
 		if (attributeTypes.size() == 1)
 		{
 			createAttributeWidget(attributeTypes.iterator().next());
