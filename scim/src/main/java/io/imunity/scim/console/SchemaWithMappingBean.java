@@ -86,6 +86,19 @@ public class SchemaWithMappingBean
 		return enable;
 	}
 
+	public boolean hasInvalidMappings()
+	{
+		for (AttributeDefinitionWithMappingBean bean : attributes)
+		{
+			if (bean != null)
+			{
+				if (!bean.inferAttributeNamesWithInvalidMapping().isEmpty())
+					return true;
+			}
+		}
+		
+		return false;
+	}
 	public void setEnable(boolean enable)
 	{
 		this.enable = enable;

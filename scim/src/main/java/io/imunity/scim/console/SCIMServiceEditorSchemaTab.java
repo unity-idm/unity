@@ -127,6 +127,9 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			schemasGrid.addComponentColumn(s -> StandardButtonsHelper.buildLinkButton(s.getId(), e -> gotoEdit(s)),
 					msg.getMessage("SCIMServiceEditorSchemaTab.schemaId"), 20);
 			schemasGrid.addCheckboxColumn(s -> s.isEnable(), msg.getMessage("SCIMServiceEditorSchemaTab.enabled"), 20);
+			schemasGrid.addCheckboxColumn(s -> !s
+					.getType().equals(SchemaType.GROUP_CORE) && s.hasInvalidMappings(), msg.getMessage("SCIMServiceEditorSchemaTab.invalidMapping"), 20);
+			
 			main.addComponent(schemasGrid);
 		}
 

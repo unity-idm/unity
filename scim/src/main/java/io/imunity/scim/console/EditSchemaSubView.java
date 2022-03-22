@@ -17,6 +17,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -116,12 +118,18 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 	{
 		VerticalLayout attributesL = new VerticalLayout();
 		attributesL.setMargin(false);
-
 		Label invalidMappingInfo = new Label();
-		invalidMappingInfo.setCaption(msg.getMessage("AttributeDefinitionConfigurationList.invalidMappingAttributes"));
 		invalidMappingInfo.setWidth(100, Unit.PERCENTAGE);
 		invalidMappingInfo.addStyleName(Styles.wordWrap.toString());
-
+		VerticalLayout wrapper =  new VerticalLayout(invalidMappingInfo);
+		wrapper.addStyleName(Styles.background.toString());
+		Panel invalidMappingPanel = new Panel(wrapper);
+		invalidMappingPanel.addStyleName(Styles.warnBackground.toString());
+		invalidMappingPanel.addStyleName(Styles.vPanelWell.toString());	
+		invalidMappingPanel.setWidth(100, Unit.PERCENTAGE);
+		invalidMappingPanel.setCaption(msg.getMessage("AttributeDefinitionConfigurationList.invalidMappingAttributes"));
+		invalidMappingPanel.setIcon(Images.warn.getResource());
+			
 		AttributeDefinitionConfigurationList attributesList = new AttributeDefinitionConfigurationList(msg,
 				msg.getMessage("AttributeDefinitionConfigurationList.addAttribute"),
 				AttributeEditContext.builder().withDisableComplexAndMulti(false)
@@ -135,10 +143,13 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 			{
 				for (AttributeDefinitionWithMappingBean bean : value)
 				{
-					invalidMappingAttr.addAll(bean.inferAttributeNamesWithInvalidMapping());
+					if (bean != null)
+					{
+						invalidMappingAttr.addAll(bean.inferAttributeNamesWithInvalidMapping());
+					}
 				}
 			}
-			invalidMappingInfo.setVisible(
+			invalidMappingPanel.setVisible(
 					!invalidMappingAttr.isEmpty() && !attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
 			invalidMappingInfo.setValue(String.join(", ", invalidMappingAttr));
 
@@ -146,7 +157,7 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 					? ValidationResult.error(msg.getMessage("fieldRequired"))
 					: ValidationResult.ok();
 		}).bind("attributes");
-		attributesL.addComponent(invalidMappingInfo);
+		attributesL.addComponent(invalidMappingPanel);
 		attributesL.addComponent(attributesList);
 
 		CollapsibleLayout attributesSection = new CollapsibleLayout(msg.getMessage("EditSchemaSubView.attributes"),
