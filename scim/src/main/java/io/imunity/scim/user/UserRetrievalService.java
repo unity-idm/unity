@@ -14,14 +14,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.user.UserAuthzService.SCIMUserAuthzServiceFactory;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -41,7 +39,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 class UserRetrievalService
 {
 	public static final String DEFAULT_META_VERSION = "v1";
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRetrievalService.class);
 
 	private final UserAuthzService authzMan;
 	private final EntityManagement entityManagement;
@@ -81,13 +78,6 @@ class UserRetrievalService
 		Set<String> userGroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
 				.anyMatch(mgroup -> Group.isChildOrSame(userGroup, mgroup))).collect(Collectors.toSet());
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
-
-		if (userGroups.isEmpty())
-		{
-			log.error("User " + entity.getId() + " is out of range for configured membership groups");
-			throw new UserNotFoundException("Invalid user");
-		}
-
 		Collection<AttributeExt> attributes = attrMan.getAttributes(new EntityParam(entity.getId()),
 				configuration.rootGroup, null);
 
@@ -95,7 +85,6 @@ class UserRetrievalService
 				groupAndSubgroups.entrySet().stream().filter(e -> userGroups.contains(e.getKey()))
 						.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
 				attributes.stream().collect(Collectors.toMap(a -> a.getName(), a -> a)));
-
 	}
 
 	List<User> getUsers() throws EngineException
@@ -114,8 +103,6 @@ class UserRetrievalService
 		{
 			Set<String> groups = new HashSet<>(entityInGroup.groups);
 			groups.retainAll(groupAndSubgroups.keySet());
-			if (groups.isEmpty())
-				continue;
 
 			users.add(mapToUser(entityInGroup.entity,
 					groupAndSubgroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))

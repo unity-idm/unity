@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -86,11 +85,13 @@ public class SimpleMappingEvaluatorTest
 						.withDataValue(DataValue.builder().withType(DataValueType.MVEL).withValue("arrayObj").build())
 						.withDataArray(Optional.empty()).build())
 				.build();
-
+		when(targetDataConverter.convertToType(eq("attributeValue"), eq(SCIMAttributeType.STRING))).thenReturn("attributeValue");
 		when(mvelEvaluator.evalMVEL(eq("arrayObj"), any())).thenReturn("attributeValue");
-		Map<String, Object> eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
+		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
-		assertThat(eval.get("familyName"), is("attributeValue"));
+
+		assertThat(eval.attributeName, is("familyName"));
+		assertThat(eval.value.get(), is("attributeValue"));
 	}
 
 	@Test
@@ -105,13 +106,15 @@ public class SimpleMappingEvaluatorTest
 								DataArray.builder().withType(DataArrayType.ATTRIBUTE).withValue("familyName").build()))
 						.build())
 				.build();
-
+		when(targetDataConverter.convertToType(eq("attributeValue"), eq(SCIMAttributeType.STRING))).thenReturn("attributeValue");
 		doReturn(List.of("f1", "f2")).when(dataArrayResolver).resolve(
 				eq(DataArray.builder().withType(DataArrayType.ATTRIBUTE).withValue("familyName").build()), any());
 		when(mvelEvaluator.evalMVEL(eq("arrayObj"), any())).thenReturn("attributeValue");
-		Map<String, Object> eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
+		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
-		assertThat(eval.get("familyName"), is(List.of("attributeValue", "attributeValue")));
+
+		assertThat(eval.attributeName, is("familyName"));
+		assertThat(eval.value.get(), is(List.of("attributeValue", "attributeValue")));
 	}
 
 	@Test
@@ -132,9 +135,11 @@ public class SimpleMappingEvaluatorTest
 		when(targetDataConverter.convertToType(eq("f1"), eq(SCIMAttributeType.STRING))).thenReturn("f1");
 		when(targetDataConverter.convertToType(eq("f2"), eq(SCIMAttributeType.STRING))).thenReturn("f2");
 
-		Map<String, Object> eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
+		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
-		assertThat(eval.get("familyName"), is(List.of("f1", "f2")));
+
+		assertThat(eval.attributeName, is("familyName"));
+		assertThat(eval.value.get(), is(List.of("f1", "f2")));
 	}
 
 	@Test
@@ -152,9 +157,11 @@ public class SimpleMappingEvaluatorTest
 		when(targetDataConverter.convertUserAttributeToType(any(), eq("timeAttr"), eq(SCIMAttributeType.DATETIME)))
 				.thenReturn(Optional.of("datetime"));
 
-		Map<String, Object> eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
+		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
-		assertThat(eval.get("time"), is("datetime"));
+
+		assertThat(eval.attributeName, is("time"));
+		assertThat(eval.value.get(), is("datetime"));
 	}
 
 }

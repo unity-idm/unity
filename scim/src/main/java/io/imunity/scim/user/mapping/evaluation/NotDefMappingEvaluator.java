@@ -5,9 +5,6 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
@@ -24,9 +21,9 @@ public class NotDefMappingEvaluator implements MappingEvaluator
 	}
 
 	@Override
-	public Map<String, Object> eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	public EvaluationResult eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry) throws EngineException
 	{
-		return Collections.emptyMap();
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name).build();
 	}
 }

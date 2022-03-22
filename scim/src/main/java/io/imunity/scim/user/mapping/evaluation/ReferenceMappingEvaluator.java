@@ -9,9 +9,8 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -48,7 +47,7 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 	}
 
 	@Override
-	public Map<String, Object> eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	public EvaluationResult eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry) throws EngineException
 	{
 
@@ -61,12 +60,15 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 
 	}
 
-	private Map<String, Object> evalMulti(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	private EvaluationResult evalMulti(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry, ReferenceAttributeMapping mapping)
 			throws EngineException
 	{
 		if (attributeDefinitionWithMapping.attributeMapping.getDataArray().isEmpty())
-			return Collections.emptyMap();
+		{
+			return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+					.build();
+		}
 		List<Object> ret = new ArrayList<>();
 		for (Object arrayObj : dataArrayResolver.resolve(mapping.getDataArray().get(), context))
 		{
@@ -74,21 +76,23 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 					mvelEvaluator.evalMVEL(mapping.expression,
 							EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 									.withScimEndpointDescription(context.scimEndpointDescription)
-									.withGroupProvider(context.groupProvider).build())
-							,
+									.withGroupProvider(context.groupProvider).build()),
 					context));
 		}
-		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, ret);
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+				.withValue(Optional.ofNullable(ret.isEmpty() ? null : ret)).build();
 
 	}
 
-	private Map<String, Object> evalSingle(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	private EvaluationResult evalSingle(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry, ReferenceAttributeMapping mapping)
 			throws EngineException
 	{
 
-		return  Collections.singletonMap(attributeDefinitionWithMapping.attributeDefinition.name, resolveReference(mapping.type,
-				mvelEvaluator.evalMVEL(mapping.expression, context), context));
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+				.withValue(Optional.ofNullable(
+						resolveReference(mapping.type, mvelEvaluator.evalMVEL(mapping.expression, context), context)))
+				.build();
 
 	}
 
@@ -96,7 +100,7 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 	{
 		if (value == null)
 			return null;
-		
+
 		switch (type)
 		{
 		case GROUP:

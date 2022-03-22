@@ -10,8 +10,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -89,14 +87,17 @@ public class ComplexMappingEvaluatorTest
 		doReturn(List.of("f1", "f2")).when(dataArrayResolver).resolve(
 				eq(DataArray.builder().withType(DataArrayType.ATTRIBUTE).withValue("familyName").build()), any());
 
-		evaluator.eval(complexAttr, EvaluatorContext.builder().build(), mappingEvaluatorRegistry);
-
 		ArgumentCaptor<AttributeDefinitionWithMapping> attrWithMappingCaptor = ArgumentCaptor
 				.forClass(AttributeDefinitionWithMapping.class);
 		ArgumentCaptor<EvaluatorContext> contextCaptor = ArgumentCaptor.forClass(EvaluatorContext.class);
 
-		verify(simpleMappingEvaluator, times(2)).eval(attrWithMappingCaptor.capture(), contextCaptor.capture(),
-				eq(mappingEvaluatorRegistry));
+		when(simpleMappingEvaluator.eval(attrWithMappingCaptor.capture(), contextCaptor.capture(),
+				eq(mappingEvaluatorRegistry))).thenReturn(EvaluationResult.builder().build());
+		
+		
+		evaluator.eval(complexAttr, EvaluatorContext.builder().build(), mappingEvaluatorRegistry);
+
+		
 
 		assertThat(contextCaptor.getAllValues().get(0).arrayObj, is("f1"));
 		assertThat(contextCaptor.getAllValues().get(1).arrayObj, is("f2"));
@@ -132,13 +133,13 @@ public class ComplexMappingEvaluatorTest
 						.withDataValue(
 								DataValue.builder().withType(DataValueType.ATTRIBUTE).withValue("familyName").build())
 						.withDataArray(Optional.empty()).build())
-				.build()), any(), eq(mappingEvaluatorRegistry))).thenReturn(Map.of("familyName", "f1"));
+				.build()), any(), eq(mappingEvaluatorRegistry))).thenReturn(EvaluationResult.builder().withAttributeName("familyName").withValue(Optional.of("f1")).build());
 
-		Map<String, Object> value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
+		EvaluationResult value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(value.get("name"), is(Map.of("familyName", "f1")));
-
+		assertThat(value.attributeName, is("name"));
+		assertThat(value.value.get(), is(Map.of("familyName", "f1")));
 	}
 
 	@Test
@@ -174,13 +175,14 @@ public class ComplexMappingEvaluatorTest
 						.withDataValue(
 								DataValue.builder().withType(DataValueType.ATTRIBUTE).withValue("subFamily").build())
 						.withDataArray(Optional.empty()).build())
-				.build()), any(), eq(mappingEvaluatorRegistry))).thenReturn(Map.of("familyName", "f1"));
+				.build()), any(), eq(mappingEvaluatorRegistry))).thenReturn(EvaluationResult.builder().withAttributeName("familyName")
+						.withValue(Optional.of("f1")).build());
 
-		Map<String, Object> value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
+		EvaluationResult value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(value.get("name"), is(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f1"))));
-
+		assertThat(value.attributeName, is("name"));
+		assertThat(value.value.get(), is(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f1"))));
 	}
 
 }

@@ -60,6 +60,9 @@ class UnityToSCIMDataConverter
 
 	Object convertToType(Object value, SCIMAttributeType type)
 	{
+		if (value == null)
+			return null;
+
 		switch (type)
 		{
 		case STRING:

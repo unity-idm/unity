@@ -41,6 +41,9 @@ class MVELEvaluator
 
 	Object evalMVEL(String mvel, EvaluatorContext context) throws IllegalAttributeValueException
 	{
+		if (mvel == null)
+			return null;
+		
 		Serializable expressionCompiled = compileMvel(mvel);
 		return MVEL.executeExpression(expressionCompiled, createContext(context), new HashMap<>());
 	}

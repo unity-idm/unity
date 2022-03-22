@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -31,8 +30,8 @@ import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.DataArray;
 import io.imunity.scim.config.DataArray.DataArrayType;
 import io.imunity.scim.config.ReferenceAttributeMapping;
-import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.ReferenceAttributeMapping.ReferenceType;
+import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.schema.SCIMAttributeType;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -90,14 +89,16 @@ public class ReferenceMappingEvaluatorTest
 
 		when(mvelEvaluator.evalMVEL(eq("attrObj['x']"), any())).thenReturn("g1");
 
-		Map<String, Object> eval = evaluator.eval(refAttr,
+		EvaluationResult eval = evaluator.eval(refAttr,
 				EvaluatorContext.builder()
 						.withScimEndpointDescription(new SCIMEndpointDescription(URI.create("https://localhost"), null,
 								Collections.emptyList(), Collections.emptyList()))
 						.build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(eval.get("link").toString(), is("https://localhost/Groups/g1"));
+		assertThat(eval.attributeName, is("link"));
+		assertThat(eval.value.get().toString(), is("https://localhost/Groups/g1"));
+
 	}
 
 	@Test
@@ -112,14 +113,15 @@ public class ReferenceMappingEvaluatorTest
 
 		when(mvelEvaluator.evalMVEL(eq("attrObj['x']"), any())).thenReturn("u1");
 
-		Map<String, Object> eval = evaluator.eval(refAttr,
+		EvaluationResult eval = evaluator.eval(refAttr,
 				EvaluatorContext.builder()
 						.withScimEndpointDescription(new SCIMEndpointDescription(URI.create("https://localhost"), null,
 								Collections.emptyList(), Collections.emptyList()))
 						.build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(eval.get("link").toString(), is("https://localhost/Users/u1"));
+		assertThat(eval.attributeName, is("link"));
+		assertThat(eval.value.get().toString(), is("https://localhost/Users/u1"));
 	}
 
 	@Test
@@ -133,10 +135,10 @@ public class ReferenceMappingEvaluatorTest
 				.build();
 		when(mvelEvaluator.evalMVEL(eq("attrObj['x']"), any())).thenReturn("linkValue");
 
-		Map<String, Object> eval = evaluator.eval(refAttr, EvaluatorContext.builder().build(),
-				mappingEvaluatorRegistry);
+		EvaluationResult eval = evaluator.eval(refAttr, EvaluatorContext.builder().build(), mappingEvaluatorRegistry);
 
-		assertThat(eval.get("link").toString(), is("linkValue"));
+		assertThat(eval.attributeName, is("link"));
+		assertThat(eval.value.get().toString(), is("linkValue"));
 	}
 
 }

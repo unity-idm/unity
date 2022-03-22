@@ -54,9 +54,13 @@ public class UserSchemaEvaluator
 		{
 			MappingEvaluator evaluator = mappingEvaluatorRegistry
 					.getByName(attributeWithMapping.attributeMapping.getEvaluatorId());
-			ret.putAll(evaluator.eval(attributeWithMapping, EvaluatorContext.builder().withUser(user)
+			EvaluationResult eval = evaluator.eval(attributeWithMapping, EvaluatorContext.builder().withUser(user)
 					.withGroupProvider(cachingMVELGroupProvider).withScimEndpointDescription(configuration).build(),
-					mappingEvaluatorRegistry));
+					mappingEvaluatorRegistry);
+			if (eval.value.isPresent())
+			{
+				ret.put(eval.attributeName, eval.value.get());
+			}
 		}
 		return ret;
 	}

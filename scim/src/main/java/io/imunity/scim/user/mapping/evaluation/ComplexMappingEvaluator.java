@@ -6,10 +6,10 @@
 package io.imunity.scim.user.mapping.evaluation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ class ComplexMappingEvaluator implements MappingEvaluator
 	}
 
 	@Override
-	public Map<String, Object> eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	public EvaluationResult eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry mappingEvaluatorRegistry) throws EngineException
 	{
 
@@ -50,41 +50,52 @@ class ComplexMappingEvaluator implements MappingEvaluator
 
 	}
 
-	private Map<String, Object> evalMulti(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	private EvaluationResult evalMulti(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry mappingEvaluatorRegistry) throws EngineException
 	{
 		List<Object> retArray = new ArrayList<>();
 		if (attributeDefinitionWithMapping.attributeMapping.getDataArray().isEmpty())
-			return Collections.emptyMap();
-		
+			return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+					.build();
+
 		for (Object arrayObj : dataArrayResolver
 				.resolve(attributeDefinitionWithMapping.attributeMapping.getDataArray().get(), context))
 		{
 			Map<String, Object> subAtributeEvalRet = new HashMap<>();
 			for (AttributeDefinitionWithMapping subAttr : attributeDefinitionWithMapping.attributeDefinition.subAttributesWithMapping)
 			{
-				subAtributeEvalRet.putAll(
-						mappingEvaluatorRegistry.getByName(subAttr.attributeMapping.getEvaluatorId()).eval(subAttr,
+				EvaluationResult sResult = mappingEvaluatorRegistry.getByName(subAttr.attributeMapping.getEvaluatorId())
+						.eval(subAttr,
 								EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 										.withScimEndpointDescription(context.scimEndpointDescription)
 										.withGroupProvider(context.groupProvider).build(),
-								mappingEvaluatorRegistry));
+								mappingEvaluatorRegistry);
+				if (sResult.value.isPresent())
+				{
+					subAtributeEvalRet.put(sResult.attributeName, sResult.value.get());
+				}
 			}
 			retArray.add(subAtributeEvalRet);
 		}
-		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, retArray);
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+				.withValue(Optional.ofNullable(retArray.isEmpty() ? null : retArray)).build();
 
 	}
 
-	private Map<String, Object> evalSingle(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	private EvaluationResult evalSingle(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry mappingEvaluatorRegistry) throws EngineException
 	{
 		Map<String, Object> ret = new HashMap<>();
 		for (AttributeDefinitionWithMapping subAttr : attributeDefinitionWithMapping.attributeDefinition.subAttributesWithMapping)
 		{
-			ret.putAll(mappingEvaluatorRegistry.getByName(subAttr.attributeMapping.getEvaluatorId()).eval(subAttr,
-					context, mappingEvaluatorRegistry));
+			EvaluationResult sResult = mappingEvaluatorRegistry.getByName(subAttr.attributeMapping.getEvaluatorId())
+					.eval(subAttr, context, mappingEvaluatorRegistry);
+			if (sResult.value.isPresent())
+			{
+				ret.put(sResult.attributeName, sResult.value.get());
+			}
 		}
-		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, ret);
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+				.withValue(Optional.of(ret)).build();
 	}
 }

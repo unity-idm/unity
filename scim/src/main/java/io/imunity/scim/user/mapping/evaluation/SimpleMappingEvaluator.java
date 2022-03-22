@@ -6,9 +6,7 @@
 package io.imunity.scim.user.mapping.evaluation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
@@ -43,7 +41,7 @@ class SimpleMappingEvaluator implements MappingEvaluator
 	}
 
 	@Override
-	public Map<String, Object> eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	public EvaluationResult eval(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry) throws EngineException
 	{
 		log.debug("Eval simple mapping for attribute {}", attributeDefinitionWithMapping.attributeDefinition.name);
@@ -54,7 +52,7 @@ class SimpleMappingEvaluator implements MappingEvaluator
 				: evalSingle(attributeDefinitionWithMapping, context, registry, mapping);
 	}
 
-	private Map<String, Object> evalSingle(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	private EvaluationResult evalSingle(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry, SimpleAttributeMapping mapping)
 			throws EngineException
 	{
@@ -63,7 +61,9 @@ class SimpleMappingEvaluator implements MappingEvaluator
 		switch (mapping.dataValue.type)
 		{
 		case MVEL:
-			value = Optional.ofNullable(mvelEvaluator.evalMVEL(mapping.dataValue.value.get(), context));
+			value = Optional.ofNullable(
+					targetDataConverter.convertToType(mvelEvaluator.evalMVEL(mapping.dataValue.value.get(), context),
+							attributeDefinitionWithMapping.attributeDefinition.type));
 			break;
 		case ATTRIBUTE:
 			value = targetDataConverter.convertUserAttributeToType(context.user, mapping.dataValue.value.get(),
@@ -78,26 +78,33 @@ class SimpleMappingEvaluator implements MappingEvaluator
 					mapping.dataValue.type + " dataValue type is not supported by single simple mapping");
 		}
 
-		return Collections.singletonMap(attributeDefinitionWithMapping.attributeDefinition.name, value.isEmpty() ? null : value.get());
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+				.withValue(value).build();
 
 	}
 
-	private Map<String, Object> evalMulti(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
+	private EvaluationResult evalMulti(AttributeDefinitionWithMapping attributeDefinitionWithMapping,
 			EvaluatorContext context, MappingEvaluatorRegistry registry, SimpleAttributeMapping mapping)
 			throws EngineException
 	{
 		if (attributeDefinitionWithMapping.attributeMapping.getDataArray().isEmpty())
-			return Collections.emptyMap();
+		{
+			return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+					.build();
+		}
+		
 		List<Object> evalRet = new ArrayList<>();
 		for (Object arrayObj : dataArrayResolver.resolve(mapping.getDataArray().get(), context))
 		{
 			switch (mapping.dataValue.type)
 			{
 			case MVEL:
-				evalRet.add(mvelEvaluator.evalMVEL(mapping.dataValue.value.get(),
-						EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
-								.withScimEndpointDescription(context.scimEndpointDescription)
-								.withGroupProvider(context.groupProvider).build()));
+				evalRet.add(targetDataConverter.convertToType(
+						mvelEvaluator.evalMVEL(mapping.dataValue.value.get(),
+								EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
+										.withScimEndpointDescription(context.scimEndpointDescription)
+										.withGroupProvider(context.groupProvider).build()),
+						attributeDefinitionWithMapping.attributeDefinition.type));
 				break;
 			case ARRAY:
 				evalRet.add(targetDataConverter.convertToType(arrayObj,
@@ -108,6 +115,7 @@ class SimpleMappingEvaluator implements MappingEvaluator
 						mapping.dataValue.type + " dataValue type is not supported in single simple mapping");
 			}
 		}
-		return Map.of(attributeDefinitionWithMapping.attributeDefinition.name, evalRet);
+		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
+				.withValue(Optional.ofNullable(evalRet.isEmpty() ? null : evalRet)).build();
 	}
 }
