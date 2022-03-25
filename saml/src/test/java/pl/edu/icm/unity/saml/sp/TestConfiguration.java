@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
+import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.CREDENTIAL;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.DEF_SIGN_REQUEST;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.IDP_BINDING;
@@ -18,8 +19,11 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Test;
 
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.SimplePKIManagement;
 import pl.edu.icm.unity.saml.metadata.SPMetadataGenerator;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfigurationParser;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
@@ -49,9 +53,11 @@ public class TestConfiguration
 		p.setProperty(P+CREDENTIAL, "MAIN");
 		p.setProperty(P+METADATA_PATH, "meta");
 		
-		SAMLSPProperties config = new SAMLSPProperties(p, new SimplePKIManagement());
+		SAMLSPConfigurationParser configParser = new SAMLSPConfigurationParser(new SimplePKIManagement(),
+				mock(MessageSource.class));
+		SAMLSPConfiguration configuration = configParser.parse(p);
 		
-		SPMetadataGenerator generator = new SPMetadataGenerator(config, 
+		SPMetadataGenerator generator = new SPMetadataGenerator(configuration, 
 				new IndexedEndpointType[0], new EndpointType[0]);
 		
 		Assert.assertNotNull(generator.getMetadata());

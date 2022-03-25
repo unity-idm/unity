@@ -124,8 +124,6 @@ public class TestECP extends AbstractTestIdpBase
 		EnvelopeDocument samlReqDoc = getSamlRequest();
 		EnvelopeDocument samlRespDoc = sendToIdP(samlReqDoc);
 		sendResponseToSP(samlRespDoc, samlReqDoc);
-		
-		
 	}
 
 	private void sendResponseToSP(EnvelopeDocument samlRespDoc, EnvelopeDocument samlReqDoc) throws Exception

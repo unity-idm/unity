@@ -38,8 +38,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  * Configuration of a SAML requester (or SAML SP).
  * @author K. Benedyczak
  */
-@Deprecated
-//TODO make package private, remove depraecation
+//TODO make package private
 public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);
@@ -385,11 +384,8 @@ public class SAMLSPProperties extends SamlProperties
 		return trustChecker;
 	}
 	
-	public List<PublicKey> getPublicKeysOfIdp(String samlEntityId)
+	public List<PublicKey> getPublicKeysOfIdp(String idpKey)
 	{
-		String idpKey = getPrefixOfIdP(samlEntityId);
-		if (idpKey == null)
-			return null;
 		Set<String> idpCertNames = getCertificateNames(idpKey);
 		List<PublicKey> keys = new ArrayList<>();
 		for (String idpCertName: idpCertNames)

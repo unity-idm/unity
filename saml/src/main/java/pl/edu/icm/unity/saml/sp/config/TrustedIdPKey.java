@@ -6,15 +6,23 @@ package pl.edu.icm.unity.saml.sp.config;
 
 import java.util.Objects;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class TrustedIdPKey
 {
 	private final String key;
-
+	
 	public TrustedIdPKey(String key)
 	{
 		this.key = key;
 	}
 
+	public static TrustedIdPKey metadataEntity(String samlEntityId, int index)
+	{
+		String entityHex = DigestUtils.md5Hex(samlEntityId);
+		return new TrustedIdPKey("_entryFromMetadata_" + entityHex + "+" + index + ".");
+	}
+	
 	public String asString()
 	{
 		return key;

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +81,7 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, 15);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		MetadataConsumer consumer = new MetadataConsumer(1500, (m,id) -> gotEvent.set(true), "1");
+		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1");
 		handler.addConsumer(consumer);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
@@ -96,10 +97,10 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, 15);
 		
 		AtomicBoolean event1 = new AtomicBoolean(false);
-		MetadataConsumer consumer1 = new MetadataConsumer(1500, (m,id) -> event1.set(true), "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1");
 		handler.addConsumer(consumer1);
 		AtomicBoolean event2 = new AtomicBoolean(false);
-		MetadataConsumer consumer2 = new MetadataConsumer(1500, (m,id) -> event2.set(true), "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> event2.set(true), "2");
 		handler.addConsumer(consumer2);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
@@ -114,10 +115,10 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 15);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(1500, (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
 		AtomicInteger event = new AtomicInteger(0);
-		MetadataConsumer consumer2 = new MetadataConsumer(100, 
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(100), 
 				(m,id) -> {handler.removeConsumer("2"); event.incrementAndGet();},
 				"2");
 		handler.addConsumer(consumer2);
@@ -141,7 +142,7 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, 20);
 		
 		AtomicInteger invCount = new AtomicInteger(0);
-		MetadataConsumer consumer1 = new MetadataConsumer(20, (m,id) -> invCount.incrementAndGet(), "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(20), (m,id) -> invCount.incrementAndGet(), "1");
 		handler.addConsumer(consumer1);
 		handler.removeConsumer("1");
 		int inv = invCount.get()+1;
@@ -156,12 +157,12 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 15);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(1500, (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
 		handler.removeConsumer("1");
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		MetadataConsumer consumer2 = new MetadataConsumer(1500, (m,id) -> gotEvent.set(true), "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "2");
 		handler.addConsumer(consumer2);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
@@ -176,13 +177,13 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 1000);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(15000, (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
-		assertThat(handler.getRefreshInterval(), is(15000L));
+		assertThat(handler.getRefreshInterval(), is(ofMillis(15000)));
 
-		MetadataConsumer consumer2 = new MetadataConsumer(5000, (m,id) -> {}, "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(5000), (m,id) -> {}, "2");
 		handler.addConsumer(consumer2);
-		assertThat(handler.getRefreshInterval(), is(5000L));
+		assertThat(handler.getRefreshInterval(), is(ofMillis(5000)));
 	}
 	
 	@Test
@@ -192,16 +193,16 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 1000);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(15000, (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
-		assertThat(handler.getRefreshInterval(), is(15000L));
+		assertThat(handler.getRefreshInterval(), is(ofMillis(15000)));
 
-		MetadataConsumer consumer2 = new MetadataConsumer(5000, (m,id) -> {}, "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(5000), (m,id) -> {}, "2");
 		handler.addConsumer(consumer2);
-		assertThat(handler.getRefreshInterval(), is(5000L));
+		assertThat(handler.getRefreshInterval(), is(ofMillis(5000)));
 		
 		handler.removeConsumer("2");
-		assertThat(handler.getRefreshInterval(), is(15000L));
+		assertThat(handler.getRefreshInterval(), is(ofMillis(15000)));
 	}
 	
 	@Test
@@ -212,14 +213,14 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, 10000);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		MetadataConsumer consumer1 = new MetadataConsumer(15000, (m,id) -> gotEvent.set(true), "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent.set(true), "1");
 		handler.addConsumer(consumer1);
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 
 		
 		AtomicBoolean gotEvent2 = new AtomicBoolean(false);
-		MetadataConsumer consumer2 = new MetadataConsumer(15000, (m,id) -> gotEvent2.set(true), "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent2.set(true), "2");
 		handler.addConsumer(consumer2);
 		Awaitility.await().pollDelay(10, TimeUnit.MILLISECONDS)
 				.atMost(Durations.ONE_SECOND).until(

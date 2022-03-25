@@ -22,7 +22,8 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.FakeTrustedIdPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -32,7 +33,7 @@ public class TestSAMLResponseValidatorUtil
 	public void shouldReturnAuthnContextFromAssertionAsAttribute() throws Exception
 	{
 		ReplayAttackChecker rac = new ReplayAttackChecker();
-		SAMLSPProperties samlProperties = mock(SAMLSPProperties.class);
+		SAMLSPConfiguration samlProperties = mock(SAMLSPConfiguration.class);
 		SAMLResponseValidatorUtil responseValidator = new SAMLResponseValidatorUtil(
 				samlProperties, rac, "");
 		
@@ -46,7 +47,7 @@ public class TestSAMLResponseValidatorUtil
 		SSOAuthnResponseValidator validator = mock(SSOAuthnResponseValidator.class);
 		when(validator.getAuthNAssertions()).thenReturn(authnAssertions);
 		RemotelyAuthenticatedInput authnInput = responseValidator.convertAssertion(
-				respDoc, validator, null, "cfgKey");
+				respDoc, validator, null, FakeTrustedIdPConfiguration.get());
 		
 		
 		RemoteAttribute authnCtxAttr = authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR);

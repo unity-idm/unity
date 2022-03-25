@@ -129,7 +129,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public String getSerializedConfiguration() throws InternalException
 	{
-		return configurationParser.serialize(spConfiguration);
+		//TODO drop that method from the API
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	/**

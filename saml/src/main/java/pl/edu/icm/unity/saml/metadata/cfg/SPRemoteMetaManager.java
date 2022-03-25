@@ -58,6 +58,13 @@ public class SPRemoteMetaManager
 	
 	public synchronized void setBaseConfiguration(SAMLSPConfiguration configuration)
 	{
+		if (this.configuration == null)
+		{
+			this.configuration = configuration;
+			reinitialize(configuration);
+			return;
+		}
+		
 		Map<String, RemoteMetadataSource> oldMetaSrcs = this.configuration.trustedMetadataSources;
 		Map<String, RemoteMetadataSource> newMetaSrcs = configuration.trustedMetadataSources;
 		TrustedIdPs oldIndividualTrustedIdPs = this.configuration.individualTrustedIdPs;
@@ -66,11 +73,14 @@ public class SPRemoteMetaManager
 		boolean reload = !oldMetaSrcs.equals(newMetaSrcs) || !oldIndividualTrustedIdPs.equals(newIndividualTrustedIdPs);
 		this.configuration = configuration;
 		if (reload)
-		{
-			combinedTrustedIdPs = configuration.individualTrustedIdPs;
-			unregisterAll();
-			registerMetadataConsumers();
-		}
+			reinitialize(configuration);
+	}
+
+	private void reinitialize(SAMLSPConfiguration configuration)
+	{
+		combinedTrustedIdPs = configuration.individualTrustedIdPs;
+		unregisterAll();
+		registerMetadataConsumers();
 	}
 	
 	private void registerMetadataConsumers()

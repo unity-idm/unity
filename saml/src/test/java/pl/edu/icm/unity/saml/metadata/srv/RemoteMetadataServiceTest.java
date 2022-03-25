@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.atMost;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,7 +57,7 @@ public class RemoteMetadataServiceTest
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		String key = service.preregisterConsumer("url");
-		service.registerConsumer(key, 100, null, (m,id) -> gotEvent.set(true));
+		service.registerConsumer(key, ofMillis(100), null, (m,id) -> gotEvent.set(true));
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -67,11 +69,11 @@ public class RemoteMetadataServiceTest
 		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
 		String key = service.preregisterConsumer("url");
-		service.registerConsumer(key, 100, null, (m,id) -> {});
+		service.registerConsumer(key, ofMillis(100), null, (m,id) -> {});
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		String key2 = service.preregisterConsumer("url2");
-		service.registerConsumer(key2, 100, null, (m,id) -> gotEvent.set(true));
+		service.registerConsumer(key2, ofMillis(100), null, (m,id) -> gotEvent.set(true));
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -89,11 +91,11 @@ public class RemoteMetadataServiceTest
 		});
 		
 		String key = service.preregisterConsumer("url");
-		service.registerConsumer(key, 200, null, (m,id) -> {});
+		service.registerConsumer(key, ofMillis(200), null, (m,id) -> {});
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		String key2 = service.preregisterConsumer("url");
-		service.registerConsumer(key2, 200, null, (m,id) -> gotEvent.set(true));
+		service.registerConsumer(key2, ofMillis(200), null, (m,id) -> gotEvent.set(true));
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -107,7 +109,7 @@ public class RemoteMetadataServiceTest
 		
 		AtomicInteger gotEvent = new AtomicInteger(0);
 		String id = service.preregisterConsumer("url");
-		service.registerConsumer(id, 25, null, (m,cid) -> gotEvent.incrementAndGet());
+		service.registerConsumer(id, ofMillis(25), null, (m,cid) -> gotEvent.incrementAndGet());
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get()>0);

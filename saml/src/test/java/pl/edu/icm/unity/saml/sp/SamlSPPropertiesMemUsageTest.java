@@ -29,6 +29,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServer.conf" })
@@ -49,17 +50,17 @@ public class SamlSPPropertiesMemUsageTest
 		String stringCfg = configWithTrustedFederation();
 		SAMLVerificator verificator = (SAMLVerificator) verificatorFactory.newInstance();
 		verificator.setSerializedConfiguration(stringCfg);
-		List<SAMLSPProperties> configs = new ArrayList<>();
+		List<TrustedIdPs> configs = new ArrayList<>();
 		log.info("Waiting for init");
 		Thread.sleep(10_000);
 		
-		verificator.getSamlValidatorSettings();
+		verificator.getTrustedIdPs();
 		System.gc();
 		long startingMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		log.info("Mem usage start {}kB", startingMem/1000); 
 		for (int i=0; i<100; i++)
 		{
-			configs.add(verificator.getSamlValidatorSettings());
+			configs.add(verificator.getTrustedIdPs());
 			System.gc();
 			long usage = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 			log.info("Mem usage after {} allocations: {}kB (inc: {}kB)", i, 

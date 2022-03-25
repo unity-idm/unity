@@ -8,6 +8,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +44,6 @@ public class TrustedIdPConfiguration
 	private TrustedIdPConfiguration(Builder builder)
 	{
 		checkNotNull(builder.certificateNames);
-		checkNotNull(builder.requestedNameFormat);
 		checkNotNull(builder.name);
 		checkNotNull(builder.publicKeys);
 		checkNotNull(builder.key);
@@ -224,6 +224,12 @@ public class TrustedIdPConfiguration
 		public Builder withLogoutEndpoint(SAMLEndpointDefinition logoutEndpoint)
 		{
 			this.logoutEndpoints.add(logoutEndpoint);
+			return this;
+		}
+
+		public Builder withLogoutEndpoints(Collection<SAMLEndpointDefinition> logoutEndpoints)
+		{
+			this.logoutEndpoints.addAll(logoutEndpoints);
 			return this;
 		}
 

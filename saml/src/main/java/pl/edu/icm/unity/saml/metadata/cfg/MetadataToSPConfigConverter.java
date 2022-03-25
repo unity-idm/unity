@@ -41,6 +41,7 @@ import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration.Builder;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -158,7 +159,7 @@ class MetadataToSPConfigConverter
 		{
 			Builder builder = TrustedIdPConfiguration.builder();
 			fillMetadataWideSettings(builder, metadataSource, pkiCerts);
-			fillIdPSettings(builder, federationMeta, entityMeta, idpDef);
+			fillIdPSettings(builder, federationMeta, entityMeta, idpDef, 1);
 			fillEndpointData(builder, webEndpoint);
 			ret.add(builder.build());
 		}
@@ -167,7 +168,7 @@ class MetadataToSPConfigConverter
 		{
 			Builder builder = TrustedIdPConfiguration.builder();
 			fillMetadataWideSettings(builder, metadataSource, pkiCerts);
-			fillIdPSettings(builder, federationMeta, entityMeta, idpDef);
+			fillIdPSettings(builder, federationMeta, entityMeta, idpDef, 2);
 			fillEndpointData(builder, soapEndpoint);
 			ret.add(builder.build());
 		}
@@ -183,7 +184,7 @@ class MetadataToSPConfigConverter
 	}
 
 	private void fillIdPSettings(Builder builder, EntitiesDescriptorType federationMeta, 
-			EntityDescriptorType entityMeta, IDPSSODescriptorType idpDef)
+			EntityDescriptorType entityMeta, IDPSSODescriptorType idpDef, int index)
 	{
 		String federationId = federationMeta.getID();
 		String federationName = federationMeta.getName();
@@ -192,7 +193,8 @@ class MetadataToSPConfigConverter
 		String entityId = entityMeta.getEntityID();
 		UIInfoType uiInfo = MetaToConfigConverterHelper.parseMDUIInfo(idpDef.getExtensions(), entityId);
 		
-		builder.withSamlId(entityId)
+		builder.withKey(TrustedIdPKey.metadataEntity(entityId, index))
+			.withSamlId(entityId)
 			.withFederationId(federationId)
 			.withFederationName(federationName)
 			.withSignRequest(idpDef.isSetWantAuthnRequestsSigned())
