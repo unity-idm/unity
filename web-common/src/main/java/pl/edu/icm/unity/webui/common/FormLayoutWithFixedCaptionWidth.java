@@ -20,10 +20,15 @@ public class FormLayoutWithFixedCaptionWidth extends FormLayout
 		this(Styles.fixedWidthCaptions);
 	}
 
-	private  FormLayoutWithFixedCaptionWidth(Styles style)
+	public FormLayoutWithFixedCaptionWidth(Styles style)
 	{
 		addStyleName(style.toString());
 		setMargin(true);
+	}
+	
+	public static FormLayoutWithFixedCaptionWidth withVeryShortCaptions()
+	{
+		return new FormLayoutWithFixedCaptionWidth(Styles.fixedWidthVeryShortCaptions);
 	}
 	
 	public static FormLayoutWithFixedCaptionWidth withShortCaptions()

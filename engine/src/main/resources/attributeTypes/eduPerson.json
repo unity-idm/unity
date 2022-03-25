@@ -8,7 +8,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonEntitlement",
@@ -37,7 +38,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonAssurance",
@@ -66,7 +68,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonOrcid",
@@ -95,7 +98,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonUniqueId",
@@ -124,7 +128,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonOrgDN",
@@ -153,7 +158,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonOrgUnitDN",
@@ -182,7 +188,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonPrimaryOrgUnitDN",
@@ -211,7 +218,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonPrincipalName",
@@ -240,7 +248,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonPrincipalNamePrior",
@@ -269,7 +278,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonScopedAffiliation",
@@ -298,7 +308,8 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 200
+			"maxLength": 200,
+			"editWithTextArea": false
 		},
 		"displayedName": {
 			"DefaultValue": "eduPersonTargetedID",

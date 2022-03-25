@@ -79,14 +79,14 @@ class CompositeEntitiesInfoProvider
 						.collect(Collectors.toSet()));
 
 		GlobalSystemData globalData = loadGlobalData();
-		EntitiesData entitiesData = getEntitiesDataOFSingleGroup(group, gm -> members.contains(gm.getEntityId()));
+		EntitiesData entitiesData = getEntitiesDataOfSingleGroup(group, gm -> members.contains(gm.getEntityId()));
 		
 		GroupMembershipDataImpl ret = new GroupMembershipDataImpl(group, globalData, entitiesData);
 		log.debug("Bulk group membership data retrieval: {}", watch.toString());
 		return ret;
 	}
 
-	private EntitiesData getEntitiesDataOFSingleGroup(String group, Predicate<GroupMembership> groupMembershipFilter)
+	private EntitiesData getEntitiesDataOfSingleGroup(String group, Predicate<GroupMembership> groupMembershipFilter)
 	{
 		return EntitiesData.builder()
 				.withMemberships(getFilteredMemberships(groupMembershipFilter))

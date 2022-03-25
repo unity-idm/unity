@@ -50,6 +50,10 @@ class OAuthEndpointConfigurationMigrator
 				raw.put(REFRESH_TOKEN_ISSUE_POLICY_PROPERTY, "NEVER");
 				raw.remove(REFRESH_TOKEN_VALIDITY_PROPERTY);
 			}
+		} else
+		{
+			raw.put(REFRESH_TOKEN_ISSUE_POLICY_PROPERTY, "NEVER");
+			raw.remove(REFRESH_TOKEN_VALIDITY_PROPERTY);
 		}
 
 		return getAsString(raw);

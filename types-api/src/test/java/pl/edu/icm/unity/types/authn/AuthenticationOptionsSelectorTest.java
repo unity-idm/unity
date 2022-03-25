@@ -10,6 +10,8 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.JsonUtil;
+
 public class AuthenticationOptionsSelectorTest
 {
 	@Test
@@ -55,6 +57,32 @@ public class AuthenticationOptionsSelectorTest
 		AuthenticationOptionKey authnOption = new AuthenticationOptionKey("authenticator2", "option1");
 		
 		assertThat(selector.matchesAuthnOption(authnOption)).isFalse();
+	}
+
+	@Test
+	public void shouldSerializeToString()
+	{
+		AuthenticationOptionsSelector key = new AuthenticationOptionsSelector("a", "o");
+		
+		String json = JsonUtil.toJsonString(key);
+
+		assertThat(json).isEqualTo("{\"authenticatorKey\":\"a\",\"optionKey\":\"o\"}");
+	}
+	
+	@Test
+	public void shouldParseFromObjectRepresentation()
+	{
+		AuthenticationOptionsSelector key = JsonUtil.parse("{\"authenticatorKey\":\"a\",\"optionKey\":\"o\"}", AuthenticationOptionsSelector.class);
+		
+		assertThat(key).isEqualTo(new AuthenticationOptionsSelector("a", "o"));
+	}
+	
+	@Test
+	public void shouldParseFromStringRepresentation()
+	{
+		AuthenticationOptionsSelector key = JsonUtil.parse("\"a.o\"", AuthenticationOptionsSelector.class);
+		
+		assertThat(key).isEqualTo(new AuthenticationOptionsSelector("a", "o"));
 	}
 
 }
