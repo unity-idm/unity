@@ -106,6 +106,7 @@ public class SAMLSPConfigurationParser
 	{
 		Set<String> idpKeys = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
 		List<TrustedIdPConfiguration> trustedIdPs = idpKeys.stream()
+			.filter(samlProperties::isIdPDefinitionComplete)
 			.map(key -> getIndividualTrustedIdP(samlProperties, key))
 			.collect(Collectors.toList());
 		return new TrustedIdPs(trustedIdPs);
@@ -118,7 +119,6 @@ public class SAMLSPConfigurationParser
 				samlProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 		return TrustedIdPConfiguration.builder()
 				.withKey(new TrustedIdPKey(key))
-				.withDefinitionComplete(samlProperties.isIdPDefinitionComplete(key))
 				.withEnableAccountsAssocation(accountAssociationEnabled)
 				.withSignRequest(samlProperties.isSignRequest(key))
 				.withBinding(samlProperties.getEnumValue(key + SAMLSPProperties.IDP_BINDING, Binding.class))

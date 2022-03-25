@@ -79,21 +79,20 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		TrustedIdPs trustedIdps = credentialExchange.getTrustedIdPs();
 		for (TrustedIdPConfiguration idp: trustedIdps.getAll())
-			if (idp.definitionComplete)
+		{
+			TrustedIdPKey idpKey = idp.key;
+			Binding binding = idp.binding;
+			if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
 			{
-				TrustedIdPKey idpKey = idp.key;
-				Binding binding = idp.binding;
-				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
-				{
-					AuthenticationOptionKey authenticationOptionKey = 
-							new AuthenticationOptionKey(getAuthenticatorId(), idpKey.asString());
-					
-					ret.add(new SAMLRetrievalUI(msg, uriAccessService, credentialExchange, 
-							samlContextManagement, 
-							idp.key, context,
-							new AuthenticationStepContext(authnStepContext, authenticationOptionKey)));
-				}
+				AuthenticationOptionKey authenticationOptionKey = 
+						new AuthenticationOptionKey(getAuthenticatorId(), idpKey.asString());
+
+				ret.add(new SAMLRetrievalUI(msg, uriAccessService, credentialExchange, 
+						samlContextManagement, 
+						idp.key, context,
+						new AuthenticationStepContext(authnStepContext, authenticationOptionKey)));
 			}
+		}
 		return ret;
 	}
 

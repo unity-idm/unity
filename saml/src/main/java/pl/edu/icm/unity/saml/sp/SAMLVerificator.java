@@ -232,8 +232,6 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 				initialLoginMachine, ultimateReturnURL, triggeringContext);
 		
 		TrustedIdPConfiguration idPConfiguration = getTrustedIdPs().get(idpConfigKey);
-		if (!idPConfiguration.definitionComplete)
-			throw new IllegalStateException("The selected IdP is not valid anymore, seems it was disabled");
 		boolean sign = idPConfiguration.signRequest;
 		String requesterId = spConfiguration.requesterSamlId; 
 		String identityProviderURL = idPConfiguration.idpEndpointURL;
@@ -250,23 +248,19 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	{
 		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
 		TranslationProfile profile = castedState.getIdp().translationProfile;
-		//TODO drop after moving to properties converter
-//				getTranslationProfile(config,
-//				idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
-//				idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 		return responseVerificator.processResponse(remoteAuthnState, profile);
 	}
 
 	@Override
 	public Set<TrustedIdPKey> getTrustedIdpKeysWithWebBindings()
 	{
-		return getTrustedIdPs().getKeys(); //TODO - we need to filter out IdPs w/o web binding. Or just filter them early?
+		return getTrustedIdPs().getKeys();
 	}
 	
 	@Override
 	public TrustedIdPs getTrustedIdPs()
 	{
-		return myMetadataManager.getTrustedIdPs();
+		return myMetadataManager.getTrustedIdPs().withWebBinding();
 	}
 	
 	@Override
@@ -297,14 +291,11 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			IdpGroup group = idp.federationId != null ? 
 					new IdpGroup(idp.federationId, Optional.ofNullable(idp.federationName)) : null;
 
-			if (idp.samlId != null)
-			{
-				providers.add(IdPInfo.builder()
-						.withId(idp.samlId)
-						.withConfigId(idp.key.toString())
-						.withDisplayedName(idp.name)
-						.withGroup(group).build());
-			}
+			providers.add(IdPInfo.builder()
+					.withId(idp.samlId)
+					.withConfigId(idp.key.toString())
+					.withDisplayedName(idp.name)
+					.withGroup(group).build());
 		});
 		return providers;
 	}

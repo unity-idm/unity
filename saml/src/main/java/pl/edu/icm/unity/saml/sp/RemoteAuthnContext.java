@@ -108,11 +108,6 @@ public class RemoteAuthnContext extends RedirectedAuthnState implements Serializ
 	public synchronized boolean isEnableAssociation()
 	{
 		return idp.enableAccountsAssocation;
-		//TODO drop after moving logic to converter
-//		String perIdpKey = idpKey + CommonWebAuthnProperties.ENABLE_ASSOCIATION;
-//		return samlProperties.isSet(perIdpKey) ? 
-//				samlProperties.getBooleanValue(perIdpKey) :
-//				samlProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 	}
 	
 	public synchronized SAMLVerifiableElement getVerifiableResponse()

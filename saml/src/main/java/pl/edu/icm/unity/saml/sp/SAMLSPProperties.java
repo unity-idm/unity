@@ -38,7 +38,6 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
  * Configuration of a SAML requester (or SAML SP).
  * @author K. Benedyczak
  */
-//TODO make package private
 public class SAMLSPProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, SAMLSPProperties.class);

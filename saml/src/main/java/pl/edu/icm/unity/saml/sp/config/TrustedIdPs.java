@@ -27,6 +27,13 @@ public class TrustedIdPs
 		this.trustedIdPs = trustedIdPs.stream().collect(Collectors.toMap(idp -> idp.key, idp -> idp));
 		this.samlEntityIdToKey = buildEntityToKeyMap(); 
 	}
+	
+	public TrustedIdPs withWebBinding()
+	{
+		return new TrustedIdPs(trustedIdPs.values().stream()
+				.filter(idp -> idp.binding.isWeb())
+				.collect(Collectors.toList()));
+	}
 
 	private Map<String, TrustedIdPKey> buildEntityToKeyMap()
 	{
@@ -50,15 +57,6 @@ public class TrustedIdPs
 		if (idpKey == null)
 			return null;
 		return get(idpKey).publicKeys;
-	}
-	
-	/**
-	 * As trusted IdP entries can be partially created from default values and/or generated from remote metadata
-	 * it may happen that some of the entries are in the end incomplete. This method verifies this.
-	 */
-	public boolean isIdPDefinitionComplete(TrustedIdPKey key)
-	{
-		return get(key).isDefinitionComplete();
 	}
 	
 	public TrustedIdPConfiguration get(TrustedIdPKey key)

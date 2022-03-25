@@ -43,7 +43,7 @@ public class IdentityTypeMapper
 	}
 
 	@Deprecated
-	//TODO drop, left to keep original conversion from properties and for IdP
+	//TODO this method should be dropped after refactoring of SAML IDP code to be based on non Properties config.
 	public IdentityTypeMapper(SamlProperties config)
 	{
 		Set<String> keys = config.getStructuredListKeys(SamlProperties.IDENTITY_MAPPING_PFX);

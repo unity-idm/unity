@@ -27,7 +27,6 @@ public class TrustedIdPConfiguration
 	public final String groupMembershipAttribute;
 	public final boolean signRequest;
 	public final String requestedNameFormat;
-	public final boolean definitionComplete;
 	public final List<PublicKey> publicKeys;
 	public final TrustedIdPKey key;
 	public final I18nString name;
@@ -58,7 +57,6 @@ public class TrustedIdPConfiguration
 		this.groupMembershipAttribute = builder.groupMembershipAttribute;
 		this.signRequest = builder.signRequest;
 		this.requestedNameFormat = builder.requestedNameFormat;
-		this.definitionComplete = builder.definitionComplete;
 		this.publicKeys = List.copyOf(builder.publicKeys);
 		this.key = builder.key;
 		this.name = builder.name;
@@ -73,15 +71,6 @@ public class TrustedIdPConfiguration
 		this.translationProfile = builder.translationProfile;
 	}	
 
-	/**
-	 * As trusted IdP entries can be partially created from default values and/or generated from remote metadata
-	 * it may happen that some of the entries are in the end incomplete. This method verifies this.
-	 */
-	public boolean isDefinitionComplete() //TODO do we need that? also class above
-	{
-		return definitionComplete;
-	}
-	
 	public static Builder builder()
 	{
 		return new Builder();
@@ -90,7 +79,7 @@ public class TrustedIdPConfiguration
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(binding, certificateNames, definitionComplete, enableAccountsAssocation,
+		return Objects.hash(binding, certificateNames, enableAccountsAssocation,
 				federationId, federationName, groupMembershipAttribute, idpEndpointURL, key, logoURI,
 				logoutEndpoints, name, publicKeys, registrationForm, requestedNameFormat, samlId,
 				signRequest, tags, translationProfile);
@@ -107,7 +96,6 @@ public class TrustedIdPConfiguration
 			return false;
 		TrustedIdPConfiguration other = (TrustedIdPConfiguration) obj;
 		return binding == other.binding && Objects.equals(certificateNames, other.certificateNames)
-				&& definitionComplete == other.definitionComplete
 				&& enableAccountsAssocation == other.enableAccountsAssocation
 				&& Objects.equals(federationId, other.federationId)
 				&& Objects.equals(federationName, other.federationName)
@@ -131,7 +119,6 @@ public class TrustedIdPConfiguration
 		private String groupMembershipAttribute;
 		private boolean signRequest;
 		private String requestedNameFormat;
-		private boolean definitionComplete;
 		private List<PublicKey> publicKeys = Collections.emptyList();
 		private TrustedIdPKey key;
 		private I18nString name;
@@ -182,12 +169,6 @@ public class TrustedIdPConfiguration
 		public Builder withRequestedNameFormat(String requestedNameFormat)
 		{
 			this.requestedNameFormat = requestedNameFormat;
-			return this;
-		}
-
-		public Builder withDefinitionComplete(boolean definitionComplete)
-		{
-			this.definitionComplete = definitionComplete;
 			return this;
 		}
 

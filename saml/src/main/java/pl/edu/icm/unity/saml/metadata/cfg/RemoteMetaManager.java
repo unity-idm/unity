@@ -30,10 +30,9 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
  * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata. 
- * @author K. Benedyczak
+ * 
+ * TODO: this class to be dropped after refactoring of SAML IDP code to be based on non Properties config.
  */
-//TODO drop
-@Deprecated
 public class RemoteMetaManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RemoteMetaManager.class);

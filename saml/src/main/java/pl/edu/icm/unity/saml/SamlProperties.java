@@ -63,6 +63,11 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 				return SOAP;
 			throw new IllegalStateException("Unsupported binding: " + samlBinding);
 		}
+		
+		public boolean isWeb()
+		{
+			return this == HTTP_POST || this == HTTP_REDIRECT;
+		}
 	};
 	
 	public static final String PUBLISH_METADATA = "publishMetadata";

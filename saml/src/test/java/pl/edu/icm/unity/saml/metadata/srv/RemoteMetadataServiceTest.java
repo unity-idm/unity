@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

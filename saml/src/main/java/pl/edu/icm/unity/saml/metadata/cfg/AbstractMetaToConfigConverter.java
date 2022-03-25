@@ -45,11 +45,10 @@ import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
 
 /**
  * Base for converters of SAML metadata into a series of property statements.
- *  
+ * 
+ * TODO: this class to be dropped after refactoring of SAML IDP code to be based on non Properties config.
  * @author K. Benedyczak
  */
-@Deprecated
-//TODO drop
 public abstract class AbstractMetaToConfigConverter
 {
 	
