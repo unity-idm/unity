@@ -36,12 +36,13 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 		registerTab(authTab);
 		schemaTab.initUI(restBinder);
 		registerTab(schemaTab);
-		
+
 		serviceBinder.setBean(editMode ? toEdit : new DefaultServiceDefinition(SCIMEndpoint.TYPE.getName()));
 		SCIMServiceConfigurationBean config = new SCIMServiceConfigurationBean();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
-			config= ConfigurationVaadinBeanMapper.mapToBean(SCIMEndpointPropertiesConfigurationMapper.fromProperties(toEdit.getConfiguration()));
+			config = ConfigurationVaadinBeanMapper
+					.mapToBean(SCIMEndpointPropertiesConfigurationMapper.fromProperties(toEdit.getConfiguration()));
 		}
 		restBinder.setBean(config);
 	}
@@ -60,7 +61,8 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 
 		try
 		{
-			service.setConfiguration(SCIMEndpointPropertiesConfigurationMapper.toProperties(ConfigurationVaadinBeanMapper.mapToConfigurationBean(restBinder.getBean())));
+			service.setConfiguration(SCIMEndpointPropertiesConfigurationMapper
+					.toProperties(ConfigurationVaadinBeanMapper.mapToConfigurationBean(restBinder.getBean())));
 		} catch (JsonProcessingException e)
 		{
 			setErrorInTabs();

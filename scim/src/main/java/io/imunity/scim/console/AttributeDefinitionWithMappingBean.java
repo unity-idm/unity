@@ -6,6 +6,7 @@
 package io.imunity.scim.console;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,6 +74,9 @@ public class AttributeDefinitionWithMappingBean
 
 	public List<String> inferAttributeNamesWithInvalidMapping()
 	{
+		if (attributeDefinition == null || attributeDefinition.getName().isEmpty())
+			return Collections.emptyList();
+		
 		if (attributeMapping == null)
 			return List.of(attributeDefinition.getName());
 		if (attributeDefinition.isMultiValued())
