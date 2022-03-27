@@ -20,8 +20,8 @@ public class DefaultSchemaProvider
 
 	public static SchemaWithMapping getBasicUserSchema()
 	{
-		return SchemaWithMapping.builder().withId(DEFAULT_USER_SCHEMA_ID).withType(SchemaType.USER_CORE).withName("User")
-				.withDescription("User Schema").withEnable(true)
+		return SchemaWithMapping.builder().withId(DEFAULT_USER_SCHEMA_ID).withType(SchemaType.USER_CORE)
+				.withName("User").withDescription("User Schema").withEnable(true)
 				.withAttributesWithMapping(List.of(
 						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
 								.withName("userName").withMultiValued(false).withType(SCIMAttributeType.STRING)
@@ -137,9 +137,362 @@ public class DefaultSchemaProvider
 								.withName("password").withMultiValued(false).withType(SCIMAttributeType.STRING)
 								.withDescription(
 										"The User's cleartext password. This attribute is intended to be used as a means to specify an initial password when creating a new User or to reset an existing User's password.")
-								.build()).withAttributeMapping(null).build()
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("emails").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription(
+										"Email addresses for the user. The value SHOULD be canonicalized by the service provider, e.g., 'bjensen@example.com' instead of"
+												+ " 'bjensen@EXAMPLE.COM'.")
+								.withSubAttributesWithMapping(List.of(AttributeDefinitionWithMapping.builder()
+										.withAttributeDefinition(AttributeDefinition.builder().withName("value")
+												.withMultiValued(false).withType(SCIMAttributeType.STRING)
+												.withDescription(
+														"Email addresses for the user. The value SHOULD be canonicalized by the service provider, e.g., 'bjensen@example.com' instead of 'bjensen@EXAMPLE.COM'.")
+												.build())
+										.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A label indicating the attribute's function, e.g., 'work' or 'home'.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("primary").withMultiValued(false)
+														.withType(SCIMAttributeType.BOOLEAN)
+														.withDescription(
+																"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., the preferred mailing address or primary email address."
+																		+ " The primary attribute value 'true' MUST appear no more than once.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("phoneNumbers").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription(
+										"Phone numbers for the User. The value SHOULD be canonicalized by the service provider according to the format specified in RFC 3966, e.g., 'tel:+1-201-555-0123'.")
+								.withSubAttributesWithMapping(List.of(
+										AttributeDefinitionWithMapping
+												.builder()
+												.withAttributeDefinition(AttributeDefinition
+														.builder().withName("value").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING).withDescription(
+																"Phone number of the User.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A label indicating the attribute's function, e.g., 'work', 'home', 'mobile'.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("primary").withMultiValued(false)
+														.withType(SCIMAttributeType.BOOLEAN)
+														.withDescription(
+																"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, "
+																		+ "e.g., the preferred mailing address or primary email address. The primary attribute value 'true' MUST appear no more than once.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder()
+								.withAttributeDefinition(AttributeDefinition.builder().withName("ims")
+										.withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+										.withDescription("Instant messaging addresses for the User.")
+										.withSubAttributesWithMapping(List.of(
+												AttributeDefinitionWithMapping.builder()
+														.withAttributeDefinition(AttributeDefinition.builder()
+																.withName("value").withMultiValued(false)
+																.withType(SCIMAttributeType.STRING)
+																.withDescription(
+																		"Instant messaging address for the User.")
+																.build())
+														.withAttributeMapping(null).build(),
+												AttributeDefinitionWithMapping.builder()
+														.withAttributeDefinition(AttributeDefinition.builder()
+																.withName("display").withMultiValued(false)
+																.withType(SCIMAttributeType.STRING)
+																.withDescription(
+																		"A human-readable name, primarily used for display purposes.")
+																.build())
+														.withAttributeMapping(null).build(),
+												AttributeDefinitionWithMapping.builder()
+														.withAttributeDefinition(AttributeDefinition.builder()
+																.withName("type").withMultiValued(false)
+																.withType(SCIMAttributeType.STRING)
+																.withDescription(
+																		"A label indicating the attribute's function, e.g., 'aim', 'gtalk', 'xmpp'.")
+																.build())
+														.withAttributeMapping(null).build(),
+												AttributeDefinitionWithMapping.builder()
+														.withAttributeDefinition(AttributeDefinition.builder()
+																.withName("primary").withMultiValued(false)
+																.withType(SCIMAttributeType.BOOLEAN)
+																.withDescription(
+																		"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., "
+																				+ "the preferred mailing address or primary email address. The primary attribute value 'true' MUST appear no more than once.")
+																.build())
+														.withAttributeMapping(null).build()))
+										.build())
+								.withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("photos").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription("URLs of photos of the User.")
+								.withSubAttributesWithMapping(List.of(
+										AttributeDefinitionWithMapping
+												.builder()
+												.withAttributeDefinition(AttributeDefinition
+														.builder().withName("value").withMultiValued(false)
+														.withType(SCIMAttributeType.REFERENCE).withDescription(
+																"URLs of a photo of the User.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A label indicating the attribute's function, i.e., 'photo' or 'thumbnail'.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("primary").withMultiValued(false)
+														.withType(SCIMAttributeType.BOOLEAN)
+														.withDescription(
+																"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., "
+																		+ "the preferred mailing address or primary email address. The primary attribute value 'true' MUST appear no more than once.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("addresses").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription("A physical mailing address for this User.")
+								.withSubAttributesWithMapping(List.of(AttributeDefinitionWithMapping.builder()
+										.withAttributeDefinition(AttributeDefinition.builder().withName("formatted")
+												.withMultiValued(false).withType(SCIMAttributeType.STRING)
+												.withDescription(
+														"The full mailing address, formatted for display or use with a mailing label. This attribute MAY contain newlines.")
+												.build())
+										.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+										.withAttributeDefinition(AttributeDefinition.builder().withName("streetAddress")
+												.withMultiValued(false).withType(SCIMAttributeType.STRING)
+												.withDescription(
+														"The full street address component, which may include house number, street name, P.O. box, and multi-line extended street address information. This attribute MAY contain newlines.")
+												.build())
+										.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("locality").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription("The city or locality component.").build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("region").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription("The state or region component.").build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("postalCode").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription("The zip code or postal code component.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("country").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription("The country name component.").build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A label indicating the attribute's function, e.g., 'work' or 'home'.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("groups").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription(
+										"A list of groups to which the user belongs, either through direct membership, through nested groups, or dynamically calculated.")
+								.withSubAttributesWithMapping(List.of(
+										AttributeDefinitionWithMapping
+												.builder()
+												.withAttributeDefinition(AttributeDefinition
+														.builder().withName("value").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING).withDescription(
+																"The identifier of the User's group.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("$ref")
+														.withMultiValued(false).withType(SCIMAttributeType.REFERENCE)
+														.withDescription(
+																"The URI of the corresponding 'Group' resource to which the user belongs.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A label indicating the attribute's function, e.g., 'direct' or 'indirect'.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("entitlements").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription(
+										"A list of entitlements for the User that represent a thing the User has.")
+								.withSubAttributesWithMapping(List.of(
+										AttributeDefinitionWithMapping
+												.builder()
+												.withAttributeDefinition(AttributeDefinition
+														.builder().withName("value").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING).withDescription(
+																"The value of an entitlement.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A label indicating the attribute's function, e.g., 'direct' or 'indirect'.")
+														.build())
+												.withAttributeMapping(null).build(),
 
-				)).build();
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("primary").withMultiValued(false)
+														.withType(SCIMAttributeType.BOOLEAN)
+														.withDescription(
+																"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., "
+																		+ "the preferred mailing address or primary email address. The primary attribute value 'true' MUST appear no more than once.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("roles").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription(
+										"A list of roles for the User that collectively represent who the User is, e.g., 'Student', 'Faculty'.")
+								.withSubAttributesWithMapping(List.of(
+										AttributeDefinitionWithMapping
+												.builder()
+												.withAttributeDefinition(AttributeDefinition
+														.builder().withName("value").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING).withDescription(
+																"The identifier of the User's group.")
+														.build())
+												.withAttributeMapping(null).build(),
+
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription("A label indicating the attribute's function.")
+														.build())
+												.withAttributeMapping(null).build(),
+
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("primary").withMultiValued(false)
+														.withType(SCIMAttributeType.BOOLEAN)
+														.withDescription(
+																"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., "
+																		+ "the preferred mailing address or primary email address. The primary attribute value 'true' MUST appear no more than once.")
+														.build())
+												.withAttributeMapping(null).build()))
+								.build()).withAttributeMapping(null).build(),
+						AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
+								.withName("x509Certificates").withMultiValued(true).withType(SCIMAttributeType.COMPLEX)
+								.withDescription("A list of certificates issued to the User.")
+								.withSubAttributesWithMapping(List.of(
+										AttributeDefinitionWithMapping
+												.builder()
+												.withAttributeDefinition(AttributeDefinition
+														.builder().withName("value").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING).withDescription(
+																"The value of an X.509 certificate.")
+														.build())
+												.withAttributeMapping(null).build(),
+
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("display").withMultiValued(false)
+														.withType(SCIMAttributeType.STRING)
+														.withDescription(
+																"A human-readable name, primarily used for display purposes.")
+														.build())
+												.withAttributeMapping(null).build(),
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder().withName("type")
+														.withMultiValued(false).withType(SCIMAttributeType.STRING)
+														.withDescription("A label indicating the attribute's function.")
+														.build())
+												.withAttributeMapping(null).build(),
+
+										AttributeDefinitionWithMapping.builder()
+												.withAttributeDefinition(AttributeDefinition.builder()
+														.withName("primary").withMultiValued(false)
+														.withType(SCIMAttributeType.BOOLEAN)
+														.withDescription(
+																"A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., "
+																		+ "the preferred mailing address or primary email address. The primary attribute value 'true' MUST appear no more than once.")
+														.build())
+												.withAttributeMapping(null).build())
+
+								).build()).withAttributeMapping(null).build())).build();
 	}
 
 	public static SchemaWithMapping getBasicGroupSchema()
