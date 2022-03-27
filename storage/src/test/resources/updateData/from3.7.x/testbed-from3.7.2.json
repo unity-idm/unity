@@ -4466,6 +4466,26 @@
         "revision" : 1,
         "status" : "DEPLOYED"
       }
+    },{
+      "_updateTS" : 1640263459884,
+      "obj" : {
+        "name" : "UNITY OAuth2 Authorization Server3",
+        "typeId" : "OAuth2Authz",
+        "contextAddress" : "/oauth2-as3",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Authorization Server3",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#\n#Thu Dec 23 12:44:19 UTC 2021\nunity.oauth2.as.skipConsent=false\nunity.oauth2.as.codeTokenValidity=600\nunity.oauth2.as.signingCredential=MAIN\nunity.oauth2.as.scopes.2.attributes.10=gender\nunity.oauth2.as.policyAgreementsWidthUnit=em\nunity.oauth2.as.scopes.2.attributes.12=organization\nunity.oauth2.as.scopes.2.attributes.11=nickname\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.tokenFormat=PLAIN\nunity.oauth2.as.scopes.2.attributes.18=country\nunity.oauth2.as.issuerUri=https\\://localhost\\:9010/oauth2\nunity.oauth2.as.scopes.2.attributes.17=address\nunity.oauth2.as.signingSecret=\nunity.oauth2.as.scopes.2.attributes.19=postalCode\nunity.oauth2.as.scopes.2.attributes.14=locale\nunity.oauth2.as.scopes.2.attributes.13=birthdate\nunity.oauth2.as.scopes.2.attributes.16=email\nunity.oauth2.as.scopes.2.attributes.15=email_verified\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\nunity.oauth2.as.policyAgreementsWidth=40\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.scopes.2.attributes.21=locality\nunity.oauth2.as.scopes.2.attributes.20=street\nunity.oauth2.as.scopes.2.attributes.22=provinceName\nunity.oauth2.as.idTokenValidity=3600\nunity.oauth2.as.scopes.2.attributes.3=zoneinfo\nunity.oauth2.as.identityTypeForSubject=targetedPersistent\nunity.oauth2.as.scopes.2.attributes.2=phone_number\nunity.oauth2.as.scopes.2.attributes.5=middle_name\nunity.oauth2.as.skipUserImport=false\nunity.oauth2.as.usersGroup=/\nunity.oauth2.as.scopes.2.attributes.4=picture\nunity.oauth2.as.allowUnauthenticatedRevocation=true\nunity.oauth2.as.accessTokenValidity=3600\nunity.oauth2.as.scopes.2.attributes.1=name\nunity.oauth2.as.allowForWildcardsInAllowedURI=false\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.embeddedTranslationProfile={\"ver\"\\:\"2\",\"name\"\\:\"Embedded\",\"description\"\\:\"\",\"type\"\\:\"OUTPUT\",\"mode\"\\:\"DEFAULT\",\"rules\"\\:[{\"condition\"\\:{\"conditionValue\"\\:\"true\"},\"action\"\\:{\"name\"\\:\"includeOutputProfile\",\"parameters\"\\:[\"sys\\:oidc\"]}}]}\nunity.oauth2.as.scopes.2.attributes.7=family_name\nunity.oauth2.as.scopes.2.attributes.6=given_name\nunity.oauth2.as.scopes.2.attributes.9=website\nunity.oauth2.as.scopes.2.attributes.8=profile\nunity.oauth2.as.signingAlgorithm=RS256\n\n#\n#Thu Dec 23 12:44:19 UTC 2021\nunity.endpoint.web.authnScreenLogo=file\\:../common/img/other/logo.png\nunity.endpoint.web.compactCredentialReset=true\nunity.endpoint.web.authnScreenShowSearch=false\nunity.endpoint.web.authnScreenColumn.1.columnWidth=15\nunity.endpoint.web.authnScreenColumn.1.columnContents=\nunity.endpoint.web.enableRegistration=false\nunity.endpoint.web.authnScreenTitle=\\ \nunity.endpoint.web.externalRegistrationURL=\nunity.endpoint.web.productionMode=true\nunity.endpoint.web.showRegistrationFormsInHeader=true\nunity.endpoint.web.authnScreenShowCancel=true\nunity.endpoint.web.template=default.ftl\nunity.endpoint.web.authnScreenShowAllOptions=true\nunity.endpoint.web.authnLastOptionOnlyLayout=_LAST_USED _SEPARATOR _EXPAND\nunity.endpoint.web.autoLogin=false\nunity.endpoint.web.authnShowLastOptionOnly=true\n",
+          "realm" : "defaultRealm",
+          "tag" : "2-41e6-4b22-bceb-54f0c0bef89c",
+          "authenticationOptions" : [ "pwd", "oauth" ]
+        },
+        "revision" : 1,
+        "status" : "DEPLOYED"
+      }
     },
     {
       "_updateTS" : 1640223269772,

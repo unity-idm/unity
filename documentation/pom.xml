@@ -102,10 +102,14 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-web-upman</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-scim</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>securityLibrary</artifactId>
@@ -236,6 +240,7 @@
 								<argument>pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties|ref-SMSRetrievalProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties|ref-TLSRetrievalProperties.txt|</argument>
 								<argument>io.imunity.otp.ldap.OTPWithLDAPProperties|ref-OTPLDAPProperties.txt|</argument>
+								<argument>io.imunity.upman.UpmanEndpointProperties|ref-UpmanProperties.txt|</argument>
 								<argument>io.imunity.scim.config.SCIMEndpointProperties|ref-scimEndpointProperties.txt|</argument>
 							</arguments>
 						</configuration>

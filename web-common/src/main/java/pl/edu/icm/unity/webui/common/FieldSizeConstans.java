@@ -20,6 +20,9 @@ public interface FieldSizeConstans
 	static final int MEDIUM_FIELD_WIDTH = 30;
 	static final Unit MEDIUM_FIELD_WIDTH_UNIT = Unit.EM;
 	
+	static final int SHORT_FIELD_WIDTH = 18;
+	static final Unit SHORT_FIELD_WIDTH_UNIT = Unit.EM;
+
 	default void setDescriptionWith(AbstractField<?> field)
 	{
 		field.setWidth(WIDE_FIELD_WIDTH, WIDE_FIELD_WIDTH_UNIT);

@@ -54,8 +54,6 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			sb.add(msg.getMessage("StringAttributeHandler.maxLenUndef"));
 		if (syntax.getRegexp() != null && !syntax.getRegexp().equals(""))
 			sb.add(msg.getMessage("StringAttributeHandler.regexp", syntax.getRegexp()));
-		sb.add(msg.getMessage("StringAttributeHandler.editWithTextArea", syntax.isEditWithTextArea()));
-
 		return sb;
 	}
 	
