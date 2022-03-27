@@ -8,16 +8,16 @@ package io.imunity.scim.user.mapping.evaluation;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
-import io.imunity.scim.config.NotDefinedMapping;
+import io.imunity.scim.config.UndefinedMapping;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 @Component
-public class NotDefMappingEvaluator implements MappingEvaluator
+public class UndefMappingEvaluator implements MappingEvaluator
 {
 	@Override
 	public String getId()
 	{
-		return NotDefinedMapping.id;
+		return UndefinedMapping.id;
 	}
 
 	@Override

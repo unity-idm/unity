@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import io.imunity.scim.console.AttributeMappingBean;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "mappingType", defaultImpl = NotDefinedMapping.class, visible=true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "mappingType", defaultImpl = UndefinedMapping.class, visible=true)
 @JsonSubTypes(
 { @Type(value = ComplexAttributeMapping.class, name = "Complex"),
 		@Type(value = SimpleAttributeMapping.class, name = "Simple"),

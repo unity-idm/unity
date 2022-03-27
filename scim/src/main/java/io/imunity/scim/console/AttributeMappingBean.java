@@ -11,7 +11,7 @@ import io.imunity.scim.config.AttributeMapping;
 import io.imunity.scim.config.ComplexAttributeMapping;
 import io.imunity.scim.config.DataArray;
 import io.imunity.scim.config.DataValue;
-import io.imunity.scim.config.NotDefinedMapping;
+import io.imunity.scim.config.UndefinedMapping;
 import io.imunity.scim.config.ReferenceAttributeMapping;
 import io.imunity.scim.config.SimpleAttributeMapping;
 import io.imunity.scim.schema.SCIMAttributeType;
@@ -76,7 +76,7 @@ public class AttributeMappingBean
 		} else if (attributeDefinition.getType().equals(SCIMAttributeType.REFERENCE))
 		{
 			if (dataReference == null)
-				return new NotDefinedMapping();
+				return new UndefinedMapping();
 
 			return ReferenceAttributeMapping.builder()
 					.withDataArray(!attributeDefinition.isMultiValued() ? Optional.empty() : mapDataArray(dataArray))
@@ -86,7 +86,7 @@ public class AttributeMappingBean
 
 		if (dataValue == null)
 		{
-			return new NotDefinedMapping();
+			return new UndefinedMapping();
 		}
 
 		return SimpleAttributeMapping.builder()

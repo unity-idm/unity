@@ -18,41 +18,6 @@ import io.imunity.scim.console.DataValueBean;
 @JsonDeserialize(builder = SimpleAttributeMapping.Builder.class)
 public class SimpleAttributeMapping implements AttributeMapping
 {
-	public static final String id = "Simple";
-
-	public final Optional<DataArray> dataArray;
-	public final DataValue dataValue;
-
-	private SimpleAttributeMapping(Builder builder)
-	{
-		this.dataArray = builder.dataArray;
-		this.dataValue = builder.dataValue;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(dataArray, dataValue);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SimpleAttributeMapping other = (SimpleAttributeMapping) obj;
-		return Objects.equals(dataArray, other.dataArray) && Objects.equals(dataValue, other.dataValue);
-	}
-
-	public static Builder builder()
-	{
-		return new Builder();
-	}
-
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder
 	{
@@ -62,6 +27,11 @@ public class SimpleAttributeMapping implements AttributeMapping
 		private Builder()
 		{
 			dataValue = DataValue.builder().build();
+		}
+
+		public SimpleAttributeMapping build()
+		{
+			return new SimpleAttributeMapping(this);
 		}
 
 		public Builder withDataArray(Optional<DataArray> dataArray)
@@ -75,23 +45,29 @@ public class SimpleAttributeMapping implements AttributeMapping
 			this.dataValue = dataValue;
 			return this;
 		}
+	}
 
-		public SimpleAttributeMapping build()
-		{
-			return new SimpleAttributeMapping(this);
-		}
+	public static final String id = "Simple";
+
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+
+	public final Optional<DataArray> dataArray;
+
+	public final DataValue dataValue;
+
+	private SimpleAttributeMapping(Builder builder)
+	{
+		this.dataArray = builder.dataArray;
+		this.dataValue = builder.dataValue;
 	}
 
 	@Override
 	public Optional<DataArray> getDataArray()
 	{
 		return dataArray;
-	}
-
-	@Override
-	public String getEvaluatorId()
-	{
-		return id;
 	}
 
 	@Override
@@ -104,4 +80,28 @@ public class SimpleAttributeMapping implements AttributeMapping
 		return bean;
 	}
 
+	@Override
+	public String getEvaluatorId()
+	{
+		return id;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(dataArray, dataValue);
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SimpleAttributeMapping other = (SimpleAttributeMapping) obj;
+		return Objects.equals(dataArray, other.dataArray) && Objects.equals(dataValue, other.dataValue);
+	}
 }

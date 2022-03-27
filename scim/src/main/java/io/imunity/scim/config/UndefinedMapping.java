@@ -12,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.imunity.scim.console.AttributeMappingBean;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NotDefinedMapping implements AttributeMapping
+public class UndefinedMapping implements AttributeMapping
 {
-	public static final String id = "NotDefined";
+	public static final String id = "Undefined";
 
 	@Override
 	public Optional<DataArray> getDataArray()

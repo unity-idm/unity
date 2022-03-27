@@ -27,6 +27,27 @@ public class ComplexAttributeMapping implements AttributeMapping
 	}
 
 	@Override
+	public Optional<DataArray> getDataArray()
+	{
+		return dataArray;
+	}
+
+	@Override
+	public String getEvaluatorId()
+	{
+		return id;
+	}
+
+	@Override
+	public AttributeMappingBean toBean()
+	{
+		AttributeMappingBean bean = new AttributeMappingBean();
+		bean.setDataArray(dataArray.isEmpty() ? new DataArrayBean()
+				: new DataArrayBean(dataArray.get().type, dataArray.get().value));
+		return bean;
+	}
+
+	@Override
 	public int hashCode()
 	{
 		return Objects.hash(dataArray);
@@ -69,26 +90,5 @@ public class ComplexAttributeMapping implements AttributeMapping
 		{
 			return new ComplexAttributeMapping(this);
 		}
-	}
-
-	@Override
-	public Optional<DataArray> getDataArray()
-	{
-		return dataArray;
-	}
-
-	@Override
-	public String getEvaluatorId()
-	{
-		return id;
-	}
-
-	@Override
-	public AttributeMappingBean toBean()
-	{
-		AttributeMappingBean bean = new AttributeMappingBean();
-		bean.setDataArray(dataArray.isEmpty() ? new DataArrayBean()
-				: new DataArrayBean(dataArray.get().type, dataArray.get().value));
-		return bean;
 	}
 }

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import io.imunity.scim.config.AttributeDefinition;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.AttributeMapping;
-import io.imunity.scim.config.NotDefinedMapping;
+import io.imunity.scim.config.UndefinedMapping;
 import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SchemaWithMapping;
 import pl.edu.icm.unity.types.basic.Group;
@@ -107,7 +107,7 @@ class ConfigurationVaadinBeanMapper
 	private static AttributeMapping mapToConfigurationMapping(AttributeMappingBean bean, AttributeDefinitionBean attributeDefinition)
 	{
 		if (bean == null)
-			return new NotDefinedMapping();
+			return new UndefinedMapping();
 		return bean.toConfiguration(attributeDefinition);
 	}
 

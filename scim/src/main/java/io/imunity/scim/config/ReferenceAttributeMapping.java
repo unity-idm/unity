@@ -37,6 +37,28 @@ public class ReferenceAttributeMapping implements AttributeMapping
 	}
 
 	@Override
+	public Optional<DataArray> getDataArray()
+	{
+		return dataArray;
+	}
+
+	@Override
+	public String getEvaluatorId()
+	{
+		return id;
+	}
+
+	@Override
+	public AttributeMappingBean toBean()
+	{
+		AttributeMappingBean bean = new AttributeMappingBean();
+		bean.setDataArray(dataArray.isEmpty() ? new DataArrayBean()
+				: new DataArrayBean(dataArray.get().type, dataArray.get().value));
+		bean.setDataReference(new ReferenceDataBean(type, expression));
+		return bean;
+	}
+
+	@Override
 	public int hashCode()
 	{
 		return Objects.hash(dataArray, expression, type);
@@ -95,27 +117,4 @@ public class ReferenceAttributeMapping implements AttributeMapping
 			return new ReferenceAttributeMapping(this);
 		}
 	}
-
-	@Override
-	public Optional<DataArray> getDataArray()
-	{
-		return dataArray;
-	}
-
-	@Override
-	public String getEvaluatorId()
-	{
-		return id;
-	}
-
-	@Override
-	public AttributeMappingBean toBean()
-	{
-		AttributeMappingBean bean = new AttributeMappingBean();
-		bean.setDataArray(dataArray.isEmpty() ? new DataArrayBean()
-				: new DataArrayBean(dataArray.get().type, dataArray.get().value));
-		bean.setDataReference(new ReferenceDataBean(type, expression));
-		return bean;
-	}
-
 }
