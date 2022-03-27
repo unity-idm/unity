@@ -34,5 +34,4 @@ public enum SCIMMvelContextKey
 	{
 		return Stream.of(values()).collect(Collectors.toMap(v -> v.name(), v -> v.descriptionKey));
 	}
-
 }

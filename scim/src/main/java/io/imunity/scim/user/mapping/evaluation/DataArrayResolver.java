@@ -31,7 +31,6 @@ class DataArrayResolver
 
 	List<?> resolve(DataArray dataArray, EvaluatorContext context) throws IllegalAttributeValueException
 	{
-		
 		if (dataArray == null || dataArray.type == null)
 		{
 			return Collections.emptyList();
