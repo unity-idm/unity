@@ -243,8 +243,7 @@ public class IdpEditorUsersTab extends CustomComponent implements EditorTab
 		@Override
 		public void setValue(ActiveValueConfig value)
 		{
-
-			binder.setBean(value);
+			binder.setBean(value.clone());
 		}
 	}
 }
