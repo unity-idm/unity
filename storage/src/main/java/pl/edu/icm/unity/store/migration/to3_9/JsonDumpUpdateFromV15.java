@@ -54,7 +54,7 @@ public class JsonDumpUpdateFromV15 implements JsonDumpUpdate
 		for (ObjectNode registrationForm: getGenericContent(contents, RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE))
 		{
 			ObjectNode originalForm = registrationForm.deepCopy();
-			Optional<ObjectNode> updated = UpdateHelperTo3_6.migrateExternalSignupSpec(registrationForm);
+			Optional<ObjectNode> updated = UpdateHelperTo3_9.migrateExternalSignupSpec(registrationForm);
 			if (updated.isPresent())
 				LOG.info("Updating registration form: previous value: {}, new value: {}", 
 						originalForm.toString(), registrationForm.toString());

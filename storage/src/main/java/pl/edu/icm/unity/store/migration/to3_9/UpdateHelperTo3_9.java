@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 
-class UpdateHelperTo3_6
+class UpdateHelperTo3_9
 {
 	static Optional<ObjectNode> migrateExternalSignupSpec(ObjectNode objContent)
 	{

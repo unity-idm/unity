@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.JsonUtil;
 
-public class UpdateHelperTo3_6Test
+public class UpdateHelperTo3_9Test
 {
 	@Test
 	public void shouldSkipMigrationOfRegFormWithEmptySpec()
@@ -29,7 +29,7 @@ public class UpdateHelperTo3_6Test
 				+ "}";
 		
 		// when
-		Optional<ObjectNode> result = UpdateHelperTo3_6.migrateExternalSignupSpec(JsonUtil.parse(regForm));
+		Optional<ObjectNode> result = UpdateHelperTo3_9.migrateExternalSignupSpec(JsonUtil.parse(regForm));
 		
 		// then
 		Assertions.assertThat(result).isEmpty();
@@ -52,7 +52,7 @@ public class UpdateHelperTo3_6Test
 				+ "}";
 		
 		// when
-		Optional<ObjectNode> result = UpdateHelperTo3_6.migrateExternalSignupSpec(JsonUtil.parse(regForm));
+		Optional<ObjectNode> result = UpdateHelperTo3_9.migrateExternalSignupSpec(JsonUtil.parse(regForm));
 		
 		// then
 		Assertions.assertThat(result).isEmpty();
@@ -69,7 +69,7 @@ public class UpdateHelperTo3_6Test
 				+ "}";
 		
 		// when
-		Optional<ObjectNode> result = UpdateHelperTo3_6.migrateExternalSignupSpec(JsonUtil.parse(regForm));
+		Optional<ObjectNode> result = UpdateHelperTo3_9.migrateExternalSignupSpec(JsonUtil.parse(regForm));
 		
 		// then
 		Assertions.assertThat(result).isNotEmpty();
@@ -92,7 +92,7 @@ public class UpdateHelperTo3_6Test
 		
 		// when
 		ObjectNode inputSpec = JsonUtil.parse(regForm);
-		Optional<ObjectNode> resultSpec = UpdateHelperTo3_6.migrateExternalSignupSpec(inputSpec);
+		Optional<ObjectNode> resultSpec = UpdateHelperTo3_9.migrateExternalSignupSpec(inputSpec);
 		
 		// then
 		Assertions.assertThat(resultSpec).isNotEmpty();

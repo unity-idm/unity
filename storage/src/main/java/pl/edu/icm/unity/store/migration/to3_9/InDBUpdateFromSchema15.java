@@ -57,7 +57,7 @@ public class InDBUpdateFromSchema15 implements InDBContentsUpdater
 		for (GenericObjectBean form : forms)
 		{
 			ObjectNode objContent = JsonUtil.parse(form.getContents());
-			UpdateHelperTo3_6.migrateExternalSignupSpec(objContent).ifPresent(updatedContent ->
+			UpdateHelperTo3_9.migrateExternalSignupSpec(objContent).ifPresent(updatedContent ->
 			{
 				form.setContents(JsonUtil.serialize2Bytes(updatedContent));
 				LOG.info("Updating registration form: {}, previous value: {}, new value: {}", 
