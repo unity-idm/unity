@@ -50,7 +50,7 @@ public class TestJsonDumpUpdateFromV15
 	}
 
 	@Test
-	public void testImportFrom3_7_2()
+	public void testImportFrom3_8_1()
 	{
 		tx.runInTransaction(() ->
 		{
