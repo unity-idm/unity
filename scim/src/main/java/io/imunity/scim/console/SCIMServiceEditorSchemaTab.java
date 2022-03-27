@@ -34,6 +34,7 @@ import io.imunity.scim.schema.SchemaResourceDeserialaizer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.webui.common.FileUploder;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;
@@ -173,7 +174,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 				{
 					schema = ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(
 							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
-				} catch (EngineException e)
+				} catch (EngineException|RuntimeEngineException  e)
 				{
 					NotificationPopup.showError(msg, "", e);
 					return;

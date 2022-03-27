@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 class MVELEvaluator
 {
-	public final int COMPILED_MVEL_CACHE_TTL_IN_SECONDS = 60;
+	public final int COMPILED_MVEL_CACHE_TTL_IN_HOURS = 1;
 
 	private final AttributeValueConverter attrValueConverter;
 	private final Cache<String, Serializable> compiledMvelCache;
@@ -36,7 +36,7 @@ class MVELEvaluator
 	{
 		this.attrValueConverter = attrValueConverter;
 		this.compiledMvelCache = CacheBuilder.newBuilder()
-				.expireAfterWrite(COMPILED_MVEL_CACHE_TTL_IN_SECONDS, TimeUnit.SECONDS).build();
+				.expireAfterAccess(COMPILED_MVEL_CACHE_TTL_IN_HOURS, TimeUnit.HOURS).build();
 	}
 
 	Object evalMVEL(String mvel, EvaluatorContext context) throws IllegalAttributeValueException
@@ -44,11 +44,11 @@ class MVELEvaluator
 		if (mvel == null)
 			return null;
 		
-		Serializable expressionCompiled = compileMvel(mvel);
+		Serializable expressionCompiled = getCompiledMvel(mvel);
 		return MVEL.executeExpression(expressionCompiled, createContext(context), new HashMap<>());
 	}
 
-	private Serializable compileMvel(String mvel)
+	private Serializable getCompiledMvel(String mvel)
 	{
 		Serializable cached = compiledMvelCache.getIfPresent(mvel);
 		if (cached != null)

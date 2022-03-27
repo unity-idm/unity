@@ -27,21 +27,21 @@ public class SchemaResourceDeserialaizer
 	{
 		SCIMSchemaResource schema = SCIMConstants.MAPPER.readValue(file, SCIMSchemaResource.class);
 		return SchemaWithMapping.builder().withId(schema.id).withType(SchemaType.USER)
-				.withDescription(schema.description).withName(schema.name).withAttributesWithMapping(
-						mapAttributes(schema.attributes))
-				.build();
+				.withDescription(schema.description).withName(schema.name)
+				.withAttributesWithMapping(mapAttributes(schema.attributes)).build();
 	}
 
-	private static AttributeDefinitionWithMapping mapAttribute(SCIMAttributeDefinitionResource attrDefResource) throws UnsupportedAttributeTypeException
+	private static AttributeDefinitionWithMapping mapAttribute(SCIMAttributeDefinitionResource attrDefResource)
 	{
-		return AttributeDefinitionWithMapping.builder().withAttributeDefinition(AttributeDefinition.builder()
-				.withDescription(attrDefResource.description).withName(attrDefResource.name)
-				.withType(SCIMAttributeType.fromName(attrDefResource.type)).withMultiValued(attrDefResource.multiValued)
-				.withSubAttributesWithMapping(mapAttributes(attrDefResource.subAttributes))
-				.build()).withAttributeMapping(null).build();
+		return AttributeDefinitionWithMapping.builder()
+				.withAttributeDefinition(AttributeDefinition.builder().withDescription(attrDefResource.description)
+						.withName(attrDefResource.name).withType(SCIMAttributeType.fromName(attrDefResource.type))
+						.withMultiValued(attrDefResource.multiValued)
+						.withSubAttributesWithMapping(mapAttributes(attrDefResource.subAttributes)).build())
+				.withAttributeMapping(null).build();
 	}
-	
-	private static List<AttributeDefinitionWithMapping> mapAttributes(List<SCIMAttributeDefinitionResource>  attrs) throws UnsupportedAttributeTypeException
+
+	private static List<AttributeDefinitionWithMapping> mapAttributes(List<SCIMAttributeDefinitionResource> attrs)
 	{
 		List<AttributeDefinitionWithMapping> subAttrMapping = new ArrayList<>();
 		for (SCIMAttributeDefinitionResource sa : attrs)

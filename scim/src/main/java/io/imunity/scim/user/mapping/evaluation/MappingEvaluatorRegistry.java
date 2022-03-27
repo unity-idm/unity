@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
-@Component("MappingEvaluatorRegistry")
 @Primary
+@Component
 public class MappingEvaluatorRegistry extends TypesRegistryBase<MappingEvaluator>
 {
 	@Autowired

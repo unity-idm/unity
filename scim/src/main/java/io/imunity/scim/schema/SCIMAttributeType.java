@@ -26,7 +26,7 @@ public enum SCIMAttributeType
 		return name;
 	}
 
-	public static SCIMAttributeType fromName(String type) throws UnsupportedAttributeTypeException
+	public static SCIMAttributeType fromName(String type) 
 	{
 		Optional<SCIMAttributeType> atype = Stream.of(SCIMAttributeType.values()).filter(t -> t.name.equals(type))
 				.findAny();

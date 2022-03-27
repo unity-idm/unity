@@ -5,11 +5,10 @@
 
 package io.imunity.scim.schema;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 
-public class UnsupportedAttributeTypeException extends EngineException
+public class UnsupportedAttributeTypeException extends RuntimeEngineException
 {
-
 	public UnsupportedAttributeTypeException(String msg)
 	{
 		super(msg);
